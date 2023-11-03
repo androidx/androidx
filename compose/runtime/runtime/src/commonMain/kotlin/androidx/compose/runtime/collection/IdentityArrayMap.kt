@@ -19,9 +19,12 @@ package androidx.compose.runtime.collection
 import androidx.compose.runtime.identityHashCode
 
 internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
-    internal var keys = arrayOfNulls<Any?>(capacity)
-    internal var values = arrayOfNulls<Any?>(capacity)
-    internal var size = 0
+    var keys = arrayOfNulls<Any?>(capacity)
+        private set
+    var values = arrayOfNulls<Any?>(capacity)
+        private set
+    var size = 0
+        private set
 
     fun isEmpty() = size == 0
     fun isNotEmpty() = size > 0
@@ -35,6 +38,10 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
     }
 
     operator fun set(key: Key, value: Value) {
+        val keys = keys
+        val values = values
+        val size = size
+
         val index = find(key)
         if (index >= 0) {
             values[index] = value
@@ -57,7 +64,7 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
                 )
             }
             destKeys[insertIndex] = key
-            keys = destKeys
+            this.keys = destKeys
             val destValues = if (resize) {
                 arrayOfNulls(size * 2)
             } else values
@@ -74,14 +81,15 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
                 )
             }
             destValues[insertIndex] = value
-            values = destValues
-            size++
+            this.values = destValues
+            this.size++
         }
     }
 
-    fun remove(key: Key): Boolean {
+    fun remove(key: Key): Value? {
         val index = find(key)
         if (index >= 0) {
+            val value = values[index]
             val size = size
             val keys = keys
             val values = values
@@ -101,9 +109,10 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
             keys[newSize] = null
             values[newSize] = null
             this.size = newSize
-            return true
+            @Suppress("UNCHECKED_CAST")
+            return value as Value
         }
-        return false
+        return null
     }
 
     fun clear() {
@@ -156,6 +165,7 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
         var low = 0
         var high = size - 1
 
+        val keys = keys
         while (low <= high) {
             val mid = (low + high).ushr(1)
             val midKey = keys[mid]
@@ -178,6 +188,9 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
      * be returned, which is always after the last key with the same [identityHashCode].
      */
     private fun findExactIndex(midIndex: Int, key: Any?, keyHash: Int): Int {
+        val keys = keys
+        val size = size
+
         // hunt down first
         for (i in midIndex - 1 downTo 0) {
             val k = keys[i]
@@ -202,5 +215,83 @@ internal class IdentityArrayMap<Key : Any, Value : Any?>(capacity: Int = 16) {
 
         // We should insert at the end
         return -(size + 1)
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun asMap(): Map<Key, Value> = object : Map<Key, Value> {
+        override val entries: Set<Map.Entry<Key, Value>>
+            get() = object : Set<Map.Entry<Key, Value>> {
+                override val size: Int get() = this@IdentityArrayMap.size
+                override fun isEmpty(): Boolean = this@IdentityArrayMap.isEmpty()
+                override fun iterator(): Iterator<Map.Entry<Key, Value>> =
+                    sequence<Map.Entry<Key, Value>> {
+                        for (index in 0 until this@IdentityArrayMap.size) {
+                            yield(
+                                object : Map.Entry<Key, Value> {
+                                    override val key: Key =
+                                        this@IdentityArrayMap.keys[index] as Key
+                                    override val value: Value =
+                                        this@IdentityArrayMap.values[index] as Value
+                                }
+                            )
+                        }
+                    }.iterator()
+                override fun containsAll(elements: Collection<Map.Entry<Key, Value>>): Boolean =
+                    elements.all { contains(it) }
+
+                override fun contains(element: Map.Entry<Key, Value>): Boolean =
+                    this@IdentityArrayMap[element.key] === element.value
+            }
+
+        override val keys: Set<Key> get() = object : Set<Key> {
+            override val size: Int get() = this@IdentityArrayMap.size
+            override fun isEmpty(): Boolean = this@IdentityArrayMap.isEmpty()
+            override fun iterator(): Iterator<Key> = sequence {
+                for (index in 0 until this@IdentityArrayMap.size) {
+                    yield(this@IdentityArrayMap.keys[index] as Key)
+                }
+            }.iterator()
+
+            override fun containsAll(elements: Collection<Key>): Boolean {
+                for (key in elements) {
+                    if (!contains(key)) return false
+                }
+                return true
+            }
+
+            override fun contains(element: Key): Boolean = this@IdentityArrayMap.contains(element)
+        }
+
+        override val size: Int get() = this@IdentityArrayMap.size
+        override val values: Collection<Value> get() = object : Collection<Value> {
+            override val size: Int get() = this@IdentityArrayMap.size
+            override fun isEmpty(): Boolean = this@IdentityArrayMap.isEmpty()
+            override fun iterator(): Iterator<Value> = sequence {
+                for (index in 0 until this@IdentityArrayMap.size) {
+                    yield(this@IdentityArrayMap.values[index] as Value)
+                }
+            }.iterator()
+
+            override fun containsAll(elements: Collection<Value>): Boolean {
+                for (value in elements) {
+                    if (!contains(value)) return false
+                }
+                return true
+            }
+
+            override fun contains(element: Value): Boolean {
+                for (index in 0 until this@IdentityArrayMap.size) {
+                    if (this@IdentityArrayMap.values[index] == element) return true
+                }
+                return false
+            }
+        }
+
+        override fun isEmpty(): Boolean = this@IdentityArrayMap.isEmpty()
+        override fun get(key: Key): Value? = this@IdentityArrayMap[key]
+        override fun containsValue(value: Value): Boolean =
+            this@IdentityArrayMap.values.contains(value)
+        override fun containsKey(key: Key): Boolean =
+            this@IdentityArrayMap[key] != null
     }
 }

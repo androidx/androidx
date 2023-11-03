@@ -124,6 +124,7 @@ fun Surface(
                     shadowElevation = shadowElevation
                 )
                 .semantics(mergeDescendants = false) {
+                    @Suppress("DEPRECATION")
                     isContainer = true
                 }
                 .pointerInput(Unit) {},
@@ -197,7 +198,6 @@ fun Surface(
  * you want to observe [Interaction]s and customize the appearance / behavior of this Surface in
  * different [Interaction]s.
  */
-@ExperimentalMaterial3Api
 @Composable
 @NonRestartableComposable
 fun Surface(
@@ -306,7 +306,6 @@ fun Surface(
  * you want to observe [Interaction]s and customize the appearance / behavior of this Surface in
  * different [Interaction]s.
  */
-@ExperimentalMaterial3Api
 @Composable
 @NonRestartableComposable
 fun Surface(
@@ -417,7 +416,6 @@ fun Surface(
  * you want to observe [Interaction]s and customize the appearance / behavior of this Surface in
  * different [Interaction]s.
  */
-@ExperimentalMaterial3Api
 @Composable
 @NonRestartableComposable
 fun Surface(
@@ -470,19 +468,15 @@ private fun Modifier.surface(
     backgroundColor: Color,
     border: BorderStroke?,
     shadowElevation: Dp
-) = this.shadow(shadowElevation, shape, clip = false)
+) = this
+    .shadow(shadowElevation, shape, clip = false)
     .then(if (border != null) Modifier.border(border, shape) else Modifier)
     .background(color = backgroundColor, shape = shape)
     .clip(shape)
 
 @Composable
-private fun surfaceColorAtElevation(color: Color, elevation: Dp): Color {
-    return if (color == MaterialTheme.colorScheme.surface) {
-        MaterialTheme.colorScheme.surfaceColorAtElevation(elevation)
-    } else {
-        color
-    }
-}
+private fun surfaceColorAtElevation(color: Color, elevation: Dp): Color =
+    MaterialTheme.colorScheme.applyTonalElevation(color, elevation)
 
 /**
  * CompositionLocal containing the current absolute elevation provided by [Surface] components. This

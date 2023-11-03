@@ -22,8 +22,6 @@ import android.os.Bundle
 import androidx.annotation.MainThread
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.VIEW_MODEL_KEY
 import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryOwner
 
@@ -106,8 +104,11 @@ public fun CreationExtras.createSavedStateHandle(): SavedStateHandle {
 }
 
 internal val ViewModelStoreOwner.savedStateHandlesVM: SavedStateHandlesVM
-    get() = ViewModelProvider(this, viewModelFactory {
-        initializer { SavedStateHandlesVM() }
+    get() = ViewModelProvider(this, object : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
+            @Suppress("UNCHECKED_CAST")
+            return SavedStateHandlesVM() as T
+        }
     })[VIEWMODEL_KEY, SavedStateHandlesVM::class.java]
 
 internal val SavedStateRegistryOwner.savedStateHandlesProvider: SavedStateHandlesProvider

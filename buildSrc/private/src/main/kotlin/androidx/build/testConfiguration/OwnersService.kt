@@ -18,6 +18,7 @@ package androidx.build.testConfiguration
 
 import androidx.build.getDistributionDirectory
 import com.google.gson.GsonBuilder
+import java.io.File
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
@@ -27,20 +28,27 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.bundling.Zip
-import java.io.File
 
 @CacheableTask
 abstract class ModuleInfoGenerator : DefaultTask() {
-    @get:OutputFile
-    abstract val outputFile: RegularFileProperty
+    @get:OutputFile abstract val outputFile: RegularFileProperty
 
-    @get:Internal
-    val testModules: MutableList<TestModule> = mutableListOf()
+    @get:Internal val testModules: MutableList<TestModule> = mutableListOf()
 
     @Input
     fun getSerialized(): String {
         val gson = GsonBuilder().setPrettyPrinting().create()
-        return gson.toJson(testModules.associateBy { it.name })
+        // media service/client tests are created from multiple projects, so we get multiple
+        // entries with the same TestModule.name. This code merges all the TestModule.path entries
+        // across the test modules with the same name.
+        val data =
+            testModules
+                .groupBy { it.name }
+                .map {
+                    TestModule(name = it.key, path = it.value.flatMap { module -> module.path })
+                }
+                .associateBy { it.name }
+        return gson.toJson(data)
     }
 
     @TaskAction
@@ -52,9 +60,9 @@ abstract class ModuleInfoGenerator : DefaultTask() {
 }
 
 /**
- * Register two tasks need to generate information for Android test owners service.
- * One task zips all the OWNERS files in frameworks/support, and second task creates a
- * module-info.json that links test modules to paths.
+ * Register two tasks needed to generate information for Android test owners service. One task zips
+ * all the OWNERS files in frameworks/support, and second task creates a module-info.json that links
+ * test modules to paths.
  */
 internal fun Project.registerOwnersServiceTasks() {
     tasks.register("zipOwnersFiles", Zip::class.java) { task ->
@@ -62,6 +70,9 @@ internal fun Project.registerOwnersServiceTasks() {
         task.destinationDirectory.set(getDistributionDirectory())
         task.from(layout.projectDirectory)
         task.include("**/OWNERS")
+        task.exclude("buildSrc/.gradle/**")
+        task.exclude(".gradle/**")
+        task.exclude("build/reports/**")
         task.includeEmptyDirs = false
     }
 
@@ -70,7 +81,4 @@ internal fun Project.registerOwnersServiceTasks() {
     }
 }
 
-data class TestModule(
-    val name: String,
-    val path: List<String>
-)
+data class TestModule(val name: String, val path: List<String>)

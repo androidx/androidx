@@ -27,6 +27,7 @@ import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -36,6 +37,10 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalView
 import androidx.core.app.ActivityCompat
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.integration.demos.common.ActivityDemo
+import androidx.wear.compose.integration.demos.common.Demo
+import androidx.wear.compose.integration.demos.common.DemoCategory
 import androidx.wear.compose.material.MaterialTheme
 
 /**
@@ -57,10 +62,13 @@ class DemoActivity : ComponentActivity() {
             val activityStarter = fun(demo: ActivityDemo<*>) {
                 startActivity(Intent(this, demo.activityClass.java))
             }
+            val scrollStates = remember { mutableListOf(ScalingLazyListState()) }
             val navigator = rememberSaveable(
-                saver = Navigator.Saver(WearComposeDemos, onBackPressedDispatcher, activityStarter)
+                saver = Navigator.Saver(
+                    WearComposeDemos, onBackPressedDispatcher, scrollStates, activityStarter
+                )
             ) {
-                Navigator(WearComposeDemos, onBackPressedDispatcher, activityStarter)
+                Navigator(WearComposeDemos, onBackPressedDispatcher, scrollStates, activityStarter)
             }
             MaterialTheme {
                 DemoApp(
@@ -73,7 +81,8 @@ class DemoActivity : ComponentActivity() {
                         if (!navigator.navigateBack()) {
                             ActivityCompat.finishAffinity(this)
                         }
-                    }
+                    },
+                    scrollStates,
                 )
             }
         }
@@ -85,13 +94,17 @@ private class Navigator private constructor(
     private val launchActivityDemo: (ActivityDemo<*>) -> Unit,
     private val rootDemo: Demo,
     initialDemo: Demo,
-    private val backStack: MutableList<Demo>
+    private val backStack: MutableList<Demo>,
+    private val scrollStates: MutableList<ScalingLazyListState>,
 ) {
     constructor(
         rootDemo: Demo,
         backDispatcher: OnBackPressedDispatcher,
+        scrollStates: MutableList<ScalingLazyListState>,
         launchActivityDemo: (ActivityDemo<*>) -> Unit
-    ) : this(backDispatcher, launchActivityDemo, rootDemo, rootDemo, mutableListOf<Demo>())
+    ) : this(
+        backDispatcher, launchActivityDemo, rootDemo, rootDemo, mutableListOf<Demo>(), scrollStates
+    )
 
     private val onBackPressed = object : OnBackPressedCallback(false) {
         override fun handleOnBackPressed() {
@@ -126,6 +139,7 @@ private class Navigator private constructor(
 
     fun navigateBack(): Boolean {
         if (backStack.isNotEmpty()) {
+            scrollStates.removeAt(scrollStates.lastIndex)
             currentDemo = backStack.removeAt(backStack.lastIndex)
             return true
         } else {
@@ -137,18 +151,21 @@ private class Navigator private constructor(
         fun Saver(
             rootDemo: DemoCategory,
             backDispatcher: OnBackPressedDispatcher,
+            scrollStates: MutableList<ScalingLazyListState>,
             launchActivityDemo: (ActivityDemo<*>) -> Unit
         ): Saver<Navigator, *> = listSaver<Navigator, String>(
             save = { navigator ->
                 (navigator.backStack + navigator.currentDemo).map { it.title }
             },
             restore = { restored ->
-                require(restored.isNotEmpty())
+                require(restored.isNotEmpty()) { "restored demo is empty" }
                 val backStack = restored.mapTo(mutableListOf()) {
-                    requireNotNull(findDemo(rootDemo, it))
+                    requireNotNull(findDemo(rootDemo, it)) { "No root demo" }
                 }
                 val initial = backStack.removeAt(backStack.lastIndex)
-                Navigator(backDispatcher, launchActivityDemo, rootDemo, initial, backStack)
+                Navigator(
+                    backDispatcher, launchActivityDemo, rootDemo, initial, backStack, scrollStates
+                )
             }
         )
 

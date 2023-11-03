@@ -34,11 +34,11 @@ import androidx.annotation.VisibleForTesting
 import androidx.core.view.WindowInsetsCompat
 import androidx.window.core.Bounds
 import androidx.window.layout.util.ActivityCompatHelperApi24.isInMultiWindowMode
+import androidx.window.layout.util.ContextCompatHelper.unwrapUiContext
 import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowBounds
 import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowInsets
 import androidx.window.layout.util.ContextCompatHelperApi30.currentWindowMetrics
 import androidx.window.layout.util.ContextCompatHelperApi30.maximumWindowBounds
-import androidx.window.layout.util.ContextUtils.unwrapUiContext
 import androidx.window.layout.util.DisplayCompatHelperApi17.getRealSize
 import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetBottom
 import androidx.window.layout.util.DisplayCompatHelperApi28.safeInsetLeft

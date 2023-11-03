@@ -20,7 +20,10 @@ import android.app.Instrumentation
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.hardware.HardwareBuffer
+import android.os.Build
 import android.os.SystemClock
+import android.view.Window
+import androidx.annotation.RequiresApi
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import org.junit.Assert
@@ -28,6 +31,18 @@ import org.junit.Assert
 @SdkSuppress(minSdkVersion = 29)
 internal class SurfaceControlUtils {
     companion object {
+
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        fun validateOutput(window: Window, block: (bitmap: Bitmap) -> Boolean) {
+            val uiAutomation = InstrumentationRegistry.getInstrumentation().uiAutomation
+            val bitmap = uiAutomation.takeScreenshot(window)
+            if (bitmap != null) {
+                block(bitmap)
+            } else {
+                throw IllegalArgumentException("Unable to obtain bitmap from screenshot")
+            }
+        }
+
         fun validateOutput(block: (bitmap: Bitmap) -> Boolean) {
             var sleepDurationMillis = 1000L
             var success = false

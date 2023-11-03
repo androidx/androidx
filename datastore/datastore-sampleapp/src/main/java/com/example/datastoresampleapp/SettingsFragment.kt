@@ -16,7 +16,6 @@
 
 package com.example.datastoresampleapp
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -27,13 +26,17 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.core.DataStoreFactory
 import androidx.datastore.core.Serializer
 import androidx.lifecycle.Lifecycle
-import androidx.preference.Preference
-import androidx.preference.SwitchPreference
-import androidx.preference.PreferenceFragmentCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.preference.Preference
+import androidx.preference.PreferenceFragmentCompat
+import androidx.preference.SwitchPreference
 import androidx.preference.TwoStatePreference
 import com.google.protobuf.InvalidProtocolBufferException
+import java.io.File
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -42,10 +45,6 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 
 private val TAG = "SettingsActivity"
 
@@ -83,7 +82,6 @@ class SettingsFragment() : PreferenceFragmentCompat() {
     }
 
     @Suppress("OPT_IN_MARKER_ON_OVERRIDE_WARNING")
-    @SuppressLint("SyntheticAccessor")
     @ExperimentalCoroutinesApi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

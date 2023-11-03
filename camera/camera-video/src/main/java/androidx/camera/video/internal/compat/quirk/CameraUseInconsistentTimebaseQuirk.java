@@ -29,10 +29,12 @@ import java.util.Set;
 
 /**
  * <p>QuirkSummary
- *     Bug Id: 197805856
- *     Description: Quirk that denotes some Samsung devices use inconsistent timebase for camera
- *                  frame.
- *     Device(s): Some Samsung devices
+ *     Bug Id: 197805856, 280121263, 295060316
+ *     Description: Quirk that denotes some devices use a timebase for camera frames that is
+ *                  different than what is reported by
+ *                  {@link android.hardware.camera2.CameraCharacteristics
+ *                  #SENSOR_INFO_TIMESTAMP_SOURCE}. This can cause A/V sync issues.
+ *     Device(s): Some Samsung devices and devices running on certain Qualcomm SoCs
  *     @see VideoTimebaseConverter
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -43,8 +45,30 @@ public class CameraUseInconsistentTimebaseQuirk implements Quirk {
             "qcom"
     ));
 
+    private static final Set<String> BUILD_SOC_MODEL_SET = new HashSet<>(Arrays.asList(
+            "sm4350", // Snapdragon 480 5G
+            "sm6375"  // Snapdragon 695 5G
+    ));
+
+    private static final Set<String> BUILD_MODEL_SET = new HashSet<>(Arrays.asList(
+            "m2007j20cg", "m2007j20ct"  // Xiaomi Poco X3 NFC
+    ));
+
     static boolean load() {
+        return usesAffectedSoc() || isAffectedSamsungDevice() || isAffectedModel();
+    }
+
+    private static boolean usesAffectedSoc() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+                && BUILD_SOC_MODEL_SET.contains(Build.SOC_MODEL.toLowerCase());
+    }
+
+    private static boolean isAffectedSamsungDevice() {
         return "SAMSUNG".equalsIgnoreCase(Build.BRAND)
                 && BUILD_HARDWARE_SET.contains(Build.HARDWARE.toLowerCase());
+    }
+
+    private static boolean isAffectedModel() {
+        return BUILD_MODEL_SET.contains(Build.MODEL.toLowerCase());
     }
 }

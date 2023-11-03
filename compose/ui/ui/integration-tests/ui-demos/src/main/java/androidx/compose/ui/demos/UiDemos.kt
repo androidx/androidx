@@ -20,7 +20,6 @@ import androidx.compose.foundation.demos.text.SoftwareKeyboardControllerDemo
 import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.demos.autofill.ExplicitAutofillTypesDemo
 import androidx.compose.ui.demos.focus.AdjacentScrollablesFocusDemo
 import androidx.compose.ui.demos.focus.CancelFocusDemo
@@ -32,13 +31,14 @@ import androidx.compose.ui.demos.focus.ExplicitEnterExitWithCustomFocusEnterExit
 import androidx.compose.ui.demos.focus.FocusInDialogDemo
 import androidx.compose.ui.demos.focus.FocusInPopupDemo
 import androidx.compose.ui.demos.focus.FocusManagerMoveFocusDemo
+import androidx.compose.ui.demos.focus.FocusRestorationDemo
 import androidx.compose.ui.demos.focus.FocusableDemo
+import androidx.compose.ui.demos.focus.LazyListChildFocusDemos
+import androidx.compose.ui.demos.focus.NestedLazyListFocusSearchDemo
 import androidx.compose.ui.demos.focus.OneDimensionalFocusSearchDemo
 import androidx.compose.ui.demos.focus.ReuseFocusRequesterDemo
 import androidx.compose.ui.demos.focus.ScrollableLazyRowFocusDemo
 import androidx.compose.ui.demos.focus.ScrollableRowFocusDemo
-import androidx.compose.ui.demos.focus.LazyListChildFocusDemos
-import androidx.compose.ui.demos.focus.NestedLazyListFocusSearchDemo
 import androidx.compose.ui.demos.focus.TwoDimensionalFocusSearchDemo
 import androidx.compose.ui.demos.gestures.ButtonMetaStateDemo
 import androidx.compose.ui.demos.gestures.DetectTapGesturesDemo
@@ -67,6 +67,7 @@ import androidx.compose.ui.demos.input.TouchModeDemo
 import androidx.compose.ui.demos.keyinput.InterceptEnterToSendMessageDemo
 import androidx.compose.ui.demos.keyinput.KeyInputDemo
 import androidx.compose.ui.demos.modifier.CommunicatingModifierDemo
+import androidx.compose.ui.demos.modifier.TraverseModifierDemo
 import androidx.compose.ui.demos.recyclerview.RecyclerViewDemos
 import androidx.compose.ui.demos.viewinterop.AndroidInComposeDemos
 import androidx.compose.ui.demos.viewinterop.BottomSheetFragmentNestedScrollInteropDemo
@@ -79,6 +80,7 @@ import androidx.compose.ui.demos.viewinterop.EditTextInteropDemo
 import androidx.compose.ui.demos.viewinterop.FocusTransferDemo
 import androidx.compose.ui.demos.viewinterop.NestedScrollInteropComposeParentWithAndroidChild
 import androidx.compose.ui.demos.viewinterop.ResizeComposeViewDemo
+import androidx.compose.ui.demos.viewinterop.ScrollingAndroidViewsDemo
 import androidx.compose.ui.demos.viewinterop.ViewComposeViewNestedScrollInteropDemo
 import androidx.compose.ui.demos.viewinterop.ViewInteropDemo
 import androidx.compose.ui.samples.NestedScrollConnectionSample
@@ -153,6 +155,7 @@ private val FocusDemos = DemoCategory(
         ComposableDemo("Cancel Focus Move") { CancelFocusDemo() },
         ComposableDemo("FocusManager.moveFocus()") { FocusManagerMoveFocusDemo() },
         ComposableDemo("Capture/Free Focus") { CaptureFocusDemo() },
+        ComposableDemo("Focus Restoration") { FocusRestorationDemo() },
         ComposableDemo("Focus In Scrollable Row") { ScrollableRowFocusDemo() },
         ComposableDemo("Focus in Lazy Row") { ScrollableLazyRowFocusDemo() },
         ComposableDemo("LazyList Child Focusability") { LazyListChildFocusDemos() },
@@ -183,7 +186,6 @@ private val GraphicsDemos = DemoCategory(
     )
 )
 
-@OptIn(ExperimentalComposeUiApi::class)
 private val NestedScrollInteropDemos = DemoCategory(
     "Nested Scroll Interop",
     listOf(
@@ -223,24 +225,28 @@ private val ViewInteropDemos = DemoCategory(
         ComposableDemo("Focus Transfer") { FocusTransferDemo() },
         NestedScrollInteropDemos,
         ComposableDemo("Resize ComposeView") { ResizeComposeViewDemo() },
+        ComposableDemo("LazyColumn of Android Views") { ScrollingAndroidViewsDemo() }
     )
 )
 
 private val ModifierDemos = DemoCategory(
     "Modifiers",
     listOf(
-        ComposableDemo("Inter-Modifier Communication") { CommunicatingModifierDemo() }
+        ComposableDemo("Inter-Modifier Communication") { CommunicatingModifierDemo() },
+        ComposableDemo("Traversing Modifiers") { TraverseModifierDemo() }
     )
 )
 
 val AccessibilityDemos = DemoCategory(
     "Accessibility",
     listOf(
-        ComposableDemo("Scaffold Top Bar") { ScaffoldSample() },
-        ComposableDemo("Scaffold with Scrolling") { ScaffoldSampleScroll() },
+        ComposableDemo("Scaffold Top Bar") { ScaffoldSampleDemo() },
+        ComposableDemo("Scaffold with Scrolling") { ScaffoldSampleScrollDemo() },
         ComposableDemo("Simple Top Bar with Scrolling") { ScrollingColumnDemo() },
         ComposableDemo("Nested Containers—True") { NestedContainersTrueDemo() },
-        ComposableDemo("Nested Containers—False") { NestedContainersFalseDemo() }
+        ComposableDemo("Nested Containers—False") { NestedContainersFalseDemo() },
+        ComposableDemo("Linear Progress Indicator") { LinearProgressIndicatorDemo() },
+        ComposableDemo("Dual LTR and RTL Scene") { SimpleRtlLayoutDemo() }
     )
 )
 

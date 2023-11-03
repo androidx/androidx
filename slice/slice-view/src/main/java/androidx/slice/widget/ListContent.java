@@ -51,10 +51,10 @@ import java.util.List;
 
 /**
  * Extracts information required to present content in a list format from a slice.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class ListContent extends SliceContent {
 
     private SliceAction mPrimaryAction;

@@ -18,9 +18,16 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import android.os.Bundle;
 
+import com.google.common.collect.ImmutableList;
+
 import org.junit.Test;
+
+import java.util.List;
+import java.util.Map;
 
 /** Tests for private APIs of {@link SearchSpec}. */
 public class SearchSpecInternalTest {
@@ -81,5 +88,39 @@ public class SearchSpecInternalTest {
                 .build();
         assertThat(searchSpec3.getEnabledFeatures()).containsExactly(
                 Features.VERBATIM_SEARCH, Features.LIST_FILTER_QUERY_LANGUAGE);
+    }
+
+    // TODO(b/296088047): move to CTS once the APIs it uses are public
+    @Test
+    public void testGetPropertyFiltersTypePropertyMasks() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addFilterProperties("TypeA", ImmutableList.of("field1", "field2.subfield2"))
+                .addFilterProperties("TypeB", ImmutableList.of("field7"))
+                .addFilterProperties("TypeC", ImmutableList.of())
+                .build();
+
+        Map<String, List<String>> typePropertyPathMap = searchSpec.getFilterProperties();
+        assertThat(typePropertyPathMap.keySet())
+                .containsExactly("TypeA", "TypeB", "TypeC");
+        assertThat(typePropertyPathMap.get("TypeA")).containsExactly("field1", "field2.subfield2");
+        assertThat(typePropertyPathMap.get("TypeB")).containsExactly("field7");
+        assertThat(typePropertyPathMap.get("TypeC")).isEmpty();
+    }
+
+    // TODO(b/296088047): move to CTS once the APIs it uses are public
+    @Test
+    public void testBuilder_throwsException_whenTypePropertyFilterNotInSchemaFilter() {
+        SearchSpec.Builder searchSpecBuilder = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addFilterSchemas("Schema1", "Schema2")
+                .addFilterPropertyPaths("Schema3", ImmutableList.of(
+                        new PropertyPath("field1"), new PropertyPath("field2.subfield2")));
+
+        IllegalStateException exception =
+                assertThrows(IllegalStateException.class, searchSpecBuilder::build);
+        assertThat(exception.getMessage())
+                .isEqualTo("The schema: Schema3 exists in the property filter but doesn't"
+                        + " exist in the schema filter.");
     }
 }

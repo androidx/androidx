@@ -16,7 +16,9 @@
 
 package androidx.compose.ui.platform
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -90,13 +92,12 @@ val LocalFocusManager = staticCompositionLocalOf<FocusManager> {
 
 /**
  * The CompositionLocal to provide platform font loading methods.
- *
- * @suppress
  */
 @Suppress("DEPRECATION")
 @Deprecated("LocalFontLoader is replaced with LocalFontFamilyResolver",
     replaceWith = ReplaceWith("LocalFontFamilyResolver")
 )
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 val LocalFontLoader = staticCompositionLocalOf<Font.ResourceLoader> {
     noLocalProvidedFor("LocalFontLoader")
 }
@@ -134,6 +135,14 @@ val LocalLayoutDirection = staticCompositionLocalOf<LayoutDirection> {
  * The CompositionLocal to provide communication with platform text input service.
  */
 val LocalTextInputService = staticCompositionLocalOf<TextInputService?> { null }
+
+/**
+ * The [CompositionLocal] to provide a [SoftwareKeyboardController] that can control the current
+ * software keyboard.
+ *
+ * Will be null if the software keyboard cannot be controlled.
+ */
+val LocalSoftwareKeyboardController = staticCompositionLocalOf<SoftwareKeyboardController?> { null }
 
 /**
  * The CompositionLocal to provide text-related toolbar.
@@ -188,6 +197,7 @@ internal fun ProvideCommonCompositionLocals(
         LocalInputModeManager provides owner.inputModeManager,
         LocalLayoutDirection provides owner.layoutDirection,
         LocalTextInputService provides owner.textInputService,
+        LocalSoftwareKeyboardController provides owner.softwareKeyboardController,
         LocalTextToolbar provides owner.textToolbar,
         LocalUriHandler provides uriHandler,
         LocalViewConfiguration provides owner.viewConfiguration,

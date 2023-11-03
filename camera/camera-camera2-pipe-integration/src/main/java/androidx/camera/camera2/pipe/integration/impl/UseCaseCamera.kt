@@ -23,6 +23,7 @@ import android.hardware.camera2.CaptureRequest
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.GraphState.GraphStateStopped
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.core.Log.debug
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
@@ -35,6 +36,7 @@ import dagger.Module
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -69,6 +71,8 @@ interface UseCaseCamera {
         values: Map<CaptureRequest.Key<*>, Any>,
         priority: Config.OptionPriority = defaultOptionPriority,
     ): Deferred<Unit>
+
+    fun setActiveResumeMode(enabled: Boolean) {}
 
     // Lifecycle
     fun close(): Job
@@ -133,8 +137,9 @@ class UseCaseCameraImpl @Inject constructor(
 
     override fun close(): Job {
         return if (closed.compareAndSet(expect = false, update = true)) {
-            threads.scope.launch {
+            threads.scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 debug { "Closing $this" }
+                requestControl.close()
                 useCaseGraphConfig.graph.close()
                 useCaseSurfaceManager.stopAsync().await()
             }
@@ -147,15 +152,47 @@ class UseCaseCameraImpl @Inject constructor(
         key: CaptureRequest.Key<T>,
         value: T,
         priority: Config.OptionPriority,
-    ): Deferred<Unit> = setParametersAsync(mapOf(key to (value as Any)), priority)
+    ): Deferred<Unit> = runIfNotClosed {
+        setParametersAsync(mapOf(key to (value as Any)), priority)
+    } ?: canceledResult
 
     override fun setParametersAsync(
         values: Map<CaptureRequest.Key<*>, Any>,
         priority: Config.OptionPriority,
-    ): Deferred<Unit> = requestControl.addParametersAsync(
-        values = values,
-        optionPriority = priority
-    )
+    ): Deferred<Unit> = runIfNotClosed {
+        requestControl.addParametersAsync(
+            values = values,
+            optionPriority = priority
+        )
+    } ?: canceledResult
+
+    override fun setActiveResumeMode(enabled: Boolean) {
+        useCaseGraphConfig.graph.isForeground = enabled
+    }
+
+    private fun UseCaseCameraRequestControl.setSessionConfigAsync(
+        sessionConfig: SessionConfig
+    ): Deferred<Unit> = runIfNotClosed {
+        setConfigAsync(
+            type = UseCaseCameraRequestControl.Type.SESSION_CONFIG,
+            config = sessionConfig.implementationOptions,
+            tags = sessionConfig.repeatingCaptureConfig.tagBundle.toMap(),
+            listeners = setOf(
+                CameraCallbackMap.createFor(
+                    sessionConfig.repeatingCameraCaptureCallbacks,
+                    threads.backgroundExecutor
+                )
+            ),
+            template = RequestTemplate(sessionConfig.repeatingCaptureConfig.templateType),
+            streams = useCaseGraphConfig.getStreamIdsFromSurfaces(
+                sessionConfig.repeatingCaptureConfig.surfaces
+            ),
+        )
+    } ?: canceledResult
+
+    private inline fun <R> runIfNotClosed(crossinline block: () -> R): R? {
+        return if (!closed.value) block() else null
+    }
 
     override fun toString(): String = "UseCaseCamera-$debugId"
 
@@ -164,5 +201,9 @@ class UseCaseCameraImpl @Inject constructor(
         @UseCaseCameraScope
         @Binds
         abstract fun provideUseCaseCamera(useCaseCamera: UseCaseCameraImpl): UseCaseCamera
+    }
+
+    companion object {
+        private val canceledResult = CompletableDeferred<Unit>().apply { cancel() }
     }
 }

@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.VectorizedAnimationSpec
@@ -26,10 +27,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.ripple.rememberRipple
@@ -53,8 +58,79 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirst
 import kotlin.math.max
 import kotlin.math.roundToInt
+
+/**
+ * <a href="https://material.io/components/navigation-rail" class="external" target="_blank">Material Design navigation rail</a>.
+ *
+ * A Navigation Rail is a side navigation component that allows movement between primary
+ * destinations in an app. A navigation rail should be used to display three to seven app
+ * destinations and, optionally, a [FloatingActionButton] or a logo inside [header]. Each
+ * destination is typically represented by an icon and an optional text label.
+ *
+ * ![Navigation rail image](https://developer.android.com/images/reference/androidx/compose/material/navigation-rail.png)
+ *
+ * This particular overload provides ability to specify [WindowInsets]. Recommended value can be
+ * found in [NavigationRailDefaults.windowInsets].
+ *
+ * NavigationRail should contain multiple [NavigationRailItem]s, each representing a singular
+ * destination.
+ *
+ * A simple example looks like:
+ *
+ * @sample androidx.compose.material.samples.NavigationRailSample
+ *
+ * See [NavigationRailItem] for configuration specific to each item, and not the overall
+ * NavigationRail component.
+ *
+ * For more information, see [Navigation Rail](https://material.io/components/navigation-rail/)
+ *
+ * @param windowInsets a window insets that navigation rail will respect
+ * @param modifier optional [Modifier] for this NavigationRail
+ * @param backgroundColor The background color for this NavigationRail
+ * @param contentColor The preferred content color provided by this NavigationRail to its
+ * children. Defaults to either the matching content color for [backgroundColor], or if
+ * [backgroundColor] is not a color from the theme, this will keep the same value set above this
+ * NavigationRail.
+ * @param elevation elevation for this NavigationRail
+ * @param header an optional header that may hold a [FloatingActionButton] or a logo
+ * @param content destinations inside this NavigationRail, this should contain multiple
+ * [NavigationRailItem]s
+ */
+@Composable
+fun NavigationRail(
+    windowInsets: WindowInsets,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    contentColor: Color = contentColorFor(backgroundColor),
+    elevation: Dp = NavigationRailDefaults.Elevation,
+    header: @Composable (ColumnScope.() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        color = backgroundColor,
+        contentColor = contentColor,
+        elevation = elevation
+    ) {
+        Column(
+            Modifier
+                .fillMaxHeight()
+                .windowInsetsPadding(windowInsets)
+                .padding(vertical = NavigationRailPadding)
+                .selectableGroup(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            if (header != null) {
+                header()
+                Spacer(Modifier.height(HeaderPadding))
+            }
+            content()
+        }
+    }
+}
 
 /**
  * <a href="https://material.io/components/navigation-rail" class="external" target="_blank">Material Design navigation rail</a>.
@@ -98,26 +174,7 @@ fun NavigationRail(
     header: @Composable (ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    Surface(
-        modifier = modifier,
-        color = backgroundColor,
-        contentColor = contentColor,
-        elevation = elevation
-    ) {
-        Column(
-            Modifier
-                .fillMaxHeight()
-                .padding(vertical = NavigationRailPadding)
-                .selectableGroup(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            if (header != null) {
-                header()
-                Spacer(Modifier.height(HeaderPadding))
-            }
-            content()
-        }
-    }
+    NavigationRail(ZeroInsets, modifier, backgroundColor, contentColor, elevation, header, content)
 }
 
 /**
@@ -182,7 +239,8 @@ fun NavigationRailItem(
                 role = Role.Tab,
                 interactionSource = interactionSource,
                 indication = ripple
-            ).size(itemSize),
+            )
+            .size(itemSize),
         contentAlignment = Alignment.Center
     ) {
         NavigationRailTransition(
@@ -209,6 +267,14 @@ object NavigationRailDefaults {
      * Default elevation used for [NavigationRail].
      */
     val Elevation = 8.dp
+
+    /**
+     * Recommended window insets for navigation rail.
+     */
+    val windowInsets: WindowInsets
+        @Composable
+        get() = WindowInsets.systemBarsForVisualComponents
+            .only(WindowInsetsSides.Vertical + WindowInsetsSides.Start)
 }
 
 /**
@@ -259,7 +325,7 @@ private fun NavigationRailTransition(
 private fun NavigationRailItemBaselineLayout(
     icon: @Composable () -> Unit,
     label: @Composable (() -> Unit)?,
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     iconPositionAnimationProgress: Float
 ) {
     Layout(
@@ -274,10 +340,10 @@ private fun NavigationRailItemBaselineLayout(
             }
         }
     ) { measurables, constraints ->
-        val iconPlaceable = measurables.first { it.layoutId == "icon" }.measure(constraints)
+        val iconPlaceable = measurables.fastFirst { it.layoutId == "icon" }.measure(constraints)
 
         val labelPlaceable = label?.let {
-            measurables.first { it.layoutId == "label" }.measure(
+            measurables.fastFirst { it.layoutId == "label" }.measure(
                 // Measure with loose constraints for height as we don't want the label to take up more
                 // space than it needs
                 constraints.copy(minHeight = 0)
@@ -335,7 +401,7 @@ private fun MeasureScope.placeLabelAndIcon(
     labelPlaceable: Placeable,
     iconPlaceable: Placeable,
     constraints: Constraints,
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     iconPositionAnimationProgress: Float
 ): MeasureResult {
     val baseline = labelPlaceable[LastBaseline]
@@ -403,3 +469,5 @@ private val ItemLabelBaselineBottomOffset = 16.dp
  * The space between the icon and the top of the container when an item contains a label and icon.
  */
 private val ItemIconTopOffset = 14.dp
+
+private val ZeroInsets = WindowInsets(0.dp)

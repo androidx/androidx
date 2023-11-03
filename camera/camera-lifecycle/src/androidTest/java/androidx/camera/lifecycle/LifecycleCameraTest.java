@@ -18,14 +18,16 @@ package androidx.camera.lifecycle;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
-import androidx.camera.testing.fakes.FakeUseCase;
-import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager;
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner;
+import androidx.camera.testing.impl.fakes.FakeUseCase;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -43,6 +45,7 @@ import java.util.LinkedHashSet;
 public class LifecycleCameraTest {
     private LifecycleCamera mLifecycleCamera;
     private FakeLifecycleOwner mLifecycleOwner;
+    private CameraCoordinator mCameraCoordinator;
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
     private FakeCamera mFakeCamera;
     private FakeUseCase mFakeUseCase;
@@ -51,8 +54,10 @@ public class LifecycleCameraTest {
     public void setUp() {
         mLifecycleOwner = new FakeLifecycleOwner();
         mFakeCamera = new FakeCamera();
+        mCameraCoordinator = new FakeCameraCoordinator();
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
+                mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
         mFakeUseCase = new FakeUseCase();
@@ -123,10 +128,12 @@ public class LifecycleCameraTest {
 
         CameraUseCaseAdapter adapter1 = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
+                mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
         CameraUseCaseAdapter adapter2 = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(mFakeCamera)),
+                mCameraCoordinator,
                 new FakeCameraDeviceSurfaceManager(),
                 new FakeUseCaseConfigFactory());
         LifecycleCamera lifecycleCamera1 = new LifecycleCamera(lifecycle1, adapter1);

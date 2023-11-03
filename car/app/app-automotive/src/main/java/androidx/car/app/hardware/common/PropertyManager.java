@@ -49,7 +49,6 @@ import java.util.concurrent.TimeUnit;
  * conversion between vehicle zone and areaId, checks preconditions. After that, it uses
  * {@link PropertyRequestProcessor} to complete the request.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class PropertyManager {

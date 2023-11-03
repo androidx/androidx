@@ -34,8 +34,8 @@ import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.launchApplication
 import androidx.compose.ui.window.runApplicationTest
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import java.awt.event.WindowEvent
+import org.junit.Test
 
 @OptIn(ExperimentalComposeUiApi::class)
 class WindowParameterTest {

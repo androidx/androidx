@@ -177,7 +177,6 @@ public class ViewfinderSurfaceRequest {
         // collected as long as the ViewfinderSurface is referenced externally (via
         // getViewfinderSurface()).
         mInternalViewfinderSurface = new ViewfinderSurface() {
-            @SuppressLint("SyntheticAccessor")
             @NonNull
             @Override
             protected ListenableFuture<Surface> provideSurfaceAsync() {
@@ -420,8 +419,46 @@ public class ViewfinderSurfaceRequest {
         @SensorOrientationDegreesValue private int mSensorOrientation = 0;
         @Nullable private ImplementationMode mImplementationMode;
 
+        /**
+         * Constructor for {@link Builder}.
+         *
+         * <p>Creates a builder with viewfinder resolution.
+         *
+         * @param resolution viewfinder resolution.
+         */
         public Builder(@NonNull Size resolution) {
             mResolution = resolution;
+        }
+
+        /**
+         * Constructor for {@link Builder}.
+         *
+         * <p>Creates a builder with other builder instance. The returned builder will be
+         * pre-populated with the state of the provided builder.
+         *
+         * @param builder {@link Builder} instance.
+         */
+        public Builder(@NonNull Builder builder) {
+            mResolution = builder.mResolution;
+            mImplementationMode = builder.mImplementationMode;
+            mLensFacing = builder.mLensFacing;
+            mSensorOrientation = builder.mSensorOrientation;
+        }
+
+        /**
+         * Constructor for {@link Builder}.
+         *
+         * <p>Creates a builder with other {@link ViewfinderSurfaceRequest} instance. The
+         * returned builder will be pre-populated with the state of the provided
+         * {@link ViewfinderSurfaceRequest} instance.
+         *
+         * @param surfaceRequest {@link ViewfinderSurfaceRequest} instance.
+         */
+        public Builder(@NonNull ViewfinderSurfaceRequest surfaceRequest) {
+            mResolution = surfaceRequest.getResolution();
+            mImplementationMode = surfaceRequest.getImplementationMode();
+            mLensFacing = surfaceRequest.getLensFacing();
+            mSensorOrientation = surfaceRequest.getSensorOrientation();
         }
 
         /**
@@ -433,16 +470,16 @@ public class ViewfinderSurfaceRequest {
          *   <li>{@link ImplementationMode#COMPATIBLE COMPATIBLE}</li>
          * </ul>
          *
-         * <p>If not set, the {@link ImplementationMode} set via {@code app:implementationMode} in
-         * layout xml will be used for {@link CameraViewfinder}. If not set in the layout xml,
-         * the default value {@link ImplementationMode#PERFORMANCE} will be used in
-         * {@link CameraViewfinder}.
+         * <p>If not set or setting to null, the {@link ImplementationMode} set via {@code app
+         * :implementationMode} in layout xml will be used for {@link CameraViewfinder}. If not
+         * set in the layout xml, the default value {@link ImplementationMode#PERFORMANCE} will
+         * be used in {@link CameraViewfinder}.
          *
          * @param implementationMode The {@link ImplementationMode}.
          * @return This builder.
          */
         @NonNull
-        public Builder setImplementationMode(@NonNull ImplementationMode implementationMode) {
+        public Builder setImplementationMode(@Nullable ImplementationMode implementationMode) {
             mImplementationMode = implementationMode;
             return this;
         }
@@ -535,7 +572,6 @@ public class ViewfinderSurfaceRequest {
         /**
          * Possible result codes.
          *
-         * @hide
          */
         @IntDef({RESULT_SURFACE_USED_SUCCESSFULLY, RESULT_REQUEST_CANCELLED, RESULT_INVALID_SURFACE,
                 RESULT_SURFACE_ALREADY_PROVIDED, RESULT_WILL_NOT_PROVIDE_SURFACE})

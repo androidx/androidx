@@ -18,8 +18,8 @@ package androidx.compose.material.catalog
 
 import androidx.compose.material.catalog.library.MaterialCatalogApp
 import androidx.compose.material.catalog.library.MaterialRoute
-import androidx.compose.material.catalog.model.MaterialSpecification
 import androidx.compose.material.catalog.model.Material3Specification
+import androidx.compose.material.catalog.model.MaterialSpecification
 import androidx.compose.material.catalog.model.Specifications
 import androidx.compose.material.catalog.ui.specification.Specification
 import androidx.compose.material3.catalog.library.Material3CatalogApp
@@ -30,11 +30,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
 @Composable
-fun NavGraph() {
+fun NavGraph(initialFavoriteRoute: String?) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,
-        startDestination = SpecificationRoute
+        startDestination = if (initialFavoriteRoute == null) SpecificationRoute else Material3Route
     ) {
         composable(SpecificationRoute) {
             Specification(
@@ -49,7 +49,9 @@ fun NavGraph() {
             )
         }
         composable(MaterialRoute) { MaterialCatalogApp() }
-        composable(Material3Route) { Material3CatalogApp() }
+        composable(Material3Route) {
+            Material3CatalogApp(initialFavoriteRoute = initialFavoriteRoute)
+        }
     }
 }
 

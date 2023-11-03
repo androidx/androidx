@@ -17,8 +17,8 @@ package app.cash.paparazzi.internal.parsers
 
 import com.android.SdkConstants.AAPT_URI
 import com.android.SdkConstants.TAG_ATTR
-import org.kxml2.io.KXmlParser
 import java.io.InputStream
+import org.kxml2.io.KXmlParser
 
 /**
  * An XML resource parser that creates a tree of [TagSnapshot]s

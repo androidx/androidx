@@ -29,14 +29,16 @@ import androidx.camera.core.CameraState
 import androidx.camera.core.CameraState.ERROR_CAMERA_IN_USE
 import androidx.camera.core.CameraState.ERROR_DO_NOT_DISTURB_MODE_ENABLED
 import androidx.camera.core.CameraState.create
+import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraStateRegistry
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
 import androidx.core.os.HandlerCompat
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
@@ -73,6 +75,7 @@ internal class Camera2CameraImplStateTest {
 
     private lateinit var cameraId: String
     private lateinit var camera: Camera2CameraImpl
+    private lateinit var cameraCoordinator: CameraCoordinator
     private lateinit var cameraStateRegistry: CameraStateRegistry
 
     @Before
@@ -107,7 +110,7 @@ internal class Camera2CameraImplStateTest {
 
         // Open fake camera
         val fakeCamera = FakeCamera()
-        cameraStateRegistry.registerCamera(fakeCamera, CameraXExecutors.directExecutor(), {})
+        cameraStateRegistry.registerCamera(fakeCamera, CameraXExecutors.directExecutor(), {}, {})
         cameraStateRegistry.tryOpenCamera(fakeCamera)
         cameraStateRegistry.markCameraState(fakeCamera, CameraInternal.State.OPEN)
 
@@ -311,7 +314,7 @@ internal class Camera2CameraImplStateTest {
 
         // Open fake camera
         val fakeCamera = FakeCamera()
-        cameraStateRegistry.registerCamera(fakeCamera, CameraXExecutors.directExecutor(), {})
+        cameraStateRegistry.registerCamera(fakeCamera, CameraXExecutors.directExecutor(), {}, {})
         cameraStateRegistry.tryOpenCamera(fakeCamera)
         cameraStateRegistry.markCameraState(fakeCamera, CameraInternal.State.OPEN)
 
@@ -342,18 +345,23 @@ internal class Camera2CameraImplStateTest {
             cameraManagerCompat
         )
 
+        cameraCoordinator = FakeCameraCoordinator()
+
         // Initialize camera state registry and only allow 1 open camera at most inside CameraX
-        cameraStateRegistry = CameraStateRegistry(1)
+        cameraStateRegistry = CameraStateRegistry(cameraCoordinator, 1)
 
         // Initialize camera instance
         camera = Camera2CameraImpl(
+            ApplicationProvider.getApplicationContext(),
             cameraManagerCompat,
             cameraId,
             camera2CameraInfo,
+            cameraCoordinator,
             cameraStateRegistry,
             CameraXExecutors.directExecutor(),
             cameraHandler,
-            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
+            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
+            -1L
         )
     }
 

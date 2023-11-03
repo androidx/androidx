@@ -33,21 +33,37 @@ import java.util.Locale;
  * Quirks that denotes the device has a slow flash sequence that could result in blurred pictures.
  *
  * <p>QuirkSummary
- *     Bug Id: 211474332
+ *     Bug Id: 211474332, 286190938, 280221967, 296814664, 296816175
  *     Description: When capturing still photos in auto flash mode, it needs more than 1 second to
- *     flash and therefore it easily results in blurred pictures.
- *     Device(s): Pixel 3a / Pixel 3a XL
+ *     flash or capture actual photo after flash, and therefore it easily results in blurred or dark
+ *     or overexposed pictures.
+ *     Device(s): Pixel 3a / Pixel 3a XL, all models of Pixel 4 and 5, SM-A320, Moto G20, Itel A48,
+ *     Realme C11 2021
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class FlashTooSlowQuirk implements UseTorchAsFlashQuirk {
-    // List of devices with the issue. See b/181966663.
-    private static final List<String> AFFECTED_MODELS = Arrays.asList(
+    private static final List<String> AFFECTED_MODEL_PREFIXES = Arrays.asList(
             "PIXEL 3A",
-            "PIXEL 3A XL"
+            "PIXEL 3A XL",
+            "PIXEL 4", // includes Pixel 4 XL, 4A, and 4A (5g) too
+            "PIXEL 5", // includes Pixel 5A too
+            "SM-A320",
+            "MOTO G(20)",
+            "ITEL L6006", // Itel A48
+            "RMX3231" // Realme C11 2021
     );
 
     static boolean load(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
-        return AFFECTED_MODELS.contains(Build.MODEL.toUpperCase(Locale.US))
+        return isAffectedModel()
                 && cameraCharacteristics.get(CameraCharacteristics.LENS_FACING) == LENS_FACING_BACK;
+    }
+
+    private static boolean isAffectedModel() {
+        for (String modelPrefix : AFFECTED_MODEL_PREFIXES) {
+            if (Build.MODEL.toUpperCase(Locale.US).startsWith(modelPrefix)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

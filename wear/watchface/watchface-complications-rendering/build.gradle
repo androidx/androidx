@@ -52,6 +52,9 @@ android {
     defaultConfig {
         minSdkVersion 26
     }
+    lintOptions {
+        disable 'NullabilityAnnotationsDetector' // False alarm on transformed files.
+    }
 
     // Use Robolectric 4.+
     testOptions.unitTests.includeAndroidResources = true
@@ -63,4 +66,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Support for rendering complications on the watch face"
+    metalavaK2UastEnabled = true
 }

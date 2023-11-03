@@ -39,11 +39,12 @@ dependencies {
 }
 
 androidx {
-    name = "Android Paging Guava"
+    name = "Paging Guava"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Android Paging Guava"
     legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = true
 }
 
 android {

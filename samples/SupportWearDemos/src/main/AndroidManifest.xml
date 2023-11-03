@@ -27,6 +27,9 @@
             android:name=".app.SimpleRecyclerViewDemo"
             android:exported="true" />
         <activity
+            android:name=".app.SimpleNestedScrollViewDemo"
+            android:exported="true" />
+        <activity
             android:name=".app.WearableSwitchDemo"
             android:exported="true" />
         <activity

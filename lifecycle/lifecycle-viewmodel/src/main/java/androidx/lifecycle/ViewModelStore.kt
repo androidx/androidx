@@ -37,7 +37,6 @@ open class ViewModelStore {
     private val map = mutableMapOf<String, ViewModel>()
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun put(key: String, viewModel: ViewModel) {
@@ -49,7 +48,6 @@ open class ViewModelStore {
      * Returns the `ViewModel` mapped to the given `key` or null if none exists.
      */
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     operator fun get(key: String): ViewModel? {
@@ -57,7 +55,6 @@ open class ViewModelStore {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun keys(): Set<String> {

@@ -30,6 +30,7 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Pair
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
@@ -48,7 +49,6 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
-import androidx.camera.core.ResolutionSelector
 import androidx.camera.core.UseCase
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.ViewPort
@@ -58,17 +58,30 @@ import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.ImageOutputConfig
+import androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.utils.CameraOrientationUtil
 import androidx.camera.core.impl.utils.Exif
+import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability
+import androidx.camera.core.internal.compat.workaround.InvalidJpegDataParser
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
+import androidx.camera.core.resolutionselector.ResolutionFilter
+import androidx.camera.core.resolutionselector.ResolutionSelector
+import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
+import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.fakes.FakeSessionProcessor
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeSessionProcessor
+import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl
+import androidx.camera.video.Recorder
+import androidx.camera.video.VideoCapture
 import androidx.core.content.ContextCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -79,6 +92,7 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.math.abs
@@ -91,6 +105,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeNoException
 import org.junit.Assume.assumeNotNull
 import org.junit.Assume.assumeTrue
 import org.junit.Before
@@ -104,7 +119,8 @@ private val DEFAULT_RESOLUTION = Size(640, 480)
 private val BACK_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 private val FRONT_SELECTOR = CameraSelector.DEFAULT_FRONT_CAMERA
 private const val BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK
-private const val CAPTURE_TIMEOUT = 10_000.toLong() //  10 seconds
+private const val CAPTURE_TIMEOUT = 15_000.toLong() //  15 seconds
+private const val TOLERANCE = 1e-3f
 
 @LargeTest
 @RunWith(Parameterized::class)
@@ -128,6 +144,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     val temporaryFolder =
         TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
 
+    @get:Rule
+    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
+
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
@@ -145,6 +164,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Before
     fun setUp(): Unit = runBlocking {
+        CoreAppTestUtil.assumeCompatibleDevice()
         assumeTrue(CameraUtil.hasCameraWithLensFacing(BACK_LENS_FACING))
         createDefaultPictureFolderIfNotExist()
         ProcessCameraProvider.configureInstance(cameraXConfig)
@@ -159,11 +179,12 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     fun tearDown(): Unit = runBlocking {
         if (::cameraProvider.isInitialized) {
             withContext(Dispatchers.Main) {
-                cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+                cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
             }
         }
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectSize() = runBlocking {
         val useCase = ImageCapture.Builder()
@@ -271,6 +292,33 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
     }
 
+    @Test
+    fun canCaptureImageWithFlashModeScreen_frontCamera() {
+        // Front camera usually doesn't have a flash unit. Screen flash will be used in such case.
+        // Otherwise, physical flash will be used. But capture should be successful either way.
+        canTakeImages(
+            defaultBuilder.apply {
+                setScreenFlashUiControl(MockScreenFlashUiControl())
+                setFlashMode(ImageCapture.FLASH_MODE_SCREEN)
+            },
+            cameraSelector = FRONT_SELECTOR
+        )
+    }
+
+    @Test
+    fun canCaptureImageWithFlashModeScreenAndUseTorch_frontCamera() {
+        // Front camera usually doesn't have a flash unit. Screen flash will be used in such case.
+        // Otherwise, physical flash will be used as torch. Either way, capture should be successful
+        canTakeImages(
+            defaultBuilder.apply {
+                setFlashType(ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH)
+                setScreenFlashUiControl(MockScreenFlashUiControl())
+                setFlashMode(ImageCapture.FLASH_MODE_SCREEN)
+            },
+            cameraSelector = FRONT_SELECTOR
+        )
+    }
+
     private fun canTakeImages(
         builder: ImageCapture.Builder,
         cameraSelector: CameraSelector = BACK_SELECTOR,
@@ -311,6 +359,17 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(saveLocation.exists())
 
         canSaveToFile(saveLocation)
+    }
+
+    @Test
+    fun saveCanSucceed_toExternalStoragePublicFolderFile() {
+        val pictureFolder = Environment.getExternalStoragePublicDirectory(
+            Environment.DIRECTORY_PICTURES
+        )
+        assumeTrue(pictureFolder.exists())
+        val saveLocation = File(pictureFolder, "test.jpg")
+        canSaveToFile(saveLocation)
+        saveLocation.delete()
     }
 
     private fun canSaveToFile(saveLocation: File) = runBlocking {
@@ -669,6 +728,73 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(imageProperties.format).isEqualTo(ImageFormat.RAW10)
     }
 
+    @Test
+    fun takePicture_OnImageCaptureCallback_startedBeforeSuccess() = runBlocking {
+        // Arrange.
+        var captured = false
+        val useCase = ImageCapture.Builder().build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+
+        // Act.
+        val semaphore = Semaphore(0)
+        val callback = object : ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureStarted() {
+                // Assert: onCaptureStarted should be invoked before onCaptureSuccess
+                assertThat(captured).isFalse()
+                semaphore.release()
+            }
+
+            override fun onCaptureSuccess(image: ImageProxy) {
+                captured = true
+            }
+        }
+        useCase.takePicture(mainExecutor, callback)
+
+        // Assert.
+        val result = semaphore.tryAcquire(3, TimeUnit.SECONDS)
+        assertThat(result).isTrue()
+    }
+
+    @Test
+    fun takePicture_OnImageSaveCallback_startedBeforeSaved() = runBlocking {
+        // Arrange.
+        var captured = false
+        val useCase = ImageCapture.Builder().build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+
+        // Act.
+        val semaphore = Semaphore(0)
+        val callback = object : ImageCapture.OnImageSavedCallback {
+            override fun onCaptureStarted() {
+                // Assert: onCaptureStarted should be invoked before onCaptureSuccess
+                assertThat(captured).isFalse()
+                semaphore.release()
+            }
+
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                captured = true
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+            }
+        }
+        val saveLocation = temporaryFolder.newFile("test.jpg")
+        assertThat(saveLocation.exists())
+        useCase.takePicture(
+            ImageCapture.OutputFileOptions.Builder(saveLocation).build(),
+            mainExecutor,
+            callback
+        )
+
+        // Assert.
+        val result = semaphore.tryAcquire(3, TimeUnit.SECONDS)
+        assertThat(result).isTrue()
+    }
+
     private fun isRawSupported(cameraCharacteristics: CameraCharacteristics): Boolean {
         val capabilities =
             cameraCharacteristics.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES)
@@ -789,6 +915,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun defaultAspectRatioWillBeSet_whenRatioDefaultIsSet() = runBlocking {
         val useCase = ImageCapture.Builder().setTargetAspectRatio(AspectRatio.RATIO_DEFAULT).build()
@@ -800,6 +927,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(config.targetAspectRatio).isEqualTo(AspectRatio.RATIO_4_3)
     }
 
+    @Suppress("DEPRECATION") // legacy resolution API
     @Test
     fun defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() = runBlocking {
         val useCase = ImageCapture.Builder()
@@ -832,6 +960,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(imageCapture.targetRotation).isEqualTo(Surface.ROTATION_90)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun targetResolutionIsUpdatedAfterTargetRotationIsUpdated() = runBlocking {
         val imageCapture = ImageCapture.Builder()
@@ -852,6 +981,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(newConfig.targetResolution).isEqualTo(expectedTargetResolution)
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectCroppingSizeWithoutSettingRotation() {
         val useCase = ImageCapture.Builder()
@@ -866,6 +996,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectCroppingSizeSetRotationBuilder() {
         // Checks camera device sensor degrees to set correct target rotation value to make sure
@@ -885,6 +1016,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         )
     }
 
+    @Suppress("DEPRECATION") // test for legacy resolution API
     @Test
     fun capturedImageHasCorrectCroppingSize_setUseCaseRotation90FromRotationInBuilder() {
         // Checks camera device sensor degrees to set correct target rotation value to make sure
@@ -936,8 +1068,9 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             Rational(cropRect!!.width(), cropRect.height())
         }
 
-        assertThat(resultCroppingRatio).isEqualTo(expectedCroppingRatio)
-        if (imageProperties.format == ImageFormat.JPEG) {
+        assertThat(resultCroppingRatio.toFloat()).isWithin(TOLERANCE)
+            .of(expectedCroppingRatio.toFloat())
+        if (imageProperties.format == ImageFormat.JPEG && isRotationOptionSupportedDevice()) {
             assertThat(imageProperties.rotationDegrees).isEqualTo(imageProperties.exif!!.rotation)
         }
     }
@@ -978,7 +1111,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             Rational(cropRect!!.width(), cropRect.height())
         }
 
-        if (imageProperties.format == ImageFormat.JPEG) {
+        if (imageProperties.format == ImageFormat.JPEG && isRotationOptionSupportedDevice()) {
             assertThat(imageProperties.rotationDegrees).isEqualTo(
                 imageProperties.exif!!.rotation
             )
@@ -1041,7 +1174,7 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             Rational(cropRect!!.width(), cropRect.height())
         }
 
-        if (imageProperties.format == ImageFormat.JPEG) {
+        if (imageProperties.format == ImageFormat.JPEG && isRotationOptionSupportedDevice()) {
             assertThat(imageProperties.rotationDegrees).isEqualTo(
                 imageProperties.exif!!.rotation
             )
@@ -1180,6 +1313,8 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
 
     @Test
     fun useCaseCanBeReusedInDifferentCamera() = runBlocking {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
+
         val useCase = defaultBuilder.build()
         withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
@@ -1273,7 +1408,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val useCase = builder.build()
         var camera: Camera
         withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+            camera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                BACK_SELECTOR,
+                useCase,
+                Preview.Builder().build().apply {
+                    setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+                }
+            )
         }
 
         val callback = FakeImageCaptureCallback(capturesCount = 1)
@@ -1305,7 +1447,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val useCase = builder.build()
         var camera: Camera
         withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+            camera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                BACK_SELECTOR,
+                useCase,
+                Preview.Builder().build().apply {
+                    setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+                }
+            )
         }
 
         val saveLocation = temporaryFolder.newFile("test.jpg")
@@ -1329,7 +1478,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val useCase = builder.build()
         var camera: Camera
         withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+            camera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                BACK_SELECTOR,
+                useCase,
+                Preview.Builder().build().apply {
+                    setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+                }
+            )
         }
 
         val callback = FakeImageCaptureCallback(capturesCount = 1)
@@ -1360,7 +1516,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val useCase = builder.build()
         var camera: Camera
         withContext(Dispatchers.Main) {
-            camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+            camera = cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                BACK_SELECTOR,
+                useCase,
+                Preview.Builder().build().apply {
+                    setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+                }
+            )
         }
 
         val callback = FakeImageCaptureCallback(capturesCount = 1)
@@ -1382,6 +1545,11 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     @Test
     @SdkSuppress(minSdkVersion = 28)
     fun returnJpegImage_whenSessionProcessorIsSet() = runBlocking {
+        assumeTrue(
+            "TODO(b/275493663): Enable when camera-pipe has extensions support",
+            implName != CameraPipeConfig::class.simpleName
+        )
+
         val builder = ImageCapture.Builder()
         val sessionProcessor = FakeSessionProcessor(
             inputFormatPreview = null, // null means using the same output surface
@@ -1451,10 +1619,28 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         val imageProperties = callback.results.first()
 
         // Check the output image rotation degrees value is correct.
-        assertThat(imageProperties.rotationDegrees).isEqualTo(imageProperties.exif!!.rotation)
+        if (isRotationOptionSupportedDevice()) {
+            assertThat(imageProperties.rotationDegrees).isEqualTo(imageProperties.exif!!.rotation)
+        }
 
         // Check the output format is correct.
         assertThat(imageProperties.format).isEqualTo(ImageFormat.JPEG)
+    }
+
+    @Test
+    fun canCaptureImage_whenOnlyImageCaptureBound_withYuvBufferFormat() {
+        val cameraHwLevel = CameraUtil.getCameraCharacteristics(CameraSelector.LENS_FACING_BACK)
+            ?.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+        assumeTrue(
+            "TODO(b/298138582): Check if MeteringRepeating will need to be added while" +
+                " choosing resolution for ImageCapture",
+            cameraHwLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY &&
+                cameraHwLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED
+        )
+
+        canTakeImages(ImageCapture.Builder().apply {
+            setBufferFormat(ImageFormat.YUV_420_888)
+        })
     }
 
     private fun getCameraSelectorWithSessionProcessor(
@@ -1545,6 +1731,38 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
     }
 
     @Test
+    fun unbindVideoCaptureWithoutStartingRecorder_imageCapturingShouldSuccess() = runBlocking {
+        // Arrange.
+        val imageCapture = ImageCapture.Builder().build()
+        val videoCapture = VideoCapture.Builder<Recorder>(Recorder.Builder().build()).build()
+
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner, BACK_SELECTOR, imageCapture, videoCapture
+            )
+        }
+
+        // wait for camera to start by taking a picture
+        val callback1 = FakeImageCaptureCallback(capturesCount = 1)
+        imageCapture.takePicture(mainExecutor, callback1)
+        try {
+            callback1.awaitCapturesAndAssert(capturedImagesCount = 1)
+        } catch (e: AssertionError) {
+            assumeNoException("image capture failed, camera might not have started yet", e)
+        }
+
+        // Act.
+        val callback2 = FakeImageCaptureCallback(capturesCount = 1)
+        withContext(Dispatchers.Main) {
+            cameraProvider.unbind(videoCapture)
+            imageCapture.takePicture(mainExecutor, callback2)
+        }
+
+        // Assert.
+        callback2.awaitCapturesAndAssert(capturedImagesCount = 1)
+    }
+
+    @Test
     fun capturedImage_withHighResolutionEnabled_imageCaptureOnly() = runBlocking {
         capturedImage_withHighResolutionEnabled()
     }
@@ -1564,6 +1782,67 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         capturedImage_withHighResolutionEnabled(preview, imageAnalysis)
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    fun getRealtimeCaptureLatencyEstimate_whenSessionProcessorSupportsRealtimeLatencyEstimate() =
+        runBlocking {
+            val expectedCaptureLatencyMillis = 1000L
+            val expectedProcessingLatencyMillis = 100L
+            val sessionProcessor = object : SessionProcessor by FakeSessionProcessor(
+                inputFormatPreview = null, // null means using the same output surface
+                inputFormatCapture = null
+            ) {
+                override fun getRealtimeCaptureLatency(): Pair<Long, Long> =
+                    Pair(expectedCaptureLatencyMillis, expectedProcessingLatencyMillis)
+            }
+
+            val imageCapture = ImageCapture.Builder().build()
+            val preview = Preview.Builder().build()
+
+            withContext(Dispatchers.Main) {
+                preview.setSurfaceProvider(SurfaceTextureProvider.createSurfaceTextureProvider())
+                val cameraSelector =
+                    getCameraSelectorWithSessionProcessor(BACK_SELECTOR, sessionProcessor)
+                cameraProvider.bindToLifecycle(
+                    fakeLifecycleOwner, cameraSelector, imageCapture, preview
+                )
+            }
+
+            val latencyEstimate = imageCapture.realtimeCaptureLatencyEstimate
+            // Check the realtime latency estimate is correct.
+            assertThat(latencyEstimate.captureLatencyMillis).isEqualTo(expectedCaptureLatencyMillis)
+            assertThat(latencyEstimate.processingLatencyMillis).isEqualTo(
+                expectedProcessingLatencyMillis
+            )
+        }
+
+    @Test
+    fun resolutionSelectorConfigCorrectlyMerged_afterBindToLifecycle() = runBlocking {
+        val resolutionFilter = ResolutionFilter { supportedSizes, _ -> supportedSizes }
+        val useCase = ImageCapture.Builder().setResolutionSelector(
+            ResolutionSelector.Builder().setResolutionFilter(resolutionFilter)
+                .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE).build()
+        ).build()
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, useCase)
+        }
+        val resolutionSelector = useCase.currentConfig.retrieveOption(OPTION_RESOLUTION_SELECTOR)
+        // The default 4:3 AspectRatioStrategy is kept
+        assertThat(resolutionSelector!!.aspectRatioStrategy).isEqualTo(
+            AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY
+        )
+        // The default highest available ResolutionStrategy is kept
+        assertThat(resolutionSelector.resolutionStrategy).isEqualTo(
+            ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY
+        )
+        // The set resolutionFilter is kept
+        assertThat(resolutionSelector.resolutionFilter).isEqualTo(resolutionFilter)
+        // The set allowedResolutionMode is kept
+        assertThat(resolutionSelector.allowedResolutionMode).isEqualTo(
+            PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
+        )
+    }
+
     private fun capturedImage_withHighResolutionEnabled(
         preview: Preview? = null,
         imageAnalysis: ImageAnalysis? = null
@@ -1579,11 +1858,12 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         // Only runs the test when the device has high resolution output sizes
         assumeTrue(maxHighResolutionOutputSize != null)
 
-        val resolutionSelector =
-            ResolutionSelector.Builder()
-                .setPreferredResolution(maxHighResolutionOutputSize!!)
-                .setHighResolutionEnabled(true)
-                .build()
+        val resolutionSelector = ResolutionSelector.Builder()
+            .setAllowedResolutionMode(PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE)
+            .setResolutionFilter { _, _ ->
+                listOf(maxHighResolutionOutputSize)
+            }
+            .build()
         val sensorOrientation = CameraUtil.getSensorOrientation(BACK_SELECTOR.lensFacing!!)
         // Sets the target rotation to the camera sensor orientation to avoid the captured image
         // buffer data rotated by the HAL and impact the final image resolution check
@@ -1621,6 +1901,89 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         assertThat(imageProperties.size).isEqualTo(maxHighResolutionOutputSize)
     }
 
+    /**
+     * See b/288828159 for the detailed info of the issue
+     */
+    @Test
+    fun jpegImageZeroPaddingDataDetectionTest(): Unit = runBlocking {
+        val imageCapture = ImageCapture.Builder().build()
+
+        withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(fakeLifecycleOwner, BACK_SELECTOR, imageCapture)
+        }
+
+        val latch = CountdownDeferred(1)
+        var errors: Exception? = null
+
+        val callback = object : ImageCapture.OnImageCapturedCallback() {
+            override fun onCaptureSuccess(image: ImageProxy) {
+                val planes = image.planes
+                val buffer = planes[0].buffer
+                val data = ByteArray(buffer.capacity())
+                buffer.rewind()
+                buffer[data]
+
+                image.close()
+
+                val invalidJpegDataParser = InvalidJpegDataParser()
+
+                // Only checks the unnecessary zero padding data when the device is not included in
+                // the LargeJpegImageQuirk device list. InvalidJpegDataParser#getValidDataLength()
+                // should have returned the valid data length to avoid the extremely large JPEG
+                // file issue.
+                if (invalidJpegDataParser.getValidDataLength(data) == data.size &&
+                    containsZeroPaddingDataAfterEoi(data)
+                ) {
+                    errors = Exception("UNNECESSARY_JPEG_ZERO_PADDING_DATA_DETECTED!")
+                }
+
+                latch.countDown()
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                errors = exception
+                latch.countDown()
+            }
+        }
+
+        imageCapture.takePicture(mainExecutor, callback)
+
+        // Wait for the signal that the image has been captured.
+        assertThat(withTimeoutOrNull(CAPTURE_TIMEOUT) {
+            latch.await()
+        }).isNotNull()
+        assertThat(errors).isNull()
+    }
+
+    /**
+     * This util function is only used to detect the unnecessary zero padding data after EOI. It
+     * will directly return false when it fails to parse the JPEG byte array data.
+     */
+    private fun containsZeroPaddingDataAfterEoi(bytes: ByteArray): Boolean {
+        val jfifEoiMarkEndPosition = InvalidJpegDataParser.getJfifEoiMarkEndPosition(bytes)
+
+        // Directly returns false when EOI mark can't be found.
+        if (jfifEoiMarkEndPosition == -1) {
+            return false
+        }
+
+        // Will check 1mb data to know whether unnecessary zero padding data exists or not.
+        // Directly returns false when the data length is long enough
+        val dataLengthToDetect = 1_000_000
+        if (jfifEoiMarkEndPosition + dataLengthToDetect > bytes.size) {
+            return false
+        }
+
+        // Checks that there are at least continuous 1mb of unnecessary zero padding data after EOI
+        for (position in jfifEoiMarkEndPosition..jfifEoiMarkEndPosition + dataLengthToDetect) {
+            if (bytes[position] != 0x00.toByte()) {
+                return false
+            }
+        }
+
+        return true
+    }
+
     private fun createNonRotatedConfiguration(): ImageCaptureConfig {
         // Create a configuration with target rotation that matches the sensor rotation.
         // This assumes a back-facing camera (facing away from screen)
@@ -1642,6 +2005,15 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
             pictureFolder.mkdir()
         }
     }
+
+    /**
+     * See ImageCaptureRotationOptionQuirk. Some real devices or emulator do not support the
+     * capture rotation option correctly. The capture rotation option setting can't be correctly
+     * applied to the exif metadata of the captured images. Therefore, the exif rotation related
+     * verification in the tests needs to be ignored on these devices or emulator.
+     */
+    private fun isRotationOptionSupportedDevice() =
+        ExifRotationAvailability().isRotationOptionSupported
 
     private class ImageProperties(
         val size: Size? = null,

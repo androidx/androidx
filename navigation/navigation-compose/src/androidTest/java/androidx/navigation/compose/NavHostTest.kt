@@ -23,12 +23,14 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.OnBackPressedDispatcher
 import androidx.activity.OnBackPressedDispatcherOwner
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material.Button
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.CompositionLocalProvider
@@ -324,6 +326,121 @@ class NavHostTest {
     }
 
     @Test
+    fun testViewModelClearedAfterPopWithConfigChange() {
+        lateinit var navController: NavHostController
+        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        lateinit var state: MutableState<Int>
+        lateinit var viewModel: TestViewModel
+        composeTestRule.setContent {
+            state = remember { mutableStateOf(0) }
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                navController = rememberNavController()
+
+                if (state.value == 0) {
+                    NavHost(navController, route = "graph", startDestination = "first") {
+                        composable("first") {
+                        }
+                        composable("second") {
+                            viewModel = viewModel<TestViewModel>()
+                        }
+                    }
+                }
+            }
+        }
+
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo("first")
+
+        runOnUiThread {
+            navController.navigate("second")
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentBackStackEntry?.destination?.route)
+                .isEqualTo("second")
+            assertThat(viewModel.wasCleared).isFalse()
+        }
+
+        runOnUiThread {
+            navController.popBackStack("second", inclusive = true, saveState = false)
+            assertThat(navController.currentBackStackEntry?.destination?.route)
+                .isEqualTo("first")
+            // dispose the NavHost and move to destroy to simulate config change
+            state.value = 1
+            lifecycleOwner.currentState = Lifecycle.State.DESTROYED
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(viewModel.wasCleared).isTrue()
+        }
+    }
+
+    @Test
+    fun testViewModelClearedAfterPopMultipleWithConfigChange() {
+        lateinit var navController: NavHostController
+        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        lateinit var state: MutableState<Int>
+        lateinit var viewModel_second: TestViewModel
+        lateinit var viewModel_third: TestViewModel
+
+        composeTestRule.setContent {
+            state = remember { mutableStateOf(0) }
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                navController = rememberNavController()
+
+                if (state.value == 0) {
+                    NavHost(navController, route = "graph", startDestination = "first") {
+                        composable("first") {
+                        }
+                        composable("second") {
+                            viewModel_second = viewModel<TestViewModel>()
+                        }
+                        composable("third") {
+                            viewModel_third = viewModel<TestViewModel>()
+                        }
+                    }
+                }
+            }
+        }
+
+        assertThat(navController.currentBackStackEntry?.destination?.route)
+            .isEqualTo("first")
+
+        runOnUiThread {
+            navController.navigate("second")
+        }
+
+        composeTestRule.waitForIdle()
+
+        runOnUiThread {
+            navController.navigate("third")
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentBackStackEntry?.destination?.route)
+                .isEqualTo("third")
+            assertThat(navController.currentBackStack.value.map { it.destination.route })
+                .containsExactly("graph", "first", "second", "third").inOrder()
+            assertThat(viewModel_second.wasCleared).isFalse()
+            assertThat(viewModel_third.wasCleared).isFalse()
+        }
+
+        runOnUiThread {
+            navController.popBackStack("second", inclusive = true, saveState = false)
+            assertThat(navController.currentBackStackEntry?.destination?.route)
+                .isEqualTo("first")
+            // dispose the NavHost and move to destroy to simulate config change
+            state.value = 1
+            lifecycleOwner.currentState = Lifecycle.State.DESTROYED
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(viewModel_second.wasCleared).isTrue()
+            assertThat(viewModel_third.wasCleared).isTrue()
+        }
+    }
+
+    @Test
     fun testSaveableStateClearedAfterPop() {
         lateinit var navController: NavHostController
         var viewModel: BackStackEntryIdViewModel? = null
@@ -503,7 +620,331 @@ class NavHostTest {
     }
 
     @Test
-    fun testNavHostCrossFade() {
+    fun setSameGraph_replacesGraphDestination() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            graph2 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            // check current graph is graph1
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+            // make sure the two graphs are equal but different instances
+            assertThat(graph1).isEqualTo(graph2)
+            assertThat(graph1).isNotSameInstanceAs(graph2)
+        }
+
+        // copy to assert later on that graph1 nodes replaced by graph2 nodes instead of vice versa
+        val graph2Nodes = graph2.toMutableList()
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            // make sure navController didn't replace graph1 with graph2 since they are considered
+            // same graphs
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+            assertThat(navController.graph).isNotSameInstanceAs(graph2)
+
+            // even though we didn't replace graph1, graph1's entry destinations should be
+            // replaced with graph2's new destination instances
+            graph1.onEachIndexed { index, node ->
+                val otherNode = graph2Nodes[index]
+                assertThat(node).isEqualTo(otherNode)
+                assertThat(node).isSameInstanceAs(otherNode)
+            }
+        }
+    }
+
+    @Test
+    fun setSameGraphWithRoutes_replacesGraphDestination() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(route = "route", startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            graph2 = navController.createGraph(route = "route", startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            // check current graph is graph1
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+            // make sure the two graphs are equal but different instances
+            assertThat(graph1).isEqualTo(graph2)
+            assertThat(graph1).isNotSameInstanceAs(graph2)
+        }
+
+        // copy to assert later on that graph1 nodes replaced by graph2 nodes instead of vice versa
+        val graph2Nodes = graph2.toMutableList()
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            // make sure navController didn't replace graph1 with graph2 since they are considered
+            // same graphs
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+            assertThat(navController.graph).isNotSameInstanceAs(graph2)
+
+            // even though we didn't replace graph1, graph1's entry destinations should be
+            // replaced with graph2's new destination instances
+            graph1.onEachIndexed { index, node ->
+                val otherNode = graph2Nodes[index]
+                assertThat(node).isEqualTo(otherNode)
+                assertThat(node).isSameInstanceAs(otherNode)
+            }
+        }
+    }
+
+    @Test
+    fun setSameGraphWithNestedGraph_replacesNestedGraphDestinations() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                navigation(startDestination = "Third", route = "Second") {
+                    composable("Third") { }
+                    composable("Fourth") { }
+                }
+            }
+            graph2 = navController.createGraph(startDestination = "First") {
+                composable("First") { }
+                navigation(startDestination = "Third", route = "Second") {
+                    composable("Third") { }
+                    composable("Fourth") { }
+                }
+            }
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            // check current graph is graph1
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+        }
+
+        // copy to assert later on that graph1 nodes replaced by graph2 nodes instead of vice versa
+        val graph2Nodes = graph2.toMutableList()
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            // make sure navController didn't replace graph1 with graph2 since they are considered
+            // same graphs
+            assertThat(navController.graph).isSameInstanceAs(graph1)
+
+            // even though we didn't replace graph1, graph1's entry destinations should be
+            // replaced with graph2's new destination instances
+            graph1.onEachIndexed { index, node ->
+                val otherNode = graph2Nodes[index]
+                assertThat(node).isEqualTo(otherNode)
+                assertThat(node).isSameInstanceAs(otherNode)
+            }
+
+            // check that nested graphs/destinations are also replaced
+            val graph2NestedNodes = (graph2Nodes.get(1) as NavGraph).toMutableList()
+            (graph1.nodes.valueAt(1) as NavGraph).onEachIndexed { index, node ->
+                val otherNode = graph2NestedNodes[index]
+                assertThat(node).isEqualTo(otherNode)
+                assertThat(node).isSameInstanceAs(otherNode)
+            }
+        }
+    }
+
+    @Test
+    fun setSameGraphWithNestedGraph_updatesNavControllerBackstack() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                navigation(route = "Second", startDestination = "Third") {
+                    composable("Third") { }
+                    composable("Fourth") { }
+                }
+            }
+            graph2 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                navigation(route = "Second", startDestination = "Third") {
+                    composable("Third") { }
+                    composable("Fourth") { }
+                }
+            }
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate("Fourth")
+            assertThat(navController.currentBackStackEntry?.destination?.route)
+                .isEqualTo("Fourth")
+            // Root, First, Second, Fourth
+            assertThat(navController.currentBackStack.value.size).isEqualTo(4)
+        }
+
+        // copy to assert later on that graph1 nodes replaced by graph2 nodes instead of vice versa
+        val graph2Nodes = graph2.toMutableList()
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            // make sure NavController backQueue is updated with new nested destinations
+            val entryDestinations = navController.currentBackStack.value.filter {
+                !it.destination.route.equals("Root")
+            }.map { it.destination }
+
+            val entryRoutes = entryDestinations.map { it.route }
+            assertThat(entryRoutes).containsExactlyElementsIn(
+                listOf("First", "Second", "Fourth")
+            ).inOrder()
+
+            assertThat(entryDestinations[0]).isSameInstanceAs(graph2Nodes[0]) // First
+            assertThat(entryDestinations[1]).isSameInstanceAs(graph2Nodes[1]) // Second
+            // make sure nested node is updated
+            val nestedNode = (graph2Nodes[1] as NavGraph).nodes.valueAt(1)
+            assertThat(nestedNode.route).isEqualTo("Fourth")
+            assertThat(entryDestinations[2]).isSameInstanceAs(nestedNode)
+        }
+    }
+
+    @Test
+    fun setSameGraphWithNestedGraphDuplicatedRoutes_updatesNavControllerBackstack() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                navigation(route = "Second", startDestination = "Third") {
+                    composable("Third") { }
+                    navigation(route = "Fourth", startDestination = "First") {
+                        composable("First") { }
+                    }
+                }
+            }
+            graph2 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                navigation(route = "Second", startDestination = "Third") {
+                    composable("Third") { }
+                    navigation(route = "Fourth", startDestination = "First") {
+                        composable("First") { }
+                    }
+                }
+            }
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(navController.currentBackStackEntry?.destination?.route)
+                .isEqualTo("First")
+
+            // navigate to duplicated destination
+            navController.navigate("Fourth")
+            // Root, First, Second, Fourth, First
+            assertThat(navController.currentBackStack.value.size).isEqualTo(5)
+            assertThat(navController.currentBackStackEntry?.destination?.route)
+                .isEqualTo("First")
+            // make sure current destination's parent is the nested graph
+            assertThat(navController.currentBackStackEntry?.destination?.parent?.route)
+                .isEqualTo("Fourth")
+        }
+
+        // copy to assert later on that graph1 nodes replaced by graph2 nodes instead of vice versa
+        val graph2Nodes = graph2.toMutableList()
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            val entryDestinations = navController.currentBackStack.value.filter {
+                !it.destination.route.equals("Root")
+            }.map { it.destination }
+
+            val entryRoutes = entryDestinations.map { it.route }
+            assertThat(entryRoutes).containsExactlyElementsIn(
+                listOf("First", "Second", "Fourth", "First")
+            ).inOrder()
+
+            // make sure duplicated nodes are updated with correct instances
+            val dup1 = graph2Nodes[0]
+            assertThat(dup1.route).isEqualTo("First")
+            assertThat(entryDestinations[0]).isSameInstanceAs(dup1)
+
+            val dup2 = ((graph2Nodes[1] as NavGraph).nodes.valueAt(1) as NavGraph)
+                .nodes.valueAt(0)
+            assertThat(dup2.route).isEqualTo("First")
+            assertThat(entryDestinations[3]).isSameInstanceAs(dup2)
+        }
+    }
+
+    @Test
+    fun setSameGraph_findsExistingHierarchyWhenNavigating() {
+        lateinit var graph1: NavGraph
+        lateinit var graph2: NavGraph
+        lateinit var navController: NavHostController
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            graph1 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+            graph2 = navController.createGraph(route = "Root", startDestination = "First") {
+                composable("First") { }
+                composable("Second") { }
+            }
+
+            NavHost(navController, graph1)
+        }
+
+        composeTestRule.runOnIdle {
+            assertWithMessage("Current destination should be First")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("First")
+        }
+
+        // set same graph
+        navController.setGraph(graph2, null)
+
+        composeTestRule.runOnIdle {
+            // When navigating to Second, NavController should find an instance of it already
+            // within current NavGraph and does not rebuild its hierarchy when navigating
+            navController.navigate("Second")
+
+            assertWithMessage("Current destination should be Second")
+                .that(navController.currentDestination?.route)
+                .isEqualTo("Second")
+        }
+        // Root, First, Second
+        assertThat(navController.currentBackStack.value.size).isEqualTo(3)
+        val entryRoutes = navController.currentBackStack.value.map { it.destination.route }
+        // ensure that Root did not get added a second time
+        assertThat(entryRoutes).containsExactlyElementsIn(
+            listOf("Root", "First", "Second")
+        ).inOrder()
+    }
+
+    @Test
+    fun testNavHostAnimations() {
         lateinit var navController: NavHostController
 
         composeTestRule.mainClock.autoAdvance = false
@@ -536,7 +977,7 @@ class NavHostTest {
         assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
 
-        // advance half way between the crossfade
+        // advance half way between animations
         composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
 
         assertThat(firstEntry?.lifecycle?.currentState)
@@ -576,7 +1017,7 @@ class NavHostTest {
         assertThat(secondEntry?.lifecycle?.currentState)
             .isEqualTo(Lifecycle.State.CREATED)
 
-        // advance half way between the crossfade
+        // advance half way between animations
         composeTestRule.mainClock.advanceTimeBy(DefaultDurationMillis.toLong() / 2)
 
         assertThat(navController.currentBackStackEntry?.lifecycle?.currentState)
@@ -598,7 +1039,54 @@ class NavHostTest {
     }
 
     @Test
-    fun testNavHostCrossFadeDeeplink() {
+    fun testNavHostAnimationsBackInterrupt() {
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = first) {
+                composable(first) {
+                    Scaffold {
+                        NavHost(rememberNavController(), startDestination = "one") {
+                            composable("one") {
+                                BasicText("one")
+                                viewModel<TestViewModel>()
+                            }
+                        }
+                    }
+                }
+                composable(second) { }
+            }
+        }
+
+        val firstEntry = navController.currentBackStackEntry
+
+        composeTestRule.runOnIdle {
+            assertThat(firstEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.RESUMED)
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+
+        val secondEntry = navController.currentBackStackEntry
+
+        composeTestRule.runOnIdle {
+            navController.popBackStack()
+            navController.popBackStack()
+        }
+
+        composeTestRule.runOnIdle {
+            assertThat(firstEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.DESTROYED)
+            assertThat(secondEntry?.lifecycle?.currentState)
+                .isEqualTo(Lifecycle.State.DESTROYED)
+        }
+    }
+
+    @Test
+    fun testNavHostDeeplink() {
         lateinit var navController: NavHostController
 
         composeTestRule.mainClock.autoAdvance = false
@@ -637,7 +1125,7 @@ class NavHostTest {
     }
 
     @Test
-    fun testStateSavedByCrossFade() {
+    fun testStateSaved() {
         lateinit var navController: NavHostController
         lateinit var text: MutableState<String>
 
@@ -785,6 +1273,25 @@ class NavHostTest {
     }
 
     @Test
+    fun testNestedNavHostNullLambda() {
+        lateinit var navController: NavHostController
+
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            NavHost(navController, startDestination = first) {
+                composable(first) { BasicText(first) }
+                navigation(second, "subGraph", enterTransition = { null }) {
+                    composable(second) { BasicText(second) }
+                }
+            }
+        }
+
+        composeTestRule.runOnIdle {
+            navController.navigate(second)
+        }
+    }
+
+    @Test
     fun testNestedNavHostOnBackPressed() {
         var innerLifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
         val onBackPressedDispatcher = OnBackPressedDispatcher()
@@ -818,7 +1325,7 @@ class NavHostTest {
         composeTestRule.runOnIdle {
             assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
             innerNavController.navigate("innerSecond")
-            assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isTrue()
+            assertThat(onBackPressedDispatcher.hasEnabledCallbacks()).isFalse()
         }
 
         // Now navigate to a second destination in the outer NavHost
@@ -885,6 +1392,49 @@ class NavHostTest {
         }
     }
 
+    @Test
+    fun testPopWithBackHandler() {
+        lateinit var navController: NavHostController
+        var lifecycleOwner = TestLifecycleOwner(Lifecycle.State.RESUMED)
+        var backPressedDispatcher: OnBackPressedDispatcher? = null
+        var count = 0
+        var wasCalled = false
+        composeTestRule.setContent {
+            navController = rememberNavController()
+            backPressedDispatcher =
+                LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+            CompositionLocalProvider(LocalLifecycleOwner provides lifecycleOwner) {
+                BackHandler { wasCalled = true }
+                NavHost(navController, startDestination = "first") {
+                    composable("first") {
+                        BackHandler { count++ }
+                    }
+                }
+            }
+        }
+
+        composeTestRule.runOnUiThread {
+            backPressedDispatcher?.onBackPressed()
+            assertThat(count).isEqualTo(1)
+        }
+
+        // move to the back ground to unregister the BackHandlers
+        composeTestRule.runOnIdle {
+            lifecycleOwner.currentState = Lifecycle.State.CREATED
+        }
+
+        // register the BackHandlers again
+        composeTestRule.runOnIdle {
+            lifecycleOwner.currentState = Lifecycle.State.RESUMED
+        }
+
+        composeTestRule.runOnUiThread {
+            backPressedDispatcher?.onBackPressed()
+            assertThat(count).isEqualTo(2)
+            assertThat(wasCalled).isFalse()
+        }
+    }
+
     private fun createNavController(context: Context): TestNavHostController {
         val navController = TestNavHostController(context)
         val navigator = TestNavigator()
@@ -895,6 +1445,7 @@ class NavHostTest {
 
 private const val first = "first"
 private const val second = "second"
+private const val third = "third"
 
 class TestViewModel : ViewModel() {
     var value: String = "nothing"

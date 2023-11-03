@@ -17,14 +17,12 @@
 package androidx.room.migration.bundle
 
 import androidx.annotation.RestrictTo
-
 import com.google.gson.annotations.SerializedName
 
 /**
  * Data class that holds FTS Options of an {@link Fts3 Fts3} or
  * {@link Fts4 Fts4}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 public open class FtsOptionsBundle(

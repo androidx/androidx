@@ -22,6 +22,7 @@ import org.apache.logging.log4j.kotlin.logger
 import org.jetbrains.kotlin.com.google.common.annotations.VisibleForTesting
 import java.security.MessageDigest
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * A [DownloadObserver] that will save all files into the given repository folders.
@@ -39,12 +40,13 @@ class LocalMavenRepoDownloader(
 ) : DownloadObserver {
     private val logger = logger("LocalMavenRepoDownloader")
     private val licenseDownloader = LicenseDownloader(enableGithubApi = false)
-    private val writtenFiles = mutableSetOf<Path>()
+    private val writtenFilesMap: MutableMap<Path, Boolean> = ConcurrentHashMap<Path, Boolean>()
+    fun writtenFiles(): Set<Path> = writtenFilesMap.keys
 
     /**
      * Returns the list of files we've downloaded.
      */
-    fun getDownloadedFiles() = writtenFiles.sorted().distinct()
+    fun getDownloadedFiles() = writtenFiles()
 
     override fun onDownload(path: String, bytes: ByteArray) {
         if (path.substringAfterLast('.') in checksumExtensions) {
@@ -118,7 +120,7 @@ class LocalMavenRepoDownloader(
         file: Path,
         contents: ByteArray
     ) {
-        writtenFiles.add(file.normalized())
+        writtenFilesMap.put(file.normalized(), true)
         file.parent?.let(fileSystem::createDirectories)
         write(
             file = file,
@@ -144,7 +146,7 @@ class LocalMavenRepoDownloader(
      * might delete files that were resolved from the local repository.
      */
     fun cleanupLocalRepositories() {
-        val folders = writtenFiles.filter {
+        val folders = writtenFiles().filter {
             val isDirectory = fileSystem.metadata(it).isDirectory
             !isDirectory && it.name.substringAfterLast(".") in EXTENSIONS_FOR_CLENAUP
         }.mapNotNull {
@@ -160,7 +162,7 @@ class LocalMavenRepoDownloader(
                 "Cleaning up $folder ($index of ${folders.size})"
             }
             fileSystem.list(folder).forEach { candidateToDelete ->
-                if (!writtenFiles.contains(candidateToDelete.normalized())) {
+                if (!writtenFiles().contains(candidateToDelete.normalized())) {
                     logger.trace {
                         "Deleting $candidateToDelete since it is not re-downloaded"
                     }

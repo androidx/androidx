@@ -22,10 +22,10 @@ import android.content.Intent
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
-import androidx.camera.testing.waitForIdle
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.waitForIdle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
@@ -111,7 +111,7 @@ class TakePictureTest(
     fun tearDown() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+        cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
     }
 
     // Take a photo, wait for callback via imageSavedIdlingResource resource.

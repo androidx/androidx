@@ -39,17 +39,23 @@ def getOutDir(subdir = "") {
     return new Tuple(outDir, buildSrcOut)
 }
 
-def chooseOutDir(subdir = "") {
+// Ideally this function would just be chooseBuildDir, but Gradle doesn't include the text ":buildSrc" in the project path
+def chooseBuildSrcBuildDir(subdir = "") {
     def (outDir, buildSrcOut) = getOutDir(subdir)
     project.ext.buildSrcOut = buildSrcOut
     project.ext.outDir = outDir
-    buildDir = new File(outDir, "$project.name/build")
-                .getCanonicalFile()
+    def pathAsFilepath = project.path.replaceFirst(":", "").replaceAll(":", "/")
+    project.layout.buildDirectory.set(new File(buildSrcOut, "$pathAsFilepath/build").getCanonicalFile())
+}
+
+def chooseOutDir(subdir = "") {
+    chooseBuildSrcBuildDir()
     subprojects {
         // Change buildDir first so that all plugins pick up the new value.
-        project.buildDir = new File("$project.parent.buildDir/../$project.name/build")
+        project.layout.buildDirectory.set(new File("$project.parent.buildDir/../$project.name/build"))
     }
 }
 
 ext.init.getOutDir = this.&getOutDir
 ext.init.chooseOutDir = this.&chooseOutDir
+ext.init.chooseBuildSrcBuildDir = this.&chooseBuildSrcBuildDir

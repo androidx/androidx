@@ -17,6 +17,7 @@
 package androidx.room.integration.kotlintestapp.test
 
 import android.content.Context
+import androidx.kruth.assertThat
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Database
@@ -29,7 +30,6 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.test.core.app.ApplicationProvider
-import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test

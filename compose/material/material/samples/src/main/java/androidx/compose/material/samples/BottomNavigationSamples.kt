@@ -18,6 +18,7 @@ package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.material.BottomNavigation
+import androidx.compose.material.BottomNavigationDefaults
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
@@ -35,7 +36,7 @@ fun BottomNavigationSample() {
     var selectedItem by remember { mutableStateOf(0) }
     val items = listOf("Songs", "Artists", "Playlists")
 
-    BottomNavigation {
+    BottomNavigation(windowInsets = BottomNavigationDefaults.windowInsets) {
         items.forEachIndexed { index, item ->
             BottomNavigationItem(
                 icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },

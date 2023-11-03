@@ -50,7 +50,6 @@ import java.util.List;
  * This class handles binding and unbinding to the renderer service and make sure the renderer
  * service gets initialized and terminated properly.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class ServiceConnectionManager {

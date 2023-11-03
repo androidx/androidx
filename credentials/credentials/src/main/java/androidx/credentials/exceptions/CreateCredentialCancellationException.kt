@@ -26,9 +26,7 @@ package androidx.credentials.exceptions
 class CreateCredentialCancellationException @JvmOverloads constructor(
     errorMessage: CharSequence? = null
 ) : CreateCredentialException(TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION, errorMessage) {
-
-    /** @hide */
-    companion object {
+    internal companion object {
         internal const val TYPE_CREATE_CREDENTIAL_CANCELLATION_EXCEPTION =
             "android.credentials.CreateCredentialException.TYPE_USER_CANCELED"
     }

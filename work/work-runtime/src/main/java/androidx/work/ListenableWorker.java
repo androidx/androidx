@@ -16,6 +16,8 @@
 
 package androidx.work;
 
+import static androidx.work.WorkInfo.STOP_REASON_NOT_STOPPED;
+
 import android.content.Context;
 import android.net.Network;
 import android.net.Uri;
@@ -63,7 +65,7 @@ public abstract class ListenableWorker {
     private @NonNull Context mAppContext;
     private @NonNull WorkerParameters mWorkerParams;
 
-    private volatile boolean mStopped;
+    private volatile int mStopReason = STOP_REASON_NOT_STOPPED;
 
     private boolean mUsed;
 
@@ -264,19 +266,31 @@ public abstract class ListenableWorker {
      * task. In these cases, the results of the work will be ignored by WorkManager and it is safe
      * to stop the computation.  WorkManager will retry the work at a later time if necessary.
      *
-     *
      * @return {@code true} if the work operation has been interrupted
      */
     public final boolean isStopped() {
-        return mStopped;
+        return mStopReason != STOP_REASON_NOT_STOPPED;
     }
 
     /**
-     * @hide
+     * Returns a reason why this worker has been stopped. Return values match values of
+     * {@code JobParameters.STOP_REASON_*} constants, e.g.
+     * {@link android.app.job.JobParameters#STOP_REASON_CONSTRAINT_CHARGING} or
+     * {@link WorkInfo#STOP_REASON_UNKNOWN}
+     * <p>
+     * If a worker hasn't been stopped, {@link WorkInfo#STOP_REASON_NOT_STOPPED} is returned.
+     */
+    @StopReason
+    @RequiresApi(31)
+    public final int getStopReason() {
+        return mStopReason;
+    }
+
+    /**
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public final void stop() {
-        mStopped = true;
+    public final void stop(int reason) {
+        mStopReason = reason;
         onStopped();
     }
 
@@ -296,7 +310,6 @@ public abstract class ListenableWorker {
     /**
      * @return {@code true} if this worker has already been marked as used
      * @see #setUsed()
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final boolean isUsed() {
@@ -307,7 +320,6 @@ public abstract class ListenableWorker {
      * Marks this worker as used to make sure we enforce the policy that workers can only be used
      * once and that WorkerFactories return a new instance each time.
      * @see #isUsed()
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public final void setUsed() {
@@ -315,7 +327,6 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull Executor getBackgroundExecutor() {
@@ -323,7 +334,6 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull TaskExecutor getTaskExecutor() {
@@ -331,7 +341,6 @@ public abstract class ListenableWorker {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @NonNull WorkerFactory getWorkerFactory() {
@@ -420,7 +429,6 @@ public abstract class ListenableWorker {
         public abstract Data getOutputData();
 
         /**
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         Result() {
@@ -432,7 +440,6 @@ public abstract class ListenableWorker {
          * Used to indicate that the work completed successfully.  Any work that depends on this
          * can be executed as long as all of its other dependencies and constraints are met.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final class Success extends Result {
@@ -485,7 +492,6 @@ public abstract class ListenableWorker {
          * to run, you need to return {@link Result.Success}</b>; failure indicates a permanent
          * stoppage of the chain of work.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final class Failure extends Result {
@@ -537,7 +543,6 @@ public abstract class ListenableWorker {
          * backoff specified in
          * {@link WorkRequest.Builder#setBackoffCriteria(BackoffPolicy, long, TimeUnit)}.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public static final class Retry extends Result {

@@ -133,8 +133,9 @@ fun Icon(
     modifier: Modifier = Modifier,
     tint: Color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
 ) {
-    // TODO: b/149735981 semantics for content description
-    val colorFilter = if (tint == Color.Unspecified) null else ColorFilter.tint(tint)
+    val colorFilter = remember(tint) {
+        if (tint == Color.Unspecified) null else ColorFilter.tint(tint)
+    }
     val semantics = if (contentDescription != null) {
         Modifier.semantics {
             this.contentDescription = contentDescription

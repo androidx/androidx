@@ -76,7 +76,6 @@ public final class MediaConstants {
      *
      * @see MediaControllerCompat#getExtras
      * @see MediaSessionCompat#setExtras
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @SuppressLint("IntentName")

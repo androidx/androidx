@@ -183,6 +183,7 @@ public class AsyncWatchFaceInitTest {
 
     @After
     fun tearDown() {
+        assertThat(InteractiveInstanceManager.getParameterlessEngine()).isNull()
         InteractiveInstanceManager.releaseInstance(initParams.instanceId)
         assertThat(InteractiveInstanceManager.getInstances()).isEmpty()
     }
@@ -228,6 +229,9 @@ public class AsyncWatchFaceInitTest {
         runPostedTasksFor(0)
 
         assertThat(pendingException.message).startsWith("WatchFace already exists!")
+
+        // Tidy up.
+        InteractiveInstanceManager.setParameterlessEngine(null)
     }
 
     @Test

@@ -43,7 +43,7 @@
          `ActivityRule`. The suggested usage is to set the tag to be able to differentiate between
          different rules in the callbacks.
          For example, it can be used to compute the right `SplitAttributes` for the given split rule
-         in `SplitAttributesCalculator.computeSplitAttributesForParams`. -->
+         in `SplitAttributes` calculator function. -->
     <attr name="tag" format="string" />
     <!-- An attribute for Activity Embedding rules.
          Background color of Activity Embedding window animation if the animation requires a

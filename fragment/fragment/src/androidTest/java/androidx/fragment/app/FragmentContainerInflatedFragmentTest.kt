@@ -212,7 +212,13 @@ class FragmentContainerInflatedFragmentTest {
     }
 }
 
-class SimpleContainerActivity : FragmentActivity(R.layout.simple_container)
+class SimpleContainerActivity : FragmentActivity(R.layout.simple_container) {
+    var invalidateCount = 0
+    override fun invalidateMenu() {
+        invalidateCount++
+        super.invalidateMenu()
+    }
+}
 
 class ContainerViewActivity : FragmentActivity(R.layout.inflated_fragment_container_view) {
     var foundFragment = false

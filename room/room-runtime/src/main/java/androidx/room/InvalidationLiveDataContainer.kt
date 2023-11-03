@@ -34,7 +34,7 @@ internal class InvalidationLiveDataContainer(private val database: RoomDatabase)
     fun <T> create(
         tableNames: Array<out String>,
         inTransaction: Boolean,
-        computeFunction: Callable<T>
+        computeFunction: Callable<T?>
     ): LiveData<T> {
         return RoomTrackingLiveData(
             database,

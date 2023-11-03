@@ -22,13 +22,11 @@ import androidx.annotation.RestrictTo;
 /** This exception is thrown when request is cancelled due to that camera is closed */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 final class CameraClosedException extends RuntimeException {
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     CameraClosedException(String s, Throwable e) {
         super(s, e);
     }
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     CameraClosedException(String s) {
         super(s);

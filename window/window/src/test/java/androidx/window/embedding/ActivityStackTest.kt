@@ -18,10 +18,12 @@ package androidx.window.embedding
 
 import android.app.Activity
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.kotlin.mock
 
+/** Unit tests for [ActivityStack] */
 class ActivityStackTest {
 
     @Test
@@ -40,5 +42,27 @@ class ActivityStackTest {
 
         assertEquals(first, second)
         assertEquals(first.hashCode(), second.hashCode())
+    }
+
+    @Test
+    fun testIsEmpty() {
+        var stack = ActivityStack(emptyList(), isEmpty = true)
+
+        assertTrue(stack.isEmpty)
+
+        stack = ActivityStack(emptyList(), isEmpty = false)
+
+        assertFalse(stack.isEmpty)
+    }
+
+    @Test
+    fun testToString() {
+        val activitiesInProcess = mock<List<Activity>>()
+        val isEmpty = false
+
+        val stackString = ActivityStack(activitiesInProcess, isEmpty).toString()
+
+        assertTrue(stackString.contains(activitiesInProcess.toString()))
+        assertTrue(stackString.contains(isEmpty.toString()))
     }
 }

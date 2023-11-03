@@ -27,6 +27,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
+import androidx.work.Clock;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.impl.model.WorkSpec;
@@ -40,7 +41,6 @@ import com.google.android.gms.gcm.Task;
  * Converts a {@link androidx.work.impl.model.WorkSpec} to a {@link Task}.
  */
 public class GcmTaskConverter {
-
     /**
      * This is referring to the size of the execution window in seconds. {@link GcmNetworkManager}
      * requires that we specify a window of time relative to {@code now} where a {@link Task}
@@ -53,6 +53,11 @@ public class GcmTaskConverter {
     public static final long EXECUTION_WINDOW_SIZE_IN_SECONDS = 5L;
 
     static final String EXTRA_WORK_GENERATION = "androidx.work.impl.background.gcm.GENERATION";
+    private final Clock mClock;
+
+    public GcmTaskConverter(@NonNull Clock clock) {
+        mClock = clock;
+    }
 
     OneoffTask convert(@NonNull WorkSpec workSpec) {
         Bundle extras = new Bundle();
@@ -81,7 +86,7 @@ public class GcmTaskConverter {
      */
     @VisibleForTesting
     public long now() {
-        return System.currentTimeMillis();
+        return mClock.currentTimeMillis();
     }
 
     private static Task.Builder applyConstraints(

@@ -147,6 +147,7 @@ public final class MarginLayoutParamsCompat {
     /**
      * Set the layout direction.
      *
+     * @param lp LayoutParameters for which to set the layout direction.
      * @param layoutDirection the layout direction.
      *        Should be either {@link ViewCompat#LAYOUT_DIRECTION_LTR}
      *                     or {@link ViewCompat#LAYOUT_DIRECTION_RTL}.

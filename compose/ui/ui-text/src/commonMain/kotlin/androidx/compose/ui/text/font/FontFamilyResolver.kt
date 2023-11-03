@@ -129,7 +129,14 @@ internal interface PlatformResolveInterceptor {
 
 internal val GlobalTypefaceRequestCache = TypefaceRequestCache()
 internal val GlobalAsyncTypefaceCache = AsyncTypefaceCache()
-internal expect class PlatformFontFamilyTypefaceAdapter() : FontFamilyTypefaceAdapter
+internal expect class PlatformFontFamilyTypefaceAdapter() : FontFamilyTypefaceAdapter {
+    override fun resolve(
+        typefaceRequest: TypefaceRequest,
+        platformFontLoader: PlatformFontLoader,
+        onAsyncCompletion: (TypefaceResult.Immutable) -> Unit,
+        createDefaultTypeface: (TypefaceRequest) -> Any
+    ): TypefaceResult?
+}
 
 internal data class TypefaceRequest(
     val fontFamily: FontFamily?,

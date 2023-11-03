@@ -76,7 +76,8 @@ public class ExposureControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA0_ID);
         CameraCharacteristicsCompat cameraCharacteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics,
+                        CAMERA0_ID);
 
         mCamera2CameraControl = spy(new Camera2CameraControlImpl(
                 cameraCharacteristicsCompat,
@@ -180,7 +181,8 @@ public class ExposureControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
         CameraCharacteristicsCompat cameraCharacteristicsCompat =
-                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics);
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics,
+                        CAMERA1_ID);
         mCamera2CameraControl = spy(new Camera2CameraControlImpl(
                 cameraCharacteristicsCompat,
                 CameraXExecutors.mainThreadExecutor(),

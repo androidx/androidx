@@ -25,7 +25,7 @@ plugins {
 }
 
 dependencies {
-    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    compileOnly(project(":annotation:annotation-sampled"))
     implementation(libs.kotlinStdlib)
     implementation projectOrArtifact(":lifecycle:lifecycle-common-java8")
     implementation projectOrArtifact(":lifecycle:lifecycle-viewmodel-compose")
@@ -33,7 +33,7 @@ dependencies {
 }
 
 androidx {
-    name = "AndroidX Lifecycle ViewModel Compose Integration Samples"
+    name = "Lifecycle ViewModel Compose Integration Samples"
     type = LibraryType.SAMPLES
     inceptionYear = "2021"
     description = "Samples for Compose integration with Lifecycle ViewModel"

@@ -16,10 +16,10 @@
 
 package androidx.compose.foundation.text.selection
 
-import androidx.compose.foundation.fastFold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import kotlin.math.max

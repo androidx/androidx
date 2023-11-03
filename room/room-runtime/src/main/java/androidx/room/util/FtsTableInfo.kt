@@ -15,7 +15,6 @@
  */
 package androidx.room.util
 
-import android.annotation.SuppressLint
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.sqlite.db.SupportSQLiteDatabase
@@ -24,7 +23,6 @@ import java.util.ArrayDeque
 /**
  * A data class that holds the information about an FTS table.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 class FtsTableInfo(
@@ -84,7 +82,6 @@ class FtsTableInfo(
          * @param tableName The table name.
          * @return A FtsTableInfo containing the columns and options for the provided table name.
          */
-        @SuppressLint("SyntheticAccessor")
         @JvmStatic
         fun read(database: SupportSQLiteDatabase, tableName: String): FtsTableInfo {
             val columns = readColumns(database, tableName)

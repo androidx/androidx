@@ -24,7 +24,8 @@ import android.os.Handler
 import android.os.HandlerThread
 import android.os.Looper
 import android.view.Surface
-import androidx.camera.testing.GLUtil
+import androidx.annotation.RequiresApi
+import androidx.camera.testing.impl.GLUtil
 import androidx.test.filters.SdkSuppress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.android.asCoroutineDispatcher
@@ -44,6 +45,7 @@ private const val HEIGHT = 480
 abstract class RenderOutput<T> {
     abstract val surface: Surface
     protected abstract val imageFlow: Flow<T>
+    abstract val dataSpace: Int
     private val handlerThread: HandlerThread =
         HandlerThread("RenderOutput Thread").apply { start() }
     protected val handler: Handler = Handler(handlerThread.looper)
@@ -99,6 +101,9 @@ private class SurfaceTextureOutput : RenderOutput<Unit>() {
         }, handler)
         awaitClose { outputSurfaceTexture.setOnFrameAvailableListener(null) }
     }
+    override val dataSpace: Int
+        @RequiresApi(33)
+        get() = outputSurfaceTexture.dataSpace
 
     override fun release() {
         super.release()
@@ -130,6 +135,10 @@ private class ImageReaderOutput : RenderOutput<Image>() {
         imageReader.setOnImageAvailableListener(listener, handler)
         awaitClose { imageReader.setOnImageAvailableListener({}, Handler(Looper.getMainLooper())) }
     }
+
+    override val dataSpace: Int
+        @RequiresApi(33)
+        get() = imageReader.dataSpace
 
     override fun releaseImage(image: Image) {
         image.close()

@@ -20,9 +20,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 
-/**
- * Lists projects as specified by settings.gradle
- */
+/** Lists projects as specified by settings.gradle */
 abstract class ListProjectsService : BuildService<ListProjectsService.Parameters> {
     interface Parameters : BuildServiceParameters {
         var settingsFile: Provider<String>
@@ -32,9 +30,7 @@ abstract class ListProjectsService : BuildService<ListProjectsService.Parameters
     // Note that this might be more than the full list of projects configured in this build:
     // a) Configuration-on-demand can disable projects mentioned in settings.gradle
     // B) Playground builds use their own settings.gradle files
-    val allPossibleProjectPaths: List<String> by lazy {
-        val allProjects = SettingsParser.findProjects(parameters.settingsFile.get())
-        val projectPaths = allProjects.map { project -> project.gradlePath }
-        projectPaths
+    val allPossibleProjects: List<SettingsParser.IncludedProject> by lazy {
+        SettingsParser.findProjects(parameters.settingsFile.get())
     }
 }

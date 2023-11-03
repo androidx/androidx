@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.shape
 
+import androidx.annotation.IntRange
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.toRect
 import androidx.compose.ui.graphics.Outline
@@ -181,13 +182,13 @@ fun AbsoluteCutCornerShape(
  * with a range of 0 - 100.
  */
 fun AbsoluteCutCornerShape(
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     topLeftPercent: Int = 0,
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     topRightPercent: Int = 0,
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     bottomRightPercent: Int = 0,
-    /*@IntRange(from = 0, to = 100)*/
+    @IntRange(from = 0, to = 100)
     bottomLeftPercent: Int = 0
 ) = AbsoluteCutCornerShape(
     topLeft = CornerSize(topLeftPercent),

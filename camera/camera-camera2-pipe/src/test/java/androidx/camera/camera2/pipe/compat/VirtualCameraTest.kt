@@ -16,14 +16,22 @@
 
 package androidx.camera.camera2.pipe.compat
 
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraDevice
 import android.os.Build
 import android.os.Looper.getMainLooper
+import android.view.Surface
 import androidx.camera.camera2.pipe.CameraError
+import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.core.SystemTimeSource
 import androidx.camera.camera2.pipe.core.TimeSource
 import androidx.camera.camera2.pipe.core.Timestamps
 import androidx.camera.camera2.pipe.core.Token
+import androidx.camera.camera2.pipe.graph.GraphListener
+import androidx.camera.camera2.pipe.internal.CameraErrorListener
+import androidx.camera.camera2.pipe.testing.FakeCamera2DeviceCloser
+import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.camera.camera2.pipe.testing.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.testing.RobolectricCameras
 import com.google.common.truth.Truth.assertThat
@@ -34,11 +42,15 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.times
+import org.mockito.kotlin.verify
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
@@ -49,6 +61,8 @@ internal class VirtualCameraStateTest {
     private val mainLooper = shadowOf(getMainLooper())
     private val cameraId = RobolectricCameras.create()
     private val testCamera = RobolectricCameras.open(cameraId)
+    private val graphListener: GraphListener = mock()
+    private val cameraErrorListener: CameraErrorListener = mock()
 
     @After
     fun teardown() {
@@ -60,7 +74,7 @@ internal class VirtualCameraStateTest {
     fun virtualCameraStateCanBeDisconnected() = runTest {
         // This test asserts that the virtual camera starts in an unopened state and is changed to
         // "Closed" when disconnect is invoked on the VirtualCamera.
-        val virtualCamera = VirtualCameraState(cameraId)
+        val virtualCamera = VirtualCameraState(cameraId, graphListener, this)
         assertThat(virtualCamera.value).isInstanceOf(CameraStateUnopened::class.java)
 
         virtualCamera.disconnect()
@@ -84,12 +98,16 @@ internal class VirtualCameraStateTest {
         // This test asserts that when a virtual camera is connected to a flow of CameraState
         // changes that it receives those changes and can be subsequently disconnected, which stops
         // additional events from being passed to the virtual camera instance.
-        val virtualCamera = VirtualCameraState(cameraId)
+        val virtualCamera = VirtualCameraState(cameraId, graphListener, this)
         val cameraState =
             flowOf(
                 CameraStateOpen(
                     AndroidCameraDevice(
-                        testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId
+                        testCamera.metadata,
+                        testCamera.cameraDevice,
+                        testCamera.cameraId,
+                        cameraErrorListener,
+                        threads = FakeThreads.fromTestScope(this)
                     )
                 )
             )
@@ -116,20 +134,26 @@ internal class VirtualCameraStateTest {
     fun virtualCameraStateRespondsToClose() = runTest {
         // This tests that a listener attached to the virtualCamera.state property will receive all
         // of the events, starting from CameraStateUnopened.
-        val virtualCamera = VirtualCameraState(cameraId)
+        val virtualCamera = VirtualCameraState(cameraId, graphListener, this)
+        val androidCameraDevice = AndroidCameraDevice(
+            testCamera.metadata,
+            testCamera.cameraDevice,
+            testCamera.cameraId,
+            cameraErrorListener,
+            threads = FakeThreads.fromTestScope(this)
+        )
+        val cameraStateClosing = CameraStateClosing()
+        val cameraStateClosed =
+            CameraStateClosed(
+                cameraId,
+                ClosedReason.CAMERA2_ERROR,
+                cameraErrorCode = CameraError.ERROR_CAMERA_SERVICE
+            )
         val states =
             listOf(
-                CameraStateOpen(
-                    AndroidCameraDevice(
-                        testCamera.metadata, testCamera.cameraDevice, testCamera.cameraId
-                    )
-                ),
-                CameraStateClosing(),
-                CameraStateClosed(
-                    cameraId,
-                    ClosedReason.CAMERA2_ERROR,
-                    cameraErrorCode = CameraError.ERROR_CAMERA_SERVICE
-                )
+                CameraStateOpen(androidCameraDevice),
+                cameraStateClosing,
+                cameraStateClosed
             )
 
         val events = mutableListOf<CameraState>()
@@ -146,19 +170,124 @@ internal class VirtualCameraStateTest {
         advanceUntilIdle()
         job.cancelAndJoin()
 
-        val expectedStates = listOf(CameraStateUnopened).plus(states)
-        assertThat(events).containsExactlyElementsIn(expectedStates)
+        assertThat(events[0]).isSameInstanceAs(CameraStateUnopened)
+
+        assertThat(events[1]).isInstanceOf(CameraStateOpen::class.java)
+        val deviceWrapper = (events[1] as CameraStateOpen).cameraDevice
+        assertThat(deviceWrapper).isInstanceOf(VirtualAndroidCameraDevice::class.java)
+        val androidCameraStateInside =
+            (deviceWrapper as VirtualAndroidCameraDevice).androidCameraDevice
+
+        assertThat(androidCameraStateInside).isSameInstanceAs(androidCameraDevice)
+        assertThat(events[2]).isSameInstanceAs(cameraStateClosing)
+        assertThat(events[3]).isSameInstanceAs(cameraStateClosed)
+    }
+
+    @Test
+    fun virtualAndroidCameraDeviceRejectsCallsWhenVirtualCameraStateIsDisconnected() = runTest {
+        val virtualCamera = VirtualCameraState(cameraId, graphListener, this)
+        val cameraState =
+            flowOf(
+                CameraStateOpen(
+                    AndroidCameraDevice(
+                        testCamera.metadata,
+                        testCamera.cameraDevice,
+                        testCamera.cameraId,
+                        cameraErrorListener,
+                        threads = FakeThreads.fromTestScope(this)
+                    )
+                )
+            )
+        virtualCamera.connect(
+            cameraState,
+            object : Token {
+                override fun release(): Boolean {
+                    return true
+                }
+            })
+
+        virtualCamera.state.first { it !is CameraStateUnopened }
+
+        val virtualCameraState = virtualCamera.value
+        assertThat(virtualCameraState).isInstanceOf(CameraStateOpen::class.java)
+        val deviceWrapper = (virtualCameraState as CameraStateOpen).cameraDevice
+        assertThat(deviceWrapper).isInstanceOf(VirtualAndroidCameraDevice::class.java)
+
+        val virtualAndroidCameraState = deviceWrapper as VirtualAndroidCameraDevice
+        val result1 = virtualAndroidCameraState.createCaptureRequest(RequestTemplate(2))
+        virtualCamera.disconnect()
+        val result2 = virtualAndroidCameraState.createCaptureRequest(RequestTemplate(2))
+        assertThat(result1).isNotNull()
+        assertThat(result2).isNull()
+    }
+
+    @Test
+    fun virtualAndroidCameraDeviceFinalizesSessionWhenVirtualCameraStateIsDisconnected() = runTest {
+        val virtualCamera = VirtualCameraState(cameraId, graphListener, this)
+        val cameraState =
+            flowOf(
+                CameraStateOpen(
+                    AndroidCameraDevice(
+                        testCamera.metadata,
+                        testCamera.cameraDevice,
+                        testCamera.cameraId,
+                        cameraErrorListener,
+                        threads = FakeThreads.fromTestScope(this)
+                    )
+                )
+            )
+        virtualCamera.connect(
+            cameraState,
+            object : Token {
+                override fun release(): Boolean {
+                    return true
+                }
+            })
+
+        virtualCamera.state.first { it !is CameraStateUnopened }
+
+        val virtualCameraState = virtualCamera.value
+        assertThat(virtualCameraState).isInstanceOf(CameraStateOpen::class.java)
+        val deviceWrapper = (virtualCameraState as CameraStateOpen).cameraDevice
+        assertThat(deviceWrapper).isInstanceOf(VirtualAndroidCameraDevice::class.java)
+
+        val virtualAndroidCameraState = deviceWrapper as VirtualAndroidCameraDevice
+        virtualCamera.disconnect()
+
+        val surfaceTexture = SurfaceTexture(0).also { it.setDefaultBufferSize(640, 480) }
+        val surface = Surface(surfaceTexture)
+        val callback: CameraCaptureSessionWrapper.StateCallback = mock()
+        val result = virtualAndroidCameraState.createCaptureSession(listOf(surface), callback)
+        assertThat(result).isFalse()
+        verify(callback, times(1)).onSessionFinalized()
+        surface.release()
+        surfaceTexture.release()
     }
 }
 
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+@OptIn(ExperimentalCoroutinesApi::class)
 internal class AndroidCameraDeviceTest {
     private val mainLooper = shadowOf(getMainLooper())
     private val cameraId = RobolectricCameras.create()
     private val testCamera = RobolectricCameras.open(cameraId)
     private val timeSource: TimeSource = SystemTimeSource()
+    private val cameraDeviceCloser = FakeCamera2DeviceCloser()
     private val now = Timestamps.now(timeSource)
+    private val cameraErrorListener = object : CameraErrorListener {
+        var lastCameraId: CameraId? = null
+        var lastCameraError: CameraError? = null
+
+        override fun onCameraError(
+            cameraId: CameraId,
+            cameraError: CameraError,
+            willAttemptRetry: Boolean
+        ) {
+            lastCameraId = cameraId
+            lastCameraError = cameraError
+        }
+    }
 
     @After
     fun teardown() {
@@ -174,7 +303,10 @@ internal class AndroidCameraDeviceTest {
                 testCamera.metadata,
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
-                timeSource
+                timeSource,
+                cameraErrorListener,
+                cameraDeviceCloser,
+                FakeThreads.fromTestScope(TestScope())
             )
 
         assertThat(listener.state.value).isInstanceOf(CameraStateUnopened.javaClass)
@@ -219,7 +351,10 @@ internal class AndroidCameraDeviceTest {
                 testCamera.metadata,
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
-                timeSource
+                timeSource,
+                cameraErrorListener,
+                cameraDeviceCloser,
+                FakeThreads.fromTestScope(TestScope())
             )
 
         listener.onDisconnected(testCamera.cameraDevice)
@@ -240,7 +375,10 @@ internal class AndroidCameraDeviceTest {
                 testCamera.metadata,
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
-                timeSource
+                timeSource,
+                cameraErrorListener,
+                cameraDeviceCloser,
+                FakeThreads.fromTestScope(TestScope())
             )
 
         listener.close()
@@ -258,7 +396,10 @@ internal class AndroidCameraDeviceTest {
                 testCamera.metadata,
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
-                timeSource
+                timeSource,
+                cameraErrorListener,
+                cameraDeviceCloser,
+                FakeThreads.fromTestScope(TestScope())
             )
 
         listener.closeWith(IllegalArgumentException("Test Exception"))
@@ -276,7 +417,10 @@ internal class AndroidCameraDeviceTest {
                 testCamera.metadata,
                 attemptNumber = 1,
                 attemptTimestampNanos = now,
-                timeSource
+                timeSource,
+                cameraErrorListener,
+                cameraDeviceCloser,
+                FakeThreads.fromTestScope(TestScope())
             )
 
         listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
@@ -286,5 +430,49 @@ internal class AndroidCameraDeviceTest {
         assertThat(closedState.cameraClosedReason).isEqualTo(ClosedReason.CAMERA2_ERROR)
         assertThat(closedState.cameraErrorCode).isEqualTo(CameraError.ERROR_CAMERA_SERVICE)
         assertThat(closedState.cameraException).isNull()
+    }
+
+    @Test
+    fun errorCodesAreReportedToGraphListener() {
+        val listener =
+            AndroidCameraState(
+                testCamera.cameraId,
+                testCamera.metadata,
+                attemptNumber = 1,
+                attemptTimestampNanos = now,
+                timeSource,
+                cameraErrorListener,
+                cameraDeviceCloser,
+                FakeThreads.fromTestScope(TestScope())
+            )
+
+        listener.onOpened(testCamera.cameraDevice)
+        listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
+        mainLooper.idle()
+        assertThat(cameraErrorListener.lastCameraId).isEqualTo(testCamera.cameraId)
+        assertThat(cameraErrorListener.lastCameraError).isEqualTo(CameraError.ERROR_CAMERA_SERVICE)
+    }
+
+    @Test
+    fun errorCodesAreReportedToGraphListenerWhenCameraIsNotOpened() {
+        // Unless this is a camera open exception, all errors should be reported even if camera is
+        // not opened. The main reason is CameraAccessException.CAMERA_ERROR, where under which, we
+        // only know the nature of the error true onError(), and we should and would report that.
+        val listener =
+            AndroidCameraState(
+                testCamera.cameraId,
+                testCamera.metadata,
+                attemptNumber = 1,
+                attemptTimestampNanos = now,
+                timeSource,
+                cameraErrorListener,
+                cameraDeviceCloser,
+                FakeThreads.fromTestScope(TestScope())
+            )
+
+        listener.onError(testCamera.cameraDevice, CameraDevice.StateCallback.ERROR_CAMERA_SERVICE)
+        mainLooper.idle()
+        assertThat(cameraErrorListener.lastCameraId).isEqualTo(testCamera.cameraId)
+        assertThat(cameraErrorListener.lastCameraError).isEqualTo(CameraError.ERROR_CAMERA_SERVICE)
     }
 }

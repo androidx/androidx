@@ -17,22 +17,18 @@
 package androidx.appactions.interaction.service
 
 import androidx.annotation.RestrictTo
-import androidx.appactions.interaction.service.proto.AppActionsServiceProto
-import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.ResourceBuilders
-import com.google.protobuf.ByteString
+import androidx.appactions.interaction.protobuf.ByteString
+import androidx.appactions.interaction.service.proto.AppInteractionServiceProto
 
-/** Holder for TileLayout response. */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-internal data class TileLayoutInternal(
-    val layout: LayoutElementBuilders.Layout,
-    val resources: ResourceBuilders.Resources
-) {
+/**
+ * Holder for TileLayout response.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+class TileLayoutInternal(val byteArray: ByteArray) {
 
-    fun toProto(): AppActionsServiceProto.TileLayout {
-        return AppActionsServiceProto.TileLayout.newBuilder()
-            .setLayout(ByteString.copyFrom(layout.toByteArray()))
-            .setResources(ByteString.copyFrom(resources.toByteArray()))
+    fun toProto(): AppInteractionServiceProto.TileLayout {
+        return AppInteractionServiceProto.TileLayout.newBuilder()
+            .setLayout(ByteString.copyFrom(byteArray))
             .build()
     }
 }

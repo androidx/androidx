@@ -60,10 +60,10 @@ class RawQueryMethodProcessor(
         val query = SqlParser.rawQueryForTables(observedTableNames)
         // build the query but don't calculate result info since we just guessed it.
         val resultBinder = delegate.findResultBinder(returnType, query) {
+            @Suppress("DEPRECATION")
             delegate.executableElement.getAnnotation(androidx.room.MapInfo::class)?.let {
-                val keyColumn = it.value.keyColumn.toString()
-                val valueColumn = it.value.valueColumn.toString()
-
+                val keyColumn = it.value.keyColumn
+                val valueColumn = it.value.valueColumn
                 context.checker.check(
                     keyColumn.isNotEmpty() || valueColumn.isNotEmpty(),
                     executableElement,

@@ -30,9 +30,25 @@ fun ParsedApi.hasSuspendFunctions(): Boolean {
         .any(Method::isSuspend)
 }
 
-fun ParsedApi.hasUiInterfaces(): Boolean {
-    return interfaces.any { it.inheritsSandboxedUiAdapter }
+fun ParsedApi.containsSdkActivityLauncher(): Boolean {
+    return values.any { it.containsSdkActivityLauncher() } ||
+        interfaces.any { it.containsSdkActivityLauncher() } ||
+        callbacks.any { it.containsSdkActivityLauncher() } ||
+        services.any { it.containsSdkActivityLauncher() }
 }
+
+private fun AnnotatedInterface.containsSdkActivityLauncher(): Boolean {
+    val isInReturns = methods
+        .any { it.returnType.qualifiedName == Types.sdkActivityLauncher.qualifiedName }
+    val isInParams = methods
+        .flatMap { it.parameters }
+        .any { it.type.qualifiedName == Types.sdkActivityLauncher.qualifiedName }
+
+    return isInReturns || isInParams
+}
+
+private fun AnnotatedValue.containsSdkActivityLauncher(): Boolean =
+    properties.any { it.type.qualifiedName == Types.sdkActivityLauncher.qualifiedName }
 
 object Types {
     val unit = Type(packageName = "kotlin", simpleName = "Unit")
@@ -49,6 +65,8 @@ object Types {
     val any = Type("kotlin", simpleName = "Any")
     val sandboxedUiAdapter =
         Type(packageName = "androidx.privacysandbox.ui.core", simpleName = "SandboxedUiAdapter")
+    val sdkActivityLauncher =
+        Type(packageName = "androidx.privacysandbox.ui.core", simpleName = "SdkActivityLauncher")
 
     fun list(elementType: Type) = Type(
         packageName = "kotlin.collections",
@@ -61,6 +79,7 @@ object Types {
             return this
         return copy(isNullable = true)
     }
+
     fun Type.asNonNull(): Type {
         if (isNullable)
             return copy(isNullable = false)

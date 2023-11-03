@@ -58,6 +58,8 @@ public class MainDemoActivity extends Activity {
                 this, SimpleWearableRecyclerViewDemo.class));
         contentMap.put("Recycler View", new Intent(
                 this, SimpleRecyclerViewDemo.class));
+        contentMap.put("NestedScrollView View", new Intent(
+                this, SimpleNestedScrollViewDemo.class));
         contentMap.put("Wearable Switch", new Intent(
                 this, WearableSwitchDemo.class));
         contentMap.put("Circular Progress Layout", new Intent(

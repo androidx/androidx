@@ -62,7 +62,8 @@ private val DELETED = Any()
  * 0, the sparse array will be initialized with a light-weight representation not requiring any
  * additional array allocations. Default initialCapacity is 10.
  */
-public expect open class SparseArrayCompat<E> @JvmOverloads public constructor(
+public expect open class SparseArrayCompat<E>
+@JvmOverloads public constructor(
     initialCapacity: Int = 10
 ) {
     @JvmSynthetic // Hide from Java callers.

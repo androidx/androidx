@@ -22,9 +22,9 @@ import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
@@ -33,6 +33,9 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.junit.Assume
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -87,10 +90,12 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity>(
         CoreAppTestUtil.prepareDeviceUI(InstrumentationRegistry.getInstrumentation())
     }
 
-    protected fun tearDown() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+    protected fun tearDown(): Unit = runBlocking {
+        withContext(Dispatchers.Main) {
+            val context = ApplicationProvider.getApplicationContext<Context>()
+            val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
+            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
+        }
         mDevice.unfreezeRotation()
     }
 

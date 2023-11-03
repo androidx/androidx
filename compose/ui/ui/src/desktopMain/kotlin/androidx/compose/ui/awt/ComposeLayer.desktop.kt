@@ -17,26 +17,26 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.platform.PlatformComponent
 import androidx.compose.ui.ComposeScene
+import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.SessionMutex
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 import androidx.compose.ui.input.pointer.PointerButtons
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
-import androidx.compose.ui.platform.DesktopPlatform
+import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.platform.AccessibilityControllerImpl
+import androidx.compose.ui.platform.DesktopPlatform
+import androidx.compose.ui.platform.DesktopTextInputSession
+import androidx.compose.ui.platform.PlatformComponent
+import androidx.compose.ui.platform.PlatformTextInputSessionScope
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.window.density
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.swing.Swing
-import org.jetbrains.skia.Canvas
-import org.jetbrains.skiko.SkiaLayer
-import org.jetbrains.skiko.SkikoView
-import java.awt.Cursor
 import java.awt.Component
+import java.awt.Cursor
 import java.awt.Dimension
 import java.awt.Graphics
 import java.awt.Point
@@ -52,9 +52,15 @@ import java.awt.event.MouseEvent
 import java.awt.event.MouseMotionAdapter
 import java.awt.event.MouseWheelEvent
 import java.awt.im.InputMethodRequests
+import java.util.concurrent.atomic.AtomicReference
 import javax.accessibility.Accessible
 import javax.accessibility.AccessibleContext
-import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.swing.Swing
+import org.jetbrains.skia.Canvas
+import org.jetbrains.skiko.SkiaLayer
+import org.jetbrains.skiko.SkikoView
 
 internal class ComposeLayer {
     private var isDisposed = false
@@ -96,6 +102,7 @@ internal class ComposeLayer {
         }
     }
 
+    @OptIn(InternalComposeUiApi::class)
     private inner class ComponentImpl :
         SkiaLayer(externalAccessibleFactory = ::makeAccessible), Accessible, PlatformComponent {
         var currentInputMethodRequests: InputMethodRequests? = null
@@ -115,18 +122,41 @@ internal class ComposeLayer {
         override fun getInputMethodRequests() = currentInputMethodRequests
         override var componentCursor: Cursor
             get() = super.getCursor()
-            set(value) { super.setCursor(value) }
+            set(value) {
+                super.setCursor(value)
+            }
 
         override fun enableInput(inputMethodRequests: InputMethodRequests) {
+            activeTextInputSessionJob.getAndSet(null)?.cancel()
             currentInputMethodRequests = inputMethodRequests
             enableInputMethods(true)
             val focusGainedEvent = FocusEvent(this, FocusEvent.FOCUS_GAINED)
             inputContext.dispatchEvent(focusGainedEvent)
         }
 
-        override fun disableInput() {
-            currentInputMethodRequests = null
+        override fun disableInput(inputMethodRequests: InputMethodRequests?) {
+            activeTextInputSessionJob.getAndSet(null)?.cancel()
+            if (inputMethodRequests == null || inputMethodRequests === currentInputMethodRequests) {
+                currentInputMethodRequests = null
+            }
         }
+
+        private val activeTextInputSessionJob = AtomicReference<Job?>(null)
+
+        private val textInputSessionMutex = SessionMutex<DesktopTextInputSession>()
+
+        override suspend fun textInputSession(
+            session: suspend PlatformTextInputSessionScope.() -> Nothing
+        ): Nothing = textInputSessionMutex.withSessionCancellingPrevious(
+            sessionInitializer = {
+                DesktopTextInputSession(
+                    coroutineScope = it,
+                    inputComponent = this,
+                    component = _component
+                )
+            },
+            session = session
+        )
 
         override fun doLayout() {
             super.doLayout()
@@ -332,27 +362,30 @@ private fun ComposeScene.onMouseWheelEvent(
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-private val MouseEvent.buttons get() = PointerButtons(
-    isPrimaryPressed = (modifiersEx and MouseEvent.BUTTON1_DOWN_MASK) != 0 && !isMacOsCtrlClick,
-    isSecondaryPressed = (modifiersEx and MouseEvent.BUTTON3_DOWN_MASK) != 0 || isMacOsCtrlClick,
-    isTertiaryPressed = (modifiersEx and MouseEvent.BUTTON2_DOWN_MASK) != 0,
-    isBackPressed = (modifiersEx and MouseEvent.getMaskForButton(4)) != 0,
-    isForwardPressed = (modifiersEx and MouseEvent.getMaskForButton(5)) != 0,
-)
+private val MouseEvent.buttons
+    get() = PointerButtons(
+        isPrimaryPressed = (modifiersEx and MouseEvent.BUTTON1_DOWN_MASK) != 0 && !isMacOsCtrlClick,
+        isSecondaryPressed = (modifiersEx and MouseEvent.BUTTON3_DOWN_MASK) != 0 ||
+            isMacOsCtrlClick,
+        isTertiaryPressed = (modifiersEx and MouseEvent.BUTTON2_DOWN_MASK) != 0,
+        isBackPressed = (modifiersEx and MouseEvent.getMaskForButton(4)) != 0,
+        isForwardPressed = (modifiersEx and MouseEvent.getMaskForButton(5)) != 0,
+    )
 
 @OptIn(ExperimentalComposeUiApi::class)
-private val MouseEvent.keyboardModifiers get() = PointerKeyboardModifiers(
-    isCtrlPressed = (modifiersEx and InputEvent.CTRL_DOWN_MASK) != 0,
-    isMetaPressed = (modifiersEx and InputEvent.META_DOWN_MASK) != 0,
-    isAltPressed = (modifiersEx and InputEvent.ALT_DOWN_MASK) != 0,
-    isShiftPressed = (modifiersEx and InputEvent.SHIFT_DOWN_MASK) != 0,
-    isAltGraphPressed = (modifiersEx and InputEvent.ALT_GRAPH_DOWN_MASK) != 0,
-    isSymPressed = false,
-    isFunctionPressed = false,
-    isCapsLockOn = getLockingKeyStateSafe(KeyEvent.VK_CAPS_LOCK),
-    isScrollLockOn = getLockingKeyStateSafe(KeyEvent.VK_SCROLL_LOCK),
-    isNumLockOn = getLockingKeyStateSafe(KeyEvent.VK_NUM_LOCK),
-)
+private val MouseEvent.keyboardModifiers
+    get() = PointerKeyboardModifiers(
+        isCtrlPressed = (modifiersEx and InputEvent.CTRL_DOWN_MASK) != 0,
+        isMetaPressed = (modifiersEx and InputEvent.META_DOWN_MASK) != 0,
+        isAltPressed = (modifiersEx and InputEvent.ALT_DOWN_MASK) != 0,
+        isShiftPressed = (modifiersEx and InputEvent.SHIFT_DOWN_MASK) != 0,
+        isAltGraphPressed = (modifiersEx and InputEvent.ALT_GRAPH_DOWN_MASK) != 0,
+        isSymPressed = false,
+        isFunctionPressed = false,
+        isCapsLockOn = getLockingKeyStateSafe(KeyEvent.VK_CAPS_LOCK),
+        isScrollLockOn = getLockingKeyStateSafe(KeyEvent.VK_SCROLL_LOCK),
+        isNumLockOn = getLockingKeyStateSafe(KeyEvent.VK_NUM_LOCK),
+    )
 
 private fun getLockingKeyStateSafe(
     mask: Int
@@ -364,7 +397,7 @@ private fun getLockingKeyStateSafe(
 
 private val MouseEvent.isMacOsCtrlClick
     get() = (
-            DesktopPlatform.Current == DesktopPlatform.MacOS &&
-                    ((modifiersEx and InputEvent.BUTTON1_DOWN_MASK) != 0) &&
-                    ((modifiersEx and InputEvent.CTRL_DOWN_MASK) != 0)
-            )
+        DesktopPlatform.Current == DesktopPlatform.MacOS &&
+            ((modifiersEx and InputEvent.BUTTON1_DOWN_MASK) != 0) &&
+            ((modifiersEx and InputEvent.CTRL_DOWN_MASK) != 0)
+        )

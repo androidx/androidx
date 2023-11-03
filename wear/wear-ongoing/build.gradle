@@ -32,9 +32,10 @@ android {
 }
 
 androidx {
-    name = "Android Wear Ongoing Activities"
+    name = "Android Wear Ongoing"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.WEAR_ONGOING
     inceptionYear = "2021"
     description = "Android Wear Ongoing Activities"
+    metalavaK2UastEnabled = true
 }

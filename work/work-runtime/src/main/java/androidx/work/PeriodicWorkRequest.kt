@@ -52,10 +52,12 @@ import java.util.concurrent.TimeUnit
 class PeriodicWorkRequest internal constructor(
     builder: Builder
 ) : WorkRequest(builder.id, builder.workSpec, builder.tags) {
+
     /**
      * Builder for [PeriodicWorkRequest]s.
      */
     class Builder : WorkRequest.Builder<Builder, PeriodicWorkRequest> {
+
         /**
          * Creates a [PeriodicWorkRequest] to run periodically once every interval period. The
          * [PeriodicWorkRequest] is guaranteed to run exactly one time during this interval
@@ -160,6 +162,73 @@ class PeriodicWorkRequest internal constructor(
             flexInterval: Duration
         ) : super(workerClass) {
             workSpec.setPeriodic(repeatInterval.toMillisCompat(), flexInterval.toMillisCompat())
+        }
+
+        /**
+         * Overrides the next time this work is scheduled to run.
+         *
+         * Calling this method sets a specific time at which the work will be scheduled to run next,
+         * overriding the normal interval, flex, initial delay, and backoff.
+         *
+         * This allows dynamic calculation of the next Periodic work schedule, which can be used
+         * to implement advanced features like adaptive refresh times, custom retry behavior, or
+         * making a newsfeed worker run before the user wakes up every morning without drift.
+         * [ExistingPeriodicWorkPolicy.UPDATE] should be used with these techniques to avoid
+         * cancelling a currently-running worker while scheduling the next one.
+         *
+         * This method only sets the single next Work schedule. After that Work finishes,
+         * the override will be cleared and the Work will be scheduled normally according to the
+         * interval or backoff. The override can be cleared by setting
+         * [clearNextScheduleTimeOverride] on a work update request. Otherwise, the override time
+         * will persist after unrelated invocations of [WorkManager.updateWork].
+         *
+         * This method can be used from outside or inside a [Worker.startWork] method.
+         * If the Worker is currently running, then it will override the next time the Work starts,
+         * even if the current Worker returns [ListenableWorker.Result.Retry]. This behavior can be
+         * used to customize the backoff behavior of a Worker by catching Exceptions in startWork
+         * and using this method to schedule a retry.
+         *
+         * [MIN_PERIODIC_INTERVAL_MILLIS] is enforced on this method to prevent infinite loops. If
+         * a previous run time occurred less than the minimum period before the override time, then
+         * the override schedule will be delayed to preserve the minimum spacing. This restriction
+         * does not apply to the very first run of periodic work, which may be instant.
+         *
+         * Work will almost never run at this exact time in the real world. This method assigns the
+         * scheduled run time accurately, but cannot guarantee an actual run time. Actual Work
+         * run times are dependent on many factors like the underlying system scheduler, doze and
+         * power saving modes of the OS, and meeting any configured constraints. This is expected
+         * and is not considered a bug.
+         *
+         * @param nextScheduleTimeOverrideMillis The time, in [System.currentTimeMillis] time, to
+         * schedule this work next. If this is in the past, work may run immediately.
+         */
+        fun setNextScheduleTimeOverride(nextScheduleTimeOverrideMillis: Long): Builder {
+            require(nextScheduleTimeOverrideMillis != Long.MAX_VALUE) {
+                "Cannot set Long.MAX_VALUE as the schedule override time"
+            }
+
+            workSpec.nextScheduleTimeOverride = nextScheduleTimeOverrideMillis
+            workSpec.nextScheduleTimeOverrideGeneration = 1
+            return this
+        }
+
+        /**
+         * Clears any override set by [setNextScheduleTimeOverride].
+         *
+         * When an override is cleared, the next schedule is based on the previous enqueue time or
+         * run time of the Work and the result of that previous run. Eg. if the previous run
+         * returned [ListenableWorker.Result.Retry] at some time=T, and the next run was set by
+         * override, then clearing that override will return the schedule to `T+backoffInterval` if
+         * using linear backoff.
+         *
+         * Override may be cleared while a Worker is running. The worker will schedule the next run
+         * based on its result type and interval.
+         */
+        fun clearNextScheduleTimeOverride(): Builder {
+            workSpec.nextScheduleTimeOverride = Long.MAX_VALUE
+            // Clearing an override increments the generation.
+            workSpec.nextScheduleTimeOverrideGeneration = 1
+            return this
         }
 
         override fun buildInternal(): PeriodicWorkRequest {

@@ -42,12 +42,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.semantics.isContainer
+import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -56,50 +55,37 @@ import androidx.compose.ui.zIndex
 fun SearchBarSample() {
     var text by rememberSaveable { mutableStateOf("") }
     var active by rememberSaveable { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
 
-    fun closeSearchBar() {
-        focusManager.clearFocus()
-        active = false
-    }
-
-    Box(Modifier.fillMaxSize()) {
-        // Talkback focus order sorts based on x and y position before considering z-index. The
-        // extra Box with fillMaxWidth is a workaround to get the search bar to focus before the
-        // content.
-        Box(Modifier.semantics { isContainer = true }.zIndex(1f).fillMaxWidth()) {
-            SearchBar(
-                modifier = Modifier.align(Alignment.TopCenter),
-                query = text,
-                onQueryChange = { text = it },
-                onSearch = { closeSearchBar() },
-                active = active,
-                onActiveChange = {
-                    active = it
-                    if (!active) focusManager.clearFocus()
-                },
-                placeholder = { Text("Hinted search text") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
-            ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    items(4) { idx ->
-                        val resultText = "Suggestion $idx"
-                        ListItem(
-                            headlineText = { Text(resultText) },
-                            supportingText = { Text("Additional info") },
-                            leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
-                            modifier = Modifier.clickable {
-                                text = resultText
-                                closeSearchBar()
-                            }
-                        )
-                    }
-                }
+    Box(Modifier.fillMaxSize().semantics { isTraversalGroup = true }) {
+        SearchBar(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .semantics { traversalIndex = -1f },
+            query = text,
+            onQueryChange = { text = it },
+            onSearch = { active = false },
+            active = active,
+            onActiveChange = {
+                active = it
+            },
+            placeholder = { Text("Hinted search text") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+        ) {
+            repeat(4) { idx ->
+                val resultText = "Suggestion $idx"
+                ListItem(
+                    headlineContent = { Text(resultText) },
+                    supportingContent = { Text("Additional info") },
+                    leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
+                    modifier = Modifier
+                        .clickable {
+                            text = resultText
+                            active = false
+                        }
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                )
             }
         }
 
@@ -122,50 +108,36 @@ fun SearchBarSample() {
 fun DockedSearchBarSample() {
     var text by rememberSaveable { mutableStateOf("") }
     var active by rememberSaveable { mutableStateOf(false) }
-    val focusManager = LocalFocusManager.current
 
-    fun closeSearchBar() {
-        focusManager.clearFocus()
-        active = false
-    }
-
-    Box(Modifier.fillMaxSize()) {
-        // Talkback focus order sorts based on x and y position before considering z-index. The
-        // extra Box with fillMaxWidth is a workaround to get the search bar to focus before the
-        // content.
-        Box(Modifier.semantics { isContainer = true }.zIndex(1f).fillMaxWidth()) {
-            DockedSearchBar(
-                modifier = Modifier.align(Alignment.TopCenter).padding(top = 8.dp),
-                query = text,
-                onQueryChange = { text = it },
-                onSearch = { closeSearchBar() },
-                active = active,
-                onActiveChange = {
-                    active = it
-                    if (!active) focusManager.clearFocus()
-                },
-                placeholder = { Text("Hinted search text") },
-                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
-            ) {
-                LazyColumn(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    items(4) { idx ->
-                        val resultText = "Suggestion $idx"
-                        ListItem(
-                            headlineText = { Text(resultText) },
-                            supportingText = { Text("Additional info") },
-                            leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
-                            modifier = Modifier.clickable {
-                                text = resultText
-                                closeSearchBar()
-                            }
-                        )
-                    }
-                }
+    Box(Modifier.fillMaxSize().semantics { isTraversalGroup = true }) {
+        DockedSearchBar(
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .padding(top = 8.dp)
+                .semantics { traversalIndex = -1f },
+            query = text,
+            onQueryChange = { text = it },
+            onSearch = { active = false },
+            active = active,
+            onActiveChange = { active = it },
+            placeholder = { Text("Hinted search text") },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+            trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
+        ) {
+            repeat(4) { idx ->
+                val resultText = "Suggestion $idx"
+                ListItem(
+                    headlineContent = { Text(resultText) },
+                    supportingContent = { Text("Additional info") },
+                    leadingContent = { Icon(Icons.Filled.Star, contentDescription = null) },
+                    modifier = Modifier
+                        .clickable {
+                            text = resultText
+                            active = false
+                        }
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
+                )
             }
         }
 

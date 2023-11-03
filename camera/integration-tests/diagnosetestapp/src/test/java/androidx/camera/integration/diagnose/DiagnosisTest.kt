@@ -20,9 +20,10 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.view.LifecycleCameraController
 import androidx.test.core.app.ApplicationProvider
+import com.google.common.truth.Truth.assertThat
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -31,7 +32,6 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.google.common.truth.Truth.assertThat
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 

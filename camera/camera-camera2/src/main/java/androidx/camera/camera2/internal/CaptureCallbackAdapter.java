@@ -45,6 +45,16 @@ final class CaptureCallbackAdapter extends CameraCaptureSession.CaptureCallback 
     }
 
     @Override
+    public void onCaptureStarted(
+            @NonNull CameraCaptureSession session,
+            @NonNull CaptureRequest request,
+            long timestamp,
+            long frameNumber) {
+        super.onCaptureStarted(session, request, timestamp, frameNumber);
+        mCameraCaptureCallback.onCaptureStarted();
+    }
+
+    @Override
     public void onCaptureCompleted(
             @NonNull CameraCaptureSession session,
             @NonNull CaptureRequest request,

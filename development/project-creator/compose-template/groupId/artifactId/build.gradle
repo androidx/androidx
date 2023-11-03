@@ -14,78 +14,79 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
     id("AndroidXComposePlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+androidXMultiplatform {
+    android()
+    desktop()
 
-dependencies {
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
-
-    if(!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
-        implementation(libs.kotlinStdlibCommon)
-
-        api("androidx.annotation:annotation:1.1.0")
-
-        testImplementation(libs.testRules)
-        testImplementation(libs.testRunner)
-        testImplementation(libs.junit)
-        testImplementation(libs.truth)
-
-        androidTestImplementation(libs.testRules)
-        androidTestImplementation(libs.testRunner)
-        androidTestImplementation(libs.junit)
-        androidTestImplementation(libs.truth)
-    }
-}
-
-if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(libs.kotlinStdlibCommon)
             }
+        }
+        androidMain.dependencies {
+        }
 
-            androidMain.dependencies {
+        commonTest {
+            dependencies {
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+        }
+
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
                 api("androidx.annotation:annotation:1.1.0")
             }
+        }
 
-            desktopMain.dependencies {
+        desktopMain {
+            dependsOn(jvmMain)
+            dependencies {
                 implementation(libs.kotlinStdlib)
             }
+        }
 
-            test.dependencies {
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.junit)
                 implementation(libs.truth)
             }
+        }
 
-            androidAndroidTest.dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.junit)
-                implementation(libs.truth)
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
             }
         }
     }

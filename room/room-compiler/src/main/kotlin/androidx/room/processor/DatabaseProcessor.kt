@@ -28,8 +28,8 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
 import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
-import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_SCHEMA_OUT_FOLDER_NULL
-import androidx.room.processor.ProcessorErrors.autoMigrationSchemasMustBeRoomGenerated
+import androidx.room.processor.ProcessorErrors.AUTO_MIGRATION_SCHEMA_IN_FOLDER_NULL
+import androidx.room.processor.ProcessorErrors.autoMigrationSchemaIsEmpty
 import androidx.room.processor.ProcessorErrors.invalidAutoMigrationSchema
 import androidx.room.util.SchemaFileResolver
 import androidx.room.verifier.DatabaseVerificationErrors
@@ -43,8 +43,7 @@ import androidx.room.vo.FtsEntity
 import androidx.room.vo.Warning
 import androidx.room.vo.columnNames
 import androidx.room.vo.findFieldByColumnName
-import java.io.File
-import java.io.FileInputStream
+import java.io.IOException
 import java.nio.file.Path
 import java.util.Locale
 
@@ -151,114 +150,98 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
 
         val autoMigrationList = dbAnnotation
             .getAsAnnotationBoxArray<AutoMigration>("autoMigrations")
-
-        if (autoMigrationList.isNotEmpty()) {
-            if (!dbAnnotation.value.exportSchema) {
-                context.logger.e(
-                    element,
-                    AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
-                )
-                return emptyList()
-            }
-            if (context.schemaOutFolderPath == null) {
-                context.logger.e(
-                    element,
-                    AUTO_MIGRATION_SCHEMA_OUT_FOLDER_NULL
-                )
-                return emptyList()
-            }
+        if (autoMigrationList.isEmpty()) {
+            return emptyList()
         }
 
-        return autoMigrationList.mapNotNull {
-            val databaseSchemaFolderPath = Path.of(
-                context.schemaOutFolderPath!!,
+        if (!dbAnnotation.value.exportSchema) {
+            context.logger.e(
+                element,
+                AUTO_MIGRATION_FOUND_BUT_EXPORT_SCHEMA_OFF
+            )
+            return emptyList()
+        }
+        val schemaInFolderPath = context.schemaInFolderPath
+        if (schemaInFolderPath == null) {
+            context.logger.e(
+                element,
+                AUTO_MIGRATION_SCHEMA_IN_FOLDER_NULL
+            )
+            return emptyList()
+        }
+
+        return autoMigrationList.mapNotNull { annotationBox ->
+            val databaseSchemaInFolderPath = Path.of(
+                schemaInFolderPath,
                 element.asClassName().canonicalName
             )
-            val autoMigration = it.value
-            val validatedFromSchemaFile = getValidatedSchemaFile(
+            val autoMigration = annotationBox.value
+            val fromSchemaBundle = getSchemaBundle(
                 autoMigration.from,
-                databaseSchemaFolderPath
-            )
-
-            fun deserializeSchemaFile(fileInputStream: FileInputStream, versionNumber: Int): Any {
-                return try {
-                    SchemaBundle.deserialize(fileInputStream).database
-                } catch (th: Throwable) {
-                    invalidAutoMigrationSchema(
-                        "$versionNumber.json",
-                        databaseSchemaFolderPath.toString()
-                    )
-                }
-            }
-
-            if (validatedFromSchemaFile != null) {
-                val fromSchemaBundle = validatedFromSchemaFile.inputStream().use {
-                    deserializeSchemaFile(it, autoMigration.from)
-                }
-                val toSchemaBundle = if (autoMigration.to == latestDbSchema.version) {
+                databaseSchemaInFolderPath
+            ) ?: return@mapNotNull null
+            val toSchemaBundle =
+                if (autoMigration.to == latestDbSchema.version) {
                     latestDbSchema
                 } else {
-                    val validatedToSchemaFile = getValidatedSchemaFile(
+                    getSchemaBundle(
                         autoMigration.to,
-                        databaseSchemaFolderPath
-                    )
-                    if (validatedToSchemaFile != null) {
-                        validatedToSchemaFile.inputStream().use {
-                            deserializeSchemaFile(it, autoMigration.to)
-                        }
-                    } else {
-                        return@mapNotNull null
-                    }
+                        databaseSchemaInFolderPath
+                    ) ?: return@mapNotNull null
                 }
-                if (fromSchemaBundle !is DatabaseBundle || toSchemaBundle !is DatabaseBundle) {
-                    context.logger.e(
-                        element,
-                        autoMigrationSchemasMustBeRoomGenerated(
-                            autoMigration.from,
-                            autoMigration.to
-                        )
-                    )
-                    return@mapNotNull null
-                }
-
-                AutoMigrationProcessor(
-                    context = context,
-                    spec = it.getAsType("spec")!!,
-                    fromSchemaBundle = fromSchemaBundle,
-                    toSchemaBundle = toSchemaBundle
-                ).process()
-            } else {
-                null
-            }
+            AutoMigrationProcessor(
+                context = context,
+                spec = annotationBox.getAsType("spec")!!,
+                fromSchemaBundle = fromSchemaBundle,
+                toSchemaBundle = toSchemaBundle
+            ).process()
         }
     }
 
-    private fun getValidatedSchemaFile(version: Int, schemaFolderPath: Path): File? {
-        val schemaFile = SchemaFileResolver.RESOLVER.getFile(
-            schemaFolderPath.resolve("$version.json")
-        )
-        if (!schemaFile.exists()) {
+    private fun getSchemaBundle(version: Int, schemaFolderPath: Path): DatabaseBundle? {
+        val schemaStream =
+            try {
+                SchemaFileResolver.RESOLVER.readPath(
+                    schemaFolderPath.resolve("$version.json")
+                )
+            } catch (e: IOException) {
+                null
+            }
+        if (schemaStream == null) {
             context.logger.e(
+                element,
                 ProcessorErrors.autoMigrationSchemasNotFound(
-                    "$version.json",
+                    version,
                     schemaFolderPath.toString()
                 ),
-                element
             )
             return null
         }
-
-        if (schemaFile.length() <= 0) {
-            context.logger.e(
-                ProcessorErrors.autoMigrationSchemaIsEmpty(
-                    "$version.json",
-                    schemaFolderPath.toString()
-                ),
-                element
-            )
-            return null
+        val bundle = try {
+            schemaStream.use {
+                SchemaBundle.deserialize(schemaStream)
+            }
+        } catch (th: Throwable) {
+            if (th is SchemaBundle.EmptySchemaException) {
+                context.logger.e(
+                    element,
+                    autoMigrationSchemaIsEmpty(
+                        version,
+                        schemaFolderPath.toString()
+                    ),
+                )
+            } else {
+                context.logger.e(
+                    element,
+                    invalidAutoMigrationSchema(
+                        version,
+                        schemaFolderPath.toString()
+                    )
+                )
+            }
+            null
         }
-        return schemaFile
+        return bundle?.database
     }
 
     private fun validateForeignKeys(element: XTypeElement, entities: List<Entity>) {

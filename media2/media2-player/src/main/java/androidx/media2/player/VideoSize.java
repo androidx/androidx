@@ -20,7 +20,11 @@ import androidx.annotation.NonNull;
 
 /**
  * Immutable class for describing video size.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public final class VideoSize extends androidx.media2.common.VideoSize {
     VideoSize(@NonNull androidx.media2.common.VideoSize internal) {
         super(internal.getWidth(), internal.getHeight());

@@ -19,15 +19,21 @@ package androidx.compose.material3.samples
 import androidx.annotation.Sampled
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Label
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.RangeSlider
+import androidx.compose.material3.RangeSliderState
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.SliderState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,6 +45,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 @Preview
 @Sampled
@@ -81,25 +89,40 @@ fun StepsSliderSample() {
 @Composable
 fun SliderWithCustomThumbSample() {
     var sliderPosition by remember { mutableStateOf(0f) }
+    val interactionSource: MutableInteractionSource = remember { MutableInteractionSource() }
     Column {
-        Text(text = sliderPosition.toString())
         Slider(
             modifier = Modifier.semantics { contentDescription = "Localized Description" },
             value = sliderPosition,
             onValueChange = { sliderPosition = it },
-            valueRange = 0f..5f,
-            steps = 4,
+            valueRange = 0f..100f,
+            interactionSource = interactionSource,
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
             },
             thumb = {
-                Icon(
-                    imageVector = Icons.Filled.Favorite,
-                    contentDescription = null,
-                    modifier = Modifier.size(ButtonDefaults.IconSize),
-                    tint = Color.Red
-                )
+                Label(
+                    label = {
+                        PlainTooltip(
+                            modifier = Modifier
+                                .requiredSize(45.dp, 25.dp)
+                                .wrapContentWidth()
+                        ) {
+                            val roundedEnd =
+                                (sliderPosition * 100.0).roundToInt() / 100.0
+                            Text(roundedEnd.toString())
+                        }
+                    },
+                    interactionSource = interactionSource
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Favorite,
+                        contentDescription = null,
+                        modifier = Modifier.size(ButtonDefaults.IconSize),
+                        tint = Color.Red
+                    )
+                }
             }
         )
     }
@@ -110,20 +133,22 @@ fun SliderWithCustomThumbSample() {
 @Sampled
 @Composable
 fun SliderWithCustomTrackAndThumb() {
-    var sliderPosition by remember { mutableStateOf(0f) }
-    val interactionSource = MutableInteractionSource()
-    val colors = SliderDefaults.colors(thumbColor = Color.Red, activeTrackColor = Color.Red)
-    Column {
-        Text(text = sliderPosition.toString())
-        Slider(
-            modifier = Modifier.semantics { contentDescription = "Localized Description" },
-            value = sliderPosition,
-            onValueChange = { sliderPosition = it },
+    val sliderState = remember {
+        SliderState(
             valueRange = 0f..100f,
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
-            },
+            }
+        )
+    }
+    val interactionSource = remember { MutableInteractionSource() }
+    val colors = SliderDefaults.colors(thumbColor = Color.Red, activeTrackColor = Color.Red)
+    Column {
+        Text(text = sliderState.value.toString())
+        Slider(
+            state = sliderState,
+            modifier = Modifier.semantics { contentDescription = "Localized Description" },
             interactionSource = interactionSource,
             thumb = {
                 SliderDefaults.Thumb(
@@ -131,10 +156,10 @@ fun SliderWithCustomTrackAndThumb() {
                     colors = colors
                 )
             },
-            track = { sliderPositions ->
+            track = {
                 SliderDefaults.Track(
                     colors = colors,
-                    sliderPositions = sliderPositions
+                    sliderState = sliderState
                 )
             }
         )
@@ -146,18 +171,22 @@ fun SliderWithCustomTrackAndThumb() {
 @Sampled
 @Composable
 fun RangeSliderSample() {
-    var sliderPosition by remember { mutableStateOf(0f..100f) }
-    Column {
-        Text(text = sliderPosition.toString())
-        RangeSlider(
-            modifier = Modifier.semantics { contentDescription = "Localized Description" },
-            value = sliderPosition,
-            onValueChange = { sliderPosition = it },
+    val rangeSliderState = remember {
+        RangeSliderState(
+            0f,
+            100f,
             valueRange = 0f..100f,
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
-            },
+            }
+        )
+    }
+    Column {
+        Text(text = (rangeSliderState.activeRangeStart..rangeSliderState.activeRangeEnd).toString())
+        RangeSlider(
+            state = rangeSliderState,
+            modifier = Modifier.semantics { contentDescription = "Localized Description" }
         )
     }
 }
@@ -167,19 +196,23 @@ fun RangeSliderSample() {
 @Sampled
 @Composable
 fun StepRangeSliderSample() {
-    var sliderPosition by remember { mutableStateOf(0f..100f) }
-    Column {
-        Text(text = sliderPosition.toString())
-        RangeSlider(
-            modifier = Modifier.semantics { contentDescription = "Localized Description" },
-            steps = 5,
-            value = sliderPosition,
-            onValueChange = { sliderPosition = it },
+    val rangeSliderState = remember {
+        RangeSliderState(
+            0f,
+            100f,
             valueRange = 0f..100f,
             onValueChangeFinished = {
                 // launch some business logic update with the state you hold
                 // viewModel.updateSelectedSliderValue(sliderPosition)
             },
+            steps = 5
+        )
+    }
+    Column {
+        Text(text = (rangeSliderState.activeRangeStart..rangeSliderState.activeRangeEnd).toString())
+        RangeSlider(
+            state = rangeSliderState,
+            modifier = Modifier.semantics { contentDescription = "Localized Description" }
         )
     }
 }
@@ -189,7 +222,17 @@ fun StepRangeSliderSample() {
 @Sampled
 @Composable
 fun RangeSliderWithCustomComponents() {
-    var sliderPosition by remember { mutableStateOf(0f..100f) }
+    val rangeSliderState = remember {
+        RangeSliderState(
+            0f,
+            100f,
+            valueRange = 0f..100f,
+            onValueChangeFinished = {
+                // launch some business logic update with the state you hold
+                // viewModel.updateSelectedSliderValue(sliderPosition)
+            }
+        )
+    }
     val startInteractionSource = remember { MutableInteractionSource() }
     val endInteractionSource = remember { MutableInteractionSource() }
     val startThumbAndTrackColors = SliderDefaults.colors(
@@ -198,34 +241,57 @@ fun RangeSliderWithCustomComponents() {
     )
     val endThumbColors = SliderDefaults.colors(thumbColor = Color.Green)
     Column {
-        Text(text = sliderPosition.toString())
         RangeSlider(
+            state = rangeSliderState,
             modifier = Modifier.semantics { contentDescription = "Localized Description" },
-            value = sliderPosition,
-            onValueChange = { sliderPosition = it },
-            valueRange = 0f..100f,
-            onValueChangeFinished = {
-                // launch some business logic update with the state you hold
-                // viewModel.updateSelectedSliderValue(sliderPosition)
-            },
             startInteractionSource = startInteractionSource,
             endInteractionSource = endInteractionSource,
             startThumb = {
-                SliderDefaults.Thumb(
-                    interactionSource = startInteractionSource,
-                    colors = startThumbAndTrackColors
-                )
+                Label(
+                    label = {
+                        PlainTooltip(
+                            modifier = Modifier
+                                .requiredSize(45.dp, 25.dp)
+                                .wrapContentWidth()
+                        ) {
+                            val roundedStart =
+                                (rangeSliderState.activeRangeStart * 100.0).roundToInt() / 100.0
+                            Text(roundedStart.toString())
+                        }
+                    },
+                    interactionSource = startInteractionSource
+                ) {
+                    SliderDefaults.Thumb(
+                        interactionSource = startInteractionSource,
+                        colors = startThumbAndTrackColors
+                    )
+                }
             },
             endThumb = {
-                SliderDefaults.Thumb(
-                    interactionSource = endInteractionSource,
-                    colors = endThumbColors
-                )
+                Label(
+                    label = {
+                        PlainTooltip(
+                            modifier = Modifier
+                                .requiredSize(45.dp, 25.dp)
+                                .wrapContentWidth()
+                        ) {
+                            val roundedEnd =
+                                (rangeSliderState.activeRangeEnd * 100.0).roundToInt() / 100.0
+                            Text(roundedEnd.toString())
+                        }
+                    },
+                    interactionSource = endInteractionSource
+                ) {
+                    SliderDefaults.Thumb(
+                        interactionSource = endInteractionSource,
+                        colors = endThumbColors
+                    )
+                }
             },
-            track = { sliderPositions ->
+            track = { rangeSliderState ->
                 SliderDefaults.Track(
                     colors = startThumbAndTrackColors,
-                    sliderPositions = sliderPositions
+                    rangeSliderState = rangeSliderState
                 )
             }
         )

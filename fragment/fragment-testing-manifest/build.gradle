@@ -35,6 +35,7 @@ androidx {
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2022"
     description = "Fragment testing library that should be added as a debugImplementation dependency to add properties to the debug manifest necessary for testing an application"
+    metalavaK2UastEnabled = true
 }
 
 android {

@@ -11,12 +11,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
--keepclassmembers class ** implements androidx.window.extensions.core.util.function.Consumer {
+
+# These interfaces must be kept for the client library to invoke methods in extensions.
+-keep interface androidx.window.extensions.core.util.function.Consumer {
   public void accept(***);
 }
--keepclassmembers class ** implements androidx.window.extensions.core.util.function.Predicate {
+-keep interface androidx.window.extensions.core.util.function.Predicate {
   public boolean test(***);
 }
--keepclassmembers class ** implements androidx.window.extensions.core.util.function.Function {
+-keep interface androidx.window.extensions.core.util.function.Function {
   public *** apply(***);
 }

@@ -16,6 +16,9 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_CLASS_FACTORY_CLASS;
+import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentClassFactoryForClass;
+
 import androidx.annotation.NonNull;
 
 import com.google.auto.common.GeneratedAnnotationSpecs;
@@ -25,7 +28,6 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import java.io.File;
 import java.io.IOException;
 
 import javax.annotation.processing.ProcessingEnvironment;
@@ -37,7 +39,6 @@ import javax.lang.model.element.Modifier;
  */
 class CodeGenerator {
     private final ProcessingEnvironment mEnv;
-    private final IntrospectionHelper mHelper;
     private final DocumentModel mModel;
 
     private final String mOutputPackage;
@@ -50,11 +51,10 @@ class CodeGenerator {
     }
 
     private CodeGenerator(
-            @NonNull ProcessingEnvironment env, @NonNull DocumentModel model)
-            throws ProcessingException {
+            @NonNull ProcessingEnvironment env,
+            @NonNull DocumentModel model) throws ProcessingException {
         // Prepare constants needed for processing
         mEnv = env;
-        mHelper = new IntrospectionHelper(env);
         mModel = model;
 
         // Perform the actual work of generating code
@@ -62,34 +62,29 @@ class CodeGenerator {
         mOutputClass = createClass();
     }
 
-    public void writeToFiler() throws IOException {
-        JavaFile.builder(mOutputPackage, mOutputClass).build().writeTo(mEnv.getFiler());
-    }
-
-    public void writeToFolder(@NonNull File folder) throws IOException {
-        JavaFile.builder(mOutputPackage, mOutputClass).build().writeTo(folder);
+    public JavaFile createJavaFile() throws IOException {
+        return JavaFile.builder(mOutputPackage, mOutputClass).build();
     }
 
     /**
      * Creates factory class for any class annotated with
      * {@link androidx.appsearch.annotation.Document}
      * <p>Class Example 1:
-     *   For a class Foo annotated with @Document, we will generated a
-     *   $$__AppSearch__Foo.class under the output package.
+     * For a class Foo annotated with @Document, we will generated a
+     * $$__AppSearch__Foo.class under the output package.
      * <p>Class Example 2:
-     *   For an inner class Foo.Bar annotated with @Document, we will generated a
-     *   $$__AppSearch__Foo$$__Bar.class under the output package.
+     * For an inner class Foo.Bar annotated with @Document, we will generated a
+     * $$__AppSearch__Foo$$__Bar.class under the output package.
      */
     private TypeSpec createClass() throws ProcessingException {
         // Gets the full name of target class.
         String qualifiedName = mModel.getQualifiedDocumentClassName();
         String className = qualifiedName.substring(mOutputPackage.length() + 1);
-        ClassName genClassName = mHelper.getDocumentClassFactoryForClass(mOutputPackage, className);
+        ClassName genClassName = getDocumentClassFactoryForClass(mOutputPackage, className);
 
         TypeName genClassType = TypeName.get(mModel.getClassElement().asType());
-        TypeName factoryType = ParameterizedTypeName.get(
-                mHelper.getAppSearchClass("DocumentClassFactory"),
-                genClassType);
+        TypeName factoryType =
+                ParameterizedTypeName.get(DOCUMENT_CLASS_FACTORY_CLASS, genClassType);
 
         TypeSpec.Builder genClass = TypeSpec
                 .classBuilder(genClassName)

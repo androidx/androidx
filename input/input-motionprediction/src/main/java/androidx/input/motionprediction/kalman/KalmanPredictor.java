@@ -27,17 +27,9 @@ import androidx.annotation.RestrictTo;
 /**
  * Simple interface for predicting motion points.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public interface KalmanPredictor {
-
-    /** Gets the current prediction target */
-    int getPredictionTarget();
-
-    /** Sets the current prediction target */
-    void setPredictionTarget(int predictionTargetMillis);
-
     /** Sets the report rate */
     void setReportRate(int reportRateMs);
 
@@ -46,5 +38,5 @@ public interface KalmanPredictor {
 
     /** @return null if not possible to make a prediction. */
     @Nullable
-    MotionEvent predict();
+    MotionEvent predict(int predictionTargetMillis);
 }

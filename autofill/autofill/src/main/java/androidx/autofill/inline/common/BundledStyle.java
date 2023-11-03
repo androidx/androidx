@@ -29,7 +29,6 @@ import androidx.annotation.RestrictTo;
  * Base class representing a type that encodes the style information, and can be exported
  * to a Bundle.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(api = Build.VERSION_CODES.R)
@@ -45,7 +44,6 @@ public abstract class BundledStyle {
     /**
      * Returns the wrapped bundle containing the style specifications.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @NonNull
@@ -56,7 +54,6 @@ public abstract class BundledStyle {
     /**
      * Returns true if the wrapped bundle is valid according to the style key.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public boolean isValid() {
@@ -66,7 +63,6 @@ public abstract class BundledStyle {
     /**
      * @throws IllegalStateException if the wrapped bundle is determined invalid by
      *                               {@link #isValid()}.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void assertIsValid() {

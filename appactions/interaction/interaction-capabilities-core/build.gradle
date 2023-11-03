@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import androidx.build.LibraryType
 import androidx.build.Publish
 
@@ -24,22 +23,23 @@ plugins {
 }
 
 dependencies {
-    api(libs.kotlinStdlib)
-    api(libs.autoValueAnnotations)
-    api(libs.kotlinStdlib)
-    annotationProcessor(libs.autoValue)
-    implementation(libs.protobufLite)
-    implementation(libs.guavaListenableFuture)
-    implementation(libs.kotlinCoroutinesGuava)
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation(project(":appactions:interaction:interaction-proto"))
+    api(project(path: ":appactions:interaction:interaction-proto", configuration: "shadowJar"))
+    api(project(":appactions:builtintypes:builtintypes"))
 
-    testAnnotationProcessor(libs.autoValue)
+    api(libs.autoValueAnnotations)
+    implementation(libs.guavaListenableFuture)
+    implementation(libs.kotlinCoroutinesCore)
+    implementation(libs.kotlinStdlib)
+    implementation("androidx.concurrent:concurrent-futures:1.1.0")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+
+    testImplementation(project(":appactions:interaction:interaction-capabilities-testing"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
     testImplementation(libs.testCore)
     testImplementation(libs.mockitoCore)
     testImplementation(libs.mockitoKotlin4)
+    testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.androidLint)
     testImplementation(libs.androidLintTests)
@@ -52,24 +52,21 @@ android {
         resValues = true
     }
     defaultConfig {
-        // TODO(b/266649259): lower minSdk version to 19.
-        minSdkVersion 33
+        minSdkVersion 26
         resValue "string", "appactions_interaction_library_version", androidx.LibraryVersions.APPACTIONS_INTERACTION.toString()
     }
 
     lintOptions {
-        // TODO(b/266849030): Remove when updating library.
-        disable("UnknownNullness", "SyntheticAccessor")
+        disable("UnknownNullness")
     }
 
     namespace "androidx.appactions.interaction.capabilities.core"
 }
 
 androidx {
-    name = "androidx.appactions.interaction:interaction-capabilities-core"
+    name = "App Actions Interaction Capabiliities Core"
     type = LibraryType.PUBLISHED_LIBRARY
-    publish = Publish.NONE
     inceptionYear = "2023"
     description = "App Interaction library core capabilities API and implementation."
-    failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

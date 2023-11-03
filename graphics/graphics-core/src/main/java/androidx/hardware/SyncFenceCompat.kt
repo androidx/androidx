@@ -21,8 +21,9 @@ import android.opengl.EGL15
 import android.opengl.GLES20
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.opengl.EGLExt
+import androidx.graphics.lowlatency.FrontBufferUtils
 import androidx.graphics.surface.SurfaceControlCompat
+import androidx.opengl.EGLExt
 import androidx.opengl.EGLSyncKHR
 
 /**
@@ -46,7 +47,9 @@ class SyncFenceCompat : AutoCloseable {
          */
         @JvmStatic
         fun createNativeSyncFence(): SyncFenceCompat {
-            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val usePlatformSyncFence = !FrontBufferUtils.UseCompatSurfaceControl &&
+                Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+            return if (usePlatformSyncFence) {
                 SyncFenceCompatVerificationHelper.createSyncFenceCompatV33()
             } else {
                 val display = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY)
@@ -135,12 +138,7 @@ internal class SyncFenceCompatVerificationHelper private constructor() {
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         @androidx.annotation.DoNotInline
         fun createSyncFenceCompatV33(): SyncFenceCompat {
-            val display = EGL15.eglGetPlatformDisplay(
-                EGL15.EGL_PLATFORM_ANDROID_KHR,
-                EGL14.EGL_DEFAULT_DISPLAY.toLong(),
-                mEmptyAttributes,
-                0
-            )
+            val display = EGL14.eglGetCurrentDisplay()
             if (display == EGL15.EGL_NO_DISPLAY) {
                 throw RuntimeException("no EGL display")
             }

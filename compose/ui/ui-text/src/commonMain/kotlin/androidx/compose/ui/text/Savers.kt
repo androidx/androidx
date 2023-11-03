@@ -210,8 +210,8 @@ internal val ParagraphStyleSaver = Saver<ParagraphStyle, Any>(
     restore = {
         val list = it as List<Any?>
         ParagraphStyle(
-            textAlign = restore(list[0]),
-            textDirection = restore(list[1]),
+            textAlign = restore(list[0])!!,
+            textDirection = restore(list[1])!!,
             lineHeight = restore(list[2], TextUnit.Saver)!!,
             textIndent = restore(list[3], TextIndent.Saver)
         )

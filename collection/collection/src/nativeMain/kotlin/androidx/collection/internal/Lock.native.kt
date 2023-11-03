@@ -18,6 +18,7 @@ package androidx.collection.internal
 
 import kotlin.native.internal.createCleaner
 import kotlinx.cinterop.Arena
+import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.alloc
 import kotlinx.cinterop.ptr
 import platform.posix.pthread_mutex_destroy
@@ -38,6 +39,7 @@ import platform.posix.pthread_mutexattr_t
 internal expect val PTHREAD_MUTEX_RECURSIVE: Int
 
 @Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
+@OptIn(ExperimentalForeignApi::class)
 internal actual class Lock actual constructor() {
 
     private val resources = Resources()

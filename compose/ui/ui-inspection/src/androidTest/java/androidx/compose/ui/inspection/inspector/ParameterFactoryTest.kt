@@ -66,6 +66,7 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.text.style.TextGeometricTransform
 import androidx.compose.ui.text.style.TextIndent
 import androidx.compose.ui.unit.Density
@@ -922,7 +923,8 @@ class ParameterFactoryTest {
     fun testTextStyle() {
         val style = TextStyle(
             color = Color.Red,
-            textDecoration = TextDecoration.Underline
+            textDecoration = TextDecoration.Underline,
+            textDirection = TextDirection.Content
         )
         validate(create("style", style)) {
             parameter("style", ParameterType.String, TextStyle::class.java.simpleName) {
@@ -931,6 +933,7 @@ class ParameterFactoryTest {
                 parameter("letterSpacing", ParameterType.String, "Unspecified", index = 7)
                 parameter("background", ParameterType.String, "Unspecified", index = 11)
                 parameter("textDecoration", ParameterType.String, "Underline", index = 12)
+                parameter("textDirection", ParameterType.String, "Content", index = 14)
                 parameter("lineHeight", ParameterType.String, "Unspecified", index = 15)
             }
         }

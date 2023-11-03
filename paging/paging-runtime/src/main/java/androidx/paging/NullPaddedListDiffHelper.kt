@@ -90,27 +90,6 @@ internal fun <T : Any> NullPaddedList<T>.computeDiff(
     )
 }
 
-private class OffsettingListUpdateCallback internal constructor(
-    private val offset: Int,
-    private val callback: ListUpdateCallback
-) : ListUpdateCallback {
-    override fun onInserted(position: Int, count: Int) {
-        callback.onInserted(position + offset, count)
-    }
-
-    override fun onRemoved(position: Int, count: Int) {
-        callback.onRemoved(position + offset, count)
-    }
-
-    override fun onMoved(fromPosition: Int, toPosition: Int) {
-        callback.onMoved(fromPosition + offset, toPosition + offset)
-    }
-
-    override fun onChanged(position: Int, count: Int, payload: Any?) {
-        callback.onChanged(position + offset, count, payload)
-    }
-}
-
 /**
  * See NullPaddedDiffing.md for how this works and why it works that way :).
  *

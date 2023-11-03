@@ -27,8 +27,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,7 +40,7 @@ import androidx.compose.ui.tooling.preview.Preview
 @Preview
 @Composable
 fun InfiniteAnimationDemo() {
-    val alpha = remember { mutableStateOf(1f) }
+    var alpha by remember { mutableFloatStateOf(1f) }
     LaunchedEffect(Unit) {
         animate(
             initialValue = 1f,
@@ -48,7 +50,7 @@ fun InfiniteAnimationDemo() {
                 repeatMode = RepeatMode.Reverse
             )
         ) { value, _ ->
-            alpha.value = value
+            alpha = value
         }
     }
     Box(Modifier.fillMaxSize()) {
@@ -59,7 +61,7 @@ fun InfiniteAnimationDemo() {
                 .graphicsLayer(
                     scaleX = 3.0f,
                     scaleY = 3.0f,
-                    alpha = alpha.value
+                    alpha = alpha
                 ),
             tint = Color.Red
         )

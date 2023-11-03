@@ -32,7 +32,7 @@ export ANDROID_HOME="$CHECKOUT_ROOT/prebuilts/fullsdk-linux/"
 
 function buildMetalava() {
   METALAVA_BUILD_LOG="$OUT_DIR/metalava.log"
-  if $gw -p $METALAVA_DIR createArchive --stacktrace --no-daemon > "$METALAVA_BUILD_LOG" 2>&1; then
+  if $gw -p $METALAVA_DIR publish --stacktrace --no-daemon > "$METALAVA_BUILD_LOG" 2>&1; then
     echo built metalava successfully
   else
     cat "$METALAVA_BUILD_LOG" >&2
@@ -44,8 +44,16 @@ function buildMetalava() {
 
 buildMetalava
 
+# allow androidx build to reach the network for any new metalava dependencies
+export ALLOW_PUBLIC_REPOS=true
+
 # Mac grep doesn't support -P, so use perl version of `grep -oP "(?<=metalavaVersion=).*"`
-export METALAVA_VERSION=`perl -nle'print $& while m{(?<=metalavaVersion=).*}g' $METALAVA_DIR/src/main/resources/version.properties`
+METALAVA_VERSION_FILE="$METALAVA_DIR/version.properties"
+export METALAVA_VERSION=`perl -nle'print $& while m{(?<=metalavaVersion=).*}g' $METALAVA_VERSION_FILE`
+if [ -z "$METALAVA_VERSION" ]; then
+  echo Failed to retrieve version from $METALAVA_VERSION_FILE >&2
+  exit 1
+fi
 export METALAVA_REPO="$DIST_DIR/repo/m2repository"
 
 function buildAndroidx() {

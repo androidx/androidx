@@ -23,8 +23,6 @@ plugins {
 android {
     defaultConfig {
         applicationId "androidx.biometric.integration.testapp"
-        minSdkVersion 18
-        versionCode 1
         testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
     }
 
@@ -59,6 +57,7 @@ dependencies {
 
     debugImplementation(libs.leakcanary)
 
+    androidTestImplementation(projectOrArtifact(":annotation:annotation"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRules)

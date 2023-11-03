@@ -16,30 +16,29 @@
 
 package androidx.camera.video;
 
-import android.util.Range;
-import android.util.Size;
+import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoEncoderConfig;
+import static androidx.camera.video.internal.config.VideoConfigUtil.resolveVideoMimeInfo;
+
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
-import androidx.camera.core.impl.CamcorderProfileProxy;
 import androidx.camera.core.impl.Timebase;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.camera.video.internal.config.MimeInfo;
-import androidx.camera.video.internal.config.VideoEncoderConfigCamcorderProfileResolver;
-import androidx.camera.video.internal.config.VideoEncoderConfigDefaultResolver;
+import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
+import androidx.camera.video.internal.config.VideoMimeInfo;
 import androidx.camera.video.internal.encoder.Encoder;
 import androidx.camera.video.internal.encoder.Encoder.SurfaceInput.OnSurfaceUpdateListener;
 import androidx.camera.video.internal.encoder.EncoderFactory;
 import androidx.camera.video.internal.encoder.InvalidConfigException;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.core.util.Supplier;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -109,10 +108,11 @@ final class VideoEncoderSession {
     @ExecutedBy("mSequentialExecutor")
     ListenableFuture<Encoder> configure(@NonNull SurfaceRequest surfaceRequest,
             @NonNull Timebase timebase, @NonNull MediaSpec mediaSpec,
-            @Nullable CamcorderProfileProxy resolvedCamcorderProfile) {
+            @Nullable VideoValidatedEncoderProfilesProxy resolvedEncoderProfiles) {
         switch (mVideoEncoderState) {
             case NOT_INITIALIZED:
                 mVideoEncoderState = VideoEncoderState.INITIALIZING;
+
                 mSurfaceRequest = surfaceRequest;
                 Logger.d(TAG, "Create VideoEncoderSession: " + this);
                 mReleasedFuture = CallbackToFutureAdapter.getFuture(closeCompleter -> {
@@ -127,7 +127,7 @@ final class VideoEncoderSession {
                 ListenableFuture<Encoder> configureFuture = CallbackToFutureAdapter.getFuture(
                         completer -> {
                             configureVideoEncoderInternal(surfaceRequest, timebase,
-                                    resolvedCamcorderProfile,
+                                    resolvedEncoderProfiles,
                                     mediaSpec, completer);
                             return "ConfigureVideoEncoderFuture " + VideoEncoderSession.this;
                         });
@@ -286,10 +286,12 @@ final class VideoEncoderSession {
     @ExecutedBy("mSequentialExecutor")
     private void configureVideoEncoderInternal(@NonNull SurfaceRequest surfaceRequest,
             @NonNull Timebase timebase,
-            @Nullable CamcorderProfileProxy resolvedCamcorderProfile,
+            @Nullable VideoValidatedEncoderProfilesProxy resolvedEncoderProfiles,
             @NonNull MediaSpec mediaSpec,
             @NonNull CallbackToFutureAdapter.Completer<Encoder> configureCompleter) {
-        MimeInfo videoMimeInfo = resolveVideoMimeInfo(resolvedCamcorderProfile, mediaSpec);
+        DynamicRange dynamicRange = surfaceRequest.getDynamicRange();
+        VideoMimeInfo videoMimeInfo = resolveVideoMimeInfo(mediaSpec, dynamicRange,
+                resolvedEncoderProfiles);
 
         // The VideoSpec from mediaSpec only contains settings requested by the recorder, but
         // the actual settings may need to differ depending on the FPS chosen by the camera.
@@ -299,6 +301,7 @@ final class VideoEncoderSession {
                 timebase,
                 mediaSpec.getVideoSpec(),
                 surfaceRequest.getResolution(),
+                dynamicRange,
                 surfaceRequest.getExpectedFrameRate());
 
         try {
@@ -335,6 +338,7 @@ final class VideoEncoderSession {
                                 closeInternal();
                                 break;
                             }
+
                             mActiveSurface = surface;
                             Logger.d(TAG, "provide surface: " + surface);
                             surfaceRequest.provideSurface(surface, mSequentialExecutor,
@@ -369,69 +373,6 @@ final class VideoEncoderSession {
             // If the surface isn't the active surface, it also can't be the latest surface
             resultSurface.release();
         }
-    }
-
-    @ExecutedBy("mSequentialExecutor")
-    private MimeInfo resolveVideoMimeInfo(@Nullable CamcorderProfileProxy resolvedCamcorderProfile,
-            @NonNull MediaSpec mediaSpec) {
-        String mediaSpecVideoMime = MediaSpec.outputFormatToVideoMime(mediaSpec.getOutputFormat());
-        String resolvedVideoMime = mediaSpecVideoMime;
-        boolean camcorderProfileIsCompatible = false;
-        if (resolvedCamcorderProfile != null) {
-            String camcorderProfileVideoMime = resolvedCamcorderProfile.getVideoCodecMimeType();
-            // Use camcorder profile settings if the media spec's output format
-            // is set to auto or happens to match the CamcorderProfile's output format.
-            if (camcorderProfileVideoMime == null) {
-                Logger.d(TAG, "CamcorderProfile contains undefined VIDEO mime type so cannot be "
-                        + "used. May rely on fallback defaults to derive settings "
-                        + "[chosen mime type: " + resolvedVideoMime + "]");
-            } else if (mediaSpec.getOutputFormat() == MediaSpec.OUTPUT_FORMAT_AUTO) {
-                camcorderProfileIsCompatible = true;
-                resolvedVideoMime = camcorderProfileVideoMime;
-                Logger.d(TAG, "MediaSpec contains OUTPUT_FORMAT_AUTO. Using CamcorderProfile "
-                        + "to derive VIDEO settings [mime type: " + resolvedVideoMime + "]");
-            } else if (Objects.equals(mediaSpecVideoMime, camcorderProfileVideoMime)) {
-                camcorderProfileIsCompatible = true;
-                resolvedVideoMime = camcorderProfileVideoMime;
-                Logger.d(TAG, "MediaSpec video mime matches CamcorderProfile. Using "
-                        + "CamcorderProfile to derive VIDEO settings [mime type: "
-                        + resolvedVideoMime + "]");
-            } else {
-                Logger.d(TAG, "MediaSpec video mime does not match CamcorderProfile, so "
-                        + "CamcorderProfile settings cannot be used. May rely on fallback "
-                        + "defaults to derive VIDEO settings [CamcorderProfile mime type: "
-                        + camcorderProfileVideoMime + ", chosen mime type: " + resolvedVideoMime
-                        + "]");
-            }
-        } else {
-            Logger.d(TAG, "No CamcorderProfile present. May rely on fallback defaults to derive "
-                    + "VIDEO settings [chosen mime type: " + resolvedVideoMime + "]");
-        }
-
-        MimeInfo.Builder mimeInfoBuilder = MimeInfo.builder(resolvedVideoMime);
-        if (camcorderProfileIsCompatible) {
-            mimeInfoBuilder.setCompatibleCamcorderProfile(resolvedCamcorderProfile);
-        }
-
-        return mimeInfoBuilder.build();
-    }
-
-    @NonNull
-    private static VideoEncoderConfig resolveVideoEncoderConfig(@NonNull MimeInfo videoMimeInfo,
-            @NonNull Timebase timebase, @NonNull VideoSpec videoSpec, @NonNull Size surfaceSize,
-            @Nullable Range<Integer> expectedFrameRateRange) {
-        Supplier<VideoEncoderConfig> configSupplier;
-        if (videoMimeInfo.getCompatibleCamcorderProfile() != null) {
-            configSupplier = new VideoEncoderConfigCamcorderProfileResolver(
-                    videoMimeInfo.getMimeType(), timebase, videoSpec, surfaceSize,
-                    videoMimeInfo.getCompatibleCamcorderProfile(),
-                    expectedFrameRateRange);
-        } else {
-            configSupplier = new VideoEncoderConfigDefaultResolver(videoMimeInfo.getMimeType(),
-                    timebase, videoSpec, surfaceSize, expectedFrameRateRange);
-        }
-
-        return configSupplier.get();
     }
 
     @NonNull

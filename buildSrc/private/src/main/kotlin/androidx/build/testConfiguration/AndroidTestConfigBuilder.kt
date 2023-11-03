@@ -23,11 +23,10 @@ class ConfigBuilder {
     var appApkName: String? = null
     var appApkSha256: String? = null
     lateinit var applicationId: String
-    var isBenchmark: Boolean = false
+    var isMicrobenchmark: Boolean = false
+    var isMacrobenchmark: Boolean = false
     var isPostsubmit: Boolean = true
     lateinit var minSdk: String
-    var runAllTests: Boolean = true
-    var cleanupApks: Boolean = true
     val tags = mutableListOf<String>()
     lateinit var testApkName: String
     lateinit var testApkSha256: String
@@ -35,43 +34,58 @@ class ConfigBuilder {
     val additionalApkKeys = mutableListOf<String>()
 
     fun configName(configName: String) = apply { this.configName = configName }
+
     fun appApkName(appApkName: String) = apply { this.appApkName = appApkName }
+
     fun appApkSha256(appApkSha256: String) = apply { this.appApkSha256 = appApkSha256 }
+
     fun applicationId(applicationId: String) = apply { this.applicationId = applicationId }
-    fun isBenchmark(isBenchmark: Boolean) = apply { this.isBenchmark = isBenchmark }
+
+    fun isMicrobenchmark(isMicrobenchmark: Boolean) = apply {
+        this.isMicrobenchmark = isMicrobenchmark
+    }
+
+    fun isMacrobenchmark(isMacrobenchmark: Boolean) = apply {
+        this.isMacrobenchmark = isMacrobenchmark
+    }
+
     fun isPostsubmit(isPostsubmit: Boolean) = apply { this.isPostsubmit = isPostsubmit }
+
     fun minSdk(minSdk: String) = apply { this.minSdk = minSdk }
-    fun runAllTests(runAllTests: Boolean) = apply { this.runAllTests = runAllTests }
-    fun cleanupApks(cleanupApks: Boolean) = apply { this.cleanupApks = cleanupApks }
+
     fun tag(tag: String) = apply { this.tags.add(tag) }
+
     fun additionalApkKeys(keys: List<String>) = apply { additionalApkKeys.addAll(keys) }
+
     fun testApkName(testApkName: String) = apply { this.testApkName = testApkName }
+
     fun testApkSha256(testApkSha256: String) = apply { this.testApkSha256 = testApkSha256 }
+
     fun testRunner(testRunner: String) = apply { this.testRunner = testRunner }
 
     fun buildJson(): String {
         val gson = GsonBuilder().setPrettyPrinting().create()
-        val instrumentationArgs = if (isBenchmark && !isPostsubmit) {
-            listOf(
-                InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"),
-                InstrumentationArg("androidx.benchmark.dryRunMode.enable", "true"),
+        val instrumentationArgs =
+            if (isMicrobenchmark && !isPostsubmit) {
+                listOf(
+                    InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"),
+                    InstrumentationArg("androidx.benchmark.dryRunMode.enable", "true"),
+                )
+            } else {
+                listOf(InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest"))
+            }
+        val values =
+            mapOf(
+                "name" to configName,
+                "minSdkVersion" to minSdk,
+                "testSuiteTags" to tags,
+                "testApk" to testApkName,
+                "testApkSha256" to testApkSha256,
+                "appApk" to appApkName,
+                "appApkSha256" to appApkSha256,
+                "instrumentationArgs" to instrumentationArgs,
+                "additionalApkKeys" to additionalApkKeys
             )
-        } else {
-            listOf(
-                InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest")
-            )
-        }
-        val values = mapOf(
-            "name" to configName,
-            "minSdkVersion" to minSdk,
-            "testSuiteTags" to tags,
-            "testApk" to testApkName,
-            "testApkSha256" to testApkSha256,
-            "appApk" to appApkName,
-            "appApkSha256" to appApkSha256,
-            "instrumentationArgs" to instrumentationArgs,
-            "additionalApkKeys" to additionalApkKeys
-        )
         return gson.toJson(values)
     }
 
@@ -80,120 +94,79 @@ class ConfigBuilder {
         sb.append(XML_HEADER_AND_LICENSE)
         sb.append(CONFIGURATION_OPEN)
             .append(MIN_API_LEVEL_CONTROLLER_OBJECT.replace("MIN_SDK", minSdk))
-        tags.forEach { tag ->
-            sb.append(TEST_SUITE_TAG_OPTION.replace("TEST_SUITE_TAG", tag))
-        }
+        tags.forEach { tag -> sb.append(TEST_SUITE_TAG_OPTION.replace("TEST_SUITE_TAG", tag)) }
         sb.append(MODULE_METADATA_TAG_OPTION.replace("APPLICATION_ID", applicationId))
             .append(WIFI_DISABLE_OPTION)
             .append(FLAKY_TEST_OPTION)
-        if (isBenchmark) {
+        if (isMicrobenchmark) {
             if (isPostsubmit) {
-                sb.append(BENCHMARK_POSTSUBMIT_OPTIONS)
+                sb.append(MICROBENCHMARK_POSTSUBMIT_OPTIONS)
             } else {
-                sb.append(BENCHMARK_PRESUBMIT_OPTION)
+                sb.append(MICROBENCHMARK_PRESUBMIT_OPTION)
             }
         }
+        if (isMacrobenchmark) {
+            sb.append(MACROBENCHMARK_POSTSUBMIT_OPTIONS)
+        }
         sb.append(SETUP_INCLUDE)
-            .append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", cleanupApks.toString()))
+            .append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", "true"))
             .append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
         if (!appApkName.isNullOrEmpty())
             sb.append(APK_INSTALL_OPTION.replace("APK_NAME", appApkName!!))
         sb.append(TARGET_PREPARER_CLOSE)
-            .append(TEST_BLOCK_OPEN)
+        // Post install commands after SuiteApkInstaller is declared
+        if (isMicrobenchmark) {
+            sb.append(benchmarkPostInstallCommandOption(applicationId))
+        }
+        sb.append(TEST_BLOCK_OPEN)
             .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
             .append(PACKAGE_OPTION.replace("APPLICATION_ID", applicationId))
-        if (runAllTests) {
-            sb.append(TEST_BLOCK_CLOSE)
-        } else {
-            sb.append(SMALL_TEST_OPTIONS)
-                .append(TEST_BLOCK_CLOSE)
-                .append(TEST_BLOCK_OPEN)
-            sb.append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
-                .append(PACKAGE_OPTION.replace("APPLICATION_ID", applicationId))
-                .append(MEDIUM_TEST_OPTIONS)
-                .append(TEST_BLOCK_CLOSE)
-        }
+            .append(TEST_BLOCK_CLOSE)
         sb.append(CONFIGURATION_CLOSE)
         return sb.toString()
     }
 }
 
-class MediaConfigBuilder {
-    lateinit var configName: String
-    lateinit var clientApkName: String
-    lateinit var clientApkSha256: String
-    lateinit var clientApplicationId: String
-    var isClientPrevious: Boolean = true
-    var isServicePrevious: Boolean = true
-    lateinit var minSdk: String
-    var runAllTests: Boolean = true
-    lateinit var serviceApkName: String
-    lateinit var serviceApkSha256: String
-    lateinit var serviceApplicationId: String
-    var tags: MutableList<String> = mutableListOf()
-    lateinit var testRunner: String
-
-    fun configName(configName: String) = apply { this.configName = configName }
-    fun clientApkName(clientApkName: String) = apply { this.clientApkName = clientApkName }
-    fun clientApkSha256(clientApkSha256: String) = apply { this.clientApkSha256 = clientApkSha256 }
-    fun clientApplicationId(clientApplicationId: String) =
-        apply { this.clientApplicationId = clientApplicationId }
-    fun isClientPrevious(isClientPrevious: Boolean) = apply {
-        this.isClientPrevious = isClientPrevious
-    }
-    fun isServicePrevious(isServicePrevious: Boolean) = apply {
-        this.isServicePrevious = isServicePrevious
-    }
-    fun minSdk(minSdk: String) = apply { this.minSdk = minSdk }
-    fun runAllTests(runAllTests: Boolean) = apply { this.runAllTests = runAllTests }
-    fun serviceApkName(serviceApkName: String) = apply { this.serviceApkName = serviceApkName }
-    fun serviceApkSha256(serviceApkSha256: String) = apply {
-        this.serviceApkSha256 = serviceApkSha256
-    }
-    fun serviceApplicationId(serviceApplicationId: String) =
-        apply { this.serviceApplicationId = serviceApplicationId }
-    fun tag(tag: String) = apply { this.tags.add(tag) }
-    fun testRunner(testRunner: String) = apply { this.testRunner = testRunner }
-
-    private fun mediaInstrumentationArgs(): String {
-        return if (isClientPrevious) {
-            if (isServicePrevious) {
-                CLIENT_PREVIOUS + SERVICE_PREVIOUS
-            } else {
-                CLIENT_PREVIOUS + SERVICE_TOT
-            }
+private fun mediaInstrumentationArgsForJson(
+    isClientPrevious: Boolean,
+    isServicePrevious: Boolean
+): List<InstrumentationArg> {
+    return listOf(
+        if (isClientPrevious) {
+            InstrumentationArg(key = "client_version", value = "previous")
         } else {
-            if (isServicePrevious) {
-                CLIENT_TOT + SERVICE_PREVIOUS
-            } else {
-                CLIENT_TOT + SERVICE_TOT
-            }
+            InstrumentationArg(key = "client_version", value = "tot")
+        },
+        if (isServicePrevious) {
+            InstrumentationArg(key = "service_version", value = "previous")
+        } else {
+            InstrumentationArg(key = "service_version", value = "tot")
         }
-    }
+    )
+}
 
-    private fun mediaInstrumentationArgsForJson(): List<InstrumentationArg> {
-        return listOf(
-            if (isClientPrevious) {
-                InstrumentationArg(key = "client_version", value = "previous")
-            } else {
-                InstrumentationArg(key = "client_version", value = "tot")
-            },
-            if (isServicePrevious) {
-                InstrumentationArg(key = "service_version", value = "previous")
-            } else {
-                InstrumentationArg(key = "service_version", value = "tot")
-            }
-        )
-    }
-
-    fun buildJson(forClient: Boolean): String {
-        val gson = GsonBuilder().setPrettyPrinting().create()
-        val instrumentationArgs =
-            listOf(
-                InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest")
-            ) + mediaInstrumentationArgsForJson()
-        val values = mapOf(
-            "name" to "$configName-${if (forClient) "clientTests" else "serviceTests"}",
+fun buildMediaJson(
+    configName: String,
+    forClient: Boolean,
+    clientApkName: String,
+    clientApkSha256: String,
+    isClientPrevious: Boolean,
+    isServicePrevious: Boolean,
+    minSdk: String,
+    serviceApkName: String,
+    serviceApkSha256: String,
+    tags: List<String>,
+): String {
+    val gson = GsonBuilder().setPrettyPrinting().create()
+    val instrumentationArgs =
+        listOf(InstrumentationArg("notAnnotation", "androidx.test.filters.FlakyTest")) +
+            mediaInstrumentationArgsForJson(
+                isClientPrevious = isClientPrevious,
+                isServicePrevious = isServicePrevious
+            )
+    val values =
+        mapOf(
+            "name" to configName,
             "minSdkVersion" to minSdk,
             "testSuiteTags" to tags,
             "testApk" to if (forClient) clientApkName else serviceApkName,
@@ -203,82 +176,19 @@ class MediaConfigBuilder {
             "instrumentationArgs" to instrumentationArgs,
             "additionalApkKeys" to listOf<String>()
         )
-        return gson.toJson(values)
-    }
-
-    fun build(): String {
-        val sb = StringBuilder()
-        sb.append(XML_HEADER_AND_LICENSE)
-            .append(CONFIGURATION_OPEN)
-            .append(MIN_API_LEVEL_CONTROLLER_OBJECT.replace("MIN_SDK", minSdk))
-        tags.forEach { tag ->
-            sb.append(TEST_SUITE_TAG_OPTION.replace("TEST_SUITE_TAG", tag))
-        }
-        sb.append(
-            MODULE_METADATA_TAG_OPTION.replace(
-                "APPLICATION_ID", "$clientApplicationId;$serviceApplicationId"
-            )
-        )
-            .append(WIFI_DISABLE_OPTION)
-            .append(FLAKY_TEST_OPTION)
-            .append(SETUP_INCLUDE)
-            .append(MEDIA_TARGET_PREPARER_OPEN)
-            .append(APK_INSTALL_OPTION.replace("APK_NAME", clientApkName))
-            .append(APK_INSTALL_OPTION.replace("APK_NAME", serviceApkName))
-            .append(TARGET_PREPARER_CLOSE)
-            .append(TEST_BLOCK_OPEN)
-            .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
-            .append(PACKAGE_OPTION.replace("APPLICATION_ID", clientApplicationId))
-            .append(mediaInstrumentationArgs())
-        if (runAllTests) {
-            sb.append(TEST_BLOCK_CLOSE)
-                .append(TEST_BLOCK_OPEN)
-                .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
-                .append(PACKAGE_OPTION.replace("APPLICATION_ID", serviceApplicationId))
-                .append(mediaInstrumentationArgs())
-            sb.append(TEST_BLOCK_CLOSE)
-        } else {
-            // add the small and medium test runners for both client and service apps
-            sb.append(SMALL_TEST_OPTIONS)
-                .append(TEST_BLOCK_CLOSE)
-                .append(TEST_BLOCK_OPEN)
-                .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
-                .append(PACKAGE_OPTION.replace("APPLICATION_ID", clientApplicationId))
-                .append(mediaInstrumentationArgs())
-                .append(MEDIUM_TEST_OPTIONS)
-                .append(TEST_BLOCK_CLOSE)
-                .append(TEST_BLOCK_OPEN)
-                .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
-                .append(PACKAGE_OPTION.replace("APPLICATION_ID", serviceApplicationId))
-                .append(mediaInstrumentationArgs())
-                .append(SMALL_TEST_OPTIONS)
-                .append(TEST_BLOCK_CLOSE)
-                .append(TEST_BLOCK_OPEN)
-                .append(RUNNER_OPTION.replace("TEST_RUNNER", testRunner))
-                .append(PACKAGE_OPTION.replace("APPLICATION_ID", serviceApplicationId))
-                .append(mediaInstrumentationArgs())
-                .append(MEDIUM_TEST_OPTIONS)
-                .append(TEST_BLOCK_CLOSE)
-        }
-        sb.append(CONFIGURATION_CLOSE)
-        return sb.toString()
-    }
+    return gson.toJson(values)
 }
 
-private data class InstrumentationArg(
-    val key: String,
-    val value: String
-)
+private data class InstrumentationArg(val key: String, val value: String)
 
 /**
- * These constants are the building blocks of the xml configs, but
- * they aren't very readable as separate chunks. Look to
- * the golden examples at the bottom of
- * {@link androidx.build.testConfiguration.XmlTestConfigVerificationTest}
- * for examples of what the full xml will look like.
+ * These constants are the building blocks of the xml configs, but they aren't very readable as
+ * separate chunks. Look to the golden examples at the bottom of {@link
+ * androidx.build.testConfiguration.XmlTestConfigVerificationTest} for examples of what the full xml
+ * will look like.
  */
-
-private val XML_HEADER_AND_LICENSE = """
+private val XML_HEADER_AND_LICENSE =
+    """
     <?xml version="1.0" encoding="utf-8"?>
     <!-- Copyright (C) 2020 The Android Open Source Project
     Licensed under the Apache License, Version 2.0 (the "License")
@@ -291,138 +201,155 @@ private val XML_HEADER_AND_LICENSE = """
     See the License for the specific language governing permissions
     and limitations under the License.-->
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val CONFIGURATION_OPEN = """
+private val CONFIGURATION_OPEN =
+    """
     <configuration description="Runs tests for the module">
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val CONFIGURATION_CLOSE = """
+private val CONFIGURATION_CLOSE =
+    """
     </configuration>
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val MIN_API_LEVEL_CONTROLLER_OBJECT = """
+private val MIN_API_LEVEL_CONTROLLER_OBJECT =
+    """
     <object type="module_controller" class="com.android.tradefed.testtype.suite.module.MinApiLevelModuleController">
     <option name="min-api-level" value="MIN_SDK" />
     </object>
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val TEST_SUITE_TAG_OPTION = """
+private val TEST_SUITE_TAG_OPTION =
+    """
     <option name="test-suite-tag" value="TEST_SUITE_TAG" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val MODULE_METADATA_TAG_OPTION = """
+private val MODULE_METADATA_TAG_OPTION =
+    """
     <option name="config-descriptor:metadata" key="applicationId" value="APPLICATION_ID" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val WIFI_DISABLE_OPTION = """
+private val WIFI_DISABLE_OPTION =
+    """
     <option name="wifi:disable" value="true" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val SETUP_INCLUDE = """
+private fun benchmarkPostInstallCommandOption(packageName: String) =
+    """
+    <target_preparer class="com.android.tradefed.targetprep.RunCommandTargetPreparer">
+    <option name="run-command" value="${benchmarkPostInstallCommand(packageName)}" />
+    <option name="run-command-timeout" value="240000" />
+    </target_preparer>
+
+"""
+        .trimIndent()
+
+private fun benchmarkPostInstallCommand(packageName: String): String {
+    return "cmd package compile -f -m speed $packageName"
+}
+
+private val SETUP_INCLUDE =
+    """
     <include name="google/unbundled/common/setup" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
 /**
  * Specify the following options on the APK installer:
  * - Pass the -t argument when installing APKs. This allows testonly APKs to be installed, which
  *   includes all APKs built against a pre-release SDK. See b/205571374.
  */
-private val TARGET_PREPARER_OPEN = """
+private val TARGET_PREPARER_OPEN =
+    """
     <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
     <option name="cleanup-apks" value="CLEANUP_APKS" />
     <option name="install-arg" value="-t" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-/**
- * Differs from [TARGET_PREPARER_OPEN] in that Media target can remove APKs after testing.
- */
-private val MEDIA_TARGET_PREPARER_OPEN = """
-    <target_preparer class="com.android.tradefed.targetprep.suite.SuiteApkInstaller">
-    <option name="cleanup-apks" value="true" />
-    <option name="install-arg" value="-t" />
-
-""".trimIndent()
-
-private val TARGET_PREPARER_CLOSE = """
+private val TARGET_PREPARER_CLOSE =
+    """
     </target_preparer>
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val APK_INSTALL_OPTION = """
+private val APK_INSTALL_OPTION =
+    """
     <option name="test-file-name" value="APK_NAME" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val TEST_BLOCK_OPEN = """
+private val TEST_BLOCK_OPEN =
+    """
     <test class="com.android.tradefed.testtype.AndroidJUnitTest">
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val TEST_BLOCK_CLOSE = """
+private val TEST_BLOCK_CLOSE =
+    """
     </test>
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val RUNNER_OPTION = """
+private val RUNNER_OPTION =
+    """
     <option name="runner" value="TEST_RUNNER"/>
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val PACKAGE_OPTION = """
+private val PACKAGE_OPTION =
+    """
     <option name="package" value="APPLICATION_ID" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val BENCHMARK_PRESUBMIT_OPTION = """
+private val MICROBENCHMARK_PRESUBMIT_OPTION =
+    """
     <option name="instrumentation-arg" key="androidx.benchmark.dryRunMode.enable" value="true" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val BENCHMARK_POSTSUBMIT_OPTIONS = """
-    <option name="instrumentation-arg" key="androidx.benchmark.output.enable" value="true" />
+private val MICROBENCHMARK_POSTSUBMIT_OPTIONS =
+    """
     <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.SideEffectRunListener" />
 
-""".trimIndent()
+"""
+        .trimIndent()
 
-private val FLAKY_TEST_OPTION = """
+private val MACROBENCHMARK_POSTSUBMIT_OPTIONS =
+    """
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.junit4.InstrumentationResultsRunListener" />
+    <option name="instrumentation-arg" key="listener" value="androidx.benchmark.macro.junit4.SideEffectRunListener" />
+
+"""
+        .trimIndent()
+
+private val FLAKY_TEST_OPTION =
+    """
     <option name="instrumentation-arg" key="notAnnotation" value="androidx.test.filters.FlakyTest" />
 
-""".trimIndent()
-
-private val SMALL_TEST_OPTIONS = """
-    <option name="size" value="small" />
-
-""".trimIndent()
-
-private val MEDIUM_TEST_OPTIONS = """
-    <option name="size" value="medium" />
-
-""".trimIndent()
-
-private val CLIENT_PREVIOUS = """
-    <option name="instrumentation-arg" key="client_version" value="previous" />
-
-""".trimIndent()
-
-private val CLIENT_TOT = """
-    <option name="instrumentation-arg" key="client_version" value="tot" />
-
-""".trimIndent()
-
-private val SERVICE_PREVIOUS = """
-    <option name="instrumentation-arg" key="service_version" value="previous" />
-
-""".trimIndent()
-
-private val SERVICE_TOT = """
-    <option name="instrumentation-arg" key="service_version" value="tot" />
-
-""".trimIndent()
+"""
+        .trimIndent()

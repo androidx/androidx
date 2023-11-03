@@ -22,8 +22,8 @@ import androidx.wear.watchface.control.data.CrashInfoParcel;
 /**
  * Callback issued when {@link IInteractiveWatchFaceWcs} has been created.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IPendingInteractiveWatchFace {
    // IMPORTANT NOTE: All methods must be given an explicit transaction id that must never change
    // in the future to remain binary backwards compatible.

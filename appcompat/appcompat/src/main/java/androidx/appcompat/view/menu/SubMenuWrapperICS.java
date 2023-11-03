@@ -29,7 +29,6 @@ import androidx.core.internal.view.SupportSubMenu;
 
 /**
  * Wraps a support {@link SupportSubMenu} as a framework {@link android.view.SubMenu}
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 class SubMenuWrapperICS extends MenuWrapperICS implements SubMenu {

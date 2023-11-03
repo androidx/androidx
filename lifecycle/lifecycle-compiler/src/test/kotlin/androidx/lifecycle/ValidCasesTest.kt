@@ -20,11 +20,11 @@ import androidx.lifecycle.utils.load
 import androidx.lifecycle.utils.processClass
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaSourcesSubject
+import java.io.File
+import javax.tools.StandardLocation
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import java.io.File
-import javax.tools.StandardLocation
 
 @RunWith(JUnit4::class)
 class ValidCasesTest {
@@ -155,8 +155,10 @@ class ValidCasesTest {
         }
     }
 
-    private fun libraryClasspathFiles() =
-        getSystemClasspathFiles() + File("src/test/test-data/lib/test-library.jar")
+    private fun libraryClasspathFiles(): Set<File> {
+        val testLibrary = ValidCasesTest::class.java.classLoader.getResource("test-library.jar")
+        return getSystemClasspathFiles() + File(testLibrary!!.toURI())
+    }
 
     private fun getSystemClasspathFiles(): Set<File> {
         val pathSeparator = System.getProperty("path.separator")

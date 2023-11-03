@@ -3,12 +3,6 @@ ConcreteCollection: androidx.drawerlayout.widget.DrawerLayout#addFocusables(java
     Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 
 
-InvalidNullabilityOverride: androidx.drawerlayout.widget.DrawerLayout#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
-    Invalid nullability on parameter `canvas` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.drawerlayout.widget.DrawerLayout#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `c` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-
-
 ListenerInterface: androidx.drawerlayout.widget.DrawerLayout.SimpleDrawerListener:
     Listeners should be an interface, or otherwise renamed Callback: SimpleDrawerListener
 
@@ -49,6 +43,10 @@ MissingNullability: androidx.drawerlayout.widget.DrawerLayout.SavedState#CREATOR
     Missing nullability on field `CREATOR` in class `class androidx.drawerlayout.widget.DrawerLayout.SavedState`
 MissingNullability: androidx.drawerlayout.widget.DrawerLayout.SavedState#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `dest` in method `writeToParcel`
+
+
+NotCloseable: androidx.drawerlayout.widget.DrawerLayout:
+    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.drawerlayout.widget.DrawerLayout
 
 
 ParcelCreator: androidx.drawerlayout.widget.DrawerLayout.SavedState:

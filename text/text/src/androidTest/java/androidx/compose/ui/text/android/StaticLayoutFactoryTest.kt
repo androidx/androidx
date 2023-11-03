@@ -22,18 +22,19 @@ import android.text.TextDirectionHeuristics
 import android.text.TextPaint
 import android.text.TextUtils
 import androidx.core.content.res.ResourcesCompat
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.fonts.R
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.floor
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
-import kotlin.math.floor
 
 @RunWith(AndroidJUnit4::class)
+@OptIn(InternalPlatformTextApi::class)
 @SmallTest
 class StaticLayoutFactoryTest {
     private var sampleFont: Typeface? = null
@@ -78,10 +79,10 @@ class StaticLayoutFactoryTest {
         val end = 5
         val staticLayout = StaticLayoutFactory.create(
             text = text,
-            start = start,
-            end = end,
             paint = TextPaint(),
-            width = Int.MAX_VALUE
+            width = Int.MAX_VALUE,
+            start = start,
+            end = end
         )
 
         // width Int.MAX_VALUE therefore should be only one line
@@ -205,9 +206,9 @@ class StaticLayoutFactoryTest {
             text = text,
             paint = paint,
             width = width,
+            maxLines = 1,
             ellipsize = TextUtils.TruncateAt.END,
-            ellipsizedWidth = ellipsizedWidth,
-            maxLines = 1
+            ellipsizedWidth = ellipsizedWidth
         )
 
         assertThat(staticLayout.getEllipsisCount(0)).isGreaterThan(0)
@@ -505,9 +506,9 @@ class StaticLayoutFactoryTest {
     fun create_withStartNegative_throwsIAE() {
         StaticLayoutFactory.create(
             text = "abc",
-            start = -1,
             paint = TextPaint(),
-            width = Int.MAX_VALUE
+            width = Int.MAX_VALUE,
+            start = -1
         )
     }
 
@@ -515,9 +516,9 @@ class StaticLayoutFactoryTest {
     fun create_withStartGreaterThanLength_throwsIAE() {
         StaticLayoutFactory.create(
             text = "abc",
-            start = "abc".length + 1,
             paint = TextPaint(),
-            width = Int.MAX_VALUE
+            width = Int.MAX_VALUE,
+            start = "abc".length + 1
         )
     }
 
@@ -525,9 +526,9 @@ class StaticLayoutFactoryTest {
     fun create_withEndNegative_throwsIAE() {
         StaticLayoutFactory.create(
             text = "abc",
-            end = -1,
             paint = TextPaint(),
-            width = Int.MAX_VALUE
+            width = Int.MAX_VALUE,
+            end = -1
         )
     }
 
@@ -535,9 +536,9 @@ class StaticLayoutFactoryTest {
     fun create_withEndGreaterThanLength_throwsIAE() {
         StaticLayoutFactory.create(
             text = "abc",
-            end = "abc".length + 1,
             paint = TextPaint(),
-            width = Int.MAX_VALUE
+            width = Int.MAX_VALUE,
+            end = "abc".length + 1
         )
     }
 
@@ -545,10 +546,10 @@ class StaticLayoutFactoryTest {
     fun create_withStartGreaterThanEnd_throwsIAE() {
         StaticLayoutFactory.create(
             text = "abc",
-            start = 2,
-            end = 1,
             paint = TextPaint(),
-            width = Int.MAX_VALUE
+            width = Int.MAX_VALUE,
+            start = 2,
+            end = 1
         )
     }
 

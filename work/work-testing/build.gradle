@@ -23,11 +23,12 @@ plugins {
 }
 
 dependencies {
-    api(project(":work:work-runtime-ktx"))
+    api(project(":work:work-runtime"))
+
     implementation("androidx.lifecycle:lifecycle-livedata-core:2.5.1")
     implementation("androidx.room:room-runtime:2.5.0")
 
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
+    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -41,23 +42,21 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.junit)
     testImplementation(libs.robolectric)
+    testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinCoroutinesAndroid)
 }
 
 androidx {
-    name = "Android WorkManager Testing"
+    name = "WorkManager Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android WorkManager testing library"
+    metalavaK2UastEnabled = true
 }
 
 android {
     namespace "androidx.work.testing"
     defaultConfig {
         multiDexEnabled = true
-    }
-    lintOptions {
-        // Too many Kotlin features require synthetic accessors - we want to rely on R8 to
-        // remove these accessors
-        disable("SyntheticAccessor")
     }
 }

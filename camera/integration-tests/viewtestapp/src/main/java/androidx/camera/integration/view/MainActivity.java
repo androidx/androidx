@@ -103,12 +103,7 @@ public class MainActivity extends AppCompatActivity {
         // Get extra option for checking whether it needs to be implemented with PreviewView
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            final String viewTypeString = bundle.getString(INTENT_FRAGMENT_TYPE);
-            if (PREVIEW_VIEW_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
-                mFragmentType = FragmentType.PREVIEW_VIEW;
-            } else if (COMPOSE_UI_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
-                mFragmentType = FragmentType.COMPOSE_UI;
-            }
+            parseFragmentType(bundle);
             // Update the app UI according to the e2e test case.
             String testItem = bundle.getString(INTENT_EXTRA_E2E_TEST_CASE);
             if (testItem != null) {
@@ -190,6 +185,9 @@ public class MainActivity extends AppCompatActivity {
             case R.id.mlkit:
                 mFragmentType = FragmentType.MLKIT;
                 break;
+            case R.id.effects:
+                mFragmentType = FragmentType.EFFECTS;
+                break;
         }
         startFragment();
         return true;
@@ -203,6 +201,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         return true;
+    }
+
+    private void parseFragmentType(@NonNull Bundle bundle) {
+        final String viewTypeString = bundle.getString(INTENT_FRAGMENT_TYPE);
+        if (PREVIEW_VIEW_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
+            mFragmentType = FragmentType.PREVIEW_VIEW;
+        } else if (COMPOSE_UI_FRAGMENT.equalsIgnoreCase(viewTypeString)) {
+            mFragmentType = FragmentType.COMPOSE_UI;
+        }
     }
 
     private void startFragment() {
@@ -221,6 +228,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case MLKIT:
                 startFragment(R.string.mlkit, new MlKitFragment());
+                break;
+            case EFFECTS:
+                startFragment(R.string.effects, new EffectsFragment());
                 break;
         }
     }
@@ -243,6 +253,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private enum FragmentType {
-        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT
+        PREVIEW_VIEW, CAMERA_CONTROLLER, TRANSFORM, COMPOSE_UI, MLKIT, EFFECTS
     }
 }

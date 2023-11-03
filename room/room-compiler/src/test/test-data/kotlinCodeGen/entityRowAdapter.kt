@@ -13,12 +13,11 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
 public class MyDao_Impl(
     __db: RoomDatabase,
 ) : MyDao {
@@ -28,18 +27,19 @@ public class MyDao_Impl(
     init {
         this.__db = __db
         this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`valuePrimitive`,`valueBoolean`,`valueString`,`valueNullableString`,`variablePrimitive`,`variableNullableBoolean`,`variableString`,`variableNullableString`) VALUES (?,?,?,?,?,?,?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.valuePrimitive)
                 val _tmp: Int = if (entity.valueBoolean) 1 else 0
                 statement.bindLong(2, _tmp.toLong())
                 statement.bindString(3, entity.valueString)
-                if (entity.valueNullableString == null) {
+                val _tmpValueNullableString: String? = entity.valueNullableString
+                if (_tmpValueNullableString == null) {
                     statement.bindNull(4)
                 } else {
-                    statement.bindString(4, entity.valueNullableString)
+                    statement.bindString(4, _tmpValueNullableString)
                 }
                 statement.bindLong(5, entity.variablePrimitive)
                 val _tmpVariableNullableBoolean: Boolean? = entity.variableNullableBoolean
@@ -60,7 +60,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun addEntity(item: MyEntity): Unit {
+    public override fun addEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {
@@ -81,7 +81,7 @@ public class MyDao_Impl(
             if (_cursor.moveToFirst()) {
                 _result = __entityCursorConverter_MyEntity(_cursor)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
             }
             return _result
         } finally {
@@ -117,7 +117,7 @@ public class MyDao_Impl(
         }
         val _tmpValueString: String
         if (_cursorIndexOfValueString == -1) {
-            error("Missing column 'valueString' for a non null value.")
+            error("Missing value for a NON-NULL column 'valueString', found NULL value instead.")
         } else {
             _tmpValueString = cursor.getString(_cursorIndexOfValueString)
         }

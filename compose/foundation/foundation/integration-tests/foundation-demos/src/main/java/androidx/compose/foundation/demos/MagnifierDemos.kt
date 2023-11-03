@@ -16,12 +16,11 @@
 
 package androidx.compose.foundation.demos
 
+import android.os.Build
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.MagnifierStyle
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -59,14 +58,7 @@ val MagnifierDemos = listOf(
     ComposableDemo("Multitouch Custom Magnifier") { MultitouchCustomMagnifierDemo() },
 )
 
-@OptIn(ExperimentalFoundationApi::class)
-private val DemoMagnifierStyle = MagnifierStyle(
-    size = DpSize(100.dp, 100.dp),
-    cornerRadius = 50.dp,
-)
-
 @Preview
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MultitouchCustomMagnifierDemo() {
     // Track the offset for every pointer ID that is currently "down".
@@ -86,7 +78,7 @@ fun MultitouchCustomMagnifierDemo() {
             style = TextStyle(textAlign = TextAlign.Center),
             modifier = Modifier.fillMaxWidth()
         )
-        if (!DemoMagnifierStyle.isSupported) {
+        if (Build.VERSION.SDK_INT < 28) {
             Text(
                 "Magnifier not supported on this platform.",
                 color = Color.Red,
@@ -107,14 +99,15 @@ fun MultitouchCustomMagnifierDemo() {
                     drawRect(color)
 
                     // Draw something interesting to zoom in on.
+                    @Suppress("SteppedForLoop")
                     for (diameter in 2 until size.maxDimension.toInt() step 10) {
-                    drawCircle(
-                        color = Color.Black,
-                        radius = diameter / 2f,
-                        style = Stroke()
-                    )
+                        drawCircle(
+                            color = Color.Black,
+                            radius = diameter / 2f,
+                            style = Stroke()
+                        )
+                    }
                 }
-            }
             .pointerInput(Unit) {
                 awaitPointerEventScope {
                     while (true) {
@@ -149,7 +142,8 @@ fun MultitouchCustomMagnifierDemo() {
                                     ?: Offset.Zero
                             },
                             zoom = 3f,
-                            style = DemoMagnifierStyle
+                            size = DpSize(100.dp, 100.dp),
+                            cornerRadius = 50.dp,
                         )
                     )
                 }

@@ -26,6 +26,7 @@ import androidx.annotation.AnimRes;
 import androidx.annotation.AnimatorRes;
 import androidx.annotation.IdRes;
 import androidx.annotation.IntDef;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -547,7 +548,6 @@ public abstract class FragmentTransaction {
      */
     public static final int TRANSIT_EXIT_MASK = 0x2000;
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @IntDef({TRANSIT_NONE, TRANSIT_FRAGMENT_OPEN, TRANSIT_FRAGMENT_CLOSE, TRANSIT_FRAGMENT_FADE,
             TRANSIT_FRAGMENT_MATCH_ACTIVITY_OPEN, TRANSIT_FRAGMENT_MATCH_ACTIVITY_CLOSE})
@@ -953,6 +953,7 @@ public abstract class FragmentTransaction {
      * be restored from its state.  See {@link #commitAllowingStateLoss()} for
      * situations where it may be okay to lose the commit.</p>
      */
+    @MainThread
     public abstract void commitNow();
 
     /**
@@ -962,5 +963,6 @@ public abstract class FragmentTransaction {
      * this should only be used for cases where it is okay for the UI state
      * to change unexpectedly on the user.
      */
+    @MainThread
     public abstract void commitNowAllowingStateLoss();
 }

@@ -82,6 +82,18 @@ internal class CameraDevicesImpl @Inject constructor(private val cameraBackends:
         return cameraIds
     }
 
+    override suspend fun getConcurrentCameraIds(
+        cameraBackendId: CameraBackendId?
+    ): Set<Set<CameraId>>? {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        return cameraBackend.getConcurrentCameraIds()
+    }
+
+    override fun awaitConcurrentCameraIds(cameraBackendId: CameraBackendId?): Set<Set<CameraId>>? {
+        val cameraBackend = getCameraBackend(cameraBackendId)
+        return cameraBackend.awaitConcurrentCameraIds()
+    }
+
     override suspend fun getCameraMetadata(
         cameraId: CameraId,
         cameraBackendId: CameraBackendId?

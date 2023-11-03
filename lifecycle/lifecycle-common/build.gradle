@@ -26,6 +26,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesCore)
     api(libs.kotlinCoroutinesAndroid) {
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk7'
         exclude group: 'org.jetbrains.kotlin', module: 'kotlin-stdlib-jdk8'
@@ -36,8 +37,9 @@ dependencies {
 }
 
 androidx {
-    name = "Android Lifecycle-Common"
+    name = "Lifecycle-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Lifecycle-Common"
+    metalavaK2UastEnabled = true
 }

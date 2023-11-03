@@ -4,8 +4,11 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DocumentClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.exceptions.AppSearchException;
+import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
+import java.util.Collections;
+import java.util.List;
 import javax.annotation.processing.Generated;
 
 @Generated("androidx.appsearch.compiler.AppSearchCompiler")
@@ -24,18 +27,26 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_NONE)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("indexExact")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("indexPrefix")
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
             .setTokenizerType(AppSearchSchema.StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
             .setIndexingType(AppSearchSchema.StringPropertyConfig.INDEXING_TYPE_PREFIXES)
+            .setJoinableValueType(AppSearchSchema.StringPropertyConfig.JOINABLE_VALUE_TYPE_NONE)
             .build())
           .build();
+  }
+
+  @Override
+  public List<Class<?>> getDependencyDocumentClasses() throws AppSearchException {
+    return Collections.emptyList();
   }
 
   @Override
@@ -59,8 +70,8 @@ public final class $$__AppSearch__Gift implements DocumentClassFactory<Gift> {
 
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
-    String idConv = genericDoc.getId();
     String namespaceConv = genericDoc.getNamespace();
+    String idConv = genericDoc.getId();
     String[] indexNoneCopy = genericDoc.getPropertyStringArray("indexNone");
     String indexNoneConv = null;
     if (indexNoneCopy != null && indexNoneCopy.length != 0) {

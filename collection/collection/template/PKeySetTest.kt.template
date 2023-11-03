@@ -1,0 +1,563 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package androidx.collection
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+class PKeySetTest {
+    @Test
+    fun emptyPKeySetConstructor() {
+        val set = MutablePKeySet()
+        assertEquals(7, set.capacity)
+        assertEquals(0, set.size)
+    }
+
+    @Test
+    fun immutableEmptyPKeySet() {
+        val set: PKeySet = emptyPKeySet()
+        assertEquals(0, set.capacity)
+        assertEquals(0, set.size)
+    }
+
+    @Test
+    fun zeroCapacityPKeySet() {
+        val set = MutablePKeySet(0)
+        assertEquals(0, set.capacity)
+        assertEquals(0, set.size)
+    }
+
+    @Test
+    fun emptyPKeySetWithCapacity() {
+        // When unloading the suggested capacity, we'll fall outside of the
+        // expected bucket of 2047 entries, and we'll get 4095 instead
+        val set = MutablePKeySet(1800)
+        assertEquals(4095, set.capacity)
+        assertEquals(0, set.size)
+    }
+
+    @Test
+    fun mutablePKeySetBuilder() {
+        val empty = mutablePKeySetOf()
+        assertEquals(0, empty.size)
+
+        val withElements = mutablePKeySetOf(1KeySuffix, 2KeySuffix)
+        assertEquals(2, withElements.size)
+        assertTrue(1KeySuffix in withElements)
+        assertTrue(2KeySuffix in withElements)
+    }
+
+    @Test
+    fun addToPKeySet() {
+        val set = MutablePKeySet()
+        set += 1KeySuffix
+        assertTrue(set.add(2KeySuffix))
+
+        assertEquals(2, set.size)
+        val elements = PKeyArray(2)
+        var index = 0
+        set.forEach { element ->
+            elements[index++] = element
+        }
+        elements.sort()
+        assertEquals(1KeySuffix, elements[0])
+        assertEquals(2KeySuffix, elements[1])
+    }
+
+    @Test
+    fun addToSizedPKeySet() {
+        val set = MutablePKeySet(12)
+        set += 1KeySuffix
+
+        assertEquals(1, set.size)
+        assertEquals(1KeySuffix, set.first())
+    }
+
+    @Test
+    fun addExistingElement() {
+        val set = MutablePKeySet(12)
+        set += 1KeySuffix
+        assertFalse(set.add(1KeySuffix))
+        set += 1KeySuffix
+
+        assertEquals(1, set.size)
+        assertEquals(1KeySuffix, set.first())
+    }
+
+    @Test
+    fun addAllArray() {
+        val set = mutablePKeySetOf(1KeySuffix)
+        assertFalse(set.addAll(pKeyArrayOf(1KeySuffix)))
+        assertEquals(1, set.size)
+        assertTrue(set.addAll(pKeyArrayOf(1KeySuffix, 2KeySuffix)))
+        assertEquals(2, set.size)
+        assertTrue(2KeySuffix in set)
+    }
+
+    @Test
+    fun addAllPKeySet() {
+        val set = mutablePKeySetOf(1KeySuffix)
+        assertFalse(set.addAll(mutablePKeySetOf(1KeySuffix)))
+        assertEquals(1, set.size)
+        assertTrue(set.addAll(mutablePKeySetOf(1KeySuffix, 2KeySuffix)))
+        assertEquals(2, set.size)
+        assertTrue(2KeySuffix in set)
+    }
+
+    @Test
+    fun plusAssignArray() {
+        val set = mutablePKeySetOf(1KeySuffix)
+        set += pKeyArrayOf(1KeySuffix)
+        assertEquals(1, set.size)
+        set += pKeyArrayOf(1KeySuffix, 2KeySuffix)
+        assertEquals(2, set.size)
+        assertTrue(2KeySuffix in set)
+    }
+
+    @Test
+    fun plusAssignPKeySet() {
+        val set = mutablePKeySetOf(1KeySuffix)
+        set += mutablePKeySetOf(1KeySuffix)
+        assertEquals(1, set.size)
+        set += mutablePKeySetOf(1KeySuffix, 2KeySuffix)
+        assertEquals(2, set.size)
+        assertTrue(2KeySuffix in set)
+    }
+
+    @Test
+    fun firstWithValue() {
+        val set = MutablePKeySet()
+        set += 1KeySuffix
+        set += 2KeySuffix
+        var element: PKey = -1KeySuffix
+        var otherElement: PKey = -1KeySuffix
+        set.forEach { if (element == -1KeySuffix) element = it else otherElement = it }
+        assertEquals(element, set.first())
+        set -= element
+        assertEquals(otherElement, set.first())
+    }
+
+    @Test
+    fun firstEmpty() {
+        assertFailsWith(NoSuchElementException::class) {
+            val set = MutablePKeySet()
+            set.first()
+        }
+    }
+
+    @Test
+    fun firstMatching() {
+        val set = MutablePKeySet()
+        set += 1KeySuffix
+        set += 2KeySuffix
+        assertEquals(1KeySuffix, set.first { it < 2KeySuffix })
+        assertEquals(2KeySuffix, set.first { it > 1KeySuffix })
+    }
+
+    @Test
+    fun firstMatchingEmpty() {
+        assertFailsWith(NoSuchElementException::class) {
+            val set = MutablePKeySet()
+            set.first { it > 0KeySuffix }
+        }
+    }
+
+    @Test
+    fun firstMatchingNoMatch() {
+        assertFailsWith(NoSuchElementException::class) {
+            val set = MutablePKeySet()
+            set += 1KeySuffix
+            set += 2KeySuffix
+            set.first { it < 0KeySuffix }
+        }
+    }
+
+    @Test
+    fun remove() {
+        val set = MutablePKeySet()
+        assertFalse(set.remove(1KeySuffix))
+
+        set += 1KeySuffix
+        assertTrue(set.remove(1KeySuffix))
+        assertEquals(0, set.size)
+
+        set += 1KeySuffix
+        set -= 1KeySuffix
+        assertEquals(0, set.size)
+    }
+
+    @Test
+    fun removeThenAdd() {
+        // Use a size of 6 to fit in a single entry in the metadata table
+        val set = MutablePKeySet(6)
+        set += 1KeySuffix
+        set += 5KeySuffix
+        set += 6KeySuffix
+        set += 9KeySuffix
+        set += 11KeySuffix
+        set += 13KeySuffix
+
+        // Removing all the entries will mark the medata as deleted
+        set.remove(1KeySuffix)
+        set.remove(5KeySuffix)
+        set.remove(6KeySuffix)
+        set.remove(9KeySuffix)
+        set.remove(11KeySuffix)
+        set.remove(13KeySuffix)
+
+        assertEquals(0, set.size)
+
+        val capacity = set.capacity
+
+        // Make sure reinserting an entry after filling the table
+        // with "Deleted" markers works
+        set += 3KeySuffix
+
+        assertEquals(1, set.size)
+        assertEquals(capacity, set.capacity)
+    }
+
+    @Test
+    fun removeAllArray() {
+        val set = mutablePKeySetOf(1KeySuffix, 2KeySuffix)
+        assertFalse(set.removeAll(pKeyArrayOf(3KeySuffix, 5KeySuffix)))
+        assertEquals(2, set.size)
+        assertTrue(set.removeAll(pKeyArrayOf(3KeySuffix, 1KeySuffix, 5KeySuffix)))
+        assertEquals(1, set.size)
+        assertFalse(1KeySuffix in set)
+    }
+
+    @Test
+    fun removeAllPKeySet() {
+        val set = mutablePKeySetOf(1KeySuffix, 2KeySuffix)
+        assertFalse(set.removeAll(mutablePKeySetOf(3KeySuffix, 5KeySuffix)))
+        assertEquals(2, set.size)
+        assertTrue(set.removeAll(mutablePKeySetOf(3KeySuffix, 1KeySuffix, 5KeySuffix)))
+        assertEquals(1, set.size)
+        assertFalse(1KeySuffix in set)
+    }
+
+    @Test
+    fun minusAssignArray() {
+        val set = mutablePKeySetOf(1KeySuffix, 2KeySuffix)
+        set -= pKeyArrayOf(3KeySuffix, 5KeySuffix)
+        assertEquals(2, set.size)
+        set -= pKeyArrayOf(3KeySuffix, 1KeySuffix, 5KeySuffix)
+        assertEquals(1, set.size)
+        assertFalse(1KeySuffix in set)
+    }
+
+    @Test
+    fun minusAssignPKeySet() {
+        val set = mutablePKeySetOf(1KeySuffix, 2KeySuffix)
+        set -= mutablePKeySetOf(3KeySuffix, 5KeySuffix)
+        assertEquals(2, set.size)
+        set -= mutablePKeySetOf(3KeySuffix, 1KeySuffix, 5KeySuffix)
+        assertEquals(1, set.size)
+        assertFalse(1KeySuffix in set)
+    }
+
+    @Test
+    fun insertManyEntries() {
+        val set = MutablePKeySet()
+
+        for (i in 0 until 1700) {
+            set += i.toPKey()
+        }
+
+        assertEquals(1700, set.size)
+    }
+
+    @Test
+    fun forEach() {
+        for (i in 0..48) {
+            val set = MutablePKeySet()
+
+            for (j in 0 until i) {
+                set += j.toPKey()
+            }
+
+            val elements = PKeyArray(i)
+            var index = 0
+            set.forEach { element ->
+                elements[index++] = element
+            }
+            elements.sort()
+
+            index = 0
+            elements.forEach { element ->
+                assertEquals(element, index.toPKey())
+                index++
+            }
+        }
+    }
+
+    @Test
+    fun clear() {
+        val set = MutablePKeySet()
+
+        for (i in 0 until 32) {
+            set += i.toPKey()
+        }
+
+        val capacity = set.capacity
+        set.clear()
+
+        assertEquals(0, set.size)
+        assertEquals(capacity, set.capacity)
+    }
+
+    @Test
+    fun string() {
+        val set = MutablePKeySet()
+        assertEquals("[]", set.toString())
+
+        set += 1KeySuffix
+        set += 5KeySuffix
+        assertTrue(
+            "[${1KeySuffix}, ${5KeySuffix}]" == set.toString() ||
+                "[${5KeySuffix}, ${1KeySuffix}]" == set.toString()
+        )
+    }
+
+    @Test
+    fun joinToString() {
+        val set = pKeySetOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix)
+        val order = IntArray(5)
+        var index = 0
+        set.forEach { element ->
+            order[index++] = element.toInt()
+        }
+        assertEquals(
+            "${order[0].toPKey()}, ${order[1].toPKey()}, ${order[2].toPKey()}, " +
+            "${order[3].toPKey()}, ${order[4].toPKey()}",
+            set.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toPKey()}, ${order[1].toPKey()}, ${order[2].toPKey()}...",
+            set.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toPKey()}-${order[1].toPKey()}-${order[2].toPKey()}-" +
+            "${order[3].toPKey()}-${order[4].toPKey()}<",
+            set.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            set.joinToString(limit = 3) { names[it.toInt()] }
+        )
+    }
+
+    @Test
+    fun equals() {
+        val set = MutablePKeySet()
+        set += 1KeySuffix
+        set += 5KeySuffix
+
+        assertFalse(set.equals(null))
+        assertEquals(set, set)
+
+        val set2 = MutablePKeySet()
+        set2 += 5KeySuffix
+
+        assertNotEquals(set, set2)
+
+        set2 += 1KeySuffix
+        assertEquals(set, set2)
+    }
+
+    @Test
+    fun contains() {
+        val set = MutablePKeySet()
+        set += 1KeySuffix
+        set += 5KeySuffix
+
+        assertTrue(set.contains(1KeySuffix))
+        assertTrue(set.contains(5KeySuffix))
+        assertFalse(set.contains(2KeySuffix))
+    }
+
+    @Test
+    fun empty() {
+        val set = MutablePKeySet()
+        assertTrue(set.isEmpty())
+        assertFalse(set.isNotEmpty())
+        assertTrue(set.none())
+        assertFalse(set.any())
+
+        set += 1KeySuffix
+
+        assertFalse(set.isEmpty())
+        assertTrue(set.isNotEmpty())
+        assertTrue(set.any())
+        assertFalse(set.none())
+    }
+
+    @Test
+    fun count() {
+        val set = MutablePKeySet()
+        assertEquals(0, set.count())
+
+        set += 1KeySuffix
+        assertEquals(1, set.count())
+
+        set += 5KeySuffix
+        set += 6KeySuffix
+        set += 9KeySuffix
+        set += 11KeySuffix
+        set += 13KeySuffix
+
+        assertEquals(2, set.count { it < 6KeySuffix })
+        assertEquals(0, set.count { it < 0KeySuffix })
+    }
+
+    @Test
+    fun any() {
+        val set = MutablePKeySet()
+        set += 1KeySuffix
+        set += 5KeySuffix
+        set += 6KeySuffix
+        set += 9KeySuffix
+        set += 11KeySuffix
+        set += 13KeySuffix
+
+        assertTrue(set.any { it >= 11KeySuffix })
+        assertFalse(set.any { it < 0KeySuffix })
+    }
+
+    @Test
+    fun all() {
+        val set = MutablePKeySet()
+        set += 1KeySuffix
+        set += 5KeySuffix
+        set += 6KeySuffix
+        set += 9KeySuffix
+        set += 11KeySuffix
+        set += 13KeySuffix
+
+        assertTrue(set.all { it > 0KeySuffix })
+        assertFalse(set.all { it < 0KeySuffix })
+    }
+
+    @Test
+    fun trim() {
+        val set = mutablePKeySetOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 7KeySuffix)
+        val capacity = set.capacity
+        assertEquals(0, set.trim())
+        set.clear()
+        assertEquals(capacity, set.trim())
+        assertEquals(0, set.capacity)
+        set.addAll(pKeyArrayOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix, 5KeySuffix, 7KeySuffix, 6KeySuffix, 8KeySuffix,
+            9KeySuffix, 10KeySuffix, 11KeySuffix, 12KeySuffix, 13KeySuffix, 14KeySuffix))
+        set.removeAll(pKeyArrayOf(6KeySuffix, 8KeySuffix, 9KeySuffix, 10KeySuffix, 11KeySuffix, 12KeySuffix, 13KeySuffix, 14KeySuffix))
+        assertTrue(set.trim() > 0)
+        assertEquals(capacity, set.capacity)
+    }
+
+    @Test
+    fun pKeySetOfEmpty() {
+        assertSame(emptyPKeySet(), pKeySetOf())
+        assertEquals(0, pKeySetOf().size)
+    }
+
+    @Test
+    fun pKeySetOfOne() {
+        val set = pKeySetOf(1KeySuffix)
+        assertEquals(1, set.size)
+        assertEquals(1KeySuffix, set.first())
+    }
+
+    @Test
+    fun pKeySetOfTwo() {
+        val set = pKeySetOf(1KeySuffix, 2KeySuffix)
+        assertEquals(2, set.size)
+        assertTrue(1KeySuffix in set)
+        assertTrue(2KeySuffix in set)
+        assertFalse(5KeySuffix in set)
+    }
+
+    @Test
+    fun pKeySetOfThree() {
+        val set = pKeySetOf(1KeySuffix, 2KeySuffix, 3KeySuffix)
+        assertEquals(3, set.size)
+        assertTrue(1KeySuffix in set)
+        assertTrue(2KeySuffix in set)
+        assertTrue(3KeySuffix in set)
+        assertFalse(5KeySuffix in set)
+    }
+
+    @Test
+    fun pKeySetOfFour() {
+        val set = pKeySetOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix)
+        assertEquals(4, set.size)
+        assertTrue(1KeySuffix in set)
+        assertTrue(2KeySuffix in set)
+        assertTrue(3KeySuffix in set)
+        assertTrue(4KeySuffix in set)
+        assertFalse(5KeySuffix in set)
+    }
+
+    @Test
+    fun mutablePKeySetOfOne() {
+        val set = mutablePKeySetOf(1KeySuffix)
+        assertEquals(1, set.size)
+        assertEquals(1KeySuffix, set.first())
+    }
+
+    @Test
+    fun mutablePKeySetOfTwo() {
+        val set = mutablePKeySetOf(1KeySuffix, 2KeySuffix)
+        assertEquals(2, set.size)
+        assertTrue(1KeySuffix in set)
+        assertTrue(2KeySuffix in set)
+        assertFalse(5KeySuffix in set)
+    }
+
+    @Test
+    fun mutablePKeySetOfThree() {
+        val set = mutablePKeySetOf(1KeySuffix, 2KeySuffix, 3KeySuffix)
+        assertEquals(3, set.size)
+        assertTrue(1KeySuffix in set)
+        assertTrue(2KeySuffix in set)
+        assertTrue(3KeySuffix in set)
+        assertFalse(5KeySuffix in set)
+    }
+
+    @Test
+    fun mutablePKeySetOfFour() {
+        val set = mutablePKeySetOf(1KeySuffix, 2KeySuffix, 3KeySuffix, 4KeySuffix)
+        assertEquals(4, set.size)
+        assertTrue(1KeySuffix in set)
+        assertTrue(2KeySuffix in set)
+        assertTrue(3KeySuffix in set)
+        assertTrue(4KeySuffix in set)
+        assertFalse(5KeySuffix in set)
+    }
+}

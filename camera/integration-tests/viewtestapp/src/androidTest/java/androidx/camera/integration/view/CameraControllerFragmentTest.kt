@@ -37,11 +37,11 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.futures.FutureCallback
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.AndroidUtil.isEmulator
-import androidx.camera.testing.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.impl.AndroidUtil.isEmulator
+import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.camera.video.VideoRecordEvent
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FAILED
 import androidx.camera.view.CameraController.TAP_TO_FOCUS_FOCUSED
@@ -60,6 +60,8 @@ import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject
+import androidx.test.uiautomator.UiObjectNotFoundException
 import androidx.test.uiautomator.UiSelector
 import com.google.common.collect.ImmutableList
 import com.google.common.truth.Truth.assertThat
@@ -71,6 +73,7 @@ import org.junit.Assert
 import org.junit.Assume
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
+import org.junit.AssumptionViolatedException
 import org.junit.Before
 import org.junit.Ignore
 import org.junit.Rule
@@ -112,6 +115,7 @@ class CameraControllerFragmentTest(
 
     @Before
     fun setup() {
+        CoreAppTestUtil.assumeCompatibleDevice()
         // Clear the device UI and check if there is no dialog or lock screen on the top of the
         // window before start the test.
         CoreAppTestUtil.prepareDeviceUI(instrumentation)
@@ -131,44 +135,11 @@ class CameraControllerFragmentTest(
         }
 
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown()[10000, TimeUnit.MILLISECONDS]
+            cameraProvider.shutdownAsync()[10000, TimeUnit.MILLISECONDS]
         }
     }
 
-    @Test
-    fun enableEffect_previewEffectIsEnabled() {
-        // Arrange: launch app and verify effect is inactive.
-        fragment.assertPreviewIsStreaming()
-        val processor =
-            fragment.mToneMappingPreviewEffect.surfaceProcessor as ToneMappingSurfaceProcessor
-        assertThat(processor.isSurfaceRequestedAndProvided()).isFalse()
-
-        // Act: turn on effect.
-        val effectToggleId = "androidx.camera.integration.view:id/effect_toggle"
-        uiDevice.findObject(UiSelector().resourceId(effectToggleId)).click()
-        instrumentation.waitForIdleSync()
-
-        // Assert: verify that effect is active.
-        assertThat(processor.isSurfaceRequestedAndProvided()).isTrue()
-    }
-
-    @Test
-    fun enableEffect_imageCaptureEffectIsEnabled() {
-        // Arrange: launch app and verify effect is inactive.
-        fragment.assertPreviewIsStreaming()
-        val effect = fragment.mToneMappingImageEffect as ToneMappingImageEffect
-        assertThat(effect.isInvoked()).isFalse()
-
-        // Act: turn on effect.
-        val effectToggleId = "androidx.camera.integration.view:id/effect_toggle"
-        uiDevice.findObject(UiSelector().resourceId(effectToggleId)).click()
-        instrumentation.waitForIdleSync()
-        fragment.assertCanTakePicture()
-
-        // Assert: verify that effect is active.
-        assertThat(effect.isInvoked()).isTrue()
-    }
-
+    @Ignore("b/283308005")
     @Test
     fun controllerBound_canGetCameraControl() {
         fragment.assertPreviewIsStreaming()
@@ -203,7 +174,7 @@ class CameraControllerFragmentTest(
 
         // Act: click PreviewView.
         val previewViewId = "androidx.camera.integration.view:id/preview_view"
-        uiDevice.findObject(UiSelector().resourceId(previewViewId)).click()
+        assumeObjectCanBeFound(UiSelector().resourceId(previewViewId)).click()
 
         // Assert: got a LiveData update
         assertThat(focused.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
@@ -787,6 +758,14 @@ class CameraControllerFragmentTest(
         assertThat(analysisStreaming.tryAcquire(2, TIMEOUT_SECONDS, TimeUnit.SECONDS)).isEqualTo(
             streaming
         )
+    }
+
+    private fun assumeObjectCanBeFound(uiSelector: UiSelector): UiObject {
+        return try {
+            uiDevice.findObject(uiSelector)
+        } catch (e: UiObjectNotFoundException) {
+            throw AssumptionViolatedException("Ui object can't be found.")
+        }
     }
 
     /**

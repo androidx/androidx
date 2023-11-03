@@ -34,6 +34,13 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class PublicKeyCredentialJavaTest {
+    private static final String TEST_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}";
+
+    @Test
+    public void typeConstant() {
+        assertThat(PublicKeyCredential.TYPE_PUBLIC_KEY_CREDENTIAL)
+                .isEqualTo("androidx.credentials.TYPE_PUBLIC_KEY_CREDENTIAL");
+    }
 
     @Test
     public void constructor_emptyJson_throwsIllegalArgumentException() {
@@ -53,8 +60,7 @@ public class PublicKeyCredentialJavaTest {
 
     @Test
     public void constructor_success() {
-        new PublicKeyCredential(
-                "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}");
+        new PublicKeyCredential(TEST_JSON);
     }
 
     @Test
@@ -81,15 +87,23 @@ public class PublicKeyCredentialJavaTest {
 
     @Test
     public void frameworkConversion_success() {
-        PublicKeyCredential credential = new PublicKeyCredential("json");
+        PublicKeyCredential credential = new PublicKeyCredential(TEST_JSON);
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        Bundle data = credential.getData();
+        String customDataKey = "customRequestDataKey";
+        CharSequence customDataValue = "customRequestDataValue";
+        data.putCharSequence(customDataKey, customDataValue);
 
         Credential convertedCredential = Credential.createFrom(
-                credential.getType(), credential.getData());
+                credential.getType(), data);
 
         assertThat(convertedCredential).isInstanceOf(PublicKeyCredential.class);
         PublicKeyCredential convertedSubclassCredential = (PublicKeyCredential) convertedCredential;
         assertThat(convertedSubclassCredential.getAuthenticationResponseJson())
                 .isEqualTo(credential.getAuthenticationResponseJson());
+        assertThat(convertedCredential.getData().getCharSequence(customDataKey))
+                .isEqualTo(customDataValue);
     }
 
     @Test

@@ -31,6 +31,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Above
@@ -39,9 +40,13 @@ import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.B
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Below
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Left
 import androidx.compose.ui.layout.BeyondBoundsLayout.LayoutDirection.Companion.Right
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
-import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.layout.findRootCoordinates
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.node.LayoutAwareModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -81,9 +86,11 @@ class LazyListBeyondBoundsTest(param: Param) {
     private val beyondBoundsLayoutDirection = param.beyondBoundsLayoutDirection
     private val reverseLayout = param.reverseLayout
     private val layoutDirection = param.layoutDirection
-    private val placedItems = mutableSetOf<Int>()
+    private val placedItems = sortedMapOf<Int, Rect>()
     private var beyondBoundsLayout: BeyondBoundsLayout? = null
     private lateinit var lazyListState: TvLazyListState
+    private val placementComparator =
+        PlacementComparator(beyondBoundsLayoutDirection, layoutDirection, reverseLayout)
 
     companion object {
         @JvmStatic
@@ -107,14 +114,14 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
         }
 
         // Assert.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(0)
+            assertThat(placedItems.keys).containsExactly(0)
             assertThat(visibleItems).containsExactly(0)
         }
     }
@@ -127,14 +134,14 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
         }
 
         // Assert.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(0, 1)
+            assertThat(placedItems.keys).containsExactly(0, 1)
             assertThat(visibleItems).containsExactly(0, 1)
         }
     }
@@ -147,14 +154,14 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
         }
 
         // Assert.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(0, 1, 2)
+            assertThat(placedItems.keys).containsExactly(0, 1, 2)
             assertThat(visibleItems).containsExactly(0, 1, 2)
         }
     }
@@ -181,8 +188,7 @@ class LazyListBeyondBoundsTest(param: Param) {
         }
 
         // Act.
-        rule.waitForIdle()
-        val hasMoreContent = rule.runOnUiThread {
+        val hasMoreContent = rule.runOnIdle {
             beyondBoundsLayoutRef.layout(beyondBoundsLayoutDirection) {
                 hasMoreContent
             }
@@ -202,14 +208,14 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
@@ -219,24 +225,24 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index + 6 }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        rule.runOnIdle { placedItems.clear() }
 
         // Act.
         rule.runOnUiThread {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 // Assert that the beyond bounds items are present.
                 if (expectedExtraItemsBeforeVisibleBounds()) {
-                    assertThat(placedItems).containsExactly(4, 5, 6, 7)
-                    assertThat(visibleItems).containsExactly(5, 6, 7)
+                    assertThat(placedItems.keys).containsExactly(4, 5, 6, 7)
                 } else {
-                    assertThat(placedItems).containsExactly(5, 6, 7, 8)
-                    assertThat(visibleItems).containsExactly(5, 6, 7)
+                    assertThat(placedItems.keys).containsExactly(5, 6, 7, 8)
                 }
-                placedItems.clear()
+                assertThat(visibleItems).containsExactly(5, 6, 7)
+
+                assertThat(placedItems.values).isInOrder(placementComparator)
+
                 // Just return true so that we stop as soon as we run this once.
                 // This should result in one extra item being added.
                 true
@@ -245,7 +251,7 @@ class LazyListBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(placedItems.keys).containsExactly(5, 6, 7)
             assertThat(visibleItems).containsExactly(5, 6, 7)
         }
     }
@@ -259,14 +265,14 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
@@ -276,29 +282,28 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index + 6 }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        rule.runOnIdle { placedItems.clear() }
 
         // Act.
         rule.runOnUiThread {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 if (--extraItemCount > 0) {
-                    placedItems.clear()
                     // Return null to continue the search.
                     null
                 } else {
                     // Assert that the beyond bounds items are present.
                     if (expectedExtraItemsBeforeVisibleBounds()) {
-                        assertThat(placedItems).containsExactly(3, 4, 5, 6, 7)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
+                        assertThat(placedItems.keys).containsExactly(3, 4, 5, 6, 7)
                     } else {
-                        assertThat(placedItems).containsExactly(5, 6, 7, 8, 9)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
+                        assertThat(placedItems.keys).containsExactly(5, 6, 7, 8, 9)
                     }
-                    placedItems.clear()
+                    assertThat(visibleItems).containsExactly(5, 6, 7)
+
+                    assertThat(placedItems.values).isInOrder(placementComparator)
+
                     // Return true to stop the search.
                     true
                 }
@@ -307,7 +312,7 @@ class LazyListBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(placedItems.keys).containsExactly(5, 6, 7)
             assertThat(visibleItems).containsExactly(5, 6, 7)
         }
     }
@@ -320,7 +325,7 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
@@ -330,38 +335,35 @@ class LazyListBeyondBoundsTest(param: Param) {
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                 )
             }
             items(5) { index ->
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced {
-                            placedItems += index + 6
-                        }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        rule.runOnIdle { placedItems.clear() }
 
         // Act.
         rule.runOnUiThread {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 if (hasMoreContent) {
-                    placedItems.clear()
                     // Just return null so that we keep adding more items till we reach the end.
                     null
                 } else {
                     // Assert that the beyond bounds items are present.
                     if (expectedExtraItemsBeforeVisibleBounds()) {
-                        assertThat(placedItems).containsExactly(0, 1, 2, 3, 4, 5, 6, 7)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
+                        assertThat(placedItems.keys).containsExactly(0, 1, 2, 3, 4, 5, 6, 7)
                     } else {
-                        assertThat(placedItems).containsExactly(5, 6, 7, 8, 9, 10)
-                        assertThat(visibleItems).containsExactly(5, 6, 7)
+                        assertThat(placedItems.keys).containsExactly(5, 6, 7, 8, 9, 10)
                     }
-                    placedItems.clear()
+                    assertThat(visibleItems).containsExactly(5, 6, 7)
+
+                    assertThat(placedItems.values).isInOrder(placementComparator)
+
                     // Return true to end the search.
                     true
                 }
@@ -370,7 +372,7 @@ class LazyListBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(placedItems.keys).containsExactly(5, 6, 7)
         }
     }
 
@@ -383,14 +385,14 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index }
+                        .trackPlaced(index)
                 )
             }
             item {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
@@ -400,14 +402,13 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced { placedItems += index + 6 }
+                        .trackPlaced(index + 6)
                 )
             }
         }
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(placedItems.keys).containsExactly(5, 6, 7)
             assertThat(visibleItems).containsExactly(5, 6, 7)
-            placedItems.clear()
         }
 
         // Act.
@@ -416,21 +417,19 @@ class LazyListBeyondBoundsTest(param: Param) {
                 beyondBoundsLayoutCount++
                 when (beyondBoundsLayoutDirection) {
                     Left, Right, Above, Below -> {
-                        assertThat(placedItems).containsExactlyElementsIn(visibleItems)
-                        assertThat(placedItems).containsExactly(5, 6, 7)
+                        assertThat(placedItems.keys).containsExactly(5, 6, 7)
                         assertThat(visibleItems).containsExactly(5, 6, 7)
                     }
                     Before, After -> {
                         if (expectedExtraItemsBeforeVisibleBounds()) {
-                            assertThat(placedItems).containsExactly(4, 5, 6, 7)
+                            assertThat(placedItems.keys).containsExactly(4, 5, 6, 7)
                             assertThat(visibleItems).containsExactly(5, 6, 7)
                         } else {
-                            assertThat(placedItems).containsExactly(5, 6, 7, 8)
+                            assertThat(placedItems.keys).containsExactly(5, 6, 7, 8)
                             assertThat(visibleItems).containsExactly(5, 6, 7)
                         }
                     }
                 }
-                placedItems.clear()
                 // Just return true so that we stop as soon as we run this once.
                 // This should result in one extra item being added.
                 true
@@ -446,7 +445,7 @@ class LazyListBeyondBoundsTest(param: Param) {
                     assertThat(beyondBoundsLayoutCount).isEqualTo(1)
 
                     // Assert that the beyond bounds items are removed.
-                    assertThat(placedItems).containsExactly(5, 6, 7)
+                    assertThat(placedItems.keys).containsExactly(5, 6, 7)
                     assertThat(visibleItems).containsExactly(5, 6, 7)
                 }
                 else -> error("Unsupported BeyondBoundsLayoutDirection")
@@ -462,9 +461,7 @@ class LazyListBeyondBoundsTest(param: Param) {
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced {
-                            placedItems += index
-                        }
+                        .trackPlaced(index)
                 )
             }
             item {
@@ -474,20 +471,17 @@ class LazyListBeyondBoundsTest(param: Param) {
                         .modifierLocalConsumer {
                             beyondBoundsLayout = ModifierLocalBeyondBoundsLayout.current
                         }
-                        .onPlaced { placedItems += 5 }
+                        .trackPlaced(5)
                 )
             }
             items(5) { index ->
                 Box(
                     Modifier
                         .size(10.toDp())
-                        .onPlaced {
-                            placedItems += index + 6
-                        }
+                        .trackPlaced(index + 6)
                 )
             }
         }
-        rule.runOnIdle { placedItems.clear() }
 
         // Act.
         var count = 0
@@ -495,7 +489,6 @@ class LazyListBeyondBoundsTest(param: Param) {
             beyondBoundsLayout!!.layout(beyondBoundsLayoutDirection) {
                 // Assert that we don't keep iterating when there is no ending condition.
                 assertThat(count++).isLessThan(lazyListState.layoutInfo.totalItemsCount)
-                placedItems.clear()
                 // Always return null to continue the search.
                 null
             }
@@ -503,7 +496,7 @@ class LazyListBeyondBoundsTest(param: Param) {
 
         // Assert that the beyond bounds items are removed.
         rule.runOnIdle {
-            assertThat(placedItems).containsExactly(5, 6, 7)
+            assertThat(placedItems.keys).containsExactly(5, 6, 7)
             assertThat(visibleItems).containsExactly(5, 6, 7)
         }
     }
@@ -515,7 +508,9 @@ class LazyListBeyondBoundsTest(param: Param) {
             Column {
                 BasicText(
                     text = "Outer button",
-                    Modifier.focusRequester(buttonFocusRequester).focusable())
+                    Modifier
+                        .focusRequester(buttonFocusRequester)
+                        .focusable())
 
                 TvLazyColumn {
                     items(3) {
@@ -617,4 +612,62 @@ class LazyListBeyondBoundsTest(param: Param) {
     private fun unsupportedDirection(): Nothing = error(
         "Lazy list does not support beyond bounds layout for the specified direction"
     )
+
+    private fun Modifier.trackPlaced(index: Int): Modifier =
+        this then TrackPlacedElement(index, placedItems)
+}
+
+internal data class TrackPlacedElement(
+    var index: Int,
+    var placedItems: MutableMap<Int, Rect>
+) : ModifierNodeElement<TrackPlacedNode>() {
+    override fun create() = TrackPlacedNode(index, placedItems)
+
+    override fun update(node: TrackPlacedNode) {
+        node.index = index
+        node.placedItems = placedItems
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "trackPlaced"
+        properties["index"] = index
+        properties["placedItems"] = placedItems
+    }
+}
+
+internal class TrackPlacedNode(
+    var index: Int,
+    var placedItems: MutableMap<Int, Rect>
+) : LayoutAwareModifierNode, Modifier.Node() {
+    override fun onPlaced(coordinates: LayoutCoordinates) {
+        placedItems[index] =
+            coordinates.findRootCoordinates().localBoundingBoxOf(coordinates, false)
+    }
+
+    override fun onDetach() {
+        placedItems.remove(index)
+    }
+}
+
+internal class PlacementComparator(
+    val beyondBoundsLayoutDirection: BeyondBoundsLayout.LayoutDirection,
+    val layoutDirection: LayoutDirection,
+    val reverseLayout: Boolean
+) : Comparator<Rect> {
+    private fun itemsInReverseOrder() = when (beyondBoundsLayoutDirection) {
+        Above, Below -> reverseLayout
+        else -> if (layoutDirection == Ltr) reverseLayout else !reverseLayout
+    }
+
+    private fun compareOffset(o1: Float, o2: Float): Int {
+        return if (itemsInReverseOrder()) o2.compareTo(o1) else o1.compareTo(o2)
+    }
+
+    override fun compare(o1: Rect?, o2: Rect?): Int {
+        if (o1 == null || o2 == null) return 0
+        return when (beyondBoundsLayoutDirection) {
+            Above, Below -> compareOffset(o1.top, o2.top)
+            else -> compareOffset(o1.left, o2.left)
+        }
+    }
 }

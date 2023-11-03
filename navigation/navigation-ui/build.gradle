@@ -55,8 +55,9 @@ dependencies {
 }
 
 androidx {
-    name = "Android Navigation UI"
+    name = "Navigation UI"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android Navigation-UI"
+    metalavaK2UastEnabled = true
 }

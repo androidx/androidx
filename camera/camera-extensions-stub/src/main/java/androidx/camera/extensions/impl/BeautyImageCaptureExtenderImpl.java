@@ -56,7 +56,7 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         throw new RuntimeException("Stub, replace with implementation.");
     }
 
-    @Nullable
+    @NonNull
     @Override
     public List<CaptureStageImpl> getCaptureStages() {
         throw new RuntimeException("Stub, replace with implementation.");
@@ -103,6 +103,12 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
         throw new RuntimeException("Stub, replace with implementation.");
     }
 
+    @Override
+    @Nullable
+    public List<Pair<Integer, Size[]>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
     @Nullable
     @Override
     public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
@@ -118,6 +124,27 @@ public final class BeautyImageCaptureExtenderImpl implements ImageCaptureExtende
     @NonNull
     @Override
     public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public int onSessionType() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public boolean isCaptureProcessProgressAvailable() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    @Nullable
+    public Pair<Long, Long> getRealtimeCaptureLatency() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public boolean isPostviewAvailable() {
         throw new RuntimeException("Stub, replace with implementation.");
     }
 }

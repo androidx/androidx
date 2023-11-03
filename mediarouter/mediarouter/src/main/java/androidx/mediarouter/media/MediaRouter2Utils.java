@@ -21,8 +21,22 @@ import static android.media.MediaRoute2Info.FEATURE_LIVE_VIDEO;
 import static android.media.MediaRoute2Info.FEATURE_REMOTE_AUDIO_PLAYBACK;
 import static android.media.MediaRoute2Info.FEATURE_REMOTE_PLAYBACK;
 import static android.media.MediaRoute2Info.FEATURE_REMOTE_VIDEO_PLAYBACK;
+import static android.media.MediaRoute2Info.TYPE_GROUP;
+import static android.media.MediaRoute2Info.TYPE_REMOTE_AUDIO_VIDEO_RECEIVER;
+import static android.media.MediaRoute2Info.TYPE_REMOTE_SPEAKER;
+import static android.media.MediaRoute2Info.TYPE_REMOTE_TV;
+import static android.media.MediaRoute2Info.TYPE_UNKNOWN;
 
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_AUDIO_VIDEO_RECEIVER;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_CAR;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_COMPUTER;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_GAME_CONSOLE;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_GROUP;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SMARTPHONE;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SMARTWATCH;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_SPEAKER;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TABLET;
+import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TABLET_DOCKED;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_TV;
 import static androidx.mediarouter.media.MediaRouter.RouteInfo.DEVICE_TYPE_UNKNOWN;
 
@@ -35,9 +49,12 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.ArraySet;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.mediarouter.media.MediaRouter.RouteInfo;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,8 +80,21 @@ class MediaRouter2Utils {
     static final String KEY_SESSION_NAME = "androidx.mediarouter.media.KEY_SESSION_NAME";
     static final String KEY_GROUP_ROUTE = "androidx.mediarouter.media.KEY_GROUP_ROUTE";
 
+    // TODO(b/282263784): Remove the following constants in favor of using instead SDK constants,
+    // once the SDK constants become available.
+    private static final int TYPE_REMOTE_AUDIO_VIDEO_RECEIVER = 1003;
+    private static final int TYPE_REMOTE_TABLET = 1004;
+    private static final int TYPE_REMOTE_TABLET_DOCKED = 1005;
+    private static final int TYPE_REMOTE_COMPUTER = 1006;
+    private static final int TYPE_REMOTE_GAME_CONSOLE = 1007;
+    private static final int TYPE_REMOTE_CAR = 1008;
+    private static final int TYPE_REMOTE_SMARTWATCH = 1009;
+    private static final int TYPE_REMOTE_SMARTPHONE = 1010;
+    private static final int TYPE_GROUP = 2000;
+
     private MediaRouter2Utils() {}
 
+    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     @Nullable
     public static MediaRoute2Info toFwkMediaRoute2Info(@Nullable MediaRouteDescriptor descriptor) {
         if (descriptor == null) {
@@ -87,6 +117,13 @@ class MediaRouter2Utils {
                 //TODO: set client package name
                 //.setClientPackageName(clientMap.get(device.getDeviceId()))
                 ;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            Api34Impl.setDeduplicationIds(builder, descriptor.getDeduplicationIds());
+            Api34Impl.copyDescriptorVisibilityToBuilder(builder, descriptor);
+            Api34Impl.setDeviceType(
+                    builder, androidXDeviceTypeToFwkDeviceType(descriptor.getDeviceType()));
+        }
 
         switch (descriptor.getDeviceType()) {
             case DEVICE_TYPE_TV:
@@ -118,6 +155,7 @@ class MediaRouter2Utils {
         return builder.build();
     }
 
+    @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
     @Nullable
     public static MediaRouteDescriptor toMediaRouteDescriptor(
             @Nullable MediaRoute2Info fwkMediaRoute2Info) {
@@ -134,6 +172,13 @@ class MediaRouter2Utils {
                 .setExtras(fwkMediaRoute2Info.getExtras())
                 .setEnabled(true)
                 .setCanDisconnect(false);
+
+        @RouteInfo.DeviceType int deviceTypeInRouteInfo = DEVICE_TYPE_UNKNOWN;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            builder.setDeduplicationIds(Api34Impl.getDeduplicationIds(fwkMediaRoute2Info));
+            deviceTypeInRouteInfo =
+                    fwkDeviceTypeToAndroidXDeviceType(Api34Impl.getType(fwkMediaRoute2Info));
+        }
 
         CharSequence description = fwkMediaRoute2Info.getDescription();
         if (description != null) {
@@ -154,9 +199,11 @@ class MediaRouter2Utils {
         }
 
         builder.setExtras(extras.getBundle(KEY_EXTRAS));
-        builder.setDeviceType(extras.getInt(KEY_DEVICE_TYPE, DEVICE_TYPE_UNKNOWN));
-        builder.setPlaybackType(extras.getInt(KEY_PLAYBACK_TYPE,
-                MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE));
+        builder.setDeviceType(
+                deviceTypeInRouteInfo != DEVICE_TYPE_UNKNOWN
+                        ? deviceTypeInRouteInfo
+                        : extras.getInt(KEY_DEVICE_TYPE, DEVICE_TYPE_UNKNOWN));
+        builder.setPlaybackType(extras.getInt(KEY_PLAYBACK_TYPE, RouteInfo.PLAYBACK_TYPE_REMOTE));
 
         List<IntentFilter> controlFilters = extras.getParcelableArrayList(KEY_CONTROL_FILTERS);
         if (controlFilters != null) {
@@ -275,5 +322,100 @@ class MediaRouter2Utils {
                 return MediaControlIntent.CATEGORY_REMOTE_PLAYBACK;
         }
         return routeFeature;
+    }
+
+    @RouteInfo.DeviceType
+    private static int fwkDeviceTypeToAndroidXDeviceType(int fwkDeviceType) {
+        switch (fwkDeviceType) {
+            case TYPE_REMOTE_TV:
+                return DEVICE_TYPE_TV;
+            case TYPE_REMOTE_SPEAKER:
+                return DEVICE_TYPE_SPEAKER;
+            case TYPE_REMOTE_AUDIO_VIDEO_RECEIVER:
+                return DEVICE_TYPE_AUDIO_VIDEO_RECEIVER;
+            case TYPE_REMOTE_TABLET:
+                return DEVICE_TYPE_TABLET;
+            case TYPE_REMOTE_TABLET_DOCKED:
+                return DEVICE_TYPE_TABLET_DOCKED;
+            case TYPE_REMOTE_COMPUTER:
+                return DEVICE_TYPE_COMPUTER;
+            case TYPE_REMOTE_GAME_CONSOLE:
+                return DEVICE_TYPE_GAME_CONSOLE;
+            case TYPE_REMOTE_CAR:
+                return DEVICE_TYPE_CAR;
+            case TYPE_REMOTE_SMARTWATCH:
+                return DEVICE_TYPE_SMARTWATCH;
+            case TYPE_REMOTE_SMARTPHONE:
+                return DEVICE_TYPE_SMARTPHONE;
+            case TYPE_GROUP:
+                return DEVICE_TYPE_GROUP;
+            default:
+                return DEVICE_TYPE_UNKNOWN;
+        }
+    }
+
+    private static int androidXDeviceTypeToFwkDeviceType(
+            @RouteInfo.DeviceType int androidXDeviceType) {
+        switch (androidXDeviceType) {
+            case DEVICE_TYPE_TV:
+                return TYPE_REMOTE_TV;
+            case DEVICE_TYPE_SPEAKER:
+                return TYPE_REMOTE_SPEAKER;
+            case DEVICE_TYPE_AUDIO_VIDEO_RECEIVER:
+                return TYPE_REMOTE_AUDIO_VIDEO_RECEIVER;
+            case DEVICE_TYPE_TABLET:
+                return TYPE_REMOTE_TABLET;
+            case DEVICE_TYPE_TABLET_DOCKED:
+                return TYPE_REMOTE_TABLET_DOCKED;
+            case DEVICE_TYPE_COMPUTER:
+                return TYPE_REMOTE_COMPUTER;
+            case DEVICE_TYPE_GAME_CONSOLE:
+                return TYPE_REMOTE_GAME_CONSOLE;
+            case DEVICE_TYPE_CAR:
+                return TYPE_REMOTE_CAR;
+            case DEVICE_TYPE_SMARTWATCH:
+                return TYPE_REMOTE_SMARTWATCH;
+            case DEVICE_TYPE_SMARTPHONE:
+                return TYPE_REMOTE_SMARTPHONE;
+            case DEVICE_TYPE_GROUP:
+                return TYPE_GROUP;
+            default:
+                return TYPE_UNKNOWN;
+        }
+    }
+
+    @RequiresApi(api = 34)
+    private static final class Api34Impl {
+
+        @DoNotInline
+        public static void setDeduplicationIds(
+                MediaRoute2Info.Builder builder, Set<String> deduplicationIds) {
+            builder.setDeduplicationIds(deduplicationIds);
+        }
+
+        @DoNotInline
+        public static Set<String> getDeduplicationIds(MediaRoute2Info fwkMediaRoute2Info) {
+            return fwkMediaRoute2Info.getDeduplicationIds();
+        }
+
+        @DoNotInline
+        public static void copyDescriptorVisibilityToBuilder(MediaRoute2Info.Builder builder,
+                MediaRouteDescriptor descriptor) {
+            if (descriptor.isVisibilityPublic()) {
+                builder.setVisibilityPublic();
+            } else {
+                builder.setVisibilityRestricted(descriptor.getAllowedPackages());
+            }
+        }
+
+        @DoNotInline
+        public static void setDeviceType(MediaRoute2Info.Builder builder, int deviceType) {
+            builder.setType(deviceType);
+        }
+
+        @DoNotInline
+        public static int getType(MediaRoute2Info fwkMediaRoute2Info) {
+            return fwkMediaRoute2Info.getType();
+        }
     }
 }

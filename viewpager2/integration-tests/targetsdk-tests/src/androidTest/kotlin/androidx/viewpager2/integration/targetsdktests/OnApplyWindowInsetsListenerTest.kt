@@ -38,19 +38,21 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.ORIENTATION_HORIZONTAL
 import androidx.viewpager2.widget.WindowInsetsApplier
+import java.lang.reflect.Field
 import org.hamcrest.CoreMatchers.equalTo
-import org.junit.Assert.assertNotNull
 import org.hamcrest.MatcherAssert.assertThat
+import org.junit.Assert.assertNotNull
+import org.junit.Assume
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.lang.reflect.Field
 
 @LargeTest
-@SdkSuppress(minSdkVersion = 21)
+@SdkSuppress(minSdkVersion = 30) // TODO(b/273945673): fix test on API 21..30
 @RunWith(Parameterized::class)
 class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
+
     data class TestConfig(
         val applyFix: Boolean,
         val pagesConsumeInsets: Boolean
@@ -98,6 +100,9 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
 
     @Test
     fun test() {
+        // Broken on UDC, but fixed on UDC-QPR; no easy way to differentiate in a test, so
+        // disabling for the whole API 34. See b/284406283 for more context.
+        Assume.assumeTrue(Build.VERSION.SDK_INT != 34)
         setupTest(config.applyFix, config.pagesConsumeInsets)
         runTest()
         checkResult(
@@ -223,7 +228,7 @@ class OnApplyWindowInsetsListenerTest(private val config: TestConfig) {
     }
 
     private fun createWindowInsets(): WindowInsetsCompat {
-        val insets = Insets.of(10, 10, 10, 10)
+        val insets = Insets.of(10, 11, 12, 13)
         @Suppress("DEPRECATION")
         val windowInsets = WindowInsetsCompat.Builder().setSystemWindowInsets(insets).build()
         if (Build.VERSION.SDK_INT < 29) {

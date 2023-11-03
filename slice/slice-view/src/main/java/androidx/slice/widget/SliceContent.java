@@ -53,29 +53,34 @@ import androidx.slice.core.SliceQuery;
 
 /**
  * Base class representing content that can be displayed.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public class SliceContent {
 
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected SliceItem mSliceItem;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected SliceItem mColorItem;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected SliceItem mLayoutDirItem;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected SliceItem mContentDescr;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mRowIndex;
 
     public SliceContent(@Nullable Slice slice) {
@@ -86,7 +91,6 @@ public class SliceContent {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public SliceContent(@Nullable SliceItem item, int rowIndex) {
@@ -108,8 +112,8 @@ public class SliceContent {
 
     /**
      * @return the slice item used to construct this content.
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
     public SliceItem getSliceItem() {
         return mSliceItem;
@@ -117,24 +121,24 @@ public class SliceContent {
 
     /**
      * @return the accent color to use for this content or -1 if no color is set.
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public int getAccentColor() {
         return mColorItem != null ? mColorItem.getInt() : -1;
     }
 
     /**
      * @return the layout direction to use for this content or -1 if no direction set.
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public int getLayoutDir() {
         return mLayoutDirItem != null ? resolveLayoutDirection(mLayoutDirItem.getInt()) : -1;
     }
 
     /**
      * @return the content description to use for this row if set.
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
     public CharSequence getContentDescription() {
         return mContentDescr != null ? mContentDescr.getText() : null;
@@ -142,31 +146,31 @@ public class SliceContent {
 
     /**
      * @return the row index of this content, or -1 if no row index is set.
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public int getRowIndex() { return mRowIndex; }
 
     /**
      * @return the desired height of this content based on the provided mode and context or the
      * default height if context is null.
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public int getHeight(SliceStyle style, SliceViewPolicy policy) {
         return 0;
     }
 
     /**
      * @return whether this content is valid to display or not.
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public boolean isValid() {
         return mSliceItem != null;
     }
 
     /**
      * @return the action that represents the shortcut.
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
     public SliceAction getShortcut(@Nullable Context context) {
         if (mSliceItem == null) {

@@ -18,7 +18,6 @@ package androidx.annotation
 /**
  * Denotes that the annotated method is the getter for a resources-backed property that should be
  * shown in Android Studio's inspection tools.
- *
  */
 @Target(
     AnnotationTarget.FUNCTION,
@@ -26,7 +25,7 @@ package androidx.annotation
     AnnotationTarget.PROPERTY_SETTER
 )
 @Retention(AnnotationRetention.SOURCE)
-@Deprecated("Replaced by the {@code androidx.resourceinpsection} package.")
+@Deprecated("Replaced by the androidx.resourceinpsection package.")
 public annotation class InspectableProperty(
     /**
      * The name of the property.
@@ -40,8 +39,8 @@ public annotation class InspectableProperty(
     /**
      * If the property is inflated from XML, the resource ID of its XML attribute.
      *
-     * If left as the default, and [hasAttributeId] is true, the attribute ID will be
-     * inferred from [name].
+     * If left as the default, and [hasAttributeId] is true, the attribute ID will be inferred from
+     * [name].
      *
      * @return The attribute ID of the property or the default null resource ID
      */
@@ -78,9 +77,7 @@ public annotation class InspectableProperty(
      */
     val flagMapping: Array<FlagEntry> = []
 ) {
-    /**
-     * One entry in an enumeration packed into a primitive {int}.
-     */
+    /** One entry in an enumeration packed into a primitive {int}. */
     @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
     @Retention(AnnotationRetention.SOURCE)
     public annotation class EnumEntry(
@@ -98,9 +95,7 @@ public annotation class InspectableProperty(
         val value: Int
     )
 
-    /**
-     * One flag value of many that may be packed into a primitive {int}.
-     */
+    /** One flag value of many that may be packed into a primitive {int}. */
     @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
     @Retention(AnnotationRetention.SOURCE)
     public annotation class FlagEntry(
@@ -113,8 +108,8 @@ public annotation class InspectableProperty(
         /**
          * A target value that the property's value must equal after masking.
          *
-         * If a mask is not supplied (i.e., [mask] is 0), the target will be reused as the
-         * mask. This handles the common case where no flags mutually exclude each other.
+         * If a mask is not supplied (i.e., [mask] is 0), the target will be reused as the mask.
+         * This handles the common case where no flags mutually exclude each other.
          *
          * @return The target value to compare against
          */
@@ -122,26 +117,20 @@ public annotation class InspectableProperty(
         /**
          * A mask that the property will be bitwise anded with before comparing to the target.
          *
-         * If set to 0 (the default), the value of [target] will be used as a mask. Zero
-         * was chosen as the default since bitwise and with zero is always zero.
+         * If set to 0 (the default), the value of [target] will be used as a mask. Zero was chosen
+         * as the default since bitwise and with zero is always zero.
          *
          * @return A mask, or 0 to use the target as a mask
          */
         val mask: Int = 0
     )
 
-    /**
-     * The type of value packed into a primitive {int}.
-     */
+    /** The type of value packed into a primitive {int}. */
     public enum class ValueType {
-        /**
-         * No special handling, property is considered to be a numeric value.
-         */
+        /** No special handling, property is considered to be a numeric value. */
         NONE,
 
-        /**
-         * The default the annotation processor infers the value type from context.
-         */
+        /** The default the annotation processor infers the value type from context. */
         INFERRED,
 
         /**
@@ -179,8 +168,7 @@ public annotation class InspectableProperty(
         /**
          * Value is a resource ID
          *
-         * This type is inferred from the presence of a resource ID annotation such as
-         * [AnyRes].
+         * This type is inferred from the presence of a resource ID annotation such as [AnyRes].
          */
         RESOURCE_ID
     }

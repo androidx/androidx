@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
 import androidx.room.compiler.processing.compat.XConverters.toJavac
@@ -28,6 +30,7 @@ import androidx.room.compiler.processing.testcode.JavaEnum
 import androidx.room.compiler.processing.testcode.MainAnnotation
 import androidx.room.compiler.processing.testcode.OtherAnnotation
 import androidx.room.compiler.processing.testcode.RepeatableJavaAnnotation
+import androidx.room.compiler.processing.testcode.RepeatableKotlinAnnotation
 import androidx.room.compiler.processing.testcode.TestSuppressWarnings
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.XTestInvocation
@@ -35,13 +38,12 @@ import androidx.room.compiler.processing.util.asJTypeName
 import androidx.room.compiler.processing.util.asKTypeName
 import androidx.room.compiler.processing.util.compileFiles
 import androidx.room.compiler.processing.util.getDeclaredField
+import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.runProcessorTestWithoutKsp
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.kotlinpoet.javapoet.JAnnotationSpec
 import com.squareup.kotlinpoet.javapoet.JClassName
 import org.junit.Test
@@ -86,6 +88,101 @@ class XAnnotationTest(
                 sources = sources,
                 handler = handler
             )
+        }
+    }
+
+    @Test
+    fun typeParameterAnnotationsOnFunction() {
+        val kotlinSource = Source.kotlin(
+            "foo.bar.Subject.kt",
+            """
+            package foo.bar
+            import kotlin.collections.*
+
+            @Target(AnnotationTarget.TYPE)
+            annotation class SomeAnnotation(val value: String)
+
+            class Subject {
+                fun myFunction(): Map<@SomeAnnotation("someString") Int, Int> {
+                    return emptyMap()
+                }
+            }
+            """.trimIndent()
+        )
+        val javaSource = Source.java(
+            "foo.bar.Subject",
+            """
+            package foo.bar;
+            import java.lang.annotation.ElementType;
+            import java.lang.annotation.Target;
+            import java.util.Map;
+            import java.util.HashMap;
+
+            @Target(ElementType.TYPE_USE)
+            @interface SomeAnnotation {
+                String value();
+            }
+
+            class Subject {
+                Map<@SomeAnnotation("someString") Integer, Integer> myFunction() {
+                    return new HashMap<>();
+                }
+            }
+            """.trimIndent()
+        )
+
+        listOf(javaSource, kotlinSource).forEach { source ->
+            runTest(
+                sources = listOf(source)
+            ) { invocation ->
+                if (!invocation.isKsp) return@runTest
+                val subject = invocation.processingEnv.requireTypeElement(
+                    "foo.bar.Subject")
+                val method = subject.getMethodByJvmName("myFunction")
+                val firstArg = method.returnType.typeArguments.first()
+                val annotation = firstArg.getAllAnnotations().first()
+                assertThat(
+                    annotation.name
+                ).isEqualTo("SomeAnnotation")
+
+                assertThat(
+                    annotation.annotationValues.first().value
+                ).isEqualTo("someString")
+            }
+        }
+    }
+
+    @Test
+    fun testJvmNameAnnotationValue() {
+        val kotlinSrc = Source.kotlin(
+            "MyAnnotation.kt",
+            """
+            @Target(AnnotationTarget.CLASS)
+            annotation class MyAnnotation(
+                @get:JvmName("stringParameter")
+                val stringParam: String,
+                val intParam: Int,
+                @get:JvmName("longParameter")
+                val longParam: Long
+            )
+            """.trimIndent()
+        )
+        val javaSrc = Source.java(
+            "Foo",
+            """
+            @MyAnnotation(stringParameter = "1", intParam = 2, longParameter = 3)
+            public class Foo {}
+            """.trimIndent()
+        )
+        runTest(sources = listOf(javaSrc, kotlinSrc)) { invocation ->
+            val typeElement = invocation.processingEnv.requireTypeElement("Foo")
+            val annotation =
+                typeElement.getAllAnnotations().single { it.qualifiedName == "MyAnnotation" }
+            assertThat(
+                annotation.annotationValues.map { it.value }
+            ).containsExactly(
+                "1", 2, 3.toLong()
+            ).inOrder()
         }
     }
 
@@ -597,7 +694,7 @@ class XAnnotationTest(
             """.trimIndent()
         )
         val javaSrc = Source.java(
-            "JavaClass.java",
+            "JavaClass",
             """
             import androidx.room.compiler.processing.testcode.JavaAnnotationWithDefaults;
             @JavaAnnotationWithDefaults
@@ -610,6 +707,20 @@ class XAnnotationTest(
                     invocation.processingEnv.requireTypeElement(it)
                 }.forEach { typeElement ->
                     val annotation = typeElement.requireAnnotation<JavaAnnotationWithDefaults>()
+
+                    assertThat(annotation.defaultValues.map { it.name })
+                        .containsExactly(
+                            "stringVal",
+                            "stringArrayVal",
+                            "typeVal",
+                            "typeArrayVal",
+                            "intVal",
+                            "intArrayVal",
+                            "enumVal",
+                            "enumArrayVal",
+                            "otherAnnotationVal",
+                            "otherAnnotationArrayVal"
+                        ).inOrder()
 
                     assertThat(annotation.get<Int>("intVal"))
                         .isEqualTo(3)
@@ -640,6 +751,11 @@ class XAnnotationTest(
                         ).isEqualTo(
                             listOf(LinkedHashMap::class.asKTypeName())
                         )
+                    } else {
+                        assertThat(annotation.toAnnotationSpec(includeDefaultValues = false))
+                            .isEqualTo(JAnnotationSpec.get(annotation.toJavac()))
+                        assertThat(annotation.toAnnotationSpec())
+                            .isNotEqualTo(JAnnotationSpec.get(annotation.toJavac()))
                     }
 
                     val enumValueEntry = annotation.getAsEnum("enumVal")
@@ -647,7 +763,6 @@ class XAnnotationTest(
                     val javaEnumType = invocation.processingEnv.requireTypeElement(JavaEnum::class)
                     assertThat(enumValueEntry.enclosingElement)
                         .isEqualTo(javaEnumType)
-
                     val enumList = annotation.getAsEnumList("enumArrayVal")
                     assertThat(enumList[0].name).isEqualTo("VAL1")
                     assertThat(enumList[1].name).isEqualTo("VAL2")
@@ -680,7 +795,7 @@ class XAnnotationTest(
     fun javaPrimitiveArray() {
         // TODO: expand this test for other primitive types: 179081610
         val javaSrc = Source.java(
-            "JavaSubject.java",
+            "JavaSubject",
             """
             import androidx.room.compiler.processing.testcode.*;
             class JavaSubject {
@@ -719,7 +834,7 @@ class XAnnotationTest(
     @Test
     fun javaEnum() {
         val javaSrc = Source.java(
-            "JavaSubject.java",
+            "JavaSubject",
             """
             import androidx.room.compiler.processing.testcode.*;
             class JavaSubject {
@@ -758,7 +873,7 @@ class XAnnotationTest(
     @Test
     fun javaEnumArray() {
         val javaSrc = Source.java(
-            "JavaSubject.java",
+            "JavaSubject",
             """
             import androidx.room.compiler.processing.testcode.*;
             class JavaSubject {
@@ -833,7 +948,7 @@ class XAnnotationTest(
     }
 
     @Test
-    fun javaRepeatableAnnotation() {
+    fun repeatableAnnotation() {
         val javaSrc = Source.java(
             "JavaSubject",
             """
@@ -847,14 +962,10 @@ class XAnnotationTest(
         val kotlinSrc = Source.kotlin(
             "KotlinSubject.kt",
             """
-            import ${RepeatableJavaAnnotation::class.qualifiedName}
-            // TODO update when https://youtrack.jetbrains.com/issue/KT-12794 is fixed.
-            // right now, kotlin does not support repeatable annotations.
-            @RepeatableJavaAnnotation.List(
-                RepeatableJavaAnnotation("x"),
-                RepeatableJavaAnnotation("y"),
-                RepeatableJavaAnnotation("z")
-            )
+            import ${RepeatableKotlinAnnotation::class.qualifiedName}
+            @RepeatableKotlinAnnotation("x")
+            @RepeatableKotlinAnnotation("y")
+            @RepeatableKotlinAnnotation("z")
             public class KotlinSubject
             """.trimIndent()
         )
@@ -865,7 +976,8 @@ class XAnnotationTest(
                 .map(invocation.processingEnv::requireTypeElement)
                 .forEach { subject ->
                     val annotations = subject.getAllAnnotations().filter {
-                        it.name == "RepeatableJavaAnnotation"
+                        it.name == "RepeatableJavaAnnotation" ||
+                            it.name == "RepeatableKotlinAnnotation"
                     }
                     val values = annotations.map { it.get<String>("value") }
                     assertWithMessage(subject.qualifiedName)
@@ -901,6 +1013,33 @@ class XAnnotationTest(
                 .forEach { subject ->
                     val annotations = subject.getAllAnnotations().filter {
                         it.name == "RepeatableJavaAnnotation"
+                    }
+                    val values = annotations.map { it.get<String>("value") }
+                    assertWithMessage(subject.qualifiedName)
+                        .that(values)
+                        .containsExactly("x")
+                }
+        }
+    }
+
+    @Test
+    fun kotlinRepeatableAnnotation_notRepeated() {
+        val kotlinSrc = Source.kotlin(
+            "KotlinSubject.kt",
+            """
+            import ${RepeatableKotlinAnnotation::class.qualifiedName}
+            @RepeatableKotlinAnnotation("x")
+            public class KotlinSubject
+            """.trimIndent()
+        )
+        runTest(
+            sources = listOf(kotlinSrc)
+        ) { invocation ->
+            listOf("KotlinSubject")
+                .map(invocation.processingEnv::requireTypeElement)
+                .forEach { subject ->
+                    val annotations = subject.getAllAnnotations().filter {
+                        it.name == "RepeatableKotlinAnnotation"
                     }
                     val values = annotations.map { it.get<String>("value") }
                     assertWithMessage(subject.qualifiedName)
@@ -1066,18 +1205,20 @@ class XAnnotationTest(
     @Test
     fun propertyTargetInPrimaryCtorProperty() {
         runTest(
-            sources = listOf(Source.kotlin(
-                "Foo.kt",
-                """
-            package test
-            class Subject(
-                @MyAnnotation val valField: String,
-                @MyAnnotation var varField: String,
-            )
-            @Target(AnnotationTarget.PROPERTY)
-            annotation class MyAnnotation
-            """.trimIndent()
-            )),
+            sources = listOf(
+                Source.kotlin(
+                    "Foo.kt",
+                    """
+                    package test
+                    class Subject(
+                        @MyAnnotation val valField: String,
+                        @MyAnnotation var varField: String,
+                    )
+                    @Target(AnnotationTarget.PROPERTY)
+                    annotation class MyAnnotation
+                    """.trimIndent()
+                )
+            ),
         ) { invocation ->
             val subject = invocation.processingEnv.requireTypeElement("test.Subject")
             val myAnnotation = invocation.processingEnv.requireTypeElement("test.MyAnnotation")
@@ -1101,8 +1242,358 @@ class XAnnotationTest(
                     .getAllAnnotations()
                     .map(XAnnotation::typeElement)
             }
-            assertThat(getDeclaredFieldAnnotationElements("valField")).doesNotContain(myAnnotation)
-            assertThat(getDeclaredFieldAnnotationElements("varField")).doesNotContain(myAnnotation)
+            if (!invocation.isKsp && preCompiled) {
+                // KAPT places property annotations without targets on the property, which
+                // then get put onto the synthetic $annotations method in the KAPT stub.
+                // Unfortunately, synthetic methods can only be read when processing the
+                // source so it's missing on precompiled class files:
+                // https://youtrack.jetbrains.com/issue/KT-34684
+                assertThat(getDeclaredFieldAnnotationElements("valField"))
+                    .doesNotContain(myAnnotation)
+                assertThat(getDeclaredFieldAnnotationElements("varField"))
+                    .doesNotContain(myAnnotation)
+            } else {
+                assertThat(getDeclaredFieldAnnotationElements("valField")).contains(myAnnotation)
+                assertThat(getDeclaredFieldAnnotationElements("varField")).contains(myAnnotation)
+            }
+        }
+    }
+
+    @Test
+    fun typeAnnotations() {
+        val kotlinSource = Source.kotlin(
+            "foo.bar.Subject.kt",
+            """
+            package foo.bar
+
+            interface Foo<T>
+            open class FooImpl<T>
+            class Bar
+
+            @Target(AnnotationTarget.TYPE)
+            annotation class A
+            @Target(
+                AnnotationTarget.CLASS,
+                AnnotationTarget.FUNCTION,
+                AnnotationTarget.FIELD,
+                AnnotationTarget.CONSTRUCTOR,
+                AnnotationTarget.VALUE_PARAMETER,
+                AnnotationTarget.TYPE,
+            )
+            annotation class B
+            @Target(
+                AnnotationTarget.CLASS,
+                AnnotationTarget.FUNCTION,
+                AnnotationTarget.FIELD,
+                AnnotationTarget.CONSTRUCTOR,
+                AnnotationTarget.VALUE_PARAMETER,
+            )
+            annotation class C
+            annotation class D
+
+            @B @C @D
+            class Subject @B @C @D constructor(
+                @B @C @D param: @A @B Foo<@A @B Bar>
+            ) : @A @B FooImpl<@A @B Bar>(), @A @B Foo<@A @B Bar> {
+                @B @C @D val field: @A @B Foo<@A @B Bar> = TODO()
+                @B @C @D fun method(
+                    @B @C @D param: @A @B Foo<@A @B Bar>
+                ): @A @B Foo<@A @B Bar> = TODO()
+            }
+            """.trimIndent()
+        )
+        val javaSource = Source.java(
+            "foo.bar.Subject",
+            """
+            package foo.bar;
+            import java.lang.annotation.ElementType;
+            import java.lang.annotation.Target;
+            import java.lang.annotation.Repeatable;
+
+            interface Foo<T> {}
+            class FooImpl<T> {}
+            class Bar {}
+
+            @Target({ElementType.TYPE_USE})
+            @interface A {}
+            @Target({
+                ElementType.METHOD,
+                ElementType.FIELD,
+                ElementType.CONSTRUCTOR,
+                ElementType.PARAMETER,
+                ElementType.TYPE_USE
+            })
+            @interface B {}
+            @Target({
+                ElementType.METHOD,
+                ElementType.FIELD,
+                ElementType.CONSTRUCTOR,
+                ElementType.PARAMETER,
+                ElementType.TYPE,
+            })
+            @interface C {}
+            @interface D {}
+
+            @B @C @D
+            class Subject extends @A @B FooImpl<@A @B Bar> implements @A @B Foo<@A @B Bar> {
+                @A @B @C @D Foo<@A @B Bar> field;
+                @B @C @D Subject(@A @B @C @D Foo<@A @B Bar> param) {}
+                @A @B @C @D Foo<@A @B Bar> method(@A @B @C @D Foo<@A @B Bar> param) {
+                    throw new RuntimeException();
+                }
+            }
+            """.trimIndent()
+        )
+
+        listOf(javaSource, kotlinSource).forEach { source ->
+            runTest(
+                sources = listOf(source)
+            ) { invocation ->
+                fun XAnnotated.getAllAnnotationTypeElements(): List<XTypeElement> {
+                    return getAllAnnotations().filter {
+                        !it.qualifiedName.contentEquals("org.jetbrains.annotations.NotNull")
+                    }.map { it.typeElement }
+                }
+
+                val subject = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
+                val superClass = subject.superClass!!
+                val superInterface = subject.superInterfaces.single()
+                val field = subject.getDeclaredField("field")
+                val method = subject.getDeclaredMethodByJvmName("method")
+                val constructor = subject.getConstructors().single()
+                val a = invocation.processingEnv.requireTypeElement("foo.bar.A")
+                val b = invocation.processingEnv.requireTypeElement("foo.bar.B")
+                val c = invocation.processingEnv.requireTypeElement("foo.bar.C")
+                val d = invocation.processingEnv.requireTypeElement("foo.bar.D")
+
+                // Check that the synthetic annotations method does not appear in the list of
+                // declared methods.
+                if (source == javaSource) {
+                    assertThat(subject.getDeclaredMethods().map { it.name })
+                        .containsExactly("method")
+                } else {
+                    if (invocation.isKsp || preCompiled) {
+                        assertThat(subject.getDeclaredMethods().map { it.name })
+                            .containsExactly("getField", "method")
+                            .inOrder()
+                    } else {
+                        // TODO(b/290800523): Remove the synthetic annotations method from the list
+                        //  of declared methods so that KAPT matches KSP.
+                        assertThat(subject.getDeclaredMethods().map { it.name })
+                            .containsExactly("getField", "getField\$annotations", "method")
+                            .inOrder()
+                    }
+                }
+
+                // Check the annotations on the elements
+                mapOf(
+                    "class" to subject,
+                    "field" to field,
+                    "method" to method,
+                    "methodParameter" to method.parameters.single(),
+                    "constructor" to constructor,
+                    "constructorParameter" to constructor.parameters.single(),
+                ).forEach { (desc, element) ->
+                    if (element == field &&
+                        !invocation.isKsp && source == kotlinSource && preCompiled) {
+                        // KAPT places property annotations without targets on the property, which
+                        // then get put onto the synthetic $annotations method in the KAPT stub.
+                        // Unfortunately, synthetic methods can only be read when processing the
+                        // source so it's missing on precompiled class files:
+                        // https://youtrack.jetbrains.com/issue/KT-34684
+                        assertWithMessage("$desc element: $element")
+                            .that(element.getAllAnnotationTypeElements())
+                            .containsExactly(b, c)
+                    } else {
+                        assertWithMessage("$desc element: $element")
+                            .that(
+                                // TODO(bcorso): Consider automatically removing kotlin.Metadata
+                                //  annotation so that KAPT and KSP agree, and exposing the metadata
+                                //  explicitly via a property of the type/element.
+                                // Filter out kotlin.Metadata.
+                                element.getAllAnnotationTypeElements()
+                                    .filterNot { it.qualifiedName == "kotlin.Metadata" }
+                            )
+                            .containsExactly(b, c, d)
+                    }
+                }
+
+                // Check the annotations on the types and type arguments
+                mapOf(
+                    "superClass" to superClass,
+                    "superInterface" to superInterface,
+                    "field" to field.type,
+                    "methodReturnType" to method.returnType,
+                    "methodParameter" to method.parameters.single().type,
+                    "constructorParameter" to constructor.parameters.single().type,
+                ).forEach { (desc, type) ->
+                    if (!invocation.isKsp && source == javaSource && preCompiled) {
+                        // We can't see type annotations from precompiled Java classes in JAVAC.
+                        //   https://github.com/google/ksp/issues/1296
+                        assertWithMessage("$desc type: $type")
+                            .that(type.getAllAnnotationTypeElements())
+                            .isEmpty()
+                        assertWithMessage("$desc type-argument: ${type.typeArguments[0]}")
+                            .that(type.getAllAnnotationTypeElements())
+                            .isEmpty()
+                    } else {
+                        assertWithMessage("$desc type: $type")
+                            .that(type.getAllAnnotationTypeElements())
+                            .containsExactly(a, b)
+                        assertWithMessage("$desc type-argument: ${type.typeArguments[0]}")
+                            .that(type.getAllAnnotationTypeElements())
+                            .containsExactly(a, b)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test
+    fun repeatedTypeAnnotations() {
+        val kotlinSource = Source.kotlin(
+            "foo.bar.Subject.kt",
+            """
+            package foo.bar
+
+            @Target(AnnotationTarget.TYPE)
+            @Repeatable
+            annotation class A(val value: Int)
+
+            open class Base
+
+            class Subject : @A(0) @A(1) Base()
+            """.trimIndent()
+        )
+        val javaSource = Source.java(
+            "foo.bar.Subject",
+            """
+            package foo.bar;
+            import java.lang.annotation.ElementType;
+            import java.lang.annotation.Target;
+            import java.lang.annotation.Repeatable;
+
+            class Base {}
+
+            @Repeatable(AContainer.class)
+            @Target(ElementType.TYPE_USE)
+            @interface A {
+                int value();
+            }
+
+            @Target(ElementType.TYPE_USE)
+            @interface AContainer {
+                A[] value();
+            }
+
+            class Subject extends @A(0) @A(1) Base {}
+            """.trimIndent()
+        )
+
+        listOf(javaSource, kotlinSource).forEach { source ->
+            runTest(
+                sources = listOf(source)
+            ) { invocation ->
+                // We can't see type annotations from precompiled Java classes. Skipping it for now:
+                // https://github.com/google/ksp/issues/1296
+                if (source == javaSource && preCompiled) {
+                    return@runTest
+                }
+                val subject = invocation.processingEnv.requireTypeElement("foo.bar.Subject")
+                val base = subject.superClass!!
+                assertThat(base.getAllAnnotations()[0].name)
+                    .isEqualTo("A")
+                assertThat(base.getAllAnnotations()[0].qualifiedName)
+                    .isEqualTo("foo.bar.A")
+                assertThat(base.getAllAnnotations()[0].annotationValues.first().asInt())
+                    .isEqualTo(0)
+                assertThat(base.getAllAnnotations()[1].name)
+                    .isEqualTo("A")
+                assertThat(base.getAllAnnotations()[1].qualifiedName)
+                    .isEqualTo("foo.bar.A")
+                assertThat(base.getAllAnnotations()[1].annotationValues.first().asInt())
+                    .isEqualTo(1)
+            }
+        }
+    }
+
+    @Test
+    fun typeParameterAnnotations() {
+        val kotlinSource = Source.kotlin(
+            "foo.bar.Subject.kt",
+            """
+            package foo.bar
+
+            @Target(AnnotationTarget.TYPE_PARAMETER)
+            annotation class A(val value: Int)
+
+            class Subject<@A(42) T>
+            """.trimIndent()
+        )
+        val javaSource = Source.java(
+            "foo.bar.Subject",
+            """
+            package foo.bar;
+            import java.lang.annotation.ElementType;
+            import java.lang.annotation.Target;
+            import java.lang.annotation.Repeatable;
+
+            @Target(ElementType.TYPE_PARAMETER)
+            @interface A {
+                int value();
+            }
+
+            class Subject<@A(42) T> {}
+            """.trimIndent()
+        )
+
+        fun test(invocation: XTestInvocation) {
+            val subject = invocation.processingEnv.requireTypeElement(
+                "foo.bar.Subject")
+            assertThat(
+                subject.typeParameters.first().getAllAnnotations().first().name
+            ).isEqualTo("A")
+
+            assertThat(
+                subject.typeParameters.first().getAllAnnotations()
+                    .first().get("value") as Int
+            ).isEqualTo(42)
+        }
+
+        listOf(javaSource, kotlinSource).forEach { source ->
+            runTest(
+                sources = listOf(source)
+            ) { invocation ->
+                if (invocation.isKsp) { // doesn't work
+                    if (source === javaSource) {
+                        if (preCompiled) {
+                            // test(invocation)
+                        } else {
+                            // test(invocation)
+                        }
+                    } else {
+                        if (preCompiled) {
+                            // test(invocation)
+                        } else {
+                            // test(invocation)
+                        }
+                    }
+                } else {
+                    if (source === javaSource) {
+                        if (preCompiled) {
+                            test(invocation)
+                        } else {
+                            test(invocation)
+                        }
+                    } else {
+                        if (preCompiled) {
+                            test(invocation)
+                        } else {
+                            // test(invocation) // doesn't work
+                        }
+                    }
+                }
+            }
         }
     }
 

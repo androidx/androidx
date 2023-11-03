@@ -32,9 +32,12 @@ dependencies {
 
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation "androidx.concurrent:concurrent-futures-ktx:1.1.0"
-    implementation "androidx.core:core:1.3.2"
+    implementation("androidx.core:core:1.7.0")
     implementation "androidx.wear:wear:1.2.0"
 
+    api(project(":wear:protolayout:protolayout"))
+    implementation(project(":wear:protolayout:protolayout-expression-pipeline"))
+    implementation(project(":wear:protolayout:protolayout-renderer"))
     implementation(project(":wear:tiles:tiles"))
     implementation(project(":wear:tiles:tiles-proto"))
     implementation(libs.kotlinCoroutinesCore)
@@ -89,10 +92,6 @@ protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
     }
-
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
     generateProtoTasks {
         all().each { task ->
             task.builtins {
@@ -109,5 +108,6 @@ androidx {
     inceptionYear = "2021"
     description = "Android Wear Tiles Renderer components. These components can be used to parse " +
             "and render an already constructed Wear Tile."
+    metalavaK2UastEnabled = true
 }
 

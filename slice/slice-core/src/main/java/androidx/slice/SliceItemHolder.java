@@ -45,12 +45,12 @@ import androidx.versionedparcelable.VersionedParcelize;
 import java.util.ArrayList;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @VersionedParcelize(allowSerialization = true, ignoreParcelables = true,
         factory = SliceItemHolder.SliceItemPool.class)
 @RequiresApi(19)
+@Deprecated
 public class SliceItemHolder implements VersionedParcelable {
 
     public static final Object sSerializeLock = new Object();

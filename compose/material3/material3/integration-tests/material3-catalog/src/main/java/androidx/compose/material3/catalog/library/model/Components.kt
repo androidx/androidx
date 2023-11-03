@@ -18,6 +18,7 @@ package androidx.compose.material3.catalog.library.model
 
 import androidx.annotation.DrawableRes
 import androidx.compose.material3.catalog.library.R
+import androidx.compose.material3.catalog.library.util.AdaptiveNavigationSuiteMaterial3SourceUrl
 import androidx.compose.material3.catalog.library.util.ComponentGuidelinesUrl
 import androidx.compose.material3.catalog.library.util.DocsUrl
 import androidx.compose.material3.catalog.library.util.Material3SourceUrl
@@ -77,7 +78,7 @@ private val BottomSheets = Component(
     // No bottom sheet icon
     guidelinesUrl = "$ComponentGuidelinesUrl/bottom-sheets",
     docsUrl = "$DocsUrl#bottomsheet",
-    sourceUrl = "$Material3SourceUrl/ModalBottomSheet.kt",
+    sourceUrl = "$Material3SourceUrl/ModalBottomSheet.android.kt",
     examples = BottomSheetExamples
 )
 
@@ -243,6 +244,20 @@ private val NavigationRail = Component(
     examples = NavigationRailExamples
 )
 
+private val NavigationSuiteScaffold = Component(
+    id = nextId(),
+    name = "Navigation Suite Scaffold",
+    description = "The Navigation Suite Scaffold wraps the provided content and places the " +
+        "adequate provided navigation component on the screen according to the current " +
+        "NavigationSuiteType. \n\n" +
+        "Note: this sample is better experienced in a resizable emulator or foldable device.",
+    // No navigation suite scaffold icon
+    guidelinesUrl = "", // TODO: Add guidelines url when available
+    docsUrl = "", // TODO: Add docs url when available
+    sourceUrl = "$AdaptiveNavigationSuiteMaterial3SourceUrl/NavigationSuiteScaffold.kt",
+    examples = NavigationSuiteScaffoldExamples
+)
+
 private val ProgressIndicators = Component(
     id = nextId(),
     name = "Progress indicators",
@@ -276,6 +291,16 @@ private val SearchBars = Component(
     docsUrl = "", // No docs yet
     sourceUrl = "$Material3SourceUrl/SearchBar.kt",
     examples = SearchBarExamples
+)
+
+private val SegmentedButtons = Component(
+    id = nextId(),
+    name = "Segmented Button",
+    description = "Segmented buttons help people select options, switch views, or sort elements.",
+    guidelinesUrl = "", // No guidelines yet
+    docsUrl = "", // No docs yet
+    sourceUrl = "$Material3SourceUrl/SegmentedButton.kt",
+    examples = SegmentedButtonExamples
 )
 
 private val Sliders = Component(
@@ -388,15 +413,17 @@ val Components = listOf(
     NavigationBar,
     NavigationDrawer,
     NavigationRail,
+    NavigationSuiteScaffold,
     ProgressIndicators,
     RadioButtons,
     SearchBars,
+    SegmentedButtons,
     Sliders,
     Snackbars,
     Switches,
     Tabs,
     TextFields,
-    Tooltips,
     TimePickers,
+    Tooltips,
     TopAppBar
 )

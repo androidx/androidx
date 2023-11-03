@@ -35,61 +35,66 @@ import java.util.Set;
 
 /**
  * Base class for children views of {@link SliceView}.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public abstract class SliceChildView extends FrameLayout {
 
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected SliceView.OnSliceActionListener mObserver;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mMode;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mTintColor = -1;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected boolean mShowLastUpdated;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected long mLastUpdated = -1;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mInsetStart;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mInsetTop;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mInsetEnd;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected int mInsetBottom;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected SliceActionView.SliceActionLoadingListener mLoadingListener;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected SliceStyle mSliceStyle;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected RowStyle mRowStyle;
     /**
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected SliceViewPolicy mViewPolicy;
 
     public SliceChildView(@NonNull Context context) {
@@ -107,7 +112,6 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * Sets the content to display in this slice.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setSliceContent(ListContent content) {
@@ -116,7 +120,6 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * Sets the insets (padding) for the slice.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setInsets(int l, int t, int r, int b) {
@@ -136,7 +139,6 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * Sets the slice actions for this view.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setSliceActions(List<SliceAction> actions) {
@@ -145,8 +147,8 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * @return the mode of the slice being presented.
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SliceView.SliceMode
     public int getMode() {
         return mViewPolicy != null ? mViewPolicy.getMode() : MODE_LARGE;
@@ -154,7 +156,6 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * Sets a custom color to use for tinting elements like icons for this view.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setTint(@ColorInt int tintColor) {
@@ -163,7 +164,6 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * Sets whether the last updated time should be displayed.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setShowLastUpdated(boolean showLastUpdated) {
@@ -172,7 +172,6 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * Sets when the content of this view was last updated.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setLastUpdated(long lastUpdated) {
@@ -181,23 +180,22 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * Sets the observer to notify when an interaction events occur on the view.
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setSliceActionListener(SliceView.OnSliceActionListener observer) {
         mObserver = observer;
     }
 
     /**
      * Sets the listener to notify whenever an action is being loaded.
-     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setSliceActionLoadingListener(SliceActionView.SliceActionLoadingListener listener) {
         mLoadingListener = listener;
     }
 
     /**
      * Indicates that a particular action is being loaded.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setActionLoading(SliceItem item) {
@@ -205,7 +203,6 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * Sets the actions that are being loaded.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setLoadingActions(Set<SliceItem> loadingActions) {
@@ -213,7 +210,6 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * Sets whether this slice can have 2 lines of subtitle text in the first row.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setAllowTwoLines(boolean allowTwoLines) {
@@ -221,7 +217,6 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * The set of currently loading actions.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public Set<SliceItem> getLoadingActions() {
@@ -230,7 +225,6 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * Sets the style information for this view.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setStyle(SliceStyle styles, @NonNull RowStyle rowStyle) {
@@ -240,7 +234,6 @@ public abstract class SliceChildView extends FrameLayout {
 
     /**
      * Sets the policy information for this view.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setPolicy(@Nullable SliceViewPolicy policy) {
@@ -248,7 +241,6 @@ public abstract class SliceChildView extends FrameLayout {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public int getHiddenItemCount() {

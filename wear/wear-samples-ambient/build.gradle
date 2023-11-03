@@ -31,6 +31,7 @@ dependencies {
 androidx {
     name = "Android Wear Ambient Sample"
     type = LibraryType.SAMPLES
+    mavenVersion = LibraryVersions.WEAR
     inceptionYear = "2021"
     description = "Contains the sample code for the ambient APIs defined in the androidx.wear:wear library"
 }

@@ -28,7 +28,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 /**
  * A concrete implementation of a {@link Operation}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class OperationImpl implements Operation {

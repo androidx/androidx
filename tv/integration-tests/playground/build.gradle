@@ -1,0 +1,87 @@
+/*
+ * Copyright (C) 2022 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+import androidx.build.LibraryType
+
+plugins {
+    id("AndroidXPlugin")
+    id("com.android.application")
+    id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
+}
+
+dependencies {
+    implementation(libs.kotlinStdlib)
+
+    implementation("androidx.appcompat:appcompat:1.6.1")
+
+    implementation(project(":activity:activity-compose"))
+    implementation(project(":compose:material3:material3"))
+    implementation(project(":navigation:navigation-compose"))
+    implementation(project(":profileinstaller:profileinstaller"))
+    implementation(project(":compose:material:material-icons-core"))
+    implementation(project(":compose:material:material-icons-extended"))
+
+    implementation(project(":tv:tv-foundation"))
+    implementation(project(":tv:tv-material"))
+
+    // pull latest compose (if build fails in future, just comment the following compose deps until
+    // we fix this package)
+    implementation(project(":compose:animation:animation"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:foundation:foundation-layout"))
+}
+
+androidx {
+    name = "TV-Compose Test App"
+    type = LibraryType.SAMPLES
+    mavenVersion = LibraryVersions.TV
+    inceptionYear = "2022"
+    description = "Test application for TV libraries"
+}
+
+android {
+    defaultConfig {
+        minSdkVersion 28
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
+            signingConfig signingConfigs.debug
+        }
+    }
+    namespace "androidx.tv.integration.playground"
+}
+
+// Workaround for https://github.com/gradle/gradle/issues/19882
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        substitute(module("androidx.lifecycle:lifecycle-common-java8:")).
+                using project(":lifecycle:lifecycle-common-java8")
+        substitute(module("androidx.lifecycle:lifecycle-livedata-core:")).
+                using project(":lifecycle:lifecycle-livedata-core")
+        substitute(module("androidx.lifecycle:lifecycle-runtime:")).
+                using project(":lifecycle:lifecycle-runtime")
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel:")).
+                using project(":lifecycle:lifecycle-viewmodel")
+        substitute(module("androidx.lifecycle:lifecycle-viewmodel-savedstate:")).
+                using project(":lifecycle:lifecycle-viewmodel-savedstate")
+    }
+}

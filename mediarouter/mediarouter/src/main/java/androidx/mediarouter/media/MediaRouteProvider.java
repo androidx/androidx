@@ -186,7 +186,7 @@ public abstract class MediaRouteProvider {
         }
     }
 
-    void deliverDiscoveryRequestChanged() {
+    /* package */ final void deliverDiscoveryRequestChanged() {
         mPendingDiscoveryRequestChange = false;
         onDiscoveryRequestChanged(mDiscoveryRequest);
     }
@@ -257,7 +257,7 @@ public abstract class MediaRouteProvider {
         }
     }
 
-    void deliverDescriptorChanged() {
+    /* package */ final void deliverDescriptorChanged() {
         mPendingDescriptorChange = false;
 
         if (mCallback != null) {
@@ -296,7 +296,6 @@ public abstract class MediaRouteProvider {
      * @param routeGroupId The unique id of the route group.
      * @return The route controller.  Returns null if there is no such route or if the route
      * cannot be controlled using the route controller interface.
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -674,7 +673,6 @@ public abstract class MediaRouteProvider {
             static final String KEY_IS_TRANSFERABLE = "isTransferable";
 
             /**
-             * @hide
              */
             @RestrictTo(LIBRARY)
             @IntDef({

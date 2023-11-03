@@ -39,6 +39,8 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastFirst
+import androidx.compose.ui.util.fastFirstOrNull
 import kotlin.math.max
 import kotlin.math.min
 
@@ -67,6 +69,9 @@ import kotlin.math.min
  * If you want to customize appearance of the Snackbar, you can pass your own version as a child
  * of the [SnackbarHost] to the [Scaffold]:
  * @sample androidx.compose.material3.samples.ScaffoldWithCustomSnackbar
+ *
+ * For a multiline sample following the Material recommended spec of a maximum of 2 lines, see:
+ * @sample androidx.compose.material3.samples.ScaffoldWithMultilineSnackbar
  *
  * @param modifier the [Modifier] to be applied to this snackbar
  * @param action action / button component to add as an action to the snackbar. Consider using
@@ -330,9 +335,9 @@ private fun OneRowSnackbar(
     ) { measurables, constraints ->
         val containerWidth = min(constraints.maxWidth, ContainerMaxWidth.roundToPx())
         val actionButtonPlaceable =
-            measurables.firstOrNull { it.layoutId == actionTag }?.measure(constraints)
+            measurables.fastFirstOrNull { it.layoutId == actionTag }?.measure(constraints)
         val dismissButtonPlaceable =
-            measurables.firstOrNull { it.layoutId == dismissActionTag }?.measure(constraints)
+            measurables.fastFirstOrNull { it.layoutId == dismissActionTag }?.measure(constraints)
         val actionButtonWidth = actionButtonPlaceable?.width ?: 0
         val actionButtonHeight = actionButtonPlaceable?.height ?: 0
         val dismissButtonWidth = dismissButtonPlaceable?.width ?: 0
@@ -341,7 +346,7 @@ private fun OneRowSnackbar(
         val textMaxWidth =
             (containerWidth - actionButtonWidth - dismissButtonWidth - extraSpacingWidth)
                 .coerceAtLeast(constraints.minWidth)
-        val textPlaceable = measurables.first { it.layoutId == textTag }.measure(
+        val textPlaceable = measurables.fastFirst { it.layoutId == textTag }.measure(
             constraints.copy(minHeight = 0, maxWidth = textMaxWidth)
         )
 
@@ -403,22 +408,22 @@ private fun OneRowSnackbar(
  */
 object SnackbarDefaults {
     /** Default shape of a snackbar. */
-    val shape: Shape @Composable get() = SnackbarTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = SnackbarTokens.ContainerShape.value
 
     /** Default color of a snackbar. */
-    val color: Color @Composable get() = SnackbarTokens.ContainerColor.toColor()
+    val color: Color @Composable get() = SnackbarTokens.ContainerColor.value
 
     /** Default content color of a snackbar. */
-    val contentColor: Color @Composable get() = SnackbarTokens.SupportingTextColor.toColor()
+    val contentColor: Color @Composable get() = SnackbarTokens.SupportingTextColor.value
 
     /** Default action color of a snackbar. */
-    val actionColor: Color @Composable get() = SnackbarTokens.ActionLabelTextColor.toColor()
+    val actionColor: Color @Composable get() = SnackbarTokens.ActionLabelTextColor.value
 
     /** Default action content color of a snackbar. */
-    val actionContentColor: Color @Composable get() = SnackbarTokens.ActionLabelTextColor.toColor()
+    val actionContentColor: Color @Composable get() = SnackbarTokens.ActionLabelTextColor.value
 
     /** Default dismiss action content color of a snackbar. */
-    val dismissActionContentColor: Color @Composable get() = SnackbarTokens.IconColor.toColor()
+    val dismissActionContentColor: Color @Composable get() = SnackbarTokens.IconColor.value
 }
 
 private val ContainerMaxWidth = 600.dp

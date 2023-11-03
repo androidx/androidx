@@ -118,8 +118,10 @@ major version change.
 ### Minor (`1.x.0`) {#minor}
 
 Minor indicates compatible public API changes. This number is incremented when
-APIs are added, including the addition of `@Deprecated` annotations. Binary
-compatibility must be preserved between minor version changes.
+APIs are added -- including the addition of `@Deprecated` annotations -- and
+libraries must go through a full [pre-release](#pre-release-suffix) cycle before
+reaching stable. Binary compatibility must be preserved between minor version
+changes.
 
 #### Moving between minor versions:
 
@@ -132,7 +134,8 @@ compatibility must be preserved between minor version changes.
 
 Bugfix indicates internal changes to address broken behavior. Care should be
 taken to ensure that existing clients are not broken, including clients that may
-have been working around long-standing broken behavior.
+have been working around long-standing broken behavior. Bugfix releases *do not*
+go through a pre-release cycle and are considered stable.
 
 #### Moving between bugfix versions:
 
@@ -233,6 +236,8 @@ Council review but are expected to have performed a minimum level of validation.
 
 #### Within the `alphaXX` cycle
 
+*   Workflow
+    *   Development happens in `androidx-main` or `androidx-platform-dev`
 *   API surface
     *   Prior to `alpha01` release, API tracking **must** be enabled (either
         `publish=true` or create an `api` directory) and remain enabled
@@ -242,6 +247,8 @@ Council review but are expected to have performed a minimum level of validation.
         [experimental APIs](/company/teams/androidx/api_guidelines/index.md#experimental-api)
         across same-version group boundaries
 *   Testing
+    *   Ensure the library is testable. Follow the guideline on
+        [go/androidx/testability](/company/teams/androidx/testability.md)
     *   All changes **should** be accompanied by a `Test:` stanza
     *   All pre-submit and post-submit tests are passing
     *   Flaky or failing tests **must** be suppressed or fixed within one day
@@ -290,6 +297,9 @@ additions of `@Experimental` APIs or changes to `@Experimental` APIs.
 
 #### Within the `betaXX` cycle
 
+*   Workflow
+    *   Development happens in `androidx-main` or, in extremely limited cases,
+        changes are cherry-picked to a `-release` branch
 *   API surface
     *   May not add, remove, or change APIs unless granted an exception by API
         Council following the beta API change exception request process
@@ -318,6 +328,7 @@ testing.
 
 #### Within the `rcXX` cycle
 
+*   Changes are cherry-picked to a `-release` branch
 *   Ship-blocking bug fixes only
 *   All changes must have corresponding tests
 *   No API changes allowed

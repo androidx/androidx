@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-RemovedClass: androidx.room.EntityUpsertionAdapterKt:
-    Removed class androidx.room.EntityUpsertionAdapterKt
-
-
-RemovedPackage: androidx.room.util:
-    Removed package androidx.room.util

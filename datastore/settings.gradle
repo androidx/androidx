@@ -16,7 +16,7 @@
 
 // see ../playground-common/README.md for details on how this works
 pluginManagement {
-    includeBuild "../playground-common/playground-plugin"
+    apply from: "../playground-common/configure-plugin-management.gradle", to: it
 }
 plugins {
     id "playground"
@@ -30,11 +30,6 @@ playground {
         // Must exclude this because AndroidXCompose plugin doesn't currently support playground.
         if (name == ":datastore:datastore-compose-samples") return false
         if (name.startsWith(":datastore")) return true
-        if (name == ":annotation:annotation-sampled") return true
-        if (name == ":internal-testutils-datastore") return true
-        if (name == ":internal-testutils-kmp") return true
-        if (name == ":internal-testutils-truth") return true
         return false
     })
 }
-

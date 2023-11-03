@@ -299,7 +299,6 @@ import androidx.annotation.RestrictTo;
  * 
  * </blockquote>
  * icu_annot::stable ICU 3.8
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public interface Freezable<T> extends Cloneable {

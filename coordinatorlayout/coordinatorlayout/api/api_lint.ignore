@@ -1,6 +1,4 @@
 // Baseline format: 1.0
-InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `c` in method `onDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedPreScroll(android.view.View, int, int, int[]) parameter #0:
     Invalid nullability on parameter `target` in method `onNestedPreScroll`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.coordinatorlayout.widget.CoordinatorLayout#onNestedPreScroll(android.view.View, int, int, int[]) parameter #3:

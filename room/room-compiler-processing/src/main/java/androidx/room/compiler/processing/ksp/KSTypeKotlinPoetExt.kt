@@ -140,7 +140,9 @@ private fun KSType.asKTypeName(
     resolver: Resolver,
     typeArgumentTypeLookup: KTypeArgumentTypeLookup
 ): KTypeName {
-    return if (this.arguments.isNotEmpty() && !resolver.isJavaRawType(this)) {
+    return if (declaration is KSTypeAlias) {
+        replaceTypeAliases(resolver).asKTypeName(resolver, typeArgumentTypeLookup)
+    } else if (this.arguments.isNotEmpty() && !resolver.isJavaRawType(this)) {
         val args: List<KTypeName> = this.arguments
             .map { typeArg ->
                 typeArg.asKTypeName(

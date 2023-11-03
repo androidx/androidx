@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,25 +18,48 @@ package androidx.window.demo.embedding
 
 import androidx.annotation.GuardedBy
 import androidx.window.embedding.SplitAttributes
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 /** A singleton controller to manage the global config. */
 class DemoActivityEmbeddingController private constructor() {
+    private val lock = ReentrantLock()
 
-    private val lock = Object()
+    /** Indicates that whether to expand the secondary container or not */
+    internal var shouldExpandSecondaryContainer = AtomicBoolean(false)
+
+    internal var splitAttributesCustomizationEnabled = AtomicBoolean(false)
+
+    internal var customizedLayoutDirection: SplitAttributes.LayoutDirection
+        get() {
+            lock.withLock {
+                return layoutDirectionLocked
+            }
+        }
+        set(value) {
+            lock.withLock {
+                layoutDirectionLocked = value
+            }
+        }
 
     @GuardedBy("lock")
-    private var _animationBackgroundColor = SplitAttributes.BackgroundColor.DEFAULT
+    private var layoutDirectionLocked = SplitAttributes.LayoutDirection.LOCALE
 
-    /** Animation background color to use when the animation requires a background. */
-    var animationBackgroundColor: SplitAttributes.BackgroundColor
-        get() = synchronized(lock) {
-            _animationBackgroundColor
+    internal var customizedSplitType: SplitAttributes.SplitType
+        get() {
+            lock.withLock {
+                return splitTypeLocked
+            }
         }
-        set(value) = synchronized(lock) {
-            _animationBackgroundColor = value
+        set(value) {
+            lock.withLock {
+                splitTypeLocked = value
+            }
         }
+
+    @GuardedBy("lock")
+    private var splitTypeLocked = SplitAttributes.SplitType.SPLIT_TYPE_EQUAL
 
     companion object {
         @Volatile

@@ -19,10 +19,11 @@ package androidx.privacysandbox.ads.adservices.java.endtoend.adid;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.privacysandbox.ads.adservices.adid.AdId;
-import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo;
+import androidx.privacysandbox.ads.adservices.java.VersionCompatUtil;
 import androidx.privacysandbox.ads.adservices.java.adid.AdIdManagerFutures;
 import androidx.privacysandbox.ads.adservices.java.endtoend.TestUtil;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
@@ -34,9 +35,11 @@ import org.junit.runners.JUnit4;
 
 
 @RunWith(JUnit4.class)
+@SdkSuppress(minSdkVersion = 28) // API 28 required for device_config used by this test
 public class AdIdManagerTest {
     private static final String TAG = "AdIdManagerTest";
-    private TestUtil mTestUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(), TAG);
+    private TestUtil mTestUtil = new TestUtil(InstrumentationRegistry.getInstrumentation(),
+            TAG);
 
     @Before
     public void setup() throws Exception {
@@ -44,6 +47,10 @@ public class AdIdManagerTest {
         mTestUtil.overrideKillSwitches(true);
         mTestUtil.overrideConsentManagerDebugMode(true);
         mTestUtil.overrideAllowlists(true);
+
+        // Put in a short sleep to make sure the updated config propagates
+        // before starting the tests
+        Thread.sleep(100);
     }
 
     @After
@@ -56,8 +63,11 @@ public class AdIdManagerTest {
 
     @Test
     public void testAdId() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         AdIdManagerFutures adIdManager =
                 AdIdManagerFutures.from(ApplicationProvider.getApplicationContext());

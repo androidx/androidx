@@ -54,9 +54,10 @@ dependencies {
 }
 
 androidx {
-    name = "Google Shortcuts Integration Library"
+    name = "Google Shortcuts Integration"
     type = LibraryType.PUBLISHED_LIBRARY
     mavenVersion = LibraryVersions.CORE_GOOGLE_SHORTCUTS
     inceptionYear = "2021"
     description = "Library for powering Google features with Android app shortcuts"
+    metalavaK2UastEnabled = true
 }

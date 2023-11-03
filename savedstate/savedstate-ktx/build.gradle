@@ -23,11 +23,6 @@ plugins {
 }
 
 dependencies {
-    // Atomic group
-    constraints {
-        implementation(project(":savedstate:savedstate"))
-    }
-
     api(project(":savedstate:savedstate"))
     api(libs.kotlinStdlib)
 
@@ -42,6 +37,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Kotlin extensions for 'savedstate' artifact"
+    metalavaK2UastEnabled = true
 }
 
 android {

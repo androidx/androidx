@@ -679,7 +679,6 @@ public final class MediaMetadataCompat implements Parcelable {
          * @param source The original metadata to copy.
          * @param maxBitmapSize The maximum height/width for bitmaps contained
          *            in the metadata.
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @SuppressWarnings("deprecation")

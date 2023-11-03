@@ -26,12 +26,14 @@ import androidx.window.WindowTestUtils
 import androidx.window.WindowTestUtils.Companion.assumeAtLeastVendorApiLevel
 import androidx.window.layout.adapter.WindowBackend
 import java.util.concurrent.Executor
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.Rule
 import org.junit.Test
 
@@ -43,6 +45,10 @@ public class WindowInfoTrackerImplTest {
         ActivityScenarioRule(TestActivity::class.java)
 
     private val testScope = TestScope(UnconfinedTestDispatcher())
+
+    init {
+        Dispatchers.setMain(UnconfinedTestDispatcher())
+    }
 
     @Test
     public fun testWindowLayoutFeatures(): Unit = testScope.runTest {

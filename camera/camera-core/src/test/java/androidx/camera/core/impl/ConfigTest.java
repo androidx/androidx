@@ -19,10 +19,17 @@ package androidx.camera.core.impl;
 import static androidx.camera.core.impl.Config.OptionPriority.ALWAYS_OVERRIDE;
 import static androidx.camera.core.impl.Config.OptionPriority.OPTIONAL;
 import static androidx.camera.core.impl.Config.OptionPriority.REQUIRED;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_RESOLUTION_SELECTOR;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
+
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
+import androidx.camera.core.resolutionselector.ResolutionFilter;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -82,8 +89,8 @@ public class ConfigTest {
     }
 
     @Test
-    public void hasConflict_whenTwoValueAreALWAYSOVERRIDE() {
-        assertThat(Config.hasConflict(ALWAYS_OVERRIDE, ALWAYS_OVERRIDE)).isTrue();
+    public void noConflict_whenTwoValueAreALWAYSOVERRIDE() {
+        assertThat(Config.hasConflict(ALWAYS_OVERRIDE, ALWAYS_OVERRIDE)).isFalse();
     }
 
     @Test
@@ -124,6 +131,34 @@ public class ConfigTest {
     @Test
     public void noConflict_whenTwoValueAreALWAYSOVERRIDE_REQUIRED() {
         assertThat(Config.hasConflict(ALWAYS_OVERRIDE, REQUIRED)).isFalse();
+    }
+
+    @Test
+    public void overrideResolutionSelectorCorrectly() {
+        MutableOptionsBundle mergedConfig = MutableOptionsBundle.create();
+        MutableConfig baseConfig = new FakeUseCaseConfig.Builder().getMutableConfig();
+        baseConfig.insertOption(OPTION_RESOLUTION_SELECTOR,
+                new ResolutionSelector.Builder().setAspectRatioStrategy(
+                                AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY)
+                        .setResolutionStrategy(
+                                ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY).build());
+        MutableConfig extendedConfig = new FakeUseCaseConfig.Builder().getMutableConfig();
+        ResolutionFilter resolutionFilter = (supportedSizes, rotationDegrees) -> null;
+        extendedConfig.insertOption(OPTION_RESOLUTION_SELECTOR,
+                new ResolutionSelector.Builder().setAspectRatioStrategy(
+                                AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+                        .setResolutionFilter(resolutionFilter).build());
+        Config.mergeOptionValue(mergedConfig, baseConfig, extendedConfig,
+                OPTION_RESOLUTION_SELECTOR);
+
+        ResolutionSelector mergedResolutionSelector =
+                mergedConfig.retrieveOption(OPTION_RESOLUTION_SELECTOR);
+
+        assertThat(mergedResolutionSelector.getAspectRatioStrategy()).isEqualTo(
+                AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY);
+        assertThat(mergedResolutionSelector.getResolutionStrategy()).isEqualTo(
+                ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY);
+        assertThat(mergedResolutionSelector.getResolutionFilter()).isEqualTo(resolutionFilter);
     }
 
 }

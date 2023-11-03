@@ -80,11 +80,11 @@ import androidx.recyclerview.widget.RecyclerView;
  * <p>The following sample code shows a simple settings screen using an XML resource. The XML
  * resource is as follows:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml preferences}
+ * {@sample samples/SupportPreferenceDemos/src/main/res/xml/preferences.xml preferences}
  *
  * <p>The fragment that loads the XML resource is as follows:</p>
  *
- * {@sample frameworks/support/samples/SupportPreferenceDemos/src/main/java/com/example/androidx/preference/Preferences.java preferences}
+ * {@sample samples/SupportPreferenceDemos/src/main/java/com/example/androidx/preference/Preferences.java preferences}
  *
  * @see Preference
  * @see PreferenceScreen
@@ -541,14 +541,12 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
 
     /**
      * Used by Settings.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void onBindPreferences() {}
 
     /**
      * Used by Settings.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void onUnbindPreferences() {}
@@ -685,7 +683,6 @@ public abstract class PreferenceFragmentCompat extends Fragment implements
      * A wrapper for getParentFragment which is v17+. Used by the leanback preference lib.
      *
      * @return The {@link Fragment} to possibly use as a callback
-     * @hide
      */
     @Nullable
     @RestrictTo(LIBRARY_GROUP_PREFIX)

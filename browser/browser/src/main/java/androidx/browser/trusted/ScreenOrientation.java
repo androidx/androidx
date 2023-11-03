@@ -31,7 +31,6 @@ public final class ScreenOrientation {
     private ScreenOrientation() {}
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({

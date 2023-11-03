@@ -39,6 +39,7 @@ import androidx.lifecycle.LifecycleOwner;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.List;
@@ -295,11 +296,16 @@ public class ScreenManager implements Manager {
         mScreenStack.clear();
     }
 
-    /** @hide */
     @NonNull
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
-    protected Deque<Screen> getScreenStack() {
+    protected Deque<Screen> getScreenStackInternal() {
         return mScreenStack;
+    }
+
+    /** Returns the copy of the current screen stack as a type {@link Collection} */
+    @NonNull
+    public Collection<Screen> getScreenStack() {
+        return new ArrayList<>(mScreenStack);
     }
 
     private boolean foundMarker(String marker) {
@@ -421,7 +427,6 @@ public class ScreenManager implements Manager {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     protected ScreenManager(@NonNull CarContext carContext, @NonNull Lifecycle lifecycle) {
         mCarContext = carContext;
@@ -437,7 +442,7 @@ public class ScreenManager implements Manager {
 
         @Override
         public void onStart(@NonNull LifecycleOwner lifecycleOwner) {
-            Screen top = getScreenStack().peek();
+            Screen top = getScreenStackInternal().peek();
             if (top == null) {
                 Log.e(TAG, "Screen stack was empty during lifecycle onStart");
                 return;
@@ -447,7 +452,7 @@ public class ScreenManager implements Manager {
 
         @Override
         public void onResume(@NonNull LifecycleOwner lifecycleOwner) {
-            Screen top = getScreenStack().peek();
+            Screen top = getScreenStackInternal().peek();
             if (top == null) {
                 Log.e(TAG, "Screen stack was empty during lifecycle onResume");
                 return;
@@ -457,7 +462,7 @@ public class ScreenManager implements Manager {
 
         @Override
         public void onPause(@NonNull LifecycleOwner lifecycleOwner) {
-            Screen top = getScreenStack().peek();
+            Screen top = getScreenStackInternal().peek();
             if (top == null) {
                 Log.e(TAG, "Screen stack was empty during lifecycle onPause");
                 return;
@@ -467,7 +472,7 @@ public class ScreenManager implements Manager {
 
         @Override
         public void onStop(@NonNull LifecycleOwner lifecycleOwner) {
-            Screen top = getScreenStack().peek();
+            Screen top = getScreenStackInternal().peek();
             if (top == null) {
                 Log.e(TAG, "Screen stack was empty during lifecycle onStop");
                 return;

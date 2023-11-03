@@ -27,11 +27,13 @@ apply from: "../../buildSrc/kotlin-dsl-dependency.gradle"
 dependencies {
     implementation(findGradleKotlinDsl())
     implementation(gradleApi())
-    implementation(libs.androidGradlePluginz)
+    implementation(libs.androidGradlePluginApi)
+    implementation(libs.androidGradlePluginz) // Needed for BaseExtension, see b/268237729.
     implementation(libs.androidToolsCommon)
     implementation(libs.androidToolsRepository)
     implementation(libs.androidToolsSdkCommon)
     implementation(libs.apacheCommonIo)
+    implementation(libs.apacheAnt)
     implementation(libs.guava)
     implementation(libs.kotlinStdlib)
 

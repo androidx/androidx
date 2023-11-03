@@ -33,7 +33,6 @@ import androidx.wear.watchface.data.DeviceConfig;
 /**
  * Parameters for {@link IWatchFaceControlService#createHeadlessWatchFaceInstance}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize

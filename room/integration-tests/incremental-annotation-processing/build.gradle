@@ -33,6 +33,7 @@ dependencies {
 SdkResourceGenerator.generateForHostTest(project)
 
 tasks.findByPath("test").dependsOn(
+        tasks.findByPath(":annotation:annotation:publish"),
         tasks.findByPath(":annotation:annotation-experimental:publish"),
         tasks.findByPath(":room:room-common:publish"),
         tasks.findByPath(":room:room-runtime:publish"),

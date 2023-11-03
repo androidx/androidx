@@ -1,0 +1,734 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package androidx.collection
+
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
+
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+// DO NOT MAKE CHANGES to the kotlin source file.
+//
+// This file was generated from a template in the template directory.
+// Make a change to the original template and run the generateCollections.sh script
+// to ensure the change is available on all versions of the map.
+//
+// Note that there are 3 templates for maps, one for object-to-primitive, one
+// for primitive-to-object and one for primitive-to-primitive. Also, the
+// object-to-object is ScatterMap.kt, which doesn't have a template.
+// -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+class PKeyObjectMapTest {
+    @Test
+    fun pKeyObjectMap() {
+        val map = MutablePKeyObjectMap<String>()
+        assertEquals(7, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun testEmptyPKeyObjectMap() {
+        val map = emptyPKeyObjectMap<String>()
+        assertEquals(0, map.capacity)
+        assertEquals(0, map.size)
+
+        assertSame(emptyPKeyObjectMap<String>(), map)
+    }
+
+    @Test
+    fun pKeyObjectMapFunction() {
+        val map = mutablePKeyObjectMapOf<String>()
+        assertEquals(7, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun zeroCapacityHashMap() {
+        val map = MutablePKeyObjectMap<String>(0)
+        assertEquals(0, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun pKeyObjectMapWithCapacity() {
+        // When unloading the suggested capacity, we'll fall outside of the
+        // expected bucket of 2047 entries, and we'll get 4095 instead
+        val map = MutablePKeyObjectMap<String>(1800)
+        assertEquals(4095, map.capacity)
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun pKeyObjectMapInitFunction() {
+        val map1 = pKeyObjectMapOf(
+            1KeySuffix, "World",
+        )
+        assertEquals(1, map1.size)
+        assertEquals("World", map1[1KeySuffix])
+
+        val map2 = pKeyObjectMapOf(
+            1KeySuffix, "World",
+            2KeySuffix, "Monde",
+        )
+        assertEquals(2, map2.size)
+        assertEquals("World", map2[1KeySuffix])
+        assertEquals("Monde", map2[2KeySuffix])
+
+        val map3 = pKeyObjectMapOf(
+            1KeySuffix, "World",
+            2KeySuffix, "Monde",
+            3KeySuffix, "Welt",
+        )
+        assertEquals(3, map3.size)
+        assertEquals("World", map3[1KeySuffix])
+        assertEquals("Monde", map3[2KeySuffix])
+        assertEquals("Welt", map3[3KeySuffix])
+
+        val map4 = pKeyObjectMapOf(
+            1KeySuffix, "World",
+            2KeySuffix, "Monde",
+            3KeySuffix, "Welt",
+            4KeySuffix, "Sekai",
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals("World", map4[1KeySuffix])
+        assertEquals("Monde", map4[2KeySuffix])
+        assertEquals("Welt", map4[3KeySuffix])
+        assertEquals("Sekai", map4[4KeySuffix])
+
+        val map5 = pKeyObjectMapOf(
+            1KeySuffix, "World",
+            2KeySuffix, "Monde",
+            3KeySuffix, "Welt",
+            4KeySuffix, "Sekai",
+            5KeySuffix, "Mondo",
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals("World", map5[1KeySuffix])
+        assertEquals("Monde", map5[2KeySuffix])
+        assertEquals("Welt", map5[3KeySuffix])
+        assertEquals("Sekai", map5[4KeySuffix])
+        assertEquals("Mondo", map5[5KeySuffix])
+    }
+
+    @Test
+    fun mutablePKeyObjectMapInitFunction() {
+        val map1 = mutablePKeyObjectMapOf(
+            1KeySuffix, "World",
+        )
+        assertEquals(1, map1.size)
+        assertEquals("World", map1[1KeySuffix])
+
+        val map2 = mutablePKeyObjectMapOf(
+            1KeySuffix, "World",
+            2KeySuffix, "Monde",
+        )
+        assertEquals(2, map2.size)
+        assertEquals("World", map2[1KeySuffix])
+        assertEquals("Monde", map2[2KeySuffix])
+
+        val map3 = mutablePKeyObjectMapOf(
+            1KeySuffix, "World",
+            2KeySuffix, "Monde",
+            3KeySuffix, "Welt",
+        )
+        assertEquals(3, map3.size)
+        assertEquals("World", map3[1KeySuffix])
+        assertEquals("Monde", map3[2KeySuffix])
+        assertEquals("Welt", map3[3KeySuffix])
+
+        val map4 = mutablePKeyObjectMapOf(
+            1KeySuffix, "World",
+            2KeySuffix, "Monde",
+            3KeySuffix, "Welt",
+            4KeySuffix, "Sekai",
+        )
+
+        assertEquals(4, map4.size)
+        assertEquals("World", map4[1KeySuffix])
+        assertEquals("Monde", map4[2KeySuffix])
+        assertEquals("Welt", map4[3KeySuffix])
+        assertEquals("Sekai", map4[4KeySuffix])
+
+        val map5 = mutablePKeyObjectMapOf(
+            1KeySuffix, "World",
+            2KeySuffix, "Monde",
+            3KeySuffix, "Welt",
+            4KeySuffix, "Sekai",
+            5KeySuffix, "Mondo",
+        )
+
+        assertEquals(5, map5.size)
+        assertEquals("World", map5[1KeySuffix])
+        assertEquals("Monde", map5[2KeySuffix])
+        assertEquals("Welt", map5[3KeySuffix])
+        assertEquals("Sekai", map5[4KeySuffix])
+        assertEquals("Mondo", map5[5KeySuffix])
+    }
+
+    @Test
+    fun addToMap() {
+        val map = MutablePKeyObjectMap<String>()
+        map[1KeySuffix] = "World"
+
+        assertEquals(1, map.size)
+        assertEquals("World", map[1KeySuffix])
+    }
+
+    @Test
+    fun insertIndex0() {
+        val map = MutablePKeyObjectMap<String>()
+        map.put(1KeySuffix, "World")
+        assertEquals("World", map[1KeySuffix])
+    }
+
+    @Test
+    fun addToSizedMap() {
+        val map = MutablePKeyObjectMap<String>(12)
+        map[1KeySuffix] = "World"
+
+        assertEquals(1, map.size)
+        assertEquals("World", map[1KeySuffix])
+    }
+
+    @Test
+    fun addToSmallMap() {
+        val map = MutablePKeyObjectMap<String>(2)
+        map[1KeySuffix] = "World"
+
+        assertEquals(1, map.size)
+        assertEquals(7, map.capacity)
+        assertEquals("World", map[1KeySuffix])
+    }
+
+    @Test
+    fun addToZeroCapacityMap() {
+        val map = MutablePKeyObjectMap<String>(0)
+        map[1KeySuffix] = "World"
+
+        assertEquals(1, map.size)
+        assertEquals("World", map[1KeySuffix])
+    }
+
+    @Test
+    fun replaceExistingKey() {
+        val map = MutablePKeyObjectMap<String>()
+        map[1KeySuffix] = "World"
+        map[1KeySuffix] = "Monde"
+
+        assertEquals(1, map.size)
+        assertEquals("Monde", map[1KeySuffix])
+    }
+
+    @Test
+    fun put() {
+        val map = MutablePKeyObjectMap<String?>()
+
+        assertNull(map.put(1KeySuffix, "World"))
+        assertEquals("World", map.put(1KeySuffix, "Monde"))
+        assertNull(map.put(2KeySuffix, null))
+        assertNull(map.put(2KeySuffix, "Monde"))
+    }
+
+    @Test
+    fun putAllMap() {
+        val map = MutablePKeyObjectMap<String?>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = null
+
+        map.putAll(mutablePKeyObjectMapOf(3KeySuffix, "Welt", 7KeySuffix, "Mundo"))
+
+        assertEquals(4, map.size)
+        assertEquals("Welt", map[3KeySuffix])
+        assertEquals("Mundo", map[7KeySuffix])
+    }
+
+    @Test
+    fun plusMap() {
+        val map = MutablePKeyObjectMap<String>()
+        map += pKeyObjectMapOf(3KeySuffix, "Welt", 7KeySuffix, "Mundo")
+
+        assertEquals(2, map.size)
+        assertEquals("Welt", map[3KeySuffix])
+        assertEquals("Mundo", map[7KeySuffix])
+    }
+
+    @Test
+    fun nullValue() {
+        val map = MutablePKeyObjectMap<String?>()
+        map[1KeySuffix] = null
+
+        assertEquals(1, map.size)
+        assertNull(map[1KeySuffix])
+    }
+
+    @Test
+    fun findNonExistingKey() {
+        val map = MutablePKeyObjectMap<String?>()
+        map[1KeySuffix] = "World"
+
+        assertNull(map[2KeySuffix])
+    }
+
+    @Test
+    fun getOrDefault() {
+        val map = MutablePKeyObjectMap<String?>()
+        map[1KeySuffix] = "World"
+
+        assertEquals("Monde", map.getOrDefault(2KeySuffix, "Monde"))
+    }
+
+    @Test
+    fun getOrElse() {
+        val map = MutablePKeyObjectMap<String?>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = null
+
+        assertEquals("Monde", map.getOrElse(2KeySuffix) { "Monde" })
+        assertEquals("Welt", map.getOrElse(3KeySuffix) { "Welt" })
+    }
+
+    @Test
+    fun getOrPut() {
+        val map = MutablePKeyObjectMap<String?>()
+        map[1KeySuffix] = "World"
+
+        var counter = 0
+        map.getOrPut(1KeySuffix) {
+            counter++
+            "Monde"
+        }
+        assertEquals("World", map[1KeySuffix])
+        assertEquals(0, counter)
+
+        map.getOrPut(2KeySuffix) {
+            counter++
+            "Monde"
+        }
+        assertEquals("Monde", map[2KeySuffix])
+        assertEquals(1, counter)
+
+        map.getOrPut(2KeySuffix) {
+            counter++
+            "Welt"
+        }
+        assertEquals("Monde", map[2KeySuffix])
+        assertEquals(1, counter)
+
+        map.getOrPut(3KeySuffix) {
+            counter++
+            null
+        }
+        assertNull(map[3KeySuffix])
+        assertEquals(2, counter)
+
+        map.getOrPut(3KeySuffix) {
+            counter++
+            "Welt"
+        }
+        assertEquals("Welt", map[3KeySuffix])
+        assertEquals(3, counter)
+    }
+
+    @Test
+    fun remove() {
+        val map = MutablePKeyObjectMap<String?>()
+        assertNull(map.remove(1KeySuffix))
+
+        map[1KeySuffix] = "World"
+        assertEquals("World", map.remove(1KeySuffix))
+        assertEquals(0, map.size)
+
+        map[1KeySuffix] = null
+        assertNull(map.remove(1KeySuffix))
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun removeThenAdd() {
+        // Use a size of 6 to fit in a single entry in the metadata table
+        val map = MutablePKeyObjectMap<String>(6)
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = "Monde"
+        map[3KeySuffix] = "Welt"
+        map[4KeySuffix] = "Sekai"
+        map[5KeySuffix] = "Mondo"
+        map[6KeySuffix] = "Sesang"
+
+        // Removing all the entries will mark the medata as deleted
+        map.remove(1KeySuffix)
+        map.remove(2KeySuffix)
+        map.remove(3KeySuffix)
+        map.remove(4KeySuffix)
+        map.remove(5KeySuffix)
+        map.remove(6KeySuffix)
+
+        assertEquals(0, map.size)
+
+        val capacity = map.capacity
+
+        // Make sure reinserting an entry after filling the table
+        // with "Deleted" markers works
+        map[7KeySuffix] = "Mundo"
+
+        assertEquals(1, map.size)
+        assertEquals(capacity, map.capacity)
+    }
+
+    @Test
+    fun removeIf() {
+        val map = MutablePKeyObjectMap<String>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = "Monde"
+        map[3KeySuffix] = "Welt"
+        map[4KeySuffix] = "Sekai"
+        map[5KeySuffix] = "Mondo"
+        map[6KeySuffix] = "Sesang"
+
+        map.removeIf { key, value ->
+            key == 1KeySuffix || key == 3KeySuffix || value.startsWith('S')
+        }
+
+        assertEquals(2, map.size)
+        assertEquals("Monde", map[2KeySuffix])
+        assertEquals("Mondo", map[5KeySuffix])
+    }
+
+    @Test
+    fun minus() {
+        val map = MutablePKeyObjectMap<String>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = "Monde"
+        map[3KeySuffix] = "Welt"
+
+        map -= 1KeySuffix
+
+        assertEquals(2, map.size)
+        assertNull(map[1KeySuffix])
+    }
+
+    @Test
+    fun minusArray() {
+        val map = MutablePKeyObjectMap<String>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = "Monde"
+        map[3KeySuffix] = "Welt"
+
+        map -= pKeyArrayOf(3KeySuffix, 2KeySuffix)
+
+        assertEquals(1, map.size)
+        assertNull(map[3KeySuffix])
+        assertNull(map[2KeySuffix])
+    }
+
+    @Test
+    fun minusSet() {
+        val map = MutablePKeyObjectMap<String>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = "Monde"
+        map[3KeySuffix] = "Welt"
+
+        map -= pKeySetOf(3KeySuffix, 2KeySuffix)
+
+        assertEquals(1, map.size)
+        assertNull(map[3KeySuffix])
+        assertNull(map[2KeySuffix])
+    }
+
+    @Test
+    fun minusList() {
+        val map = MutablePKeyObjectMap<String>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = "Monde"
+        map[3KeySuffix] = "Welt"
+
+        map -= pKeyListOf(3KeySuffix, 2KeySuffix)
+
+        assertEquals(1, map.size)
+        assertNull(map[3KeySuffix])
+        assertNull(map[2KeySuffix])
+    }
+
+    @Test
+    fun conditionalRemove() {
+        val map = MutablePKeyObjectMap<String?>()
+        assertFalse(map.remove(1KeySuffix, "World"))
+
+        map[1KeySuffix] = "World"
+        assertTrue(map.remove(1KeySuffix, "World"))
+        assertEquals(0, map.size)
+    }
+
+    @Test
+    fun insertManyEntries() {
+        val map = MutablePKeyObjectMap<String>()
+
+        for (i in 0 until 1700) {
+            map[i.toPKey()] = i.toString()
+        }
+
+        assertEquals(1700, map.size)
+    }
+
+    @Test
+    fun forEach() {
+        for (i in 0..48) {
+            val map = MutablePKeyObjectMap<String>()
+
+            for (j in 0 until i) {
+                map[j.toPKey()] = j.toString()
+            }
+
+            var counter = 0
+            map.forEach { key, value ->
+                assertEquals(key.toInt().toString(), value)
+                counter++
+            }
+
+            assertEquals(i, counter)
+        }
+    }
+
+    @Test
+    fun forEachKey() {
+        for (i in 0..48) {
+            val map = MutablePKeyObjectMap<String>()
+
+            for (j in 0 until i) {
+                map[j.toPKey()] = j.toString()
+            }
+
+            var counter = 0
+            map.forEachKey { key ->
+                assertEquals(key.toInt().toString(), map[key])
+                counter++
+            }
+
+            assertEquals(i, counter)
+        }
+    }
+
+    @Test
+    fun forEachValue() {
+        for (i in 0..48) {
+            val map = MutablePKeyObjectMap<String>()
+
+            for (j in 0 until i) {
+                map[j.toPKey()] = j.toString()
+            }
+
+            var counter = 0
+            map.forEachValue { value ->
+                assertNotNull(value.toIntOrNull())
+                counter++
+            }
+
+            assertEquals(i, counter)
+        }
+    }
+
+    @Test
+    fun clear() {
+        val map = MutablePKeyObjectMap<String>()
+
+        for (i in 0 until 32) {
+            map[i.toPKey()] = i.toString()
+        }
+
+        val capacity = map.capacity
+        map.clear()
+
+        assertEquals(0, map.size)
+        assertEquals(capacity, map.capacity)
+    }
+
+    @Test
+    fun string() {
+        val map = MutablePKeyObjectMap<String?>()
+        assertEquals("{}", map.toString())
+
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = "Monde"
+        val oneKey = 1KeySuffix.toString()
+        val twoKey = 2KeySuffix.toString()
+        assertTrue(
+            "{$oneKey=World, $twoKey=Monde}" == map.toString() ||
+                "{$twoKey=Monde, $oneKey=World}" == map.toString()
+        )
+
+        map.clear()
+        map[1KeySuffix] = null
+        assertEquals("{$oneKey=null}", map.toString())
+
+        val selfAsValueMap = MutablePKeyObjectMap<Any>()
+        selfAsValueMap[1KeySuffix] = selfAsValueMap
+        assertEquals("{$oneKey=(this)}", selfAsValueMap.toString())
+    }
+
+    @Test
+    fun joinToString() {
+        val map = MutablePKeyObjectMap<String>()
+        repeat(5) {
+            map[it.toPKey()] = it.toString()
+        }
+        val order = IntArray(5)
+        var index = 0
+        map.forEach { key, _ ->
+            order[index++] = key.toInt()
+        }
+        assertEquals(
+            "${order[0].toPKey()}=${order[0]}, ${order[1].toPKey()}=${order[1]}, " +
+            "${order[2].toPKey()}=${order[2]}, ${order[3].toPKey()}=${order[3]}, " +
+            "${order[4].toPKey()}=${order[4]}",
+            map.joinToString()
+        )
+        assertEquals(
+            "x${order[0].toPKey()}=${order[0]}, ${order[1].toPKey()}=${order[1]}, " +
+            "${order[2].toPKey()}=${order[2]}...",
+            map.joinToString(prefix = "x", postfix = "y", limit = 3)
+        )
+        assertEquals(
+            ">${order[0].toPKey()}=${order[0]}-${order[1].toPKey()}=${order[1]}-" +
+            "${order[2].toPKey()}=${order[2]}-${order[3].toPKey()}=${order[3]}-" +
+            "${order[4].toPKey()}=${order[4]}<",
+            map.joinToString(separator = "-", prefix = ">", postfix = "<")
+        )
+        val names = arrayOf("one", "two", "three", "four", "five")
+        assertEquals(
+            "${names[order[0]]}, ${names[order[1]]}, ${names[order[2]]}...",
+            map.joinToString(limit = 3) { key, _ -> names[key.toInt()] }
+        )
+    }
+
+    @Test
+    fun equals() {
+        val map = MutablePKeyObjectMap<String?>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = null
+
+        assertFalse(map.equals(null))
+        assertEquals(map, map)
+
+        val map2 = MutablePKeyObjectMap<String?>()
+        map2[2KeySuffix] = null
+
+        assertNotEquals(map, map2)
+
+        map2[1KeySuffix] = "World"
+        assertEquals(map, map2)
+    }
+
+    @Test
+    fun containsKey() {
+        val map = MutablePKeyObjectMap<String?>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = null
+
+        assertTrue(map.containsKey(1KeySuffix))
+        assertFalse(map.containsKey(3KeySuffix))
+    }
+
+    @Test
+    fun contains() {
+        val map = MutablePKeyObjectMap<String?>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = null
+
+        assertTrue(1KeySuffix in map)
+        assertFalse(3KeySuffix in map)
+    }
+
+    @Test
+    fun containsValue() {
+        val map = MutablePKeyObjectMap<String?>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = null
+
+        assertTrue(map.containsValue("World"))
+        assertTrue(map.containsValue(null))
+        assertFalse(map.containsValue("Monde"))
+    }
+
+    @Test
+    fun empty() {
+        val map = MutablePKeyObjectMap<String?>()
+        assertTrue(map.isEmpty())
+        assertFalse(map.isNotEmpty())
+        assertTrue(map.none())
+        assertFalse(map.any())
+
+        map[1KeySuffix] = "World"
+
+        assertFalse(map.isEmpty())
+        assertTrue(map.isNotEmpty())
+        assertTrue(map.any())
+        assertFalse(map.none())
+    }
+
+    @Test
+    fun count() {
+        val map = MutablePKeyObjectMap<String>()
+        assertEquals(0, map.count())
+
+        map[1KeySuffix] = "World"
+        assertEquals(1, map.count())
+
+        map[2KeySuffix] = "Monde"
+        map[3KeySuffix] = "Welt"
+        map[4KeySuffix] = "Sekai"
+        map[5KeySuffix] = "Mondo"
+        map[6KeySuffix] = "Sesang"
+
+        assertEquals(2, map.count { key, _ -> key < 3KeySuffix })
+        assertEquals(0, map.count { key, _ -> key < 0KeySuffix })
+    }
+
+    @Test
+    fun any() {
+        val map = MutablePKeyObjectMap<String>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = "Monde"
+        map[3KeySuffix] = "Welt"
+        map[4KeySuffix] = "Sekai"
+        map[5KeySuffix] = "Mondo"
+        map[6KeySuffix] = "Sesang"
+
+        assertTrue(map.any { key, _ -> key > 5KeySuffix })
+        assertFalse(map.any { key, _ -> key < 0KeySuffix })
+    }
+
+    @Test
+    fun all() {
+        val map = MutablePKeyObjectMap<String>()
+        map[1KeySuffix] = "World"
+        map[2KeySuffix] = "Monde"
+        map[3KeySuffix] = "Welt"
+        map[4KeySuffix] = "Sekai"
+        map[5KeySuffix] = "Mondo"
+        map[6KeySuffix] = "Sesang"
+
+        assertTrue(map.all { key, value -> key < 7KeySuffix && value.isNotEmpty() })
+        assertFalse(map.all { key, _ -> key < 6KeySuffix })
+    }
+}

@@ -37,13 +37,15 @@ internal constructor(
 
     public companion object {
         /**
-         * Batching mode for receiving [DataType.HEART_RATE_BPM] updates with fast frequency.
+         * Deliver smaller and more frequent batches of [DataType.HEART_RATE_BPM] when the device is
+         * not interactive (e.g. screen is off).
          *
-         * Note: This mode will cause significantly increased power consumption compared to the
-         * default batching mode, while still being more power efficient than streaming when in
-         * non-interactive state. The exact power/performance tradeoff of this mode is device
-         * implementation dependent and batched updates may be aligned with other wake ups but
-         * target five second updates.
+         * This setting significantly increases power consumption, and is intended to be used by
+         * apps which need to send data to a separate device (e.g. a connected phone or TV) for
+         * real-time visualisation. It has no effect if the device is interactive.
+         *
+         * The exact power/performance tradeoff of this mode is device implementation dependent and
+         * batched updates may be aligned with other wake ups but target five second updates.
          */
         @JvmField public val HEART_RATE_5_SECONDS: BatchingMode = BatchingMode(1)
 

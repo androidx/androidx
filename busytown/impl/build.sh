@@ -20,9 +20,9 @@ mkdir -p "$DIST_DIR"
 export DIST_DIR="$DIST_DIR"
 if [ "$CHANGE_INFO" != "" ]; then
   cp "$CHANGE_INFO" "$DIST_DIR/"
-fi
-if [ "$MANIFEST" == "" ]; then
-  export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
+  if [ "$MANIFEST" == "" ]; then
+    export MANIFEST="$DIST_DIR/manifest_${BUILD_NUMBER}.xml"
+  fi
 fi
 
 # parse arguments
@@ -31,6 +31,13 @@ if [ "$1" == "--diagnose" ]; then
   shift
 else
   DIAGNOSE=false
+fi
+if [ "$1" == "--diagnose-timeout" ]; then
+  shift
+  DIAGNOSE_TIMEOUT_ARG="--timeout $1"
+  shift
+else
+  DIAGNOSE_TIMEOUT_ARG=""
 fi
 
 # record the build start time
@@ -49,9 +56,7 @@ function run() {
   if eval "$*"; then
     return 0
   else
-    echo >&2
     echo "Gradle command failed:" >&2
-    echo >&2
     # Echo the Gradle command formatted for ease of reading.
     # Put each argument on its own line because some arguments may be long.
     # Also put "\" at the end of non-final lines so the command can be copy-pasted
@@ -84,9 +89,34 @@ function areNativeLibsNewEnoughForKonan() {
 }
 if ! areNativeLibsNewEnoughForKonan; then
   KONAN_HOST_LIBS="$OUT_DIR/konan-host-libs"
-  $SCRIPT_DIR/prepare-linux-sysroot.sh "$KONAN_HOST_LIBS"
-  export LD_LIBRARY_PATH=$KONAN_HOST_LIBS
+  LOG="$KONAN_HOST_LIBS.log"
+  if $SCRIPT_DIR/prepare-linux-sysroot.sh "$KONAN_HOST_LIBS" > $LOG 2>$LOG; then
+    export LD_LIBRARY_PATH=$KONAN_HOST_LIBS
+  else
+    cat $LOG >&2
+    exit 1
+  fi
 fi
+
+# list kotlin sessions in case there are several, b/279739438
+function checkForLeftoverKotlinSessions() {
+  KOTLIN_SESSIONS_DIR=$OUT_DIR/gradle-project-cache/kotlin/sessions
+  NUM_KOTLIN_SESSIONS="$(ls $KOTLIN_SESSIONS_DIR 2>/dev/null | wc -l)"
+  if [ "$NUM_KOTLIN_SESSIONS" -gt 0 ]; then
+    echo "Found $NUM_KOTLIN_SESSIONS leftover kotlin sessions in $KOTLIN_SESSIONS_DIR"
+  fi
+}
+checkForLeftoverKotlinSessions
+
+# list java processes to check for any running kotlin daemons, b/282228230
+function listJavaProcesses() {
+  echo "All java processes:"
+  ps -ef | grep /java || true
+}
+listJavaProcesses
+
+# launch a process to monitor for timeouts
+busytown/impl/monitor.sh 3600 busytown/impl/showJavaStacks.sh &
 
 # run the build
 if run ./gradlew --ci "$@"; then
@@ -99,16 +129,11 @@ else
     # We probably won't have enough time to fully diagnose the problem given this timeout, but
     # we might be able to determine whether this problem is reproducible enough for a developer to
     # more easily investigate further
-    ./development/diagnose-build-failure/diagnose-build-failure.sh --timeout 600 "--ci $*"
-  fi
-  if grep "/prefab" "$DIST_DIR/logs/gradle.log" >/dev/null 2>/dev/null; then
-    # error looks like it might have involved prefab, copy the prefab dir to DIST where we can find it
-    if [ -e "$OUT_DIR/androidx/external/libyuv/build" ]; then
-      cd "$OUT_DIR/androidx/external/libyuv/build"
-      echo "Zipping $PWD into $DIST_DIR/libyuv-build.zip"
-      zip -qr "$DIST_DIR/libyuv-build.zip" .
-      cd -
-    fi
+    ./development/diagnose-build-failure/diagnose-build-failure.sh $DIAGNOSE_TIMEOUT_ARG "--ci $*" || true
+    scansPrevDir="$DIST_DIR/scans-prev"
+    mkdir -p "$scansPrevDir"
+    # restore any prior build scans into the dist dir
+    cp ../../diagnose-build-failure/prev/dist/scan*.zip "$scansPrevDir/" || true
   fi
   BUILD_STATUS=1 # failure
 fi

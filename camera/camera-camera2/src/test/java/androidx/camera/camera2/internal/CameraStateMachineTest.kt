@@ -26,6 +26,7 @@ import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.CameraStateRegistry
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
 import androidx.lifecycle.Observer
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -43,9 +44,11 @@ internal class CameraStateMachineTest {
     @get:Rule
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
+    private val cameraCoordinator = FakeCameraCoordinator()
+
     /** Wrapper method that initializes the required test parameters, then runs the test's body. */
     private fun runTest(body: (CameraStateMachine, StateObserver) -> Unit) {
-        val registry = CameraStateRegistry(1)
+        val registry = CameraStateRegistry(cameraCoordinator, 1)
         val stateMachine = CameraStateMachine(registry)
         val stateObserver = StateObserver()
         stateMachine.stateLiveData.observeForever(stateObserver)
@@ -113,6 +116,20 @@ internal class CameraStateMachineTest {
         }
 
     @Test
+    fun shouldNotEmitNewState_whenInConfiguredState() =
+        runTest { stateMachine, stateObserver ->
+            stateMachine.updateState(CameraInternal.State.OPENING, null)
+            stateMachine.updateState(CameraInternal.State.OPEN, null)
+            stateMachine.updateState(CameraInternal.State.CONFIGURED, null)
+
+            stateObserver
+                .assertHasState(CameraState.create(Type.CLOSED))
+                .assertHasState(CameraState.create(Type.OPENING))
+                .assertHasState(CameraState.create(Type.OPEN))
+                .assertHasNoMoreStates()
+        }
+
+    @Test
     fun shouldEmitNewState_whenErrorChanges() =
         runTest { stateMachine, stateObserver ->
             stateMachine.updateState(
@@ -143,12 +160,12 @@ internal class CameraStateMachineTest {
 
     @Test
     fun shouldEmitOpeningState_whenCameraIsOpening_whileAnotherIsClosing() {
-        val registry = CameraStateRegistry(1)
+        val registry = CameraStateRegistry(cameraCoordinator, 1)
         val stateMachine = CameraStateMachine(registry)
 
         // Create, open then start closing first camera
         val camera1 = FakeCamera()
-        registry.registerCamera(camera1, CameraXExecutors.directExecutor(), {})
+        registry.registerCamera(camera1, CameraXExecutors.directExecutor(), {}, {})
         registry.tryOpenCamera(camera1)
         registry.markCameraState(camera1, CameraInternal.State.OPEN)
         registry.markCameraState(camera1, CameraInternal.State.CLOSING)
@@ -156,7 +173,7 @@ internal class CameraStateMachineTest {
         // Create and try to open second camera. Since the first camera is still closing, its
         // internal state will move to PENDING_OPEN
         val camera2 = FakeCamera()
-        registry.registerCamera(camera2, CameraXExecutors.directExecutor(), {})
+        registry.registerCamera(camera2, CameraXExecutors.directExecutor(), {}, {})
         registry.tryOpenCamera(camera2)
         registry.markCameraState(camera2, CameraInternal.State.PENDING_OPEN)
 

@@ -29,8 +29,8 @@ dependencies {
     api(libs.guavaListenableFuture)
     api("androidx.annotation:annotation-experimental:1.1.0")
     api(libs.kotlinStdlib) // Added for annotation-experimental
+    api("androidx.core:core:1.1.0")
     implementation("androidx.exifinterface:exifinterface:1.3.2")
-    implementation("androidx.core:core:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.lifecycle:lifecycle-common:2.1.0")
     implementation(libs.autoValueAnnotations)
@@ -47,6 +47,9 @@ dependencies {
     testImplementation(libs.truth)
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
+    testImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
+    testImplementation(project(":internal-testutils-truth"))
+    testImplementation(project(":camera:camera-camera2"))
     testImplementation(project(":camera:camera-testing"), {
         exclude group: "androidx.camera", module: "camera-core"
     })
@@ -60,7 +63,10 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it's own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it's own MockMaker
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
@@ -80,6 +86,10 @@ android {
                                 "-Wl,--version-script=${versionScript}"
             }
         }
+    }
+
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
     }
 
     buildFeatures.prefab = true
@@ -104,14 +114,18 @@ android {
     namespace "androidx.camera.core"
 }
 
+tasks.withType(Test).configureEach { test ->
+    test.maxParallelForks(2)
+}
+
 androidx {
-    name = "Jetpack Camera Core Library"
+    name = "Camera Core"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2019"
     description = "Core components for the Jetpack Camera Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
-
+    metalavaK2UastEnabled = true
     license {
         name = "BSD License"
         url = "https://chromium.googlesource.com/libyuv/libyuv/+/refs/heads/main/README.chromium"

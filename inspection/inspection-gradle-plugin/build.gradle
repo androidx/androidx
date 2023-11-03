@@ -33,8 +33,9 @@ dependencies {
     implementation(gradleApi())
     implementation(libs.androidGradlePluginz)
     implementation(libs.kotlinStdlib)
-    implementation(libs.protobufGradlePluginz)
+    implementation(libs.protobufGradlePlugin)
     implementation(libs.shadow)
+    implementation(libs.apacheAnt)
 
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(gradleTestKit())
@@ -52,7 +53,7 @@ gradlePlugin {
 }
 
 androidx {
-    name = "Android Inspection Gradle Plugin"
+    name = "Inspection Gradle Plugin"
     type = LibraryType.GRADLE_PLUGIN
     publish = Publish.NONE
     inceptionYear = "2019"

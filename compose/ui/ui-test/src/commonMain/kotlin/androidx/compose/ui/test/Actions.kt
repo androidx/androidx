@@ -34,7 +34,6 @@ import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
-import kotlin.jvm.JvmName
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -48,7 +47,8 @@ internal expect fun SemanticsNodeInteraction.performClickImpl(): SemanticsNodeIn
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  */
 fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
-    return performClickImpl()
+    @OptIn(ExperimentalTestApi::class)
+    return this.invokeGlobalAssertions().performClickImpl()
 }
 
 /**
@@ -66,6 +66,8 @@ fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
  * @return The [SemanticsNodeInteraction] that is the receiver of this method
  */
 fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
+    @OptIn(ExperimentalTestApi::class)
+    invokeGlobalAssertions()
     @OptIn(InternalTestApi::class)
     fetchSemanticsNode("Action performScrollTo() failed.").scrollToNode(testContext.testOwner)
     return this
@@ -130,6 +132,8 @@ private fun SemanticsNode.scrollToNode(testOwner: TestOwner) {
  * @see hasScrollToIndexAction
  */
 fun SemanticsNodeInteraction.performScrollToIndex(index: Int): SemanticsNodeInteraction {
+    @OptIn(ExperimentalTestApi::class)
+    invokeGlobalAssertions()
     fetchSemanticsNode("Failed: performScrollToIndex($index)").scrollToIndex(index, this)
     return this
 }
@@ -164,6 +168,8 @@ private fun SemanticsNode.scrollToIndex(index: Int, nodeInteraction: SemanticsNo
  * @see hasScrollToKeyAction
  */
 fun SemanticsNodeInteraction.performScrollToKey(key: Any): SemanticsNodeInteraction {
+    @OptIn(ExperimentalTestApi::class)
+    invokeGlobalAssertions()
     val node = fetchSemanticsNode("Failed: performScrollToKey(\"$key\")")
     requireSemantics(node, IndexForKey, ScrollToIndex) {
         "Failed to scroll to the item identified by \"$key\""
@@ -214,6 +220,8 @@ fun SemanticsNodeInteraction.performScrollToKey(key: Any): SemanticsNodeInteract
 fun SemanticsNodeInteraction.performScrollToNode(
     matcher: SemanticsMatcher
 ): SemanticsNodeInteraction {
+    @OptIn(ExperimentalTestApi::class)
+    invokeGlobalAssertions()
     var node = fetchSemanticsNode("Failed: performScrollToNode(${matcher.description})")
     matcher.findMatchInDescendants(node)?.also {
         @OptIn(InternalTestApi::class)
@@ -355,6 +363,8 @@ fun SemanticsNodeInteraction.performGesture(
 fun SemanticsNodeInteraction.performTouchInput(
     block: TouchInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
+    @OptIn(ExperimentalTestApi::class)
+    invokeGlobalAssertions()
     val node = fetchSemanticsNode("Failed to inject touch input.")
     with(MultiModalInjectionScopeImpl(node, testContext)) {
         try {
@@ -404,6 +414,8 @@ fun SemanticsNodeInteraction.performTouchInput(
 fun SemanticsNodeInteraction.performMouseInput(
     block: MouseInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
+    @OptIn(ExperimentalTestApi::class)
+    invokeGlobalAssertions()
     val node = fetchSemanticsNode("Failed to inject mouse input.")
     with(MultiModalInjectionScopeImpl(node, testContext)) {
         try {
@@ -443,6 +455,8 @@ fun SemanticsNodeInteraction.performMouseInput(
 fun SemanticsNodeInteraction.performKeyInput(
     block: KeyInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
+    @OptIn(ExperimentalTestApi::class)
+    invokeGlobalAssertions()
     val node = fetchSemanticsNode("Failed to inject key input.")
     with(MultiModalInjectionScopeImpl(node, testContext)) {
         try {
@@ -503,6 +517,13 @@ fun SemanticsNodeInteraction.performMultiModalInput(
     }
     return this
 }
+
+/**
+ * Requests the focus system to give focus to this node by invoking the
+ * [RequestFocus][SemanticsActions.RequestFocus] semantics action.
+ */
+fun SemanticsNodeInteraction.requestFocus(): SemanticsNodeInteraction =
+    performSemanticsAction(SemanticsActions.RequestFocus)
 
 @Deprecated(
     message = "Replaced with same function, but with SemanticsNodeInteraction as return type",
@@ -591,6 +612,8 @@ fun SemanticsNodeInteraction.performSemanticsAction(
 fun SemanticsNodeInteraction.performRotaryScrollInput(
     block: RotaryInjectionScope.() -> Unit
 ): SemanticsNodeInteraction {
+    @OptIn(ExperimentalTestApi::class)
+    invokeGlobalAssertions()
     val node = fetchSemanticsNode("Failed to send rotary Event")
     with(MultiModalInjectionScopeImpl(node, testContext)) {
         try {

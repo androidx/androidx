@@ -30,15 +30,17 @@ import android.os.Bundle
  * Note: The Bundle keys for [data] should not be in the form of `androidx.credentials.*` as they
  * are reserved for internal use by this androidx library.
  *
- * @property type the credential type determined by the credential-type-specific subclass for custom
+ * @param type the credential type determined by the credential-type-specific subclass for custom
  * use cases
- * @property data the credential data in the [Bundle] format for custom use cases
+ * @param data the credential data in the [Bundle] format for custom use cases (note: bundle keys in
+ * the form of `androidx.credentials.*` and `android.credentials.*` are reserved for internal
+ * library usage)
  * @throws IllegalArgumentException If [type] is empty
  * @throws NullPointerException If [data] or [type] is null
  */
 open class CustomCredential(
-    final override val type: String,
-    final override val data: Bundle
+    type: String,
+    data: Bundle
 ) : Credential(type, data) {
 
     init {

@@ -16,8 +16,6 @@
 
 package androidx.compose.animation.core
 
-import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
-
 /**
  * This interface provides a convenient way to query from an [VectorizedAnimationSpec] or
  * [FloatDecayAnimationSpec]: It spares the need to pass the starting conditions and in some cases
@@ -33,6 +31,7 @@ import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
  * stateful and manage their own lifecycles.
  *
  * @see [Animatable]
+ * @see [rememberTransition]
  * @see [updateTransition]
  */
 @JvmDefaultWithCompatibility
@@ -91,6 +90,8 @@ internal val Animation<*, *>.durationMillis: Long
 
 internal const val MillisToNanos: Long = 1_000_000L
 
+internal const val SecondsToMillis: Long = 1_000L
+
 /**
  * Returns the velocity of the animation at the given play time.
  *
@@ -108,7 +109,6 @@ fun <T, V : AnimationVector> Animation<T, V>.getVelocityFromNanos(playTimeNanos:
  * @param initialVelocity the initial velocity to start the animation at
  * @suppress
  */
-/*@VisibleForTesting(otherwise = PACKAGE_PRIVATE)*/
 fun <V : AnimationVector> VectorizedAnimationSpec<V>.createAnimation(
     initialValue: V,
     targetValue: V,
@@ -178,6 +178,7 @@ fun <T, V : AnimationVector> TargetBasedAnimation(
  * @param initialVelocityVector the start velocity of the animation in the form of [AnimationVector]
  *
  * @see [Transition]
+ * @see [rememberTransition]
  * @see [updateTransition]
  * @see [Animatable]
  */

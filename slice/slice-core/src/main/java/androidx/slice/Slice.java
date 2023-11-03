@@ -51,7 +51,6 @@ import static androidx.slice.core.SliceHints.HINT_RAW;
 import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION;
 import static androidx.slice.core.SliceHints.HINT_SHOW_LABEL;
 
-import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.app.slice.SliceManager;
@@ -91,9 +90,14 @@ import java.util.Set;
  * <p>Slices are constructed using {@link androidx.slice.builders.TemplateSliceBuilder}s
  * in a tree structure that provides the OS some information about how the content should be
  * displayed.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @VersionedParcelize(allowSerialization = true, isCustom = true)
 @RequiresApi(19)
+@Deprecated
 public final class Slice extends CustomVersionedParcelable implements VersionedParcelable {
 
     /**
@@ -105,7 +109,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      * Subtype to tag an item as representing the progress bar mode for a
      * {@link android.app.slice.Slice#SUBTYPE_RANGE}
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final String SUBTYPE_RANGE_MODE = "range_mode";
@@ -120,7 +123,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     static final SliceItem[] NO_ITEMS = new SliceItem[0];
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @StringDef({
@@ -164,7 +166,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     String mUri = null;
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     Slice(ArrayList<SliceItem> items, @SliceHint String[] hints, Uri uri,
@@ -177,14 +178,12 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
 
     /**
      * Used for VersionedParcelable
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public Slice() {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     @SuppressWarnings("deprecation")
@@ -204,7 +203,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     }
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public @NonNull Bundle toBundle() {
@@ -225,7 +223,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
 
     /**
      * @return The spec for this slice
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public @Nullable SliceSpec getSpec() {
@@ -247,7 +244,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     }
 
     /**
-     * @hide
      * @return
      */
     @RestrictTo(LIBRARY)
@@ -263,7 +259,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public @NonNull @SliceHint String[] getHintArray() {
@@ -271,7 +266,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     }
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     public boolean hasHint(@NonNull @SliceHint String hint) {
@@ -279,7 +273,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Override
@@ -287,7 +280,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Override
@@ -304,7 +296,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
 
     /**
      * A Builder used to construct {@link Slice}s
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
     public static class Builder {
@@ -339,7 +330,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
 
         /**
          * Add the spec for this slice.
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         public @NonNull Builder setSpec(@Nullable SliceSpec spec) {
@@ -462,7 +452,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * Add remote input to the slice being constructed
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         public @NonNull Builder addRemoteInput(@NonNull RemoteInput remoteInput,
@@ -475,7 +464,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
          * Add remote input to the slice being constructed
          * @param subType Optional template-specific type information
          * @see SliceItem#getSubType()
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         public @NonNull Builder addRemoteInput(@NonNull RemoteInput remoteInput,
@@ -553,7 +541,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
 
         /**
          * Add a SliceItem to the slice being constructed.
-         * @hide
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public @NonNull Builder addItem(@NonNull SliceItem item) {
@@ -580,7 +567,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
 
     /**
      * @return A string representation of this slice.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY)
@@ -606,7 +592,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     }
 
     /**
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY)
     public static void appendHints(@NonNull StringBuilder sb, @Nullable String[] hints) {
@@ -628,7 +613,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
      * @param context Context to be used.
      * @param uri The URI to a slice provider
      * @return The Slice provided by the app or null if none is given.
-     * @hide
      * @see Slice
      */
     @RestrictTo(Scope.LIBRARY_GROUP_PREFIX)
@@ -651,7 +635,6 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     static boolean isValidIcon(IconCompat icon) {

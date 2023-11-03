@@ -330,7 +330,6 @@ internal class SidecarCompat @VisibleForTesting constructor(
      * If you change the name of this class, you must update the proguard file.
      */
     internal inner class TranslatingCallback : SidecarCallback {
-        @SuppressLint("SyntheticAccessor")
         override fun onDeviceStateChanged(newDeviceState: SidecarDeviceState) {
             windowListenerRegisteredContexts.values.forEach { activity ->
                 val layoutInfo = getActivityWindowToken(activity)
@@ -342,7 +341,6 @@ internal class SidecarCompat @VisibleForTesting constructor(
             }
         }
 
-        @SuppressLint("SyntheticAccessor")
         override fun onWindowLayoutChanged(
             windowToken: IBinder,
             newLayout: SidecarWindowLayoutInfo

@@ -25,7 +25,6 @@ import java.util.UUID
 /**
  * UUID / byte[] two-way conversion utility for Room
  *
- * @hide
  */
 
 /**

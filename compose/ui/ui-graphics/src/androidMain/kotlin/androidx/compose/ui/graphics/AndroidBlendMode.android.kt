@@ -103,3 +103,41 @@ internal fun BlendMode.toAndroidBlendMode(): android.graphics.BlendMode = when (
     // Always return SRC_OVER as the default if there is no valid alternative
     else -> android.graphics.BlendMode.SRC_OVER
 }
+
+/**
+ * Convert the compose [BlendMode] to the underlying Android platform [android.graphics.BlendMode]
+ */
+@RequiresApi(Build.VERSION_CODES.Q)
+internal fun android.graphics.BlendMode.toComposeBlendMode(): BlendMode = when (this) {
+    android.graphics.BlendMode.CLEAR -> BlendMode.Clear
+    android.graphics.BlendMode.SRC -> BlendMode.Src
+    android.graphics.BlendMode.DST -> BlendMode.Dst
+    android.graphics.BlendMode.SRC_OVER -> BlendMode.SrcOver
+    android.graphics.BlendMode.DST_OVER -> BlendMode.DstOver
+    android.graphics.BlendMode.SRC_IN -> BlendMode.SrcIn
+    android.graphics.BlendMode.DST_IN -> BlendMode.DstIn
+    android.graphics.BlendMode.SRC_OUT -> BlendMode.SrcOut
+    android.graphics.BlendMode.DST_OUT -> BlendMode.DstOut
+    android.graphics.BlendMode.SRC_ATOP -> BlendMode.SrcAtop
+    android.graphics.BlendMode.DST_ATOP -> BlendMode.DstAtop
+    android.graphics.BlendMode.XOR -> BlendMode.Xor
+    android.graphics.BlendMode.PLUS -> BlendMode.Plus
+    android.graphics.BlendMode.MODULATE -> BlendMode.Modulate
+    android.graphics.BlendMode.SCREEN -> BlendMode.Screen
+    android.graphics.BlendMode.OVERLAY -> BlendMode.Overlay
+    android.graphics.BlendMode.DARKEN -> BlendMode.Darken
+    android.graphics.BlendMode.LIGHTEN -> BlendMode.Lighten
+    android.graphics.BlendMode.COLOR_DODGE -> BlendMode.ColorDodge
+    android.graphics.BlendMode.COLOR_BURN -> BlendMode.ColorBurn
+    android.graphics.BlendMode.HARD_LIGHT -> BlendMode.Hardlight
+    android.graphics.BlendMode.SOFT_LIGHT -> BlendMode.Softlight
+    android.graphics.BlendMode.DIFFERENCE -> BlendMode.Difference
+    android.graphics.BlendMode.EXCLUSION -> BlendMode.Exclusion
+    android.graphics.BlendMode.MULTIPLY -> BlendMode.Multiply
+    android.graphics.BlendMode.HUE -> BlendMode.Hue
+    android.graphics.BlendMode.SATURATION -> BlendMode.Saturation
+    android.graphics.BlendMode.COLOR -> BlendMode.Color
+    android.graphics.BlendMode.LUMINOSITY -> BlendMode.Luminosity
+    // Always return SrcOver as the default if there is no valid alternative
+    else -> BlendMode.SrcOver
+}

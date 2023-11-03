@@ -16,6 +16,9 @@
 
 package androidx.camera.core;
 
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_OFF;
+import static androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
@@ -35,17 +38,21 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ImageAnalysisConfig;
+import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.core.internal.utils.SizeUtil;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CameraXUtil;
+import androidx.camera.core.resolutionselector.AspectRatioStrategy;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
+import androidx.camera.core.resolutionselector.ResolutionStrategy;
 import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
-import androidx.camera.testing.fakes.FakeImageReaderProxy;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.CameraXUtil;
+import androidx.camera.testing.impl.fakes.FakeCameraFactory;
+import androidx.camera.testing.impl.fakes.FakeImageReaderProxy;
 import androidx.test.core.app.ApplicationProvider;
 
 import com.google.common.collect.Iterables;
@@ -85,6 +92,8 @@ public class ImageAnalysisTest {
     private static final long TIMESTAMP_1 = 1;
     private static final long TIMESTAMP_2 = 2;
     private static final long TIMESTAMP_3 = 3;
+    public static final androidx.camera.core.impl.Config.Option<Integer> TEST_OPTION =
+            androidx.camera.core.impl.Config.Option.create("test.testOption", int.class);
 
     private Handler mCallbackHandler;
     private Handler mBackgroundHandler;
@@ -117,7 +126,7 @@ public class ImageAnalysisTest {
 
         CameraInternal camera = new FakeCamera();
 
-        CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2, ignored3) -> {
+        CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2, ignored3, ignored4) -> {
             FakeCameraFactory cameraFactory = new FakeCameraFactory();
             cameraFactory.insertDefaultBackCamera(camera.getCameraInfoInternal().getCameraId(),
                     () -> camera);
@@ -143,9 +152,28 @@ public class ImageAnalysisTest {
     }
 
     @Test
+    public void verifySupportedEffects() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        assertThat(imageAnalysis.isEffectTargetsSupported(CameraEffect.PREVIEW)).isFalse();
+        assertThat(imageAnalysis.isEffectTargetsSupported(CameraEffect.IMAGE_CAPTURE)).isFalse();
+        assertThat(imageAnalysis.isEffectTargetsSupported(CameraEffect.VIDEO_CAPTURE)).isFalse();
+    }
+
+    @Test
     public void canSetQueueDepth() {
         assertThat(getMergedImageAnalysisConfig(null, null, QUEUE_DEPTH,
                 false).getImageQueueDepth()).isEqualTo(QUEUE_DEPTH);
+    }
+
+    @Test
+    public void defaultMirrorModeIsOff() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        assertThat(imageAnalysis.getMirrorModeInternal()).isEqualTo(MIRROR_MODE_OFF);
+    }
+
+    @Test(expected = UnsupportedOperationException.class)
+    public void setMirrorMode_throwException() {
+        new ImageAnalysis.Builder().setMirrorMode(MIRROR_MODE_ON_FRONT_ONLY);
     }
 
     @Test
@@ -158,7 +186,7 @@ public class ImageAnalysisTest {
     public void setAnalyzerWithResolution_doesNotOverridesUseCaseResolution_resolutionSelector() {
         ImageAnalysisConfig config = getMergedImageAnalysisConfig(APP_RESOLUTION,
                 ANALYZER_RESOLUTION, -1, true);
-        assertThat(config.getResolutionSelector().getPreferredResolution()).isEqualTo(
+        assertThat(config.getResolutionSelector().getResolutionStrategy().getBoundSize()).isEqualTo(
                 APP_RESOLUTION);
     }
 
@@ -173,8 +201,8 @@ public class ImageAnalysisTest {
     public void setAnalyzerWithResolution_usedAsDefaultUseCaseResolution_resolutionSelector() {
         ImageAnalysisConfig config = getMergedImageAnalysisConfig(null,
                 ANALYZER_RESOLUTION, -1, true);
-        assertThat(config.getResolutionSelector().getPreferredResolution()).isEqualTo(
-                ANALYZER_RESOLUTION);
+        assertThat(config.getResolutionSelector().getResolutionStrategy().getBoundSize()).isEqualTo(
+                FLIPPED_ANALYZER_RESOLUTION);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -182,6 +210,7 @@ public class ImageAnalysisTest {
         getMergedImageAnalysisConfig(null, null, -1, false).getTargetResolution();
     }
 
+    @SuppressWarnings("deprecation") // legacy resolution API
     @NonNull
     private ImageAnalysisConfig getMergedImageAnalysisConfig(
             @Nullable Size appResolution,
@@ -193,11 +222,15 @@ public class ImageAnalysisTest {
 
         // Sets preferred resolution by ResolutionSelector or legacy API
         if (useResolutionSelector) {
-            ResolutionSelector.Builder resolutionSelectorBuilder = new ResolutionSelector.Builder();
+            ResolutionSelector.Builder selectorBuilder = new ResolutionSelector.Builder();
             if (appResolution != null) {
-                resolutionSelectorBuilder.setPreferredResolution(appResolution);
+                selectorBuilder.setResolutionStrategy(new ResolutionStrategy(appResolution,
+                        ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER));
+            } else {
+                selectorBuilder.setAspectRatioStrategy(
+                        AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY);
             }
-            builder.setResolutionSelector(resolutionSelectorBuilder.build());
+            builder.setResolutionSelector(selectorBuilder.build());
         } else {
             if (appResolution != null) {
                 builder.setTargetResolution(appResolution);
@@ -409,6 +442,21 @@ public class ImageAnalysisTest {
     }
 
     @Test
+    public void sessionConfigHasStreamSpecImplementationOptions_whenUpdateStreamSpecImplOptions()
+            throws CameraUseCaseAdapter.CameraException {
+        setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
+        int newImplementationOptionValue = 6;
+        MutableOptionsBundle streamSpecOptions = MutableOptionsBundle.create();
+        streamSpecOptions.insertOption(TEST_OPTION, newImplementationOptionValue);
+        mImageAnalysis.updateSuggestedStreamSpecImplementationOptions(streamSpecOptions);
+        assertThat(
+                mImageAnalysis.getSessionConfig().getImplementationOptions().retrieveOption(
+                        TEST_OPTION
+                )).isEqualTo(newImplementationOptionValue);
+    }
+
+    @SuppressWarnings("deprecation") // test for legacy resolution API
+    @Test
     public void throwException_whenSetBothTargetResolutionAndAspectRatio() {
         assertThrows(IllegalArgumentException.class,
                 () -> new ImageAnalysis.Builder()
@@ -417,6 +465,7 @@ public class ImageAnalysisTest {
                         .build());
     }
 
+    @SuppressWarnings("deprecation") // test for legacy resolution API
     @Test
     public void throwException_whenSetTargetResolutionWithResolutionSelector() {
         assertThrows(IllegalArgumentException.class,
@@ -426,6 +475,7 @@ public class ImageAnalysisTest {
                         .build());
     }
 
+    @SuppressWarnings("deprecation") // test for legacy resolution API
     @Test
     public void throwException_whenSetTargetAspectRatioWithResolutionSelector() {
         assertThrows(IllegalArgumentException.class,
@@ -470,7 +520,7 @@ public class ImageAnalysisTest {
                                     height, format, queueDepth, usage);
                             return mFakeImageReaderProxy;
                         })
-                .setSessionOptionUnpacker((config, builder) -> {
+                .setSessionOptionUnpacker((resolution, config, builder) -> {
                 })
                 .setOnePixelShiftEnabled(false)
                 .build();

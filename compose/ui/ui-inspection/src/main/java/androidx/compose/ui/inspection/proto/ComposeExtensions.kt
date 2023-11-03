@@ -20,14 +20,12 @@ import android.view.inspector.WindowInspector
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.inspection.ComposeLayoutInspector.CacheTree
 import androidx.compose.ui.inspection.LambdaLocation
-import androidx.compose.ui.inspection.RecompositionHandler
 import androidx.compose.ui.inspection.inspector.InspectorNode
 import androidx.compose.ui.inspection.inspector.NodeParameter
 import androidx.compose.ui.inspection.inspector.NodeParameterReference
 import androidx.compose.ui.inspection.inspector.ParameterKind
 import androidx.compose.ui.inspection.inspector.ParameterType
 import androidx.compose.ui.inspection.inspector.systemPackages
-import androidx.compose.ui.unit.IntOffset
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Bounds
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableNode
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.ComposableRoot
@@ -37,37 +35,57 @@ import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Paramet
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Quad
 import layoutinspector.compose.inspection.LayoutInspectorComposeProtocol.Rect
 
-fun InspectorNode.toComposableNode(
-    stringTable: StringTable,
-    windowPos: IntOffset,
-    recompositionHandler: RecompositionHandler
-): ComposableNode {
-    return toComposableNodeImpl(stringTable, windowPos, recompositionHandler).resetSystemFlag()
+internal fun InspectorNode.toComposableNode(context: ConversionContext): ComposableNode {
+    return toNodeBuilder(context)
+        .resetSystemFlag()
         .build()
 }
 
 private val SELECTOR_EXPR = Regex("(\\\$(lambda-)?[0-9]+)+$")
 
-private fun InspectorNode.toComposableNodeImpl(
-    stringTable: StringTable,
-    windowPos: IntOffset,
-    recompositionHandler: RecompositionHandler
-): ComposableNode.Builder {
+/**
+ * Convert an [InspectorNode] to protobuf [ComposableNode].
+ * If the reduceChildNesting option is set: store a subtree with single child nodes as children
+ * of this node and mark the node with [ComposableNode.Flags.NESTED_SINGLE_CHILDREN].
+ */
+private fun InspectorNode.toNodeBuilder(context: ConversionContext): ComposableNode.Builder {
+    val builder = toFlatNode(context)
+    if (!context.reduceChildNesting || children.size != 1) {
+        children.forEach { child ->
+            builder.addChildren(child.toNodeBuilder(context))
+        }
+    } else {
+        var nested = children.single()
+
+        while (nested.children.size == 1) {
+            builder.addChildren(nested.toFlatNode(context))
+            builder.flags = builder.flags or ComposableNode.Flags.NESTED_SINGLE_CHILDREN_VALUE
+            nested = nested.children.single()
+        }
+        builder.addChildren(nested.toNodeBuilder(context))
+    }
+    return builder
+}
+
+/**
+ * Convert an [InspectorNode] to protobuf [ComposableNode] without child nesting.
+ */
+private fun InspectorNode.toFlatNode(context: ConversionContext): ComposableNode.Builder {
     val inspectorNode = this
     return ComposableNode.newBuilder().apply {
         id = inspectorNode.id
 
         packageHash = inspectorNode.packageHash
-        filename = stringTable.put(inspectorNode.fileName)
+        filename = context.stringTable.put(inspectorNode.fileName)
         lineNumber = inspectorNode.lineNumber
         offset = inspectorNode.offset
 
-        name = stringTable.put(inspectorNode.name)
+        name = context.stringTable.put(inspectorNode.name)
 
         bounds = Bounds.newBuilder().apply {
             layout = Rect.newBuilder().apply {
-                x = inspectorNode.left + windowPos.x
-                y = inspectorNode.top + windowPos.y
+                x = inspectorNode.left + context.windowPos.x
+                y = inspectorNode.top + context.windowPos.y
                 w = inspectorNode.width
                 h = inspectorNode.height
             }.build()
@@ -87,13 +105,9 @@ private fun InspectorNode.toComposableNodeImpl(
 
         flags = flags()
         viewId = inspectorNode.viewId
-        recompositionHandler.getCounts(inspectorNode.key, inspectorNode.anchorId)?.let {
+        context.recompositionHandler.getCounts(inspectorNode.key, inspectorNode.anchorId)?.let {
             recomposeCount = it.count
             recomposeSkips = it.skips
-        }
-
-        children.forEach { child ->
-            addChildren(child.toComposableNodeImpl(stringTable, windowPos, recompositionHandler))
         }
 
         anchorHash = inspectorNode.anchorId
@@ -252,17 +266,14 @@ fun NodeParameterReference.convert(): ParameterReference {
     }.build()
 }
 
-internal fun CacheTree.toComposableRoot(
-    stringTable: StringTable,
-    windowPos: IntOffset,
-    recompositionHandler: RecompositionHandler
-): ComposableRoot = ComposableRoot.newBuilder().also { root ->
-    root.viewId = viewParent.uniqueDrawingId
-    root.addAllNodes(nodes.map {
-        it.toComposableNode(stringTable, windowPos, recompositionHandler)
-    })
-    root.addAllViewsToSkip(viewsToSkip)
-}.build()
+internal fun CacheTree.toComposableRoot(context: ConversionContext): ComposableRoot =
+    ComposableRoot.newBuilder().also { root ->
+        root.viewId = viewParent.uniqueDrawingId
+        root.addAllNodes(nodes.map {
+            it.toComposableNode(context)
+        })
+        root.addAllViewsToSkip(viewsToSkip)
+    }.build()
 
 fun Iterable<NodeParameter>.convertAll(stringTable: StringTable): List<Parameter> {
     return this.map { it.convert(stringTable) }

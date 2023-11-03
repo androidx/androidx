@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        curvedChildList.forEach { composable ->"
+        errorLine2="                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/curved/CurvedRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/curved/CurvedRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        it.children.addAll(children.map { it.copy() })"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/curved/CurvedRow.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    children.mapIndexed { index, child ->"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/NormalizeCompositionTree.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    toDelete.forEach {"
+        errorLine2="             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/NormalizeCompositionTree.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            children.forEach { child ->"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/NormalizeCompositionTree.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="        textList.forEach { item ->"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/template/SingleEntityTemplateLayouts.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .setContentDescription(it.joinToString())"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/WearCompositionTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            .setContentDescription(it.joinToString())"
+        errorLine2="                                      ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/WearCompositionTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            element.children.forEach {"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/WearCompositionTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                element.children.forEach {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/WearCompositionTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="                element.children.forEach {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/WearCompositionTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="    element.children.forEach { curvedChild ->"
+        errorLine2="                     ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/WearCompositionTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="ListIterator"
+        message="Creating an unnecessary Iterator to iterate through a List"
+        errorLine1="            curvedChild.children.forEach {"
+        errorLine2="                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/WearCompositionTranslator.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable toDelete with type List&lt;Integer>: replace with IntList"
+        errorLine1="    val toDelete = mutableListOf&lt;Int>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/glance/wear/tiles/NormalizeCompositionTree.kt"/>
+    </issue>
+
+</issues>

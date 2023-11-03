@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Fragment used by the background manager.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public final class BackgroundFragment extends Fragment {

@@ -22,10 +22,8 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXComposePlugin")
+    id("org.jetbrains.kotlin.android")
 }
-
-// Disable multi-platform.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
 
 dependencies {
     api(project(":compose:foundation:foundation"))
@@ -39,7 +37,7 @@ dependencies {
     implementation(project(":compose:material:material-ripple"))
     implementation(project(":compose:ui:ui-util"))
     implementation(project(":wear:compose:compose-foundation"))
-    implementation("androidx.profileinstaller:profileinstaller:1.2.0")
+    implementation("androidx.profileinstaller:profileinstaller:1.3.0")
 
     androidTestImplementation(project(":compose:ui:ui-test"))
     androidTestImplementation(project(":compose:ui:ui-test-junit4"))
@@ -66,9 +64,6 @@ android {
         consumerProguardFiles("proguard-rules.pro")
     }
     namespace "androidx.wear.compose.material.core"
-    lint {
-        baseline = file("lint-baseline.xml")
-    }
 }
 
 androidx {
@@ -79,6 +74,7 @@ androidx {
             "components that are shared between different WearOS Compose Material libraries. It " +
             "builds upon the Jetpack Compose libraries."
     targetsJavaConsumers = false
+    metalavaK2UastEnabled = true
 }
 
 tasks.withType(KotlinCompile).configureEach {

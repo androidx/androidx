@@ -22,6 +22,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <uses-permission android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
     <application
         android:hardwareAccelerated="true"
         android:icon="@drawable/app_sample_code"
@@ -37,6 +42,7 @@
             android:label="@string/main_activity_label">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.media.action.TRANSFER_MEDIA"/>
                 <category android:name="com.example.androidx.SAMPLE_CODE" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -64,8 +70,25 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".activities.RouteListingPreferenceActivity"
+            android:configChanges="orientation|screenSize"
+            android:exported="false"
+            android:label="Route Listing Preference">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="com.example.androidx.SAMPLE_CODE" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name=".activities.systemrouting.SystemRoutingActivity"
+            android:exported="false" />
+
         <receiver android:name="androidx.mediarouter.media.MediaTransferReceiver"
             android:exported="true" />
+
+        <receiver android:name="androidx.mediarouter.media.SystemRoutingUsingMediaRouter2Receiver"
+            android:exported="false" />
 
         <service
             android:name=".services.SampleMediaRouteProviderService"

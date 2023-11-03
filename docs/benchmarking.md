@@ -14,7 +14,7 @@ MACRObenchmarks [here](/company/teams/androidx/macrobenchmarking.md).
 ### Writing the benchmark
 
 Benchmarks are just regular instrumentation tests! Just use the
-[`BenchmarkRule`](https://android.googlesource.com/platform/frameworks/support/+/androidx-main/benchmark/junit4/src/main/java/androidx/benchmark/junit4/BenchmarkRule.kt)
+[`BenchmarkRule`](https://developer.android.com/reference/kotlin/androidx/benchmark/junit4/BenchmarkRule)
 provided by the library:
 
 <section class="tabs">
@@ -78,8 +78,8 @@ library modules. Differences for AndroidX repo:
 
 Start by copying one of the following non-Compose projects:
 
-*   [navigation-benchmark](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/navigation/benchmark/)
-*   [recyclerview-benchmark](https://android.googlesource.com/platform/frameworks/support/+/refs/heads/androidx-main/recyclerview/recyclerview-benchmark/)
+*   [navigation-benchmark](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:navigation/navigation-benchmark/)
+*   [recyclerview-benchmark](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:recyclerview/recyclerview-benchmark/)
 
 Many Compose libraries already have benchmark modules:
 
@@ -138,43 +138,43 @@ directory with Android Studio, using `File > Open`.
 
 NOTE For stack sampling, it's recommended to profile on Android Q(API 29) or
 higher, as this enables the benchmark library to use
-[Simpleperf](https://android.googlesource.com/platform/system/extras/+/master/simpleperf/doc/).
-Simpleperf previously required a
-[more complex setup process](https://issuetracker.google.com/issues/158303822) -
-this has been fixed!
+[Simpleperf](https://android.googlesource.com/platform/system/extras/+/master/simpleperf/doc/)
+when capturing samples.
 
 For more information on the `StackSampling` and `MethodTracing` profiling modes,
 see the
-[Studio Profiler configuration docs](https://developer.android.com/studio/profile/cpu-profiler#configurations),
-specifically "Sample C/C++ Functions" (a confusing name for Simpleperf), and
-Java Method Tracing.
+[Studio Profiler recording configuration docs](https://developer.android.com/studio/profile/record-traces#configurations),
+specifically "Sample C/C++ Functions" (called "Callstack sample" in recent
+versions), and Java Method Tracing.
 
 ![Sample flame chart](benchmarking_images/profiling_flame_chart.png "Sample flame chart")
 
 ### Advanced: Connected Studio Profiler
 
-Profiling for allocations requires Studio to capture. This can also be used for
-Sampled profiling, though it is instead recommended to use instrumentation
-argument profiling for that, as it's simpler, and doesn't require
-`debuggable=true`
+Profiling for allocations requires Studio to capture, and a debuggable build. Do
+not commit the following changes.
 
-Studio profiling tools currently require `debuggable=true`. First, temporarily
-override it in your benchmark's `androidTest/AndroidManifest.xml`.
+First, set your benchmark to be debuggable in your benchmark module's
+`androidTest/AndroidManifest.xml`:
 
-Next choose which profiling you want to do: Allocation, or Sampled (SimplePerf)
+```
+  <application
+    ...
+    android:debuggable="false"
+    tools:ignore="HardcodedDebugMode"/>
+```
 
-`ConnectedAllocation` will help you measure the allocations in a single run of a
-benchmark loop, after warmup.
+Note that switching to the debug variant will likely not work, as Studio will
+fail to find the benchmark as a test source.
 
-`ConnectedSampled` will help you capture sampled profiling, but with the more
-detailed / accurate Simpleperf sampling.
-
-Set the profiling type in your benchmark module's `build.gradle`:
+Next select `ConnectedAllocation` in your benchmark module's `build.gradle`:
 
 ```
 android {
     defaultConfig {
-        // Local only, don't commit this!
+        // --- Local only, don't commit this! ---
+        // pause for manual profiler connection before/after a single run of
+        // the benchmark loop, after warmup
         testInstrumentationRunnerArgument 'androidx.benchmark.profiling.mode', 'ConnectedAllocation'
     }
 }
@@ -192,10 +192,11 @@ profiler:
 
 1.  Click the profiler tab at the bottom
 1.  Click the plus button in the top left, `<device name>`, `<process name>`
-1.  Next step depends on which you intend to capture
+1.  Click the memory section, and right click the window, and select `Record
+    allocations`.
+1.  Approximately 20 seconds later, right click again and select `Stop
+    recording`.
 
-#### Allocations
-
-Click the memory section, and right click the window, and select `Record
-allocations`. Approximately 20 seconds later, right click again and select `Stop
-recording`.
+If timed correctly, you'll have started and stopped collection around the single
+run of your benchmark loop, and see all allocations in detail with call stacks
+in Studio.

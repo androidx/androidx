@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field Colors with type List&lt;Color>: replace with LongList"
+        errorLine1="internal val Colors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/Colors.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Color> of getColors: replace with LongList"
+        errorLine1="internal val Colors = listOf("
+        errorLine2="             ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/Colors.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method random has parameter $this$random with type List&lt;Color>: replace with LongList"
+        errorLine1="private fun List&lt;Color>.random(exclude: Color?): Color {"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/Colors.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method inOrder has parameter $this$inOrder with type List&lt;Color>: replace with LongList"
+        errorLine1="private fun List&lt;Color>.inOrder(current: Color?, forward: Boolean): Color {"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/gestures/Colors.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field rowStates with type Map&lt;Integer, LazyListState>: replace with IntObjectMap"
+        errorLine1="        private val rowStates = mutableMapOf&lt;Int, LazyListState>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/recyclerview/RecyclerViewInteropDemoFragment.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable checkedItems with type Set&lt;? extends Integer>: replace with IntSet"
+        errorLine1="        var checkedItems by remember { mutableStateOf(emptySet&lt;Int>()) }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/viewinterop/ScrollingAndroidViewsDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method RecyclingAndroidViewLazyColumn has parameter checkedItems with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="    checkedItems: Set&lt;Int>,"
+        errorLine2="                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/demos/viewinterop/ScrollingAndroidViewsDemo.kt"/>
+    </issue>
+
+</issues>

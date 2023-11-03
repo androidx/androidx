@@ -23,6 +23,7 @@ import androidx.core.uwb.RangingResult
 import androidx.core.uwb.UwbAddress
 import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.UwbDevice.Companion.createForAddress
+import androidx.core.uwb.UwbRangeDataNtfConfig
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.nearby.uwb.RangingPosition
 import com.google.android.gms.nearby.uwb.RangingSessionCallback
@@ -40,12 +41,17 @@ class TestUwbClientSessionScope(
     private var sessionStarted = false
     private val uwbDevice = createForAddress(ByteArray(0))
     val defaultRangingParameters = RangingParameters(
-        RangingParameters.UWB_CONFIG_ID_1,
+        RangingParameters.CONFIG_UNICAST_DS_TWR,
+        0,
         0,
         null,
         null,
+        null,
         ImmutableList.of(uwbDevice),
-        RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC
+        RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC,
+        UwbRangeDataNtfConfig(1, 1, 100),
+        2,
+        false
     )
 
     override fun prepareSession(parameters: RangingParameters) = callbackFlow {
@@ -63,7 +69,6 @@ class TestUwbClientSessionScope(
             .setSessionId(defaultRangingParameters.sessionId)
             .setUwbConfigId(configId)
             .setRangingUpdateRate(updateRate)
-            .setSessionKeyInfo(defaultRangingParameters.sessionKeyInfo)
         parametersBuilder.addPeerDevice(UwbDevice.createForAddress(uwbDevice.address.address))
         val callback =
             object : RangingSessionCallback {
@@ -113,5 +118,13 @@ class TestUwbClientSessionScope(
                 // do nothing
             }
         }
+    }
+
+    override suspend fun reconfigureRangeDataNtf(
+        configType: Int,
+        proximityNear: Int,
+        proximityFar: Int
+    ) {
+        TODO("Not yet implemented")
     }
 }

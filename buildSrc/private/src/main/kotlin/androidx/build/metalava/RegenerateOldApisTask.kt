@@ -23,26 +23,29 @@ import androidx.build.checkapi.isValidArtifactVersion
 import androidx.build.getAndroidJar
 import androidx.build.getCheckoutRoot
 import androidx.build.java.JavaCompileInputs
+import java.io.File
+import javax.inject.Inject
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.artifacts.ivyservice.DefaultLenientConfiguration
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.util.PatternFilterable
 import org.gradle.workers.WorkerExecutor
-import java.io.File
-import javax.inject.Inject
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** Generate API signature text files using previously built .jar/.aar artifacts. */
 @CacheableTask
-abstract class RegenerateOldApisTask @Inject constructor(
-    private val workerExecutor: WorkerExecutor
-) : DefaultTask() {
+abstract class RegenerateOldApisTask
+@Inject
+constructor(private val workerExecutor: WorkerExecutor) : DefaultTask() {
 
-    @Input
-    var generateRestrictToLibraryGroupAPIs = true
+    @Input var generateRestrictToLibraryGroupAPIs = true
+
+    @get:Input abstract val kotlinSourceLevel: Property<KotlinVersion>
 
     @TaskAction
     fun exec() {
@@ -76,12 +79,7 @@ abstract class RegenerateOldApisTask @Inject constructor(
         return validVersions.sorted()
     }
 
-    fun regenerate(
-        runnerProject: Project,
-        groupId: String,
-        artifactId: String,
-        version: Version
-    ) {
+    fun regenerate(runnerProject: Project, groupId: String, artifactId: String, version: Version) {
         val mavenId = "$groupId:$artifactId:$version"
         val inputs: JavaCompileInputs?
         try {
@@ -95,8 +93,15 @@ abstract class RegenerateOldApisTask @Inject constructor(
         if (outputApiLocation.publicApiFile.exists()) {
             project.logger.lifecycle("Regenerating $mavenId")
             generateApi(
-                project.getMetalavaClasspath(), inputs, outputApiLocation, ApiLintMode.Skip,
-                generateRestrictToLibraryGroupAPIs, false, workerExecutor
+                project.getMetalavaClasspath(),
+                inputs,
+                outputApiLocation,
+                ApiLintMode.Skip,
+                generateRestrictToLibraryGroupAPIs,
+                emptyList(),
+                false,
+                kotlinSourceLevel.get(),
+                workerExecutor
             )
         }
     }
@@ -109,23 +114,24 @@ abstract class RegenerateOldApisTask @Inject constructor(
     }
 
     fun getJars(runnerProject: Project, mavenId: String): FileCollection {
-        val configuration = runnerProject.configurations.detachedConfiguration(
-            runnerProject.dependencies.create("$mavenId")
-        )
+        val configuration =
+            runnerProject.configurations.detachedConfiguration(
+                runnerProject.dependencies.create("$mavenId")
+            )
         val resolvedConfiguration = configuration.resolvedConfiguration.resolvedArtifacts
-        val dependencyFiles = resolvedConfiguration.map({ artifact ->
-            artifact.file
-        })
+        val dependencyFiles = resolvedConfiguration.map({ artifact -> artifact.file })
 
         val jars = dependencyFiles.filter({ file -> file.name.endsWith(".jar") })
         val aars = dependencyFiles.filter({ file -> file.name.endsWith(".aar") })
-        val classesJars = aars.map({ aar ->
-            val tree = project.zipTree(aar)
-            val classesJar = tree.matching { filter: PatternFilterable ->
-                filter.include("classes.jar")
-            }.single()
-            classesJar
-        })
+        val classesJars =
+            aars.map({ aar ->
+                val tree = project.zipTree(aar)
+                val classesJar =
+                    tree
+                        .matching { filter: PatternFilterable -> filter.include("classes.jar") }
+                        .single()
+                classesJar
+            })
         val embeddedLibs = getEmbeddedLibs(runnerProject, mavenId)
         val undeclaredJarDeps = getUndeclaredJarDeps(runnerProject, mavenId)
         return runnerProject.files(jars + classesJars + embeddedLibs + undeclaredJarDeps)
@@ -139,12 +145,14 @@ abstract class RegenerateOldApisTask @Inject constructor(
     }
 
     fun getSources(runnerProject: Project, mavenId: String): FileCollection {
-        val configuration = runnerProject.configurations.detachedConfiguration(
-            runnerProject.dependencies.create(mavenId)
-        )
+        val configuration =
+            runnerProject.configurations.detachedConfiguration(
+                runnerProject.dependencies.create(mavenId)
+            )
         configuration.isTransitive = false
 
         val sanitizedMavenId = mavenId.replace(":", "-")
+        @Suppress("DEPRECATION")
         val unzippedDir = File("${runnerProject.buildDir.path}/sources-unzipped/$sanitizedMavenId")
         runnerProject.copy({ copySpec ->
             copySpec.from(runnerProject.zipTree(configuration.singleFile))
@@ -154,12 +162,14 @@ abstract class RegenerateOldApisTask @Inject constructor(
     }
 
     fun getEmbeddedLibs(runnerProject: Project, mavenId: String): Collection<File> {
-        val configuration = runnerProject.configurations.detachedConfiguration(
-            runnerProject.dependencies.create(mavenId)
-        )
+        val configuration =
+            runnerProject.configurations.detachedConfiguration(
+                runnerProject.dependencies.create(mavenId)
+            )
         configuration.isTransitive = false
 
         val sanitizedMavenId = mavenId.replace(":", "-")
+        @Suppress("DEPRECATION")
         val unzippedDir = File("${runnerProject.buildDir.path}/aars-unzipped/$sanitizedMavenId")
         runnerProject.copy({ copySpec ->
             copySpec.from(runnerProject.zipTree(configuration.singleFile))

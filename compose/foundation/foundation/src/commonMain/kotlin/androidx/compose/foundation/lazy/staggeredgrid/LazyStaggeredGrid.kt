@@ -22,28 +22,27 @@ import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.LazyLayout
-import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
+import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
 import androidx.compose.foundation.overscroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-@ExperimentalFoundationApi
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 internal fun LazyStaggeredGrid(
     /** State controlling the scroll position */
     state: LazyStaggeredGridState,
     /** The layout orientation of the grid */
     orientation: Orientation,
-    /** Prefix sums of cross axis sizes of slots per line, e.g. the columns for vertical grid. */
-    slotSizesSums: Density.(Constraints) -> IntArray,
+    /** Cross axis positions and sizes of slots per line, e.g. the columns for vertical grid. */
+    slots: LazyGridStaggeredGridSlotsProvider,
     /** Modifier to be applied for the inner layout */
     modifier: Modifier = Modifier,
     /** The inner padding to be added for the whole content (not for each individual item) */
@@ -54,34 +53,50 @@ internal fun LazyStaggeredGrid(
     flingBehavior: FlingBehavior = ScrollableDefaults.flingBehavior(),
     /** Whether scrolling via the user gestures is allowed. */
     userScrollEnabled: Boolean = true,
-    /** The vertical arrangement for items/lines. */
-    verticalArrangement: Arrangement.Vertical = Arrangement.Top,
-    /** The horizontal arrangement for items/lines. */
-    horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    /** The vertical spacing for items/lines. */
+    mainAxisSpacing: Dp = 0.dp,
+    /** The horizontal spacing for items/lines. */
+    crossAxisSpacing: Dp = 0.dp,
     /** The content of the grid */
     content: LazyStaggeredGridScope.() -> Unit
 ) {
     val overscrollEffect = ScrollableDefaults.overscrollEffect()
 
-    val itemProvider = rememberStaggeredGridItemProvider(state, content)
+    val itemProviderLambda = rememberStaggeredGridItemProviderLambda(state, content)
+    val coroutineScope = rememberCoroutineScope()
     val measurePolicy = rememberStaggeredGridMeasurePolicy(
         state,
-        itemProvider,
+        itemProviderLambda,
         contentPadding,
         reverseLayout,
         orientation,
-        verticalArrangement,
-        horizontalArrangement,
-        slotSizesSums
+        mainAxisSpacing,
+        crossAxisSpacing,
+        coroutineScope,
+        slots,
     )
-    val semanticState = rememberLazyStaggeredGridSemanticState(state, itemProvider, reverseLayout)
-
-    ScrollPositionUpdater(itemProvider, state)
+    val semanticState = rememberLazyStaggeredGridSemanticState(state, reverseLayout)
 
     LazyLayout(
         modifier = modifier
             .then(state.remeasurementModifier)
+            .then(state.awaitLayoutModifier)
+            .lazyLayoutSemantics(
+                itemProviderLambda = itemProviderLambda,
+                state = semanticState,
+                orientation = orientation,
+                userScrollEnabled = userScrollEnabled,
+                reverseScrolling = reverseLayout
+            )
             .clipScrollableContainer(orientation)
+            .lazyLayoutBeyondBoundsModifier(
+                state = rememberLazyStaggeredGridBeyondBoundsState(state = state),
+                beyondBoundsInfo = state.beyondBoundsInfo,
+                reverseLayout = reverseLayout,
+                layoutDirection = LocalLayoutDirection.current,
+                orientation = orientation,
+                enabled = userScrollEnabled
+            )
             .overscroll(overscrollEffect)
             .scrollable(
                 orientation = orientation,
@@ -95,27 +110,15 @@ internal fun LazyStaggeredGrid(
                 state = state,
                 overscrollEffect = overscrollEffect,
                 enabled = userScrollEnabled
-            )
-            .lazyLayoutSemantics(
-                itemProvider = itemProvider,
-                state = semanticState,
-                orientation = orientation,
-                userScrollEnabled = userScrollEnabled
             ),
         prefetchState = state.prefetchState,
-        itemProvider = itemProvider,
+        itemProvider = itemProviderLambda,
         measurePolicy = measurePolicy
     )
 }
 
-/** Extracted to minimize the recomposition scope */
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun ScrollPositionUpdater(
-    itemProvider: LazyLayoutItemProvider,
-    state: LazyStaggeredGridState
-) {
-    if (itemProvider.itemCount > 0) {
-        state.updateScrollPositionIfTheFirstItemWasMoved(itemProvider)
-    }
-}
+/** Slot configuration of staggered grid */
+internal class LazyStaggeredGridSlots(
+    val positions: IntArray,
+    val sizes: IntArray
+)

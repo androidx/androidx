@@ -27,10 +27,10 @@ import androidx.room.solver.CodeGenScope
 class GuavaImmutableMultimapQueryResultAdapter(
     context: Context,
     private val parsedQuery: ParsedQuery,
-    override val keyTypeArg: XType,
-    override val valueTypeArg: XType,
-    private val keyRowAdapter: QueryMappedRowAdapter,
-    private val valueRowAdapter: QueryMappedRowAdapter,
+    private val keyTypeArg: XType,
+    private val valueTypeArg: XType,
+    private val keyRowAdapter: RowAdapter,
+    private val valueRowAdapter: RowAdapter,
     private val immutableClassName: XClassName,
 ) : MultimapQueryResultAdapter(context, parsedQuery, listOf(keyRowAdapter, valueRowAdapter)) {
     private val mapType = immutableClassName.parametrizedBy(
@@ -103,6 +103,7 @@ class GuavaImmutableMultimapQueryResultAdapter(
 
                 // Iterate over all matched fields to check if all are null. If so, we continue in
                 // the while loop to the next iteration.
+                check(valueRowAdapter is QueryMappedRowAdapter)
                 val valueIndexVars =
                     dupeColumnsIndexAdapter?.getIndexVarsForMapping(valueRowAdapter.mapping)
                         ?: valueRowAdapter.getDefaultIndexAdapter().getIndexVars()

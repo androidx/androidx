@@ -30,7 +30,6 @@ import java.util.List;
 /**
  * A {@link Parcelable} representation of a list of {@link androidx.work.WorkRequest}s.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @SuppressLint("BanParcelableUsage")

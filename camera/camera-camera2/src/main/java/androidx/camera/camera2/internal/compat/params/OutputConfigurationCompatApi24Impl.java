@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.internal.compat.params;
 
+import android.hardware.camera2.params.DynamicRangeProfiles;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.view.Surface;
 
@@ -82,6 +83,16 @@ class OutputConfigurationCompatApi24Impl extends OutputConfigurationCompatBaseIm
     }
 
     @Override
+    public long getDynamicRangeProfile() {
+        return ((OutputConfigurationParamsApi24) mObject).mDynamicRangeProfile;
+    }
+
+    @Override
+    public void setDynamicRangeProfile(long profile) {
+        ((OutputConfigurationParamsApi24) mObject).mDynamicRangeProfile = profile;
+    }
+
+    @Override
     @Nullable
     public Surface getSurface() {
         return ((OutputConfiguration) getOutputConfiguration()).getSurface();
@@ -112,6 +123,7 @@ class OutputConfigurationCompatApi24Impl extends OutputConfigurationCompatBaseIm
         @Nullable
         String mPhysicalCameraId;
         boolean mIsShared;
+        long mDynamicRangeProfile = DynamicRangeProfiles.STANDARD;
 
         OutputConfigurationParamsApi24(@NonNull OutputConfiguration configuration) {
             mOutputConfiguration = configuration;
@@ -127,6 +139,7 @@ class OutputConfigurationCompatApi24Impl extends OutputConfigurationCompatBaseIm
 
             return Objects.equals(mOutputConfiguration, otherOutputConfig.mOutputConfiguration)
                     && mIsShared == otherOutputConfig.mIsShared
+                    && mDynamicRangeProfile == otherOutputConfig.mDynamicRangeProfile
                     && Objects.equals(mPhysicalCameraId, otherOutputConfig.mPhysicalCameraId);
 
         }
@@ -141,7 +154,8 @@ class OutputConfigurationCompatApi24Impl extends OutputConfigurationCompatBaseIm
             // (h * 31) XOR mPhysicalCameraId.hashCode()
             h = ((h << 5) - h)
                     ^ (mPhysicalCameraId == null ? 0 : mPhysicalCameraId.hashCode());
-
+            // (h * 31) XOR mDynamicRangeProfile
+            h = ((h << 5) - h) ^ Long.hashCode(mDynamicRangeProfile);
             return h;
         }
     }

@@ -131,12 +131,22 @@
             android:process=":dataDirectorySuffixActivity"
             android:exported="true" />
         <activity
+            android:name=".DirectoryBasePathsActivity"
+            android:process=":directoryBasePathActivity"
+            android:exported="true" />
+        <activity
             android:name=".RequestedWithHeaderActivity"
             android:exported="true" />
         <activity android:name=".CookieManagerActivity"
             android:exported="true" />
         <activity
             android:name=".ImageDragActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UserAgentMetadataActivity"
+            android:exported="true" />
+        <activity
+            android:name=".MultiProfileTestActivity"
             android:exported="false" />
 
         <provider

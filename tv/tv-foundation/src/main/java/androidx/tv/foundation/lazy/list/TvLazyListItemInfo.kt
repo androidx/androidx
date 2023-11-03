@@ -22,7 +22,7 @@ package androidx.tv.foundation.lazy.list
  *
  * @see TvLazyListLayoutInfo
  */
-interface TvLazyListItemInfo {
+sealed interface TvLazyListItemInfo {
     /**
      * The index of the item in the list.
      */
@@ -43,4 +43,9 @@ interface TvLazyListItemInfo {
      * slot for the item then this size will be calculated as the sum of their sizes.
      */
     val size: Int
+
+    /**
+     * The content type of the item which was passed to the item() or items() function.
+     */
+    val contentType: Any?
 }

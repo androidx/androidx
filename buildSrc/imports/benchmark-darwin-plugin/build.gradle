@@ -1,0 +1,24 @@
+apply from: "../../shared.gradle"
+apply plugin: "java-gradle-plugin"
+
+sourceSets {
+    main.java.srcDirs += "${supportRootFolder}/benchmark/benchmark-darwin-gradle-plugin/src/main/kotlin"
+    main.resources.srcDirs += "${supportRootFolder}/benchmark/benchmark-darwin-gradle-plugin/src/main/resources"
+}
+
+dependencies {
+    implementation(libs.apacheCommonsMath)
+}
+
+gradlePlugin {
+    plugins {
+        darwinBenchmark {
+            id = "androidx.benchmark.darwin"
+            implementationClass = "androidx.benchmark.darwin.gradle.DarwinBenchmarkPlugin"
+        }
+    }
+}
+
+validatePlugins {
+    enableStricterValidation = true
+}

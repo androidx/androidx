@@ -16,6 +16,8 @@
 
 package com.example.androidx.mediarouting.activities;
 
+import static com.example.androidx.mediarouting.ui.UiUtils.setUpEnumBasedSpinner;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -24,17 +26,14 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Switch;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.util.Consumer;
 
 import com.example.androidx.mediarouting.R;
 import com.example.androidx.mediarouting.RoutesManager;
@@ -49,7 +48,6 @@ public class AddEditRouteActivity extends AppCompatActivity {
     private ServiceConnection mConnection;
     private RoutesManager mRoutesManager;
     private RouteItem mRouteItem;
-    private Switch mCanDisconnectSwitch;
 
     /** Launches the activity. */
     public static void launchActivity(@NonNull Context context, @Nullable String routeId) {
@@ -74,8 +72,6 @@ public class AddEditRouteActivity extends AppCompatActivity {
         } else {
             mRouteItem = RouteItem.copyOf(mRouteItem);
         }
-
-        mCanDisconnectSwitch = findViewById(R.id.cam_disconnect_switch);
 
         setUpViews();
     }
@@ -149,17 +145,17 @@ public class AddEditRouteActivity extends AppCompatActivity {
                 String.valueOf(mRouteItem.getVolumeMax()),
                 mewVolumeMax -> mRouteItem.setVolumeMax(Integer.parseInt(mewVolumeMax)));
 
-        setUpCanDisconnectSwitch();
+        setUpSwitch(
+                findViewById(R.id.can_disconnect_switch),
+                mRouteItem.isCanDisconnect(),
+                newValue -> mRouteItem.setCanDisconnect(newValue));
+
+        setUpSwitch(
+                findViewById(R.id.is_sender_driven_switch),
+                mRouteItem.isSenderDriven(),
+                newValue -> mRouteItem.setSenderDriven(newValue));
 
         setUpSaveButton();
-    }
-
-    private void setUpCanDisconnectSwitch() {
-        mCanDisconnectSwitch.setChecked(mRouteItem.isCanDisconnect());
-        mCanDisconnectSwitch.setOnCheckedChangeListener(
-                (compoundButton, b) -> {
-                    mRouteItem.setCanDisconnect(b);
-                });
     }
 
     private void setUpSaveButton() {
@@ -172,10 +168,14 @@ public class AddEditRouteActivity extends AppCompatActivity {
                 });
     }
 
+    private static void setUpSwitch(Switch switchWidget, boolean currentValue,
+            Consumer<Boolean> propertySetter) {
+        switchWidget.setChecked(currentValue);
+        switchWidget.setOnCheckedChangeListener((compoundButton, b) -> propertySetter.accept(b));
+    }
+
     private static void setUpEditText(
-            EditText editText,
-            String currentValue,
-            RoutePropertySetter<String> routePropertySetter) {
+            EditText editText, String currentValue, Consumer<String> propertySetter) {
         editText.setText(currentValue);
         editText.addTextChangedListener(
                 new TextWatcher() {
@@ -185,42 +185,12 @@ public class AddEditRouteActivity extends AppCompatActivity {
 
                     @Override
                     public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                        routePropertySetter.accept(charSequence.toString());
+                        propertySetter.accept(charSequence.toString());
                     }
 
                     @Override
                     public void afterTextChanged(Editable editable) {}
                 });
-    }
-
-    private static void setUpEnumBasedSpinner(
-            Context context,
-            Spinner spinner,
-            Enum<?> anEnum,
-            RoutePropertySetter<Enum<?>> routePropertySetter) {
-        Enum<?>[] enumValues = anEnum.getDeclaringClass().getEnumConstants();
-        ArrayAdapter<Enum<?>> adapter =
-                new ArrayAdapter<>(context, android.R.layout.simple_spinner_item, enumValues);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setSelection(anEnum.ordinal());
-
-        spinner.setOnItemSelectedListener(
-                new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(
-                            AdapterView<?> adapterView, View view, int i, long l) {
-                        routePropertySetter.accept(
-                                anEnum.getDeclaringClass().getEnumConstants()[i]);
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> adapterView) {}
-                });
-    }
-
-    private interface RoutePropertySetter<T> {
-        void accept(T value);
     }
 
     private class ProviderServiceConnection implements ServiceConnection {

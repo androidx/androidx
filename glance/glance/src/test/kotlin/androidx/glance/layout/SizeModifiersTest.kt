@@ -21,8 +21,8 @@ import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
 import androidx.glance.unit.Dimension
 import com.google.common.truth.Truth.assertThat
-import org.junit.Test
 import kotlin.test.assertIs
+import org.junit.Test
 
 class SizeModifiersTest {
     @Test

@@ -54,7 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Use the default split attributes"
+                android:text="@string/use_default_split_attributes"
                 android:checked="true"/>
 
             <!-- The fullscreen option group -->
@@ -143,34 +143,6 @@
                 android:text="Swap the position of primary and secondary container" />
         </RadioGroup>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="#AAAAAA" />
-
-        <!-- Dropdown for animation background color -->
-
-        <TextView
-            android:id="@+id/animation_background_color_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/current_animation_background_color"/>
-
-        <Spinner
-            android:id="@+id/animation_background_color_dropdown"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:spinnerMode="dropdown" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="#AAAAAA" />
-
         <Button
             android:id="@+id/launch_activity_to_side"
             android:layout_width="wrap_content"
@@ -185,7 +157,7 @@
             android:layout_marginBottom="10dp"
             android:background="#AAAAAA" />
         <TextView
-            android:id="@+id/error_message_text_view"
+            android:id="@+id/warning_message_text_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
     </LinearLayout>

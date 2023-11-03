@@ -24,31 +24,26 @@ import org.tomlj.Toml
 import org.tomlj.TomlParseResult
 import org.tomlj.TomlTable
 
-/**
- * Loads Library groups and versions from a specified TOML file.
- */
+/** Loads Library groups and versions from a specified TOML file. */
 abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Parameters> {
     interface Parameters : BuildServiceParameters {
         var tomlFileName: String
         var tomlFileContents: Provider<String>
         var composeCustomVersion: Provider<String>
         var composeCustomGroup: Provider<String>
-        var useMultiplatformGroupVersions: Provider<Boolean>
     }
 
     private val parsedTomlFile: TomlParseResult by lazy {
         val result = Toml.parse(parameters.tomlFileContents.get())
         if (result.hasErrors()) {
-            val issues = result.errors().map {
-                "${parameters.tomlFileName}:${it.position()}: ${it.message}"
-            }.joinToString(separator = "\n")
+            val issues =
+                result.errors().joinToString(separator = "\n") {
+                    "${parameters.tomlFileName}:${it.position()}: ${it.message}"
+                }
             throw Exception("${parameters.tomlFileName} file has issues.\n$issues")
         }
         result
     }
-
-    val useMultiplatformGroupVersions
-        get() = parameters.useMultiplatformGroupVersions.get()
 
     private fun getTable(key: String): TomlTable {
         return parsedTomlFile.getTable(key)
@@ -60,8 +55,8 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         val versions = getTable("versions")
         versions.keySet().associateWith { versionName ->
             val versionValue =
-                if (versionName.startsWith("COMPOSE") &&
-                    parameters.composeCustomVersion.isPresent
+                if (
+                    versionName.startsWith("COMPOSE") && parameters.composeCustomVersion.isPresent
                 ) {
                     parameters.composeCustomVersion.get()
                 } else {
@@ -78,7 +73,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
     val libraryGroups: Map<String, LibraryGroup> by lazy {
         val result = mutableMapOf<String, LibraryGroup>()
         for (association in libraryGroupAssociations) {
-          result.put(association.declarationName, association.libraryGroup)
+            result[association.declarationName] = association.libraryGroup
         }
         result
     }
@@ -89,17 +84,18 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
         for (association in libraryGroupAssociations) {
             // Check for duplicate groups
             val groupId = association.libraryGroup.group
-            val existingAssociation = result.get(groupId)
+            val existingAssociation = result[groupId]
             if (existingAssociation != null) {
-                if (association.overrideIncludeInProjectPaths.size < 1) {
+                if (association.overrideIncludeInProjectPaths.isEmpty()) {
                     throw GradleException(
                         "Duplicate library group $groupId defined in " +
-                        "${association.declarationName} does not set overrideInclude. " +
-                        "Declarations beyond the first can only have an effect if they set " +
-                        "overrideInclude")
+                            "${association.declarationName} does not set overrideInclude. " +
+                            "Declarations beyond the first can only have an effect if they set " +
+                            "overrideInclude"
+                    )
                 }
             } else {
-                result.put(groupId, association.libraryGroup)
+                result[groupId] = association.libraryGroup
             }
         }
         result
@@ -107,19 +103,17 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
 
     // map from project name to group override if applicable
     val overrideLibraryGroupsByProjectPath: Map<String, LibraryGroup> by lazy {
-       val result = mutableMapOf<String, LibraryGroup>()
-       for (association in libraryGroupAssociations) {
-           for (overridePath in association.overrideIncludeInProjectPaths) {
-               result.put(overridePath, association.libraryGroup)
-           }
-       }
-       result
+        val result = mutableMapOf<String, LibraryGroup>()
+        for (association in libraryGroupAssociations) {
+            for (overridePath in association.overrideIncludeInProjectPaths) {
+                result[overridePath] = association.libraryGroup
+            }
+        }
+        result
     }
 
     private val libraryGroupAssociations: List<LibraryGroupAssociation> by lazy {
         val groups = getTable("groups")
-        val useMultiplatformGroupVersion =
-            parameters.useMultiplatformGroupVersions.orElse(false).get()
 
         fun readGroupVersion(groupDefinition: TomlTable, groupName: String, key: String): Version? {
             val versionRef = groupDefinition.getString(key) ?: return null
@@ -129,52 +123,36 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
                 )
             }
             // name without `versions.`
-            val atomicGroupVersionName = versionRef.removePrefix(
-                VersionReferencePrefix
-            )
-            return libraryVersions[atomicGroupVersionName] ?: error(
-                "Group entry $groupName specifies $atomicGroupVersionName, but such version " +
-                    "doesn't exist"
-            )
+            val atomicGroupVersionName = versionRef.removePrefix(VersionReferencePrefix)
+            return libraryVersions[atomicGroupVersionName]
+                ?: error(
+                    "Group entry $groupName specifies $atomicGroupVersionName, but such version " +
+                        "doesn't exist"
+                )
         }
         val result = mutableListOf<LibraryGroupAssociation>()
         for (name in groups.keySet()) {
             // get group name
             val groupDefinition = groups.getTable(name)!!
             val groupName = groupDefinition.getString("group")!!
-            val finalGroupName = if (name.startsWith("COMPOSE") &&
-                parameters.composeCustomGroup.isPresent
-            ) {
-                groupName.replace("androidx.compose", parameters.composeCustomGroup.get())
-            } else groupName
+            val finalGroupName =
+                if (name.startsWith("COMPOSE") && parameters.composeCustomGroup.isPresent) {
+                    groupName.replace("androidx.compose", parameters.composeCustomGroup.get())
+                } else groupName
 
             // get group version, if any
-            val atomicGroupVersion = readGroupVersion(
-                groupDefinition = groupDefinition,
-                groupName = groupName,
-                key = AtomicGroupVersion
-            )
-            val multiplatformGroupVersion = readGroupVersion(
-                groupDefinition = groupDefinition,
-                groupName = groupName,
-                key = MultiplatformGroupVersion
-            )
-            check(
-                multiplatformGroupVersion == null || atomicGroupVersion != null
-            ) {
-                "Cannot specify $MultiplatformGroupVersion for $name without specifying an " +
-                    AtomicGroupVersion
-            }
-            val groupVersion = when {
-                useMultiplatformGroupVersion -> multiplatformGroupVersion ?: atomicGroupVersion
-                else -> atomicGroupVersion
-            }
+            val atomicGroupVersion =
+                readGroupVersion(
+                    groupDefinition = groupDefinition,
+                    groupName = groupName,
+                    key = AtomicGroupVersion
+                )
+            val overrideApplyToProjects =
+                (groupDefinition.getArray("overrideInclude")?.toList() ?: listOf()).map {
+                    it as String
+                }
 
-            val overrideApplyToProjects = (
-                groupDefinition.getArray("overrideInclude")?.toList() ?: listOf()
-            ).map({ it -> it as String })
-
-            val group = LibraryGroup(finalGroupName, groupVersion)
+            val group = LibraryGroup(finalGroupName, atomicGroupVersion)
             val association = LibraryGroupAssociation(name, group, overrideApplyToProjects)
             result.add(association)
         }
@@ -194,4 +172,3 @@ data class LibraryGroupAssociation(
 
 private const val VersionReferencePrefix = "versions."
 private const val AtomicGroupVersion = "atomicGroupVersion"
-private const val MultiplatformGroupVersion = "multiplatformGroupVersion"

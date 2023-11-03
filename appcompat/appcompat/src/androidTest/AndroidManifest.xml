@@ -18,7 +18,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <uses-sdk
-        android:minSdkVersion="14"
         tools:overrideLibrary="android_libs.ub_uiautomator, androidx.test.uiautomator" />
 
     <application
@@ -131,6 +130,11 @@
             android:theme="@style/Theme.TextColors"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatTextViewFontScalingTest$TextViewFontScalingActivity"
+            android:label="@string/app_compat_text_view_activity"
+            android:theme="@style/Theme.TextColors" />
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatTextViewAutoSizeActivity"
             android:label="@string/app_compat_text_view_auto_size_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
@@ -153,6 +157,11 @@
         <activity
             android:name="androidx.appcompat.widget.AppCompatEditTextReceiveContentActivity"
             android:label="@string/app_compat_edit_text_receive_content_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatImeFocusActivity"
+            android:label="@string/app_compat_ime_focus_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity

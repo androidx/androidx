@@ -16,8 +16,6 @@
 
 package androidx.sqlite.inspection;
 
-import android.annotation.SuppressLint;
-
 import androidx.annotation.GuardedBy;
 
 /**
@@ -27,7 +25,6 @@ import androidx.annotation.GuardedBy;
  *
  * Thread safe.
  */
-@SuppressLint("SyntheticAccessor")
 final class RequestCollapsingThrottler {
     private static final long NEVER = -1;
 

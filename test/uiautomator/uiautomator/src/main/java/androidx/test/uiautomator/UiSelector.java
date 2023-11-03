@@ -16,6 +16,8 @@
 
 package androidx.test.uiautomator;
 
+import static java.util.Objects.requireNonNull;
+
 import android.util.SparseArray;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -109,7 +111,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector text(@NonNull String text) {
-        checkNotNull(text, "text cannot be null");
+        requireNonNull(text, "text cannot be null");
         return buildSelector(SELECTOR_TEXT, text);
     }
 
@@ -125,7 +127,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector textMatches(@NonNull String regex) {
-        checkNotNull(regex, "regex cannot be null");
+        requireNonNull(regex, "regex cannot be null");
         return buildSelector(SELECTOR_TEXT_REGEX, Pattern.compile(regex, Pattern.DOTALL));
     }
 
@@ -140,7 +142,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector textStartsWith(@NonNull String text) {
-        checkNotNull(text, "text cannot be null");
+        requireNonNull(text, "text cannot be null");
         return buildSelector(SELECTOR_START_TEXT, text);
     }
 
@@ -155,7 +157,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector textContains(@NonNull String text) {
-        checkNotNull(text, "text cannot be null");
+        requireNonNull(text, "text cannot be null");
         return buildSelector(SELECTOR_CONTAINS_TEXT, text);
     }
 
@@ -168,7 +170,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector className(@NonNull String className) {
-        checkNotNull(className, "className cannot be null");
+        requireNonNull(className, "className cannot be null");
         return buildSelector(SELECTOR_CLASS, className);
     }
 
@@ -181,7 +183,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector classNameMatches(@NonNull String regex) {
-        checkNotNull(regex, "regex cannot be null");
+        requireNonNull(regex, "regex cannot be null");
         return buildSelector(SELECTOR_CLASS_REGEX, Pattern.compile(regex));
     }
 
@@ -194,7 +196,7 @@ public class UiSelector {
      */
     @NonNull
     public <T> UiSelector className(@NonNull Class<T> type) {
-        checkNotNull(type, "type cannot be null");
+        requireNonNull(type, "type cannot be null");
         return buildSelector(SELECTOR_CLASS, type.getName());
     }
 
@@ -216,7 +218,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector description(@NonNull String desc) {
-        checkNotNull(desc, "desc cannot be null");
+        requireNonNull(desc, "desc cannot be null");
         return buildSelector(SELECTOR_DESCRIPTION, desc);
     }
 
@@ -236,7 +238,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector descriptionMatches(@NonNull String regex) {
-        checkNotNull(regex, "regex cannot be null");
+        requireNonNull(regex, "regex cannot be null");
         return buildSelector(SELECTOR_DESCRIPTION_REGEX, Pattern.compile(regex, Pattern.DOTALL));
     }
 
@@ -258,7 +260,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector descriptionStartsWith(@NonNull String desc) {
-        checkNotNull(desc, "desc cannot be null");
+        requireNonNull(desc, "desc cannot be null");
         return buildSelector(SELECTOR_START_DESCRIPTION, desc);
     }
 
@@ -280,7 +282,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector descriptionContains(@NonNull String desc) {
-        checkNotNull(desc, "desc cannot be null");
+        requireNonNull(desc, "desc cannot be null");
         return buildSelector(SELECTOR_CONTAINS_DESCRIPTION, desc);
     }
 
@@ -292,7 +294,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector resourceId(@NonNull String id) {
-        checkNotNull(id, "id cannot be null");
+        requireNonNull(id, "id cannot be null");
         return buildSelector(SELECTOR_RESOURCE_ID, id);
     }
 
@@ -305,7 +307,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector resourceIdMatches(@NonNull String regex) {
-        checkNotNull(regex, "regex cannot be null");
+        requireNonNull(regex, "regex cannot be null");
         return buildSelector(SELECTOR_RESOURCE_ID_REGEX, Pattern.compile(regex));
     }
 
@@ -537,7 +539,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector childSelector(@NonNull UiSelector selector) {
-        checkNotNull(selector, "selector cannot be null");
+        requireNonNull(selector, "selector cannot be null");
         return buildSelector(SELECTOR_CHILD, selector);
     }
 
@@ -561,7 +563,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector fromParent(@NonNull UiSelector selector) {
-        checkNotNull(selector, "selector cannot be null");
+        requireNonNull(selector, "selector cannot be null");
         return buildSelector(SELECTOR_PARENT, selector);
     }
 
@@ -574,7 +576,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector packageName(@NonNull String name) {
-        checkNotNull(name, "name cannot be null");
+        requireNonNull(name, "name cannot be null");
         return buildSelector(SELECTOR_PACKAGE_NAME, name);
     }
 
@@ -587,7 +589,7 @@ public class UiSelector {
      */
     @NonNull
     public UiSelector packageNameMatches(@NonNull String regex) {
-        checkNotNull(regex, "regex cannot be null");
+        requireNonNull(regex, "regex cannot be null");
         return buildSelector(SELECTOR_PACKAGE_NAME_REGEX, Pattern.compile(regex));
     }
 
@@ -1021,12 +1023,5 @@ public class UiSelector {
         }
         builder.append("]");
         return builder.toString();
-    }
-
-    private static <T> T checkNotNull(T value, @NonNull String message) {
-        if (value == null) {
-            throw new NullPointerException(message);
-        }
-        return value;
     }
 }

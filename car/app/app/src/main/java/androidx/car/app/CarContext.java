@@ -43,11 +43,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StringDef;
+import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.RequiresCarApi;
 import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.hardware.CarHardwareManager;
 import androidx.car.app.managers.ManagerCache;
 import androidx.car.app.managers.ResultManager;
+import androidx.car.app.media.MediaPlaybackManager;
 import androidx.car.app.navigation.NavigationManager;
 import androidx.car.app.notification.CarPendingIntent;
 import androidx.car.app.suggestion.SuggestionManager;
@@ -97,10 +99,11 @@ public class CarContext extends ContextWrapper {
     /**
      * Represents the types of services for client-host communication.
      *
-     * @hide
      */
+    @SuppressWarnings({
+            "UnsafeOptInUsageError"})
     @StringDef({APP_SERVICE, CAR_SERVICE, NAVIGATION_SERVICE, SCREEN_SERVICE, CONSTRAINT_SERVICE,
-            HARDWARE_SERVICE, SUGGESTION_SERVICE})
+            HARDWARE_SERVICE, SUGGESTION_SERVICE, MEDIA_PLAYBACK_SERVICE})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY)
     public @interface CarServiceType {
@@ -135,6 +138,12 @@ public class CarContext extends ContextWrapper {
      * Manages posting suggestion events
      */
     public static final String SUGGESTION_SERVICE = "suggestion";
+
+    /**
+     * Manages the media requests from 3p apps such as providing a media session token,
+     */
+    @ExperimentalCarApi
+    public static final String MEDIA_PLAYBACK_SERVICE = "media_playback";
 
     /**
      * Key for including a IStartCarApp in the notification {@link Intent}, for starting the app
@@ -179,7 +188,6 @@ public class CarContext extends ContextWrapper {
     @Nullable
     private HostInfo mHostInfo = null;
 
-    /** @hide */
     @NonNull
     @RestrictTo(LIBRARY)
     public static CarContext create(@NonNull Lifecycle lifecycle) {
@@ -612,7 +620,6 @@ public class CarContext extends ContextWrapper {
         startActivity(intent);
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     @MainThread
     public void setCarHost(@NonNull ICarHost carHost) {
@@ -624,7 +631,6 @@ public class CarContext extends ContextWrapper {
      * Copies the fields from the provided {@link Configuration} into the {@link Configuration}
      * contained in this object.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @MainThread
@@ -646,8 +652,6 @@ public class CarContext extends ContextWrapper {
 
     /**
      * Updates context information based on the information provided during connection handshake
-     *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     @MainThread
@@ -658,7 +662,6 @@ public class CarContext extends ContextWrapper {
     /**
      * Updates host information based on the information provided during connection handshake
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @MainThread
@@ -676,7 +679,6 @@ public class CarContext extends ContextWrapper {
      * updates to the phone configuration do not update either the {@link Configuration} or {@link
      * android.util.DisplayMetrics} held by this {@link CarContext}'s resources.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @MainThread
@@ -707,18 +709,17 @@ public class CarContext extends ContextWrapper {
         onCarConfigurationChanged(configuration);
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     // Restrict to testing library
     ManagerCache getManagers() {
         return mManagers;
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY_GROUP) // Restrict to testing library
     @SuppressWarnings({
             "argument.type.incompatible",
-            "method.invocation.invalid"
+            "method.invocation.invalid",
+            "UnsafeOptInUsageError"
     }) // @UnderInitialization not available with androidx
     protected CarContext(@NonNull Lifecycle lifecycle, @NonNull HostDispatcher hostDispatcher) {
         super(null);
@@ -738,6 +739,8 @@ public class CarContext extends ContextWrapper {
                 () -> ResultManager.create(this));
         mManagers.addFactory(SuggestionManager.class, SUGGESTION_SERVICE,
                 () -> SuggestionManager.create(this, hostDispatcher, lifecycle));
+        mManagers.addFactory(MediaPlaybackManager.class, MEDIA_PLAYBACK_SERVICE,
+                () -> MediaPlaybackManager.create(this, hostDispatcher, lifecycle));
 
         mOnBackPressedDispatcher =
                 new OnBackPressedDispatcher(() -> getCarService(ScreenManager.class).pop());

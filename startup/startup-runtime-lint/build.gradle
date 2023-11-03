@@ -32,7 +32,7 @@ dependencies {
 }
 
 androidx {
-    name = "Android App Startup Runtime Lint Checks"
+    name = "Startup Runtime Lint Checks"
     type = LibraryType.LINT
     inceptionYear = "2020"
     description = "Android App Startup Runtime"

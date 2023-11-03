@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.XProcessingEnvConfig
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KmTypeContainer
+import androidx.room.compiler.processing.javac.kotlin.KmTypeParameterContainer
 import com.google.auto.common.GeneratedAnnotations
 import com.google.auto.common.MoreTypes
 import java.util.Locale
@@ -36,6 +37,7 @@ import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
+import javax.lang.model.type.TypeVariable
 import javax.lang.model.util.Elements
 import javax.lang.model.util.Types
 
@@ -90,6 +92,10 @@ internal class JavacProcessingEnv(
         return packageElement.enclosedElements
             .filterIsInstance<TypeElement>()
             .map { wrapTypeElement(it) }
+    }
+
+    override fun getElementsFromPackage(packageName: String): List<XElement> {
+        return getTypeElementsFromPackage(packageName)
     }
 
     override fun findType(qName: String): XType? {
@@ -162,6 +168,27 @@ internal class JavacProcessingEnv(
     }
 
     fun wrapTypeElement(element: TypeElement) = typeElementStore[element]
+
+    fun wrap(
+        typeMirror: TypeVariable,
+        kotlinType: KmTypeParameterContainer?,
+    ): JavacTypeVariableType {
+        return when {
+            kotlinType != null -> {
+                JavacTypeVariableType(
+                    env = this,
+                    typeMirror = MoreTypes.asTypeVariable(typeMirror),
+                    kotlinType = kotlinType
+                )
+            }
+            else -> {
+                JavacTypeVariableType(
+                    env = this,
+                    typeMirror = MoreTypes.asTypeVariable(typeMirror)
+                )
+            }
+        }
+    }
 
     /**
      * Wraps the given java processing type into an XType.
@@ -289,10 +316,7 @@ internal class JavacProcessingEnv(
                 wrapExecutableElement(element)
             }
             is PackageElement -> {
-                error(
-                    "Cannot get elements with annotation $annotationName. Package " +
-                        "elements are not supported by XProcessing."
-                )
+                JavacPackageElement(this, element)
             }
             else -> error("Unsupported element $element with annotation $annotationName")
         }

@@ -187,7 +187,6 @@ constructor(
          * @param watchfacePackageName The package name of the watchface, see
          *   [ComponentName.getPackageName].
          * @throws [PackageManager.NameNotFoundException] if watchfacePackageName is not recognized.
-         * @hide
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

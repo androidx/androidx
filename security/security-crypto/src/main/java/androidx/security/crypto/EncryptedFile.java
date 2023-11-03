@@ -117,9 +117,9 @@ public final class EncryptedFile {
          * The file content is encrypted using StreamingAead with AES-GCM, with the file name as
          * associated data.
          *
-         * For more information please see the Tink documentation:
+         * <p>For more information please see the Tink documentation:
          *
-         * <a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/streamingaead/AesGcmHkdfStreamingKeyManager.html">AesGcmHkdfStreamingKeyManager</a>.aes256GcmHkdf4KBTemplate()
+         * <p><a href="https://google.github.io/tink/javadoc/tink/1.7.0/com/google/crypto/tink/streamingaead/AesGcmHkdfStreamingKeyManager.html">AesGcmHkdfStreamingKeyManager</a>.aes256GcmHkdf4KBTemplate()
          */
         AES256_GCM_HKDF_4KB("AES256_GCM_HKDF_4KB");
 
@@ -138,7 +138,7 @@ public final class EncryptedFile {
      * Builder class to configure EncryptedFile
      */
     public static final class Builder {
-        private static Object sLock = new Object();
+        private static final Object sLock = new Object();
 
         /**
          * Builder for an EncryptedFile.
@@ -245,7 +245,7 @@ public final class EncryptedFile {
      * Opens a FileOutputStream for writing that automatically encrypts the data based on the
      * provided settings.
      *
-     * Please ensure that the same master key and keyset are  used to decrypt or it
+     * <p>Please ensure that the same master key and keyset are  used to decrypt or it
      * will cause failures.
      *
      * @return The FileOutputStream that encrypts all data.
@@ -268,7 +268,7 @@ public final class EncryptedFile {
     /**
      * Opens a FileInputStream that reads encrypted files based on the previous settings.
      *
-     * Please ensure that the same master key and keyset are  used to decrypt or it
+     * <p>Please ensure that the same master key and keyset are  used to decrypt or it
      * will cause failures.
      *
      * @return The input stream to read previously encrypted data.

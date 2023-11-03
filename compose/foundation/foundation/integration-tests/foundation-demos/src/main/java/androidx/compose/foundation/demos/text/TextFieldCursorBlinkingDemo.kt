@@ -18,11 +18,18 @@ package androidx.compose.foundation.demos.text
 
 import androidx.compose.animation.Animatable
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Button
+import androidx.compose.material.Surface
+import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,6 +37,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -39,7 +49,9 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import kotlinx.coroutines.delay
 
 @Preview
@@ -196,5 +208,38 @@ fun ChangingSelectionShowsCursor() {
             onValueChange = {},
             textStyle = TextStyle.Default.copy(fontFamily = FontFamily.Monospace)
         )
+    }
+}
+
+@Composable
+fun CursorNotBlinkingInUnfocusedWindowDemo() {
+    Column(Modifier.fillMaxSize()) {
+        var text by remember { mutableStateOf("hello") }
+        TextField(value = text, onValueChange = { text = it })
+
+        var showDialog by remember { mutableStateOf(false) }
+        Button(
+            onClick = { showDialog = true },
+            modifier = Modifier.focusProperties { canFocus = false }
+        ) {
+            Text("Open Dialog")
+        }
+        if (showDialog) {
+            Dialog(onDismissRequest = { showDialog = false }) {
+                Surface(elevation = 20.dp) {
+                    val dialogFocusRequester = remember { FocusRequester() }
+                    Text(
+                        "Hello! This is a dialog.",
+                        Modifier
+                            .padding(20.dp)
+                            .focusRequester(dialogFocusRequester)
+                            .background(Color.DarkGray)
+                    )
+                    LaunchedEffect(Unit) {
+                        dialogFocusRequester.requestFocus()
+                    }
+                }
+            }
+        }
     }
 }

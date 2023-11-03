@@ -26,8 +26,8 @@ import androidx.privacysandbox.tools.core.model.Type
 import androidx.privacysandbox.tools.core.model.Types
 import androidx.privacysandbox.tools.core.model.Types.asNullable
 import androidx.privacysandbox.tools.core.model.ValueProperty
+import androidx.privacysandbox.tools.core.model.containsSdkActivityLauncher
 import androidx.privacysandbox.tools.testing.CompilationTestHelper.assertCompiles
-import androidx.privacysandbox.tools.testing.allTestLibraryStubs
 import androidx.room.compiler.processing.util.Source
 import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
@@ -226,7 +226,7 @@ class ApiStubParserTest {
                     class NonAnnotatedClass
                 """
             ), Source.java(
-                "com/mysdk/NonAnnotatedJavaClass.java", """
+                "com/mysdk/NonAnnotatedJavaClass", """
                     package com.mysdk;
                     class NonAnnotatedJavaClass {}
                 """
@@ -264,9 +264,100 @@ class ApiStubParserTest {
     }
 
     @Test
+    fun sandboxedUiAdapter_correctlyDetectedInService() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    @PrivacySandboxService
+                    interface MySdk {
+                        fun useLauncher(launcher: SdkActivityLauncher)
+                    }
+                """
+        )
+
+        assertThat(compileAndParseApi(source).containsSdkActivityLauncher()).isTrue()
+    }
+
+    @Test
+    fun sandboxedUiAdapter_correctlyDetectedInInterface() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxInterface
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    @PrivacySandboxService
+                    interface MySdk
+
+                    @PrivacySandboxInterface
+                    interface MyInterface {
+                        fun useLauncher(launcher: SdkActivityLauncher)
+                    }
+                """
+        )
+
+        assertThat(compileAndParseApi(source).containsSdkActivityLauncher()).isTrue()
+    }
+
+    @Test
+    fun sandboxedUiAdapter_correctlyDetectedInCallback() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxCallback
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    @PrivacySandboxService
+                    interface MySdk
+
+                    @PrivacySandboxCallback
+                    interface MyCallback {
+                        fun useLauncher(launcher: SdkActivityLauncher)
+                    }
+                """
+        )
+
+        assertThat(compileAndParseApi(source).containsSdkActivityLauncher()).isTrue()
+    }
+
+    @Test
+    fun sandboxedUiAdapter_correctlyDetectedInValue() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    import androidx.privacysandbox.tools.PrivacySandboxValue
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    @PrivacySandboxService
+                    interface MySdk
+
+                    @PrivacySandboxValue
+                    data class MyValue(val launcher: SdkActivityLauncher)
+                """
+        )
+
+        assertThat(compileAndParseApi(source).containsSdkActivityLauncher()).isTrue()
+    }
+
+    @Test
+    fun sandboxedUiAdapter_notDetectedWhenNotPresent() {
+        val source = Source.kotlin(
+            "com/mysdk/MySdk.kt", """
+                    import androidx.privacysandbox.tools.PrivacySandboxService
+                    // Deliberate unused import
+                    import androidx.privacysandbox.ui.core.SdkActivityLauncher
+                    @PrivacySandboxService
+                    interface MySdk {
+                        fun doStuff(input: String)
+                    }
+                """
+        )
+
+        assertThat(compileAndParseApi(source).containsSdkActivityLauncher()).isFalse()
+    }
+
+    @Test
     fun nonKotlinAnnotatedInterface_throws() {
         val source = Source.java(
-            "com/mysdk/MySdk.java", """
+            "com/mysdk/MySdk", """
                     package com.mysdk;
                     import androidx.privacysandbox.tools.PrivacySandboxService;
                     @PrivacySandboxService
@@ -404,7 +495,7 @@ class ApiStubParserTest {
     }
 
     private fun compileAndParseApi(vararg sources: Source): ParsedApi {
-        val classpath = mergedClasspath(assertCompiles(sources.toList() + allTestLibraryStubs))
+        val classpath = mergedClasspath(assertCompiles(sources.toList()))
         return ApiStubParser.parse(classpath)
     }
 }

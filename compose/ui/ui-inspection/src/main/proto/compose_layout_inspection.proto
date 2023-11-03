@@ -89,6 +89,9 @@ message ComposableNode {
       HAS_MERGED_SEMANTICS = 0x2;
       HAS_UNMERGED_SEMANTICS = 0x4;
       INLINED = 0x8;
+      // If a node has the NESTED_SINGLE_CHILDREN flag, it means the children should be
+      // interpreted as a subtree of single nodes.
+      NESTED_SINGLE_CHILDREN = 0x16;
     }
     int32 flags = 9;
 
@@ -305,6 +308,8 @@ message UpdateSettingsCommand {
   bool keep_recompose_counts = 2;
   // If true, the compose parameters will not be extracted before
   bool delay_parameter_extractions = 3;
+  // If true, encode nested single children under the top node.
+  bool reduce_child_nesting = 4;
 }
 
 // The active settings after handling of an UpdateSettingsCommand

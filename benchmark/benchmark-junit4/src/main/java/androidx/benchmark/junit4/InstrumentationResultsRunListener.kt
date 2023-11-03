@@ -20,17 +20,16 @@ import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.benchmark.InstrumentationResults
 import androidx.test.internal.runner.listener.InstrumentationRunListener
-import org.junit.runner.Result
 import java.io.PrintStream
+import org.junit.runner.Result
 
 /**
  * Used to register files to copy at the end of the entire test run in CI.
  *
  * See [InstrumentationResults.runEndResultBundle]
  *
- * @hide
  */
-@Suppress("unused") // referenced by inst arg at runtime
+@Suppress("unused", "RestrictedApiAndroidX") // referenced by inst arg at runtime
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class InstrumentationResultsRunListener : InstrumentationRunListener() {
     override fun instrumentationRunFinished(

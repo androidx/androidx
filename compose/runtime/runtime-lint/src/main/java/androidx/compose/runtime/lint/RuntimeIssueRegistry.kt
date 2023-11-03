@@ -30,6 +30,8 @@ class RuntimeIssueRegistry : IssueRegistry() {
     override val api = 14
     override val minApi = CURRENT_API
     override val issues get() = listOf(
+        AutoboxingStateValuePropertyDetector.AutoboxingStateValueProperty,
+        AutoboxingStateCreationDetector.AutoboxingStateCreation,
         ComposableCoroutineCreationDetector.CoroutineCreationDuringComposition,
         ComposableFlowOperatorDetector.FlowOperatorInvokedInComposition,
         ComposableLambdaParameterDetector.ComposableLambdaParameterNaming,
@@ -40,6 +42,7 @@ class RuntimeIssueRegistry : IssueRegistry() {
         MutableCollectionMutableStateDetector.MutableCollectionMutableState,
         ProduceStateDetector.ProduceStateDoesNotAssignValue,
         RememberDetector.RememberReturnType,
+        OpaqueUnitKeyDetector.OpaqueUnitKey,
         UnrememberedStateDetector.UnrememberedState
     )
     override val vendor = Vendor(

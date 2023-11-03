@@ -31,7 +31,7 @@ import androidx.fragment.app.Fragment;
 /**
  * A fragment for displaying page navigation shortcuts of the debug view.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class MenuFragment extends Fragment {

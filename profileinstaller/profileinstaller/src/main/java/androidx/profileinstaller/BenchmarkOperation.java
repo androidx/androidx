@@ -32,10 +32,15 @@ class BenchmarkOperation {
             @NonNull ProfileInstallReceiver.ResultDiagnostics callback
     ) {
         File shaderDirectory;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            // shaders started using code cache dir once it was added in N
-            shaderDirectory = Api24ContextHelper.getDeviceProtectedCodeCacheDir(context);
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            // U switched to cache dir, so it's not deleted on each app update
+            shaderDirectory = Api24ContextHelper.createDeviceProtectedStorageContext(context)
+                    .getCacheDir();
+        } else if (Build.VERSION.SDK_INT >= 24) {
+            // shaders started using device protected storage context once it was added in N
+            shaderDirectory = Api21ContextHelper.getCodeCacheDir(
+                    Api24ContextHelper.createDeviceProtectedStorageContext(context));
+        } else if (Build.VERSION.SDK_INT == 23) {
             // getCodeCacheDir was added in L, but not used by platform for shaders until M
             shaderDirectory = Api21ContextHelper.getCodeCacheDir(context);
         } else {
@@ -82,9 +87,9 @@ class BenchmarkOperation {
 
     @RequiresApi(api = Build.VERSION_CODES.N)
     private static class Api24ContextHelper {
-        static File getDeviceProtectedCodeCacheDir(Context context) {
+        static Context createDeviceProtectedStorageContext(Context context) {
             // Code device protected storage added in 24
-            return context.createDeviceProtectedStorageContext().getCodeCacheDir();
+            return context.createDeviceProtectedStorageContext();
         }
     }
 }

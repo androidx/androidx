@@ -90,10 +90,18 @@ class LinearLayoutManagerRemoveShownItemsTest(
         mLayoutManager.waitForLayout(2)
 
         // .. then the views after the removed view are moved into the gap
-        assertEquals(expectedResultingAdapterPosition, llm.findFirstVisibleItemPosition())
-        assertEquals(expectedResultingAdapterPosition, llm.findFirstCompletelyVisibleItemPosition())
-        assertEquals(expectedResultingAdapterPosition, llm.findLastCompletelyVisibleItemPosition())
-        assertEquals(expectedResultingAdapterPosition, llm.findLastVisibleItemPosition())
+        mActivityRule.runOnUiThread {
+            assertEquals(expectedResultingAdapterPosition, llm.findFirstVisibleItemPosition())
+            assertEquals(
+                expectedResultingAdapterPosition,
+                llm.findFirstCompletelyVisibleItemPosition()
+            )
+            assertEquals(
+                expectedResultingAdapterPosition,
+                llm.findLastCompletelyVisibleItemPosition()
+            )
+            assertEquals(expectedResultingAdapterPosition, llm.findLastVisibleItemPosition())
+        }
     }
 
     /**
@@ -136,13 +144,18 @@ class LinearLayoutManagerRemoveShownItemsTest(
         mLayoutManager.waitForLayout(2)
 
         // .. then the views after the removed view are moved into the gap
-        assertEquals(expectedResultingAdapterPosition, llm.findFirstVisibleItemPosition())
-        assertEquals(expectedResultingAdapterPosition, llm.findFirstCompletelyVisibleItemPosition())
-        assertEquals(
-            expectedResultingAdapterPosition + 1,
-            llm.findLastCompletelyVisibleItemPosition()
-        )
-        assertEquals(expectedResultingAdapterPosition + 1, llm.findLastVisibleItemPosition())
+        mActivityRule.runOnUiThread {
+            assertEquals(expectedResultingAdapterPosition, llm.findFirstVisibleItemPosition())
+            assertEquals(
+                expectedResultingAdapterPosition,
+                llm.findFirstCompletelyVisibleItemPosition()
+            )
+            assertEquals(
+                expectedResultingAdapterPosition + 1,
+                llm.findLastCompletelyVisibleItemPosition()
+            )
+            assertEquals(expectedResultingAdapterPosition + 1, llm.findLastVisibleItemPosition())
+        }
     }
 
     /**
@@ -183,13 +196,21 @@ class LinearLayoutManagerRemoveShownItemsTest(
         mLayoutManager.waitForLayout(2)
 
         // .. then the views after the removed view are moved into the gap
-        assertEquals(expectedResultingAdapterPosition, llm.findFirstVisibleItemPosition())
-        assertEquals(expectedResultingAdapterPosition, llm.findFirstCompletelyVisibleItemPosition())
-        assertEquals(expectedResultingAdapterPosition, llm.findLastCompletelyVisibleItemPosition())
-        assertEquals(expectedResultingAdapterPosition, llm.findLastVisibleItemPosition())
+        mActivityRule.runOnUiThread {
+            assertEquals(expectedResultingAdapterPosition, llm.findFirstVisibleItemPosition())
+            assertEquals(
+                expectedResultingAdapterPosition,
+                llm.findFirstCompletelyVisibleItemPosition()
+            )
+            assertEquals(
+                expectedResultingAdapterPosition,
+                llm.findLastCompletelyVisibleItemPosition()
+            )
+            assertEquals(expectedResultingAdapterPosition, llm.findLastVisibleItemPosition())
+        }
     }
 
-    private inner class MyLayoutManager internal constructor(context: Context, val itemSize: Int) :
+    private inner class MyLayoutManager(context: Context, val itemSize: Int) :
         WrappedLinearLayoutManager(context, config.mOrientation, config.mReverseLayout) {
 
         override fun calculateExtraLayoutSpace(

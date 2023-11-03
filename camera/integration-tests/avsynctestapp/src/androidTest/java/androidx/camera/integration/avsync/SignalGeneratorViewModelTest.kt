@@ -35,9 +35,10 @@ package androidx.camera.integration.avsync
 import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.core.CameraSelector
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.ViewModelStoreOwner
@@ -121,6 +122,8 @@ class SignalGeneratorViewModelTest {
 
     @Test
     fun initialRecorder_canMakeRecorderReady(): Unit = runBlocking {
+        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
+
         viewModel.initialRecorder(context, lifecycleOwner)
 
         assertThat(viewModel.isRecorderReady).isTrue()
@@ -167,6 +170,8 @@ class SignalGeneratorViewModelTest {
 
     @Test
     fun startAndStopRecording_canWorkCorrectlyAfterRecorderReady(): Unit = runBlocking {
+        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT))
+
         // Arrange.
         viewModel.initialRecorder(context, lifecycleOwner)
 

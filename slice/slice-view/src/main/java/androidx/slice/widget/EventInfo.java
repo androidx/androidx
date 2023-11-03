@@ -25,12 +25,16 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Represents information associated with a logged event on {@link SliceView}.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public class EventInfo {
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -82,19 +86,16 @@ public class EventInfo {
     public static final int ROW_TYPE_SELECTION = 6;
     /**
      * Indicates the row represents a date selection (date picker).
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ROW_TYPE_DATE_PICK = 7;
     /**
      * Indicates the row represents a time selection (time picker).
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ROW_TYPE_TIME_PICK = 8;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({
@@ -134,19 +135,16 @@ public class EventInfo {
     public static final int ACTION_TYPE_SELECTION = 5;
     /**
      * Indicates the event was a selection from a date picker.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ACTION_TYPE_DATE_PICK = 6;
     /**
      * Indicates the event was a selection from a time picker.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int ACTION_TYPE_TIME_PICK = 7;
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef({

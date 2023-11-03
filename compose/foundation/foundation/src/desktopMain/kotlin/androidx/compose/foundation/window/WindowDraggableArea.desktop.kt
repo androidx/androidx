@@ -16,8 +16,8 @@
 
 package androidx.compose.foundation.window
 
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -36,6 +36,7 @@ import java.awt.event.MouseMotionAdapter
  * WindowDraggableArea is a component that allows you to drag the window using the mouse.
  *
  * @param modifier The modifier to be applied to the layout.
+ * @param content The content lambda.
  */
 @Composable
 fun WindowScope.WindowDraggableArea(

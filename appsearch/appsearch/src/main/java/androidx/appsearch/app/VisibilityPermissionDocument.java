@@ -16,23 +16,35 @@
 
 package androidx.appsearch.app;
 
+import android.os.Parcel;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.safeparcel.AbstractSafeParcelable;
+import androidx.appsearch.safeparcel.SafeParcelable;
+import androidx.appsearch.safeparcel.stub.StubCreators.VisibilityPermissionDocumentCreator;
 import androidx.collection.ArraySet;
 
+import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 
 /**
  * The nested document that holds all required permissions for a caller need to hold to access the
  * schema which the outer {@link VisibilityDocument} represents.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class VisibilityPermissionDocument extends GenericDocument {
+@SafeParcelable.Class(creator = "VisibilityPermissionDocumentCreator")
+public final class VisibilityPermissionDocument extends AbstractSafeParcelable {
+    @NonNull
+    public static final VisibilityPermissionDocumentCreator CREATOR =
+            new VisibilityPermissionDocumentCreator();
 
     /**
-     * The Schema type for documents that hold AppSearch's metadata, e.g. visibility settings.
+     * The Schema type for documents that hold AppSearch's metadata, such as visibility settings.
      */
     public static final String SCHEMA_TYPE = "VisibilityPermissionType";
 
@@ -52,48 +64,79 @@ public class VisibilityPermissionDocument extends GenericDocument {
                     .build())
             .build();
 
-    VisibilityPermissionDocument(@NonNull GenericDocument genericDocument) {
-        super(genericDocument);
+    @NonNull
+    @Field(id = 1, getter = "getId")
+    private final String mId;
+
+    @NonNull
+    @Field(id = 2, getter = "getNamespace")
+    private final String mNamespace;
+
+    @Nullable
+    @Field(id = 3, getter = "getAllRequiredPermissionsInts")
+    // SafeParcelable doesn't support Set<Integer>, so we have to convert it to int[].
+    private final int[] mAllRequiredPermissions;
+
+    @Nullable
+    // We still need to convert this class to a GenericDocument until we completely treat it
+    // differently in AppSearchImpl.
+    // TODO(b/298118943) Remove this once internally we don't use GenericDocument to store
+    //  visibility information.
+    private GenericDocument mGenericDocument;
+
+    @Nullable
+    private Integer mHashCode;
+
+    @Constructor
+    VisibilityPermissionDocument(
+            @Param(id = 1) @NonNull String id,
+            @Param(id = 2) @NonNull String namespace,
+            @Param(id = 3) @Nullable int[] allRequiredPermissions) {
+        mId = Objects.requireNonNull(id);
+        mNamespace = Objects.requireNonNull(namespace);
+        mAllRequiredPermissions = allRequiredPermissions;
     }
 
     /**
-     * Returns an array of Android Permissions that caller mush hold to access the schema
-     * that the outer {@link VisibilityDocument} represents.
+     * Gets the id for this {@link VisibilityPermissionDocument}.
+     *
+     * <p>This is being used as the document id when we convert a
+     * {@link VisibilityPermissionDocument} to a {@link GenericDocument}.
+     */
+    @NonNull
+    public String getId() {
+        return mId;
+    }
+
+    /**
+     * Gets the namespace for this {@link VisibilityPermissionDocument}.
+     *
+     * <p>This is being used as the namespace when we convert a
+     * {@link VisibilityPermissionDocument} to a {@link GenericDocument}.
+     */
+    @NonNull
+    public String getNamespace() {
+        return mNamespace;
+    }
+
+    /** Gets the required Android Permissions in an int array. */
+    @Nullable
+    int[] getAllRequiredPermissionsInts() {
+        return mAllRequiredPermissions;
+    }
+
+    /**
+     * Returns an array of Android Permissions that caller mush hold to access the schema that the
+     * outer {@link VisibilityDocument} represents.
      */
     @Nullable
     public Set<Integer> getAllRequiredPermissions() {
-        return toInts(getPropertyLongArray(ALL_REQUIRED_PERMISSIONS_PROPERTY));
-    }
-
-    /** Builder for {@link VisibilityPermissionDocument}. */
-    public static class Builder extends GenericDocument.Builder<Builder> {
-
-        /**
-         * Creates a {@link VisibilityDocument.Builder} for a {@link VisibilityDocument}.
-         */
-        public Builder(@NonNull String namespace, @NonNull String id) {
-            super(namespace, id, SCHEMA_TYPE);
-        }
-
-        /** Sets whether this schema has opted out of platform surfacing. */
-        @NonNull
-        public Builder setVisibleToAllRequiredPermissions(
-                @NonNull Set<Integer> allRequiredPermissions) {
-            setPropertyLong(ALL_REQUIRED_PERMISSIONS_PROPERTY, toLongs(allRequiredPermissions));
-            return this;
-        }
-
-        /** Build a {@link VisibilityPermissionDocument} */
-        @Override
-        @NonNull
-        public VisibilityPermissionDocument build() {
-            return new VisibilityPermissionDocument(super.build());
-        }
+        return toIntegerSet(mAllRequiredPermissions);
     }
 
     @NonNull
-    static long[] toLongs(@NonNull Set<Integer> properties) {
-        long[] outputs = new long[properties.size()];
+    private static int[] toInts(@NonNull Set<Integer> properties) {
+        int[] outputs = new int[properties.size()];
         int i = 0;
         for (int property : properties) {
             outputs[i++] = property;
@@ -102,14 +145,125 @@ public class VisibilityPermissionDocument extends GenericDocument {
     }
 
     @Nullable
-    private static Set<Integer> toInts(@Nullable long[] properties) {
+    private static Set<Integer> toIntegerSet(@Nullable int[] properties) {
         if (properties == null) {
             return null;
         }
         Set<Integer> outputs = new ArraySet<>(properties.length);
-        for (long property : properties) {
-            outputs.add((int) property);
+        for (int property : properties) {
+            outputs.add(property);
         }
         return outputs;
+    }
+
+    /**
+     * Generates a {@link GenericDocument} from the current class.
+     *
+     * <p>This conversion is needed until we don't treat Visibility related documents as
+     * {@link GenericDocument}s internally.
+     */
+    @NonNull
+    public GenericDocument toGenericDocument() {
+        if (mGenericDocument == null) {
+            GenericDocument.Builder<?> builder = new GenericDocument.Builder<>(
+                    mNamespace, mId, SCHEMA_TYPE);
+
+            if (mAllRequiredPermissions != null) {
+                // GenericDocument only supports long, so int[] needs to be converted to
+                // long[] here.
+                long[] longs = new long[mAllRequiredPermissions.length];
+                for (int i = 0; i < mAllRequiredPermissions.length; ++i) {
+                    longs[i] = mAllRequiredPermissions[i];
+                }
+                builder.setPropertyLong(ALL_REQUIRED_PERMISSIONS_PROPERTY, longs);
+            }
+
+            mGenericDocument = builder.build();
+        }
+        return mGenericDocument;
+    }
+
+    @Override
+    public int hashCode() {
+        if (mHashCode == null) {
+            mHashCode = Objects.hash(mId, mNamespace, Arrays.hashCode(mAllRequiredPermissions));
+        }
+        return mHashCode;
+    }
+
+    @Override
+    public boolean equals(@Nullable Object other) {
+        if (this == other) {
+            return true;
+        }
+        if (!(other instanceof VisibilityPermissionDocument)) {
+            return false;
+        }
+        VisibilityPermissionDocument otherVisibilityPermissionDocument =
+                (VisibilityPermissionDocument) other;
+        return mId.equals(otherVisibilityPermissionDocument.mId)
+                && mNamespace.equals(otherVisibilityPermissionDocument.mNamespace)
+                && Arrays.equals(
+                mAllRequiredPermissions,
+                otherVisibilityPermissionDocument.mAllRequiredPermissions);
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        VisibilityPermissionDocumentCreator.writeToParcel(this, dest, flags);
+    }
+
+    /** Builder for {@link VisibilityPermissionDocument}. */
+    public static final class Builder {
+        private String mId;
+        private String mNamespace;
+        private int[] mAllRequiredPermissions;
+
+        /**
+         * Constructs a {@link VisibilityPermissionDocument} from a {@link GenericDocument}.
+         *
+         * <p>This constructor is still needed until we don't treat Visibility related documents as
+         * {@link GenericDocument}s internally.
+         */
+        public Builder(@NonNull GenericDocument genericDocument) {
+            Objects.requireNonNull(genericDocument);
+            mId = genericDocument.getId();
+            mNamespace = genericDocument.getNamespace();
+            // GenericDocument only supports long[], so we need to convert it back to int[].
+            long[] longs = genericDocument.getPropertyLongArray(
+                    ALL_REQUIRED_PERMISSIONS_PROPERTY);
+            if (longs != null) {
+                mAllRequiredPermissions = new int[longs.length];
+                for (int i = 0; i < longs.length; ++i) {
+                    mAllRequiredPermissions[i] = (int) longs[i];
+                }
+            }
+        }
+
+        /** Creates a {@link VisibilityDocument.Builder} for a {@link VisibilityDocument}. */
+        public Builder(@NonNull String namespace, @NonNull String id) {
+            mNamespace = Objects.requireNonNull(namespace);
+            mId = Objects.requireNonNull(id);
+        }
+
+        /**
+         * Sets a set of Android Permissions that caller mush hold to access the schema that the
+         * outer {@link VisibilityDocument} represents.
+         */
+        @CanIgnoreReturnValue
+        @NonNull
+        public Builder setVisibleToAllRequiredPermissions(
+                @NonNull Set<Integer> allRequiredPermissions) {
+            mAllRequiredPermissions = toInts(Objects.requireNonNull(allRequiredPermissions));
+            return this;
+        }
+
+        /** Builds a {@link VisibilityPermissionDocument} */
+        @NonNull
+        public VisibilityPermissionDocument build() {
+            return new VisibilityPermissionDocument(mId,
+                    mNamespace,
+                    mAllRequiredPermissions);
+        }
     }
 }

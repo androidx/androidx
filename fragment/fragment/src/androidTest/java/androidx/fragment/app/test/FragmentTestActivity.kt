@@ -31,6 +31,7 @@ import java.util.concurrent.CountDownLatch
 class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
 
     val finishCountDownLatch = CountDownLatch(1)
+    var invalidateCount = 0
 
     override fun finish() {
         super.finish()
@@ -38,10 +39,16 @@ class FragmentTestActivity : FragmentActivity(R.layout.activity_content) {
     }
 
     @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in ComponentActivity")
     public override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         supportFragmentManager.beginTransaction()
             .commitNow()
+    }
+
+    override fun invalidateMenu() {
+        invalidateCount++
+        super.invalidateMenu()
     }
 
     class ParentFragment : Fragment() {

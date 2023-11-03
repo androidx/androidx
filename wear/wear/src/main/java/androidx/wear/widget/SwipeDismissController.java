@@ -33,7 +33,6 @@ import androidx.annotation.UiThread;
 /**
  * Controller that handles the swipe-to-dismiss gesture for dismiss the frame layout
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 @UiThread

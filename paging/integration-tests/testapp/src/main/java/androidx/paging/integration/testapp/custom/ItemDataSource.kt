@@ -20,8 +20,8 @@ import android.graphics.Color
 import androidx.annotation.ColorInt
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import kotlinx.coroutines.delay
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlinx.coroutines.delay
 
 val dataSourceError = AtomicBoolean(false)
 

@@ -17,6 +17,7 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
@@ -64,6 +65,7 @@ public final class RemoveByDocumentIdRequest {
         }
 
         /** Adds one or more document IDs to the request. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addIds(@NonNull String... ids) {
             Preconditions.checkNotNull(ids);
@@ -72,6 +74,7 @@ public final class RemoveByDocumentIdRequest {
         }
 
         /** Adds a collection of IDs to the request. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addIds(@NonNull Collection<String> ids) {
             Preconditions.checkNotNull(ids);

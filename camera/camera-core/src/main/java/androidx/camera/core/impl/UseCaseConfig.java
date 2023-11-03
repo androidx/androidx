@@ -24,6 +24,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.UseCaseEventConfig;
 
@@ -94,6 +95,23 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     Option<Boolean> OPTION_HIGH_RESOLUTION_DISABLED =
             Option.create("camerax.core.useCase.highResolutionDisabled", boolean.class);
 
+    /**
+     * Option: camerax.core.useCase.highResolutionDisabled
+     */
+    Option<UseCaseConfigFactory.CaptureType> OPTION_CAPTURE_TYPE = Option.create(
+            "camerax.core.useCase.captureType", UseCaseConfigFactory.CaptureType.class);
+
+    /**
+     * Option: camerax.core.useCase.previewStabilizationMode
+     */
+    Option<Integer> OPTION_PREVIEW_STABILIZATION_MODE =
+            Option.create("camerax.core.useCase.previewStabilizationMode", int.class);
+
+    /**
+     * Option: camerax.core.useCase.videoStabilizationMode
+     */
+    Option<Integer> OPTION_VIDEO_STABILIZATION_MODE =
+            Option.create("camerax.core.useCase.videoStabilizationMode", int.class);
 
     // *********************************************************************************************
 
@@ -276,7 +294,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      * this configuration
      */
     @Nullable
-    default Range<Integer> getTargetFramerate(@Nullable Range<Integer> valueIfMissing) {
+    default Range<Integer> getTargetFrameRate(@Nullable Range<Integer> valueIfMissing) {
         return retrieveOption(OPTION_TARGET_FRAME_RATE, valueIfMissing);
     }
 
@@ -287,7 +305,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */
     @NonNull
-    default Range<Integer> getTargetFramerate() {
+    default Range<Integer> getTargetFrameRate() {
         return retrieveOption(OPTION_TARGET_FRAME_RATE);
     }
 
@@ -311,6 +329,31 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      */
     default boolean isHigResolutionDisabled(boolean valueIfMissing) {
         return retrieveOption(OPTION_HIGH_RESOLUTION_DISABLED, valueIfMissing);
+    }
+
+    /**
+     * @return The {@link UseCaseConfigFactory.CaptureType} of this UseCaseConfig.
+     */
+    @NonNull
+    default UseCaseConfigFactory.CaptureType getCaptureType() {
+        return retrieveOption(OPTION_CAPTURE_TYPE);
+    }
+
+    /**
+     * @return The preview stabilization mode of this UseCaseConfig.
+     */
+    @StabilizationMode.Mode
+    default int getPreviewStabilizationMode() {
+        return retrieveOption(OPTION_PREVIEW_STABILIZATION_MODE,
+                StabilizationMode.UNSPECIFIED);
+    }
+
+    /**
+     * @return The video stabilization mode of this UseCaseConfig.
+     */
+    @StabilizationMode.Mode
+    default int getVideoStabilizationMode() {
+        return retrieveOption(OPTION_VIDEO_STABILIZATION_MODE, StabilizationMode.UNSPECIFIED);
     }
 
     /**
@@ -418,6 +461,14 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
          */
         @NonNull
         B setHighResolutionDisabled(boolean disabled);
+
+        /**
+         * Sets the capture type for this configuration.
+         *
+         * @param captureType The capture type for this use case.
+         */
+        @NonNull
+        B setCaptureType(@NonNull UseCaseConfigFactory.CaptureType captureType);
 
         /**
          * Retrieves the configuration used by this builder.

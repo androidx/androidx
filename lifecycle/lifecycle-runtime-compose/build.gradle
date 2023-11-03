@@ -35,7 +35,7 @@ dependencies {
 
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation projectOrArtifact(":compose:ui:ui-test-junit4")
-    androidTestImplementation projectOrArtifact(":compose:test-utils")
+    androidTestImplementation project(":compose:test-utils")
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.junit)
@@ -50,6 +50,7 @@ androidx {
     inceptionYear = "2021"
     description = "Compose integration with Lifecycle"
     runApiTasks = new RunApiTasks.Yes()
+    metalavaK2UastEnabled = true
 }
 
 android {

@@ -1,5 +1,5 @@
 // Baseline format: 1.0
-RemovedClass: androidx.wear.compose.foundation.CurvedModifierKt:
-    Removed class androidx.wear.compose.foundation.CurvedModifierKt
-RemovedClass: androidx.wear.compose.foundation.CurvedTextStyleKt:
-    Removed class androidx.wear.compose.foundation.CurvedTextStyleKt
+DefaultValueChange: androidx.wear.compose.foundation.lazy.ScalingLazyListState#animateScrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
+    Attempted to remove default value from parameter arg3 in androidx.wear.compose.foundation.lazy.ScalingLazyListState.animateScrollToItem
+DefaultValueChange: androidx.wear.compose.foundation.lazy.ScalingLazyListState#scrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
+    Attempted to remove default value from parameter arg3 in androidx.wear.compose.foundation.lazy.ScalingLazyListState.scrollToItem

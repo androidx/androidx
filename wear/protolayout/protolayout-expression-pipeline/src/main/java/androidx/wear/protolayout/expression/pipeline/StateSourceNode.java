@@ -18,24 +18,30 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
-import androidx.wear.protolayout.expression.proto.StateEntryProto.StateEntryValue;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicType;
+import androidx.wear.protolayout.expression.DynamicDataKey;
+import androidx.wear.protolayout.expression.PlatformDataKey;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import java.util.function.Function;
 
 class StateSourceNode<T>
-        implements DynamicDataSourceNode<T>, DynamicTypeValueReceiver<StateEntryValue> {
-    private final ObservableStateStore mObservableStateStore;
-    private final String mBindKey;
-    private final Function<StateEntryValue, T> mStateExtractor;
-    private final DynamicTypeValueReceiver<T> mDownstream;
+        implements DynamicDataSourceNode<T>,
+        DynamicTypeValueReceiverWithPreUpdate<DynamicDataValue> {
+    @NonNull private static final String RESERVED_NAMESPACE = "protolayout";
+    private final DataStore mDataStore;
+    private final DynamicDataKey<?> mKey;
+    private final Function<DynamicDataValue, T> mStateExtractor;
+    private final DynamicTypeValueReceiverWithPreUpdate<T> mDownstream;
 
     StateSourceNode(
-            ObservableStateStore observableStateStore,
-            String bindKey,
-            Function<StateEntryValue, T> stateExtractor,
-            DynamicTypeValueReceiver<T> downstream) {
-        this.mObservableStateStore = observableStateStore;
-        this.mBindKey = bindKey;
+            DataStore dataStore,
+            DynamicDataKey<?> key,
+            Function<DynamicDataValue, T> stateExtractor,
+            DynamicTypeValueReceiverWithPreUpdate<T> downstream) {
+        this.mDataStore = dataStore;
+        this.mKey = key;
         this.mStateExtractor = stateExtractor;
         this.mDownstream = downstream;
     }
@@ -43,14 +49,14 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void preInit() {
-        mDownstream.onPreUpdate();
+        this.onPreUpdate();
     }
 
     @Override
     @UiThread
     public void init() {
-        mObservableStateStore.registerCallback(mBindKey, this);
-        StateEntryValue item = mObservableStateStore.getStateEntryValuesProto(mBindKey);
+        mDataStore.registerCallback(mKey, this);
+        DynamicDataValue item = mDataStore.getDynamicDataValuesProto(mKey);
 
         if (item != null) {
             this.onData(item);
@@ -62,7 +68,7 @@ class StateSourceNode<T>
     @Override
     @UiThread
     public void destroy() {
-        mObservableStateStore.unregisterCallback(mBindKey, this);
+        mDataStore.unregisterCallback(mKey, this);
     }
 
     @Override
@@ -71,7 +77,7 @@ class StateSourceNode<T>
     }
 
     @Override
-    public void onData(@NonNull StateEntryValue newData) {
+    public void onData(@NonNull DynamicDataValue newData) {
         T actualValue = mStateExtractor.apply(newData);
         mDownstream.onData(actualValue);
     }
@@ -79,5 +85,19 @@ class StateSourceNode<T>
     @Override
     public void onInvalidated() {
         mDownstream.onInvalidated();
+    }
+
+    @NonNull
+    static <T extends DynamicType> DynamicDataKey<T> createKey(
+           @NonNull String namespace, @NonNull String key) {
+        if (namespace.isEmpty()) {
+            return new AppDataKey<T>(key);
+        }
+
+        if (RESERVED_NAMESPACE.equalsIgnoreCase(namespace)) {
+            return new PlatformDataKey<T>(key);
+        }
+
+        return new PlatformDataKey<T>(namespace, key);
     }
 }

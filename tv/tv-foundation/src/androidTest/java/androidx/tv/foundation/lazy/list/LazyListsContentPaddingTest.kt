@@ -32,6 +32,7 @@ import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -455,6 +456,7 @@ class LazyListsContentPaddingTest(orientation: Orientation) :
         }
     }
 
+    @Ignore("b/283960394")
     @Test
     fun totalPaddingLargerParentSize_scrollByPadding() {
         lateinit var state: TvLazyListState

@@ -56,7 +56,7 @@ class CameraStateAdapter @Inject constructor() {
         postCameraState(CameraInternal.State.CLOSED)
     }
 
-    public fun onGraphUpdated(cameraGraph: CameraGraph) = synchronized(lock) {
+    fun onGraphUpdated(cameraGraph: CameraGraph) = synchronized(lock) {
         Log.debug { "Camera graph updated from $currentGraph to $cameraGraph" }
         if (currentCameraInternalState != CameraInternal.State.CLOSED) {
             postCameraState(CameraInternal.State.CLOSING)
@@ -66,7 +66,7 @@ class CameraStateAdapter @Inject constructor() {
         currentCameraInternalState = CameraInternal.State.CLOSED
     }
 
-    public fun onGraphStateUpdated(cameraGraph: CameraGraph, graphState: GraphState) =
+    fun onGraphStateUpdated(cameraGraph: CameraGraph, graphState: GraphState) =
         synchronized(lock) {
             Log.debug { "$cameraGraph state updated to $graphState" }
             handleStateTransition(cameraGraph, graphState)
@@ -131,12 +131,17 @@ class CameraStateAdapter @Inject constructor() {
                             graphState.cameraError.toCameraStateError()
                         )
                     } else {
-                        // TODO(b/263201241): Add transition to PENDING_OPEN once we handle errors
-                        //  while a camera is already opened.
-                        CombinedCameraState(
-                            CameraInternal.State.CLOSING,
-                            graphState.cameraError.toCameraStateError()
-                        )
+                        if (isRecoverableError(graphState.cameraError)) {
+                            CombinedCameraState(
+                                CameraInternal.State.PENDING_OPEN,
+                                graphState.cameraError.toCameraStateError()
+                            )
+                        } else {
+                            CombinedCameraState(
+                                CameraInternal.State.CLOSING,
+                                graphState.cameraError.toCameraStateError()
+                            )
+                        }
                     }
 
                 GraphStateStopping -> CombinedCameraState(CameraInternal.State.CLOSING)
@@ -148,8 +153,19 @@ class CameraStateAdapter @Inject constructor() {
             when (graphState) {
                 GraphStateStopping -> CombinedCameraState(CameraInternal.State.CLOSING)
                 GraphStateStopped -> CombinedCameraState(CameraInternal.State.CLOSED)
-                // TODO(b/263201241): Transition to appropriate states once we handle errors while
-                //  a camera is already opened.
+                is GraphStateError ->
+                    if (isRecoverableError(graphState.cameraError)) {
+                        CombinedCameraState(
+                            CameraInternal.State.PENDING_OPEN,
+                            graphState.cameraError.toCameraStateError()
+                        )
+                    } else {
+                        CombinedCameraState(
+                            CameraInternal.State.CLOSED,
+                            graphState.cameraError.toCameraStateError()
+                        )
+                    }
+
                 else -> null
             }
 
@@ -157,10 +173,34 @@ class CameraStateAdapter @Inject constructor() {
             when (graphState) {
                 GraphStateStopped -> CombinedCameraState(CameraInternal.State.CLOSED)
                 GraphStateStarting -> CombinedCameraState(CameraInternal.State.OPENING)
+                is GraphStateError -> CombinedCameraState(
+                    CameraInternal.State.CLOSING,
+                    graphState.cameraError.toCameraStateError()
+                )
+
                 else -> null
             }
 
-        // TODO(b/263201241): Add PENDING_OPEN transitions once we have active recovery.
+        CameraInternal.State.PENDING_OPEN ->
+            when (graphState) {
+                GraphStateStarting -> CombinedCameraState(CameraInternal.State.OPENING)
+                GraphStateStarted -> CombinedCameraState(CameraInternal.State.OPEN)
+                is GraphStateError ->
+                    if (isRecoverableError(graphState.cameraError)) {
+                        CombinedCameraState(
+                            CameraInternal.State.PENDING_OPEN,
+                            graphState.cameraError.toCameraStateError()
+                        )
+                    } else {
+                        CombinedCameraState(
+                            CameraInternal.State.CLOSED,
+                            graphState.cameraError.toCameraStateError()
+                        )
+                    }
+
+                else -> null
+            }
+
         else ->
             null
     }
@@ -175,6 +215,7 @@ class CameraStateAdapter @Inject constructor() {
         internal fun CameraError.toCameraStateError(): CameraState.StateError =
             CameraState.StateError.create(
                 when (this) {
+                    CameraError.ERROR_UNDETERMINED -> CameraState.ERROR_CAMERA_FATAL_ERROR
                     CameraError.ERROR_CAMERA_IN_USE -> CameraState.ERROR_CAMERA_IN_USE
                     CameraError.ERROR_CAMERA_LIMIT_EXCEEDED -> CameraState.ERROR_MAX_CAMERAS_IN_USE
                     CameraError.ERROR_CAMERA_DISABLED -> CameraState.ERROR_CAMERA_DISABLED
@@ -184,10 +225,16 @@ class CameraStateAdapter @Inject constructor() {
                         CameraState.ERROR_OTHER_RECOVERABLE_ERROR
 
                     CameraError.ERROR_ILLEGAL_ARGUMENT_EXCEPTION ->
-                        CameraState.ERROR_OTHER_RECOVERABLE_ERROR
+                        CameraState.ERROR_CAMERA_FATAL_ERROR
 
                     CameraError.ERROR_SECURITY_EXCEPTION ->
-                        CameraState.ERROR_OTHER_RECOVERABLE_ERROR
+                        CameraState.ERROR_CAMERA_FATAL_ERROR
+
+                    CameraError.ERROR_GRAPH_CONFIG -> CameraState.ERROR_STREAM_CONFIG
+                    CameraError.ERROR_DO_NOT_DISTURB_ENABLED ->
+                        CameraState.ERROR_DO_NOT_DISTURB_MODE_ENABLED
+
+                    CameraError.ERROR_UNKNOWN_EXCEPTION -> CameraState.ERROR_CAMERA_FATAL_ERROR
 
                     else -> throw IllegalArgumentException("Unexpected CameraError: $this")
                 }
@@ -202,6 +249,12 @@ class CameraStateAdapter @Inject constructor() {
             CameraInternal.State.PENDING_OPEN -> CameraState.Type.PENDING_OPEN
             else -> throw IllegalArgumentException("Unexpected CameraInternal state: $this")
         }
+
+        internal fun isRecoverableError(cameraError: CameraError) =
+            cameraError == CameraError.ERROR_CAMERA_DISCONNECTED ||
+                cameraError == CameraError.ERROR_CAMERA_IN_USE ||
+                cameraError == CameraError.ERROR_CAMERA_LIMIT_EXCEEDED ||
+                cameraError == CameraError.ERROR_CAMERA_DEVICE
 
         internal fun MutableLiveData<CameraState>.setOrPostValue(cameraState: CameraState) {
             if (Looper.myLooper() == Looper.getMainLooper()) {

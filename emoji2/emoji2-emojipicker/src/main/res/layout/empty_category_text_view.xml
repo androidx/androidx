@@ -14,7 +14,7 @@
   limitations under the License.
   -->
 
-<androidx.appcompat.widget.AppCompatTextView xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/emoji_picker_empty_category_view"
     android:textColor="?android:attr/textColorPrimary"
     android:layout_width="match_parent"

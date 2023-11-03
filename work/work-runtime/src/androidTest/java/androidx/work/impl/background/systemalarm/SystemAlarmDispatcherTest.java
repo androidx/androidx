@@ -59,6 +59,7 @@ import androidx.work.impl.Processor;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.Schedulers;
 import androidx.work.impl.StartStopToken;
+import androidx.work.impl.WorkLauncher;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.NetworkState;
 import androidx.work.impl.constraints.trackers.BatteryNotLowTracker;
@@ -123,6 +124,8 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         }
     };
 
+    private WorkLauncher mLauncher;
+
     @Before
     @SuppressWarnings("unchecked")
     public void setUp() {
@@ -158,8 +161,9 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         // Requires API 24+ types.
         ConstraintTracker<NetworkState> networkStateTracker =
                 new ConstraintTracker<NetworkState>(mContext, instantTaskExecutor) {
+
                     @Override
-                    public NetworkState getInitialState() {
+                    public NetworkState readSystemState() {
                         return new NetworkState(true, true, true, true);
                     }
 
@@ -189,9 +193,10 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
                 instantTaskExecutor,
                 mDatabase);
         mSpyProcessor = spy(processor);
-
+        mLauncher = mock(WorkLauncher.class);
         mDispatcher =
-                new CommandInterceptingSystemDispatcher(mContext, mSpyProcessor, mWorkManager);
+                new CommandInterceptingSystemDispatcher(mContext, mSpyProcessor,
+                        mWorkManager, mLauncher);
         mDispatcher.setCompletedListener(completedListener);
         mSpyDispatcher = spy(mDispatcher);
         Schedulers.registerRescheduling(Collections.singletonList(scheduler), processor,
@@ -310,7 +315,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         assertThat(captor.getValue().getId()).isEqualTo(workSpecId);
 
         ArgumentCaptor<StartStopToken> captorStop = ArgumentCaptor.forClass(StartStopToken.class);
-        verify(mWorkManager, times(1)).stopWork(captorStop.capture());
+        verify(mLauncher, times(1)).stopWork(captorStop.capture());
         assertThat(captorStop.getValue().getId()).isEqualTo(workSpecId);
     }
 
@@ -340,7 +345,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
         assertThat(captor.getValue().getId()).isEqualTo(workSpecId);
 
         ArgumentCaptor<StartStopToken> captorStop = ArgumentCaptor.forClass(StartStopToken.class);
-        verify(mWorkManager, times(1)).stopWork(captorStop.capture());
+        verify(mLauncher, times(1)).stopWork(captorStop.capture());
         assertThat(captorStop.getValue().getId()).isEqualTo(workSpecId);
     }
 
@@ -380,7 +385,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testSchedule_withConstraints() throws InterruptedException {
-        mBatteryChargingTracker.setInitialState(true);
+        mBatteryChargingTracker.setSystemState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(
                         System.currentTimeMillis() + TimeUnit.HOURS.toMillis(1),
@@ -484,7 +489,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     @LargeTest
     @RepeatRule.Repeat(times = 1)
     public void testDelayMet_withPartiallyMetConstraint() throws InterruptedException {
-        mStorageNotLowTracker.setInitialState(true);
+        mStorageNotLowTracker.setSystemState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
@@ -522,7 +527,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testConstraintsChanged_withConstraint() throws InterruptedException {
-        mBatteryChargingTracker.setInitialState(true);
+        mBatteryChargingTracker.setSystemState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
@@ -540,7 +545,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testDelayMet_withMetConstraint() throws InterruptedException {
-        mBatteryChargingTracker.setInitialState(true);
+        mBatteryChargingTracker.setSystemState(true);
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .setConstraints(new Constraints.Builder()
@@ -631,7 +636,7 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
     @Test
     public void testConstraintsChanged_withFutureWork() throws InterruptedException {
-        mBatteryChargingTracker.setInitialState(true);
+        mBatteryChargingTracker.setSystemState(true);
         // Use a mocked scheduler in this test.
         Scheduler scheduler = mock(Scheduler.class);
         doCallRealMethod().when(mWorkManager).rescheduleEligibleWork();
@@ -755,8 +760,9 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
 
         CommandInterceptingSystemDispatcher(@NonNull Context context,
                 @Nullable Processor processor,
-                @Nullable WorkManagerImpl workManager) {
-            super(context, processor, workManager);
+                @Nullable WorkManagerImpl workManager,
+                @Nullable WorkLauncher launcher) {
+            super(context, processor, workManager, launcher);
             mCommands = new ArrayList<>();
             mActionCount = new HashMap<>();
         }
@@ -788,20 +794,21 @@ public class SystemAlarmDispatcherTest extends DatabaseTest {
     }
 
     private static final class FakeConstraintTracker extends ConstraintTracker<Boolean> {
-        private boolean mInitialState = false;
+        private boolean mSystemState = false;
 
         FakeConstraintTracker(@NonNull Context context,
                 @NonNull TaskExecutor taskExecutor) {
             super(context, taskExecutor);
         }
 
-        private void setInitialState(boolean initialState) {
-            mInitialState = initialState;
+        private void setSystemState(boolean systemState) {
+            mSystemState = systemState;
         }
 
+
         @Override
-        public Boolean getInitialState() {
-            return mInitialState;
+        public Boolean readSystemState() {
+            return mSystemState;
         }
 
         @Override

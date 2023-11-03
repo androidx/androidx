@@ -16,23 +16,6 @@
 
 <resources>
     <style name="Glance.AppWidget.Theme" parent="android:Theme.DeviceDefault" />
-    <style name="Glance.AppWidget.Theme.ListChildren" parent="">
-        <!--
-            AbsListView sets a list item to be clickable if the focusable is not explicitly set.
-            This has effect of list items showing up as numbered when Voice access is activated
-            (even if they don't have any click listeners). See ListItemAccessibilityDelegate. In
-            order to prevent this, we explicitly set focusable as true here.
-        -->
-        <item name="android:focusable">true</item>
-    </style>
-    <style name="Glance.AppWidget.Theme.GridChildren" parent="">
-        <!--
-            AbsListView (extended by GridView) sets a list item to be clickable if the focusable is
-            not explicitly set. This has effect of list items showing up as numbered when Voice
-            access is activated (even if they don't have any click listeners). See
-            ListItemAccessibilityDelegate. In order to prevent this, we explicitly set focusable as
-            true here.
-        -->
-        <item name="android:focusable">true</item>
-    </style>
+    <style name="Glance.AppWidget.Theme.ListChildren" parent=""/>
+    <style name="Glance.AppWidget.Theme.GridChildren" parent=""/>
 </resources>

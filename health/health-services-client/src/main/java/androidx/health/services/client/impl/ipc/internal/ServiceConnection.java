@@ -47,7 +47,6 @@ import javax.annotation.concurrent.NotThreadSafe;
  *
  * <p>Note: this class is not thread safe and should be called always from the same thread.
  *
- * @hide
  */
 @NotThreadSafe
 @RestrictTo(Scope.LIBRARY)
@@ -164,7 +163,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
         if (mServiceConnectionRetry < MAX_RETRIES) {
             Log.w(
                     TAG,
-                    "WCS SDK Client '"
+                    "HealthServices SDK Client '"
                             + mConnectionConfiguration.getClientName()
                             + "' disconnected, retrying connection. Retry attempt: "
                             + mServiceConnectionRetry,

@@ -32,9 +32,9 @@ import java.util.ArrayList;
 
 /**
  * Utility class to track view based on relative location to the parent.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
+@Deprecated
 public class LocationBasedViewTracker implements Runnable, View.OnLayoutChangeListener {
 
     private static final SelectionLogic INPUT_FOCUS = new SelectionLogic() {
@@ -110,7 +110,6 @@ public class LocationBasedViewTracker implements Runnable, View.OnLayoutChangeLi
 
     /**
      * Tries to preserve the input focus after the next content change
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void trackInputFocused(ViewGroup parent) {
@@ -122,7 +121,6 @@ public class LocationBasedViewTracker implements Runnable, View.OnLayoutChangeLi
 
     /**
      * Tries to preserve the accessibility focus after the next content change
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static void trackA11yFocus(ViewGroup parent) {

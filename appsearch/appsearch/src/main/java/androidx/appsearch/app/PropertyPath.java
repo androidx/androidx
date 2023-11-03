@@ -30,14 +30,15 @@ import java.util.List;
 /**
  * Represents a property path returned from searching the AppSearch Database.
  *
- * <p> When searching the AppSearch Database, you will get back {@link SearchResult.MatchInfo}
- * objects that contain a property path signifying the location of a match within the database.
- * This is a string that may look something like "foo.bar[0]". {@link PropertyPath} parses this
- * string and breaks it up into a List of {@link PathSegment}s. These may represent either a
- * property or a property and a 0-based index into the property. For instance, "foo.bar[1]" would
- * be parsed into a {@link PathSegment} with a property name of foo and a {@link PathSegment}
- * with a property name of bar and an index of 1. This allows for easier manipulation of the
- * property path.
+ * <p> One of the use cases for this class is when searching the AppSearch Database for the snippet
+ * matching use case. In this case you will get back {@link SearchResult.MatchInfo} objects that
+ * contain a property path signifying the location of  a match within the database. This is a
+ * string that may look something like "foo.bar[0]". {@link PropertyPath} parses this string and
+ * breaks it up into a List of {@link PathSegment}s. These may represent either a property or a
+ * property and a 0-based index into the property. For instance, "foo.bar[1]" would be parsed
+ * into a {@link PathSegment} with a property name of foo and a {@link PathSegment} with a
+ * property name of bar and an index of 1. This allows for easier manipulation of the property
+ * path.
  *
  * <p> This class won't perform any retrievals, it will only parse the path string. As such, it
  * may not necessarily refer to a valid path in the database.

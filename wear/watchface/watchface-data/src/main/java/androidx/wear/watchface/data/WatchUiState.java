@@ -30,7 +30,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 /**
  * Data sent over AIDL for {@link IWatchFaceCommand#setWatchUiState}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @VersionedParcelize(allowSerialization = true)

@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.os.Build;
 
 import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.tvprovider.media.tv.TvContractCompat.WatchNextPrograms;
 
@@ -79,14 +80,16 @@ import java.util.Set;
  */
 public final class WatchNextProgram extends BasePreviewProgram {
     /**
-     * @hide
+     * The projection for a {@link WatchNextProgram} query.
+     * <p> This provides a array of strings containing the columns to be used in the
+     * query and in creating a Cursor object, which is used to iterate through the rows in the
+     * table.
      */
-    @RestrictTo(LIBRARY_GROUP_PREFIX)
+    @NonNull
     public static final String[] PROJECTION = getProjection();
 
     private static final long INVALID_LONG_VALUE = -1;
 
-    /** @hide */
     @IntDef({
             WATCH_NEXT_TYPE_UNKNOWN,
             WatchNextPrograms.WATCH_NEXT_TYPE_CONTINUE,
@@ -170,7 +173,6 @@ public final class WatchNextProgram extends BasePreviewProgram {
      * into the TV Input Framework database.
      *
      * @param includeProtectedFields Whether the fields protected by system is included or not.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Override

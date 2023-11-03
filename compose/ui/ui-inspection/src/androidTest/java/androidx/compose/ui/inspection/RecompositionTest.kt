@@ -17,7 +17,6 @@
 package androidx.compose.ui.inspection
 
 import android.view.inspector.WindowInspector
-import androidx.compose.ui.inspection.rules.DebugViewAttributeRule
 import androidx.compose.ui.inspection.rules.JvmtiRule
 import androidx.compose.ui.inspection.rules.sendCommand
 import androidx.compose.ui.inspection.testdata.RecompositionTestActivity
@@ -48,13 +47,12 @@ class RecompositionTest {
     private val rule = createAndroidComposeRule<RecompositionTestActivity>()
 
     @get:Rule
-    val chain = RuleChain.outerRule(JvmtiRule()).around(DebugViewAttributeRule()).around(rule)!!
+    val chain = RuleChain.outerRule(JvmtiRule()).around(rule)!!
 
     private lateinit var inspectorTester: InspectorTester
 
     @Before
     fun before() {
-        JvmtiRule.ensureInitialised()
         runBlocking {
             inspectorTester = InspectorTester(inspectorId = "layoutinspector.compose.inspection")
         }
@@ -86,6 +84,10 @@ class RecompositionTest {
         val parameters = inspectorTester.sendCommand(
             GetAllParametersCommand(rootId, skipSystemComposables = false)
         ).getAllParametersResponse
+
+        if (composables.rootsList.single().nodesList.isEmpty()) {
+            error("No nodes returned. Check that the compose inspector was successfully enabled.")
+        }
 
         // Buttons have double recompose counts, as they are
         // recomposed on the down event for the press indication

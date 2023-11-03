@@ -18,6 +18,8 @@ package androidx.wear.watchface.complications
 
 import android.content.ComponentName
 import android.content.Context
+import android.os.Build.VERSION_CODES.P
+import android.os.Build.VERSION_CODES.Q
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
 import androidx.test.core.app.ApplicationProvider
@@ -33,9 +35,14 @@ import androidx.wear.watchface.complications.data.ShortTextComplicationData
 import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import com.google.common.truth.Truth.assertThat
 import kotlin.jvm.java
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
+import org.robolectric.annotation.Config
 
-@org.junit.runner.RunWith(SharedRobolectricTestRunner::class)
+@RunWith(SharedRobolectricTestRunner::class)
 public class ComplicationDataSourceInfoRetrieverTest {
     private val mockService = Mockito.mock(IProviderInfoService::class.java)
     private val mockBinder = Mockito.mock(android.os.IBinder::class.java)
@@ -43,7 +50,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
         ComplicationDataSourceInfoRetriever(mockService)
     private val resources = ApplicationProvider.getApplicationContext<Context>().resources
 
-    @org.junit.Test
+    @Test
     @Suppress("NewApi") // retrievePreviewComplicationData
     public fun retrievePreviewComplicationData() {
         kotlinx.coroutines.runBlocking {
@@ -66,9 +73,9 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 }
                 .`when`(mockService)
                 .requestPreviewComplicationData(
-                    org.mockito.ArgumentMatchers.eq(component),
-                    org.mockito.ArgumentMatchers.eq(type.toWireComplicationType()),
-                    org.mockito.ArgumentMatchers.any()
+                    eq(component),
+                    eq(type.toWireComplicationType()),
+                    any()
                 )
 
             val previewData =
@@ -89,7 +96,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
         }
     }
 
-    @org.junit.Test
+    @Test
     @Suppress("NewApi") // retrievePreviewComplicationData
     public fun retrievePreviewComplicationData_DataSourceReturnsNull() {
         kotlinx.coroutines.runBlocking {
@@ -105,9 +112,9 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 }
                 .`when`(mockService)
                 .requestPreviewComplicationData(
-                    org.mockito.ArgumentMatchers.eq(component),
-                    org.mockito.ArgumentMatchers.eq(type.toWireComplicationType()),
-                    org.mockito.ArgumentMatchers.any()
+                    eq(component),
+                    eq(type.toWireComplicationType()),
+                    any()
                 )
 
             assertThat(
@@ -120,7 +127,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
         }
     }
 
-    @org.junit.Test
+    @Test
     @Suppress("NewApi") // retrievePreviewComplicationData
     public fun retrievePreviewComplicationDataApiNotSupported() {
         kotlinx.coroutines.runBlocking {
@@ -139,7 +146,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
         }
     }
 
-    @org.junit.Test
+    @Test
     @Suppress("NewApi") // retrievePreviewComplicationData
     public fun retrievePreviewComplicationDataApiReturnsFalse() {
         kotlinx.coroutines.runBlocking {
@@ -150,9 +157,9 @@ public class ComplicationDataSourceInfoRetrieverTest {
             Mockito.doAnswer { false }
                 .`when`(mockService)
                 .requestPreviewComplicationData(
-                    org.mockito.ArgumentMatchers.eq(component),
-                    org.mockito.ArgumentMatchers.eq(type.toWireComplicationType()),
-                    org.mockito.ArgumentMatchers.any()
+                    eq(component),
+                    eq(type.toWireComplicationType()),
+                    any()
                 )
 
             assertThat(
@@ -165,7 +172,8 @@ public class ComplicationDataSourceInfoRetrieverTest {
         }
     }
 
-    @org.junit.Test
+    @Test
+    @Config(maxSdk = Q)
     public fun complicationDataSourceInfo_NullComponentName() {
         val complicationDataSourceInfo =
             ComplicationDataSourceInfo(
@@ -183,7 +191,8 @@ public class ComplicationDataSourceInfoRetrieverTest {
             )
     }
 
-    @org.junit.Test
+    @Test
+    @Config(maxSdk = Q)
     public fun createShortTextFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val shortTextPreviewData =
@@ -207,7 +216,8 @@ public class ComplicationDataSourceInfoRetrieverTest {
         assertThat(shortTextPreviewData.monochromaticImage!!.image).isEqualTo(icon)
     }
 
-    @org.junit.Test
+    @Test
+    @Config(maxSdk = Q)
     public fun createLongTextFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val longTextPreviewData =
@@ -231,7 +241,8 @@ public class ComplicationDataSourceInfoRetrieverTest {
         assertThat(longTextPreviewData.monochromaticImage!!.image).isEqualTo(icon)
     }
 
-    @org.junit.Test
+    @Test
+    @Config(maxSdk = Q)
     public fun createSmallImageFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val smallImagePreviewData =
@@ -253,7 +264,8 @@ public class ComplicationDataSourceInfoRetrieverTest {
             .isEqualTo("complicationName")
     }
 
-    @org.junit.Test
+    @Test
+    @Config(maxSdk = Q)
     public fun createPhotoImageFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val photoImagePreviewData =
@@ -275,7 +287,8 @@ public class ComplicationDataSourceInfoRetrieverTest {
             .isEqualTo("complicationName")
     }
 
-    @org.junit.Test
+    @Test
+    @Config(maxSdk = Q)
     public fun createMonochromaticImageFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val monochromaticImagePreviewData =
@@ -297,7 +310,8 @@ public class ComplicationDataSourceInfoRetrieverTest {
             .isEqualTo("complicationName")
     }
 
-    @org.junit.Test
+    @Test
+    @Config(maxSdk = Q)
     public fun createRangedValueFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val rangedValuePreviewData =
@@ -322,5 +336,43 @@ public class ComplicationDataSourceInfoRetrieverTest {
                 )
             )
             .isEqualTo("complicationName")
+    }
+
+    @Test
+    @Config(minSdk = P, maxSdk = Q)
+    public fun complicationDataSourceInfo_equals() {
+        val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
+        val icon2 = android.graphics.drawable.Icon.createWithContentUri("icon")
+        val a =
+            ComplicationDataSourceInfo(
+                "applicationName",
+                "complicationName",
+                icon,
+                ComplicationType.RANGED_VALUE,
+                componentName = null
+            )
+        val b =
+            ComplicationDataSourceInfo(
+                "applicationName",
+                "complicationName",
+                icon2,
+                ComplicationType.RANGED_VALUE,
+                componentName = null
+            )
+        val c =
+            ComplicationDataSourceInfo(
+                "applicationName2",
+                "complicationName2",
+                icon,
+                ComplicationType.RANGED_VALUE,
+                componentName = null
+            )
+
+        // Test two identical ComplicationDataSourceInfo with different references.
+        // The icon's equals was added from Android P(see IconKt.kt#iconEquals), so this assertion only works from Android P.
+        assertThat(a).isEqualTo(b)
+
+        // Test two ComplicationDataSourceInfos with different contents.
+        assertThat(a).isNotEqualTo(c)
     }
 }

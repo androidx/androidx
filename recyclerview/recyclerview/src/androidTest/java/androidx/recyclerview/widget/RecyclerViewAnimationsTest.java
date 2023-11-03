@@ -37,6 +37,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.testutils.AnimationDurationScaleRule;
+import androidx.testutils.PollingCheck;
 
 import org.hamcrest.CoreMatchers;
 import org.hamcrest.MatcherAssert;
@@ -646,6 +647,102 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         });
     }
 
+    /**
+     * Testing ChildHelper bug: a predictive ItemAnimator swaps two ViewHolder at the edge of RV,
+     * one slide-in, one slide-out; followed by a scroll removes offscreen ViewHolder being
+     * slided in.
+     * In scroll, ChildHelper removeView will trigger adapter.onViewDetached, if the adapter stops
+     * ViewPropertyAnimator, it will also stops the ItemAnimator and re-enter ChildHelper
+     * removeViewIfHidden while ChildHelper is still inside removeView, leads to a crash.
+     */
+    private void removeSlideInViewLeftToSlideOutView(
+            final boolean cancelViewPropertyAnimatorsInOnDetach) throws Throwable {
+
+        // Initially 0, 1, 2
+        setupBasic(/* itemCount= */ 4,
+                /* firstLayoutStartIndex= */ 0, /* firstLayoutItemCount=*/ 3);
+        waitForAnimations(2);
+
+
+        final DefaultItemAnimator animator = new DefaultItemAnimator();
+        // make it longer so the test can be executed before animator ends.
+        animator.setRemoveDuration(5000);
+        animator.setMoveDuration(5000);
+        animator.setAddDuration(5000);
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mTestAdapter.mCancelViewPropertyAnimatorsInOnDetach =
+                        cancelViewPropertyAnimatorsInOnDetach;
+                mRecyclerView.setItemAnimator(animator);
+            }
+        });
+
+        // swap 2 & 3, the RecyclerView will be 0, 1, 3(slide-in) 2(slide-out and hidden to LM)
+        mLayoutManager.expectLayouts(2);
+        mLayoutManager.mOnLayoutCallbacks.mLayoutMin = 0;
+        mLayoutManager.mOnLayoutCallbacks.mLayoutItemCount = 4;
+        mLayoutManager.mOnLayoutCallbacks.mDisappearingPositionsInPostLayout = new HashSet<>();
+        mLayoutManager.mOnLayoutCallbacks.mDisappearingPositionsInPostLayout.add(3);
+        mTestAdapter.moveAndNotify(3, 2);
+        mLayoutManager.waitForLayout(2);
+        mLayoutManager.mOnLayoutCallbacks.mDisappearingPositionsInPostLayout = null;
+
+        // Wait for the animator starts, note that wait isRunning()=true is not enough
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                View slideInView = mRecyclerView.getChildAt(2);
+                View slideOutView = mRecyclerView.getChildAt(3);
+                return ViewCompat.hasTransientState(slideInView)
+                        && ViewCompat.hasTransientState(slideOutView);
+            }
+        });
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                // the "3" is slide-in, not recycleable, make sure animation is still running
+                View slideInView = mRecyclerView.getLayoutManager().findViewByPosition(2);
+                RecyclerView.ViewHolder slideInVh = mRecyclerView.getChildViewHolder(slideInView);
+                assertFalse("Slide in item is not recyclable", slideInVh.isRecyclable());
+
+                // "2" is in the mHiddenViews, ChildHelper.getChildCount() is 1 less than RV.
+                assertEquals(4, mRecyclerView.getChildCount());
+                assertEquals(1, mRecyclerView.mChildHelper.mHiddenViews.size());
+                assertEquals(3, mRecyclerView.mChildHelper.getChildCount());
+                assertNull("The slide out item should be hidden to LayoutManager",
+                        mRecyclerView.getLayoutManager().findViewByPosition(3));
+
+                // If Layout pass remove "slide in view", the RecylcerView will be:
+                // 0, 1, 2 (slide-out and hidden to LM)
+                mRecyclerView.getLayoutManager().removeAndRecycleView(slideInView,
+                        mRecyclerView.mRecycler);
+
+                // Consistency check after remove the "slide in view" in layout pass
+                assertEquals(3, mRecyclerView.getChildCount());
+                assertEquals(2, mRecyclerView.getLayoutManager().getChildCount());
+                assertEquals(1, mRecyclerView.mChildHelper.mHiddenViews.size());
+                assertTrue("The slide in item should be recyclable after remove",
+                        slideInVh.isRecyclable());
+
+                animator.endAnimations();
+            }
+        });
+        waitForAnimations(10);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN) // needed for hasTransientState
+    public void removeSlideInViewLeftToSlideOutViewAndCancelAnimationInOnDetach() throws Throwable {
+        removeSlideInViewLeftToSlideOutView(/* cancelViewPropertyAnimatorsInOnDetach= */ true);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN) // needed for hasTransientState
+    public void removeSlideInViewLeftToSlideOutView() throws Throwable {
+        removeSlideInViewLeftToSlideOutView(/* cancelViewPropertyAnimatorsInOnDetach= */ false);
+    }
 
     @Test
     public void scrollPassRemoveAdditionView() throws Throwable {

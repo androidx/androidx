@@ -1,0 +1,14 @@
+// Signature format: 4.0
+package androidx.privacysandbox.activity.client {
+
+  public interface LocalSdkActivityLauncher<T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> extends androidx.privacysandbox.activity.core.SdkActivityLauncher {
+    method public void dispose();
+  }
+
+  public final class SdkActivityLaunchers {
+    method public static <T extends android.app.Activity & androidx.lifecycle.LifecycleOwner> androidx.privacysandbox.activity.client.LocalSdkActivityLauncher<T> createSdkActivityLauncher(T, kotlin.jvm.functions.Function0<java.lang.Boolean> allowLaunch);
+    method public static android.os.Bundle toLauncherInfo(androidx.privacysandbox.activity.core.SdkActivityLauncher);
+  }
+
+}
+

@@ -28,8 +28,8 @@ import androidx.annotation.UiThread;
 interface DynamicDataSourceNode<T> extends DynamicDataNode<T> {
     /**
      * Called on all source nodes before {@link DynamicDataSourceNode#init()} is called on any node.
-     * This should generally only call {@link DynamicTypeValueReceiver#onPreUpdate()} on all
-     * downstream nodes.
+     * This should generally only call {@link
+     * DynamicTypeValueReceiverWithPreUpdate#onPreUpdate()} on all downstream nodes.
      */
     @UiThread
     void preInit();

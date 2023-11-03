@@ -21,9 +21,12 @@ import android.util.Range;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.quirk.AeFpsRangeLegacyQuirk;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Quirks;
 
 /**
@@ -51,10 +54,12 @@ public class AeFpsRange {
      * Sets the {@link android.hardware.camera2.CaptureRequest#CONTROL_AE_TARGET_FPS_RANGE}
      * option on legacy device when possible.
      */
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public void addAeFpsRangeOptions(@NonNull Camera2ImplConfig.Builder configBuilder) {
         if (mAeTargetFpsRange != null) {
-            configBuilder.setCaptureRequestOption(CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE,
-                    mAeTargetFpsRange);
+            configBuilder.setCaptureRequestOptionWithPriority(
+                    CaptureRequest.CONTROL_AE_TARGET_FPS_RANGE, mAeTargetFpsRange,
+                    Config.OptionPriority.REQUIRED);
         }
     }
 }

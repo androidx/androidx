@@ -19,12 +19,11 @@ import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
 @Generated(value = ["androidx.room.RoomProcessor"])
-@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION"])
+@Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
 public class MyDao_Impl(
     __db: RoomDatabase,
 ) : MyDao {
@@ -65,7 +64,7 @@ public class MyDao_Impl(
                         _tmpOther = _cursor.getString(_cursorIndexOfOther)
                         _result = MyEntity(_tmpPk,_tmpOther)
                     } else {
-                        error("Cursor was empty, but expected a single item.")
+                        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
                     }
                     return _result
                 } finally {
@@ -73,7 +72,7 @@ public class MyDao_Impl(
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })
@@ -111,7 +110,7 @@ public class MyDao_Impl(
                         _tmpOther = _cursor.getString(_cursorIndexOfOther)
                         _result = MyEntity(_tmpPk,_tmpOther)
                     } else {
-                        error("Cursor was empty, but expected a single item.")
+                        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
                     }
                     return _result
                 } finally {
@@ -119,7 +118,7 @@ public class MyDao_Impl(
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })
@@ -143,13 +142,13 @@ public class MyDao_Impl(
             }
             _argIndex++
         }
-        return RxRoom.createSingle(object : Callable<MyEntity> {
-            public override fun call(): MyEntity {
+        return RxRoom.createSingle(object : Callable<MyEntity?> {
+            public override fun call(): MyEntity? {
                 val _cursor: Cursor = query(__db, _statement, false, null)
                 try {
                     val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
                     val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-                    val _result: MyEntity
+                    val _result: MyEntity?
                     if (_cursor.moveToFirst()) {
                         val _tmpPk: Int
                         _tmpPk = _cursor.getInt(_cursorIndexOfPk)
@@ -157,7 +156,10 @@ public class MyDao_Impl(
                         _tmpOther = _cursor.getString(_cursorIndexOfOther)
                         _result = MyEntity(_tmpPk,_tmpOther)
                     } else {
-                        error("Cursor was empty, but expected a single item.")
+                        _result = null
+                    }
+                    if (_result == null) {
+                        throw EmptyResultSetException("Query returned empty result set: " + _statement.sql)
                     }
                     return _result
                 } finally {
@@ -165,7 +167,7 @@ public class MyDao_Impl(
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })
@@ -189,13 +191,13 @@ public class MyDao_Impl(
             }
             _argIndex++
         }
-        return Maybe.fromCallable(object : Callable<MyEntity> {
-            public override fun call(): MyEntity {
+        return Maybe.fromCallable(object : Callable<MyEntity?> {
+            public override fun call(): MyEntity? {
                 val _cursor: Cursor = query(__db, _statement, false, null)
                 try {
                     val _cursorIndexOfPk: Int = getColumnIndexOrThrow(_cursor, "pk")
                     val _cursorIndexOfOther: Int = getColumnIndexOrThrow(_cursor, "other")
-                    val _result: MyEntity
+                    val _result: MyEntity?
                     if (_cursor.moveToFirst()) {
                         val _tmpPk: Int
                         _tmpPk = _cursor.getInt(_cursorIndexOfPk)
@@ -203,7 +205,7 @@ public class MyDao_Impl(
                         _tmpOther = _cursor.getString(_cursorIndexOfOther)
                         _result = MyEntity(_tmpPk,_tmpOther)
                     } else {
-                        error("Cursor was empty, but expected a single item.")
+                        _result = null
                     }
                     return _result
                 } finally {
@@ -211,7 +213,7 @@ public class MyDao_Impl(
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })
@@ -257,7 +259,7 @@ public class MyDao_Impl(
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })
@@ -303,7 +305,7 @@ public class MyDao_Impl(
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })
@@ -352,7 +354,7 @@ public class MyDao_Impl(
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })
@@ -392,16 +394,13 @@ public class MyDao_Impl(
                     } else {
                         _result = null
                     }
-                    if (_result == null) {
-                        throw EmptyResultSetException("Query returned empty result set: " + _statement.sql)
-                    }
                     return _result
                 } finally {
                     _cursor.close()
                 }
             }
 
-            protected fun finalize(): Unit {
+            protected fun finalize() {
                 _statement.release()
             }
         })

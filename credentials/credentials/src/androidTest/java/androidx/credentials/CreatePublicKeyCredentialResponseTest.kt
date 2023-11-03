@@ -29,6 +29,10 @@ import org.junit.runner.RunWith
 @SmallTest
 class CreatePublicKeyCredentialResponseTest {
 
+    companion object Constant {
+        private const val TEST_RESPONSE_JSON = "{\"hi\":{\"there\":{\"lol\":\"Value\"}}}"
+    }
+
     @Test
     fun constructor_emptyJson_throwsIllegalArgumentException() {
         Assert.assertThrows(
@@ -38,8 +42,16 @@ class CreatePublicKeyCredentialResponseTest {
     }
 
     @Test
+    fun constructor_invalidJson_throwsIllegalArgumentException() {
+        Assert.assertThrows(
+            "Expected empty Json to throw error",
+            IllegalArgumentException::class.java
+        ) { CreatePublicKeyCredentialResponse("invalid") }
+    }
+
+    @Test
     fun constructor_success() {
-        CreatePublicKeyCredentialResponse("{\"hi\":1}")
+        CreatePublicKeyCredentialResponse(TEST_RESPONSE_JSON)
     }
 
     @Test
@@ -67,9 +79,17 @@ class CreatePublicKeyCredentialResponseTest {
 
     @Test
     fun frameworkConversion_success() {
-        val response = CreatePublicKeyCredentialResponse("responseJson")
+        val response = CreatePublicKeyCredentialResponse(TEST_RESPONSE_JSON)
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        // Add additional data to the request data and candidate query data to make sure
+        // they persist after the conversion
+        val data = response.data
+        val customDataKey = "customRequestDataKey"
+        val customDataValue: CharSequence = "customRequestDataValue"
+        data.putCharSequence(customDataKey, customDataValue)
 
-        val convertedResponse = createFrom(response.type, response.data)
+        val convertedResponse = createFrom(response.type, data)
 
         assertThat(convertedResponse).isInstanceOf(
             CreatePublicKeyCredentialResponse::class.java
@@ -77,5 +97,7 @@ class CreatePublicKeyCredentialResponseTest {
         val convertedSubclassResponse = convertedResponse as CreatePublicKeyCredentialResponse
         assertThat(convertedSubclassResponse.registrationResponseJson)
             .isEqualTo(response.registrationResponseJson)
+        assertThat(convertedResponse.data.getCharSequence(customDataKey))
+            .isEqualTo(customDataValue)
     }
 }

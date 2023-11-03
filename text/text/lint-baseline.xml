@@ -1,31 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
 
     <issue
-        id="BanInlineOptIn"
-        message="Inline functions cannot opt into experimental APIs."
-        errorLine1="internal inline fun &lt;T> List&lt;T>.fastForEach(action: (T) -> Unit) {"
-        errorLine2="                                ~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field paragraphEnds with type List&lt;Integer>: replace with IntList"
+        errorLine1="    private val paragraphEnds: List&lt;Int>"
+        errorLine2="                               ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/compose/ui/text/android/TempListUtils.kt"/>
+            file="src/main/java/androidx/compose/ui/text/android/LayoutHelper.kt"/>
     </issue>
 
     <issue
-        id="BanInlineOptIn"
-        message="Inline functions cannot opt into experimental APIs."
-        errorLine1="internal inline fun &lt;T, R, C : MutableCollection&lt;in R>> List&lt;T>.fastMapTo("
-        errorLine2="                                                                ~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="variable lineFeeds with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val lineFeeds = mutableListOf&lt;Int>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/compose/ui/text/android/TempListUtils.kt"/>
+            file="src/main/java/androidx/compose/ui/text/android/LayoutHelper.kt"/>
     </issue>
 
     <issue
-        id="BanInlineOptIn"
-        message="Inline functions cannot opt into experimental APIs."
-        errorLine1="internal inline fun &lt;T, R> List&lt;T>.fastZipWithNext(transform: (T, T) -> R): List&lt;R> {"
-        errorLine2="                                   ~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of breakInWords: replace with IntList"
+        errorLine1="    private fun breakInWords(layoutHelper: LayoutHelper): List&lt;Int> {"
+        errorLine2="                                                          ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/compose/ui/text/android/TempListUtils.kt"/>
+            file="src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable words with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val words = breakWithBreakIterator(text, BreakIterator.getLineInstance(Locale.getDefault()))"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable set with type TreeSet&lt;Integer>: replace with IntSet"
+        errorLine1="        val set = TreeSet&lt;Int>().apply {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of breakWithBreakIterator: replace with IntList"
+        errorLine1="    private fun breakWithBreakIterator(text: CharSequence, breaker: BreakIterator): List&lt;Int> {"
+        errorLine2="                                                                                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable res with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val res = mutableListOf(0)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of breakOffsets: replace with IntList"
+        errorLine1="    fun breakOffsets(layoutHelper: LayoutHelper, segmentType: SegmentType): List&lt;Int> {"
+        errorLine2="                                                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
     </issue>
 
 </issues>

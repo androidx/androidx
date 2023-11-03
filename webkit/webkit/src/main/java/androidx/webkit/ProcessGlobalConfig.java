@@ -66,7 +66,8 @@ public class ProcessGlobalConfig {
     @GuardedBy("sLock")
     private static boolean sApplyCalled = false;
     String mDataDirectorySuffix;
-
+    String mDataDirectoryBasePath;
+    String mCacheDirectoryBasePath;
 
     /**
      * Creates a {@link ProcessGlobalConfig} object.
@@ -103,8 +104,8 @@ public class ProcessGlobalConfig {
      * @param suffix The directory name suffix to be used for the current
      *               process. Must not contain a path separator and should not be empty.
      * @return the ProcessGlobalConfig that has the value set to allow chaining of setters
-     * @throws IllegalStateException if WebView has already been initialized
-     *                               in the current process or if this method was called before
+     * @throws UnsupportedOperationException if underlying WebView does not support the use of
+     *                                       the method.
      * @throws IllegalArgumentException if the suffix contains a path separator or is empty.
      */
     @RequiresFeature(name = WebViewFeature.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX,
@@ -126,6 +127,66 @@ public class ProcessGlobalConfig {
                     + " contains a path separator");
         }
         mDataDirectorySuffix = suffix;
+        return this;
+    }
+
+    /**
+     * Set the base directories that WebView will use for the current process.
+     *
+     * If this method is not used, WebView uses the default base paths defined by the Android
+     * framework.
+     * <p>
+     * WebView will create and use a subdirectory under each of the base paths supplied to this
+     * method.
+     * <p>
+     * This method can be used in conjunction with {@link #setDataDirectorySuffix(Context, String)}.
+     * A different subdirectory is created for each suffix.
+     * <p>
+     * The base paths must be absolute paths.
+     * <p>
+     * The data directory must not be under the Android cache directory, as Android may delete
+     * cache files when disk space is low and WebView may not function properly if this occurs.
+     * Refer to
+     * <a href="https://developer.android.com/training/data-storage/app-specific#internal-remove-cache">this</a>
+     *  link.
+     * <p>
+     * If the specified directories already exist then they must be readable and writable by the
+     * current process. If they do not already exist, WebView will attempt to create them during
+     * initialization, along with any missing parent directories. In such a case, the directory
+     * in which WebView creates missing directories must be readable and writable by the
+     * current process.
+     *
+     * @param context a Context to access application assets. This value cannot be null.
+     * @param dataDirectoryBasePath the absolute base path for the WebView data directory.
+     * @param cacheDirectoryBasePath the absolute base path for the WebView cache directory.
+     * @return the ProcessGlobalConfig that has the value set to allow chaining of setters
+     * @throws UnsupportedOperationException if underlying WebView does not support the use of
+     *                                       the method.
+     * @throws IllegalArgumentException if the paths supplied do not have the right permissions
+     */
+    @SuppressWarnings("StreamFiles")
+    @RequiresFeature(name =
+            WebViewFeature.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATHS,
+            enforcement =
+                    "androidx.webkit.WebViewFeature#isConfigFeatureSupported(String, Context)")
+    @NonNull
+    public ProcessGlobalConfig setDirectoryBasePaths(@NonNull Context context,
+            @NonNull File dataDirectoryBasePath, @NonNull File cacheDirectoryBasePath) {
+        final StartupApiFeature.NoFramework feature =
+                WebViewFeatureInternal.STARTUP_FEATURE_SET_DIRECTORY_BASE_PATH;
+        if (!feature.isSupported(context)) {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+        if (!dataDirectoryBasePath.isAbsolute()) {
+            throw new IllegalArgumentException("dataDirectoryBasePath must be a non-empty absolute"
+                    + " path");
+        }
+        if (!cacheDirectoryBasePath.isAbsolute()) {
+            throw new IllegalArgumentException("cacheDirectoryBasePath must be a non-empty absolute"
+                    + " path");
+        }
+        mDataDirectoryBasePath = dataDirectoryBasePath.getAbsolutePath();
+        mCacheDirectoryBasePath = cacheDirectoryBasePath.getAbsolutePath();
         return this;
     }
 
@@ -169,14 +230,23 @@ public class ProcessGlobalConfig {
                     + "have no effect. ProcessGlobalConfig#apply needs to be called before any "
                     + "calls to android.webkit APIs, such as during early app startup.");
         }
-
-        final StartupApiFeature.P feature =
-                WebViewFeatureInternal.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX;
-        if (feature.isSupportedByFramework()) {
-            ApiHelperForP.setDataDirectorySuffix(config.mDataDirectorySuffix);
-        } else {
-            configMap.put(ProcessGlobalConfigConstants.DATA_DIRECTORY_SUFFIX,
-                    config.mDataDirectorySuffix);
+        if (config.mDataDirectorySuffix != null) {
+            final StartupApiFeature.P feature =
+                    WebViewFeatureInternal.STARTUP_FEATURE_SET_DATA_DIRECTORY_SUFFIX;
+            if (feature.isSupportedByFramework()) {
+                ApiHelperForP.setDataDirectorySuffix(config.mDataDirectorySuffix);
+            } else {
+                configMap.put(ProcessGlobalConfigConstants.DATA_DIRECTORY_SUFFIX,
+                        config.mDataDirectorySuffix);
+            }
+        }
+        if (config.mDataDirectoryBasePath != null) {
+            configMap.put(ProcessGlobalConfigConstants.DATA_DIRECTORY_BASE_PATH,
+                    config.mDataDirectoryBasePath);
+        }
+        if (config.mCacheDirectoryBasePath != null) {
+            configMap.put(ProcessGlobalConfigConstants.CACHE_DIRECTORY_BASE_PATH,
+                    config.mCacheDirectoryBasePath);
         }
         if (!sProcessGlobalConfig.compareAndSet(null, configMap)) {
             throw new RuntimeException("Attempting to set ProcessGlobalConfig"

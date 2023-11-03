@@ -33,4 +33,13 @@ class TestUwbControleeSessionScope(
     override fun prepareSession(parameters: RangingParameters): Flow<RangingResult> {
         return uwbClientSessionScope.prepareSession(parameters)
     }
+
+    override suspend fun reconfigureRangeDataNtf(
+        configType: Int,
+        proximityNear: Int,
+        proximityFar: Int
+    ) {
+        return uwbClientSessionScope.reconfigureRangeDataNtf(
+            configType, proximityNear, proximityFar)
+    }
 }

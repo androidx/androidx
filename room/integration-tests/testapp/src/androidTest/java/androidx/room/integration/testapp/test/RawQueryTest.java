@@ -42,6 +42,7 @@ import org.junit.runner.RunWith;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
@@ -113,6 +114,17 @@ public class RawQueryTest extends TestDatabaseTest {
         SimpleSQLiteQuery query = new SimpleSQLiteQuery("SELECT * FROM User WHERE mId = ?",
                 new Object[]{3});
         User received = mRawDao.getUser(query);
+        assertThat(received, is(user));
+    }
+
+    @Test
+    public void listenableFuture_supportSql() throws ExecutionException,
+            InterruptedException {
+        User user = TestUtil.createUser(3);
+        mUserDao.insert(user);
+        SimpleSQLiteQuery query = new SimpleSQLiteQuery("SELECT * FROM User WHERE mId = ?",
+                new Object[]{3});
+        User received = mRawDao.getUserListenableFuture(query).get();
         assertThat(received, is(user));
     }
 

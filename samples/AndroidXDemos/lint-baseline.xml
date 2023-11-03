@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="OnClick"
@@ -38,15 +38,6 @@
     </issue>
 
     <issue
-        id="MissingPermission"
-        message="Call requires permission which may be rejected by user: code should explicitly check to see if permission is available (with `checkPermission`) or explicitly handle a potential `SecurityException`"
-        errorLine1="        notificationManager.notify(NOTIFICATION_ID, notification);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
         id="WebViewLayout"
         message="Placing a `&lt;WebView>` in a parent element that uses a `wrap_content layout_height` can lead to subtle bugs; use `match_parent` instead"
         errorLine1="        &lt;WebView"
@@ -60,7 +51,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 29 (current min is 14): `android.os.StrictMode.VmPolicy.Builder#detectImplicitDirectBoot`"
+        message="Call requires API level 29 (current min is 19): `android.os.StrictMode.VmPolicy.Builder#detectImplicitDirectBoot`"
         errorLine1="                        .detectImplicitDirectBoot()"
         errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -69,151 +60,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatLocalNightModeActivity.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatNightModeAlertDialog.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_NO);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_YES);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_TIME);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `setLocalNightMode`"
-        errorLine1="        dialog.getDelegate().setLocalNightMode(AppCompatDelegate.MODE_NIGHT_AUTO_BATTERY);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/app/AppCompatNightModeDialog.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Exception requires API level 17 (current min is 17): `android.view.WindowManager.InvalidDisplayException`, and having a surrounding/preceding version check **does not** help since prior to API level 19, just **loading** the class will cause a crash. Consider marking the surrounding class with `RequiresApi(19)` to ensure that the class is never loaded except when on API 19 or higher."
-        errorLine1="                } catch (WindowManager.InvalidDisplayException ex) {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="`&lt;class>` requires API level 24 (current min is 14)"
+        message="`&lt;class>` requires API level 24 (current min is 19)"
         errorLine1="    class=&quot;com.example.androidx.drawable.MyDrawable&quot;"
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -302,6 +149,15 @@
     </issue>
 
     <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                                Thread.sleep(DELAY_MS);"
+        errorLine2="                                       ~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/AsyncListUtilActivity.java"/>
+    </issue>
+
+    <issue
         id="ClassVerificationFailure"
         message="This call references a method added in API level 29; however, the containing class com.example.androidx.app.AppCompatDefaultNightModeBootAwareActivity is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        .detectImplicitDirectBoot()"
@@ -317,60 +173,6 @@
         errorLine2="                     ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/widget/selection/fancy/FancySelectionDemoActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class com.example.androidx.media.LocalPlayer.SurfaceViewPlayer is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            if (mPresentation != null &amp;&amp; mPresentation.getDisplay() != presentationDisplay) {"
-        errorLine2="                                                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class com.example.androidx.media.Player is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            NotificationChannel channel = new NotificationChannel("
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class com.example.androidx.media.Player is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            channel.setDescription(description);"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.androidx.media.Player is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mContext.getSystemService(NotificationManager.class);"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class com.example.androidx.media.Player is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            notificationManager.createNotificationChannel(channel);"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.androidx.media.SampleMediaRouteProvider is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        if (Build.VERSION.SDK_INT >= 23 &amp;&amp; !Settings.canDrawOverlays(getContext())) {"
-        errorLine2="                                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SampleMediaRouteProvider.java"/>
     </issue>
 
     <issue
@@ -401,10 +203,35 @@
     </issue>
 
     <issue
+        id="RestrictedApiAndroidX"
+        message="SelectionObserver.onSelectionCleared can only be called from within the same library (androidx.recyclerview:recyclerview-selection)"
+        errorLine1="                    public void onSelectionCleared() {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/widget/selection/fancy/FancySelectionDemoActivity.java"/>
+    </issue>
+
+    <issue
         id="ObsoleteSdkInt"
-        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 14. Merge all the resources in this folder into `layout`.">
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (SDK_INT >= 16) {"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/androidx/view/SystemUIModes.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v11`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `layout`.">
         <location
             file="src/main/res/layout-v11"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="This folder configuration (`v18`) is unnecessary; `minSdkVersion` is 19. Merge all the resources in this folder into `values`.">
+        <location
+            file="src/main/res/values-v18"/>
     </issue>
 
     <issue
@@ -1796,213 +1623,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public LocalPlayer(Context context) {"
-        errorLine2="                       ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void connect(RouteInfo route) {"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void play(final PlaylistItem item) {"
-        errorLine2="                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void seek(final PlaylistItem item) {"
-        errorLine2="                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void getStatus(final PlaylistItem item, final boolean update) {"
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void enqueue(final PlaylistItem item) {"
-        errorLine2="                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem remove(String iid) {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem remove(String iid) {"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Context getContext() { return mContext; }"
-        errorLine2="              ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected MediaPlayer getMediaPlayer() { return mMediaPlayer; }"
-        errorLine2="              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setSurface(Surface surface) {"
-        errorLine2="                              ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void setSurface(SurfaceHolder surfaceHolder) {"
-        errorLine2="                              ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void removeSurface(SurfaceHolder surfaceHolder) {"
-        errorLine2="                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public SurfaceViewPlayer(Context context) {"
-        errorLine2="                                 ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void connect(RouteInfo route) {"
-        errorLine2="                            ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void surfaceChanged(SurfaceHolder holder, int format,"
-        errorLine2="                                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void surfaceCreated(SurfaceHolder holder) {"
-        errorLine2="                                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void surfaceDestroyed(SurfaceHolder holder) {"
-        errorLine2="                                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public OverlayPlayer(Context context) {"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void connect(RouteInfo route) {"
-        errorLine2="                            ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onWindowCreated(Surface surface) {"
-        errorLine2="                                    ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onWindowCreated(SurfaceHolder surfaceHolder) {"
-        errorLine2="                                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Bitmap getSnapshot() {"
-        errorLine2="               ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/LocalPlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -2021,46 +1641,10 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void draw(Canvas canvas) {"
-        errorLine2="                     ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/drawable/MyDrawable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void setColorFilter(ColorFilter colorFilter) {"
         errorLine2="                               ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/drawable/MyDrawable.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public MyMediaRouteControllerDialog(Context context) {"
-        errorLine2="                                        ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/MyMediaRouteControllerDialog.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateMediaControlView(Bundle savedInstanceState) {"
-        errorLine2="           ~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/MyMediaRouteControllerDialog.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public View onCreateMediaControlView(Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/MyMediaRouteControllerDialog.java"/>
     </issue>
 
     <issue
@@ -2115,105 +1699,6 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/widget/NestedRecyclerViewActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected OverlayWindowListener mListener;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected OverlayDisplayWindow(Context context, String name,"
-        errorLine2="                                   ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected OverlayDisplayWindow(Context context, String name,"
-        errorLine2="                                                    ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static OverlayDisplayWindow create(Context context, String name,"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static OverlayDisplayWindow create(Context context, String name,"
-        errorLine2="                                              ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static OverlayDisplayWindow create(Context context, String name,"
-        errorLine2="                                                               ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setOverlayWindowListener(OverlayWindowListener listener) {"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Context getContext() {"
-        errorLine2="           ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract Bitmap getSnapshot();"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void onWindowCreated(Surface surface);"
-        errorLine2="                             ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void onWindowCreated(SurfaceHolder surfaceHolder);"
-        errorLine2="                             ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/OverlayDisplayWindow.java"/>
     </issue>
 
     <issue
@@ -2354,168 +1839,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Context mContext;"
-        errorLine2="              ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected Callback mCallback;"
-        errorLine2="              ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected MediaSessionCompat mMediaSession;"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected String mNotificationChannelId;"
-        errorLine2="              ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract void connect(RouteInfo route);"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract void play(final PlaylistItem item);"
-        errorLine2="                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract void seek(final PlaylistItem item);"
-        errorLine2="                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract void getStatus(final PlaylistItem item, final boolean update);"
-        errorLine2="                                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract void enqueue(final PlaylistItem item);"
-        errorLine2="                                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract PlaylistItem remove(String iid);"
-        errorLine2="                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public abstract PlaylistItem remove(String iid);"
-        errorLine2="                                        ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Bitmap getSnapshot() { return null; }"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setCallback(Callback callback) {"
-        errorLine2="                            ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static Player create(Context context, RouteInfo route, MediaSessionCompat session) {"
-        errorLine2="                  ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static Player create(Context context, RouteInfo route, MediaSessionCompat session) {"
-        errorLine2="                                ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static Player create(Context context, RouteInfo route, MediaSessionCompat session) {"
-        errorLine2="                                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static Player create(Context context, RouteInfo route, MediaSessionCompat session) {"
-        errorLine2="                                                                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void updateMetadata(PlaylistItem currentItem) {"
-        errorLine2="                                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/Player.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -2552,87 +1875,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public RemotePlayer(Context context) {"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void connect(RouteInfo route) {"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void play(final PlaylistItem item) {"
-        errorLine2="                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void seek(final PlaylistItem item) {"
-        errorLine2="                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void getStatus(final PlaylistItem item, final boolean update) {"
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void enqueue(final PlaylistItem item) {"
-        errorLine2="                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem remove(String itemId) {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem remove(String itemId) {"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Bitmap getSnapshot() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/RemotePlayer.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -2651,244 +1893,10 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public MediaRouteProvider onCreateMediaRouteProvider() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SampleDynamicGroupMrpService.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static void setActivity(SampleMediaRouterActivity activity) {"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SampleMediaButtonReceiver.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public MediaRouteProvider onCreateMediaRouteProvider() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SampleMediaRouteProviderService.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/app/SearchActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public SessionManager(String name) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public String getSessionId() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem getCurrentItem() {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public List&lt;PlaylistItem> getPlaylist() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime) {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime) {"
-        errorLine2="                                          ~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime) {"
-        errorLine2="                                                   ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime, long startPosition,"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime, long startPosition,"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime, long startPosition,"
-        errorLine2="                                          ~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem add(String title, Uri uri, String mime, long startPosition,"
-        errorLine2="                                                   ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            PendingIntent receiver) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem remove(String iid) {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem remove(String iid) {"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem seek(String iid, long pos) {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem seek(String iid, long pos) {"
-        errorLine2="                             ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem getStatus(String iid) {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public PlaylistItem getStatus(String iid) {"
-        errorLine2="                                  ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public String startSession() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setPlayer(Player player) {"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setCallback(Callback callback) {"
-        errorLine2="                            ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        void onItemChanged(PlaylistItem item);"
-        errorLine2="                           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/androidx/media/SessionManager.java"/>
     </issue>
 
     <issue

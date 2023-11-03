@@ -39,7 +39,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
@@ -155,7 +154,7 @@ public class MediaControllerTest extends MediaSessionTestBase {
             // TODO(b/220842943): Re-enable for T and beyond once the version of media2-session
             // used in version-compat-tests/previous/client/build.gradle is one that includes
             // https://r.android.com/1950077.
-            if (!BuildCompat.isAtLeastT()) {
+            if (Build.VERSION.SDK_INT < 33) {
                 fail("custom parcelables shouldn't be allowed for connectionHints");
             }
         } catch (IllegalArgumentException e) {

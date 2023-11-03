@@ -91,7 +91,6 @@ public final class RxRoom {
      * Helper method used by generated code to bind a Callable such that it will be run in
      * our disk io thread and will automatically block null values since RxJava3 does not like null.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -146,7 +145,6 @@ public final class RxRoom {
      * Helper method used by generated code to bind a Callable such that it will be run in
      * our disk io thread and will automatically block null values since RxJava3 does not like null.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -166,11 +164,10 @@ public final class RxRoom {
      * Helper method used by generated code to create a Single from a Callable that will ignore
      * the EmptyResultSetException if the stream is already disposed.
      *
-     * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    public static <T> Single<T> createSingle(@NonNull final Callable<T> callable) {
+    public static <T> Single<T> createSingle(@NonNull final Callable<? extends T> callable) {
         return Single.create(emitter -> {
             try {
                 emitter.onSuccess(callable.call());

@@ -20,6 +20,7 @@ import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XPropertySpec
 import androidx.room.compiler.codegen.XTypeSpec
+import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XSuspendMethodType
@@ -59,7 +60,7 @@ abstract class MethodProcessorDelegate(
 
     abstract fun extractReturnType(): XType
 
-    abstract fun extractParams(): List<XVariableElement>
+    abstract fun extractParams(): List<XExecutableParameterElement>
 
     fun extractQueryParams(query: ParsedQuery): List<QueryParameter> {
         return extractParams().map { variableElement ->

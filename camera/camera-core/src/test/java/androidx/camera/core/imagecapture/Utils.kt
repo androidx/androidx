@@ -22,6 +22,8 @@ import android.graphics.Rect
 import android.os.Build
 import android.util.Pair
 import android.util.Size
+import androidx.annotation.RequiresApi
+import androidx.camera.core.CaptureBundles
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageInfo
 import androidx.camera.core.ImageProxy
@@ -31,9 +33,9 @@ import androidx.camera.core.impl.ImageInputConfig
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
-import androidx.camera.testing.fakes.FakeCameraCaptureResult
-import androidx.camera.testing.fakes.FakeCaptureStage
-import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.impl.fakes.FakeCaptureStage
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import java.io.File
 import java.util.UUID
 import org.robolectric.util.ReflectionHelpers.setStaticField
@@ -41,6 +43,7 @@ import org.robolectric.util.ReflectionHelpers.setStaticField
 /**
  * Utility methods for testing image capture.
  */
+@RequiresApi(21)
 object Utils {
 
     internal const val WIDTH = 640
@@ -61,15 +64,17 @@ object Utils {
     internal val OUTPUT_FILE_OPTIONS = ImageCapture.OutputFileOptions.Builder(
         TEMP_FILE
     ).build()
-    internal val CAMERA_CAPTURE_RESULT = FakeCameraCaptureResult().also {
+    internal val CAMERA_CAPTURE_RESULT = FakeCameraCaptureResult()
+        .also {
         it.timestamp = TIMESTAMP
     }
 
     internal fun createProcessingRequest(
-        takePictureCallback: TakePictureCallback = FakeTakePictureCallback()
+        takePictureCallback: TakePictureCallback = FakeTakePictureCallback(),
+        captureBundle: CaptureBundle = CaptureBundles.singleDefaultCaptureBundle()
     ): ProcessingRequest {
         return ProcessingRequest(
-            { listOf() },
+            captureBundle,
             OUTPUT_FILE_OPTIONS,
             CROP_RECT,
             ROTATION_DEGREES,
@@ -106,11 +111,14 @@ object Utils {
     }
 
     fun createFakeImage(tagBundleKey: String, stageId: Int): ImageProxy {
-        return FakeImageProxy(createCameraCaptureResultImageInfo(tagBundleKey, stageId))
+        return FakeImageProxy(
+            createCameraCaptureResultImageInfo(tagBundleKey, stageId)
+        )
     }
 
     fun createCameraCaptureResultImageInfo(tagBundleKey: String, stageId: Int): ImageInfo {
-        return CameraCaptureResultImageInfo(FakeCameraCaptureResult().also {
+        return CameraCaptureResultImageInfo(
+            FakeCameraCaptureResult().also {
             it.setTag(TagBundle.create(Pair(tagBundleKey, stageId)))
         })
     }

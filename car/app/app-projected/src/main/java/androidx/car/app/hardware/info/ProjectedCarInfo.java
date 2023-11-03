@@ -31,7 +31,6 @@ import java.util.concurrent.Executor;
 /**
  * Manages access to vehicle specific info communication with a car app host.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class ProjectedCarInfo implements CarInfo {

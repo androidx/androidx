@@ -16,11 +16,12 @@
 
 package androidx.compose.runtime
 
+import androidx.compose.runtime.internal.persistentCompositionLocalHashMapOf
 import androidx.compose.runtime.tooling.CompositionData
-import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentHashMapOf
 import kotlin.coroutines.CoroutineContext
 
-private val EmptyCompositionLocalMap: CompositionLocalMap = persistentHashMapOf()
+private val EmptyPersistentCompositionLocalMap: PersistentCompositionLocalMap =
+    persistentCompositionLocalHashMapOf()
 
 /**
  * A [CompositionContext] is an opaque type that is used to logically "link" two compositions
@@ -33,11 +34,17 @@ private val EmptyCompositionLocalMap: CompositionLocalMap = persistentHashMapOf(
  *
  * @see rememberCompositionContext
  */
-@OptIn(InternalComposeApi::class)
+@OptIn(InternalComposeApi::class, ExperimentalComposeRuntimeApi::class)
 abstract class CompositionContext internal constructor() {
     internal abstract val compoundHashKey: Int
     internal abstract val collectingParameterInformation: Boolean
-    internal abstract val effectCoroutineContext: CoroutineContext
+    internal abstract val collectingSourceInformation: Boolean
+    internal open val observerHolder: CompositionObserverHolder? get() = null
+
+    /**
+     *  The [CoroutineContext] with which effects for the composition will be executed in.
+     */
+    abstract val effectCoroutineContext: CoroutineContext
     internal abstract val recomposeCoroutineContext: CoroutineContext
     internal abstract fun composeInitial(
         composition: ControlledComposition,
@@ -52,7 +59,8 @@ abstract class CompositionContext internal constructor() {
     internal abstract fun registerComposition(composition: ControlledComposition)
     internal abstract fun unregisterComposition(composition: ControlledComposition)
 
-    internal open fun getCompositionLocalScope(): CompositionLocalMap = EmptyCompositionLocalMap
+    internal open fun getCompositionLocalScope(): PersistentCompositionLocalMap =
+        EmptyPersistentCompositionLocalMap
     internal open fun startComposing() {}
     internal open fun doneComposing() {}
 
@@ -67,4 +75,6 @@ abstract class CompositionContext internal constructor() {
     internal open fun movableContentStateResolve(
         reference: MovableContentStateReference
     ): MovableContentState? = null
+
+    internal abstract fun reportRemovedComposition(composition: ControlledComposition)
 }

@@ -58,7 +58,6 @@ import java.util.concurrent.Executor;
  *
  * <p>This is a singleton class responsible for managing the set of camera instances.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @MainThread
@@ -96,7 +95,6 @@ public final class CameraX {
     @GuardedBy("MIN_LOG_LEVEL_LOCK")
     private static final SparseArray<Integer> sMinLogLevelReferenceCountMap = new SparseArray<>();
 
-    /** @hide */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public CameraX(@NonNull Context context, @Nullable CameraXConfig.Provider configProvider) {
         if (configProvider != null) {
@@ -139,7 +137,6 @@ public final class CameraX {
      *
      * @throws IllegalStateException if the {@link CameraFactory} has not been set, due to being
      *                               uninitialized.
-     * @hide
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -206,7 +203,6 @@ public final class CameraX {
      *
      * @throws IllegalStateException if the {@link CameraDeviceSurfaceManager} has not been set, due
      *                               to being uninitialized.
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -221,7 +217,6 @@ public final class CameraX {
     /**
      * Returns the {@link CameraRepository} instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -232,7 +227,6 @@ public final class CameraX {
     /**
      * Returns the {@link UseCaseConfigFactory} instance.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -247,7 +241,6 @@ public final class CameraX {
     /**
      * Returns the initialize future.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -258,7 +251,6 @@ public final class CameraX {
     /**
      * Returns the shutdown future.
      *
-     * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -309,8 +301,12 @@ public final class CameraX {
 
                 CameraSelector availableCamerasLimiter =
                         mCameraXConfig.getAvailableCamerasLimiter(null);
+                long cameraOpenRetryMaxTimeoutInMillis =
+                        mCameraXConfig.getCameraOpenRetryMaxTimeoutInMillisWhileResuming();
                 mCameraFactory = cameraFactoryProvider.newInstance(mAppContext,
-                        cameraThreadConfig, availableCamerasLimiter);
+                        cameraThreadConfig,
+                        availableCamerasLimiter,
+                        cameraOpenRetryMaxTimeoutInMillis);
                 CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                         mCameraXConfig.getDeviceSurfaceManagerProvider(null);
                 if (surfaceManagerProvider == null) {

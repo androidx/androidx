@@ -26,14 +26,6 @@ import android.content.Context;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.tiles.ActionBuilders.LaunchAction;
-import androidx.wear.tiles.LayoutElementBuilders.Box;
-import androidx.wear.tiles.LayoutElementBuilders.Column;
-import androidx.wear.tiles.ModifiersBuilders.Clickable;
-import androidx.wear.tiles.ModifiersBuilders.ElementMetadata;
-import androidx.wear.tiles.ModifiersBuilders.Modifiers;
-import androidx.wear.tiles.material.Button;
-import androidx.wear.tiles.material.ButtonDefaults;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,20 +37,22 @@ import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @DoNotInstrument
+@SuppressWarnings("deprecation")
 public class MultiButtonLayoutTest {
     private static final Context CONTEXT = ApplicationProvider.getApplicationContext();
-    private static final Clickable CLICKABLE =
-            new Clickable.Builder()
-                    .setOnClick(new LaunchAction.Builder().build())
+    private static final androidx.wear.tiles.ModifiersBuilders.Clickable CLICKABLE =
+            new androidx.wear.tiles.ModifiersBuilders.Clickable.Builder()
+                    .setOnClick(
+                            new androidx.wear.tiles.ActionBuilders.LaunchAction.Builder().build())
                     .setId("action_id")
                     .build();
 
     @Test
     public void test_1button() {
-        Button button1 =
-                new Button.Builder(CONTEXT, CLICKABLE)
+        androidx.wear.tiles.material.Button button1 =
+                new androidx.wear.tiles.material.Button.Builder(CONTEXT, CLICKABLE)
                         .setTextContent("1")
-                        .setSize(ButtonDefaults.EXTRA_LARGE_SIZE)
+                        .setSize(androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_SIZE)
                         .build();
 
         MultiButtonLayout layout =
@@ -69,8 +63,14 @@ public class MultiButtonLayoutTest {
 
     @Test
     public void test_2buttons() {
-        Button button1 = new Button.Builder(CONTEXT, CLICKABLE).setTextContent("1").build();
-        Button button2 = new Button.Builder(CONTEXT, CLICKABLE).setTextContent("2").build();
+        androidx.wear.tiles.material.Button button1 =
+                new androidx.wear.tiles.material.Button.Builder(CONTEXT, CLICKABLE)
+                        .setTextContent("1")
+                        .build();
+        androidx.wear.tiles.material.Button button2 =
+                new androidx.wear.tiles.material.Button.Builder(CONTEXT, CLICKABLE)
+                        .setTextContent("2")
+                        .build();
 
         MultiButtonLayout layout =
                 new MultiButtonLayout.Builder()
@@ -83,14 +83,17 @@ public class MultiButtonLayoutTest {
 
     @Test
     public void test_5buttons() {
-        List<Button> buttons = new ArrayList<>();
+        List<androidx.wear.tiles.material.Button> buttons = new ArrayList<>();
         int size = 5;
         for (int i = 0; i < size; i++) {
-            buttons.add(new Button.Builder(CONTEXT, CLICKABLE).setTextContent("" + i).build());
+            buttons.add(
+                    new androidx.wear.tiles.material.Button.Builder(CONTEXT, CLICKABLE)
+                            .setTextContent("" + i)
+                            .build());
         }
 
         MultiButtonLayout.Builder layoutBuilder = new MultiButtonLayout.Builder();
-        for (Button b : buttons) {
+        for (androidx.wear.tiles.material.Button b : buttons) {
             layoutBuilder.addButtonContent(b);
         }
         layoutBuilder.setFiveButtonDistribution(
@@ -104,7 +107,10 @@ public class MultiButtonLayoutTest {
 
     @Test
     public void test_too_many_button() {
-        Button button = new Button.Builder(CONTEXT, CLICKABLE).setTextContent("1").build();
+        androidx.wear.tiles.material.Button button =
+                new androidx.wear.tiles.material.Button.Builder(CONTEXT, CLICKABLE)
+                        .setTextContent("1")
+                        .build();
         MultiButtonLayout.Builder layoutBuilder = new MultiButtonLayout.Builder();
         for (int i = 0; i < LayoutDefaults.MULTI_BUTTON_MAX_NUMBER + 1; i++) {
             layoutBuilder.addButtonContent(button);
@@ -115,38 +121,46 @@ public class MultiButtonLayoutTest {
 
     @Test
     public void testWrongElement() {
-        Column box = new Column.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Column box =
+                new androidx.wear.tiles.LayoutElementBuilders.Column.Builder().build();
 
         assertThat(MultiButtonLayout.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongBox() {
-        Box box = new Box.Builder().build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder().build();
 
         assertThat(MultiButtonLayout.fromLayoutElement(box)).isNull();
     }
 
     @Test
     public void testWrongTag() {
-        Box box =
-                new Box.Builder()
-                    .setModifiers(
-                        new Modifiers.Builder()
-                            .setMetadata(
-                                new ElementMetadata.Builder()
-                                    .setTagData("test".getBytes(UTF_8))
-                                    .build())
-                            .build())
-                    .build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .setModifiers(
+                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
+                                        .setMetadata(
+                                                new androidx.wear.tiles.ModifiersBuilders
+                                                                .ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
+                        .build();
 
         assertThat(MultiButtonLayout.fromLayoutElement(box)).isNull();
     }
 
-    private void assertLayout(MultiButtonLayout actualLayout, List<Button> expectedButtons) {
+    private void assertLayout(
+            MultiButtonLayout actualLayout,
+            List<androidx.wear.tiles.material.Button> expectedButtons) {
         assertLayoutIsEqual(actualLayout, expectedButtons);
 
-        Box box = new Box.Builder().addContent(actualLayout).build();
+        androidx.wear.tiles.LayoutElementBuilders.Box box =
+                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                        .addContent(actualLayout)
+                        .build();
 
         MultiButtonLayout newLayout = MultiButtonLayout.fromLayoutElement(box.getContents().get(0));
 
@@ -156,7 +170,9 @@ public class MultiButtonLayoutTest {
         assertThat(MultiButtonLayout.fromLayoutElement(actualLayout)).isEqualTo(actualLayout);
     }
 
-    private void assertLayoutIsEqual(MultiButtonLayout actualLayout, List<Button> expectedButtons) {
+    private void assertLayoutIsEqual(
+            MultiButtonLayout actualLayout,
+            List<androidx.wear.tiles.material.Button> expectedButtons) {
         int size = expectedButtons.size();
         assertThat(actualLayout.getMetadataTag()).isEqualTo(MultiButtonLayout.METADATA_TAG);
         assertThat(actualLayout.getButtonContents()).hasSize(size);

@@ -30,6 +30,7 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.espressoCore)
+    androidTestImplementation(project(":annotation:annotation"))
     testImplementation(libs.junit)
 }
 

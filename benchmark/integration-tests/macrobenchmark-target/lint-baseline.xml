@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(targetTime - System.currentTimeMillis())"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/integration/macrobenchmark/target/AudioActivity.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    trace(&quot;tracing&quot;) { Thread.sleep(50) }"
+        errorLine2="                                              ~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/integration/macrobenchmark/target/BackgroundWorkActivity.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                    trace(&quot;tracing&quot;) { Thread.sleep(50) }"
+        errorLine2="                                              ~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/integration/macrobenchmark/target/TrivialStartupActivity.kt"/>
+    </issue>
+
+</issues>

@@ -16,7 +16,6 @@
 
 package androidx.paging.integration.testapp.v3room
 
-import android.annotation.SuppressLint
 import android.app.Application
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.lifecycle.AndroidViewModel
@@ -48,13 +47,11 @@ class V3RoomViewModel(application: Application) : AndroidViewModel(application) 
         return customer
     }
 
-    @SuppressLint("RestrictedApi")
     internal fun insertCustomer() {
         ArchTaskExecutor.getInstance()
             .executeOnDiskIO { database.customerDao.insert(createCustomer()) }
     }
 
-    @SuppressLint("RestrictedApi")
     internal fun clearAllCustomers() {
         ArchTaskExecutor.getInstance().executeOnDiskIO {
             database.runInTransaction {

@@ -24,7 +24,6 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 /**
  * An open helper that holds a reference to the configuration until the database is opened.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 open class RoomOpenHelper(
@@ -175,7 +174,6 @@ open class RoomOpenHelper(
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     abstract class Delegate(@JvmField val version: Int) {
@@ -219,7 +217,6 @@ open class RoomOpenHelper(
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     open class ValidationResult(

@@ -32,9 +32,7 @@ public final class VersionInfoTest {
         VersionBuilders.VersionInfo versionInfo =
                 new VersionBuilders.VersionInfo.Builder().setMajor(major).setMinor(minor).build();
 
-
         assertThat(versionInfo.toProto().getMajor()).isEqualTo(major);
         assertThat(versionInfo.toProto().getMinor()).isEqualTo(minor);
     }
-
 }

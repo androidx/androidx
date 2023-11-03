@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.ksp.KspMemberContainer
+import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspType
 import com.google.devtools.ksp.symbol.KSDeclaration
 import com.squareup.javapoet.ClassName
@@ -37,6 +38,7 @@ import kotlin.reflect.KClass
  * https://docs.oracle.com/javase/specs/jls/se7/html/jls-13.html#jls-13.1
  */
 internal class KspSyntheticFileMemberContainer(
+    internal val env: KspProcessingEnv,
     private val binaryName: String
 ) : KspMemberContainer, XEquality {
     override val equalityItems: Array<out Any?> by lazy {
@@ -118,4 +120,8 @@ internal class KspSyntheticFileMemberContainer(
     override fun hasAnnotationWithPackage(pkg: String): Boolean {
         return false
     }
+
+    override fun isFromJava(): Boolean = false
+
+    override fun isFromKotlin(): Boolean = true
 }

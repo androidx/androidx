@@ -22,8 +22,6 @@ import androidx.lifecycle.ViewModelStore
 /**
  * Interface that allows you to retrieve a [ViewModelStore] associated with a
  * particular [NavBackStackEntry.id].
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface NavViewModelStoreProvider {

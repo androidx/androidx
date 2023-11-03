@@ -3720,7 +3720,7 @@ package androidx.core.view.accessibility {
     method public androidx.core.view.accessibility.AccessibilityNodeInfoCompat! getLabeledBy();
     method public int getLiveRegion();
     method public int getMaxTextLength();
-    method public int getMinMillisBetweenContentChanges();
+    method public long getMinDurationBetweenContentChangesMillis();
     method public int getMovementGranularities();
     method public CharSequence! getPackageName();
     method public CharSequence? getPaneTitle();
@@ -3806,7 +3806,7 @@ package androidx.core.view.accessibility {
     method public void setLiveRegion(int);
     method public void setLongClickable(boolean);
     method public void setMaxTextLength(int);
-    method public void setMinMillisBetweenContentChanges(int);
+    method public void setMinDurationBetweenContentChangesMillis(long);
     method public void setMovementGranularities(int);
     method public void setMultiLine(boolean);
     method public void setPackageName(CharSequence!);

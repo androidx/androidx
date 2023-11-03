@@ -27,7 +27,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP_PREFIX)
 public class LeanbackSettingsRootView extends FrameLayout {

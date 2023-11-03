@@ -190,7 +190,6 @@ public class SwitchPreferenceCompat extends TwoStatePreference {
     }
 
     /**
-     * @hide
      * @param view
      */
     @RestrictTo(LIBRARY)

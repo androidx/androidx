@@ -27,7 +27,7 @@ import androidx.car.app.annotations.RequiresCarApi;
 /** Used by the host to invoke {@link ConversationCallback} methods on the client */
 @ExperimentalCarApi
 @CarProtocol
-@RequiresCarApi(6)
+@RequiresCarApi(7)
 public interface ConversationCallbackDelegate {
 
     /** Called from the host to invoke {@link ConversationCallback#onMarkAsRead()} on the client. */

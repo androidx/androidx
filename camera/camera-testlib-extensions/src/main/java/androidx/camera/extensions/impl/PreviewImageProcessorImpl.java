@@ -16,12 +16,12 @@
 
 package androidx.camera.extensions.impl;
 
-import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
 
-import androidx.annotation.RequiresApi;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.concurrent.Executor;
 
@@ -31,8 +31,6 @@ import java.util.concurrent.Executor;
  *
  * @since 1.0
  */
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@SuppressLint("UnknownNullness")
 public interface PreviewImageProcessorImpl extends ProcessorImpl {
     /**
      * Processes the requested image capture.
@@ -44,7 +42,7 @@ public interface PreviewImageProcessorImpl extends ProcessorImpl {
      *               invalid after the method completes so no reference to it should be kept.
      * @param result The metadata associated with the image to process.
      */
-    void process(Image image, TotalCaptureResult result);
+    void process(@NonNull Image image, @NonNull TotalCaptureResult result);
 
     /**
      * Processes the requested image capture.
@@ -62,6 +60,7 @@ public interface PreviewImageProcessorImpl extends ProcessorImpl {
      *                       run on any arbitrary executor.
      * @since 1.3
      */
-    void process(Image image, TotalCaptureResult result, ProcessResultImpl resultCallback,
-            Executor executor);
+    void process(@NonNull Image image, @NonNull TotalCaptureResult result,
+            @NonNull ProcessResultImpl resultCallback,
+            @Nullable Executor executor);
 }

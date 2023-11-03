@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo;
  * Indicates that a {@link androidx.appsearch.app.AppSearchSchema} has logical inconsistencies such
  * as unpopulated mandatory fields or illegal combinations of parameters.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class IllegalSchemaException extends IllegalArgumentException {

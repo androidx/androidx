@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,24 +21,24 @@ import androidx.annotation.Nullable;
 
 /** Dynamic data nodes which yield result based on the given condition. */
 class ConditionalOpNode<T> implements DynamicDataNode<T> {
-    private final DynamicTypeValueReceiver<T> mTrueValueIncomingCallback;
-    private final DynamicTypeValueReceiver<T> mFalseValueIncomingCallback;
-    private final DynamicTypeValueReceiver<Boolean> mConditionIncomingCallback;
+    private final DynamicTypeValueReceiverWithPreUpdate<T> mTrueValueIncomingCallback;
+    private final DynamicTypeValueReceiverWithPreUpdate<T> mFalseValueIncomingCallback;
+    private final DynamicTypeValueReceiverWithPreUpdate<Boolean> mConditionIncomingCallback;
 
-    final DynamicTypeValueReceiver<T> mDownstream;
+    final DynamicTypeValueReceiverWithPreUpdate<T> mDownstream;
 
     @Nullable Boolean mLastConditional;
     @Nullable T mLastTrueValue;
     @Nullable T mLastFalseValue;
 
     // Counters to track how many "in-flight" updates are pending for each input. If any of these
-    // are >0, then we're still waiting for onData() to be called for one of the callbacks,
-    // so we shouldn't emit any values until they have all resolved.
+    // are >0, then we're still waiting for onData() to be called for one of the callbacks, so we
+    // shouldn't emit any values until they have all resolved.
     int mPendingConditionalUpdates = 0;
     int mPendingTrueValueUpdates = 0;
     int mPendingFalseValueUpdates = 0;
 
-    ConditionalOpNode(DynamicTypeValueReceiver<T> downstream) {
+    ConditionalOpNode(DynamicTypeValueReceiverWithPreUpdate<T> downstream) {
         mDownstream = downstream;
 
         // These classes refer to this.handleUpdate, which is @UnderInitialization when these
@@ -52,7 +52,7 @@ class ConditionalOpNode<T> implements DynamicDataNode<T> {
         // will again complain that it's calling something which is @UnderInitialization). Given
         // that, suppressing the warning in onData should be safe.
         mTrueValueIncomingCallback =
-                new DynamicTypeValueReceiver<T>() {
+                new DynamicTypeValueReceiverWithPreUpdate<T>() {
                     @Override
                     public void onPreUpdate() {
                         mPendingTrueValueUpdates++;
@@ -88,7 +88,7 @@ class ConditionalOpNode<T> implements DynamicDataNode<T> {
                 };
 
         mFalseValueIncomingCallback =
-                new DynamicTypeValueReceiver<T>() {
+                new DynamicTypeValueReceiverWithPreUpdate<T>() {
                     @Override
                     public void onPreUpdate() {
                         mPendingFalseValueUpdates++;
@@ -124,7 +124,7 @@ class ConditionalOpNode<T> implements DynamicDataNode<T> {
                 };
 
         mConditionIncomingCallback =
-                new DynamicTypeValueReceiver<Boolean>() {
+                new DynamicTypeValueReceiverWithPreUpdate<Boolean>() {
                     @Override
                     public void onPreUpdate() {
                         mPendingConditionalUpdates++;
@@ -160,15 +160,15 @@ class ConditionalOpNode<T> implements DynamicDataNode<T> {
                 };
     }
 
-    public DynamicTypeValueReceiver<T> getTrueValueIncomingCallback() {
+    public DynamicTypeValueReceiverWithPreUpdate<T> getTrueValueIncomingCallback() {
         return mTrueValueIncomingCallback;
     }
 
-    public DynamicTypeValueReceiver<T> getFalseValueIncomingCallback() {
+    public DynamicTypeValueReceiverWithPreUpdate<T> getFalseValueIncomingCallback() {
         return mFalseValueIncomingCallback;
     }
 
-    public DynamicTypeValueReceiver<Boolean> getConditionIncomingCallback() {
+    public DynamicTypeValueReceiverWithPreUpdate<Boolean> getConditionIncomingCallback() {
         return mConditionIncomingCallback;
     }
 

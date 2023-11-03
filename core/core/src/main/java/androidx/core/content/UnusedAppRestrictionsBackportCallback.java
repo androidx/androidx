@@ -34,7 +34,6 @@ public class UnusedAppRestrictionsBackportCallback {
 
     private IUnusedAppRestrictionsBackportCallback mCallback;
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public UnusedAppRestrictionsBackportCallback(
             @NonNull IUnusedAppRestrictionsBackportCallback callback) {

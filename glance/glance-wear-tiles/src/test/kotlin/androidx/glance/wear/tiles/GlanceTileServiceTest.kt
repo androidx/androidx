@@ -24,40 +24,39 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.drawable.toBitmap
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.glance.currentState
 import androidx.glance.GlanceModifier
 import androidx.glance.Image
 import androidx.glance.ImageProvider
+import androidx.glance.currentState
 import androidx.glance.layout.ContentScale
 import androidx.glance.layout.size
 import androidx.glance.state.PreferencesGlanceStateDefinition
 import androidx.glance.text.Text
 import androidx.glance.wear.tiles.test.R
-import androidx.wear.tiles.LayoutElementBuilders
-import androidx.wear.tiles.RequestBuilders
-import androidx.wear.tiles.TimelineBuilders
-import androidx.wear.tiles.testing.TestTileClient
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
+import androidx.wear.tiles.RequestBuilders
+import androidx.wear.tiles.testing.TestTileClient
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.guava.await
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.test.runTest
-import org.junit.Before
-import org.junit.Test
-import org.junit.runner.RunWith
-import org.robolectric.android.util.concurrent.InlineExecutorService
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.Shadows.shadowOf
 import java.io.ByteArrayOutputStream
 import java.time.Instant
 import java.util.Arrays
 import kotlin.test.assertIs
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.guava.await
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import org.junit.Before
 import org.junit.Ignore
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
+import org.robolectric.android.util.concurrent.InlineExecutorService
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
 @RunWith(RobolectricTestRunner::class)
@@ -92,10 +91,11 @@ class GlanceTileServiceTest {
         )
 
         executor = InlineExecutorService()
-        tileServiceWithState = TestGlanceTileServiceWithState()
+        tileServiceWithState = TestGlanceTileServiceWithState(fakeCoroutineScope)
         tileServiceClientWithState = TestTileClient(
             tileServiceWithState,
-            executor
+            fakeCoroutineScope,
+            fakeCoroutineScope.coroutineContext[CoroutineDispatcher]!!
         )
 
         ovalBitmap =
@@ -110,6 +110,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
+    @Suppress("deprecation") // For backwards compatibility.
     fun tileProviderReturnsTile() = fakeCoroutineScope.runTest {
         // Request is currently un-used, provide an empty one.
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
@@ -132,14 +133,15 @@ class GlanceTileServiceTest {
         assertThat(entry.validity).isNull()
 
         // It always emits a box as the root-level layout.
-        val box = assertIs<LayoutElementBuilders.Box>(entry.layout!!.root!!)
+        val box = assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(entry.layout!!.root!!)
         assertThat(box.contents).hasSize(2)
-        val text = assertIs<LayoutElementBuilders.Text>(box.contents[0])
+        val text = assertIs<androidx.wear.tiles.LayoutElementBuilders.Text>(box.contents[0])
 
         assertThat(text.text!!.value).isEqualTo("Hello World!")
     }
 
     @Ignore("resourcesVersion is not matching - b/246239580")
+    @Suppress("deprecation") // For backwards compatibility.
     @Test
     fun tileProviderReturnsTimelineTile() = fakeCoroutineScope.runTest {
         // Request is currently un-used, provide an empty one.
@@ -195,6 +197,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
+    @Suppress("deprecation") // For backwards compatibility.
     fun tileProviderReturnsResources() = fakeCoroutineScope.runTest {
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
         val tileFuture = tileServiceClient.requestTile(tileRequest)
@@ -215,6 +218,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
+    @Suppress("deprecation") // For backwards compatibility.
     fun tileProviderReturnsTimelineResources() = fakeCoroutineScope.runTest {
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
         val tileFuture = tileServiceClientWithTimeline.requestTile(tileRequest)
@@ -239,6 +243,7 @@ class GlanceTileServiceTest {
     }
 
     @Test
+    @Suppress("deprecation") // For backwards compatibility.
     fun tileProviderReturnsTileWithState() = runBlocking {
         tileServiceWithState.updateTileState<Preferences>() { prefs ->
             prefs.toMutablePreferences().apply {
@@ -248,13 +253,15 @@ class GlanceTileServiceTest {
 
         val tileRequest = RequestBuilders.TileRequest.Builder().build()
         val tileFuture = tileServiceClientWithState.requestTile(tileRequest)
+
         shadowOf(Looper.getMainLooper()).idle()
+
         val tile = tileFuture.await()
 
         assertThat(tile.timeline!!.timelineEntries).hasSize(1)
         val entry = tile.timeline!!.timelineEntries[0]
-        val box = assertIs<LayoutElementBuilders.Box>(entry.layout!!.root!!)
-        val text = assertIs<LayoutElementBuilders.Text>(box.contents[0])
+        val box = assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(entry.layout!!.root!!)
+        val text = assertIs<androidx.wear.tiles.LayoutElementBuilders.Text>(box.contents[0])
         assertThat(text.text!!.value).isEqualTo("Hello AndroidX")
     }
 
@@ -284,16 +291,17 @@ class GlanceTileServiceTest {
         assertThat(store[tileServiceWithState.prefsNameKey]).isEqualTo("AndroidX Glance")
     }
 
+    @Suppress("deprecation") // For backwards compatibility.
     private fun checkTimelineEntry(
-        entry: TimelineBuilders.TimelineEntry,
+        entry: androidx.wear.tiles.TimelineBuilders.TimelineEntry,
         startMillis: Long,
         endMillis: Long,
         textValue: String
     ) {
         assertThat(entry.validity!!.startMillis).isEqualTo(startMillis)
         assertThat(entry.validity!!.endMillis).isEqualTo(endMillis)
-        var box = assertIs<LayoutElementBuilders.Box>(entry.layout!!.root!!)
-        var text = assertIs<LayoutElementBuilders.Text>(box.contents[0])
+        var box = assertIs<androidx.wear.tiles.LayoutElementBuilders.Box>(entry.layout!!.root!!)
+        var text = assertIs<androidx.wear.tiles.LayoutElementBuilders.Text>(box.contents[0])
         assertThat(text.text!!.value).isEqualTo(textValue)
     }
 
@@ -319,6 +327,7 @@ class GlanceTileServiceTest {
                 testTimelineMode.timeIntervals.elementAt(0) -> {
                     Text("No event")
                 }
+
                 testTimelineMode.timeIntervals.elementAt(1) -> {
                     Text("Coffee")
                     Image(
@@ -328,6 +337,7 @@ class GlanceTileServiceTest {
                         contentScale = ContentScale.FillBounds
                     )
                 }
+
                 testTimelineMode.timeIntervals.elementAt(2) -> {
                     Text("Work")
                     Image(
@@ -336,6 +346,7 @@ class GlanceTileServiceTest {
                         modifier = GlanceModifier.size(40.dp),
                     )
                 }
+
                 testTimelineMode.timeIntervals.elementAt(3) -> {
                     Text("Dinner")
                 }
@@ -343,8 +354,14 @@ class GlanceTileServiceTest {
         }
     }
 
-    private inner class TestGlanceTileServiceWithState : GlanceTileService() {
+    private inner class TestGlanceTileServiceWithState(scope: CoroutineScope) :
+        GlanceTileService() {
         override val stateDefinition = PreferencesGlanceStateDefinition
+
+        init {
+            stateDefinition.setCoroutineScope(scope)
+        }
+
         val prefsNameKey = stringPreferencesKey("user_name")
 
         @Composable

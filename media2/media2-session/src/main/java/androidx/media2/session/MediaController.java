@@ -74,51 +74,56 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 /**
- * Allows an app to interact with an active {@link MediaSession} or a
- * {@link MediaSessionService} which would provide {@link MediaSession}. Media buttons and other
- * commands can be sent to the session.
- * <p>
- * MediaController objects are thread-safe.
- * <p>
- * Topics covered here:
+ * Allows an app to interact with an active {@link MediaSession} or a {@link MediaSessionService}
+ * which would provide {@link MediaSession}. Media buttons and other commands can be sent to the
+ * session.
+ *
+ * <p>MediaController objects are thread-safe.
+ *
+ * <p>Topics covered here:
+ *
  * <ol>
- * <li><a href="#ControllerLifeCycle">Controller Lifecycle</a>
- * <li><a href="#MediaSessionInTheSameProcess">Controlling the {@link MediaSession} in the same
- * process</a>
- * <li><a href="#PackageVisibilityFilter">Package Visibility Filter</a>
+ *   <li><a href="#ControllerLifeCycle">Controller Lifecycle</a>
+ *   <li><a href="#MediaSessionInTheSameProcess">Controlling the {@link MediaSession} in the same
+ *       process</a>
+ *   <li><a href="#PackageVisibilityFilter">Package Visibility Filter</a>
  * </ol>
+ *
  * <h3 id="ControllerLifeCycle">Controller Lifecycle</h3>
- * <p>
- * When a controller is created with the {@link SessionToken} for a {@link MediaSession} (i.e.
+ *
+ * <p>When a controller is created with the {@link SessionToken} for a {@link MediaSession} (i.e.
  * session token type is {@link SessionToken#TYPE_SESSION}), the controller will connect to the
  * specific session.
- * <p>
- * When a controller is created with the {@link SessionToken} for a {@link MediaSessionService}
- * (i.e. session token type is {@link SessionToken#TYPE_SESSION_SERVICE} or
- * {@link SessionToken#TYPE_LIBRARY_SERVICE}), the controller binds to the service for connecting
- * to a {@link MediaSession} in it. {@link MediaSessionService} will provide a session to connect.
- * <p>
- * When a controller connects to a session,
- * {@link MediaSession.SessionCallback#onConnect(MediaSession, MediaSession.ControllerInfo)}
- * will be called to either accept or reject the connection. Wait
- * {@link ControllerCallback#onConnected(MediaController, SessionCommandGroup)} or
- * {@link ControllerCallback#onDisconnected(MediaController)} for the result.
- * <p>
- * When the connected session is closed, the controller will receive
- * {@link ControllerCallback#onDisconnected(MediaController)}.
- * <p>
- * When you're done, use {@link #close()} to clean up resources. This also helps session service
+ *
+ * <p>When a controller is created with the {@link SessionToken} for a {@link MediaSessionService}
+ * (i.e. session token type is {@link SessionToken#TYPE_SESSION_SERVICE} or {@link
+ * SessionToken#TYPE_LIBRARY_SERVICE}), the controller binds to the service for connecting to a
+ * {@link MediaSession} in it. {@link MediaSessionService} will provide a session to connect.
+ *
+ * <p>When a controller connects to a session, {@link
+ * MediaSession.SessionCallback#onConnect(MediaSession, MediaSession.ControllerInfo)} will be called
+ * to either accept or reject the connection. Wait {@link
+ * ControllerCallback#onConnected(MediaController, SessionCommandGroup)} or {@link
+ * ControllerCallback#onDisconnected(MediaController)} for the result.
+ *
+ * <p>When the connected session is closed, the controller will receive {@link
+ * ControllerCallback#onDisconnected(MediaController)}.
+ *
+ * <p>When you're done, use {@link #close()} to clean up resources. This also helps session service
  * to be destroyed when there's no controller associated with it.
- * <p>
- * <a name="MediaSessionInTheSameProcess"></a>
+ *
+ * <p><a name="MediaSessionInTheSameProcess"></a>
+ *
  * <h3>Controlling the MediaSession in the same process</h3>
+ *
  * When you control the {@link MediaSession} and its {@link SessionPlayer}, it's recommended to use
- * them directly rather than creating {@link MediaController}. However, if you need to use
- * {@link MediaController} in the same process, be careful not to block session callback executor's
- * thread. Here's an example code that would never return due to the thread issue.
+ * them directly rather than creating {@link MediaController}. However, if you need to use {@link
+ * MediaController} in the same process, be careful not to block session callback executor's thread.
+ * Here's an example code that would never return due to the thread issue.
+ *
  * <p>
- * <pre>
- * {@code
+ *
+ * <pre>{@code
  * // Code runs on the main thread.
  * MediaSession session = new MediaSession.Builder(context, player)
  *    .setSessionCallback(sessionCallback, Context.getMainExecutor(context)).build();
@@ -128,25 +133,28 @@ import java.util.concurrent.Executors;
  *    .build();
  *
  * // This will hang and never return.
- * controller.play().get();}</pre>
+ * controller.play().get();
+ * }</pre>
  *
- * When a session gets a command from a controller, the session's
- * {@link MediaSession.SessionCallback#onCommandRequest} would be executed on the session's
- * callback executor to decide whether to ignore or handle the incoming command. To do so, the
- * session's callback executor shouldn't be blocked to handle the incoming calls. However, if you
- * call {@link ListenableFuture#get} on the thread for the session callback executor, then your
- * call wouldn't be executed and never return.
- * <p>
- * To avoid such issue, don't block the session callback executor's thread. Creating a dedicated
- * thread for the session callback executor would be helpful. See
- * {@link Executors#newSingleThreadExecutor} for creating a new thread.
+ * When a session gets a command from a controller, the session's {@link
+ * MediaSession.SessionCallback#onCommandRequest} would be executed on the session's callback
+ * executor to decide whether to ignore or handle the incoming command. To do so, the session's
+ * callback executor shouldn't be blocked to handle the incoming calls. However, if you call {@link
+ * ListenableFuture#get} on the thread for the session callback executor, then your call wouldn't be
+ * executed and never return.
+ *
+ * <p>To avoid such issue, don't block the session callback executor's thread. Creating a dedicated
+ * thread for the session callback executor would be helpful. See {@link
+ * Executors#newSingleThreadExecutor} for creating a new thread.
+ *
  * <h3 id="PackageVisibilityFilter">Package Visibility Filter</h3>
- * <p>
- * The app targeting API level 30 or higher must include a {@code <queries>} element in their
+ *
+ * <p>The app targeting API level 30 or higher must include a {@code <queries>} element in their
  * manifest to connect to a service component of another app like {@link MediaSessionService},
  * {@link MediaLibraryService}, or {@link androidx.media.MediaBrowserServiceCompat}). See the
  * following example and <a href="{@docRoot}training/package-visibility">this guide</a> for more
  * information.
+ *
  * <pre>{@code
  * <!-- As intent actions -->
  * <intent>
@@ -164,12 +172,14 @@ import java.util.concurrent.Executors;
  *
  * @see MediaSession
  * @see MediaSessionService
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public class MediaController implements Closeable {
     private static final String TAG = "MediaController";
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({AudioManager.ADJUST_LOWER, AudioManager.ADJUST_RAISE, AudioManager.ADJUST_SAME,
@@ -178,7 +188,6 @@ public class MediaController implements Closeable {
     public @interface VolumeDirection {}
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(value = {AudioManager.FLAG_SHOW_UI, AudioManager.FLAG_ALLOW_RINGER_MODES,
@@ -1393,7 +1402,6 @@ public class MediaController implements Closeable {
      * Sets the time diff forcefully when calculating current position.
      * @param timeDiff {@code null} for reset
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public void setTimeDiff(Long timeDiff) {
@@ -1406,7 +1414,6 @@ public class MediaController implements Closeable {
      * @param callback a ControllerCallback
      * @see #unregisterExtraCallback(ControllerCallback)
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void registerExtraCallback(@NonNull /*@CallbackExecutor*/ Executor executor,
@@ -1442,7 +1449,6 @@ public class MediaController implements Closeable {
      * @param callback a ControllerCallback
      * @see #registerExtraCallback(Executor, ControllerCallback)
      *
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public void unregisterExtraCallback(@NonNull ControllerCallback callback) {
@@ -1464,7 +1470,6 @@ public class MediaController implements Closeable {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     @NonNull
     public List<Pair<ControllerCallback, Executor>> getExtraControllerCallbacks() {
@@ -1506,7 +1511,6 @@ public class MediaController implements Closeable {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public void notifyAllControllerCallbacks(
             @NonNull final ControllerCallbackRunnable callbackRunnable) {
@@ -1534,7 +1538,6 @@ public class MediaController implements Closeable {
         }
     }
 
-    /** @hide */
     @RestrictTo(LIBRARY)
     public interface ControllerCallbackRunnable {
         /**
@@ -1621,20 +1624,22 @@ public class MediaController implements Closeable {
         MediaBrowserCompat getBrowserCompat();
     }
 
-
     /**
      * Builder for {@link MediaController}.
-     * <p>
-     * To set the token of the session for the controller to connect to, one of the
-     * {@link #setSessionToken(SessionToken)} or
-     * {@link #setSessionCompatToken(MediaSessionCompat.Token)} should be called.
-     * Otherwise, the {@link #build()} will throw an {@link IllegalArgumentException}.
-     * <p>
-     * Any incoming event from the {@link MediaSession} will be handled on the callback
-     * executor.
+     *
+     * <p>To set the token of the session for the controller to connect to, one of the {@link
+     * #setSessionToken(SessionToken)} or {@link #setSessionCompatToken(MediaSessionCompat.Token)}
+     * should be called. Otherwise, the {@link #build()} will throw an {@link
+     * IllegalArgumentException}.
+     *
+     * <p>Any incoming event from the {@link MediaSession} will be handled on the callback executor.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
-    public static final class Builder extends BuilderBase<MediaController, Builder,
-            ControllerCallback> {
+    @Deprecated
+    public static final class Builder
+            extends BuilderBase<MediaController, Builder, ControllerCallback> {
         public Builder(@NonNull Context context) {
             super(context);
         }
@@ -1703,7 +1708,6 @@ public class MediaController implements Closeable {
      *      T extends androidx.media2.MediaController,
      *      U extends androidx.media2.MediaController.BuilderBase<
      *              T, U, C extends androidx.media2.MediaController.ControllerCallback>, C></pre>
-     * @hide
      */
     @RestrictTo(LIBRARY)
     abstract static class BuilderBase<T extends MediaController, U extends BuilderBase<T, U, C>,
@@ -1849,9 +1853,13 @@ public class MediaController implements Closeable {
     }
 
     /**
-     * Interface for listening to change in activeness of the {@link MediaSession}.  It's
-     * active if and only if it has set a player.
+     * Interface for listening to change in activeness of the {@link MediaSession}. It's active if
+     * and only if it has set a player.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public abstract static class ControllerCallback {
         /**
          * Called when the controller is successfully connected to the session. The controller
@@ -2058,7 +2066,6 @@ public class MediaController implements Closeable {
 
         /**
          * @deprecated Use {@link #onVideoSizeChanged(MediaController, VideoSize)} instead.
-         * @hide
          */
         @RestrictTo(LIBRARY)
         @Deprecated
@@ -2145,8 +2152,12 @@ public class MediaController implements Closeable {
 
     /**
      * Holds information about the way volume is handled for this session.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
     // The same as MediaController.PlaybackInfo
+    @Deprecated
     @VersionedParcelize
     public static final class PlaybackInfo implements VersionedParcelable {
         @ParcelField(1)

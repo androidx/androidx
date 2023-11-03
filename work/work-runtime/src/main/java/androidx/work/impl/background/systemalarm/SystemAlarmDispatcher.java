@@ -31,6 +31,8 @@ import androidx.work.Logger;
 import androidx.work.impl.ExecutionListener;
 import androidx.work.impl.Processor;
 import androidx.work.impl.StartStopTokens;
+import androidx.work.impl.WorkLauncher;
+import androidx.work.impl.WorkLauncherImpl;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.model.WorkGenerationalId;
 import androidx.work.impl.utils.WakeLocks;
@@ -45,7 +47,6 @@ import java.util.List;
  * The dispatcher used by the background processor which is based on
  * {@link android.app.AlarmManager}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SystemAlarmDispatcher implements ExecutionListener {
@@ -74,23 +75,29 @@ public class SystemAlarmDispatcher implements ExecutionListener {
     private CommandsCompletedListener mCompletedListener;
 
     private StartStopTokens mStartStopTokens;
+    private final WorkLauncher mWorkLauncher;
 
     SystemAlarmDispatcher(@NonNull Context context) {
-        this(context, null, null);
+        this(context, null, null, null);
     }
 
     @VisibleForTesting
     SystemAlarmDispatcher(
             @NonNull Context context,
             @Nullable Processor processor,
-            @Nullable WorkManagerImpl workManager) {
+            @Nullable WorkManagerImpl workManager,
+            @Nullable WorkLauncher launcher
+    ) {
         mContext = context.getApplicationContext();
         mStartStopTokens = new StartStopTokens();
-        mCommandHandler = new CommandHandler(mContext, mStartStopTokens);
         mWorkManager = workManager != null ? workManager : WorkManagerImpl.getInstance(context);
+        mCommandHandler = new CommandHandler(
+                mContext, mWorkManager.getConfiguration().getClock(), mStartStopTokens);
         mWorkTimer = new WorkTimer(mWorkManager.getConfiguration().getRunnableScheduler());
         mProcessor = processor != null ? processor : mWorkManager.getProcessor();
         mTaskExecutor = mWorkManager.getWorkTaskExecutor();
+        mWorkLauncher = launcher != null ? launcher :
+                new WorkLauncherImpl(mProcessor, mTaskExecutor);
         mProcessor.addExecutionListener(this);
         // a list of pending intents which need to be processed
         mIntents = new ArrayList<>();
@@ -188,6 +195,10 @@ public class SystemAlarmDispatcher implements ExecutionListener {
 
     TaskExecutor getTaskExecutor() {
         return mTaskExecutor;
+    }
+
+    WorkLauncher getWorkerLauncher() {
+        return mWorkLauncher;
     }
 
     @MainThread

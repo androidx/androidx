@@ -16,20 +16,49 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
+import static androidx.wear.protolayout.expression.pipeline.AnimationsHelper.maybeSplitToMainAndAuxAnimationSpec;
+
+import android.animation.ArgbEvaluator;
+import android.animation.TypeEvaluator;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.util.Pair;
+import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 
 /** Data animatable source node within a dynamic data pipeline. */
 abstract class AnimatableNode {
-    private boolean mIsVisible = false;
-    @NonNull final QuotaAwareAnimator mQuotaAwareAnimator;
+    static final ArgbEvaluator ARGB_EVALUATOR = new ArgbEvaluator();
 
-    protected AnimatableNode(@NonNull QuotaManager quotaManager) {
-        mQuotaAwareAnimator = new QuotaAwareAnimator(null, quotaManager);
+    private boolean mIsVisible = false;
+    @NonNull
+    final QuotaAwareAnimator mQuotaAwareAnimator;
+
+    protected AnimatableNode(@NonNull QuotaManager quotaManager, @NonNull AnimationSpec spec) {
+        this(quotaManager, spec, null);
     }
 
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    protected AnimatableNode(
+            @NonNull QuotaManager quotaManager,
+            @NonNull AnimationSpec spec,
+            @Nullable TypeEvaluator<?> evaluator) {
+        // When a reverse duration which is different from forward duration is provided for a
+        // reverse repeated animation, we need to split the spec into two and use
+        // QuotaAwareAnimatorWithAux to create two ValueAnimators internally to achieve the
+        // required effect. For other cases, use QuotaAwareAnimator.
+        Pair<AnimationSpec, AnimationSpec> specs = maybeSplitToMainAndAuxAnimationSpec(spec);
+        if (specs != null) {
+            mQuotaAwareAnimator =
+                    new QuotaAwareAnimatorWithAux(quotaManager, specs.first, specs.second,
+                            evaluator);
+        } else {
+            mQuotaAwareAnimator = new QuotaAwareAnimator(quotaManager, spec, evaluator);
+        }
+    }
+
+    @VisibleForTesting
     AnimatableNode(@NonNull QuotaAwareAnimator quotaAwareAnimator) {
         mQuotaAwareAnimator = quotaAwareAnimator;
     }
@@ -63,7 +92,7 @@ abstract class AnimatableNode {
         mIsVisible = visible;
         if (mIsVisible) {
             startOrResumeAnimator();
-        } else if (mQuotaAwareAnimator.hasRunningOrStartedAnimation()) {
+        } else if (mQuotaAwareAnimator.isRunning()) {
             stopOrPauseAnimator();
         }
     }
@@ -77,19 +106,19 @@ abstract class AnimatableNode {
     }
 
     /** Returns whether this node has a running animation. */
-    boolean hasRunningOrStartedAnimation() {
-        return mQuotaAwareAnimator.hasRunningOrStartedAnimation();
+    boolean hasRunningAnimation() {
+        return mQuotaAwareAnimator.isRunning();
     }
 
     /** Returns whether the animator in this node has an infinite duration. */
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
+    @VisibleForTesting
     protected boolean isInfiniteAnimator() {
         return mQuotaAwareAnimator.isInfiniteAnimator();
     }
 
     /**
      * Pauses the animator in this node if it has infinite duration, stop it otherwise. Note that
-     * this method has no effect on infinite animators that are not running since Animator#pause()
+     * this method has no effect on infinite animators that are not running since Animator#pause
      * will be a no-op in that case.
      */
     private void stopOrPauseAnimator() {

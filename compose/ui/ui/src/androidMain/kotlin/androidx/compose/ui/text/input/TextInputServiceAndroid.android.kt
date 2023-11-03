@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalTextApi::class)
+
 package androidx.compose.ui.text.input
 
 import android.graphics.Rect as AndroidRect
@@ -27,6 +29,10 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.input.pointer.PositionCalculator
+import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextInputServiceAndroid.TextInputCommand.HideKeyboard
 import androidx.compose.ui.text.input.TextInputServiceAndroid.TextInputCommand.ShowKeyboard
@@ -48,6 +54,7 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
  */
 internal class TextInputServiceAndroid(
     val view: View,
+    rootPositionCalculator: PositionCalculator,
     private val inputMethodManager: InputMethodManager,
     private val inputCommandProcessorExecutor: Executor = Choreographer.getInstance().asExecutor(),
 ) : PlatformTextInputService {
@@ -94,6 +101,9 @@ internal class TextInputServiceAndroid(
 
     private var focusedRect: AndroidRect? = null
 
+    private val cursorAnchorInfoController =
+        CursorAnchorInfoController(rootPositionCalculator, inputMethodManager)
+
     /**
      * A channel that is used to debounce rapid operations such as showing/hiding the keyboard and
      * starting/stopping input, so we can make the minimal number of calls on the
@@ -103,7 +113,11 @@ internal class TextInputServiceAndroid(
     private val textInputCommandQueue = mutableVectorOf<TextInputCommand>()
     private var frameCallback: Runnable? = null
 
-    internal constructor(view: View) : this(view, InputMethodManagerImpl(view))
+    constructor(view: View, positionCalculator: PositionCalculator) : this(
+        view,
+        positionCalculator,
+        InputMethodManagerImpl(view),
+    )
 
     init {
         if (DEBUG) {
@@ -138,9 +152,27 @@ internal class TextInputServiceAndroid(
                     baseInputConnection.sendKeyEvent(event)
                 }
 
-                override fun onConnectionClosed(ic: RecordingInputConnection) {
+                override fun onRequestCursorAnchorInfo(
+                    immediate: Boolean,
+                    monitor: Boolean,
+                    includeInsertionMarker: Boolean,
+                    includeCharacterBounds: Boolean,
+                    includeEditorBounds: Boolean,
+                    includeLineBounds: Boolean
+                ) {
+                    cursorAnchorInfoController.requestUpdate(
+                        immediate,
+                        monitor,
+                        includeInsertionMarker,
+                        includeCharacterBounds,
+                        includeEditorBounds,
+                        includeLineBounds
+                    )
+                }
+
+                override fun onConnectionClosed(inputConnection: RecordingInputConnection) {
                     for (i in 0 until ics.size) {
-                        if (ics[i].get() == ic) {
+                        if (ics[i].get() == inputConnection) {
                             ics.removeAt(i)
                             return // No duplicated instances should be in the list.
                         }
@@ -175,6 +207,19 @@ internal class TextInputServiceAndroid(
         this.imeOptions = imeOptions
         this.onEditCommand = onEditCommand
         this.onImeActionPerformed = onImeActionPerformed
+
+        // Don't actually send the command to the IME yet, it may be overruled by a subsequent call
+        // to stopInput.
+        sendInputCommand(StartInput)
+    }
+
+    override fun startInput() {
+        if (DEBUG) {
+            Log.d(TAG, "$DEBUG_CLASS.startInput")
+        }
+
+        // Don't set editorHasFocus or any of the other properties used to support the legacy text
+        // input system.
 
         // Don't actually send the command to the IME yet, it may be overruled by a subsequent call
         // to stopInput.
@@ -296,6 +341,7 @@ internal class TextInputServiceAndroid(
                 )
             }
         }
+        textInputCommandQueue.clear()
 
         // Now that we've calculated what operations we need to perform on the actual input
         // manager, perform them.
@@ -329,6 +375,7 @@ internal class TextInputServiceAndroid(
         for (i in 0 until ics.size) {
             ics[i].get()?.mTextFieldValue = newValue
         }
+        cursorAnchorInfoController.invalidate()
 
         if (oldValue == newValue) {
             if (DEBUG) {
@@ -389,6 +436,24 @@ internal class TextInputServiceAndroid(
         }
     }
 
+    override fun updateTextLayoutResult(
+        textFieldValue: TextFieldValue,
+        offsetMapping: OffsetMapping,
+        textLayoutResult: TextLayoutResult,
+        textFieldToRootTransform: (Matrix) -> Unit,
+        innerTextFieldBounds: Rect,
+        decorationBoxBounds: Rect
+    ) {
+        cursorAnchorInfoController.updateTextLayoutResult(
+            textFieldValue,
+            offsetMapping,
+            textLayoutResult,
+            textFieldToRootTransform,
+            innerTextFieldBounds,
+            decorationBoxBounds
+        )
+    }
+
     /** Immediately restart the IME connection, bypassing the [textInputCommandQueue]. */
     private fun restartInputImmediately() {
         if (DEBUG) Log.d(TAG, "$DEBUG_CLASS.restartInputImmediately")
@@ -438,6 +503,9 @@ internal fun EditorInfo.update(imeOptions: ImeOptions, textFieldValue: TextField
         ImeAction.Send -> EditorInfo.IME_ACTION_SEND
         ImeAction.Done -> EditorInfo.IME_ACTION_DONE
         else -> error("invalid ImeAction")
+    }
+    (imeOptions.platformImeOptions as? AndroidImeOptions)?.privateImeOptions?.let {
+        privateImeOptions = it
     }
     when (imeOptions.keyboardType) {
         KeyboardType.Text -> this.inputType = InputType.TYPE_CLASS_TEXT

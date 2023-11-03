@@ -68,6 +68,7 @@ public fun rememberNavController(
 
 private fun createNavController(context: Context) =
     NavHostController(context).apply {
+        navigatorProvider.addNavigator(ComposeNavGraphNavigator(navigatorProvider))
         navigatorProvider.addNavigator(ComposeNavigator())
         navigatorProvider.addNavigator(DialogNavigator())
     }

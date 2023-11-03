@@ -18,7 +18,6 @@
 
 package androidx.paging.samples
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.viewModels
 import androidx.annotation.Sampled
@@ -42,7 +41,6 @@ private class MyViewModel : BaseViewModel<UiModel>()
 private lateinit var pagingSourceFactory: () -> PagingSource<String, String>
 
 @Sampled
-@SuppressLint("SyntheticAccessor")
 fun cachedInSample() {
     class MyViewModel : ViewModel() {
         val flow = Pager(

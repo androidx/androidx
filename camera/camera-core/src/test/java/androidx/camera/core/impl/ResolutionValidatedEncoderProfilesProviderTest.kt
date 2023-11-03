@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.core.impl
 
 import android.media.CamcorderProfile.QUALITY_1080P
@@ -22,13 +24,14 @@ import android.media.CamcorderProfile.QUALITY_480P
 import android.media.CamcorderProfile.QUALITY_720P
 import android.os.Build
 import android.util.Size
+import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.quirk.ProfileResolutionQuirk
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_1080P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_2160P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_480P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_720P
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_1080P
-import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_1080P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_480P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_720P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_1080P
+import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

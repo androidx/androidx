@@ -29,8 +29,6 @@
         <!-- Tint to apply to the media route button -->
         <attr name="mediaRouteButtonTint" format="color" />
 
-        <attr name="android:minWidth" />
-        <attr name="android:minHeight" />
     </declare-styleable>
 
     <attr name="mediaRouteButtonStyle" format="reference" />
@@ -41,6 +39,7 @@
     <attr name="mediaRoutePauseDrawable" format="reference" />
     <attr name="mediaRouteStopDrawable" format="reference" />
     <attr name="mediaRouteAudioTrackDrawable" format="reference" />
+    <attr name="mediaRouteWifiIconDrawable" format="reference" />
     <attr name="mediaRouteDefaultIconDrawable" format="reference" />
     <attr name="mediaRouteTvIconDrawable" format="reference" />
     <attr name="mediaRouteSpeakerIconDrawable" format="reference" />

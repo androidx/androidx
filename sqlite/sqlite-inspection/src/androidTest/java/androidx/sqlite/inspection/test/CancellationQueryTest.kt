@@ -22,6 +22,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.Executor
+import java.util.concurrent.Executors.newCachedThreadPool
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.Channel
@@ -32,8 +34,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
-import java.util.concurrent.Executor
-import java.util.concurrent.Executors.newCachedThreadPool
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)

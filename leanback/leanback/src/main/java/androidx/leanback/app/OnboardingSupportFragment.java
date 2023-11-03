@@ -303,9 +303,9 @@ abstract public class OnboardingSupportFragment extends Fragment {
         }
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, final @Nullable ViewGroup container,
+    @Nullable
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         resolveTheme();
         LayoutInflater localInflater = getThemeInflater(inflater);

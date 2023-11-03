@@ -22,9 +22,8 @@ import android.os.Build
 import android.util.Size
 import androidx.annotation.RequiresApi
 import androidx.camera.core.ImageCapture
-import androidx.camera.testing.fakes.FakeCameraCaptureResult
+import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
 import java.io.File
-import java.sql.Types.TIMESTAMP
 import java.util.UUID
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -44,7 +43,8 @@ object Utils {
     internal val OUTPUT_FILE_OPTIONS = ImageCapture.OutputFileOptions.Builder(
         TEMP_FILE
     ).build()
-    internal val CAMERA_CAPTURE_RESULT = FakeCameraCaptureResult().also {
+    internal val CAMERA_CAPTURE_RESULT = FakeCameraCaptureResult()
+        .also {
         it.timestamp = TIMESTAMP
     }
 }

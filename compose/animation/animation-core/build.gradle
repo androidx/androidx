@@ -15,9 +15,9 @@
  */
 
 
-import androidx.build.AndroidXComposePlugin
+import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
@@ -25,111 +25,96 @@ plugins {
     id("AndroidXComposePlugin")
 }
 
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project)
+androidXMultiplatform {
+    android()
+    desktop()
 
-dependencies {
-    if (!AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block below
-         */
+    defaultPlatform(PlatformIdentifier.ANDROID)
 
-        api("androidx.annotation:annotation:1.1.0")
-
-        implementation("androidx.compose.runtime:runtime:1.2.1")
-        implementation("androidx.compose.ui:ui:1.2.1")
-        implementation("androidx.compose.ui:ui-unit:1.2.1")
-        implementation("androidx.compose.ui:ui-util:1.2.1")
-        implementation(libs.kotlinStdlib)
-        api(libs.kotlinCoroutinesCore)
-
-        testImplementation(libs.testRules)
-        testImplementation(libs.testRunner)
-        testImplementation(libs.junit)
-        testImplementation(libs.truth)
-        testImplementation(libs.kotlinCoroutinesCore)
-
-        androidTestImplementation(libs.testRules)
-        androidTestImplementation(libs.testRunner)
-        androidTestImplementation(libs.testCore)
-        androidTestImplementation(libs.junit)
-        androidTestImplementation(project(":compose:animation:animation"))
-        androidTestImplementation("androidx.compose.ui:ui-test-junit4:1.2.1")
-        androidTestImplementation(project(":compose:test-utils"))
-
-        lintPublish project(":compose:animation:animation-core-lint")
-
-        samples(project(":compose:animation:animation-core:animation-core-samples"))
-    }
-}
-
-if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
-    androidXComposeMultiplatform {
-        android()
-        desktop()
-    }
-
-    kotlin {
-        /*
-         * When updating dependencies, make sure to make the an an analogous update in the
-         * corresponding block above
-         */
-        sourceSets {
-
-            jvmMain {
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                    api(libs.kotlinCoroutinesCore)
-                }
-            }
-
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui"))
                 implementation(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":collection:collection"))
                 implementation(libs.kotlinStdlibCommon)
                 api(libs.kotlinCoroutinesCore)
             }
+        }
 
-            androidMain {
-                dependencies {
-                    api("androidx.annotation:annotation:1.1.0")
-                    implementation(libs.kotlinStdlib)
-                }
+        commonTest {
+            dependencies {
             }
-            desktopMain {
-                dependencies {
-                    implementation(libs.kotlinStdlib)
-                }
-            }
+        }
 
-            // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
-            //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
-            //  level dependencies block instead:
-            //  `dependencies { testImplementation(libs.robolectric) }`
-            androidTest.dependencies {
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+            }
+        }
+
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                api("androidx.annotation:annotation:1.1.0")
+                implementation(libs.kotlinStdlib)
+            }
+        }
+
+        desktopMain {
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+                implementation(project(":compose:runtime:runtime"))
+                implementation(project(":compose:ui:ui"))
+                implementation(project(":compose:ui:ui-unit"))
+                implementation(project(":compose:ui:ui-util"))
+            }
+        }
+
+        jvmTest {
+            dependencies {
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.testCore)
+                implementation(libs.junit)
+                implementation(libs.truth)
+                implementation(project(":compose:animation:animation"))
+                implementation("androidx.compose.ui:ui-test-junit4:1.2.1")
+                implementation(project(":compose:test-utils"))
+            }
+        }
+
+        androidUnitTest {
+            dependsOn(jvmTest)
+            dependencies {
                 implementation(libs.testRules)
                 implementation(libs.testRunner)
                 implementation(libs.junit)
                 implementation(libs.truth)
                 implementation(libs.kotlinCoroutinesCore)
             }
+        }
 
-            androidAndroidTest.dependencies {
-                implementation(libs.testRules)
-                implementation(libs.testRunner)
-                implementation(libs.testCore)
-                implementation(libs.junit)
-                implementation(project(":compose:animation:animation"))
-                implementation(project(":compose:ui:ui-test-junit4"))
-                implementation(project(":compose:test-utils"))
-            }
+        desktopTest {
+            dependsOn(jvmTest)
         }
     }
-    dependencies {
-        samples(project(":compose:animation:animation-core:animation-core-samples"))
-    }
+}
+
+dependencies {
+    lintPublish project(":compose:animation:animation-core-lint")
 }
 
 androidx {

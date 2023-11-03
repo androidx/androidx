@@ -16,13 +16,12 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated method can be called from any thread (e.g. it is "thread safe".)
- * If the annotated element is a class, then all methods in the class can be called
- * from any thread.
+ * Denotes that the annotated method can be called from any thread (e.g. it is "thread safe".) If
+ * the annotated element is a class, then all methods in the class can be called from any thread.
  *
- * The main purpose of this method is to indicate that you believe a method can be called
- * from any thread; static tools can then check that nothing you call from within this method
- * or class have more strict threading requirements.
+ * The main purpose of this method is to indicate that you believe a method can be called from any
+ * thread; static tools can then check that nothing you call from within this method or class have
+ * more strict threading requirements.
  *
  * Example:
  * ```

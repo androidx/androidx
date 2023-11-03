@@ -37,6 +37,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.core.util.Consumer;
+import androidx.work.Configuration;
 import androidx.work.Logger;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Scheduler;
@@ -57,7 +58,6 @@ import java.util.Set;
 /**
  * A class that schedules work using {@link android.app.job.JobScheduler}.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL)
@@ -67,38 +67,43 @@ public class SystemJobScheduler implements Scheduler {
 
     private final Context mContext;
     private final JobScheduler mJobScheduler;
-    private final WorkManagerImpl mWorkManager;
     private final SystemJobInfoConverter mSystemJobInfoConverter;
 
-    public SystemJobScheduler(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
+    private final WorkDatabase mWorkDatabase;
+    private final Configuration mConfiguration;
+
+    public SystemJobScheduler(@NonNull Context context, @NonNull WorkDatabase workDatabase,
+            @NonNull Configuration configuration) {
         this(context,
-                workManager,
+                workDatabase,
+                configuration,
                 (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE),
-                new SystemJobInfoConverter(context)
+                new SystemJobInfoConverter(context, configuration.getClock())
         );
     }
 
     @VisibleForTesting
     public SystemJobScheduler(
             @NonNull Context context,
-            @NonNull WorkManagerImpl workManager,
+            @NonNull WorkDatabase workDatabase,
+            @NonNull Configuration configuration,
             @NonNull JobScheduler jobScheduler,
             @NonNull SystemJobInfoConverter systemJobInfoConverter) {
         mContext = context;
-        mWorkManager = workManager;
         mJobScheduler = jobScheduler;
         mSystemJobInfoConverter = systemJobInfoConverter;
+        mWorkDatabase = workDatabase;
+        mConfiguration = configuration;
     }
 
     @Override
     public void schedule(@NonNull WorkSpec... workSpecs) {
-        WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
-        IdGenerator idGenerator = new IdGenerator(workDatabase);
+        IdGenerator idGenerator = new IdGenerator(mWorkDatabase);
 
         for (WorkSpec workSpec : workSpecs) {
-            workDatabase.beginTransaction();
+            mWorkDatabase.beginTransaction();
             try {
-                WorkSpec currentDbWorkSpec = workDatabase.workSpecDao().getWorkSpec(workSpec.id);
+                WorkSpec currentDbWorkSpec = mWorkDatabase.workSpecDao().getWorkSpec(workSpec.id);
                 if (currentDbWorkSpec == null) {
                     Logger.get().warning(
                             TAG,
@@ -107,7 +112,7 @@ public class SystemJobScheduler implements Scheduler {
 
                     // Marking this transaction as successful, as we don't want this transaction
                     // to affect transactions for unrelated WorkSpecs.
-                    workDatabase.setTransactionSuccessful();
+                    mWorkDatabase.setTransactionSuccessful();
                     continue;
                 } else if (currentDbWorkSpec.state != WorkInfo.State.ENQUEUED) {
                     Logger.get().warning(
@@ -117,21 +122,19 @@ public class SystemJobScheduler implements Scheduler {
 
                     // Marking this transaction as successful, as we don't want this transaction
                     // to affect transactions for unrelated WorkSpecs.
-                    workDatabase.setTransactionSuccessful();
+                    mWorkDatabase.setTransactionSuccessful();
                     continue;
                 }
                 WorkGenerationalId generationalId = generationalId(workSpec);
-                SystemIdInfo info = workDatabase.systemIdInfoDao().getSystemIdInfo(generationalId);
+                SystemIdInfo info = mWorkDatabase.systemIdInfoDao().getSystemIdInfo(generationalId);
 
                 int jobId = info != null ? info.systemId : idGenerator.nextJobSchedulerIdWithRange(
-                        mWorkManager.getConfiguration().getMinJobSchedulerId(),
-                        mWorkManager.getConfiguration().getMaxJobSchedulerId());
+                        mConfiguration.getMinJobSchedulerId(),
+                        mConfiguration.getMaxJobSchedulerId());
 
                 if (info == null) {
                     SystemIdInfo newSystemIdInfo = systemIdInfo(generationalId, jobId);
-                    mWorkManager.getWorkDatabase()
-                            .systemIdInfoDao()
-                            .insertSystemIdInfo(newSystemIdInfo);
+                    mWorkDatabase.systemIdInfoDao().insertSystemIdInfo(newSystemIdInfo);
                 }
 
                 scheduleInternal(workSpec, jobId);
@@ -163,15 +166,15 @@ public class SystemJobScheduler implements Scheduler {
                         } else {
                             // Create a new jobId
                             nextJobId = idGenerator.nextJobSchedulerIdWithRange(
-                                    mWorkManager.getConfiguration().getMinJobSchedulerId(),
-                                    mWorkManager.getConfiguration().getMaxJobSchedulerId());
+                                    mConfiguration.getMinJobSchedulerId(),
+                                    mConfiguration.getMaxJobSchedulerId());
                         }
                         scheduleInternal(workSpec, nextJobId);
                     }
                 }
-                workDatabase.setTransactionSuccessful();
+                mWorkDatabase.setTransactionSuccessful();
             } finally {
-                workDatabase.endTransaction();
+                mWorkDatabase.endTransaction();
             }
         }
     }
@@ -212,16 +215,15 @@ public class SystemJobScheduler implements Scheduler {
                             + "jobs in JobScheduler; we have %d tracked jobs in our DB; "
                             + "our Configuration limit is %d.",
                     numWorkManagerJobs,
-                    mWorkManager.getWorkDatabase().workSpecDao().getScheduledWork().size(),
-                    mWorkManager.getConfiguration().getMaxSchedulerLimit());
+                    mWorkDatabase.workSpecDao().getScheduledWork().size(),
+                    mConfiguration.getMaxSchedulerLimit());
 
             Logger.get().error(TAG, message);
 
             IllegalStateException schedulingException = new IllegalStateException(message, e);
             // If a SchedulingExceptionHandler is defined, let the app handle the scheduling
             // exception.
-            Consumer<Throwable> handler =
-                    mWorkManager.getConfiguration().getSchedulingExceptionHandler();
+            Consumer<Throwable> handler = mConfiguration.getSchedulingExceptionHandler();
             if (handler != null) {
                 handler.accept(schedulingException);
             } else {
@@ -244,9 +246,7 @@ public class SystemJobScheduler implements Scheduler {
             }
 
             // Drop the relevant system ids.
-            mWorkManager.getWorkDatabase()
-                .systemIdInfoDao()
-                .removeSystemIdInfo(workSpecId);
+            mWorkDatabase.systemIdInfoDao().removeSystemIdInfo(workSpecId);
         }
     }
 
@@ -298,17 +298,16 @@ public class SystemJobScheduler implements Scheduler {
      * rescheduled.
      *
      * @param context     The application {@link Context}
-     * @param workManager The {@link WorkManagerImpl} instance
+     * @param workDatabase The {@link WorkDatabase} instance
      * @return <code>true</code> if jobs need to be reconciled.
      */
     public static boolean reconcileJobs(
             @NonNull Context context,
-            @NonNull WorkManagerImpl workManager) {
-
+            @NonNull WorkDatabase workDatabase) {
         JobScheduler jobScheduler = (JobScheduler) context.getSystemService(JOB_SCHEDULER_SERVICE);
         List<JobInfo> jobs = getPendingJobs(context, jobScheduler);
         List<String> workManagerWorkSpecs =
-                workManager.getWorkDatabase().systemIdInfoDao().getWorkSpecIds();
+                workDatabase.systemIdInfoDao().getWorkSpecIds();
 
         int jobSize = jobs != null ? jobs.size() : 0;
         Set<String> jobSchedulerWorkSpecs = new HashSet<>(jobSize);
@@ -336,7 +335,6 @@ public class SystemJobScheduler implements Scheduler {
         }
 
         if (needsReconciling) {
-            WorkDatabase workDatabase = workManager.getWorkDatabase();
             workDatabase.beginTransaction();
             try {
                 WorkSpecDao workSpecDao = workDatabase.workSpecDao();

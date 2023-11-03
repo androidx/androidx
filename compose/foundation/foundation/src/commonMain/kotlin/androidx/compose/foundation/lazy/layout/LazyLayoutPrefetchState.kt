@@ -18,18 +18,19 @@ package androidx.compose.foundation.lazy.layout
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.Constraints
 
 /**
  * State for lazy items prefetching, used by lazy layouts to instruct the prefetcher.
+ *
+ * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
  */
 @ExperimentalFoundationApi
 @Stable
 class LazyLayoutPrefetchState {
-    internal var prefetcher: Prefetcher? by mutableStateOf(null)
+    internal var prefetcher: Prefetcher? = null
 
     /**
      * Schedules precomposition and premeasure for the new item.

@@ -17,7 +17,6 @@
 package androidx.compose.foundation.benchmark.text.empirical
 
 import androidx.compose.foundation.benchmark.text.DoFullBenchmark
-import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -41,7 +40,7 @@ class SetText(private val text: String) : LayeredComposeTestCase(), ToggleableTe
 
     @Composable
     override fun MeasuredContent() {
-        BasicText(
+        Subject(
             toggleText.value,
             style = style
         )

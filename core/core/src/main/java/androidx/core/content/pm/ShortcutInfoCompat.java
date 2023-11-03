@@ -38,6 +38,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.collection.ArraySet;
 import androidx.core.app.Person;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -66,7 +67,6 @@ public class ShortcutInfoCompat {
 
     private static final String EXTRA_SLICE_URI = "extraSliceUri";
 
-    /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @IntDef(flag = true, value = {SURFACE_LAUNCHER})
     @Retention(RetentionPolicy.SOURCE)
@@ -170,7 +170,6 @@ public class ShortcutInfoCompat {
     }
 
     /**
-     * @hide
      */
     @RequiresApi(22)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -340,7 +339,6 @@ public class ShortcutInfoCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     public IconCompat getIcon() {
@@ -348,7 +346,6 @@ public class ShortcutInfoCompat {
     }
 
     /**
-     * @hide
      */
     @RequiresApi(25)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -369,7 +366,6 @@ public class ShortcutInfoCompat {
     }
 
     /**
-     * @hide
      */
     @RequiresApi(25)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -382,7 +378,6 @@ public class ShortcutInfoCompat {
     }
 
     /**
-     * @hide
      */
     @RequiresApi(25)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -403,7 +398,6 @@ public class ShortcutInfoCompat {
     /**
      * Get additional extras from the shortcut, which will not be persisted anywhere once the
      * shortcut is published.
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     @Nullable
@@ -528,7 +522,6 @@ public class ShortcutInfoCompat {
     }
 
     /**
-     * @hide
      */
     @RequiresApi(25)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -557,7 +550,6 @@ public class ShortcutInfoCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         public Builder(@NonNull ShortcutInfoCompat shortcutInfo) {
@@ -598,7 +590,6 @@ public class ShortcutInfoCompat {
         }
 
         /**
-         * @hide
          */
         @RequiresApi(25)
         @RestrictTo(LIBRARY_GROUP_PREFIX)
@@ -810,7 +801,9 @@ public class ShortcutInfoCompat {
          */
         @NonNull
         public Builder setCategories(@NonNull Set<String> categories) {
-            mInfo.mCategories = categories;
+            ArraySet<String> set = new ArraySet<>();
+            set.addAll(categories);
+            mInfo.mCategories = set;
             return this;
         }
 
@@ -882,7 +875,6 @@ public class ShortcutInfoCompat {
         }
 
         /**
-         * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @NonNull

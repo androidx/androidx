@@ -1,31 +1,292 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-alpha05)" variant="all" version="8.0.0-alpha05">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalMaterial3Api"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/CardScreenshotTest.kt"/>
     </issue>
 
     <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalMaterial3Api"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/CheckboxScreenshotTest.kt"/>
     </issue>
 
     <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @ExperimentalMaterial3Api"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/material3/SwipeableV2.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/FloatingActionButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/IconButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(300)"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/MaterialRippleThemeTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(300)"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationBarScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(300)"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationDrawerItemScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(300)"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/NavigationRailScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/RadioButtonScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="        Thread.sleep(300)"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/SwitchScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="            Thread.sleep(300)"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/material3/TabScreenshotTest.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable crossAxisSizes with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val crossAxisSizes = mutableListOf&lt;Int>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable crossAxisPositions with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val crossAxisPositions = mutableListOf&lt;Int>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AlertDialog.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;T, Float> of getAnchors$lint_module: replace with ObjectFloatMap"
+        errorLine1="    internal val anchors = mutableMapOf&lt;T, Float>()"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor MapDraggableAnchors has parameter anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
+        errorLine2="                                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field anchors with type Map&lt;T, Float>: replace with ObjectFloatMap"
+        errorLine1="private class MapDraggableAnchors&lt;T>(private val anchors: Map&lt;T, Float>) : DraggableAnchors&lt;T> {"
+        errorLine2="                                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/AnchoredDraggable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable xCandidates with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val xCandidates = listOf("
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuPosition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable yCandidates with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val yCandidates = listOf("
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/MenuPosition.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable tabContentWidths with type List&lt;Dp>: replace with FloatList"
+        errorLine1="            val tabContentWidths = mutableListOf&lt;Dp>()"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TabRow.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of getValues$lint_module: replace with IntList"
+        errorLine1="    internal val values get() = if (selection == Selection.Minute) Minutes else Hours"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field Minutes with type List&lt;Integer>: replace with IntList"
+        errorLine1="private val Minutes = listOf(0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field Hours with type List&lt;Integer>: replace with IntList"
+        errorLine1="private val Hours = listOf(12, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field ExtraHours with type List&lt;Integer>: replace with IntList"
+        errorLine1="private val ExtraHours = Hours.fastMap { (it % 12 + 12) }"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/material3/TimePicker.kt"/>
     </issue>
 
 </issues>

@@ -24,7 +24,6 @@ import androidx.camera.core.impl.ImageReaderProxy;
 /**
  * Provider that provides a {@link androidx.camera.core.impl.ImageReaderProxy} instance.
  *
- * @hide
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

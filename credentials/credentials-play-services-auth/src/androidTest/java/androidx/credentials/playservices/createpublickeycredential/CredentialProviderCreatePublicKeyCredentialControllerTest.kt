@@ -55,8 +55,8 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                 val expectedJson = JSONObject(MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT)
 
                 val actualResponse = getInstance(activity!!).convertRequestToPlayServices(
-                            CreatePublicKeyCredentialRequest(
-                                MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT))
+                    CreatePublicKeyCredentialRequest(
+                        MAIN_CREATE_JSON_ALL_REQUIRED_FIELDS_PRESENT))
                 val actualJson =
                     createJsonObjectFromPublicKeyCredentialCreationOptions(actualResponse)
                 val requiredKeys =
@@ -81,8 +81,8 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                     MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL_FIELDS_PRESENT)
 
                 val actualResponse = getInstance(activity!!)
-                        .convertRequestToPlayServices(CreatePublicKeyCredentialRequest(
-                            MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL_FIELDS_PRESENT))
+                    .convertRequestToPlayServices(CreatePublicKeyCredentialRequest(
+                        MAIN_CREATE_JSON_ALL_REQUIRED_AND_OPTIONAL_FIELDS_PRESENT))
                 val actualJson =
                     createJsonObjectFromPublicKeyCredentialCreationOptions(actualResponse)
                 val requiredKeys =
@@ -109,9 +109,9 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                     getInstance(
                         activity!!
                     ).convertRequestToPlayServices(
-                            CreatePublicKeyCredentialRequest(
-                                MAIN_CREATE_JSON_MISSING_REQUIRED_FIELD
-                            )) })
+                        CreatePublicKeyCredentialRequest(
+                            MAIN_CREATE_JSON_MISSING_REQUIRED_FIELD
+                        )) })
         }
     }
 
@@ -125,8 +125,8 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
             Assert.assertThrows("Expected bad required json to throw",
                 JSONException::class.java,
                 ThrowingRunnable { getInstance(activity!!
-                    ).convertRequestToPlayServices(CreatePublicKeyCredentialRequest(
-                                MAIN_CREATE_JSON_REQUIRED_FIELD_EMPTY)) })
+                ).convertRequestToPlayServices(CreatePublicKeyCredentialRequest(
+                    MAIN_CREATE_JSON_REQUIRED_FIELD_EMPTY)) })
         }
     }
     @Test
@@ -142,8 +142,8 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                     getInstance(
                         activity!!
                     ).convertRequestToPlayServices(
-                            CreatePublicKeyCredentialRequest(
-                                OPTIONAL_FIELD_MISSING_REQUIRED_SUBFIELD)) })
+                        CreatePublicKeyCredentialRequest(
+                            OPTIONAL_FIELD_MISSING_REQUIRED_SUBFIELD)) })
         }
     }
 
@@ -157,8 +157,8 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
             Assert.assertThrows("Expected bad required json to throw",
                 JSONException::class.java,
                 ThrowingRunnable { getInstance(activity!!).convertRequestToPlayServices(
-                            CreatePublicKeyCredentialRequest(
-                                OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD)) })
+                    CreatePublicKeyCredentialRequest(
+                        OPTIONAL_FIELD_WITH_EMPTY_REQUIRED_SUBFIELD)) })
         }
     }
 
@@ -177,7 +177,7 @@ class CredentialProviderCreatePublicKeyCredentialControllerTest {
                             CreatePublicKeyCredentialRequest(
                                 OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD))
                 val actualJson = createJsonObjectFromPublicKeyCredentialCreationOptions(
-                        actualResponse)
+                    actualResponse)
                 val requiredKeys =
                     JSONObject(OPTIONAL_FIELD_MISSING_OPTIONAL_SUBFIELD_SIGNATURE)
 

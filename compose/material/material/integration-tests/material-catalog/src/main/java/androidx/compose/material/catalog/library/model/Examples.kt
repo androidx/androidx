@@ -25,14 +25,15 @@ import androidx.compose.material.catalog.library.util.SampleSourceUrl
 import androidx.compose.material.samples.AlertDialogSample
 import androidx.compose.material.samples.BackdropScaffoldSample
 import androidx.compose.material.samples.BottomDrawerSample
-import androidx.compose.material.samples.BottomNavigationSample
 import androidx.compose.material.samples.BottomNavigationItemWithBadge
+import androidx.compose.material.samples.BottomNavigationSample
 import androidx.compose.material.samples.BottomNavigationWithOnlySelectedLabelsSample
 import androidx.compose.material.samples.BottomSheetScaffoldSample
 import androidx.compose.material.samples.ButtonSample
 import androidx.compose.material.samples.ButtonWithIconSample
 import androidx.compose.material.samples.CardSample
 import androidx.compose.material.samples.CheckboxSample
+import androidx.compose.material.samples.ChipGroupReflowSample
 import androidx.compose.material.samples.ChipGroupSingleLineSample
 import androidx.compose.material.samples.ChipSample
 import androidx.compose.material.samples.CircularProgressIndicatorSample
@@ -49,6 +50,7 @@ import androidx.compose.material.samples.IconTabs
 import androidx.compose.material.samples.LeadingIconTabs
 import androidx.compose.material.samples.LinearProgressIndicatorSample
 import androidx.compose.material.samples.MenuSample
+import androidx.compose.material.samples.MenuWithScrollStateSample
 import androidx.compose.material.samples.ModalBottomSheetSample
 import androidx.compose.material.samples.ModalDrawerSample
 import androidx.compose.material.samples.NavigationRailBottomAlignSample
@@ -300,6 +302,13 @@ val ChipsExamples = listOf(
         sourceUrl = ChipsExampleSourceUrl
     ) {
         ChipGroupSingleLineSample()
+    },
+    Example(
+        name = ::ChipGroupReflowSample.name,
+        description = ChipsExampleDescription,
+        sourceUrl = ChipsExampleSourceUrl
+    ) {
+        ChipGroupReflowSample()
     }
 )
 
@@ -388,6 +397,13 @@ val MenusExamples = listOf(
         sourceUrl = MenusExampleSourceUrl
     ) {
         MenuSample()
+    },
+    Example(
+        name = ::MenuWithScrollStateSample.name,
+        description = MenusExampleDescription,
+        sourceUrl = MenusExampleSourceUrl
+    ) {
+        MenuWithScrollStateSample()
     },
     Example(
         name = ::ExposedDropdownMenuSample.name,
@@ -695,14 +711,18 @@ val TextFieldsExamples = listOf(
         description = TextFieldsExampleDescription,
         sourceUrl = TextFieldsExampleSourceUrl
     ) {
-       TextArea()
+        TextArea()
     }
 ).map {
     // By default text field samples are minimal and don't have a `width` modifier to restrict the
     // width. As a result, they grow horizontally if enough text is typed. To prevent this behavior
     // in Catalog app the code below restricts the width of every text field sample
     it.copy(content = {
-        Box(Modifier.wrapContentWidth().width(280.dp)) { it.content() }
+        Box(
+            Modifier
+                .wrapContentWidth()
+                .width(280.dp)
+        ) { it.content() }
     })
 }
 
