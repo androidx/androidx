@@ -18,8 +18,10 @@ package androidx.privacysandbox.sdkruntime.core.controller.impl
 
 import android.annotation.SuppressLint
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
+import android.os.ext.SdkExtensions
+import androidx.annotation.RequiresExtension
+import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
-import androidx.privacysandbox.sdkruntime.core.AppOwnedInterfaceConverter
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 
 /**
@@ -46,31 +48,25 @@ internal class AppOwnedSdkProvider private constructor(
     }
 
     /**
-     * Implementation for Developer Preview builds.
-     * Using reflection to call public methods / constructors.
-     * TODO(b/281397807) Replace reflection for method calls when new prebuilt will be available.
+     * Implementation for AdServices V8.
      */
-    private class DeveloperPreviewImpl(
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
+    private class ApiAdServicesV8Impl(
         private val controller: SdkSandboxController
     ) : ProviderImpl {
-
-        private val getAppOwnedSdkSandboxInterfacesMethod = controller.javaClass.getMethod(
-            "getAppOwnedSdkSandboxInterfaces",
-        )
-
-        private val converter: AppOwnedInterfaceConverter = AppOwnedInterfaceConverter()
-
-        @SuppressLint("BanUncheckedReflection") // calling public non restricted methods
         override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
-            val apiResult = getAppOwnedSdkSandboxInterfacesMethod.invoke(controller) as List<*>
-            return apiResult.map { converter.toCompat(it!!) }
+            val apiResult = controller.getAppOwnedSdkSandboxInterfaces()
+            return apiResult.map { AppOwnedSdkSandboxInterfaceCompat(it) }
         }
     }
 
     companion object {
+        @SuppressLint("NewApi", "ClassVerificationFailure") // For supporting DP Builds
         fun create(controller: SdkSandboxController): AppOwnedSdkProvider {
-            return if (AdServicesInfo.isDeveloperPreview()) {
-                AppOwnedSdkProvider(DeveloperPreviewImpl(controller))
+            return if (BuildCompat.AD_SERVICES_EXTENSION_INT >= 8 ||
+                AdServicesInfo.isDeveloperPreview()
+            ) {
+                AppOwnedSdkProvider(ApiAdServicesV8Impl(controller))
             } else {
                 AppOwnedSdkProvider(NoOpImpl())
             }

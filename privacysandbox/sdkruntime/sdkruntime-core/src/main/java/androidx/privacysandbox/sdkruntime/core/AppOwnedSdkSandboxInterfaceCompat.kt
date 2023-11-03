@@ -16,7 +16,12 @@
 
 package androidx.privacysandbox.sdkruntime.core
 
+import android.app.sdksandbox.AppOwnedSdkSandboxInterface
 import android.os.IBinder
+import android.os.ext.SdkExtensions.AD_SERVICES
+import androidx.annotation.RequiresExtension
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 
 /**
  * Represents a channel for an SDK in the sandbox process to interact with the app.
@@ -36,6 +41,19 @@ class AppOwnedSdkSandboxInterfaceCompat(
     private val version: Long,
     private val binder: IBinder
 ) {
+
+    /**
+     * Creates AppOwnedSdkSandboxInterfaceCompat from existing [AppOwnedSdkSandboxInterface] object.
+     *
+     * @param appOwnedSdkInterface source platform object.
+     */
+    @RequiresExtension(extension = AD_SERVICES, version = 8)
+    @RestrictTo(LIBRARY_GROUP)
+    constructor(appOwnedSdkInterface: AppOwnedSdkSandboxInterface) : this(
+        name = appOwnedSdkInterface.getName(),
+        version = appOwnedSdkInterface.getVersion(),
+        binder = appOwnedSdkInterface.getInterface(),
+    )
 
     /**
      * Returns the name used to register the [AppOwnedSdkSandboxInterfaceCompat].
@@ -62,4 +80,13 @@ class AppOwnedSdkSandboxInterfaceCompat(
      * the agreed upon interface before using it.
      */
     fun getInterface(): IBinder = binder
+
+    /**
+     * Create [AppOwnedSdkSandboxInterface] from compat object.
+     *
+     * @return Platform AppOwnedSdkSandboxInterface
+     */
+    @RequiresExtension(extension = AD_SERVICES, version = 8)
+    @RestrictTo(LIBRARY_GROUP)
+    fun toAppOwnedSdkSandboxInterface() = AppOwnedSdkSandboxInterface(name, version, binder)
 }

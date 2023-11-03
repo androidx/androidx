@@ -23,8 +23,8 @@ import android.os.Binder
 import android.os.Build
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
+import androidx.core.os.BuildCompat
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
-import androidx.privacysandbox.sdkruntime.core.AppOwnedInterfaceConverter
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -82,8 +82,13 @@ class SdkSandboxControllerAppOwnedInterfacesTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 35, codeName = "UpsideDownCakePrivacySandbox")
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun getAppOwnedSdkSandboxInterfaces_whenApiAvailable_delegateToPlatform() {
+        assumeTrue(
+            "Requires AppOwnedInterfaces API available",
+            isAppOwnedInterfacesApiAvailable()
+        )
         val context = spy(ApplicationProvider.getApplicationContext<Context>())
         val controllerMock = mock(SdkSandboxController::class.java)
         doReturn(controllerMock)
@@ -111,7 +116,7 @@ class SdkSandboxControllerAppOwnedInterfacesTest {
         AdServicesInfo.isAtLeastV5()
 
     private fun isAppOwnedInterfacesApiAvailable() =
-        AdServicesInfo.isDeveloperPreview()
+        BuildCompat.AD_SERVICES_EXTENSION_INT >= 8 || AdServicesInfo.isDeveloperPreview()
 
     companion object AppOwnedInterfacesApi { // to avoid fail if SdkSandboxController not present
         @SuppressLint("NewApi", "ClassVerificationFailure") // UpsideDownCakePrivacySandbox is UDC
@@ -119,14 +124,8 @@ class SdkSandboxControllerAppOwnedInterfacesTest {
             controllerMock: SdkSandboxController,
             result: AppOwnedSdkSandboxInterfaceCompat
         ) {
-            val getAppOwnedInterfacesMethod = SdkSandboxController::class.java.getDeclaredMethod(
-                "getAppOwnedSdkSandboxInterfaces"
-            )
-
-            val platformObj = AppOwnedInterfaceConverter().toPlatform(result)
-
-            // Mockito require method call to setup result. Reflection call works same way as normal.
-            `when`(getAppOwnedInterfacesMethod.invoke(controllerMock))
+            val platformObj = result.toAppOwnedSdkSandboxInterface()
+            `when`(controllerMock.getAppOwnedSdkSandboxInterfaces())
                 .thenReturn(listOf(platformObj))
         }
     }
