@@ -24,9 +24,7 @@ import android.view.ViewGroup
 import android.widget.CheckBox
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
-import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.GattCharacteristic
-import androidx.bluetooth.GattServerRequest
 import androidx.bluetooth.GattService
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentGattServerBinding
@@ -35,14 +33,12 @@ import androidx.bluetooth.integration.testapp.ui.common.setViewEditText
 import androidx.bluetooth.integration.testapp.ui.common.toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
-import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -52,27 +48,7 @@ class GattServerFragment : Fragment() {
         private const val TAG = "GattServerFragment"
     }
 
-    @Inject
-    lateinit var bluetoothLe: BluetoothLe
-
-    private val gattServerScope = CoroutineScope(Dispatchers.Main + Job())
-    private var gattServerJob: Job? = null
-
     private var gattServerServicesAdapter: GattServerServicesAdapter? = null
-
-    private var isGattServerOpen: Boolean = false
-        set(value) {
-            field = value
-            if (value) {
-                _binding?.buttonGattServer?.text = getString(R.string.stop_gatt_server)
-                _binding?.buttonGattServer?.backgroundTintList = getColor(R.color.red_500)
-            } else {
-                _binding?.buttonGattServer?.text = getString(R.string.open_gatt_server)
-                _binding?.buttonGattServer?.backgroundTintList = getColor(R.color.indigo_500)
-                gattServerJob?.cancel()
-                gattServerJob = null
-            }
-        }
 
     private val viewModel: GattServerViewModel by viewModels()
 
@@ -106,17 +82,22 @@ class GattServerFragment : Fragment() {
         )
 
         binding.buttonGattServer.setOnClickListener {
-            if (gattServerJob?.isActive == true) {
-                isGattServerOpen = false
+            if (viewModel.gattServerJob?.isActive == true) {
+                viewModel.gattServerJob?.cancel()
             } else {
-                openGattServer()
+                viewModel.openGattServer()
             }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+                .collect(::updateUi)
         }
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        isGattServerOpen = false
         _binding = null
     }
 
@@ -226,82 +207,21 @@ class GattServerFragment : Fragment() {
             .show()
     }
 
-    private fun openGattServer() {
-        Log.d(TAG, "openGattServer() called")
+    private fun updateUi(gattServerUiState: GattServerUiState) {
+        val isGattServerOpen = gattServerUiState.isGattServerOpen
 
-        gattServerJob = gattServerScope.launch {
-            Log.d(
-                TAG, "bluetoothLe.openGattServer() called with: " +
-                    "viewModel.gattServerServices = ${viewModel.gattServerServices}"
-            )
-            isGattServerOpen = true
+        if (isGattServerOpen) {
+            binding.buttonGattServer.text = getString(R.string.stop_gatt_server)
+            binding.buttonGattServer.backgroundTintList = getColor(R.color.red_500)
+        } else {
+            binding.buttonGattServer.text = getString(R.string.open_gatt_server)
+            binding.buttonGattServer.backgroundTintList = getColor(R.color.indigo_500)
+        }
 
-            bluetoothLe.openGattServer(viewModel.gattServerServices) {
-                Log.d(
-                    TAG, "bluetoothLe.openGattServer() called with: " +
-                        "viewModel.gattServerServices = ${viewModel.gattServerServices}"
-                )
-
-                connectRequests.collect {
-                    Log.d(TAG, "connectRequests.collected: GattServerConnectRequest = $it")
-
-                    launch {
-                        it.accept {
-                            Log.d(
-                                TAG, "GattServerConnectRequest accepted: " +
-                                    "GattServerSessionScope = $it"
-                            )
-
-                            requests.collect { gattServerRequest ->
-                                Log.d(
-                                    TAG, "requests collected: " +
-                                        "gattServerRequest = $gattServerRequest"
-                                )
-
-                                // TODO(b/269390098): Handle requests correctly
-                                when (gattServerRequest) {
-                                    is GattServerRequest.ReadCharacteristic -> {
-                                        val characteristic = gattServerRequest.characteristic
-
-                                        val value = viewModel.readGattCharacteristicValue(
-                                            characteristic
-                                        )
-
-                                        toast(
-                                            "Read value: ${value.decodeToString()} " +
-                                                "for characteristic = ${characteristic.uuid}"
-                                        ).show()
-
-                                        gattServerRequest.sendResponse(value)
-                                    }
-
-                                    is GattServerRequest.WriteCharacteristics -> {
-                                        val characteristic =
-                                            gattServerRequest.parts[0].characteristic
-                                        val value = gattServerRequest.parts[0].value
-
-                                        toast(
-                                            "Writing value: ${value.decodeToString()} " +
-                                                "to characteristic = ${characteristic.uuid}"
-                                        ).show()
-
-                                        viewModel.updateGattCharacteristicValue(
-                                            characteristic,
-                                            value
-                                        )
-
-                                        gattServerRequest.sendResponse()
-                                    }
-
-                                    else -> {
-                                        throw NotImplementedError("Unknown request")
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+        // TODO(ofy) If we want these to always show, we may have to pass over to mainViewModel
+        gattServerUiState.resultMessage?.let {
+            toast(it).show()
+            viewModel.resultMessageShown()
         }
     }
 }

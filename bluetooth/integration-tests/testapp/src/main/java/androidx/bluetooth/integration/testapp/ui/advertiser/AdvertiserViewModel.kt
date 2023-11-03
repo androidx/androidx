@@ -102,7 +102,7 @@ class AdvertiserViewModel @Inject constructor(
         advertiseJob = viewModelScope.launch {
             Log.d(TAG, "bluetoothLe.advertise() called with: advertiseParams = $advertiseParams")
             _uiState.update {
-                it.copy(isAdvertising = true, resultMessage = null)
+                it.copy(isAdvertising = true)
             }
 
             bluetoothLe.advertise(advertiseParams) {
