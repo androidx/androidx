@@ -1032,7 +1032,8 @@ public final class DimensionBuilders {
             public Builder setLayoutWeight(@NonNull FloatProp layoutWeight) {
                 if (layoutWeight.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setLayoutWeight doesn't support dynamic values.");
+                            "ExpandedDimensionProp.Builder.setLayoutWeight doesn't support dynamic"
+                                + " values.");
                 }
                 mImpl.setLayoutWeight(layoutWeight.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -1142,7 +1143,8 @@ public final class DimensionBuilders {
             public Builder setMinimumSize(@NonNull DpProp minimumSize) {
                 if (minimumSize.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setMinimumSize doesn't support dynamic values.");
+                            "WrappedDimensionProp.Builder.setMinimumSize doesn't support dynamic"
+                                + " values.");
                 }
                 mImpl.setMinimumSize(minimumSize.toProto());
                 mFingerprint.recordPropertyUpdate(
