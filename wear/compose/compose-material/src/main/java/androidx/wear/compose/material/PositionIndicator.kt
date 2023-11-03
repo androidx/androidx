@@ -223,8 +223,8 @@ public fun PositionIndicator(
 @Deprecated(
     "This overload is provided for backwards compatibility with " +
         "Compose for Wear OS 1.2." +
-        "A newer overload is available with additional showFadeInAnimation, " +
-        "showFadeOutAnimation and showPositionAnimation parameters.",
+        "A newer overload is available with additional fadeInAnimationSpec, " +
+        "fadeOutAnimationSpec and positionAnimationSpec parameters.",
     level = DeprecationLevel.HIDDEN
 )
 @Composable
@@ -305,8 +305,8 @@ public fun PositionIndicator(
 @Deprecated(
     "This overload is provided for backwards compatibility with " +
         "Compose for Wear OS 1.2." +
-        "A newer overload is available with additional showFadeInAnimation, " +
-        "showFadeOutAnimation and showPositionAnimation parameters.",
+        "A newer overload is available with additional fadeInAnimationSpec, " +
+        "fadeOutAnimationSpec and positionAnimationSpec parameters.",
     level = DeprecationLevel.HIDDEN
 )
 @Composable
@@ -422,8 +422,8 @@ public fun PositionIndicator(
 @Deprecated(
     "This overload is provided for backwards compatibility with " +
         "Compose for Wear OS 1.2." +
-        "A newer overload is available with additional showFadeInAnimation, " +
-        "showFadeOutAnimation and showPositionAnimation parameters.",
+        "A newer overload is available with additional fadeInAnimationSpec, " +
+        "fadeOutAnimationSpec and positionAnimationSpec parameters.",
     level = DeprecationLevel.HIDDEN
 )
 @Composable
@@ -566,8 +566,8 @@ public fun PositionIndicator(
 @Deprecated(
     "This overload is provided for backwards compatibility with " +
         "Compose for Wear OS 1.2." +
-        "A newer overload is available with additional showFadeInAnimation, " +
-        "showFadeOutAnimation and showPositionAnimation parameters.",
+        "A newer overload is available with additional fadeInAnimationSpec, " +
+        "fadeOutAnimationSpec and positionAnimationSpec parameters.",
     level = DeprecationLevel.HIDDEN
 )
 @Composable
@@ -602,15 +602,20 @@ public fun PositionIndicator(
  * dimensions [indicatorHeight] and [indicatorWidth], and position with respect to the edge of the
  * screen according to [paddingHorizontal]
  *
- * This [PositionIndicator] has 3 separate flags to control different animations.
- * - [showFadeInAnimation] - controls fade-in animation.
- * - [showFadeOutAnimation] - controls fade-out animation.
- * - [showPositionAnimation] - controls position change animation.
+ * This [PositionIndicator] has 3 separate animation specs to control different animations.
+ * - [fadeInAnimationSpec] - controls fade-in animation.
+ * - [fadeOutAnimationSpec] - controls fade-out animation.
+ * - [positionAnimationSpec] - controls position change animation.
  *
  * For performance reasons and for UX consistency, when [PositionIndicator] is used with scrollable
- * list, we recommend to switch off [showFadeInAnimation] and [showPositionAnimation] flags.
+ * list, we recommend to switch off fade-in and position animations by passing [snap] spec into
+ * [fadeInAnimationSpec] and [positionAnimationSpec] parameters.
  * If [PositionIndicator] is used as a standalone indicator, for example as volume control,
  * then we recommend to have all 3 animations turned on.
+ *
+ * If color of [PositionIndicator] is not white and position animation is enabled - a short
+ * highlight animation will be triggered on any position change.
+ * This is a short animation accenting [PositionIndicator] with white color with 33% opacity.
  *
  * For more information, see the
  * [Scroll indicators](https://developer.android.com/training/wearables/components/scroll)
@@ -952,8 +957,8 @@ public fun PositionIndicator(
 @Deprecated(
     "This overload is provided for backwards compatibility with " +
         "Compose for Wear OS 1.2." +
-        "A newer overload is available with additional showFadeInAnimation, " +
-        "showFadeOutAnimation and showPositionAnimation parameters.",
+        "A newer overload is available with additional fadeInAnimationSpec, " +
+        "fadeOutAnimationSpec and positionAnimationSpec parameters.",
     level = DeprecationLevel.HIDDEN
 )
 @Composable
