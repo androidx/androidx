@@ -16,14 +16,11 @@
 
 package androidx.window.area.utils
 
-import android.os.Build
 import android.util.DisplayMetrics
-import androidx.annotation.RequiresApi
 
 /**
  * Data class holding metrics about a specific device.
  */
-@RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 internal class DeviceMetrics(
     val manufacturer: String,
     val model: String,
