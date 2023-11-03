@@ -46,7 +46,7 @@ import java.util.Objects;
 @SuppressWarnings("JavaReflectionMemberAccess")
 @SmallTest
 @TargetApi(31) // Suppress NewApi since APIs are @hide at API levels 19 through 30
-@SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
+@SdkSuppress(maxSdkVersion = 30)
 public class LocationRequestCompatTestApi19 {
     private static Method sGetProviderMethod;
     private static Method sGetIntervalMethod;
