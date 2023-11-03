@@ -321,7 +321,8 @@ public final class ColorBuilders {
             @NonNull
             Builder setColor(@NonNull ColorProp color) {
                 if (color.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setColor doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "ColorStop.Builder.setColor doesn't support dynamic values.");
                 }
                 mImpl.setColor(color.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -341,7 +342,8 @@ public final class ColorBuilders {
             @NonNull
             Builder setOffset(@NonNull FloatProp offset) {
                 if (offset.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setOffset doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "ColorStop.Builder.setOffset doesn't support dynamic values.");
                 }
                 float value = offset.getValue();
                 if (value < 0f || value > 1f) {
@@ -541,7 +543,7 @@ public final class ColorBuilders {
             public Builder setStartAngle(@NonNull DegreesProp startAngle) {
                 if (startAngle.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setStartAngle doesn't support dynamic values.");
+                            "SweepGradient.Builder.setStartAngle doesn't support dynamic values.");
                 }
                 mImpl.setStartAngle(startAngle.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -566,7 +568,7 @@ public final class ColorBuilders {
             public Builder setEndAngle(@NonNull DegreesProp endAngle) {
                 if (endAngle.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setEndAngle doesn't support dynamic values.");
+                            "SweepGradient.Builder.setEndAngle doesn't support dynamic values.");
                 }
                 mImpl.setEndAngle(endAngle.toProto());
                 mFingerprint.recordPropertyUpdate(

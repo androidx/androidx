@@ -480,7 +480,8 @@ public final class ModifiersBuilders {
             public Builder setMinimumClickableWidth(@NonNull DpProp minimumClickableWidth) {
                 if (minimumClickableWidth.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setMinimumClickableWidth doesn't support dynamic values.");
+                            "Clickable.Builder.setMinimumClickableWidth doesn't support dynamic"
+                                + " values.");
                 }
                 mImpl.setMinimumClickableWidth(minimumClickableWidth.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -505,7 +506,8 @@ public final class ModifiersBuilders {
             public Builder setMinimumClickableHeight(@NonNull DpProp minimumClickableHeight) {
                 if (minimumClickableHeight.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setMinimumClickableHeight doesn't support dynamic values.");
+                            "Clickable.Builder.setMinimumClickableHeight doesn't support dynamic"
+                                + " values.");
                 }
                 mImpl.setMinimumClickableHeight(minimumClickableHeight.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -857,7 +859,8 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setEnd(@NonNull DpProp end) {
                 if (end.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setEnd doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "Padding.Builder.setEnd doesn't support dynamic values.");
                 }
                 mImpl.setEnd(end.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -876,7 +879,8 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setStart(@NonNull DpProp start) {
                 if (start.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setStart doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "Padding.Builder.setStart doesn't support dynamic values.");
                 }
                 mImpl.setStart(start.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -894,7 +898,8 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setTop(@NonNull DpProp top) {
                 if (top.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setTop doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "Padding.Builder.setTop doesn't support dynamic values.");
                 }
                 mImpl.setTop(top.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -912,7 +917,8 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setBottom(@NonNull DpProp bottom) {
                 if (bottom.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setBottom doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "Padding.Builder.setBottom doesn't support dynamic values.");
                 }
                 mImpl.setBottom(bottom.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -1065,7 +1071,8 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setWidth(@NonNull DpProp width) {
                 if (width.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setWidth doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "Border.Builder.setWidth doesn't support dynamic values.");
                 }
                 mImpl.setWidth(width.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -1176,7 +1183,8 @@ public final class ModifiersBuilders {
             @NonNull
             public Builder setRadius(@NonNull DpProp radius) {
                 if (radius.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setRadius doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "Corner.Builder.setRadius doesn't support dynamic values.");
                 }
                 mImpl.setRadius(radius.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -3109,7 +3117,7 @@ public final class ModifiersBuilders {
             public Builder setBlurRadius(@NonNull DpProp blurRadius) {
                 if (blurRadius.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setBlurRadius doesn't support dynamic values.");
+                            "Shadow.Builder.setBlurRadius doesn't support dynamic values.");
                 }
                 mImpl.setBlurRadius(blurRadius.toProto());
                 mFingerprint.recordPropertyUpdate(
