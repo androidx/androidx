@@ -122,6 +122,12 @@ open class Subject<out T>(
 
     // TODO(KT-20427): Only needed to enable extensions in internal sources.
     @Suppress("NOTHING_TO_INLINE")
+    internal inline fun failWithActualInternal(key: String, value: Any? = null): Nothing {
+        failWithActual(key = key, value = value)
+    }
+
+    // TODO(KT-20427): Only needed to enable extensions in internal sources.
+    @Suppress("NOTHING_TO_INLINE")
     internal inline fun failWithActualInternal(vararg facts: Fact): Nothing {
         failWithActual(*facts)
     }
