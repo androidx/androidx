@@ -243,4 +243,22 @@ class SegmentedButtonTest {
         assertThat((border.brush as SolidColor).value).isEqualTo(specColor)
         assertThat(border.width).isEqualTo(OutlinedSegmentedButtonTokens.OutlineWidth)
     }
+
+    @Test
+    fun segmentedButtonBorderColor_customColors_resolvesCorrectly() {
+        lateinit var colors: SegmentedButtonColors
+        rule.setMaterialContent(lightColorScheme()) {
+            colors = SegmentedButtonDefaults.colors(
+                activeBorderColor = Color.Magenta,
+                inactiveBorderColor = Color.Cyan,
+                disabledActiveBorderColor = Color.Yellow,
+                disabledInactiveBorderColor = Color.Green,
+            )
+        }
+
+        assertThat(colors.borderColor(active = true, enabled = true)).isEqualTo(Color.Magenta)
+        assertThat(colors.borderColor(active = false, enabled = true)).isEqualTo(Color.Cyan)
+        assertThat(colors.borderColor(active = true, enabled = false)).isEqualTo(Color.Yellow)
+        assertThat(colors.borderColor(active = false, enabled = false)).isEqualTo(Color.Green)
+    }
 }
