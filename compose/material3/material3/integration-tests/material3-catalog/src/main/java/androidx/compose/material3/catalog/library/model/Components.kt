@@ -270,6 +270,19 @@ private val ProgressIndicators = Component(
     examples = ProgressIndicatorsExamples
 )
 
+private val PullToRefreshIndicators = Component(
+    id = nextId(),
+    name = "Pull-to-Refresh Indicator",
+    description = "Pull to refresh is a swipe gesture available at the beginning of lists, grid " +
+        "lists, and card collections where the most recent content appears ",
+    // No pull-to-refresh icon
+    // TODO: Request component guidelines documentation from design.
+    guidelinesUrl = "",
+    docsUrl = "$DocsUrl#pulltorefreshcontainer",
+    sourceUrl = "$Material3SourceUrl/PullToRefresh.kt",
+    examples = PullToRefreshExamples
+)
+
 private val RadioButtons = Component(
     id = nextId(),
     name = "Radio buttons",
@@ -415,6 +428,7 @@ val Components = listOf(
     NavigationRail,
     NavigationSuiteScaffold,
     ProgressIndicators,
+    PullToRefreshIndicators,
     RadioButtons,
     SearchBars,
     SegmentedButtons,
