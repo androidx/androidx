@@ -25,7 +25,6 @@ import androidx.annotation.RequiresApi
 import androidx.customview.poolingcontainer.addPoolingContainerListener
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement.runOnUiThread
 import androidx.testutils.AnimationDurationScaleRule
 import com.google.common.truth.Truth.assertThat
@@ -42,7 +41,6 @@ import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 /**
  * Note: this test's structure largely parallels AndroidComposeViewsRecyclerViewTest
  * (though there are notable implementation differences)

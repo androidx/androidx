@@ -565,12 +565,6 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         }
     }
 
-    // Run this test on Jelly Bean and newer because clearFocus on API 15 will call
-    // requestFocus in ViewRootImpl when clearChildFocus is called. Whereas, in API 16 and above,
-    // this call is delayed until after onFocusChange callback is called. Thus on API 16+, there's a
-    // transient state of no child having focus during which onFocusChange is executed. This
-    // transient state does not exist on API 15-.
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void unfocusableScrollingWhenFocusCleared() throws Throwable {
         // The maximum number of child views that can be visible at any time.
@@ -828,7 +822,6 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         });
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     public void hiddenNoneRemoveViewAccessibility() throws Throwable {
         // TODO(b/263592347): remove the RecyclerView.setDebugAssertionsEnabled calls
