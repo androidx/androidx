@@ -874,6 +874,44 @@ public class WebSettingsCompat {
         }
     }
 
+    /**
+     * Sets permissions provided through
+     * {@link WebViewMediaIntegrityApiStatusConfig} for using the
+     * WebView Integrity API.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setWebViewMediaIntegrityApiStatus(
+            @NonNull WebSettings settings,
+            @NonNull WebViewMediaIntegrityApiStatusConfig permissionConfig) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.WEBVIEW_MEDIA_INTEGRITY_API_STATUS;
+        if (feature.isSupportedByWebView()) {
+            getAdapter(settings).setWebViewMediaIntegrityApiStatus(permissionConfig);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Returns the {@link WebViewMediaIntegrityApiStatusConfig} currently in use.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RequiresFeature(name = WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    @NonNull
+    public static WebViewMediaIntegrityApiStatusConfig getWebViewMediaIntegrityApiStatus(
+            @NonNull WebSettings settings) {
+        final ApiFeature.NoFramework feature =
+                WebViewFeatureInternal.WEBVIEW_MEDIA_INTEGRITY_API_STATUS;
+        if (feature.isSupportedByWebView()) {
+            return getAdapter(settings).getWebViewMediaIntegrityApiStatus();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
     private static WebSettingsAdapter getAdapter(WebSettings settings) {
         return WebViewGlueCommunicator.getCompatConverter().convertSettings(settings);
     }
