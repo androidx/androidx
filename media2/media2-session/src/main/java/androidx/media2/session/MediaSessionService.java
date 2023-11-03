@@ -32,88 +32,102 @@ import java.util.List;
 
 /**
  * Base class for media session services, which is the service containing {@link MediaSession}.
- * <p>
- * It's highly recommended for an app to use this if it wants to keep media playback in the
+ *
+ * <p>It's highly recommended for an app to use this if it wants to keep media playback in the
  * background.
- * <p>
- * Here are the benefits of using {@link MediaSessionService}.
+ *
+ * <p>Here are the benefits of using {@link MediaSessionService}.
+ *
  * <ul>
- * <li>Another app can know that your app supports {@link MediaSession} even when your app
- * isn't running.
- * <li>Another app can start playback of your app even when your app isn't running.
+ *   <li>Another app can know that your app supports {@link MediaSession} even when your app isn't
+ *       running.
+ *   <li>Another app can start playback of your app even when your app isn't running.
  * </ul>
+ *
  * For example, user's voice command can start playback of your app even when it's not running.
- * <p>
- * To extend this class, adding followings directly to your {@code AndroidManifest.xml}.
+ *
+ * <p>To extend this class, adding followings directly to your {@code AndroidManifest.xml}.
+ *
  * <pre>
  * &lt;service android:name="component_name_of_your_implementation" &gt;
  *   &lt;intent-filter&gt;
  *     &lt;action android:name="androidx.media2.session.MediaSessionService" /&gt;
  *   &lt;/intent-filter&gt;
  * &lt;/service&gt;</pre>
- * <p>
- * You may also declare <pre>android.media.browse.MediaBrowserService</pre> for compatibility with
- * {@link android.support.v4.media.MediaBrowserCompat}. This service can handle it automatically.
- * <p>
- * It's recommended for an app to have a single {@link MediaSessionService} declared in the
+ *
+ * <p>You may also declare
+ *
+ * <pre>android.media.browse.MediaBrowserService</pre>
+ *
+ * for compatibility with {@link android.support.v4.media.MediaBrowserCompat}. This service can
+ * handle it automatically.
+ *
+ * <p>It's recommended for an app to have a single {@link MediaSessionService} declared in the
  * manifest. Otherwise, your app might be shown twice in the list of the Auto/Wearable, or another
- * app fails to pick the right session service when it wants to start the playback of this app.
- * If you want to provide multiple sessions here, take a look at
- * <a href="#MultipleSessions">Supporting Multiple Sessions</a>.
- * <p>
- * Topics covered here:
+ * app fails to pick the right session service when it wants to start the playback of this app. If
+ * you want to provide multiple sessions here, take a look at <a href="#MultipleSessions">Supporting
+ * Multiple Sessions</a>.
+ *
+ * <p>Topics covered here:
+ *
  * <ol>
- * <li><a href="#ServiceLifecycle">Service Lifecycle</a>
- * <li><a href="#Permissions">Permissions</a>
- * <li><a href="#MultipleSessions">Supporting Multiple Sessions</a>
+ *   <li><a href="#ServiceLifecycle">Service Lifecycle</a>
+ *   <li><a href="#Permissions">Permissions</a>
+ *   <li><a href="#MultipleSessions">Supporting Multiple Sessions</a>
  * </ol>
+ *
  * <div>
+ *
  * <h3 id="ServiceLifecycle">Service Lifecycle</h3>
- * <p>
- * Session service is a bound service. When a {@link MediaController} is created for the
- * session service, the controller binds to the session service.
- * {@link #onGetSession(ControllerInfo)} would be called inside of the {@link #onBind(Intent)}.
- * <p>
- * After the binding, session's
- * {@link MediaSession.SessionCallback#onConnect(MediaSession, MediaSession.ControllerInfo)}
- * will be called to accept or reject connection request from a controller. If the connection is
- * rejected, the controller will unbind. If it's accepted, the controller will be available to use
- * and keep binding.
- * <p>
- * When playback is started for this session service, {@link #onUpdateNotification(MediaSession)}
+ *
+ * <p>Session service is a bound service. When a {@link MediaController} is created for the session
+ * service, the controller binds to the session service. {@link #onGetSession(ControllerInfo)} would
+ * be called inside of the {@link #onBind(Intent)}.
+ *
+ * <p>After the binding, session's {@link MediaSession.SessionCallback#onConnect(MediaSession,
+ * MediaSession.ControllerInfo)} will be called to accept or reject connection request from a
+ * controller. If the connection is rejected, the controller will unbind. If it's accepted, the
+ * controller will be available to use and keep binding.
+ *
+ * <p>When playback is started for this session service, {@link #onUpdateNotification(MediaSession)}
  * is called for the playback's session and service would become a foreground service. It's needed
  * to keep playback after the controller is destroyed. The session service becomes background
- * service when all playbacks are stopped. Apps targeting API
- * {@link android.os.Build.VERSION_CODES#P} or later must request the permission
- * {@link android.Manifest.permission#FOREGROUND_SERVICE} in order to make the service foreground.
- * <p>
- * The service is destroyed when the all sessions are closed, or no media controller is binding to
- * the session while the service is not running as a foreground service.
+ * service when all playbacks are stopped. Apps targeting API {@link
+ * android.os.Build.VERSION_CODES#P} or later must request the permission {@link
+ * android.Manifest.permission#FOREGROUND_SERVICE} in order to make the service foreground.
+ *
+ * <p>The service is destroyed when the all sessions are closed, or no media controller is binding
+ * to the session while the service is not running as a foreground service.
+ *
  * <h3 id="Permissions">Permissions</h3>
- * <p>
- * Any app can bind to the session service with controller, but the controller can be used only if
- * the session service accepted the connection request through
- * {@link MediaSession.SessionCallback#onConnect(MediaSession, MediaSession.ControllerInfo)}.
+ *
+ * <p>Any app can bind to the session service with controller, but the controller can be used only
+ * if the session service accepted the connection request through {@link
+ * MediaSession.SessionCallback#onConnect(MediaSession, MediaSession.ControllerInfo)}.
+ *
  * <h3 id="MultipleSessions">Supporting Multiple Sessions</h3>
+ *
  * Generally speaking, multiple sessions aren't necessary for most media apps. One exception is if
  * your app can play multiple media content at the same time, but only for the playback of
- * video-only media or remote playback, since
- * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">audio focus policy</a> recommends
- * not playing multiple audio content at the same time. Also keep in mind that multiple media
- * sessions would make Android Auto and Bluetooth device with display to show your apps multiple
- * times, because they list up media sessions, not media apps.
- * <p>
- * However, if you're capable of handling multiple playback and want to keep their sessions while
- * the app is in the background, create multiple sessions and add to this service with
- * {@link #addSession(MediaSession)}.
- * <p>
- * Note that {@link MediaController} can be created with {@link SessionToken} for
- * connecting any session in this service. In that case, {@link #onGetSession(ControllerInfo)} will
- * be called to know which session to handle incoming connection request. Pick the best session
- * among added sessions, or create new one and return from the
- * {@link #onGetSession(ControllerInfo)}.
- * </div>
+ * video-only media or remote playback, since <a
+ * href="{@docRoot}guide/topics/media-apps/audio-focus.html">audio focus policy</a> recommends not
+ * playing multiple audio content at the same time. Also keep in mind that multiple media sessions
+ * would make Android Auto and Bluetooth device with display to show your apps multiple times,
+ * because they list up media sessions, not media apps.
+ *
+ * <p>However, if you're capable of handling multiple playback and want to keep their sessions while
+ * the app is in the background, create multiple sessions and add to this service with {@link
+ * #addSession(MediaSession)}.
+ *
+ * <p>Note that {@link MediaController} can be created with {@link SessionToken} for connecting any
+ * session in this service. In that case, {@link #onGetSession(ControllerInfo)} will be called to
+ * know which session to handle incoming connection request. Pick the best session among added
+ * sessions, or create new one and return from the {@link #onGetSession(ControllerInfo)}. </div>
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public abstract class MediaSessionService extends Service {
     /**
      * The {@link Intent} that must be declared as handled by the service.
@@ -291,10 +305,14 @@ public abstract class MediaSessionService extends Service {
     }
 
     /**
-     * Returned by {@link #onUpdateNotification(MediaSession)} for making session service
-     * foreground service to keep playback running in the background. It's highly recommended to
-     * show media style notification here.
+     * Returned by {@link #onUpdateNotification(MediaSession)} for making session service foreground
+     * service to keep playback running in the background. It's highly recommended to show media
+     * style notification here.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static class MediaNotification {
         private final int mNotificationId;
         private final Notification mNotification;

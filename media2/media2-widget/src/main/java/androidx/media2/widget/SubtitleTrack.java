@@ -26,7 +26,6 @@ import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.media2.common.SubtitleData;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,9 +35,10 @@ import java.util.TreeMap;
 
 // Note: This is forked from android.media.SubtitleTrack since P
 /**
- * A subtitle track abstract base class that is responsible for parsing and displaying
- * an instance of a particular type of subtitle.
+ * A subtitle track abstract base class that is responsible for parsing and displaying an instance
+ * of a particular type of subtitle.
  */
+@SuppressWarnings("deprecation")
 abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeListener {
     private static final String TAG = "SubtitleTrack";
     private long mLastUpdateTimeMs;
@@ -75,10 +75,8 @@ abstract class SubtitleTrack implements MediaTimeProvider.OnMediaTimeListener {
 
     private long mNextScheduledTimeMs = -1;
 
-    /**
-     * Called when there is input data for the subtitle track.
-     */
-    public void onData(SubtitleData data) {
+    /** Called when there is input data for the subtitle track. */
+    public void onData(androidx.media2.common.SubtitleData data) {
         long runID = data.getStartTimeUs() + 1;
         onData(data.getData(), true /* eos */, runID);
         setRunDiscardTimeMs(

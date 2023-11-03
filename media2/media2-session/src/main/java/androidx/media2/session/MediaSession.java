@@ -69,50 +69,54 @@ import java.util.concurrent.Executor;
 /**
  * Allows a media app to expose its transport controls and playback information in a process to
  * other processes including the Android framework and other apps. Common use cases are as follows.
- * <ul>
- *     <li>Bluetooth/wired headset key events support</li>
- *     <li>Android Auto/Wearable support</li>
- *     <li>Separating UI process and playback process</li>
- * </ul>
- * <p>
- * A MediaSession should be created when an app wants to publish media playback information or
- * handle media keys. In general an app only needs one session for all playback, though multiple
- * sessions can be created to provide finer grain controls of media. See
- * <a href="#MultipleSessions">Supporting Multiple Sessions</a> for detail.
- * <p>
- * If you want to support background playback, {@link MediaSessionService} is preferred
- * instead. With it, your playback can be revived even after playback is finished. See
- * {@link MediaSessionService} for details.
- * <p>
- * Topics covered here:
- * <ol>
- * <li><a href="#SessionLifecycle">Session Lifecycle</a>
- * <li><a href="#Thread">Thread</a>
- * <li><a href="#KeyEvents">Media key events mapping</a>
- * <li><a href="#MultipleSessions">Supporting Multiple Sessions</a>
- * <li><a href="#CompatibilitySession">Backward compatibility with legacy session APIs</a>
- * <li><a href="#CompatibilityController">Backward compatibility with legacy controller APIs</a>
  *
+ * <ul>
+ *   <li>Bluetooth/wired headset key events support
+ *   <li>Android Auto/Wearable support
+ *   <li>Separating UI process and playback process
+ * </ul>
+ *
+ * <p>A MediaSession should be created when an app wants to publish media playback information or
+ * handle media keys. In general an app only needs one session for all playback, though multiple
+ * sessions can be created to provide finer grain controls of media. See <a
+ * href="#MultipleSessions">Supporting Multiple Sessions</a> for detail.
+ *
+ * <p>If you want to support background playback, {@link MediaSessionService} is preferred instead.
+ * With it, your playback can be revived even after playback is finished. See {@link
+ * MediaSessionService} for details.
+ *
+ * <p>Topics covered here:
+ *
+ * <ol>
+ *   <li><a href="#SessionLifecycle">Session Lifecycle</a>
+ *   <li><a href="#Thread">Thread</a>
+ *   <li><a href="#KeyEvents">Media key events mapping</a>
+ *   <li><a href="#MultipleSessions">Supporting Multiple Sessions</a>
+ *   <li><a href="#CompatibilitySession">Backward compatibility with legacy session APIs</a>
+ *   <li><a href="#CompatibilityController">Backward compatibility with legacy controller APIs</a>
  * </ol>
+ *
  * <h3 id="SessionLifecycle">Session Lifecycle</h3>
- * <p>
- * A session can be obtained by {@link Builder}. The owner of the session may pass its session token
- * to other processes to allow them to create a {@link MediaController} to interact with the
+ *
+ * <p>A session can be obtained by {@link Builder}. The owner of the session may pass its session
+ * token to other processes to allow them to create a {@link MediaController} to interact with the
  * session.
- * <p>
- * When a session receive transport control commands, the session sends the commands directly to
+ *
+ * <p>When a session receive transport control commands, the session sends the commands directly to
  * the underlying media player set by {@link Builder} or {@link #updatePlayer}.
- * <p>
- * When an app is finished performing playback it must call {@link #close()} to clean up the session
- * and notify any controllers. The app is responsible for closing the underlying player after
- * closing the session.
- * is closed.
+ *
+ * <p>When an app is finished performing playback it must call {@link #close()} to clean up the
+ * session and notify any controllers. The app is responsible for closing the underlying player
+ * after closing the session. is closed.
+ *
  * <h3 id="Thread">Thread</h3>
- * <p>
- * {@link MediaSession} objects are thread safe, but should be used on the thread on the looper.
+ *
+ * <p>{@link MediaSession} objects are thread safe, but should be used on the thread on the looper.
+ *
  * <h3 id="KeyEvents">Media key events mapping</h3>
- * <p>
- * Here's the table of per key event.
+ *
+ * <p>Here's the table of per key event.
+ *
  * <table>
  * <tr><th>Key code</th><th>{@link MediaSession} API</th></tr>
  * <tr><td>{@link KeyEvent#KEYCODE_MEDIA_PLAY}</td>
@@ -139,34 +143,43 @@ import java.util.concurrent.Executor;
  *             <li>For a double tap, {@link SessionPlayer#skipToNextPlaylistItem()}</li></ul></td>
  *     </tr>
  * </table>
+ *
  * <h3 id="MultipleSessions">Supporting Multiple Sessions</h3>
+ *
  * Generally speaking, multiple sessions aren't necessary for most media apps. One exception is if
  * your app can play multiple media content at the same time, but only for the playback of
- * video-only media or remote playback, since
- * <a href="{@docRoot}guide/topics/media-apps/audio-focus.html">audio focus policy</a> recommends
- * not playing multiple audio content at the same time. Also keep in mind that multiple media
- * sessions would make Android Auto and Bluetooth device with display to show your apps multiple
- * times, because they list up media sessions, not media apps.
+ * video-only media or remote playback, since <a
+ * href="{@docRoot}guide/topics/media-apps/audio-focus.html">audio focus policy</a> recommends not
+ * playing multiple audio content at the same time. Also keep in mind that multiple media sessions
+ * would make Android Auto and Bluetooth device with display to show your apps multiple times,
+ * because they list up media sessions, not media apps.
+ *
  * <h3 id="CompatibilitySession">Backward compatibility with legacy session APIs</h3>
+ *
  * An active {@link MediaSessionCompat} is internally created with the MediaSession for the backward
- * compatibility. It's used to handle incoming connection and command from
- * {@link MediaControllerCompat}. And helps to utilize existing APIs that are built with legacy
- * media session APIs. Use {@link #getSessionCompatToken} for getting the token for the underlying
+ * compatibility. It's used to handle incoming connection and command from {@link
+ * MediaControllerCompat}. And helps to utilize existing APIs that are built with legacy media
+ * session APIs. Use {@link #getSessionCompatToken} for getting the token for the underlying
  * MediaSessionCompat.
+ *
  * <h3 id="CompatibilityController">Backward compatibility with legacy controller APIs</h3>
+ *
  * In addition to the {@link MediaController media2 controller} API, session also supports
- * connection from the legacy controller API -
- * {@link android.media.session.MediaController framework controller} and
- * {@link MediaControllerCompat AndroidX controller compat}.
- * However, {@link ControllerInfo} may not be precise for legacy controller.
- * See {@link ControllerInfo} for the details.
- * <p>
- * Unknown package name nor UID doesn't mean that you should disallow connection nor commands. For
- * SDK levels where such issue happen, session tokens could only be obtained by trusted apps (e.g.
- * Bluetooth, Auto, ...), so it may be better for you to allow them as you did with legacy session.
+ * connection from the legacy controller API - {@link android.media.session.MediaController
+ * framework controller} and {@link MediaControllerCompat AndroidX controller compat}. However,
+ * {@link ControllerInfo} may not be precise for legacy controller. See {@link ControllerInfo} for
+ * the details.
+ *
+ * <p>Unknown package name nor UID doesn't mean that you should disallow connection nor commands.
+ * For SDK levels where such issue happen, session tokens could only be obtained by trusted apps
+ * (e.g. Bluetooth, Auto, ...), so it may be better for you to allow them as you did with legacy
+ * session.
  *
  * @see MediaSessionService
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public class MediaSession implements Closeable {
 
     // It's better to have private static lock instead of using MediaSession.class because the
@@ -467,10 +480,14 @@ public class MediaSession implements Closeable {
 
     /**
      * Callback to be called for all incoming commands from {@link MediaController}s.
-     * <p>
-     * If it's not set, the session will accept all controllers and all incoming commands by
+     *
+     * <p>If it's not set, the session will accept all controllers and all incoming commands by
      * default.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public abstract static class SessionCallback {
         ForegroundServiceEventCallback mForegroundServiceEventCallback;
 
@@ -808,10 +825,15 @@ public class MediaSession implements Closeable {
 
     /**
      * Builder for {@link MediaSession}.
-     * <p>
-     * Any incoming event from the {@link MediaController} will be handled on the callback executor.
-     * If it's not set, {@link ContextCompat#getMainExecutor(Context)} will be used by default.
+     *
+     * <p>Any incoming event from the {@link MediaController} will be handled on the callback
+     * executor. If it's not set, {@link ContextCompat#getMainExecutor(Context)} will be used by
+     * default.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static final class Builder extends BuilderBase<MediaSession, Builder, SessionCallback> {
         public Builder(@NonNull Context context, @NonNull SessionPlayer player) {
             super(context, player);
@@ -858,7 +880,11 @@ public class MediaSession implements Closeable {
 
     /**
      * Information of a controller.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static final class ControllerInfo {
         @SuppressWarnings("UnusedVariable")
         private final int mControllerVersion;
@@ -1003,9 +1029,13 @@ public class MediaSession implements Closeable {
 
     /**
      * Button for a {@link SessionCommand} that will be shown by the controller.
-     * <p>
-     * It's up to the controller's decision to respect or ignore this customization request.
+     *
+     * <p>It's up to the controller's decision to respect or ignore this customization request.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     @VersionedParcelize
     public static final class CommandButton implements VersionedParcelable {
         @ParcelField(1)
@@ -1090,7 +1120,11 @@ public class MediaSession implements Closeable {
 
         /**
          * Builder for {@link CommandButton}.
+         *
+         * @deprecated androidx.media2 is deprecated. Please migrate to <a
+         *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a> .
          */
+        @Deprecated
         public static final class Builder {
             private SessionCommand mCommand;
             private int mIconResId;

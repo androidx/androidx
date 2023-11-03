@@ -52,16 +52,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
-import androidx.media2.common.MediaItem;
-import androidx.media2.common.MediaMetadata;
-import androidx.media2.common.SessionPlayer;
-import androidx.media2.common.SessionPlayer.TrackInfo;
-import androidx.media2.common.UriMediaItem;
-import androidx.media2.common.VideoSize;
-import androidx.media2.session.MediaController;
-import androidx.media2.session.MediaSession;
-import androidx.media2.session.SessionCommand;
-import androidx.media2.session.SessionCommandGroup;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -70,91 +60,112 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * A View that contains the controls for {@link MediaController} or {@link SessionPlayer}.
- * It provides a wide range of buttons that serve the following functions: play/pause,
- * rewind/fast-forward, skip to next/previous, select subtitle track, enter/exit full screen mode,
- * select audio track, and adjust playback speed.
+ * A View that contains the controls for {@link androidx.media2.session.MediaController} or {@link
+ * androidx.media2.common.SessionPlayer}. It provides a wide range of buttons that serve the
+ * following functions: play/pause, rewind/fast-forward, skip to next/previous, select subtitle
+ * track, enter/exit full screen mode, select audio track, and adjust playback speed.
+ *
+ * <p>For simple use cases not requiring communication with {@link
+ * androidx.media2.session.MediaSession}, apps need to create a {@link
+ * androidx.media2.common.SessionPlayer} (e.g. {@link androidx.media2.player.MediaPlayer}) and set
+ * it to this view by calling {@link #setPlayer}. For more advanced use cases that require {@link
+ * androidx.media2.session.MediaSession} (e.g. handling media key events, integrating with other
+ * androidx.media2.session.MediaSession apps as Assistant), apps need to create a {@link
+ * androidx.media2.session.MediaController} attached to the {@link
+ * androidx.media2.session.MediaSession} and set it to this view by calling {@link
+ * #setMediaController}.
+ *
+ * <p>The easiest way to use a MediaControlView is by creating a {@link VideoView}, which internally
+ * creates a MediaControlView instance and handles all the commands from buttons inside
+ * MediaControlView. It is also possible to create a MediaControlView programmatically and add it to
+ * a custom video view. For more information, refer to {@link VideoView}.
+ *
+ * <p>By default, each button in the MediaControlView is visible only when its corresponding {@link
+ * androidx.media2.session.SessionCommand} is included in the active {@link
+ * androidx.media2.session.SessionCommandGroup}. For more details, refer to {@link
+ * androidx.media2.session.MediaSession#setAllowedCommands}.
+ *
  * <p>
- * For simple use cases not requiring communication with {@link MediaSession}, apps need to create
- * a {@link SessionPlayer} (e.g. {@link androidx.media2.player.MediaPlayer}) and set it to this view
- * by calling {@link #setPlayer}.
- * For more advanced use cases that require {@link MediaSession} (e.g. handling media key events,
- * integrating with other MediaSession apps as Assistant), apps need to create
- * a {@link MediaController} attached to the {@link MediaSession} and set it to this view
- * by calling {@link #setMediaController}.
- * <p>
- * The easiest way to use a MediaControlView is by creating a {@link VideoView}, which
- * internally creates a MediaControlView instance and handles all the commands from buttons inside
- * MediaControlView. It is also possible to create a MediaControlView programmatically and add it
- * to a custom video view. For more information, refer to {@link VideoView}.
- * <p>
- * By default, each button in the MediaControlView is visible only when its corresponding
- * {@link SessionCommand} is included in the active {@link SessionCommandGroup}.
- * For more details, refer to {@link MediaSession#setAllowedCommands}.
- * <p>
+ *
  * <h3>UI transitions</h3>
+ *
  * The UI of an app can be in one of three modes:
+ *
  * <ul>
- *     <li>In <b>full</b> mode all the views, such as progress bar, title, transport controls,
- *     and other icons are visible.
- *     <li>In <b>progress-bar only</b> mode the progress bar is the only visible element.
- *     The title, transport controls, and other icons are hidden.
- *     <li>In <b>None</b> mode all the views are hidden.
+ *   <li>In <b>full</b> mode all the views, such as progress bar, title, transport controls, and
+ *       other icons are visible.
+ *   <li>In <b>progress-bar only</b> mode the progress bar is the only visible element. The title,
+ *       transport controls, and other icons are hidden.
+ *   <li>In <b>None</b> mode all the views are hidden.
  * </ul>
- * When the  UI mode changes, MediaControlView animates the transition. The animation does not
- * start immediately, there is a default delay interval of 2000ms before the animation begins. You
- * can change this interval by calling
- * {@link VideoView#setMediaControlView(MediaControlView, long)}.
- * <p>
- * User actions can change the scheduled transition during the delay interval according to
- * the following logic:
+ *
+ * When the UI mode changes, MediaControlView animates the transition. The animation does not start
+ * immediately, there is a default delay interval of 2000ms before the animation begins. You can
+ * change this interval by calling {@link VideoView#setMediaControlView(MediaControlView, long)}.
+ *
+ * <p>User actions can change the scheduled transition during the delay interval according to the
+ * following logic:
+ *
  * <ol>
- *   <li> In Full mode
- *   <ul>
- *       <li>If a touch/trackball event is received during the interval, the UI changes to None
- *       mode.
- *       <li>If no touch/trackball event is received during the interval, the UI changes to
- *       progress-bar only mode.
- *   </ul>
- *   <li> In Progress-bar only mode
- *   <ul>
- *     <li>If a touch/trackball event is received, the UI changes to Full mode.
- *     <li>If no touch/trackball event is received, the UI changes to None mode.
- *   </ul>
- *   <li> In None mode, if a touch/trackball event is received, the UI changes to Full mode.
+ *   <li>In Full mode
+ *       <ul>
+ *         <li>If a touch/trackball event is received during the interval, the UI changes to None
+ *             mode.
+ *         <li>If no touch/trackball event is received during the interval, the UI changes to
+ *             progress-bar only mode.
+ *       </ul>
+ *   <li>In Progress-bar only mode
+ *       <ul>
+ *         <li>If a touch/trackball event is received, the UI changes to Full mode.
+ *         <li>If no touch/trackball event is received, the UI changes to None mode.
+ *       </ul>
+ *   <li>In None mode, if a touch/trackball event is received, the UI changes to Full mode.
  * </ol>
+ *
  * All touch/trackballs events are ignored while the system is animating the change between modes.
+ *
  * <p>
+ *
  * <h3>Customization</h3>
+ *
  * The following customizations are supported:
+ *
  * <ul>
  *   <li>Set focus to the play/pause button by calling {@link #requestPlayButtonFocus()}.
  *   <li>Set full screen behavior by calling {@link #setOnFullScreenListener(OnFullScreenListener)}.
- *   Calling this method will also show the full screen button.
+ *       Calling this method will also show the full screen button.
  * </ul>
+ *
  * <p>
+ *
  * <h3>Displaying metadata</h3>
- * MediaControlView supports displaying metadata by calling
- * {@link MediaItem#setMetadata(MediaMetadata)}.
- * Metadata display is different for two different media types: video (with or without sound)
- * and audio(sound only, no video)
- * <p>
- * The following table shows the metadata displayed on VideoView and the default
- * values assigned if the keys are not set:
+ *
+ * MediaControlView supports displaying metadata by calling {@link
+ * androidx.media2.common.MediaItem#setMetadata(androidx.media2.common.MediaMetadata)}. Metadata
+ * display is different for two different media types: video (with or without sound) and audio(sound
+ * only, no video)
+ *
+ * <p>The following table shows the metadata displayed on VideoView and the default values assigned
+ * if the keys are not set:
+ *
  * <table>
  *     <tr><th>Key</th><th>Default</th></tr>
- *     <tr><td>{@link MediaMetadata#METADATA_KEY_TITLE}</td>
+ *     <tr><td>{@link androidx.media2.common.MediaMetadata#METADATA_KEY_TITLE}</td>
  *     <td>{@link androidx.media2.widget.R.string#mcv2_music_title_unknown_text}</td></tr>
- *     <tr><td>{@link MediaMetadata#METADATA_KEY_ARTIST}</td>
+ *     <tr><td>{@link androidx.media2.common.MediaMetadata#METADATA_KEY_ARTIST}</td>
  *     <td>{@link androidx.media2.widget.R.string#mcv2_music_artist_unknown_text}</td></tr>
- *     <tr><td>{@link MediaMetadata#METADATA_KEY_ALBUM_ART}</td>
+ *     <tr><td>{@link androidx.media2.common.MediaMetadata#METADATA_KEY_ALBUM_ART}</td>
  *     <td>{@link androidx.media2.widget.R.drawable#media2_widget_ic_default_album_image}</td></tr>
  *     </table>
- * <p>
- * For video media, {@link MediaMetadata#METADATA_KEY_TITLE} metadata is supported.
- * If the value is not set, the following default value will be shown:
- * {@link androidx.media2.widget.R.string#mcv2_non_music_title_unknown_text}
+ *
+ * <p>For video media, {@link androidx.media2.common.MediaMetadata#METADATA_KEY_TITLE} metadata is
+ * supported. If the value is not set, the following default value will be shown: {@link
+ * androidx.media2.widget.R.string#mcv2_non_music_title_unknown_text}
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public class MediaControlView extends MediaViewGroup {
     private static final String TAG = "MediaControlView";
     static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
@@ -279,8 +290,8 @@ public class MediaControlView extends MediaViewGroup {
     private List<Integer> mSettingsIconIdsList;
     List<String> mSubtitleDescriptionsList;
     int mVideoTrackCount;
-    List<TrackInfo> mAudioTracks = new ArrayList<>();
-    List<TrackInfo> mSubtitleTracks = new ArrayList<>();
+    List<androidx.media2.common.SessionPlayer.TrackInfo> mAudioTracks = new ArrayList<>();
+    List<androidx.media2.common.SessionPlayer.TrackInfo> mSubtitleTracks = new ArrayList<>();
     List<String> mAudioTrackDescriptionList;
     List<String> mPlaybackSpeedTextList;
     List<Integer> mPlaybackSpeedMultBy100List;
@@ -315,22 +326,24 @@ public class MediaControlView extends MediaViewGroup {
     }
 
     /**
-     * Sets {@link MediaController} to control playback with this view.
-     * Setting a MediaController will unset any MediaController or SessionPlayer
-     * that was previously set.
-     * <p>
-     * It will throw {@link IllegalStateException} if this MediaControlView belongs to
-     * a {@link VideoView} by {@link androidx.media2.widget.R.attr#enableControlView} or
-     * by {@link VideoView#setMediaControlView}. Use {@link VideoView#setMediaController} instead.
-     * <p>
-     * Note that MediaControlView allows controlling playback through its UI components, but calling
-     * the corresponding methods (e.g. {@link MediaController#play()},
-     * {@link MediaController#pause()}) will work as well.
+     * Sets {@link androidx.media2.session.MediaController} to control playback with this view.
+     * Setting a androidx.media2.session.MediaController will unset any
+     * androidx.media2.session.MediaController or androidx.media2.common.SessionPlayer that was
+     * previously set.
+     *
+     * <p>It will throw {@link IllegalStateException} if this MediaControlView belongs to a {@link
+     * VideoView} by {@link androidx.media2.widget.R.attr#enableControlView} or by {@link
+     * VideoView#setMediaControlView}. Use {@link VideoView#setMediaController} instead.
+     *
+     * <p>Note that MediaControlView allows controlling playback through its UI components, but
+     * calling the corresponding methods (e.g. {@link
+     * androidx.media2.session.MediaController#play()}, {@link
+     * androidx.media2.session.MediaController#pause()}) will work as well.
      *
      * @param controller the controller
      * @see #setPlayer
      */
-    public void setMediaController(@NonNull MediaController controller) {
+    public void setMediaController(@NonNull androidx.media2.session.MediaController controller) {
         if (controller == null) {
             throw new NullPointerException("controller must not be null");
         }
@@ -340,7 +353,7 @@ public class MediaControlView extends MediaViewGroup {
         setMediaControllerInternal(controller);
     }
 
-    void setMediaControllerInternal(@NonNull MediaController controller) {
+    void setMediaControllerInternal(@NonNull androidx.media2.session.MediaController controller) {
         if (mPlayer != null) {
             mPlayer.detachCallback();
         }
@@ -352,22 +365,22 @@ public class MediaControlView extends MediaViewGroup {
     }
 
     /**
-     * Sets {@link SessionPlayer} to control playback with this view.
-     * Setting a SessionPlayer will unset any MediaController or SessionPlayer
-     * that was previously set.
-     * <p>
-     * It will throw {@link IllegalStateException} if this MediaControlView belongs to
-     * a {@link VideoView} by {@link androidx.media2.widget.R.attr#enableControlView} or
-     * by {@link VideoView#setMediaControlView}. Use {@link VideoView#setPlayer} instead.
-     * <p>
-     * Note that MediaControlView allows controlling playback through its UI components, but calling
-     * the corresponding methods (e.g. {@link SessionPlayer#play()}, {@link SessionPlayer#pause()})
-     * will work as well.
+     * Sets {@link androidx.media2.common.SessionPlayer} to control playback with this view. Setting
+     * a androidx.media2.common.SessionPlayer will unset any androidx.media2.session.MediaController
+     * or androidx.media2.common.SessionPlayer that was previously set.
+     *
+     * <p>It will throw {@link IllegalStateException} if this MediaControlView belongs to a {@link
+     * VideoView} by {@link androidx.media2.widget.R.attr#enableControlView} or by {@link
+     * VideoView#setMediaControlView}. Use {@link VideoView#setPlayer} instead.
+     *
+     * <p>Note that MediaControlView allows controlling playback through its UI components, but
+     * calling the corresponding methods (e.g. {@link androidx.media2.common.SessionPlayer#play()},
+     * {@link androidx.media2.common.SessionPlayer#pause()}) will work as well.
      *
      * @param player the player
      * @see #setMediaController
      */
-    public void setPlayer(@NonNull SessionPlayer player) {
+    public void setPlayer(@NonNull androidx.media2.common.SessionPlayer player) {
         if (player == null) {
             throw new NullPointerException("player must not be null");
         }
@@ -377,7 +390,7 @@ public class MediaControlView extends MediaViewGroup {
         setPlayerInternal(player);
     }
 
-    void setPlayerInternal(@NonNull SessionPlayer player) {
+    void setPlayerInternal(@NonNull androidx.media2.common.SessionPlayer player) {
         if (mPlayer != null) {
             mPlayer.detachCallback();
         }
@@ -418,7 +431,11 @@ public class MediaControlView extends MediaViewGroup {
     /**
      * Interface definition of a callback to be invoked to inform the fullscreen mode is changed.
      * Application should handle the fullscreen mode accordingly.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public interface OnFullScreenListener {
         /**
          * Called to indicate a fullscreen mode change.
@@ -1392,7 +1409,7 @@ public class MediaControlView extends MediaViewGroup {
                 }
             };
 
-    void updateTimeViews(MediaItem item) {
+    void updateTimeViews(androidx.media2.common.MediaItem item) {
         if (item == null) {
             mProgress.setProgress(0);
             mCurrentTime.setText(mResources.getString(R.string.MediaControlView_time_placeholder));
@@ -1409,7 +1426,7 @@ public class MediaControlView extends MediaViewGroup {
         }
     }
 
-    void updateTitleView(MediaItem item) {
+    void updateTitleView(androidx.media2.common.MediaItem item) {
         if (item == null) {
             mTitleView.setText(null);
             return;
@@ -1578,13 +1595,13 @@ public class MediaControlView extends MediaViewGroup {
     boolean isCurrentMediaItemFromNetwork() {
         ensurePlayerIsNotNull();
 
-        MediaItem currentMediaItem = mPlayer.getCurrentMediaItem();
+        androidx.media2.common.MediaItem currentMediaItem = mPlayer.getCurrentMediaItem();
 
-        if (!(currentMediaItem instanceof UriMediaItem)) {
+        if (!(currentMediaItem instanceof androidx.media2.common.UriMediaItem)) {
             return false;
         }
 
-        Uri uri = ((UriMediaItem) currentMediaItem).getUri();
+        Uri uri = ((androidx.media2.common.UriMediaItem) currentMediaItem).getUri();
         return UriUtil.isFromNetwork(uri);
     }
 
@@ -1716,7 +1733,7 @@ public class MediaControlView extends MediaViewGroup {
             int sizeType = mTransportControlsMap.keyAt(i);
             View prevButton = findControlButton(sizeType, R.id.prev);
             if (prevButton != null) {
-                if (prevIndex > SessionPlayer.INVALID_ITEM_INDEX) {
+                if (prevIndex > androidx.media2.common.SessionPlayer.INVALID_ITEM_INDEX) {
                     prevButton.setAlpha(1.0f);
                     prevButton.setEnabled(true);
                 } else {
@@ -1726,7 +1743,7 @@ public class MediaControlView extends MediaViewGroup {
             }
             View nextButton = findControlButton(sizeType, R.id.next);
             if (nextButton != null) {
-                if (nextIndex > SessionPlayer.INVALID_ITEM_INDEX) {
+                if (nextIndex > androidx.media2.common.SessionPlayer.INVALID_ITEM_INDEX) {
                     nextButton.setAlpha(1.0f);
                     nextButton.setEnabled(true);
                 } else {
@@ -1740,8 +1757,10 @@ public class MediaControlView extends MediaViewGroup {
     boolean shouldNotHideBars() {
         return (isCurrentItemMusic() && mSizeType == SIZE_TYPE_FULL)
                 || mAccessibilityManager.isTouchExplorationEnabled()
-                || mPlayer.getPlayerState() == SessionPlayer.PLAYER_STATE_ERROR
-                || mPlayer.getPlayerState() == SessionPlayer.PLAYER_STATE_IDLE;
+                || mPlayer.getPlayerState()
+                        == androidx.media2.common.SessionPlayer.PLAYER_STATE_ERROR
+                || mPlayer.getPlayerState()
+                        == androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE;
     }
 
     void seekTo(long newPosition, boolean shouldSeekNow) {
@@ -1850,7 +1869,8 @@ public class MediaControlView extends MediaViewGroup {
         }
     }
 
-    void updateTracks(PlayerWrapper player, List<TrackInfo> trackInfos) {
+    void updateTracks(
+            PlayerWrapper player, List<androidx.media2.common.SessionPlayer.TrackInfo> trackInfos) {
         // Update video track count, audio & subtitle track lists.
         mVideoTrackCount = 0;
         mAudioTracks = new ArrayList<>();
@@ -1858,18 +1878,25 @@ public class MediaControlView extends MediaViewGroup {
         mSelectedAudioTrackIndex = 0;
         // Default is -1 since subtitle selection always includes "Off" item
         mSelectedSubtitleTrackIndex = -1;
-        TrackInfo audioTrack = player.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_AUDIO);
-        TrackInfo subtitleTrack = player.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
+        androidx.media2.common.SessionPlayer.TrackInfo audioTrack =
+                player.getSelectedTrack(
+                        androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO);
+        androidx.media2.common.SessionPlayer.TrackInfo subtitleTrack =
+                player.getSelectedTrack(
+                        androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
         for (int i = 0; i < trackInfos.size(); i++) {
             int trackType = trackInfos.get(i).getTrackType();
-            if (trackType == TrackInfo.MEDIA_TRACK_TYPE_VIDEO) {
+            if (trackType
+                    == androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_VIDEO) {
                 mVideoTrackCount++;
-            } else if (trackType == TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
+            } else if (trackType
+                    == androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
                 if (trackInfos.get(i).equals(audioTrack)) {
                     mSelectedAudioTrackIndex = mAudioTracks.size();
                 }
                 mAudioTracks.add(trackInfos.get(i));
-            } else if (trackType == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
+            } else if (trackType
+                    == androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
                 if (trackInfos.get(i).equals(subtitleTrack)) {
                     mSelectedSubtitleTrackIndex = mSubtitleTracks.size();
                 }
@@ -1919,7 +1946,7 @@ public class MediaControlView extends MediaViewGroup {
         if (mVideoTrackCount > 0) {
             return true;
         }
-        VideoSize videoSize = mPlayer.getVideoSize();
+        androidx.media2.common.VideoSize videoSize = mPlayer.getVideoSize();
         if (videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
             Log.w(TAG, "video track count is zero, but it renders video. size: " + videoSize);
             return true;
@@ -2070,20 +2097,20 @@ public class MediaControlView extends MediaViewGroup {
             //      activity is resumed.
             //   2) Need to handle case where the media file reaches end of duration.
             switch (state) {
-                case SessionPlayer.PLAYER_STATE_PLAYING:
+                case androidx.media2.common.SessionPlayer.PLAYER_STATE_PLAYING:
                     removeCallbacks(mUpdateProgress);
                     post(mUpdateProgress);
                     resetHideCallbacks();
                     updateReplayButton(false);
                     break;
-                case SessionPlayer.PLAYER_STATE_PAUSED:
+                case androidx.media2.common.SessionPlayer.PLAYER_STATE_PAUSED:
                     updatePlayButton(PLAY_BUTTON_PLAY);
                     removeCallbacks(mUpdateProgress);
                     removeCallbacks(mHideMainBars);
                     removeCallbacks(mHideProgressBar);
                     post(mShowAllBars);
                     break;
-                case SessionPlayer.PLAYER_STATE_ERROR:
+                case androidx.media2.common.SessionPlayer.PLAYER_STATE_ERROR:
                     updatePlayButton(PLAY_BUTTON_PLAY);
                     removeCallbacks(mUpdateProgress);
                     if (getWindowToken() != null) {
@@ -2139,8 +2166,9 @@ public class MediaControlView extends MediaViewGroup {
         }
 
         @Override
-        public void onCurrentMediaItemChanged(@NonNull PlayerWrapper player,
-                @Nullable MediaItem mediaItem) {
+        public void onCurrentMediaItemChanged(
+                @NonNull PlayerWrapper player,
+                @Nullable androidx.media2.common.MediaItem mediaItem) {
             if (player != mPlayer) return;
 
             if (DEBUG) {
@@ -2153,8 +2181,10 @@ public class MediaControlView extends MediaViewGroup {
         }
 
         @Override
-        void onPlaylistChanged(@NonNull PlayerWrapper player, @Nullable List<MediaItem> list,
-                @Nullable MediaMetadata metadata) {
+        void onPlaylistChanged(
+                @NonNull PlayerWrapper player,
+                @Nullable List<androidx.media2.common.MediaItem> list,
+                @Nullable androidx.media2.common.MediaMetadata metadata) {
             if (player != mPlayer) return;
 
             if (DEBUG) {
@@ -2178,8 +2208,9 @@ public class MediaControlView extends MediaViewGroup {
         }
 
         @Override
-        public void onAllowedCommandsChanged(@NonNull PlayerWrapper player,
-                @NonNull SessionCommandGroup commands) {
+        public void onAllowedCommandsChanged(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.session.SessionCommandGroup commands) {
             if (player != mPlayer) return;
 
             updateAllowedCommands();
@@ -2231,11 +2262,13 @@ public class MediaControlView extends MediaViewGroup {
         }
 
         @Override
-        void onTracksChanged(@NonNull PlayerWrapper player, @NonNull List<TrackInfo> tracks) {
+        void onTracksChanged(
+                @NonNull PlayerWrapper player,
+                @NonNull List<androidx.media2.common.SessionPlayer.TrackInfo> tracks) {
             if (player != mPlayer) return;
 
             if (DEBUG) {
-                Log.d(TAG, "onTrackInfoChanged(): " + tracks);
+                Log.d(TAG, "onandroidx.media2.common.SessionPlayer.TrackInfoChanged(): " + tracks);
             }
 
             updateTracks(player, tracks);
@@ -2244,13 +2277,16 @@ public class MediaControlView extends MediaViewGroup {
         }
 
         @Override
-        void onTrackSelected(@NonNull PlayerWrapper player, @NonNull TrackInfo trackInfo) {
+        void onTrackSelected(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {
             if (player != mPlayer) return;
 
             if (DEBUG) {
                 Log.d(TAG, "onTrackSelected(): " + trackInfo);
             }
-            if (trackInfo.getTrackType() == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
+            if (trackInfo.getTrackType()
+                    == androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
                 for (int i = 0; i < mSubtitleTracks.size(); i++) {
                     if (mSubtitleTracks.get(i).equals(trackInfo)) {
                         mSelectedSubtitleTrackIndex = i;
@@ -2265,7 +2301,8 @@ public class MediaControlView extends MediaViewGroup {
                         break;
                     }
                 }
-            } else if (trackInfo.getTrackType() == TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
+            } else if (trackInfo.getTrackType()
+                    == androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_AUDIO) {
                 for (int i = 0; i < mAudioTracks.size(); i++) {
                     if (mAudioTracks.get(i).equals(trackInfo)) {
                         mSelectedAudioTrackIndex = i;
@@ -2279,13 +2316,16 @@ public class MediaControlView extends MediaViewGroup {
         }
 
         @Override
-        void onTrackDeselected(@NonNull PlayerWrapper player, @NonNull TrackInfo trackInfo) {
+        void onTrackDeselected(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.common.SessionPlayer.TrackInfo trackInfo) {
             if (player != mPlayer) return;
 
             if (DEBUG) {
                 Log.d(TAG, "onTrackDeselected(): " + trackInfo);
             }
-            if (trackInfo.getTrackType() == TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
+            if (trackInfo.getTrackType()
+                    == androidx.media2.common.SessionPlayer.TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE) {
                 for (int i = 0; i < mSubtitleTracks.size(); i++) {
                     if (mSubtitleTracks.get(i).equals(trackInfo)) {
                         mSelectedSubtitleTrackIndex = -1;
@@ -2304,14 +2344,16 @@ public class MediaControlView extends MediaViewGroup {
         }
 
         @Override
-        void onVideoSizeChanged(@NonNull PlayerWrapper player, @NonNull VideoSize videoSize) {
+        void onVideoSizeChanged(
+                @NonNull PlayerWrapper player,
+                @NonNull androidx.media2.common.VideoSize videoSize) {
             if (player != mPlayer) return;
 
             if (DEBUG) {
                 Log.d(TAG, "onVideoSizeChanged(): " + videoSize);
             }
             if (mVideoTrackCount == 0 && videoSize.getHeight() > 0 && videoSize.getWidth() > 0) {
-                List<TrackInfo> tracks = player.getTracks();
+                List<androidx.media2.common.SessionPlayer.TrackInfo> tracks = player.getTracks();
                 if (tracks != null) {
                     updateTracks(player, tracks);
                 }

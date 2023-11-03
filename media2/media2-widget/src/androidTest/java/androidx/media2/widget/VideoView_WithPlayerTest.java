@@ -45,11 +45,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.media2.common.FileMediaItem;
-import androidx.media2.common.MediaItem;
-import androidx.media2.common.SessionPlayer;
-import androidx.media2.common.VideoSize;
-import androidx.media2.session.MediaController;
 import androidx.media2.widget.test.R;
 import androidx.test.filters.LargeTest;
 
@@ -66,8 +61,10 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test {@link VideoView} with a {@link SessionPlayer} or a {@link MediaController}.
+ * Test {@link VideoView} with a {@link androidx.media2.common.SessionPlayer} or a {@link
+ * androidx.media2.session.MediaController}.
  */
+@SuppressWarnings("deprecation")
 @RunWith(Parameterized.class)
 @LargeTest
 public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
@@ -79,7 +76,7 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     private String mPlayerType;
     private Activity mActivity;
     private VideoView mVideoView;
-    private MediaItem mMediaItem;
+    private androidx.media2.common.MediaItem mMediaItem;
     private SynchronousPixelCopy mPixelCopyHelper;
 
     @SuppressWarnings("deprecation")
@@ -126,7 +123,9 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         assertTrue(callback.mItemLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertTrue(callback.mPausedLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
         assertEquals(1, callback.mPlayingLatch.getCount());
-        assertEquals(SessionPlayer.PLAYER_STATE_PAUSED, playerWrapper.getPlayerState());
+        assertEquals(
+                androidx.media2.common.SessionPlayer.PLAYER_STATE_PAUSED,
+                playerWrapper.getPlayerState());
 
         playerWrapper.play();
         assertTrue(callback.mPlayingLatch.await(WAIT_TIME_MS, TimeUnit.MILLISECONDS));
@@ -137,11 +136,12 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
     public void playVideoWithMediaItemFromFileDescriptor() throws Throwable {
         AssetFileDescriptor afd = mContext.getResources()
                 .openRawResourceFd(R.raw.testvideo_with_2_subtitle_tracks);
-        final MediaItem item = new FileMediaItem.Builder(
-                ParcelFileDescriptor.dup(afd.getFileDescriptor()))
-                .setFileDescriptorOffset(afd.getStartOffset())
-                .setFileDescriptorLength(afd.getLength())
-                .build();
+        final androidx.media2.common.MediaItem item =
+                new androidx.media2.common.FileMediaItem.Builder(
+                                ParcelFileDescriptor.dup(afd.getFileDescriptor()))
+                        .setFileDescriptorOffset(afd.getStartOffset())
+                        .setFileDescriptorLength(afd.getLength())
+                        .build();
         afd.close();
 
         DefaultPlayerCallback callback = new DefaultPlayerCallback();
@@ -342,8 +342,10 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
 
     @Test
     public void aspectRatioOfSurfaceView() throws Throwable {
-        MediaItem testMediaItem = createTestMediaItem(getResourceUri(R.raw.test_file_scheme_video));
-        VideoSize testVideoSize = new VideoSize(352, 288);
+        androidx.media2.common.MediaItem testMediaItem =
+                createTestMediaItem(getResourceUri(R.raw.test_file_scheme_video));
+        androidx.media2.common.VideoSize testVideoSize =
+                new androidx.media2.common.VideoSize(352, 288);
         CountDownLatch latch = new CountDownLatch(1);
 
         mActivityRule.runOnUiThread(() -> {
@@ -375,7 +377,8 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
                 withAspectRatio(testVideoSize.getWidth(), testVideoSize.getHeight())));
 
         // Unable to test the case for multiple media items with different aspect ratio due to the
-        // flakiness of onVideoSizeChanged of MediaPlayer (b/144876689, b/144972397)
+        // flakiness of onandroidx.media2.common.VideoSizeChanged of MediaPlayer (b/144876689,
+        // b/144972397)
     }
 
     private void setPlayerWrapper(final PlayerWrapper playerWrapper) throws Throwable {
@@ -391,8 +394,10 @@ public class VideoView_WithPlayerTest extends MediaWidgetTestBase {
         });
     }
 
-    private PlayerWrapper createPlayerWrapper(@NonNull PlayerWrapper.PlayerCallback callback,
-            @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
+    private PlayerWrapper createPlayerWrapper(
+            @NonNull PlayerWrapper.PlayerCallback callback,
+            @Nullable androidx.media2.common.MediaItem item,
+            @Nullable List<androidx.media2.common.MediaItem> playlist) {
         return createPlayerWrapperOfType(callback, item, playlist, mPlayerType);
     }
 

@@ -29,13 +29,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
-import androidx.media2.common.MediaItem;
-import androidx.media2.common.MediaMetadata;
-import androidx.media2.common.SessionPlayer;
-import androidx.media2.common.UriMediaItem;
-import androidx.media2.player.MediaPlayer;
-import androidx.media2.session.MediaController;
-import androidx.media2.session.MediaSession;
 import androidx.media2.widget.test.R;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -49,21 +42,25 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+@SuppressWarnings("deprecation")
 public class MediaWidgetTestBase extends MediaTestBase {
-    static final String PLAYER_TYPE_MEDIA_CONTROLLER = "MediaController";
-    static final String PLAYER_TYPE_MEDIA_PLAYER = "MediaPlayer";
+    static final String PLAYER_TYPE_MEDIA_CONTROLLER = "androidx.media2.session.MediaController";
+    static final String PLAYER_TYPE_MEDIA_PLAYER = "androidx.media2.player.MediaPlayer";
 
     // Expected success time
     // Increased timeout to pass on old devices (ex. Nexus4 API 17)
     static final int WAIT_TIME_MS = 2000;
 
     private final Object mLock = new Object();
+
     @GuardedBy("mLock")
-    private List<SessionPlayer> mPlayers = new ArrayList<>();
+    private List<androidx.media2.common.SessionPlayer> mPlayers = new ArrayList<>();
+
     @GuardedBy("mLock")
-    private List<MediaSession> mSessions = new ArrayList<>();
+    private List<androidx.media2.session.MediaSession> mSessions = new ArrayList<>();
+
     @GuardedBy("mLock")
-    private List<MediaController> mControllers = new ArrayList<>();
+    private List<androidx.media2.session.MediaController> mControllers = new ArrayList<>();
 
     Context mContext;
     Executor mMainHandlerExecutor;
@@ -93,26 +90,26 @@ public class MediaWidgetTestBase extends MediaTestBase {
         }
     }
 
-    MediaItem createTestMediaItem() {
+    androidx.media2.common.MediaItem createTestMediaItem() {
         Uri testVideoUri = getResourceUri(R.raw.testvideo_with_2_subtitle_tracks);
         return createTestMediaItem(testVideoUri);
     }
 
-    MediaItem createTestMediaItem(Uri uri) {
+    androidx.media2.common.MediaItem createTestMediaItem(Uri uri) {
         return createTestMediaItem(uri, "defaultMediaId");
     }
 
-    MediaItem createTestMediaItem(Uri uri, String mediaId) {
-        MediaMetadata metadata = new MediaMetadata.Builder()
-                .putText(MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId)
-                .build();
-        return new UriMediaItem.Builder(uri)
-                .setMetadata(metadata)
-                .build();
+    androidx.media2.common.MediaItem createTestMediaItem(Uri uri, String mediaId) {
+        androidx.media2.common.MediaMetadata metadata =
+                new androidx.media2.common.MediaMetadata.Builder()
+                        .putText(
+                                androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_ID, mediaId)
+                        .build();
+        return new androidx.media2.common.UriMediaItem.Builder(uri).setMetadata(metadata).build();
     }
 
-    List<MediaItem> createTestPlaylist() {
-        List<MediaItem> list = new ArrayList<>();
+    List<androidx.media2.common.MediaItem> createTestPlaylist() {
+        List<androidx.media2.common.MediaItem> list = new ArrayList<>();
         list.add(createTestMediaItem(getResourceUri(R.raw.test_file_scheme_video), "id_1"));
         list.add(createTestMediaItem(getResourceUri(R.raw.test_music), "id_2"));
         list.add(createTestMediaItem(getResourceUri(R.raw.testvideo_with_2_subtitle_tracks),
@@ -125,16 +122,23 @@ public class MediaWidgetTestBase extends MediaTestBase {
     }
 
     @SuppressWarnings("FutureReturnValueIgnored")
-    PlayerWrapper createPlayerWrapperOfController(@NonNull PlayerWrapper.PlayerCallback callback,
-            @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
-        SessionPlayer player = new MediaPlayer(mContext);
-        MediaSession session = new MediaSession.Builder(mContext, player)
-                .setId(UUID.randomUUID().toString())
-                .setSessionCallback(mSessionCallbackExecutor, new MediaSession.SessionCallback() {})
-                .build();
-        MediaController controller = new MediaController.Builder(mContext)
-                .setSessionToken(session.getToken())
-                .build();
+    PlayerWrapper createPlayerWrapperOfController(
+            @NonNull PlayerWrapper.PlayerCallback callback,
+            @Nullable androidx.media2.common.MediaItem item,
+            @Nullable List<androidx.media2.common.MediaItem> playlist) {
+        androidx.media2.common.SessionPlayer player =
+                new androidx.media2.player.MediaPlayer(mContext);
+        androidx.media2.session.MediaSession session =
+                new androidx.media2.session.MediaSession.Builder(mContext, player)
+                        .setId(UUID.randomUUID().toString())
+                        .setSessionCallback(
+                                mSessionCallbackExecutor,
+                                new androidx.media2.session.MediaSession.SessionCallback() {})
+                        .build();
+        androidx.media2.session.MediaController controller =
+                new androidx.media2.session.MediaController.Builder(mContext)
+                        .setSessionToken(session.getToken())
+                        .build();
         synchronized (mLock) {
             mPlayers.add(player);
             mSessions.add(session);
@@ -153,9 +157,12 @@ public class MediaWidgetTestBase extends MediaTestBase {
     }
 
     @SuppressWarnings("FutureReturnValueIgnored")
-    PlayerWrapper createPlayerWrapperOfPlayer(@NonNull PlayerWrapper.PlayerCallback callback,
-            @Nullable MediaItem item, @Nullable List<MediaItem> playlist) {
-        SessionPlayer player = new MediaPlayer(mContext);
+    PlayerWrapper createPlayerWrapperOfPlayer(
+            @NonNull PlayerWrapper.PlayerCallback callback,
+            @Nullable androidx.media2.common.MediaItem item,
+            @Nullable List<androidx.media2.common.MediaItem> playlist) {
+        androidx.media2.common.SessionPlayer player =
+                new androidx.media2.player.MediaPlayer(mContext);
         synchronized (mLock) {
             mPlayers.add(player);
         }
@@ -171,8 +178,10 @@ public class MediaWidgetTestBase extends MediaTestBase {
         return wrapper;
     }
 
-    PlayerWrapper createPlayerWrapperOfType(@NonNull PlayerWrapper.PlayerCallback callback,
-            @Nullable MediaItem item, @Nullable List<MediaItem> playlist,
+    PlayerWrapper createPlayerWrapperOfType(
+            @NonNull PlayerWrapper.PlayerCallback callback,
+            @Nullable androidx.media2.common.MediaItem item,
+            @Nullable List<androidx.media2.common.MediaItem> playlist,
             @NonNull String playerType) {
         if (PLAYER_TYPE_MEDIA_CONTROLLER.equals(playerType)) {
             return createPlayerWrapperOfController(callback, item, playlist);
@@ -185,13 +194,13 @@ public class MediaWidgetTestBase extends MediaTestBase {
 
     void closeAll() {
         synchronized (mLock) {
-            for (MediaController controller : mControllers) {
+            for (androidx.media2.session.MediaController controller : mControllers) {
                 controller.close();
             }
-            for (MediaSession session : mSessions) {
+            for (androidx.media2.session.MediaSession session : mSessions) {
                 session.close();
             }
-            for (SessionPlayer player : mPlayers) {
+            for (androidx.media2.common.SessionPlayer player : mPlayers) {
                 try {
                     player.close();
                 } catch (Exception ex) {
@@ -211,8 +220,8 @@ public class MediaWidgetTestBase extends MediaTestBase {
         String mPrevId = "placeholderId";
 
         @Override
-        void onCurrentMediaItemChanged(@NonNull PlayerWrapper player,
-                @Nullable MediaItem item) {
+        void onCurrentMediaItemChanged(
+                @NonNull PlayerWrapper player, @Nullable androidx.media2.common.MediaItem item) {
             if (item != null && !TextUtils.equals(mPrevId, item.getMediaId())) {
                 mPrevId = item.getMediaId();
                 mItemLatch.countDown();
@@ -221,9 +230,9 @@ public class MediaWidgetTestBase extends MediaTestBase {
 
         @Override
         void onPlayerStateChanged(@NonNull PlayerWrapper player, int state) {
-            if (state == SessionPlayer.PLAYER_STATE_PAUSED) {
+            if (state == androidx.media2.common.SessionPlayer.PLAYER_STATE_PAUSED) {
                 mPausedLatch.countDown();
-            } else if (state == SessionPlayer.PLAYER_STATE_PLAYING) {
+            } else if (state == androidx.media2.common.SessionPlayer.PLAYER_STATE_PLAYING) {
                 mPlayingLatch.countDown();
             }
         }
