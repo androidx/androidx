@@ -16,28 +16,77 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
+import android.annotation.SuppressLint
+import android.util.Log
+import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.ScanResult
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class ScannerViewModel : ViewModel() {
+@HiltViewModel
+class ScannerViewModel @Inject constructor(
+    private val bluetoothLe: BluetoothLe
+) : ViewModel() {
 
     internal companion object {
         private const val TAG = "ScannerViewModel"
     }
 
-    val scanResults: LiveData<List<ScanResult>>
-        get() = _scanResults
-    private val _scanResults = MutableLiveData<List<ScanResult>>()
-    private val _scanResultsMap = mutableMapOf<String, ScanResult>()
+    private val scanResultsMap = mutableMapOf<String, ScanResult>()
 
-    fun addScanResultIfNew(scanResult: ScanResult) {
+    var scanJob: Job? = null
+
+    private val _uiState = MutableStateFlow(ScannerUiState())
+    val uiState: StateFlow<ScannerUiState> = _uiState.asStateFlow()
+
+    @SuppressLint("MissingPermission")
+    fun startScan() {
+        Log.d(TAG, "startScan() called")
+
+        scanJob = viewModelScope.launch {
+            Log.d(TAG, "bluetoothLe.scan() called")
+            _uiState.update {
+                it.copy(isScanning = true)
+            }
+
+            try {
+                bluetoothLe.scan()
+                    .collect {
+                        Log.d(TAG, "bluetoothLe.scan() collected: ScanResult = $it")
+
+                        if ((it.device.name ?: "").startsWith("Pixel")) {
+                            addScanResultIfNew(it)
+                        }
+                    }
+            } catch (exception: Exception) {
+                _uiState.update {
+                    it.copy(isScanning = false)
+                }
+
+                if (exception is CancellationException) {
+                    Log.e(TAG, "bluetoothLe.scan() CancellationException", exception)
+                }
+            }
+        }
+    }
+
+    private fun addScanResultIfNew(scanResult: ScanResult) {
         val deviceAddress = scanResult.deviceAddress.address
 
-        if (_scanResultsMap.containsKey(deviceAddress).not()) {
-            _scanResultsMap[deviceAddress] = scanResult
-            _scanResults.value = _scanResultsMap.values.toList()
+        if (scanResultsMap.containsKey(deviceAddress).not()) {
+            scanResultsMap[deviceAddress] = scanResult
+            _uiState.update {
+                it.copy(scanResults = scanResultsMap.values.toList())
+            }
         }
     }
 }
