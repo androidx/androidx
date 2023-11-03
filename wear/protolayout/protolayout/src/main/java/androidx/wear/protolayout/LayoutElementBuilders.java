@@ -2116,7 +2116,7 @@ public final class LayoutElementBuilders {
             public Builder setResourceId(@NonNull StringProp resourceId) {
                 if (resourceId.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setResourceId doesn't support dynamic values.");
+                            "Image.Builder.setResourceId doesn't support dynamic values.");
                 }
                 mImpl.setResourceId(resourceId.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -3156,7 +3156,7 @@ public final class LayoutElementBuilders {
             public Builder setResourceId(@NonNull StringProp resourceId) {
                 if (resourceId.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setResourceId doesn't support dynamic values.");
+                            "SpanImage.Builder.setResourceId doesn't support dynamic values.");
                 }
                 mImpl.setResourceId(resourceId.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -3185,7 +3185,8 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setWidth(@NonNull DpProp width) {
                 if (width.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setWidth doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "SpanImage.Builder.setWidth doesn't support dynamic values.");
                 }
                 mImpl.setWidth(width.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -3203,7 +3204,8 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setHeight(@NonNull DpProp height) {
                 if (height.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setHeight doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "SpanImage.Builder.setHeight doesn't support dynamic values.");
                 }
                 mImpl.setHeight(height.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -4530,7 +4532,8 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setText(@NonNull StringProp text) {
                 if (text.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setText doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "ArcText.Builder.setText doesn't support dynamic values.");
                 }
                 mImpl.setText(text.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -4813,7 +4816,7 @@ public final class LayoutElementBuilders {
             public Builder setThickness(@NonNull DpProp thickness) {
                 if (thickness.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setThickness doesn't support dynamic values.");
+                            "ArcLine.Builder.setThickness doesn't support dynamic values.");
                 }
                 mImpl.setThickness(thickness.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -5141,7 +5144,8 @@ public final class LayoutElementBuilders {
             @NonNull
             public Builder setLength(@NonNull DegreesProp length) {
                 if (length.getDynamicValue() != null) {
-                    throw new IllegalArgumentException("setLength doesn't support dynamic values.");
+                    throw new IllegalArgumentException(
+                            "ArcSpacer.Builder.setLength doesn't support dynamic values.");
                 }
                 mImpl.setLength(length.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -5160,7 +5164,7 @@ public final class LayoutElementBuilders {
             public Builder setThickness(@NonNull DpProp thickness) {
                 if (thickness.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
-                            "setThickness doesn't support dynamic values.");
+                            "ArcSpacer.Builder.setThickness doesn't support dynamic values.");
                 }
                 mImpl.setThickness(thickness.toProto());
                 mFingerprint.recordPropertyUpdate(
