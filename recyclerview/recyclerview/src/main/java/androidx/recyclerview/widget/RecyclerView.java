@@ -245,8 +245,8 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * recursively traverses itemView and invalidates display list for each ViewGroup that matches
      * this criteria.
      */
-    static final boolean FORCE_INVALIDATE_DISPLAY_LIST = Build.VERSION.SDK_INT == 18
-            || Build.VERSION.SDK_INT == 19 || Build.VERSION.SDK_INT == 20;
+    static final boolean FORCE_INVALIDATE_DISPLAY_LIST = Build.VERSION.SDK_INT == 19
+            || Build.VERSION.SDK_INT == 20;
     /**
      * On M+, an unspecified measure spec may include a hint which we can use. On older platforms,
      * this value might be garbage. To save LayoutManagers from it, RecyclerView sets the size to
@@ -254,29 +254,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     static final boolean ALLOW_SIZE_IN_UNSPECIFIED_SPEC = Build.VERSION.SDK_INT >= 23;
 
-    static final boolean POST_UPDATES_ON_ANIMATION = Build.VERSION.SDK_INT >= 16;
-
     /**
      * On L+, with RenderThread, the UI thread has idle time after it has passed a frame off to
      * RenderThread but before the next frame begins. We schedule prefetch work in this window.
      */
     static final boolean ALLOW_THREAD_GAP_WORK = Build.VERSION.SDK_INT >= 21;
-
-    /**
-     * FocusFinder#findNextFocus is broken on ICS MR1 and older for View.FOCUS_BACKWARD direction.
-     * We convert it to an absolute direction such as FOCUS_DOWN or FOCUS_LEFT.
-     */
-    private static final boolean FORCE_ABS_FOCUS_SEARCH_DIRECTION = Build.VERSION.SDK_INT <= 15;
-
-    /**
-     * on API 15-, a focused child can still be considered a focused child of RV even after
-     * it's being removed or its focusable flag is set to false. This is because when this focused
-     * child is detached, the reference to this child is not removed in clearFocus. API 16 and above
-     * properly handle this case by calling ensureInputFocusOnFirstFocusable or rootViewRequestFocus
-     * to request focus on a new child, which will clear the focus on the old (detached) child as a
-     * side-effect.
-     */
-    private static final boolean IGNORE_DETACHED_FOCUSED_CHILD = Build.VERSION.SDK_INT <= 15;
 
     /**
      * When flinging the stretch towards scrolling content, it should destretch quicker than the
@@ -2719,26 +2701,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     @Deprecated
     @Override
     public void setLayoutTransition(LayoutTransition transition) {
-        if (Build.VERSION.SDK_INT < 18) {
-            // Transitions on APIs below 18 are using an empty LayoutTransition as a replacement
-            // for suppressLayout(true) and null LayoutTransition to then unsuppress it.
-            // We can detect this cases and use our suppressLayout() implementation instead.
-            if (transition == null) {
-                suppressLayout(false);
-                return;
-            } else {
-                int layoutTransitionChanging = 4; // LayoutTransition.CHANGING (Added in API 16)
-                if (transition.getAnimator(LayoutTransition.CHANGE_APPEARING) == null
-                        && transition.getAnimator(LayoutTransition.CHANGE_DISAPPEARING) == null
-                        && transition.getAnimator(LayoutTransition.APPEARING) == null
-                        && transition.getAnimator(LayoutTransition.DISAPPEARING) == null
-                        && transition.getAnimator(layoutTransitionChanging) == null) {
-                    suppressLayout(true);
-                    return;
-                }
-            }
-        }
-
         if (transition == null) {
             super.setLayoutTransition(null);
         } else {
@@ -3348,10 +3310,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         direction == View.FOCUS_FORWARD ? View.FOCUS_DOWN : View.FOCUS_UP;
                 final View found = ff.findNextFocus(this, focused, absDir);
                 needsFocusFailureLayout = found == null;
-                if (FORCE_ABS_FOCUS_SEARCH_DIRECTION) {
-                    // Workaround for broken FOCUS_BACKWARD in API 15 and older devices.
-                    direction = absDir;
-                }
             }
             if (!needsFocusFailureLayout && mLayout.canScrollHorizontally()) {
                 boolean rtl = mLayout.getLayoutDirection() == ViewCompat.LAYOUT_DIRECTION_RTL;
@@ -3359,10 +3317,6 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                         ? View.FOCUS_RIGHT : View.FOCUS_LEFT;
                 final View found = ff.findNextFocus(this, focused, absDir);
                 needsFocusFailureLayout = found == null;
-                if (FORCE_ABS_FOCUS_SEARCH_DIRECTION) {
-                    // Workaround for broken FOCUS_BACKWARD in API 15 and older devices.
-                    direction = absDir;
-                }
             }
             if (needsFocusFailureLayout) {
                 consumePendingUpdateOperations();
@@ -4611,26 +4565,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         // only recover focus if RV itself has the focus or the focused view is hidden
         if (!isFocused()) {
             final View focusedChild = getFocusedChild();
-            if (IGNORE_DETACHED_FOCUSED_CHILD
-                    && (focusedChild.getParent() == null || !focusedChild.hasFocus())) {
-                // Special handling of API 15-. A focused child can be invalid because mFocus is not
-                // cleared when the child is detached (mParent = null),
-                // This happens because clearFocus on API 15- does not invalidate mFocus of its
-                // parent when this child is detached.
-                // For API 16+, this is not an issue because requestFocus takes care of clearing the
-                // prior detached focused child. For API 15- the problem happens in 2 cases because
-                // clearChild does not call clearChildFocus on RV: 1. setFocusable(false) is called
-                // for the current focused item which calls clearChild or 2. when the prior focused
-                // child is removed, removeDetachedView called in layout step 3 which calls
-                // clearChild. We should ignore this invalid focused child in all our calculations
-                // for the next view to receive focus, and apply the focus recovery logic instead.
-                if (mChildHelper.getChildCount() == 0) {
-                    // No children left. Request focus on the RV itself since one of its children
-                    // was holding focus previously.
-                    requestFocus();
-                    return;
-                }
-            } else if (!mChildHelper.isHidden(focusedChild)) {
+            if (!mChildHelper.isHidden(focusedChild)) {
                 // If the currently focused child is hidden, apply the focus recovery logic.
                 // Otherwise return, i.e. the currently (unhidden) focused child is good enough :/.
                 return;
@@ -6266,7 +6201,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         }
 
         void triggerUpdateProcessor() {
-            if (POST_UPDATES_ON_ANIMATION && mHasFixedSize && mIsAttached) {
+            if (mHasFixedSize && mIsAttached) {
                 ViewCompat.postOnAnimation(RecyclerView.this, mUpdateChildViewsRunnable);
             } else {
                 mAdapterUpdateDuringMeasure = true;
