@@ -21,7 +21,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.os.Message;
 
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -29,21 +28,11 @@ import org.junit.Test;
 @SmallTest
 public final class MessageCompatTest {
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     public void async() {
         Message message = Message.obtain();
         assertFalse(MessageCompat.isAsynchronous(message));
         MessageCompat.setAsynchronous(message, true);
         assertTrue(MessageCompat.isAsynchronous(message));
-        message.recycle();
-    }
-
-    @Test
-    @SdkSuppress(maxSdkVersion = 15)
-    public void asyncPreApi16() {
-        Message message = Message.obtain();
-        MessageCompat.setAsynchronous(message, true);
-        assertFalse(MessageCompat.isAsynchronous(message));
         message.recycle();
     }
 }

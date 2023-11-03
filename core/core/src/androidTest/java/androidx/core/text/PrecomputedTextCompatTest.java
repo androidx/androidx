@@ -98,7 +98,6 @@ public class PrecomputedTextCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 18)
     public void testParams_GetDefaultValues2() {
         assertEquals(TextDirectionHeuristics.FIRSTSTRONG_LTR,
                 new Params.Builder(PAINT).build().getTextDirection());

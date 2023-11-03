@@ -20,12 +20,10 @@ import static org.junit.Assert.assertEquals;
 
 import android.os.Process;
 
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 
-@SdkSuppress(minSdkVersion = 17)
 @SmallTest
 public class UserHandleCompatTest {
 

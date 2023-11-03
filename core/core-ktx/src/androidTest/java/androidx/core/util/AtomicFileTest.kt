@@ -17,7 +17,6 @@
 package androidx.core.util
 
 import android.util.AtomicFile
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.testutils.assertThrows
 import java.io.IOException
@@ -28,7 +27,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 
-@SdkSuppress(minSdkVersion = 17)
 @SmallTest
 class AtomicFileTest {
     @get:Rule val temporaryFolder = TemporaryFolder()
