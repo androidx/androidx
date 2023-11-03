@@ -21,7 +21,6 @@ import android.view.View
 import androidx.core.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertEquals
@@ -34,7 +33,6 @@ import org.junit.runner.RunWith
 class WindowCompatTest :
     BaseInstrumentationTestCase<WindowCompatActivity>(WindowCompatActivity::class.java) {
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     fun tests_setDecorFitsSystemWindows() {
         val view = mActivityTestRule.activity.findViewById<View>(R.id.view)!!
 

@@ -45,7 +45,6 @@ import androidx.core.provider.FontRequest;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.testutils.WeightStyleFont;
@@ -537,7 +536,6 @@ public class TypefaceCompatTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 18) // API 14-20 backport fails on 17
     public void testTypeFaceCompatCreateWithExactStyle_upright() {
         doTypefaceCreate(false);
     }
@@ -570,20 +568,11 @@ public class TypefaceCompatTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 16) // API 14-20 backport fails on 17
-    public void testTypeFaceCompatCreateWithExactStyle_upright_api14_to_16() {
-        doTypefaceCreate(false);
-    }
-
-
-    @Test
-    @SdkSuppress(minSdkVersion = 18) // API 14-20 backport is too flakey for CI
     public void testTypeFaceCompatCreateWithExactStyle_italic() {
         doTypefaceCreate(true);
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 16) // API 14-20 backport is too flakey for CI
     public void testTypeFaceCompatCreateWithExactStyle_italic_api14_to_16() {
         doTypefaceCreate(true);
     }
