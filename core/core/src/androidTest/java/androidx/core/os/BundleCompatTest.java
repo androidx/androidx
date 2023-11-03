@@ -194,6 +194,7 @@ public class BundleCompatTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void getBinder() {
         IBinder binder = new Binder();
         Bundle bundle = new Bundle();

@@ -1,0 +1,7 @@
+// Baseline format: 1.0
+ChangedDeprecated: androidx.core.os.BundleCompat#getBinder(android.os.Bundle, String):
+    Method androidx.core.os.BundleCompat.getBinder has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.os.BundleCompat#putBinder(android.os.Bundle, String, android.os.IBinder):
+    Method androidx.core.os.BundleCompat.putBinder has changed deprecation state false --> true
+ChangedDeprecated: androidx.core.os.EnvironmentCompat#MEDIA_UNKNOWN:
+    Field androidx.core.os.EnvironmentCompat.MEDIA_UNKNOWN has changed deprecation state false --> true
