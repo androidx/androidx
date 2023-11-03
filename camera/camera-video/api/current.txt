@@ -113,11 +113,15 @@ package androidx.camera.video {
     method public androidx.camera.video.QualitySelector getQualitySelector();
     method public int getTargetVideoEncodingBitRate();
     method public static androidx.camera.video.VideoCapabilities getVideoCapabilities(androidx.camera.core.CameraInfo);
+    method public static androidx.camera.video.VideoCapabilities getVideoCapabilities(androidx.camera.core.CameraInfo, int);
+    method public int getVideoCapabilitiesSource();
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
     method @RequiresApi(26) public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileDescriptorOutputOptions);
     method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.FileOutputOptions);
     method public androidx.camera.video.PendingRecording prepareRecording(android.content.Context, androidx.camera.video.MediaStoreOutputOptions);
     field public static final androidx.camera.video.QualitySelector DEFAULT_QUALITY_SELECTOR;
+    field public static final int VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE = 0; // 0x0
+    field public static final int VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES = 1; // 0x1
   }
 
   @RequiresApi(21) public static final class Recorder.Builder {
@@ -127,6 +131,7 @@ package androidx.camera.video {
     method public androidx.camera.video.Recorder.Builder setExecutor(java.util.concurrent.Executor);
     method public androidx.camera.video.Recorder.Builder setQualitySelector(androidx.camera.video.QualitySelector);
     method public androidx.camera.video.Recorder.Builder setTargetVideoEncodingBitRate(@IntRange(from=1) int);
+    method public androidx.camera.video.Recorder.Builder setVideoCapabilitiesSource(int);
   }
 
   @RequiresApi(21) public final class Recording implements java.lang.AutoCloseable {
