@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.graphics.Rect;
-import android.os.Build;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +34,6 @@ import androidx.annotation.NonNull;
 import androidx.core.view.ViewCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.testutils.AnimationDurationScaleRule;
 import androidx.testutils.PollingCheck;
 
@@ -441,8 +439,6 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         });
     }
 
-    // Disable this test on ICS because it causes testing devices to freeze.
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void dontReuseHiddenViewOnInvalidate() throws Throwable {
         reuseHiddenViewTest(new ReuseTestCallback() {
@@ -733,13 +729,11 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN) // needed for hasTransientState
     public void removeSlideInViewLeftToSlideOutViewAndCancelAnimationInOnDetach() throws Throwable {
         removeSlideInViewLeftToSlideOutView(/* cancelViewPropertyAnimatorsInOnDetach= */ true);
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN) // needed for hasTransientState
     public void removeSlideInViewLeftToSlideOutView() throws Throwable {
         removeSlideInViewLeftToSlideOutView(/* cancelViewPropertyAnimatorsInOnDetach= */ false);
     }
@@ -868,7 +862,6 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingAuto() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO,
@@ -876,7 +869,6 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingNo() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO,
@@ -884,7 +876,6 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingNoHideDescandants() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS,
@@ -892,7 +883,6 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     public void importantForAccessibilityWhileDetelingYes() throws Throwable {
         runTestImportantForAccessibilityWhileDeteling(
                 ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES,
@@ -1586,8 +1576,6 @@ public class RecyclerViewAnimationsTest extends BaseRecyclerViewAnimationsTest {
         mLayoutManager.waitForLayout(2);
     }
 
-    // Run this test on Jelly Bean and newer because hasTransientState was introduced in API 16.
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     @Test
     public void appCancelAnimationInDetach() throws Throwable {
         final View[] addedView = new View[2];
