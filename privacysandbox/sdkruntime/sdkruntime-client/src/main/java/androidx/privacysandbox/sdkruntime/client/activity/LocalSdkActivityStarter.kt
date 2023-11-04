@@ -20,7 +20,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.os.IBinder
-import androidx.core.os.BundleCompat
 
 /**
  * Singleton helper object to start [SdkActivity].
@@ -50,7 +49,7 @@ internal object LocalSdkActivityStarter {
         val intent = Intent(fromActivity, SdkActivity::class.java)
 
         val params = Bundle()
-        BundleCompat.putBinder(params, EXTRA_ACTIVITY_TOKEN, token)
+        params.putBinder(EXTRA_ACTIVITY_TOKEN, token)
         intent.putExtras(params)
 
         fromActivity.startActivity(intent)
@@ -64,7 +63,6 @@ internal object LocalSdkActivityStarter {
      * @return token or null if [EXTRA_ACTIVITY_TOKEN] param is missing in [Intent.getExtras]
      */
     fun getTokenFromSdkActivityStartIntent(intent: Intent): IBinder? {
-        val params = intent.extras ?: return null
-        return BundleCompat.getBinder(params, EXTRA_ACTIVITY_TOKEN)
+        return intent.extras?.getBinder(EXTRA_ACTIVITY_TOKEN)
     }
 }

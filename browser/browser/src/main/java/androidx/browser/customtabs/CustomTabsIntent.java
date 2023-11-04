@@ -47,7 +47,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.app.BundleCompat;
 import androidx.core.content.ContextCompat;
 
 import java.lang.annotation.Retention;
@@ -734,7 +733,7 @@ public final class CustomTabsIntent {
         private void setSessionParameters(@Nullable IBinder binder,
                 @Nullable PendingIntent sessionId) {
             Bundle bundle = new Bundle();
-            BundleCompat.putBinder(bundle, EXTRA_SESSION, binder);
+            bundle.putBinder(EXTRA_SESSION, binder);
             if (sessionId != null) {
                 bundle.putParcelable(EXTRA_SESSION_ID, sessionId);
             }

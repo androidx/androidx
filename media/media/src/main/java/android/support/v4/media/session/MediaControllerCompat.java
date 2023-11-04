@@ -52,7 +52,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.app.BundleCompat;
 import androidx.media.AudioAttributesCompat;
 import androidx.media.R;
 import androidx.media.VolumeProviderCompat;
@@ -2327,8 +2326,8 @@ public final class MediaControllerCompat {
                 synchronized (mediaControllerImpl.mLock) {
                     mediaControllerImpl.mSessionToken.setExtraBinder(
                             IMediaSession.Stub.asInterface(
-                                    BundleCompat.getBinder(
-                                            resultData, MediaSessionCompat.KEY_EXTRA_BINDER)));
+                                    resultData.getBinder(
+                                            MediaSessionCompat.KEY_EXTRA_BINDER)));
                     mediaControllerImpl.mSessionToken.setSession2Token(
                             ParcelUtils.getVersionedParcelable(resultData,
                                     MediaSessionCompat.KEY_SESSION2_TOKEN));
