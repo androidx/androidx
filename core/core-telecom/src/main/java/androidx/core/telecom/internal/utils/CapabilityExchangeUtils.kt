@@ -35,6 +35,7 @@ internal class CapabilityExchangeUtils {
          */
         internal const val CAPABILITY_EXCHANGE_TIMEOUT = 1000L
         internal const val CAPABILITY_NEGOTIATION_COROUTINE_TIMEOUT = 3000L
+        internal const val ACTION_RESULT_RESPONSE_TIMEOUT = 1000L
 
         /**
          * Constants used to denote the types of error codes that can be returned from the provided
