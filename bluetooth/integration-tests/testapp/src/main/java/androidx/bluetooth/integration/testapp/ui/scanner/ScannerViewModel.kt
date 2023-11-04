@@ -24,13 +24,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 @HiltViewModel
 class ScannerViewModel @Inject constructor(
@@ -52,41 +55,24 @@ class ScannerViewModel @Inject constructor(
     fun startScan() {
         Log.d(TAG, "startScan() called")
 
-        scanJob = viewModelScope.launch {
-            Log.d(TAG, "bluetoothLe.scan() called")
-            _uiState.update {
-                it.copy(isScanning = true)
-            }
-
-            try {
-                bluetoothLe.scan()
-                    .collect {
-                        Log.d(TAG, "bluetoothLe.scan() collected: ScanResult = $it")
-
-                        if ((it.device.name ?: "").startsWith("Pixel")) {
-                            addScanResultIfNew(it)
-                        }
-                    }
-            } catch (exception: Exception) {
+        scanJob = bluetoothLe.scan()
+            .onStart {
+                Log.d(TAG, "bluetoothLe.scan() onStart")
+                _uiState.update {
+                    it.copy(isScanning = true)
+                }
+            }.filterNot { scanResultsMap.containsKey(it.deviceAddress.address) }
+            .onEach { scanResult ->
+                Log.d(TAG, "bluetoothLe.scan() onEach: $scanResult")
+                scanResultsMap[scanResult.deviceAddress.address] = scanResult
+                _uiState.update {
+                    it.copy(scanResults = scanResultsMap.values.toList())
+                }
+            }.onCompletion { throwable ->
+                Log.e(TAG, "bluetoothLe.scan() onCompletion", throwable)
                 _uiState.update {
                     it.copy(isScanning = false)
                 }
-
-                if (exception is CancellationException) {
-                    Log.e(TAG, "bluetoothLe.scan() CancellationException", exception)
-                }
-            }
-        }
-    }
-
-    private fun addScanResultIfNew(scanResult: ScanResult) {
-        val deviceAddress = scanResult.deviceAddress.address
-
-        if (scanResultsMap.containsKey(deviceAddress).not()) {
-            scanResultsMap[deviceAddress] = scanResult
-            _uiState.update {
-                it.copy(scanResults = scanResultsMap.values.toList())
-            }
-        }
+            }.launchIn(viewModelScope)
     }
 }
