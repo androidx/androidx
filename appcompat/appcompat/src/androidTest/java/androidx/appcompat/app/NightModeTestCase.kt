@@ -38,7 +38,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.LifecycleOwnerUtils.waitForRecreation
 import androidx.testutils.waitForExecution
@@ -236,7 +235,6 @@ class NightModeTestCase(private val setMode: NightSetMode) {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     fun testDialogCleansUpAutoMode() = rule.runOnUiThread {
         val dialog = AppCompatDialog(rule.activity)
         val delegate = dialog.delegate as AppCompatDelegateImpl

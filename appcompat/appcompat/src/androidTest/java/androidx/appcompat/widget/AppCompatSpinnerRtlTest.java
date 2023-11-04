@@ -16,10 +16,8 @@
 package androidx.appcompat.widget;
 
 import android.app.Instrumentation;
-import android.os.Build;
 
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
@@ -28,7 +26,6 @@ import org.junit.Test;
  * This class is for testing RTL-related functionality of {@link AppCompatSpinner}
  */
 @LargeTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class AppCompatSpinnerRtlTest
         extends AppCompatBaseViewTest<AppCompatSpinnerRtlActivity, AppCompatSpinner> {
     private Instrumentation mInstrumentation;

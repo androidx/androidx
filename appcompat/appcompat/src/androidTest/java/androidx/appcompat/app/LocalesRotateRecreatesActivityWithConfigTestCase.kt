@@ -39,7 +39,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @LargeTest
-@SdkSuppress(minSdkVersion = 18, maxSdkVersion = 32)
+@SdkSuppress(maxSdkVersion = 32)
 class LocalesRotateRecreatesActivityWithConfigTestCase() {
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()

@@ -136,7 +136,6 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
 
     @UiThreadTest
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testSetActionBarTitleByActionBar() {
         final String newTitle = "hello";
         mActivityTestRule.getActivity().getSupportActionBar().setTitle(newTitle);
@@ -149,7 +148,7 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 20)
+    @SdkSuppress(maxSdkVersion = 20)
     @RequiresApi(16)
     public void testFitSystemWindowsReachesContent() throws Throwable {
         final A activity = mActivityTestRule.getActivity();

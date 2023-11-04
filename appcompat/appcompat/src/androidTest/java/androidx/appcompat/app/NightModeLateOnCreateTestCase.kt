@@ -24,7 +24,6 @@ import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreat
 import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.LifecycleOwnerUtils.waitUntilState
 import org.junit.Rule
 import org.junit.Test
@@ -37,7 +36,6 @@ class NightModeLateOnCreateTestCase {
     val activityRule = NightModeActivityTestRule(NightModeLateOnCreateActivity::class.java)
 
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     fun testActivityRecreateLoop() {
         // Activity should be able to reach fully resumed state in default NIGHT_NO.
         waitUntilState(activityRule.activity, Lifecycle.State.RESUMED)
