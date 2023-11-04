@@ -491,6 +491,7 @@ package androidx.camera.core {
 
   public interface SurfaceOutput extends java.io.Closeable {
     method public void close();
+    method public default android.graphics.Matrix getSensorToBufferTransform();
     method public android.util.Size getSize();
     method public android.view.Surface getSurface(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.core.SurfaceOutput.Event!>);
     method public int getTargets();
@@ -531,7 +532,10 @@ package androidx.camera.core {
 
   @com.google.auto.value.AutoValue public abstract static class SurfaceRequest.TransformationInfo {
     method public abstract android.graphics.Rect getCropRect();
+    method public abstract boolean getMirroring();
     method public abstract int getRotationDegrees();
+    method public abstract android.graphics.Matrix getSensorToBufferTransform();
+    method public abstract boolean hasCameraTransform();
   }
 
   public static interface SurfaceRequest.TransformationInfoListener {
