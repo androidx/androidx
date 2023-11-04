@@ -52,4 +52,9 @@ internal interface TextInputSession {
      * Callback to run when IME sends an action via [InputConnection.performEditorAction]
      */
     fun onImeAction(imeAction: ImeAction)
+
+    /**
+     * Called from [InputConnection.requestCursorUpdates].
+     */
+    fun requestCursorUpdates(cursorUpdateMode: Int)
 }

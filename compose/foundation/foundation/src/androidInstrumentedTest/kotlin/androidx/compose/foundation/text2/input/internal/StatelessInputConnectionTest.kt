@@ -57,6 +57,9 @@ class StatelessInputConnectionTest {
         override fun sendKeyEvent(keyEvent: KeyEvent) {
             onSendKeyEvent?.invoke(keyEvent)
         }
+
+        override fun requestCursorUpdates(cursorUpdateMode: Int) {
+        }
     }
 
     private var state: TextFieldState = TextFieldState()

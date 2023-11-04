@@ -42,11 +42,27 @@ private const val TAG = "AndroidTextInputSession"
 
 internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TransformedTextFieldState,
+    layoutState: TextLayoutState,
     imeOptions: ImeOptions,
     onImeAction: ((ImeAction) -> Unit)?
 ): Nothing {
-    val composeImm = ComposeInputMethodManager(view)
+    platformSpecificTextInputSession(
+        state = state,
+        layoutState = layoutState,
+        imeOptions = imeOptions,
+        onImeAction = onImeAction,
+        composeImm = ComposeInputMethodManager(view)
+    )
+}
 
+@VisibleForTesting
+internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
+    state: TransformedTextFieldState,
+    layoutState: TextLayoutState,
+    imeOptions: ImeOptions,
+    onImeAction: ((ImeAction) -> Unit)?,
+    composeImm: ComposeInputMethodManager
+): Nothing {
     coroutineScope {
         launch(start = CoroutineStart.UNDISPATCHED) {
             state.collectImeNotifications { old, new ->
@@ -70,6 +86,13 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
             }
         }
 
+        val cursorUpdatesController = CursorAnchorInfoController(
+            composeImm = composeImm,
+            textFieldState = state,
+            textLayoutState = layoutState,
+            monitorScope = this,
+        )
+
         startInputMethod { outAttrs ->
             logDebug { "createInputConnection(value=\"${state.text}\")" }
 
@@ -90,6 +113,10 @@ internal actual suspend fun PlatformTextInputSession.platformSpecificTextInputSe
 
                 override fun onImeAction(imeAction: ImeAction) {
                     onImeAction?.invoke(imeAction)
+                }
+
+                override fun requestCursorUpdates(cursorUpdateMode: Int) {
+                    cursorUpdatesController.requestUpdates(cursorUpdateMode)
                 }
             }
             outAttrs.update(state.text, imeOptions)
