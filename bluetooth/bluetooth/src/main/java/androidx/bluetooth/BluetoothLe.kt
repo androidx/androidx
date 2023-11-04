@@ -29,7 +29,6 @@ import androidx.annotation.IntDef
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import java.util.UUID
 import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
@@ -38,7 +37,6 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.job
 
@@ -203,66 +201,6 @@ class BluetoothLe(context: Context) {
     }
 
     /**
-     * Scope for operations as a GATT client role.
-     *
-     * @see BluetoothLe.connectGatt
-     */
-    interface GattClientScope {
-
-        /**
-         * A flow of GATT services discovered from the remote device.
-         *
-         * If the services of the remote device has changed, the new services will be
-         * discovered and emitted automatically.
-         */
-        val servicesFlow: StateFlow<List<GattService>>
-
-        /**
-         * GATT services recently discovered from the remote device.
-         *
-         * Note that this can be changed, subscribe to [servicesFlow] to get notified
-         * of services changes.
-         */
-        val services: List<GattService> get() = servicesFlow.value
-
-        /**
-         * Gets the service of the remote device by UUID.
-         *
-         * If multiple instances of the same service exist, the first instance of the services
-         * is returned.
-         */
-        fun getService(uuid: UUID): GattService?
-
-        /**
-         * Reads the characteristic value from the server.
-         *
-         * @param characteristic a remote [GattCharacteristic] to read
-         * @return the value of the characteristic
-         */
-        suspend fun readCharacteristic(characteristic: GattCharacteristic): Result<ByteArray>
-
-        /**
-         * Writes the characteristic value to the server.
-         *
-         * @param characteristic a remote [GattCharacteristic] to write
-         * @param value a value to be written.
-         * @throws IllegalArgumentException if the [characteristic] doesn't have the write
-         *     property or the length of the [value] is greater than the maximum
-         *     attribute length (512)
-         * @return the result of the write operation
-         */
-        suspend fun writeCharacteristic(
-            characteristic: GattCharacteristic,
-            value: ByteArray
-        ): Result<Unit>
-
-        /**
-         * Returns a _cold_ [Flow] that contains the indicated value of the given characteristic.
-         */
-        fun subscribeToCharacteristic(characteristic: GattCharacteristic): Flow<ByteArray>
-    }
-
-    /**
      * Connects to the GATT server on the remote Bluetooth device and
      * invokes the given [block] after the connection is made.
      *
@@ -282,108 +220,6 @@ class BluetoothLe(context: Context) {
         block: suspend GattClientScope.() -> R
     ): R {
         return client.connect(device, block)
-    }
-
-    /**
-     * A scope for handling connect requests from remote devices.
-     *
-     * @property connectRequests connect requests from remote devices.
-     *
-     * @see BluetoothLe#openGattServer
-     */
-    interface GattServerConnectScope {
-        /**
-         * A _hot_ flow of [GattServerConnectRequest].
-         */
-        val connectRequests: Flow<GattServerConnectRequest>
-
-        /**
-         * Updates the services of the opened GATT server.
-         *
-         * @param services the new services that will be notified to the clients.
-         */
-        fun updateServices(services: List<GattService>)
-    }
-
-    /**
-     * A scope for operations as a GATT server role.
-     *
-     * A scope is created for each remote device.
-     *
-     * Collect [requests] to respond with requests from the client.
-     *
-     * @see GattServerConnectRequest#accept()
-     */
-    interface GattServerSessionScope {
-        /**
-         * A client device connected to the server.
-         */
-        val device: BluetoothDevice
-
-        /**
-         * A _hot_ [Flow] of incoming requests from the client.
-         *
-         * A request is either [GattServerRequest.ReadCharacteristic] or
-         * [GattServerRequest.WriteCharacteristics]
-         */
-        val requests: Flow<GattServerRequest>
-
-        /**
-         * A [StateFlow] of the set of characteristics that the client has requested to be
-         * notified of.
-         *
-         * The set will be updated whenever the client subscribes to or unsubscribes
-         * a characteristic.
-         *
-         * @see [GattServerSessionScope.notify]
-         */
-        val subscribedCharacteristics: StateFlow<Set<GattCharacteristic>>
-
-        /**
-         * Notifies a client of a characteristic value change.
-         *
-         * @param characteristic the updated characteristic
-         * @param value the new value of the characteristic
-         *
-         * @throws CancellationException if it failed to notify
-         * @throws IllegalArgumentException if the length of the [value] is greater than
-         * the maximum attribute length (512)
-         */
-        suspend fun notify(characteristic: GattCharacteristic, value: ByteArray)
-    }
-
-    /**
-     * Represents a connect request from a remote device.
-     *
-     * @property device the remote device connecting to the server
-     */
-    class GattServerConnectRequest internal constructor(
-        private val session: GattServer.Session,
-    ) {
-        val device: BluetoothDevice
-            get() = session.device
-
-        /**
-         * Accepts the connect request and handles incoming requests after that.
-         *
-         * Requests from the client before calling this should be saved.
-         *
-         * @param block a block of code that is invoked after the connection is made.
-         *
-         * @see GattServerSessionScope
-         */
-        suspend fun accept(block: suspend GattServerSessionScope.() -> Unit) {
-            return session.acceptConnection(block)
-        }
-
-        /**
-         * Rejects the connect request.
-         *
-         * All the requests from the client will be rejected.
-         */
-        fun reject() {
-            return session.rejectConnection()
-        }
     }
 
     /**

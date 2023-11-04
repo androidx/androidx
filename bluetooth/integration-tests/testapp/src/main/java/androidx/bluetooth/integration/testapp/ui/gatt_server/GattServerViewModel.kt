@@ -100,7 +100,6 @@ class GattServerViewModel @Inject constructor(
                                     "requests collected: gattServerRequest = $gattServerRequest"
                                 )
 
-                                // TODO(b/269390098): Handle requests correctly
                                 when (gattServerRequest) {
                                     is GattServerRequest.ReadCharacteristic -> {
                                         val characteristic = gattServerRequest.characteristic

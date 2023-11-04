@@ -21,6 +21,7 @@ import android.util.Log
 import androidx.bluetooth.BluetoothDevice
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.GattCharacteristic
+import androidx.bluetooth.GattClientScope
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
 import androidx.bluetooth.integration.testapp.data.connection.OnCharacteristicActionClick
 import androidx.bluetooth.integration.testapp.data.connection.Status
@@ -34,6 +35,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -180,7 +185,7 @@ class ConnectionsViewModel @Inject constructor(
     }
 
     private fun readCharacteristic(
-        gattClientScope: BluetoothLe.GattClientScope,
+        gattClientScope: GattClientScope,
         deviceConnection: DeviceConnection,
         characteristic: GattCharacteristic
     ) {
@@ -196,7 +201,7 @@ class ConnectionsViewModel @Inject constructor(
     }
 
     fun writeCharacteristic(
-        gattClientScope: BluetoothLe.GattClientScope,
+        gattClientScope: GattClientScope,
         characteristic: GattCharacteristic,
         valueString: String
     ) {
@@ -220,21 +225,18 @@ class ConnectionsViewModel @Inject constructor(
     }
 
     private fun subscribeToCharacteristic(
-        gattClientScope: BluetoothLe.GattClientScope,
+        gattClientScope: GattClientScope,
         characteristic: GattCharacteristic
     ) {
-        viewModelScope.launch {
-            gattClientScope.subscribeToCharacteristic(characteristic)
-                .collect {
-                    Log.d(
-                        TAG,
-                        "subscribeToCharacteristic() collected: " +
-                            "characteristic = $characteristic, " +
-                            "value.decodeToString() = ${it.decodeToString()}"
-                    )
-                }
-
-            Log.d(TAG, "subscribeToCharacteristic completed")
-        }
+        gattClientScope.subscribeToCharacteristic(characteristic)
+            .onStart {
+                Log.d(TAG, "subscribeToCharacteristic() onStart")
+            }
+            .onEach {
+                Log.d(TAG, "subscribeToCharacteristic() onEach: ${it.decodeToString()}")
+            }.onCompletion {
+                Log.e(TAG, "subscribeToCharacteristic onCompletion", it)
+            }
+            .launchIn(viewModelScope)
     }
 }

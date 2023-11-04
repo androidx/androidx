@@ -28,6 +28,7 @@ import java.util.Objects
  * @property addressType a valid address type
  */
 class BluetoothAddress(val address: String, @AddressType val addressType: Int) {
+
     companion object {
         /** Address type is public and registered with the IEEE. */
         const val ADDRESS_TYPE_PUBLIC: Int = 0

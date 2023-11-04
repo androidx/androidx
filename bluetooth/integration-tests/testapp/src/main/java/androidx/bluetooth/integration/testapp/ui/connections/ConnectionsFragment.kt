@@ -26,8 +26,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.bluetooth.BluetoothDevice
-import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.GattCharacteristic
+import androidx.bluetooth.GattClientScope
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
 import androidx.bluetooth.integration.testapp.databinding.FragmentConnectionsBinding
@@ -157,7 +157,7 @@ class ConnectionsFragment : Fragment() {
     }
 
     private fun showDialogForWrite(
-        gattCharacteristicPair: Pair<BluetoothLe.GattClientScope, GattCharacteristic>
+        gattCharacteristicPair: Pair<GattClientScope, GattCharacteristic>
     ) {
         val view = layoutInflater.inflate(R.layout.dialog_write_characteristic, null)
         val editTextValue = view.findViewById<EditText>(R.id.edit_text_value)
