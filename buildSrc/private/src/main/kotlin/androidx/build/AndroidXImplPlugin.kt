@@ -97,10 +97,8 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
-import org.jetbrains.kotlin.gradle.tasks.CInteropProcess
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
 /**
  * A plugin which enables all of the Gradle customizations for AndroidX. This plugin reacts to other
@@ -443,7 +441,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             }
         }
         if (plugin is KotlinMultiplatformPluginWrapper) {
-            project.configureKonanDirectory()
+            KonanPrebuiltsSetup.configureKonanDirectory(project)
 
             val libraryExtension = project.extensions.findByType<LibraryExtension>()
             if (libraryExtension != null) {
@@ -950,37 +948,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             .findByName("androidTest")!!
             .manifest
             .srcFile("src/androidInstrumentedTest/AndroidManifest.xml")
-    }
-
-    /** Sets the konan distribution url to the prebuilts directory. */
-    private fun Project.configureKonanDirectory() {
-        if (ProjectLayoutType.isPlayground(this)) {
-            return // playground does not use prebuilts
-        }
-        overrideKotlinNativeDistributionUrlToLocalDirectory()
-        overrideKotlinNativeDependenciesUrlToLocalDirectory()
-    }
-
-    private fun Project.overrideKotlinNativeDependenciesUrlToLocalDirectory() {
-        val konanPrebuiltsFolder = getKonanPrebuiltsFolder()
-        // use relative path so it doesn't affect gradle remote cache.
-        val relativeRootPath = konanPrebuiltsFolder.relativeTo(rootProject.projectDir).path
-        val relativeProjectPath = konanPrebuiltsFolder.relativeTo(projectDir).path
-        tasks.withType(KotlinNativeCompile::class.java).configureEach {
-            it.kotlinOptions.freeCompilerArgs +=
-                listOf("-Xoverride-konan-properties=dependenciesUrl=file:$relativeRootPath")
-        }
-        tasks.withType(CInteropProcess::class.java).configureEach {
-            it.settings.extraOpts +=
-                listOf("-Xoverride-konan-properties", "dependenciesUrl=file:$relativeProjectPath")
-        }
-    }
-
-    private fun Project.overrideKotlinNativeDistributionUrlToLocalDirectory() {
-        val relativePath =
-            getKonanPrebuiltsFolder().resolve("nativeCompilerPrebuilts").relativeTo(projectDir).path
-        val url = "file:$relativePath"
-        extensions.extraProperties["kotlin.native.distribution.baseDownloadUrl"] = url
     }
 
     private fun Project.configureKmp() {

@@ -16,6 +16,7 @@
 
 package androidx.build.clang
 
+import androidx.build.KonanPrebuiltsSetup
 import androidx.testutils.assertThrows
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
@@ -26,6 +27,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.junit.Before
@@ -53,7 +55,8 @@ class KonanBuildServiceTest {
             File(projectSetup.props.rootProjectPath).resolve("../../prebuilts")
         )
         // register components required by NativeCompilerDownloader
-        project.pluginManager.apply(KotlinPluginWrapper::class.java)
+        project.pluginManager.apply(KotlinMultiplatformPluginWrapper::class.java)
+        KonanPrebuiltsSetup.configureKonanDirectory(project)
         buildService = KonanBuildService.obtain(project).get()
     }
 
