@@ -339,7 +339,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
          */
         private static final float CAP_COLOR_SHADER_OFFSET_SIZE = 0.25f;
 
-        @NonNull List<AngularColorStop> colorStops;
+        @NonNull private final List<AngularColorStop> colorStops;
 
         SweepGradientHelper(@NonNull ColorProto.SweepGradient sweepGradProto) {
             int numColors = sweepGradProto.getColorStopsCount();
@@ -373,6 +373,10 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                                 : (float) i / (numColors - 1);
                 float gradAngle = gradStartAngle + offset * (gradEndAngle - gradStartAngle);
                 colorStops.add(new AngularColorStop(gradAngle, stop.getColor().getArgb()));
+            }
+
+            if (offsetsRequired) {
+                colorStops.sort((a, b) -> Float.compare(a.angle, b.angle));
             }
         }
 

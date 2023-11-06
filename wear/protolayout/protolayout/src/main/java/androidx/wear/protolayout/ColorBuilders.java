@@ -391,11 +391,9 @@ public final class ColorBuilders {
          * relative position of the color, beginning with 0 from the start angle and ending with 1.0
          * at the end angle, spanning clockwise.
          *
-         * <p>There must be at least 2 colors.
+         * <p>There must be at least 2 colors and at most 10 colors.
          *
          * <p>If offset values are not set, the colors are evenly distributed in the gradient.
-         *
-         * <p>If the offset values are not monotonic, the drawing may produce unexpected results.
          *
          * @since 1.3
          */
@@ -509,12 +507,9 @@ public final class ColorBuilders {
              * the relative position of the color, beginning with 0 from the start angle and ending
              * with 1.0 at the end angle, spanning clockwise.
              *
-             * <p>There must be at least 2 colors.
+             * <p>There must be at least 2 colors and at most 10 colors.
              *
              * <p>If offset values are not set, the colors are evenly distributed in the gradient.
-             *
-             * <p>If the offset values are not monotonic, the drawing may produce unexpected
-             * results.
              *
              * @since 1.3
              */
@@ -586,8 +581,6 @@ public final class ColorBuilders {
              *     is the relative position of the color, beginning with 0 from the start angle and
              *     ending with 1.0 at the end angle, spanning clockwise.
              *     <p>If offsets are not set, the colors are evenly distributed in the gradient.
-             *     <p>If the offset values are not monotonic, the drawing may produce unexpected
-             *     results.
              * @throws IllegalArgumentException if the number of colors is less than 2 or larger
              *     than 10.
              * @throws IllegalArgumentException if offsets in {@code colorStops} are partially set.
