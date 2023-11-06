@@ -2798,7 +2798,7 @@ package androidx.compose.ui.platform {
     property public long doubleTapMinTimeMillis;
     property public long doubleTapTimeoutMillis;
     property public long longPressTimeoutMillis;
-    property public int maximumFlingVelocity;
+    property public float maximumFlingVelocity;
     property public float touchSlop;
   }
 
@@ -3023,13 +3023,13 @@ package androidx.compose.ui.platform {
     method public long getDoubleTapMinTimeMillis();
     method public long getDoubleTapTimeoutMillis();
     method public long getLongPressTimeoutMillis();
-    method public default int getMaximumFlingVelocity();
+    method public default float getMaximumFlingVelocity();
     method public default long getMinimumTouchTargetSize();
     method public float getTouchSlop();
     property public abstract long doubleTapMinTimeMillis;
     property public abstract long doubleTapTimeoutMillis;
     property public abstract long longPressTimeoutMillis;
-    property public default int maximumFlingVelocity;
+    property public default float maximumFlingVelocity;
     property public default long minimumTouchTargetSize;
     property public abstract float touchSlop;
   }
