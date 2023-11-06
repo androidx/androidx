@@ -24,7 +24,6 @@ import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -36,7 +35,6 @@ import org.junit.runners.Parameterized
  *
  * The ContextThemeWrapper.applyOverrideConfiguration method only exists on API level 17 and up.
  */
-@SdkSuppress(minSdkVersion = 17)
 @LargeTest
 @RunWith(Parameterized::class)
 class NightModeCustomApplyOverrideConfigurationTestCase(private val setMode: NightSetMode) {
