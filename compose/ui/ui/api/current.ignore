@@ -1,17 +1,3 @@
 // Baseline format: 1.0
-AddedAbstractMethod: androidx.compose.ui.draganddrop.DragAndDropModifierNode#acceptDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropEvent):
-    Added method androidx.compose.ui.draganddrop.DragAndDropModifierNode.acceptDragAndDropTransfer(androidx.compose.ui.draganddrop.DragAndDropEvent)
-
-
-AddedClass: androidx.compose.ui.draganddrop.DragAndDropKt:
-    Added class androidx.compose.ui.draganddrop.DragAndDropKt
-
-
-ChangedType: androidx.compose.ui.draganddrop.DragAndDropTarget#onStarted(androidx.compose.ui.draganddrop.DragAndDropEvent):
-    Method androidx.compose.ui.draganddrop.DragAndDropTarget.onStarted has changed return type from boolean to void
-
-
-ParameterNameChange: androidx.compose.ui.draganddrop.DragAndDropModifierNode#drag(androidx.compose.ui.draganddrop.DragAndDropTransferData, long, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.drawscope.DrawScope,kotlin.Unit>) parameter #1:
-    Attempted to change parameter name from dragDecorationSize to decorationSize in method androidx.compose.ui.draganddrop.DragAndDropModifierNode.drag
-ParameterNameChange: androidx.compose.ui.draganddrop.DragAndDropNodeKt#DragAndDropModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,? extends androidx.compose.ui.draganddrop.DragAndDropTarget>) parameter #0:
-    Attempted to change parameter name from onDragAndDropStart to acceptDragAndDropTransfer in method androidx.compose.ui.draganddrop.DragAndDropNodeKt.DragAndDropModifierNode
+ChangedType: androidx.compose.ui.platform.ViewConfiguration#getMaximumFlingVelocity():
+    Method androidx.compose.ui.platform.ViewConfiguration.getMaximumFlingVelocity has changed return type from int to float
