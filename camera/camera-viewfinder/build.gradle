@@ -35,6 +35,7 @@ dependencies {
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
+    implementation project(':camera:camera-viewfinder-core')
 
     annotationProcessor(libs.autoValue)
 

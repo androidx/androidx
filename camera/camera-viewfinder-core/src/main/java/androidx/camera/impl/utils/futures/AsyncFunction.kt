@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,41 +14,32 @@
  * limitations under the License.
  */
 
-package androidx.camera.viewfinder.internal.utils.futures;
+package androidx.camera.impl.utils.futures
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
-
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
+import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.Future
 
 /**
  * Cloned from concurrent-futures package in Guava to AndroidX namespace since we would need
  * ListenableFuture related implementation but not want to include whole Guava library.
  *
  * Transforms a value, possibly asynchronously. For an example usage and more information, see
- * {@link Futures#transformAsync(ListenableFuture, AsyncFunction, Executor)}.
+ * [Futures.transformAsync].
  *
  * @author Chris Povirk
  * @since 11.0
  * @param <I>
  * @param <O>
- *
- */
-@FunctionalInterface
-@RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public interface AsyncFunction<I, O> {
+</O></I> */
+fun interface AsyncFunction<I, O> {
     /**
-     * Returns an output {@code Future} to use in place of the given {@code input}. The output
-     * {@code Future} need not be {@linkplain Future#isDone done}, making {@code AsyncFunction}
+     * Returns an output `Future` to use in place of the given `input`. The output
+     * `Future` need not be [done][Future.isDone], making `AsyncFunction`
      * suitable for asynchronous derivations.
      *
-     * <p>Throwing an exception from this method is equivalent to returning a failing {@code
-     * Future}.
+     *
+     * Throwing an exception from this method is equivalent to returning a failing `Future`.
      */
-    @NonNull
-    ListenableFuture<O> apply(@Nullable I input) throws Exception;
+    @Throws(Exception::class)
+    fun apply(input: I?): ListenableFuture<O>
 }
