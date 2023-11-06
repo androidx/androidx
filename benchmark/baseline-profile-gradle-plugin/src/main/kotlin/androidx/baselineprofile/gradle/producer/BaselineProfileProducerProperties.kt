@@ -29,3 +29,11 @@ package androidx.baselineprofile.gradle.producer
  * -Pandroid.testoptions.manageddevices.emulator.gpu="swiftshader_indirect.
  */
 internal const val PROP_SKIP_GENERATION = "androidx.baselineprofile.skipgeneration"
+
+/**
+ * This property determines whether the baselineProfile dsl specification for `managedDevices` and
+ * `useConnectedDevices` is respected. When this property is set to to true only connected devices
+ * are used and managed devices are ignored.
+ */
+internal const val PROP_FORCE_ONLY_CONNECTED_DEVICES =
+    "androidx.baselineprofile.forceonlyconnecteddevices"
