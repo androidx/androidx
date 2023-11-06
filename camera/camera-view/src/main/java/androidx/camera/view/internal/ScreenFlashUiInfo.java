@@ -26,12 +26,12 @@ import androidx.camera.view.ScreenFlashView;
 import java.util.Objects;
 
 /**
- * Internal data class that encapsulates an {@link ImageCapture.ScreenFlashUiControl} and its
+ * Internal data class that encapsulates an {@link ImageCapture.ScreenFlash} and its
  * provider.
  */
 public class ScreenFlashUiInfo {
     /**
-     * Since {@link ImageCapture.ScreenFlashUiControl} can be created from either the
+     * Since {@link ImageCapture.ScreenFlash} can be created from either the
      * {@link ScreenFlashView} set by user or the one internally used in {@link PreviewView},
      * {@link CameraController} needs to know where exactly the control is from so that it can
      * prioritize the user-set one when both are available.
@@ -45,12 +45,12 @@ public class ScreenFlashUiInfo {
     private final ProviderType mProviderType;
 
     @Nullable
-    private final ImageCapture.ScreenFlashUiControl mScreenFlashUiControl;
+    private final ImageCapture.ScreenFlash mScreenFlash;
 
     public ScreenFlashUiInfo(@NonNull ProviderType providerType,
-            @Nullable ImageCapture.ScreenFlashUiControl screenFlashUiControl) {
+            @Nullable ImageCapture.ScreenFlash screenFlash) {
         mProviderType = providerType;
-        mScreenFlashUiControl = screenFlashUiControl;
+        mScreenFlash = screenFlash;
     }
 
     @NonNull
@@ -59,8 +59,8 @@ public class ScreenFlashUiInfo {
     }
 
     @Nullable
-    public ImageCapture.ScreenFlashUiControl getScreenFlashUiControl() {
-        return mScreenFlashUiControl;
+    public ImageCapture.ScreenFlash getScreenFlash() {
+        return mScreenFlash;
     }
 
     @Override
@@ -68,12 +68,12 @@ public class ScreenFlashUiInfo {
         if (this == o) return true;
         if (!(o instanceof ScreenFlashUiInfo)) return false;
         ScreenFlashUiInfo that = (ScreenFlashUiInfo) o;
-        return mProviderType == that.mProviderType && Objects.equals(mScreenFlashUiControl,
-                that.mScreenFlashUiControl);
+        return mProviderType == that.mProviderType && Objects.equals(mScreenFlash,
+                that.mScreenFlash);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(mProviderType, mScreenFlashUiControl);
+        return Objects.hash(mProviderType, mScreenFlash);
     }
 }

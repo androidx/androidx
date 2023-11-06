@@ -62,7 +62,7 @@ import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.core.internal.CameraCaptureResultImageInfo
 import androidx.camera.testing.impl.fakes.FakeCameraCaptureResult
 import androidx.camera.testing.impl.fakes.FakeImageProxy
-import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl
+import androidx.camera.testing.impl.mocks.MockScreenFlash
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth
@@ -142,12 +142,12 @@ class Camera2CapturePipelineTest {
             field = value
         }
 
-    private lateinit var screenFlashControl: MockScreenFlashUiControl
+    private lateinit var testScreenFlash: MockScreenFlash
 
     @Before
     fun setUp() {
         initCameras()
-        screenFlashControl = MockScreenFlashUiControl()
+        testScreenFlash = MockScreenFlash()
     }
 
     @After
@@ -353,30 +353,29 @@ class Camera2CapturePipelineTest {
 
     @Test
     fun minLatency_screenFlashCapture_screenFlashTaskInvokedProperly() {
-        screenFlash_screenFlashUiControlInvokedProperly(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
+        screenFlash_screenFlashApisInvokedProperly(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
     }
 
     @Test
     fun maxQuality_screenFlashCapture_screenFlashTaskInvokedProperly() {
-        screenFlash_screenFlashUiControlInvokedProperly(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+        screenFlash_screenFlashApisInvokedProperly(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
     }
 
     @Test
     fun maxQuality_screenFlashCapture_withFlashModeTorchQuirk_screenFlashTaskInvokedProperly() {
-        screenFlash_screenFlashUiControlInvokedProperly(
+        screenFlash_screenFlashApisInvokedProperly(
             ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY,
             addFlashModeTorchQuirk = true
         )
     }
 
-    private fun screenFlash_screenFlashUiControlInvokedProperly(
+    private fun screenFlash_screenFlashApisInvokedProperly(
         imageCaptureMode: Int,
         addFlashModeTorchQuirk: Boolean = false
     ) {
         val cameraControl = createCameraControl(
             addTorchFlashRequiredFor3aUpdateQuirk = addFlashModeTorchQuirk
         ).apply {
-            // Arrange.
             flashMode = FLASH_MODE_SCREEN
 
             // Act.
@@ -452,12 +451,12 @@ class Camera2CapturePipelineTest {
         // Wait for main thread because ScreenFlashTask invokes callbacks in UI thread
         Shadows.shadowOf(Looper.getMainLooper()).idleFor(1, TimeUnit.SECONDS)
 
-        // Assert, verify ScreenFlashUiControls are invoked properly
-        assertThat(screenFlashControl.awaitScreenFlashUiClear(1000)).isTrue()
-        assertThat(screenFlashControl.screenFlashUiEvents).isEqualTo(
+        // Assert, verify ScreenFlash APIs are invoked properly
+        assertThat(testScreenFlash.awaitClear(1000)).isTrue()
+        assertThat(testScreenFlash.screenFlashEvents).isEqualTo(
             listOf(
-                MockScreenFlashUiControl.APPLY_SCREEN_FLASH,
-                MockScreenFlashUiControl.CLEAR_SCREEN_FLASH
+                MockScreenFlash.APPLY,
+                MockScreenFlash.CLEAR
             )
         )
 
@@ -1233,7 +1232,7 @@ class Camera2CapturePipelineTest {
         ).apply {
             setActive(true)
             incrementUseCount()
-            this.screenFlashUiControl = screenFlashControl
+            this.screenFlash = testScreenFlash
         }
     }
 

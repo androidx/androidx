@@ -58,7 +58,7 @@ import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
+import androidx.camera.core.ImageCapture.ScreenFlash;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.Logger;
@@ -220,16 +220,16 @@ public abstract class CameraController {
      */
     public static final int VIDEO_CAPTURE = 1 << 2;
 
-    private static final ScreenFlashUiControl NO_OP_SCREEN_FLASH_UI_CONTROL =
-            new ScreenFlashUiControl() {
+    private static final ScreenFlash NO_OP_SCREEN_FLASH =
+            new ScreenFlash() {
                 @Override
-                public void applyScreenFlashUi(
+                public void apply(
                         @NonNull ImageCapture.ScreenFlashUiCompleter screenFlashUiCompleter) {
                     screenFlashUiCompleter.complete();
                 }
 
                 @Override
-                public void clearScreenFlashUi() {
+                public void clear() {
 
                 }
             };
@@ -762,7 +762,7 @@ public abstract class CameraController {
                         "Not a front camera despite setting FLASH_MODE_SCREEN");
             }
 
-            updateScreenFlashUiControlToImageCapture();
+            updateScreenFlashToImageCapture();
         }
 
         mImageCapture.setFlashMode(flashMode);
@@ -770,7 +770,7 @@ public abstract class CameraController {
 
     /**
      * Internal API used by {@link PreviewView} and {@link ScreenFlashView} to provide a
-     * {@link ScreenFlashUiControl}.
+     * {@link ScreenFlash}.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setScreenFlashUiInfo(@NonNull ScreenFlashUiInfo screenFlashUiInfo) {
@@ -778,7 +778,7 @@ public abstract class CameraController {
         mScreenFlashUiInfoMap.put(screenFlashUiInfo.getProviderType(), screenFlashUiInfo);
         ScreenFlashUiInfo prioritizedInfo = getScreenFlashUiInfoByPriority();
         if (prioritizedInfo != null && !prioritizedInfo.equals(previousInfo)) {
-            updateScreenFlashUiControlToImageCapture();
+            updateScreenFlashToImageCapture();
         }
     }
 
@@ -787,20 +787,20 @@ public abstract class CameraController {
      * flash mode to ImageCapture in case it's pending.
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public void updateScreenFlashUiControlToImageCapture() {
+    public void updateScreenFlashToImageCapture() {
         ScreenFlashUiInfo screenFlashUiInfo = getScreenFlashUiInfoByPriority();
 
         if (screenFlashUiInfo == null) {
             // PreviewView/ScreenFlashView may have not been attached yet, so setting a NO-OP
-            // ScreenFlashUiControl until one of the views is attached
-            Logger.d(TAG, "No ScreenFlashUiControl set yet, need to wait for "
+            // ScreenFlash until one of the views is attached
+            Logger.d(TAG, "No ScreenFlash instance set yet, need to wait for "
                     + "controller to be set to either ScreenFlashView or PreviewView");
-            mImageCapture.setScreenFlashUiControl(NO_OP_SCREEN_FLASH_UI_CONTROL);
+            mImageCapture.setScreenFlash(NO_OP_SCREEN_FLASH);
             return;
         }
 
-        mImageCapture.setScreenFlashUiControl(screenFlashUiInfo.getScreenFlashUiControl());
-        Logger.d(TAG, "Set ScreenFlashUiControl to ImageCapture, provided by "
+        mImageCapture.setScreenFlash(screenFlashUiInfo.getScreenFlash());
+        Logger.d(TAG, "Set ScreenFlash instance to ImageCapture, provided by "
                 + screenFlashUiInfo.getProviderType().name());
     }
 
@@ -810,7 +810,7 @@ public abstract class CameraController {
      *
      * <p> PreviewView always has a ScreenFlashView internally and does not know if user is
      * using another ScreenFlashView themselves. This API prioritizes user's ScreenFlashView over
-     * the internal one in PreviewView and provides the ScreenFlashUiControlProvider accordingly.
+     * the internal one in PreviewView and provides the ScreenFlashUiInfo accordingly.
      */
     @Nullable
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -909,8 +909,8 @@ public abstract class CameraController {
     private void throwExceptionForInvalidScreenFlashCapture() {
         if (getImageCaptureFlashMode() == ImageCapture.FLASH_MODE_SCREEN && (
                 getScreenFlashUiInfoByPriority() == null
-                        || getScreenFlashUiInfoByPriority().getScreenFlashUiControl() == null)) {
-            // ScreenFlashUiControl won't be found at this point only if a non-null window was not
+                        || getScreenFlashUiInfoByPriority().getScreenFlash() == null)) {
+            // ScreenFlash instance won't be found at this point only if a non-null window was not
             // set to PreviewView.
             throw new IllegalStateException(
                     "No window set in PreviewView despite setting FLASH_MODE_SCREEN");
