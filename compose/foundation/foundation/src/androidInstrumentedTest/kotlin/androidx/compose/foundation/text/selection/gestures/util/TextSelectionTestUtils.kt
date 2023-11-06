@@ -20,6 +20,7 @@ import androidx.compose.foundation.MagnifierPositionInRoot
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.selection.Selection
+import androidx.compose.foundation.text.selection.getSelectionHandleInfo
 import androidx.compose.foundation.text.selection.isSelectionHandle
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.isSpecified
@@ -32,14 +33,47 @@ import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.ComposeTestRule
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.style.ResolvedTextDirection
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import kotlin.test.fail
 
-private fun ComposeTestRule.assertSelectionHandlesShown(startShown: Boolean, endShown: Boolean) {
+internal fun ComposeTestRule.assertSelectionHandlesShown(startShown: Boolean, endShown: Boolean) {
     listOf(Handle.SelectionStart to startShown, Handle.SelectionEnd to endShown)
         .forEach { (handle, shown) ->
-            val node = onNode(isSelectionHandle(handle))
-            if (shown) node.assertExists() else node.assertDoesNotExist()
+            if (shown) {
+                assertHandleShown(handle)
+            } else {
+                assertHandleNotShown(handle)
+            }
         }
+}
+
+private fun ComposeTestRule.assertHandleShown(handle: Handle) {
+    val node = onNode(isSelectionHandle(handle))
+    node.assertExists()
+    val info = node.fetchSemanticsNode().getSelectionHandleInfo()
+    val message = "Handle exists but is not visible."
+    assertWithMessage(message).that(info.visible).isTrue()
+}
+
+private fun ComposeTestRule.assertHandleNotShown(handle: Handle) {
+    val nodes = onAllNodes(isSelectionHandle(handle)).fetchSemanticsNodes()
+    when (nodes.size) {
+        0 -> {
+            // There are no handles, so this passes
+        }
+
+        1 -> {
+            // verify the single handle is not visible
+            val info = nodes.single().getSelectionHandleInfo()
+            val message = "Handle exists and is visible."
+            assertWithMessage(message).that(info.visible).isFalse()
+        }
+
+        else -> {
+            fail("Found multiple $handle handles.")
+        }
+    }
 }
 
 private fun ComposeTestRule.assertMagnifierShown(shown: Boolean) {
@@ -54,19 +88,19 @@ private fun ComposeTestRule.assertMagnifierShown(shown: Boolean) {
                 .isSpecified
         }
 
-    Truth.assertWithMessage("Magnifier should${if (shown) " " else " not "}be shown.")
+    assertWithMessage("Magnifier should${if (shown) " " else " not "}be shown.")
         .that(magShown)
         .isEqualTo(shown)
 }
 
 private fun TextToolbar.assertShown(shown: Boolean = true) {
-    Truth.assertWithMessage("Text toolbar status was not as expected.")
+    assertWithMessage("Text toolbar status was not as expected.")
         .that(status)
         .isEqualTo(if (shown) TextToolbarStatus.Shown else TextToolbarStatus.Hidden)
 }
 
 private fun FakeHapticFeedback.assertPerformedAtLeastThenClear(times: Int) {
-    Truth.assertThat(invocationCountMap[HapticFeedbackType.TextHandleMove] ?: 0).isAtLeast(times)
+    assertThat(invocationCountMap[HapticFeedbackType.TextHandleMove] ?: 0).isAtLeast(times)
     invocationCountMap.clear()
 }
 
@@ -90,12 +124,14 @@ internal abstract class SelectionAsserter<S>(
      * Overridden by [startSelectionHandleShown] and [endSelectionHandleShown].
      */
     var selectionHandlesShown = false
+
     /**
      * Set to true if the start handle is expected to be shown.
      *
      * Overrides [selectionHandlesShown] unless this is `null`.
      */
     var startSelectionHandleShown: Boolean? = null
+
     /**
      * Set to true if the end handle is expected to be shown.
      *

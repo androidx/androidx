@@ -38,7 +38,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -157,22 +156,20 @@ private fun TextTestContent(textSelectionColors: TextSelectionColors) {
     CompositionLocalProvider(LocalTextSelectionColors provides textSelectionColors) {
         Row(Modifier.testTag(Tag), horizontalArrangement = Arrangement.spacedBy(20.dp)) {
             // Manually draw selection handles as we cannot screenshot the ones drawn in the popup
-            DefaultSelectionHandle(
+            SelectionHandleIcon(
                 modifier = Modifier,
-                isStartHandle = true,
-                direction = ResolvedTextDirection.Ltr,
-                handlesCrossed = false
+                iconVisible = { true },
+                isLeft = true,
             )
 
             SelectionContainer {
                 BasicText(Text)
             }
 
-            DefaultSelectionHandle(
+            SelectionHandleIcon(
                 modifier = Modifier,
-                isStartHandle = false,
-                direction = ResolvedTextDirection.Ltr,
-                handlesCrossed = false
+                iconVisible = { true },
+                isLeft = false,
             )
         }
     }

@@ -41,11 +41,14 @@ internal val SelectionHandleInfoKey =
  * @param position The position that the handle is anchored to relative to the selectable content.
  * This position is not necessarily the position of the popup itself, it's the position that the
  * handle "points" to (so e.g. top-middle for [Handle.Cursor]).
+ * @param anchor How the selection handle is anchored to its position
+ * @param visible Whether the icon of the handle is actually shown
  */
 internal data class SelectionHandleInfo(
     val handle: Handle,
     val position: Offset,
-    val anchor: SelectionHandleAnchor
+    val anchor: SelectionHandleAnchor,
+    val visible: Boolean,
 )
 
 /**
@@ -63,13 +66,19 @@ internal enum class SelectionHandleAnchor {
 
 @Composable
 internal expect fun SelectionHandle(
-    position: Offset,
+    offsetProvider: OffsetProvider,
     isStartHandle: Boolean,
     direction: ResolvedTextDirection,
     handlesCrossed: Boolean,
     modifier: Modifier,
-    content: @Composable (() -> Unit)?
 )
+
+/**
+ * Avoids boxing of [Offset] which is an inline value class.
+ */
+internal fun interface OffsetProvider {
+    fun provide(): Offset
+}
 
 /**
  * Adjust coordinates for given text offset.
