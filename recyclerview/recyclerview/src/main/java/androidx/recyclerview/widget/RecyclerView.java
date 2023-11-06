@@ -42,6 +42,7 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
+import android.os.Trace;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.SparseArray;
@@ -348,23 +349,11 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      */
     private static final String TRACE_HANDLE_ADAPTER_UPDATES_TAG = "RV PartialInvalidate";
 
-    /**
-     * RecyclerView is rebinding a View.
-     * If this is taking a lot of time, consider optimizing your layout or make sure you are not
-     * doing extra operations in onBindViewHolder call.
-     */
-    static final String TRACE_BIND_VIEW_TAG = "RV OnBindView";
 
     /**
      * RecyclerView is attempting to pre-populate off screen views.
      */
     static final String TRACE_PREFETCH_TAG = "RV Prefetch";
-
-    /**
-     * RecyclerView is attempting to pre-populate off screen itemviews within an off screen
-     * RecyclerView.
-     */
-    static final String TRACE_NESTED_PREFETCH_TAG = "RV Nested Prefetch";
 
     /**
      * RecyclerView is creating a new View.
@@ -7890,7 +7879,9 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
         @NonNull
         public final VH createViewHolder(@NonNull ViewGroup parent, int viewType) {
             try {
-                TraceCompat.beginSection(TRACE_CREATE_VIEW_TAG);
+                if (TraceCompat.isEnabled()) {
+                    Trace.beginSection(String.format("RV onCreateViewHolder type=0x%X", viewType));
+                }
                 final VH holder = onCreateViewHolder(parent, viewType);
                 if (holder.itemView.getParent() != null) {
                     throw new IllegalStateException("ViewHolder views must not be attached when"
@@ -7900,7 +7891,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 holder.mItemViewType = viewType;
                 return holder;
             } finally {
-                TraceCompat.endSection();
+                Trace.endSection();
             }
         }
 
@@ -7930,7 +7921,12 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 holder.setFlags(ViewHolder.FLAG_BOUND,
                         ViewHolder.FLAG_BOUND | ViewHolder.FLAG_UPDATE | ViewHolder.FLAG_INVALID
                                 | ViewHolder.FLAG_ADAPTER_POSITION_UNKNOWN);
-                TraceCompat.beginSection(TRACE_BIND_VIEW_TAG);
+                if (TraceCompat.isEnabled()) {
+                    // Note: we only trace when rootBind=true to avoid duplicate trace sections
+                    Trace.beginSection(
+                            String.format("RV onBindViewHolder type=0x%X", holder.mItemViewType)
+                    );
+                }
             }
             holder.mBindingAdapter = this;
             if (sDebugAssertionsEnabled) {
@@ -7957,7 +7953,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
                 if (layoutParams instanceof RecyclerView.LayoutParams) {
                     ((LayoutParams) layoutParams).mInsetsDirty = true;
                 }
-                TraceCompat.endSection();
+                Trace.endSection();
             }
         }
 
