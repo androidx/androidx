@@ -328,7 +328,7 @@ public class MacrobenchmarkScope(
             pollDurationMs = 50L
         )
         // unique label so source is clear, dateToFileName so each run of test is unique on host
-        val outputFileName = "$uniqueLabel-method-${dateToFileName()}.trace"
+        val outputFileName = "$uniqueLabel-methodTracing-${dateToFileName()}.trace"
         val stagingFile = File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
         // Staging location before we write it again using Outputs.writeFile(...)
         // NOTE: staging copy may be unnecessary if we just use a single `cp`
