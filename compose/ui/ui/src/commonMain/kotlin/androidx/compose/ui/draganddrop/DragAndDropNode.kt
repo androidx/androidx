@@ -68,25 +68,43 @@ interface DragAndDropModifierNode : DelegatableNode, DragAndDropTarget {
 }
 
 /**
- * Creates a [Modifier.Node] for integrating with platform level drag and drop events. All
- * [DragAndDropModifierNode] instances provided by this function may start drag and drop events
- * by calling [DragAndDropModifierNode.drag].
+ * Creates a [Modifier.Node] for starting platform drag and drop sessions with the intention of
+ * transferring data. A drag and stop session is started by calling [DragAndDropModifierNode.drag].
+ */
+fun DragAndDropModifierNode(): DragAndDropModifierNode = DragAndDropNode { null }
+
+/**
+ * Creates a [Modifier.Node] for receiving transfer data from platform drag and drop sessions. All
+ * [DragAndDropModifierNode] instances provided by this function may also start drag and drop
+ * sessions by calling [DragAndDropModifierNode.drag].
  *
- * @param acceptDragAndDropTransfer a provider of a [DragAndDropTarget] that allows
- * this [Modifier.Node] to receive from a drag and drop gesture on a per session basis.
+ * @param shouldStartDragAndDrop allows for inspecting the start [DragAndDropEvent] for a given
+ * session to decide whether or not the provided [DragAndDropTarget] would like to receive from it.
  *
- * If one is not provided for a given session, this [DragAndDropModifierNode] will not receive
- * [DragAndDropTarget] events for that session.
+ * @param target allows for receiving events and transfer data from a given drag and drop session.
+ *
  */
 fun DragAndDropModifierNode(
-    acceptDragAndDropTransfer: (event: DragAndDropEvent) -> DragAndDropTarget? = { null }
-): DragAndDropModifierNode = DragAndDropNode(acceptDragAndDropTransfer)
+    shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
+    target: DragAndDropTarget
+): DragAndDropModifierNode = DragAndDropNode { startEvent ->
+    if (shouldStartDragAndDrop(startEvent)) target
+    else null
+}
 
 /**
  * Core implementation of drag and drop. This [Modifier.Node] implements tree traversal for
  * drag and drop, as well as hit testing and propagation of events for drag or drop gestures.
  *
  * It uses the [DragAndDropEvent] as a representation of a single mutable drag and drop session.
+ *
+ * The implementation implicitly maintains a sorted tree of nodes where the order of traversal
+ * is determined by the proximity to the last event. That is, after finding a receiving node,
+ * the next event will follow the same path the previous event did unless a fork is found and
+ * another node should receive the event.
+ *
+ * This optimizes traversal for the common case of move events where the event remains within
+ * a single node, or moves to a sibling of the node.
  */
 internal class DragAndDropNode(
     private val onDragAndDropStart: (event: DragAndDropEvent) -> DragAndDropTarget?
@@ -241,11 +259,11 @@ internal class DragAndDropNode(
         lastChildDragAndDropModifierNode = null
     }
 
-    override fun onDropped(event: DragAndDropEvent): Boolean {
+    override fun onDrop(event: DragAndDropEvent): Boolean {
         return when (val currentChildDropTarget = lastChildDragAndDropModifierNode) {
-            null -> thisDragAndDropTarget?.onDropped(event = event) ?: false
+            null -> thisDragAndDropTarget?.onDrop(event = event) ?: false
 
-            else -> currentChildDropTarget.onDropped(event = event)
+            else -> currentChildDropTarget.onDrop(event = event)
         }
     }
 
