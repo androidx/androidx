@@ -75,6 +75,9 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
     private val shouldSkipGeneration by lazy {
         project.properties.containsKey(PROP_SKIP_GENERATION)
     }
+    private val forceOnlyConnectedDevices: Boolean by lazy {
+        project.properties.containsKey(PROP_FORCE_ONLY_CONNECTED_DEVICES)
+    }
 
     // This maps all the extended build types to the original ones. Note that release does not
     // exist by default so we need to create nonMinifiedRelease and map it manually to `release`.
@@ -233,7 +236,8 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
         // If this is a benchmark variant sets the instrumentation runner argument to run only
         // tests with MacroBenchmark rules.
         if (enabledRulesNotSet &&
-            variant.buildType in benchmarkExtendedToOriginalTypeMap.keys) {
+            variant.buildType in benchmarkExtendedToOriginalTypeMap.keys
+        ) {
             if (supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)) {
                 InstrumentationTestRunnerArgumentsAgp82.set(
                     variant = variant,
@@ -254,7 +258,8 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
             // If this is a benchmark variant sets the instrumentation runner argument to run only
             // tests with MacroBenchmark rules.
             if (enabledRulesNotSet &&
-                supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)) {
+                supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)
+            ) {
                 InstrumentationTestRunnerArgumentsAgp82.set(
                     variant = variant,
                     arguments = listOf(
@@ -305,9 +310,17 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
     ) {
 
         // Prepares the devices list to use to generate the baseline profile.
+        // Note that when running gradle with
+        // `androidx.baselineprofile.forceonlyconnecteddevices=false`
+        // this DSL specification is not respected. This is used by Android Studio to run
+        // baseline profile generation only on the selected devices.
         val devices = mutableSetOf<String>()
-        devices.addAll(baselineProfileExtension.managedDevices)
-        if (baselineProfileExtension.useConnectedDevices) devices.add("connected")
+        if (forceOnlyConnectedDevices) {
+            devices.add("connected")
+        } else {
+            devices.addAll(baselineProfileExtension.managedDevices)
+            if (baselineProfileExtension.useConnectedDevices) devices.add("connected")
+        }
 
         // The test task runs the ui tests
         val testTasks = devices.map { device ->
