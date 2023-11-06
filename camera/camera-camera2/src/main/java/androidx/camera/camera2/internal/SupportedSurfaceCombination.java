@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal;
 
 import static android.content.pm.PackageManager.FEATURE_CAMERA_CONCURRENT;
 import static android.hardware.camera2.CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES;
+
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_1080P;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_480P;
 import static androidx.camera.core.internal.utils.SizeUtil.RESOLUTION_VGA;
@@ -550,10 +551,6 @@ final class SupportedSurfaceCombination {
             boolean isPreviewStabilizationOn) {
         // Refresh Preview Size based on current display configurations.
         refreshPreviewSize();
-        List<SurfaceConfig> surfaceConfigs = new ArrayList<>();
-        for (AttachedSurfaceInfo attachedSurface : attachedSurfaces) {
-            surfaceConfigs.add(attachedSurface.getSurfaceConfig());
-        }
 
         List<UseCaseConfig<?>> newUseCaseConfigs = new ArrayList<>(
                 newUseCaseConfigsSupportedSizeMap.keySet());
@@ -563,39 +560,14 @@ final class SupportedSurfaceCombination {
         Map<UseCaseConfig<?>, DynamicRange> resolvedDynamicRanges =
                 mDynamicRangeResolver.resolveAndValidateDynamicRanges(attachedSurfaces,
                         newUseCaseConfigs, useCasesPriorityOrder);
-        int requiredMaxBitDepth = getRequiredMaxBitDepth(resolvedDynamicRanges);
-        FeatureSettings featureSettings = FeatureSettings.of(cameraMode, requiredMaxBitDepth,
+
+        FeatureSettings featureSettings = createFeatureSettings(cameraMode, resolvedDynamicRanges,
                 isPreviewStabilizationOn);
-        if (cameraMode != CameraMode.DEFAULT
-                && requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
-            throw new IllegalArgumentException(String.format("No supported surface combination is "
-                            + "found for camera device - Id : %s. Ten bit dynamic range is not "
-                            + "currently supported in %s camera mode.", mCameraId,
-                    CameraMode.toLabelString(cameraMode)));
-        }
 
-        // Use the small size (640x480) for new use cases to check whether there is any possible
-        // supported combination first
-        for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigs) {
-            int imageFormat = useCaseConfig.getInputFormat();
-            surfaceConfigs.add(
-                    SurfaceConfig.transformSurfaceConfig(
-                            cameraMode,
-                            imageFormat,
-                            new Size(640, 480),
-                            getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)));
-        }
+        boolean isSurfaceCombinationSupported = isUseCasesCombinationSupported(featureSettings,
+                attachedSurfaces, newUseCaseConfigsSupportedSizeMap);
 
-        boolean containsZsl = StreamUseCaseUtil.containsZslUseCase(attachedSurfaces,
-                newUseCaseConfigs);
-        List<SurfaceConfig> orderedSurfaceConfigListForStreamUseCase =
-                mIsStreamUseCaseSupported && !containsZsl
-                        ? getOrderedSupportedStreamUseCaseSurfaceConfigList(featureSettings,
-                        surfaceConfigs) : null;
-
-        boolean isSurfaceCombinationSupported = checkSupported(featureSettings, surfaceConfigs);
-
-        if (orderedSurfaceConfigListForStreamUseCase == null && !isSurfaceCombinationSupported) {
+        if (!isSurfaceCombinationSupported) {
             throw new IllegalArgumentException(
                     "No supported surface combination is found for camera device - Id : "
                             + mCameraId + ".  May be attempting to bind too many use cases. "
@@ -659,10 +631,14 @@ final class SupportedSurfaceCombination {
         List<Size> savedSizesForStreamUseCase = null;
         int savedConfigMaxFpsForStreamUseCase = Integer.MAX_VALUE;
 
-        if (orderedSurfaceConfigListForStreamUseCase != null) {
+        boolean containsZsl = StreamUseCaseUtil.containsZslUseCase(attachedSurfaces,
+                newUseCaseConfigs);
+        List<SurfaceConfig> orderedSurfaceConfigListForStreamUseCase = null;
+        // Only checks the stream use case combination support when ZSL is not required.
+        if (mIsStreamUseCaseSupported && !containsZsl) {
             // Check if any possible size arrangement is supported for stream use case.
             for (List<Size> possibleSizeList : allPossibleSizeArrangements) {
-                surfaceConfigs = getSurfaceConfigListAndFpsCeiling(
+                List<SurfaceConfig> surfaceConfigs = getSurfaceConfigListAndFpsCeiling(
                         cameraMode,
                         attachedSurfaces, possibleSizeList, newUseCaseConfigs,
                         useCasesPriorityOrder, existingSurfaceFrameRateCeiling,
@@ -837,6 +813,84 @@ final class SupportedSurfaceCombination {
             }
         }
         return new Pair<>(suggestedStreamSpecMap, attachedSurfaceStreamSpecMap);
+    }
+
+    /**
+     * Creates the feature settings from the related info.
+     *
+     * @param cameraMode               the working camera mode.
+     * @param resolvedDynamicRanges    the resolved dynamic range list of the newly added UseCases
+     * @param isPreviewStabilizationOn whether the preview stabilization is enabled.
+     */
+    @NonNull
+    private FeatureSettings createFeatureSettings(
+            @CameraMode.Mode int cameraMode,
+            @NonNull Map<UseCaseConfig<?>, DynamicRange> resolvedDynamicRanges,
+            boolean isPreviewStabilizationOn) {
+        int requiredMaxBitDepth = getRequiredMaxBitDepth(resolvedDynamicRanges);
+
+        if (cameraMode != CameraMode.DEFAULT
+                && requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT) {
+            throw new IllegalArgumentException(String.format("Camera device id is %s. 10 bit "
+                            + "dynamic range is not currently supported in %s camera mode.",
+                    mCameraId,
+                    CameraMode.toLabelString(cameraMode)));
+        }
+
+        return FeatureSettings.of(cameraMode, requiredMaxBitDepth, isPreviewStabilizationOn);
+    }
+
+    /**
+     * Checks whether at least a surfaces combination can be supported for the UseCases
+     * combination.
+     *
+     * <p>This function collects the selected surfaces from the existing UseCases and the
+     * surfaces of the smallest available supported sizes from all the new UseCases. Using this
+     * set of surfaces, this function can quickly determine whether at least one surface
+     * combination can be supported for the target UseCases combination.
+     *
+     * <p>This function disregards the stream use case, frame rate, and ZSL factors since they
+     * are not mandatory requirements if no surface combination can satisfy them. The current
+     * algorithm only attempts to identify the optimal surface combination for the given conditions.
+     *
+     * @param featureSettings                   the feature settings which can affect the surface
+     *                                          config transformation or the guaranteed supported
+     *                                          configurations.
+     * @param attachedSurfaces                  the existing surfaces.
+     * @param newUseCaseConfigsSupportedSizeMap newly added UseCaseConfig to supported output
+     *                                          sizes map.
+     * @return {@code true} if at least a surface combination can be supported for the UseCases
+     * combination. Otherwise, returns {@code false}.
+     */
+    private boolean isUseCasesCombinationSupported(
+            @NonNull FeatureSettings featureSettings,
+            @NonNull List<AttachedSurfaceInfo> attachedSurfaces,
+            @NonNull Map<UseCaseConfig<?>, List<Size>> newUseCaseConfigsSupportedSizeMap) {
+        List<SurfaceConfig> surfaceConfigs = new ArrayList<>();
+
+        // Collects the surfaces of the attached UseCases
+        for (AttachedSurfaceInfo attachedSurface : attachedSurfaces) {
+            surfaceConfigs.add(attachedSurface.getSurfaceConfig());
+        }
+
+        // Collects the surfaces with the smallest available sizes of the newly attached UseCases
+        // to do the quick check that whether at least a surface combination can be supported.
+        CompareSizesByArea compareSizesByArea = new CompareSizesByArea();
+        for (UseCaseConfig<?> useCaseConfig : newUseCaseConfigsSupportedSizeMap.keySet()) {
+            List<Size> supportedSizes = newUseCaseConfigsSupportedSizeMap.get(useCaseConfig);
+            Preconditions.checkArgument(supportedSizes != null && !supportedSizes.isEmpty(), "No "
+                    + "available output size is found for " + useCaseConfig + ".");
+            Size minSize = Collections.min(supportedSizes, compareSizesByArea);
+            int imageFormat = useCaseConfig.getInputFormat();
+            surfaceConfigs.add(
+                    SurfaceConfig.transformSurfaceConfig(
+                            featureSettings.getCameraMode(),
+                            imageFormat,
+                            minSize,
+                            getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)));
+        }
+
+        return checkSupported(featureSettings, surfaceConfigs);
     }
 
     private Pair<List<SurfaceConfig>, Integer> getSurfaceConfigListAndFpsCeiling(

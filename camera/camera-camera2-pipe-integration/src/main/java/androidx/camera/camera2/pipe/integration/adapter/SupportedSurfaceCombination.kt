@@ -258,10 +258,7 @@ class SupportedSurfaceCombination(
     ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
         // Refresh Preview Size based on current display configurations.
         refreshPreviewSize()
-        val surfaceConfigs: MutableList<SurfaceConfig> = mutableListOf()
-        for (scc in attachedSurfaces) {
-            surfaceConfigs.add(scc.surfaceConfig)
-        }
+
         val newUseCaseConfigs = newUseCaseConfigsSupportedSizeMap.keys.toList()
 
         // Get the index order list by the use case priority for finding stream configuration
@@ -270,50 +267,16 @@ class SupportedSurfaceCombination(
             attachedSurfaces,
             newUseCaseConfigs, useCasesPriorityOrder
         )
-        val requiredMaxBitDepth: Int = getRequiredMaxBitDepth(resolvedDynamicRanges)
-        val featureSettings = FeatureSettings(
-            cameraMode, requiredMaxBitDepth,
+        val featureSettings = createFeatureSettings(
+            cameraMode, resolvedDynamicRanges,
             isPreviewStabilizationOn
         )
-        require(
-            !(cameraMode != CameraMode.DEFAULT &&
-                requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT)
-        ) {
-            "No supported surface combination is " +
-                "found for camera device - Id : $cameraId. 10 bit dynamic range is not " +
-                "currently supported in ${CameraMode.toLabelString(cameraMode)} camera mode."
-        }
-
-        // Use the small size (640x480) for new use cases to check whether there is any possible
-        // supported combination first
-        for (useCaseConfig in newUseCaseConfigs) {
-            surfaceConfigs.add(
-                SurfaceConfig.transformSurfaceConfig(
-                    cameraMode,
-                    useCaseConfig.inputFormat,
-                    RESOLUTION_VGA,
-                    getUpdatedSurfaceSizeDefinitionByFormat(useCaseConfig.inputFormat)
-                )
-            )
-        }
-
-        val containsZsl: Boolean = StreamUseCaseUtil.containsZslUseCase(
+        val isSurfaceCombinationSupported = isUseCasesCombinationSupported(
+            featureSettings,
             attachedSurfaces,
-            newUseCaseConfigs
+            newUseCaseConfigsSupportedSizeMap
         )
-        var orderedSurfaceConfigListForStreamUseCase: List<SurfaceConfig>? =
-            if (isStreamUseCaseSupported && !containsZsl)
-                getOrderedSupportedStreamUseCaseSurfaceConfigList(
-                    featureSettings,
-                    surfaceConfigs
-                ) else null
-
-        val isSurfaceCombinationSupported = checkSupported(featureSettings, surfaceConfigs)
-
-        require(
-            !(orderedSurfaceConfigListForStreamUseCase == null &&
-                !isSurfaceCombinationSupported)
-        ) {
+        require(isSurfaceCombinationSupported) {
             "No supported surface combination is found for camera device - Id : $cameraId. " +
                 "May be attempting to bind too many use cases. Existing surfaces: " +
                 "$attachedSurfaces. New configs: $newUseCaseConfigs."
@@ -335,7 +298,13 @@ class SupportedSurfaceCombination(
             )
         )
 
-        if (orderedSurfaceConfigListForStreamUseCase != null) {
+        val containsZsl: Boolean = StreamUseCaseUtil.containsZslUseCase(
+            attachedSurfaces,
+            newUseCaseConfigs
+        )
+        var orderedSurfaceConfigListForStreamUseCase: List<SurfaceConfig>? = null
+        // Only checks the stream use case combination support when ZSL is not required.
+        if (isStreamUseCaseSupported && !containsZsl) {
             orderedSurfaceConfigListForStreamUseCase = getOrderedSurfaceConfigListForStreamUseCase(
                 allPossibleSizeArrangements,
                 attachedSurfaces,
@@ -382,6 +351,92 @@ class SupportedSurfaceCombination(
         )
 
         return Pair.create(suggestedStreamSpecMap, attachedSurfaceStreamSpecMap)
+    }
+
+    /**
+     * Creates the feature settings from the related info.
+     *
+     * @param cameraMode               the working camera mode.
+     * @param resolvedDynamicRanges    the resolved dynamic range list of the newly added UseCases
+     * @param isPreviewStabilizationOn whether the preview stabilization is enabled.
+     */
+    private fun createFeatureSettings(
+        @CameraMode.Mode cameraMode: Int,
+        resolvedDynamicRanges: Map<UseCaseConfig<*>, DynamicRange>,
+        isPreviewStabilizationOn: Boolean
+    ): FeatureSettings {
+        val requiredMaxBitDepth = getRequiredMaxBitDepth(resolvedDynamicRanges)
+        require(
+            !(cameraMode != CameraMode.DEFAULT &&
+                requiredMaxBitDepth == DynamicRange.BIT_DEPTH_10_BIT)
+        ) {
+            "Camera device Id is $cameraId. 10 bit dynamic range is not " +
+                "currently supported in ${CameraMode.toLabelString(cameraMode)} camera mode."
+        }
+        return FeatureSettings(
+            cameraMode,
+            requiredMaxBitDepth,
+            isPreviewStabilizationOn
+        )
+    }
+
+    /**
+     * Checks whether at least a surfaces combination can be supported for the UseCases
+     * combination.
+     *
+     * This function collects the selected surfaces from the existing UseCases and the
+     * surfaces of the smallest available supported sizes from all the new UseCases. Using this
+     * set of surfaces, this function can quickly determine whether at least one surface
+     * combination can be supported for the target UseCases combination.
+     *
+     * This function disregards the stream use case, frame rate, and ZSL factors since they
+     * are not mandatory requirements if no surface combination can satisfy them. The current
+     * algorithm only attempts to identify the optimal surface combination for the given conditions.
+     *
+     * @param featureSettings                   the feature settings which can affect the surface
+     *                                          config transformation or the guaranteed supported
+     *                                          configurations.
+     * @param attachedSurfaces                  the existing surfaces.
+     * @param newUseCaseConfigsSupportedSizeMap newly added UseCaseConfig to supported output sizes
+     *                                          map.
+     * @return `true` if at least a surface combination can be supported for the UseCases
+     * combination. Otherwise, returns `false`.
+     */
+    private fun isUseCasesCombinationSupported(
+        featureSettings: FeatureSettings,
+        attachedSurfaces: List<AttachedSurfaceInfo>,
+        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>
+    ): Boolean {
+        val surfaceConfigs = mutableListOf<SurfaceConfig>()
+
+        // Collects the surfaces of the attached UseCases
+        for (attachedSurface: AttachedSurfaceInfo in attachedSurfaces) {
+            surfaceConfigs.add(attachedSurface.getSurfaceConfig())
+        }
+
+        // Collects the surfaces with the smallest available sizes of the newly attached UseCases
+        // to do the quick check that whether at least a surface combination can be supported.
+        val compareSizesByArea = CompareSizesByArea()
+        for (useCaseConfig: UseCaseConfig<*> in newUseCaseConfigsSupportedSizeMap.keys) {
+            val outputSizes = newUseCaseConfigsSupportedSizeMap[useCaseConfig]
+            require(!outputSizes.isNullOrEmpty()) {
+                "No available output size is found for $useCaseConfig."
+            }
+            val minSize = Collections.min(
+                outputSizes,
+                compareSizesByArea
+            )
+            val imageFormat = useCaseConfig.inputFormat
+            surfaceConfigs.add(
+                SurfaceConfig.transformSurfaceConfig(
+                    featureSettings.cameraMode,
+                    imageFormat,
+                    minSize,
+                    getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
+                )
+            )
+        }
+        return checkSupported(featureSettings, surfaceConfigs)
     }
 
     /**
