@@ -39,7 +39,6 @@ import androidx.emoji2.text.EmojiCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.hamcrest.Matchers;
@@ -59,28 +58,24 @@ public class ConfigTest {
     }
 
     @Test(expected = NullPointerException.class)
-    @SdkSuppress(minSdkVersion = 19)
     public void testConstructor_throwsExceptionIfMetadataLoaderNull() {
         //noinspection ConstantConditions
         new TestConfigBuilder.TestConfig(null);
     }
 
     @Test(expected = NullPointerException.class)
-    @SdkSuppress(minSdkVersion = 19)
     public void testInitCallback_throwsExceptionIfNull() {
         //noinspection ConstantConditions
         new ValidTestConfig().registerInitCallback(null);
     }
 
     @Test(expected = NullPointerException.class)
-    @SdkSuppress(minSdkVersion = 19)
     public void testUnregisterInitCallback_throwsExceptionIfNull() {
         //noinspection ConstantConditions
         new ValidTestConfig().unregisterInitCallback(null);
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testBuild_withDefaultValues() {
         final EmojiCompat.Config config = new ValidTestConfig().setReplaceAll(true);
 
@@ -94,7 +89,6 @@ public class ConfigTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testInitCallback_callsSuccessCallback() {
         final EmojiCompat.InitCallback initCallback1 = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.InitCallback initCallback2 = mock(EmojiCompat.InitCallback.class);
@@ -109,7 +103,6 @@ public class ConfigTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19) //Fail callback never called for pre 19
     public void testInitCallback_callsFailCallback() {
         final EmojiCompat.InitCallback initCallback1 = mock(EmojiCompat.InitCallback.class);
         final EmojiCompat.InitCallback initCallback2 = mock(EmojiCompat.InitCallback.class);
@@ -128,7 +121,6 @@ public class ConfigTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testBuild_withEmojiSpanIndicator() {
         EmojiCompat.Config config = new ValidTestConfig();
         EmojiCompat emojiCompat = EmojiCompat.reset(config);
@@ -142,7 +134,6 @@ public class ConfigTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testBuild_withEmojiSpanIndicatorColor() {
         EmojiCompat.Config config = new ValidTestConfig();
         EmojiCompat emojiCompat = EmojiCompat.reset(config);
@@ -156,7 +147,6 @@ public class ConfigTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testBuild_defaultEmojiSpanIndicatorColor() {
         final EmojiCompat.Config config = new ValidTestConfig().setEmojiSpanIndicatorEnabled(true);
         final EmojiCompat emojiCompat = EmojiCompat.reset(config);
@@ -177,7 +167,6 @@ public class ConfigTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testGlyphCheckerInstance_EmojiSpan_isNotAdded_whenHasGlyph_returnsTrue() {
         final EmojiCompat.GlyphChecker glyphChecker = mock(EmojiCompat.GlyphChecker.class);
         when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt()))
@@ -197,7 +186,6 @@ public class ConfigTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testGlyphCheckerInstance_EmojiSpan_isAdded_whenHasGlyph_returnsFalse() {
         final EmojiCompat.GlyphChecker glyphChecker = mock(EmojiCompat.GlyphChecker.class);
         when(glyphChecker.hasGlyph(any(CharSequence.class), anyInt(), anyInt(), anyInt()))
