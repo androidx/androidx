@@ -27,8 +27,11 @@ import androidx.annotation.RestrictTo
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
+import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import kotlinx.coroutines.suspendCancellableCoroutine
 
+@OptIn(ExperimentalFeatures.Ext8OptIn::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("NewApi", "ClassVerificationFailure")
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
@@ -62,8 +65,7 @@ open class AdSelectionManagerImplCommon(
             .setAdSelectionSignals(convertAdSelectionSignals(request.adSelectionSignals))
             .setCustomAudienceBuyers(convertBuyers(request.customAudienceBuyers))
             .setDecisionLogicUri(request.decisionLogicUri)
-            .setSeller(android.adservices.common.AdTechIdentifier.fromString(
-                request.seller.identifier))
+            .setSeller(request.seller.convertToAdServices())
             .setPerBuyerSignals(convertPerBuyerSignals(request.perBuyerSignals))
             .setSellerSignals(convertAdSelectionSignals(request.sellerSignals))
             .setTrustedScoringSignalsUri(request.trustedScoringSignalsUri)
@@ -81,7 +83,7 @@ open class AdSelectionManagerImplCommon(
     ): MutableList<android.adservices.common.AdTechIdentifier> {
         val ids = mutableListOf<android.adservices.common.AdTechIdentifier>()
         for (buyer in buyers) {
-            ids.add(android.adservices.common.AdTechIdentifier.fromString(buyer.identifier))
+            ids.add(buyer.convertToAdServices())
         }
         return ids
     }
@@ -93,7 +95,7 @@ open class AdSelectionManagerImplCommon(
         val map = HashMap<android.adservices.common.AdTechIdentifier,
             android.adservices.common.AdSelectionSignals?>()
         for (key in request.keys) {
-            val id = android.adservices.common.AdTechIdentifier.fromString(key.identifier)
+            val id = key.convertToAdServices()
             val value = if (request[key] != null) convertAdSelectionSignals(request[key]!!)
             else null
             map[id] = value
@@ -126,5 +128,41 @@ open class AdSelectionManagerImplCommon(
             request.adSelectionId,
             convertAdSelectionConfig(request.adSelectionConfig)
         )
+    }
+
+    @DoNotInline
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    override suspend fun updateAdCounterHistogram(
+        updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
+    ) {
+        if (AdServicesInfo.adServicesVersion() >= 8 || AdServicesInfo.extServicesVersion() >= 9) {
+            return Ext8Impl.updateAdCounterHistogram(
+                mAdSelectionManager,
+                updateAdCounterHistogramRequest
+            )
+        }
+        throw UnsupportedOperationException("API is unsupported. Min version is API 33 ext 8 or " +
+            "API 31/32 ext 9")
+    }
+
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 9)
+    private class Ext8Impl private constructor() {
+        companion object {
+            @DoNotInline
+            @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+            suspend fun updateAdCounterHistogram(
+                adSelectionManager: android.adservices.adselection.AdSelectionManager,
+                updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
+            ) {
+                suspendCancellableCoroutine<Any> { cont ->
+                    adSelectionManager.updateAdCounterHistogram(
+                        updateAdCounterHistogramRequest.convertToAdServices(),
+                        Runnable::run,
+                        cont.asOutcomeReceiver()
+                    )
+                }
+            }
+        }
     }
 }

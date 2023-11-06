@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.ads.adservices.common
 
-import android.net.Uri
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -30,37 +29,32 @@ import org.junit.runner.RunWith
 @SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = 31)
-class AdDataTest {
-    private val uri: Uri = Uri.parse("abc.com")
-    private val metadata = "metadata"
-    private val adCounterKeys: Set<Int> = setOf<Int>(1, 2, 3)
-    private val adFilters: AdFilters = AdFilters(FrequencyCapFilters(
+class AdFiltersTest {
+    private val frequencyCapFilters: FrequencyCapFilters = FrequencyCapFilters(
         listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),
         listOf(KeyedFrequencyCap(2, 4, Duration.ofSeconds(2))),
         listOf(KeyedFrequencyCap(3, 3, Duration.ofSeconds(3))),
         listOf(KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
             KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-            KeyedFrequencyCap(6, 4, Duration.ofSeconds(6)))))
+            KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))))
 
     @Test
     fun testToString() {
-        val result = "AdData: renderUri=$uri, metadata='$metadata', " +
-            "adCounterKeys=$adCounterKeys, adFilters=$adFilters"
-        val request = AdData(uri, metadata, adCounterKeys, adFilters)
+        val result = "AdFilters: frequencyCapFilters=$frequencyCapFilters"
+        val request = AdFilters(frequencyCapFilters)
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
 
     @Test
     fun testEquals() {
-        val adData1 = AdData(uri, metadata, adCounterKeys, adFilters)
-        var adData2 = AdData(Uri.parse("abc.com"), "metadata", setOf<Int>(1, 2, 3),
-            AdFilters(FrequencyCapFilters(
-                listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),
-                listOf(KeyedFrequencyCap(2, 4, Duration.ofSeconds(2))),
-                listOf(KeyedFrequencyCap(3, 3, Duration.ofSeconds(3))),
-                listOf(KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
-                    KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-                    KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))))))
-        Truth.assertThat(adData1 == adData2).isTrue()
+        val adFilters1 = AdFilters(frequencyCapFilters)
+        var adFilters2 = AdFilters(FrequencyCapFilters(
+            listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),
+            listOf(KeyedFrequencyCap(2, 4, Duration.ofSeconds(2))),
+            listOf(KeyedFrequencyCap(3, 3, Duration.ofSeconds(3))),
+            listOf(KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
+                KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
+                KeyedFrequencyCap(6, 4, Duration.ofSeconds(6)))))
+        Truth.assertThat(adFilters1 == adFilters2).isTrue()
     }
 }

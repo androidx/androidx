@@ -22,18 +22,24 @@ import android.os.OutcomeReceiver
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome
 import androidx.privacysandbox.ads.adservices.adselection.ReportImpressionRequest
+import androidx.privacysandbox.ads.adservices.adselection.UpdateAdCounterHistogramRequest
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
+import androidx.privacysandbox.ads.adservices.common.FrequencyCapFilters
 import androidx.privacysandbox.ads.adservices.java.VersionCompatUtil
 import androidx.privacysandbox.ads.adservices.java.adselection.AdSelectionManagerFutures.Companion.from
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.testutils.assertThrows
 import com.android.dx.mockito.inline.extended.ExtendedMockito
 import com.android.dx.mockito.inline.extended.StaticMockitoSession
 import com.google.common.truth.Truth
 import com.google.common.util.concurrent.ListenableFuture
+import java.util.concurrent.ExecutionException
+import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
 import org.junit.Assume
@@ -50,6 +56,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.quality.Strictness
 
+@OptIn(ExperimentalFeatures.Ext8OptIn::class)
 @SmallTest
 @SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
@@ -79,13 +86,44 @@ class AdSelectionManagerFuturesTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 34, minSdkVersion = 30)
     fun testAdSelectionOlderVersions() {
-        Assume.assumeFalse("maxSdkVersion = API 33 ext 3 or API 31/32 ext 8",
+        Assume.assumeFalse("maxSdkVersion = API 33/34 ext 3 or API 31/32 ext 8",
             VersionCompatUtil.isTestableVersion(
                 /* minAdServicesVersion=*/ 4,
                 /* minExtServicesVersion=*/ 9))
         Truth.assertThat(from(mContext)).isEqualTo(null)
+    }
+
+    @Test
+    @SdkSuppress(maxSdkVersion = 34, minSdkVersion = 31)
+    fun testUpdateAdCounterHistogramOlderVersions() {
+        /* AdServices or ExtServices are present */
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
+                          VersionCompatUtil.isTestableVersion(
+                              /* minAdServicesVersion= */ 4,
+                              /* minExtServicesVersion=*/ 9))
+
+        /* API is not available */
+        Assume.assumeFalse("maxSdkVersion = API 33/34 ext 7 or API 31/32 ext 8",
+            VersionCompatUtil.isTestableVersion(
+                /* minAdServicesVersion=*/ 8,
+                /* minExtServicesVersion=*/ 9))
+
+        val managerCompat = from(mContext)
+        val updateAdCounterHistogramRequest = UpdateAdCounterHistogramRequest(
+            adSelectionId,
+            adEventType,
+            seller
+        )
+
+        // Verify that it throws an exception
+        val exception = assertThrows(ExecutionException::class.java) {
+            managerCompat!!.updateAdCounterHistogramAsync(updateAdCounterHistogramRequest).get()
+        }.hasCauseThat()
+        exception.isInstanceOf(UnsupportedOperationException::class.java)
+        exception.hasMessageThat().contains("API is unsupported. Min version is API 33 ext 8 or " +
+            "API 31/32 ext 9")
     }
 
     @Test
@@ -140,6 +178,36 @@ class AdSelectionManagerFuturesTest {
         verifyReportImpressionRequest(captor.value)
     }
 
+    @Test
+    fun testUpdateAdCounterHistogram() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 8 or API 31/32 ext 9",
+            VersionCompatUtil.isTestableVersion(
+                /* minAdServicesVersion= */ 8,
+                /* minExtServicesVersion=*/ 9))
+
+        val adSelectionManager = mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
+        setupUpdateAdCounterHistogramResponse(adSelectionManager)
+        val managerCompat = from(mContext)
+        val updateAdCounterHistogramRequest = UpdateAdCounterHistogramRequest(
+            adSelectionId,
+            adEventType,
+            seller
+        )
+
+        // Actually invoke the compat code.
+        runBlocking {
+            managerCompat!!.updateAdCounterHistogramAsync(updateAdCounterHistogramRequest)
+        }
+
+        // Verify that the compat code was invoked correctly.
+        val captor = ArgumentCaptor.forClass(
+            android.adservices.adselection.UpdateAdCounterHistogramRequest::class.java)
+        verify(adSelectionManager).updateAdCounterHistogram(captor.capture(), any(), any())
+
+        // Verify that the request that the compat code makes to the platform is correct.
+        verifyUpdateAdCounterHistogramRequest(captor.value)
+    }
+
     @SuppressWarnings("NewApi")
     @SdkSuppress(minSdkVersion = 30)
     companion object {
@@ -165,6 +233,7 @@ class AdSelectionManagerFuturesTest {
             sellerSignals,
             perBuyerSignals,
             trustedScoringSignalsUri)
+        private const val adEventType = FrequencyCapFilters.AD_EVENT_TYPE_VIEW
 
         // Response.
         private val renderUri = Uri.parse("render-uri.com")
@@ -217,6 +286,24 @@ class AdSelectionManagerFuturesTest {
             doAnswer(answer2).`when`(adSelectionManager).reportImpression(any(), any(), any())
         }
 
+        private fun setupUpdateAdCounterHistogramResponse(
+            adSelectionManager: android.adservices.adselection.AdSelectionManager
+        ) {
+            // Set up the response that AdSelectionManager will return when the compat code calls
+            // UpdateAdCounterHistogramResponse().
+            val answer = { args: InvocationOnMock ->
+                val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
+                receiver.onResult(Object())
+                null
+            }
+            doAnswer(answer)
+                .`when`(adSelectionManager).updateAdCounterHistogram(
+                    any(),
+                    any(),
+                    any()
+                )
+        }
+
         private fun verifyRequest(request: android.adservices.adselection.AdSelectionConfig) {
             // Set up the request that we expect the compat code to invoke.
             val expectedRequest = getPlatformAdSelectionConfig()
@@ -225,10 +312,10 @@ class AdSelectionManagerFuturesTest {
         }
 
         private fun verifyResponse(
-            outcome: androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome
+            outcome: AdSelectionOutcome
         ) {
             val expectedOutcome =
-                androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome(
+                AdSelectionOutcome(
                     adSelectionId,
                     renderUri)
             Assert.assertEquals(expectedOutcome, outcome)
@@ -260,6 +347,16 @@ class AdSelectionManagerFuturesTest {
                 getPlatformAdSelectionConfig())
             Assert.assertEquals(expectedRequest.adSelectionId, request.adSelectionId)
             Assert.assertEquals(expectedRequest.adSelectionConfig, request.adSelectionConfig)
+        }
+
+        private fun verifyUpdateAdCounterHistogramRequest(
+            request: android.adservices.adselection.UpdateAdCounterHistogramRequest
+        ) {
+            val adTechIdentifier = android.adservices.common.AdTechIdentifier.fromString(adId)
+            val expectedRequest = android.adservices.adselection.UpdateAdCounterHistogramRequest
+                .Builder(adSelectionId, adEventType, adTechIdentifier)
+                .build()
+            Assert.assertEquals(expectedRequest, request)
         }
     }
 }

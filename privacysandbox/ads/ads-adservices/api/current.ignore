@@ -5,3 +5,9 @@ AddedMethod: androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest#shou
 
 RemovedMethod: androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest#getShouldRecordObservation():
     Removed method androidx.privacysandbox.ads.adservices.topics.GetTopicsRequest.getShouldRecordObservation()
+
+
+AddedMethod: androidx.privacysandbox.ads.adservices.common.AdData#getAdCounterKeys():
+    Added method androidx.privacysandbox.ads.adservices.common.AdData.getAdCounterKeys()
+AddedMethod: androidx.privacysandbox.ads.adservices.common.AdData#getAdFilters():
+    Added method androidx.privacysandbox.ads.adservices.common.AdData.getAdFilters()

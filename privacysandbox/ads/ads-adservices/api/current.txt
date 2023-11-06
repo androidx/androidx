@@ -44,6 +44,7 @@ package androidx.privacysandbox.ads.adservices.adselection {
     method public static final androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager? obtain(android.content.Context context);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? reportImpression(androidx.privacysandbox.ads.adservices.adselection.ReportImpressionRequest reportImpressionRequest, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? selectAds(androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig adSelectionConfig, kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome>);
+    method @SuppressCompatibility @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public abstract suspend Object? updateAdCounterHistogram(androidx.privacysandbox.ads.adservices.adselection.UpdateAdCounterHistogramRequest updateAdCounterHistogramRequest, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     field public static final androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager.Companion Companion;
   }
 
@@ -65,6 +66,16 @@ package androidx.privacysandbox.ads.adservices.adselection {
     method public long getAdSelectionId();
     property public final androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig adSelectionConfig;
     property public final long adSelectionId;
+  }
+
+  @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public final class UpdateAdCounterHistogramRequest {
+    ctor public UpdateAdCounterHistogramRequest(long adSelectionId, int adEventType, androidx.privacysandbox.ads.adservices.common.AdTechIdentifier callerAdTech);
+    method public int getAdEventType();
+    method public long getAdSelectionId();
+    method public androidx.privacysandbox.ads.adservices.common.AdTechIdentifier getCallerAdTech();
+    property public final int adEventType;
+    property public final long adSelectionId;
+    property public final androidx.privacysandbox.ads.adservices.common.AdTechIdentifier callerAdTech;
   }
 
 }
@@ -101,10 +112,21 @@ package androidx.privacysandbox.ads.adservices.common {
 
   public final class AdData {
     ctor public AdData(android.net.Uri renderUri, String metadata);
+    ctor @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public AdData(android.net.Uri renderUri, String metadata, optional java.util.Set<java.lang.Integer> adCounterKeys, optional androidx.privacysandbox.ads.adservices.common.AdFilters? adFilters);
+    method public java.util.Set<java.lang.Integer> getAdCounterKeys();
+    method public androidx.privacysandbox.ads.adservices.common.AdFilters? getAdFilters();
     method public String getMetadata();
     method public android.net.Uri getRenderUri();
+    property public final java.util.Set<java.lang.Integer> adCounterKeys;
+    property public final androidx.privacysandbox.ads.adservices.common.AdFilters? adFilters;
     property public final String metadata;
     property public final android.net.Uri renderUri;
+  }
+
+  @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public final class AdFilters {
+    ctor public AdFilters(androidx.privacysandbox.ads.adservices.common.FrequencyCapFilters? frequencyCapFilters);
+    method public androidx.privacysandbox.ads.adservices.common.FrequencyCapFilters? getFrequencyCapFilters();
+    property public final androidx.privacysandbox.ads.adservices.common.FrequencyCapFilters? frequencyCapFilters;
   }
 
   public final class AdSelectionSignals {
@@ -122,7 +144,44 @@ package androidx.privacysandbox.ads.adservices.common {
   public sealed interface ExperimentalFeatures {
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="The Ext8 API is experimental.", level=kotlin.RequiresOptIn.Level.WARNING) public static @interface ExperimentalFeatures.Ext8OptIn {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This API is experimental.", level=kotlin.RequiresOptIn.Level.WARNING) public static @interface ExperimentalFeatures.RegisterSourceOptIn {
+  }
+
+  @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public final class FrequencyCapFilters {
+    ctor public FrequencyCapFilters();
+    ctor public FrequencyCapFilters(optional java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForWinEvents);
+    ctor public FrequencyCapFilters(optional java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForWinEvents, optional java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForImpressionEvents);
+    ctor public FrequencyCapFilters(optional java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForWinEvents, optional java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForImpressionEvents, optional java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForViewEvents);
+    ctor public FrequencyCapFilters(optional java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForWinEvents, optional java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForImpressionEvents, optional java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForViewEvents, optional java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForClickEvents);
+    method public java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> getKeyedFrequencyCapsForClickEvents();
+    method public java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> getKeyedFrequencyCapsForImpressionEvents();
+    method public java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> getKeyedFrequencyCapsForViewEvents();
+    method public java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> getKeyedFrequencyCapsForWinEvents();
+    property public final java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForClickEvents;
+    property public final java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForImpressionEvents;
+    property public final java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForViewEvents;
+    property public final java.util.List<androidx.privacysandbox.ads.adservices.common.KeyedFrequencyCap> keyedFrequencyCapsForWinEvents;
+    field public static final int AD_EVENT_TYPE_CLICK = 3; // 0x3
+    field public static final int AD_EVENT_TYPE_IMPRESSION = 1; // 0x1
+    field public static final int AD_EVENT_TYPE_VIEW = 2; // 0x2
+    field public static final int AD_EVENT_TYPE_WIN = 0; // 0x0
+    field public static final androidx.privacysandbox.ads.adservices.common.FrequencyCapFilters.Companion Companion;
+  }
+
+  public static final class FrequencyCapFilters.Companion {
+  }
+
+  @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public final class KeyedFrequencyCap {
+    ctor public KeyedFrequencyCap(int adCounterKey, int maxCount, java.time.Duration interval);
+    method public int getAdCounterKey();
+    method public java.time.Duration getInterval();
+    method public int getMaxCount();
+    property public final int adCounterKey;
+    property public final java.time.Duration interval;
+    property public final int maxCount;
   }
 
 }

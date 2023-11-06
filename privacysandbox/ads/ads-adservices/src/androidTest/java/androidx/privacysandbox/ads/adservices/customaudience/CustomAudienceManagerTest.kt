@@ -23,6 +23,7 @@ import android.os.OutcomeReceiver
 import androidx.privacysandbox.ads.adservices.common.AdData
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager.Companion.obtain
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import androidx.test.core.app.ApplicationProvider
@@ -49,10 +50,11 @@ import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.quality.Strictness
 
+@OptIn(ExperimentalFeatures.Ext8OptIn::class)
 @SmallTest
 @SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = 30)
+@SdkSuppress(minSdkVersion = 31)
 class CustomAudienceManagerTest {
 
     private var mSession: StaticMockitoSession? = null
@@ -79,7 +81,7 @@ class CustomAudienceManagerTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 33, minSdkVersion = 31)
     fun testOlderVersions() {
         Assume.assumeTrue("maxSdkVersion = API 33 ext 3", !mValidAdServicesSdkExtVersion)
         Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
@@ -144,7 +146,7 @@ class CustomAudienceManagerTest {
         verifyLeaveCustomAudienceRequest(captor.value)
     }
 
-    @SdkSuppress(minSdkVersion = 30)
+    @SdkSuppress(minSdkVersion = 31)
     companion object {
         private lateinit var mContext: Context
         private val uri: Uri = Uri.parse("abc.com")

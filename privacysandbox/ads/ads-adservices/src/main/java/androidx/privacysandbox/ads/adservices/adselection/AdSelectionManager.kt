@@ -22,6 +22,7 @@ import android.content.Context
 import android.os.LimitExceededException
 import android.os.TransactionTooLargeException
 import androidx.annotation.RequiresPermission
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import java.util.concurrent.TimeoutException
 
@@ -67,6 +68,45 @@ abstract class AdSelectionManager internal constructor() {
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract suspend fun reportImpression(reportImpressionRequest: ReportImpressionRequest)
+
+    /**
+     * Updates the counter histograms for an ad which was previously selected by a call to
+     * [selectAds].
+     *
+     * The counter histograms are used in ad selection to inform frequency cap filtering on
+     * candidate ads, where ads whose frequency caps are met or exceeded are removed from the
+     * bidding process during ad selection.
+     *
+     * Counter histograms can only be updated for ads specified by the given {@code
+     * adSelectionId} returned by a recent call to Protected Audience API ad selection from the same
+     * caller app.
+     *
+     * A [SecurityException] is returned if:
+     *
+     * <ol>
+     *   <li>the app has not declared the correct permissions in its manifest, or
+     *   <li>the app or entity identified by the {@code callerAdTechIdentifier} are not authorized
+     *       to use the API.
+     * </ol>
+     *
+     * An [IllegalStateException] is returned if the call does not come from an app with a
+     * foreground activity.
+     *
+     * A [LimitExceededException] is returned if the call exceeds the calling app's API throttle.
+     *
+     * An [UnsupportedOperationException] is returned if the Android API level and AdServices module
+     * versions don't support this API.
+     *
+     * In all other failure cases, it will return an empty [Object]. Note that to protect user
+     * privacy, internal errors will not be sent back via an exception.
+     *
+     * @param updateAdCounterHistogramRequest the request for updating the ad counter histogram.
+     */
+    @ExperimentalFeatures.Ext8OptIn
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    abstract suspend fun updateAdCounterHistogram(
+        updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
+    )
 
     companion object {
         /**

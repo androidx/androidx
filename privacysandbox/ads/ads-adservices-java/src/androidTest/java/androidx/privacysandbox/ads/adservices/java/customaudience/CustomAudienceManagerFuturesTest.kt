@@ -23,6 +23,7 @@ import android.os.OutcomeReceiver
 import androidx.privacysandbox.ads.adservices.common.AdData
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
 import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.customaudience.CustomAudience
 import androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest
 import androidx.privacysandbox.ads.adservices.customaudience.LeaveCustomAudienceRequest
@@ -52,6 +53,7 @@ import org.mockito.Mockito.`when`
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.quality.Strictness
 
+@OptIn(ExperimentalFeatures.Ext8OptIn::class)
 @SmallTest
 @SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)

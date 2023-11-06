@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.ads.adservices.common.AdData
 import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
-import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import kotlinx.coroutines.suspendCancellableCoroutine
 
 @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -73,7 +72,7 @@ open class CustomAudienceManagerImplCommon(
         request: LeaveCustomAudienceRequest
     ): android.adservices.customaudience.LeaveCustomAudienceRequest {
         return android.adservices.customaudience.LeaveCustomAudienceRequest.Builder()
-            .setBuyer(convertAdTechIdentifier(request.buyer))
+            .setBuyer(request.buyer.convertToAdServices())
             .setName(request.name)
             .build()
     }
@@ -83,9 +82,9 @@ open class CustomAudienceManagerImplCommon(
     ): android.adservices.customaudience.CustomAudience {
         return android.adservices.customaudience.CustomAudience.Builder()
             .setActivationTime(request.activationTime)
-            .setAds(convertAdData(request.ads))
+            .setAds(convertAds(request.ads))
             .setBiddingLogicUri(request.biddingLogicUri)
-            .setBuyer(convertAdTechIdentifier(request.buyer))
+            .setBuyer(request.buyer.convertToAdServices())
             .setDailyUpdateUri(request.dailyUpdateUri)
             .setExpirationTime(request.expirationTime)
             .setName(request.name)
@@ -94,23 +93,14 @@ open class CustomAudienceManagerImplCommon(
             .build()
     }
 
-    private fun convertAdData(
+    private fun convertAds(
         input: List<AdData>
     ): List<android.adservices.common.AdData> {
         val result = mutableListOf<android.adservices.common.AdData>()
         for (ad in input) {
-            result.add(android.adservices.common.AdData.Builder()
-                .setMetadata(ad.metadata)
-                .setRenderUri(ad.renderUri)
-                .build())
+            result.add(ad.convertToAdServices())
         }
         return result
-    }
-
-    private fun convertAdTechIdentifier(
-        input: AdTechIdentifier
-    ): android.adservices.common.AdTechIdentifier {
-        return android.adservices.common.AdTechIdentifier.fromString(input.identifier)
     }
 
     private fun convertTrustedSignals(
