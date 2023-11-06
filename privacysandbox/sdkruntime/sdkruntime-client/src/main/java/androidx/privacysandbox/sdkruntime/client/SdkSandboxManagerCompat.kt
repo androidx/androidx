@@ -28,6 +28,7 @@ import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
+import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityStarter
@@ -447,11 +448,7 @@ class SdkSandboxManagerCompat private constructor(
                 if (instance == null) {
                     val configHolder = LocalSdkConfigsHolder.load(context)
                     val localSdks = LocallyLoadedSdks()
-                    val appOwnedSdkRegistry = if (AdServicesInfo.isDeveloperPreview()) {
-                        PlatformAppOwnedSdkRegistry(context)
-                    } else {
-                        LocalAppOwnedSdkRegistry()
-                    }
+                    val appOwnedSdkRegistry = AppOwnedSdkRegistryFactory.create(context)
                     val controllerFactory = LocalControllerFactory(localSdks, appOwnedSdkRegistry)
                     val sdkLoader = SdkLoader.create(context, controllerFactory)
                     val platformApi = PlatformApiFactory.create(context)
@@ -487,6 +484,19 @@ class SdkSandboxManagerCompat private constructor(
                 ApiAdServicesV4Impl(context)
             } else {
                 FailImpl()
+            }
+        }
+    }
+
+    private object AppOwnedSdkRegistryFactory {
+        @SuppressLint("NewApi", "ClassVerificationFailure") // For supporting DP Builds
+        fun create(context: Context): AppOwnedSdkRegistry {
+            return if (BuildCompat.AD_SERVICES_EXTENSION_INT >= 8 ||
+                AdServicesInfo.isDeveloperPreview()
+            ) {
+                PlatformAppOwnedSdkRegistry(context)
+            } else {
+                LocalAppOwnedSdkRegistry()
             }
         }
     }
