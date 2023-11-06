@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-ChangedType: androidx.compose.ui.platform.ViewConfiguration#getMaximumFlingVelocity():
-    Method androidx.compose.ui.platform.ViewConfiguration.getMaximumFlingVelocity has changed return type from int to float

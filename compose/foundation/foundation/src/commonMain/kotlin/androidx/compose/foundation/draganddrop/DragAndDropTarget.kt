@@ -33,60 +33,73 @@ import androidx.compose.ui.platform.InspectorInfo
  *
  * @sample androidx.compose.foundation.samples.TextDragAndDropTargetSample
  *
- * @param acceptDragAndDropTransfer Allows the Composable to decide if it wants to receive from
- * a given drag and drop session by returning a viable [DragAndDropTarget].
+ * @param shouldStartDragAndDrop Allows the Composable to decide if it wants to receive from
+ * a given drag and drop session by inspecting the [DragAndDropEvent] that started the session.
  *
- * returning a [DragAndDropTarget] instance indicates interest in a drag and drop session,
- * null indicates no interest.
+ * @param target The [DragAndDropTarget] that will receive events for a given drag and drop
+ * session.
  *
  * All drag and drop target modifiers in the hierarchy will be given an opportunity to participate
- * in a given drag and drop session.
+ * in a given drag and drop session via [shouldStartDragAndDrop].
  *
  * @see [DragAndDropModifierNode.acceptDragAndDropTransfer]
  */
 @ExperimentalFoundationApi
 fun Modifier.dragAndDropTarget(
-    acceptDragAndDropTransfer: (event: DragAndDropEvent) -> DragAndDropTarget?,
+    shouldStartDragAndDrop: (startEvent: DragAndDropEvent) -> Boolean,
+    target: DragAndDropTarget,
 ): Modifier = this then DropTargetElement(
-    acceptsDragAndDropTransaction = acceptDragAndDropTransfer,
+    target = target,
+    shouldStartDragAndDrop = shouldStartDragAndDrop,
 )
 
 @ExperimentalFoundationApi
 private class DropTargetElement(
-    val acceptsDragAndDropTransaction: (event: DragAndDropEvent) -> DragAndDropTarget?,
+    val shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
+    val target: DragAndDropTarget,
 ) : ModifierNodeElement<DragAndDropTargetNode>() {
     override fun create() = DragAndDropTargetNode(
-        acceptsDragAndDropTransaction = acceptsDragAndDropTransaction,
+        target = target,
+        shouldStartDragAndDrop = shouldStartDragAndDrop,
     )
 
     override fun update(node: DragAndDropTargetNode) = with(node) {
-        acceptsDragAndDropTransaction = this@DropTargetElement.acceptsDragAndDropTransaction
+        target = this@DropTargetElement.target
+        shouldStartDragAndDrop = this@DropTargetElement.shouldStartDragAndDrop
     }
 
     override fun InspectorInfo.inspectableProperties() {
         name = "dropTarget"
-        properties["acceptsDragAndDropTransaction"] = acceptsDragAndDropTransaction
+        properties["target"] = target
+        properties["shouldStartDragAndDrop"] = shouldStartDragAndDrop
     }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is DropTargetElement) return false
+        if (target != other.target) return false
 
-        return acceptsDragAndDropTransaction == other.acceptsDragAndDropTransaction
+        return shouldStartDragAndDrop == other.shouldStartDragAndDrop
     }
 
     override fun hashCode(): Int {
-        return acceptsDragAndDropTransaction.hashCode()
+        var result = target.hashCode()
+        result = 31 * result + shouldStartDragAndDrop.hashCode()
+        return result
     }
 }
 
 @ExperimentalFoundationApi
 private class DragAndDropTargetNode(
-    var acceptsDragAndDropTransaction: (event: DragAndDropEvent) -> DragAndDropTarget?
+    var shouldStartDragAndDrop: (event: DragAndDropEvent) -> Boolean,
+    var target: DragAndDropTarget
 ) : DelegatingNode() {
     init {
         delegate(
-            DragAndDropModifierNode(acceptsDragAndDropTransaction)
+            DragAndDropModifierNode(
+                shouldStartDragAndDrop = shouldStartDragAndDrop,
+                target = target
+            )
         )
     }
 }
