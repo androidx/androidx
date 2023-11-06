@@ -29,6 +29,12 @@ configurations {
     neededForGradleTestKit {
         canBeResolved = true
     }
+    neededForGradleTestKitAgp80 {
+        canBeResolved = true
+    }
+    neededForGradleTestKitAgp81 {
+        canBeResolved = true
+    }
 }
 
 dependencies {
@@ -48,6 +54,9 @@ dependencies {
     neededForGradleTestKit(libs.androidGradlePluginz)
     neededForGradleTestKit(libs.kotlinGradlePluginz)
     neededForGradleTestKit(libs.kotlinStdlib)
+
+    neededForGradleTestKitAgp80("com.android.tools.build:gradle:8.0.0")
+    neededForGradleTestKitAgp81("com.android.tools.build:gradle:8.1.0")
 }
 
 SdkResourceGenerator.generateForHostTest(project)

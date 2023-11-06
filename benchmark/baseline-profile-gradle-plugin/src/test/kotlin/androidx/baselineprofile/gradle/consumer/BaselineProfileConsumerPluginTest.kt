@@ -24,7 +24,6 @@ import androidx.baselineprofile.gradle.utils.Fixtures
 import androidx.baselineprofile.gradle.utils.TestAgpVersion
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_0_0
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_0
-import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_2_0
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_CURRENT
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
@@ -71,8 +70,9 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
     private fun mergedArtProfile(variantName: String): File {
         // Task name folder in path was first observed in the update to AGP 8.3.0-alpha10.
         // Before that, the folder was omitted in path.
+        // TODO: Add back TEST_AGP_VERSION_8_2_0 after b/309493780
         val taskNameFolder = when (agpVersion) {
-            TEST_AGP_VERSION_8_0_0, TEST_AGP_VERSION_8_1_0, TEST_AGP_VERSION_8_2_0 -> ""
+            TEST_AGP_VERSION_8_0_0, TEST_AGP_VERSION_8_1_0 -> ""
             TEST_AGP_VERSION_CURRENT -> camelCase("merge", variantName, "artProfile")
         }
         return File(
