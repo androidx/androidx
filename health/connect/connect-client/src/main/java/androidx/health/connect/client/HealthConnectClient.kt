@@ -26,7 +26,6 @@ import androidx.annotation.DoNotInline
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.core.content.getSystemService
 import androidx.core.content.pm.PackageInfoCompat
 import androidx.health.connect.client.aggregate.AggregateMetric
 import androidx.health.connect.client.aggregate.AggregationResult
@@ -316,11 +315,6 @@ interface HealthConnectClient {
 
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         internal const val DEFAULT_PROVIDER_MIN_VERSION_CODE = 68623
-
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        const val ACTION_HEALTH_CONNECT_SETTINGS_LEGACY =
-            "androidx.health.ACTION_HEALTH_CONNECT_SETTINGS"
-
         /**
          * Intent action to open Health Connect settings on this phone. Developers should use this
          * if they want to re-direct the user to Health Connect.
@@ -399,25 +393,6 @@ interface HealthConnectClient {
             return SDK_AVAILABLE
         }
 
-        @JvmOverloads
-        @JvmStatic
-        @AvailabilityStatus
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun getSdkStatusLegacy(
-            context: Context,
-            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
-        ): Int {
-            @Suppress("Deprecation")
-            if (!isSdkVersionSufficient()) {
-                return SDK_UNAVAILABLE
-            }
-            @Suppress("Deprecation")
-            if (!isProviderAvailableLegacy(context, providerPackageName)) {
-                return SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED
-            }
-            return SDK_AVAILABLE
-        }
-
         /**
          * Retrieves an IPC-backed [HealthConnectClient] instance binding to an available
          * implementation.
@@ -447,25 +422,6 @@ interface HealthConnectClient {
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
                 return HealthConnectClientUpsideDownImpl(context)
-            }
-            return HealthConnectClientImpl(
-                HealthDataService.getClient(context, providerPackageName)
-            )
-        }
-
-        @JvmOverloads
-        @JvmStatic
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
-        fun getOrCreateLegacy(
-            context: Context,
-            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
-        ): HealthConnectClient {
-            val status = getSdkStatusLegacy(context, providerPackageName)
-            if (status == SDK_UNAVAILABLE) {
-                throw UnsupportedOperationException("SDK version too low")
-            }
-            if (status == SDK_UNAVAILABLE_PROVIDER_UPDATE_REQUIRED) {
-                throw IllegalStateException("Service not available")
             }
             return HealthConnectClientImpl(
                 HealthDataService.getClient(context, providerPackageName)
@@ -520,13 +476,6 @@ interface HealthConnectClient {
                 providerPackageName,
                 providerVersionCode
             )
-        }
-
-        internal fun isProviderAvailableLegacy(
-            context: Context,
-            providerPackageName: String = DEFAULT_PROVIDER_PACKAGE_NAME,
-        ): Boolean {
-            return isPackageInstalled(context.packageManager, providerPackageName)
         }
 
         private fun isPackageInstalled(
