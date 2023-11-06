@@ -1146,7 +1146,8 @@ internal fun TextFieldCursorHandle(manager: TextFieldSelectionManager) {
                     this[SelectionHandleInfoKey] = SelectionHandleInfo(
                         handle = Handle.Cursor,
                         position = position,
-                        anchor = SelectionHandleAnchor.Middle
+                        anchor = SelectionHandleAnchor.Middle,
+                        visible = true,
                     )
                 },
             content = null

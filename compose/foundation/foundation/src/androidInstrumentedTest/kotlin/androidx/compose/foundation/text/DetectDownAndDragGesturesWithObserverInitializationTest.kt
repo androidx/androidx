@@ -30,7 +30,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.TouchInjectionScope
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -39,7 +38,6 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
-import kotlin.math.sign
 import kotlinx.coroutines.Dispatchers
 import org.junit.Before
 import org.junit.Rule
@@ -69,7 +67,8 @@ class DetectDownAndDragGesturesWithObserverInitializationTest {
         rule.setContent {
             CompositionLocalProvider(
                 LocalViewConfiguration provides TestViewConfiguration(
-                    minimumTouchTargetSize = DpSize.Zero
+                    minimumTouchTargetSize = DpSize.Zero,
+                    touchSlop = Float.MIN_VALUE,
                 )
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -92,8 +91,8 @@ class DetectDownAndDragGesturesWithObserverInitializationTest {
     fun whenPressingAndMoving_expectedInteractionsRecorded() {
         rule.onNodeWithTag(testTag).performTouchInput {
             down(center)
-            movePastSlopBy(Offset(1f, 1f))
-            movePastSlopBy(Offset(1f, 1f))
+            moveBy(Offset(1f, 1f))
+            moveBy(Offset(1f, 1f))
             up()
         }
 
@@ -102,14 +101,6 @@ class DetectDownAndDragGesturesWithObserverInitializationTest {
         assertThat(records)
             .containsExactly("down", "start", "drag", "drag", "stop", "up")
             .inOrder()
-    }
-
-    private fun TouchInjectionScope.movePastSlopBy(delta: Offset) {
-        val slop = Offset(
-            x = viewConfiguration.touchSlop * delta.x.sign,
-            y = viewConfiguration.touchSlop * delta.y.sign
-        )
-        moveBy(delta + slop)
     }
 
     private inner class RecordingTextDragObserver : TextDragObserver {

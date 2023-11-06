@@ -33,6 +33,7 @@ import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.heightInLines
+import androidx.compose.foundation.text.selection.SelectionHandle
 import androidx.compose.foundation.text.selection.SelectionHandleAnchor
 import androidx.compose.foundation.text.selection.SelectionHandleInfo
 import androidx.compose.foundation.text.selection.SelectionHandleInfoKey
@@ -49,7 +50,6 @@ import androidx.compose.foundation.text2.input.internal.TextFieldDecoratorModifi
 import androidx.compose.foundation.text2.input.internal.TextFieldTextLayoutModifier
 import androidx.compose.foundation.text2.input.internal.TextLayoutState
 import androidx.compose.foundation.text2.input.internal.TransformedTextFieldState
-import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionHandle2
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text2.input.internal.syncTextFieldState
 import androidx.compose.runtime.Composable
@@ -495,7 +495,8 @@ internal fun TextFieldCursorHandle(selectionState: TextFieldSelectionState) {
                     this[SelectionHandleInfoKey] = SelectionHandleInfo(
                         handle = Handle.Cursor,
                         position = cursorHandleState.position,
-                        anchor = SelectionHandleAnchor.Middle
+                        anchor = SelectionHandleAnchor.Middle,
+                        visible = true,
                     )
                 }
                 .pointerInput(selectionState) {
@@ -512,8 +513,8 @@ internal fun TextFieldSelectionHandles(
 ) {
     val startHandleState = selectionState.startSelectionHandle
     if (startHandleState.visible) {
-        TextFieldSelectionHandle2(
-            positionProvider = { selectionState.startSelectionHandle.position },
+        SelectionHandle(
+            offsetProvider = { selectionState.startSelectionHandle.position },
             isStartHandle = true,
             direction = startHandleState.direction,
             handlesCrossed = startHandleState.handlesCrossed,
@@ -525,8 +526,8 @@ internal fun TextFieldSelectionHandles(
 
     val endHandleState = selectionState.endSelectionHandle
     if (endHandleState.visible) {
-        TextFieldSelectionHandle2(
-            positionProvider = { selectionState.endSelectionHandle.position },
+        SelectionHandle(
+            offsetProvider = { selectionState.endSelectionHandle.position },
             isStartHandle = false,
             direction = endHandleState.direction,
             handlesCrossed = endHandleState.handlesCrossed,
