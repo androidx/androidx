@@ -258,7 +258,7 @@ package androidx.compose.ui.draganddrop {
   }
 
   public final class DragAndDropKt {
-    method public static androidx.compose.ui.draganddrop.DragAndDropTarget DragAndDropTarget(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,java.lang.Boolean> onDropped, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit> onStarted, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit> onEntered, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit> onMoved, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit> onChanged, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit> onExited, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit> onEnded);
+    method public static androidx.compose.ui.draganddrop.DragAndDropTarget DragAndDropTarget(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,java.lang.Boolean> onDrop, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit>? onStarted, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit>? onEntered, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit>? onMoved, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit>? onChanged, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit>? onExited, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,kotlin.Unit>? onEnded);
   }
 
   public interface DragAndDropModifierNode extends androidx.compose.ui.node.DelegatableNode androidx.compose.ui.draganddrop.DragAndDropTarget {
@@ -267,17 +267,18 @@ package androidx.compose.ui.draganddrop {
   }
 
   public final class DragAndDropNodeKt {
-    method public static androidx.compose.ui.draganddrop.DragAndDropModifierNode DragAndDropModifierNode(optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,? extends androidx.compose.ui.draganddrop.DragAndDropTarget> acceptDragAndDropTransfer);
+    method public static androidx.compose.ui.draganddrop.DragAndDropModifierNode DragAndDropModifierNode();
+    method public static androidx.compose.ui.draganddrop.DragAndDropModifierNode DragAndDropModifierNode(kotlin.jvm.functions.Function1<? super androidx.compose.ui.draganddrop.DragAndDropEvent,java.lang.Boolean> shouldStartDragAndDrop, androidx.compose.ui.draganddrop.DragAndDropTarget target);
   }
 
   public interface DragAndDropTarget {
-    method public void onChanged(androidx.compose.ui.draganddrop.DragAndDropEvent event);
-    method public boolean onDropped(androidx.compose.ui.draganddrop.DragAndDropEvent event);
-    method public void onEnded(androidx.compose.ui.draganddrop.DragAndDropEvent event);
-    method public void onEntered(androidx.compose.ui.draganddrop.DragAndDropEvent event);
-    method public void onExited(androidx.compose.ui.draganddrop.DragAndDropEvent event);
-    method public void onMoved(androidx.compose.ui.draganddrop.DragAndDropEvent event);
-    method public void onStarted(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public default void onChanged(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public boolean onDrop(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public default void onEnded(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public default void onEntered(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public default void onExited(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public default void onMoved(androidx.compose.ui.draganddrop.DragAndDropEvent event);
+    method public default void onStarted(androidx.compose.ui.draganddrop.DragAndDropEvent event);
   }
 
   public final class DragAndDropTransferData {

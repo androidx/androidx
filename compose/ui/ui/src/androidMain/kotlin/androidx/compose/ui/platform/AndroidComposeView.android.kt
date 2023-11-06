@@ -2302,7 +2302,7 @@ private class DragAndDropModifierOnDragListener(
                 accepted
             }
 
-            DragEvent.ACTION_DROP -> rootDragAndDropNode.onDropped(dragAndDropEvent)
+            DragEvent.ACTION_DROP -> rootDragAndDropNode.onDrop(dragAndDropEvent)
 
             DragEvent.ACTION_DRAG_ENTERED -> {
                 rootDragAndDropNode.onEntered(dragAndDropEvent)

@@ -950,41 +950,41 @@ private class DropTargetModifierHolder(
 
     @OptIn(ExperimentalFoundationApi::class)
     val modifier = Modifier.dragAndDropTarget(
-        acceptDragAndDropTransfer = accept@{
-            if (!acceptsDragAndDrop()) return@accept null
-            DragAndDropTarget(
-                onStarted = {
-                    startOffsets.add(
-                        Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-                    )
-                },
-                onEntered = {
-                    enterOffsets.add(
-                        Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-                    )
-                },
-                onMoved = {
-                    moveOffsets.add(
-                        Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-                    )
-                },
-                onDropped = {
-                    dropOffsets.add(
-                        Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-                    )
-                    true
-                },
-                onExited = {
-                    exitOffsets.add(
-                        Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-                    )
-                },
-                onEnded = {
-                    endedOffsets.add(
-                        Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-                    )
-                }
-            )
+        target = DragAndDropTarget(
+            onStarted = {
+                startOffsets.add(
+                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
+                )
+            },
+            onEntered = {
+                enterOffsets.add(
+                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
+                )
+            },
+            onMoved = {
+                moveOffsets.add(
+                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
+                )
+            },
+            onDrop = {
+                dropOffsets.add(
+                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
+                )
+                true
+            },
+            onExited = {
+                exitOffsets.add(
+                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
+                )
+            },
+            onEnded = {
+                endedOffsets.add(
+                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
+                )
+            }
+        ),
+        shouldStartDragAndDrop = {
+            acceptsDragAndDrop()
         },
     )
 }
