@@ -27,6 +27,8 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.isDisplayed
+import androidx.compose.ui.test.isNotDisplayed
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -61,4 +63,16 @@ fun useUnmergedTree() {
 fun verifyTwoClickableNodes() {
     composeTestRule.onAllNodes(hasClickAction())
         .assertCountEquals(2)
+}
+
+@Sampled
+fun waitForDisplayed() {
+    val interaction = composeTestRule.onNodeWithTag("test")
+    composeTestRule.waitUntil { interaction.isDisplayed() }
+}
+
+@Sampled
+fun waitForNotDisplayed() {
+    val interaction = composeTestRule.onNodeWithTag("test")
+    composeTestRule.waitUntil { interaction.isNotDisplayed() }
 }

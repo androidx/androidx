@@ -24,12 +24,11 @@ class TestEntity internal constructor(
     val name: String?,
     val duration: Duration?,
     val zonedDateTime: ZonedDateTime?,
-    val enum: TestEnum?,
     val entity: TestEntity?
 ) {
     override fun toString(): String {
         return "TestEntity(identifier=$id, name=$name, duration=$duration, " +
-            "zonedDateTime=$zonedDateTime, enum=$enum, entity=$entity)"
+            "zonedDateTime=$zonedDateTime, entity=$entity)"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -42,7 +41,6 @@ class TestEntity internal constructor(
         if (name != other.name) return false
         if (duration != other.duration) return false
         if (zonedDateTime != other.zonedDateTime) return false
-        if (enum != other.enum) return false
         if (entity != other.entity) return false
 
         return true
@@ -53,7 +51,6 @@ class TestEntity internal constructor(
         result += 31 * name.hashCode()
         result += 31 * duration.hashCode()
         result += 31 * zonedDateTime.hashCode()
-        result += 31 * enum.hashCode()
         result += 31 * entity.hashCode()
         return result
     }
@@ -63,7 +60,6 @@ class TestEntity internal constructor(
         private var name: String? = null
         private var duration: Duration? = null
         private var zonedDateTime: ZonedDateTime? = null
-        private var enum: TestEnum? = null
         private var entity: TestEntity? = null
 
         fun setId(id: String): Builder = apply { this.id = id }
@@ -72,9 +68,8 @@ class TestEntity internal constructor(
         fun setZonedDateTime(zonedDateTime: ZonedDateTime): Builder = apply {
             this.zonedDateTime = zonedDateTime
         }
-        fun setEnum(enum: TestEnum): Builder = apply { this.enum = enum }
         fun setEntity(entity: TestEntity): Builder = apply { this.entity = entity }
 
-        fun build(): TestEntity = TestEntity(id, name, duration, zonedDateTime, enum, entity)
+        fun build(): TestEntity = TestEntity(id, name, duration, zonedDateTime, entity)
     }
 }

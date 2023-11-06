@@ -1599,7 +1599,7 @@ class CompositionTests {
     }
 
     @Test
-    fun testRemember_Forget_NoForgetOnRemember() = compositionTest {
+    fun testRemember_Forget_ForgetOnRemember() = compositionTest {
         var expectedRemember = true
         var expectedForget = true
         val rememberObject = object : RememberObserver {
@@ -1714,8 +1714,8 @@ class CompositionTests {
             "Object should have only been notified once"
         )
 
-        expectedRemember = false
-        expectedForget = false
+        expectedRemember = true
+        expectedForget = true
         a = false
         b = true
         c = false
@@ -1730,8 +1730,8 @@ class CompositionTests {
         }
         assertEquals(1, rememberObject.count, "No enter or leaves")
 
-        expectedRemember = false
-        expectedForget = false
+        expectedRemember = true
+        expectedForget = true
         a = false
         b = false
         c = true
@@ -1746,8 +1746,8 @@ class CompositionTests {
         }
         assertEquals(1, rememberObject.count, "No enter or leaves")
 
-        expectedRemember = false
-        expectedForget = false
+        expectedRemember = true
+        expectedForget = true
         a = true
         b = false
         c = false
@@ -1839,7 +1839,7 @@ class CompositionTests {
             Composition(obj = rememberObject)
         }
         validate { this.Composition() }
-        assertEquals(2, rememberObject1.count, "first object should enter")
+        assertEquals(1, rememberObject1.count, "first object should enter")
         assertEquals(0, rememberObject2.count, "second object should not have entered")
 
         rememberObject = rememberObject2
@@ -1847,7 +1847,7 @@ class CompositionTests {
         expectChanges()
         validate { Composition() }
         assertEquals(0, rememberObject1.count, "first object should have left")
-        assertEquals(2, rememberObject2.count, "second object should have entered")
+        assertEquals(1, rememberObject2.count, "second object should have entered")
 
         rememberObject = object {}
         scope?.invalidate()
@@ -3424,13 +3424,17 @@ class CompositionTests {
     @Test // regression test for 264467571
     fun test_returnConditionally_fromNodeLambda_local_initial_return() = compositionTest {
         var condition by mutableStateOf(true)
+
         compose {
+            currentComposer.disableSourceInformation()
             Text("Before outer")
             InlineLinear {
                 Text("Before inner")
                 InlineLinear inner@{
                     Text("Before return")
-                    if (condition) return@inner
+                    if (condition) {
+                        return@inner
+                    }
                     Text("After return")
                 }
                 Text("After inner")
@@ -3463,6 +3467,7 @@ class CompositionTests {
     fun test_returnConditionally_fromNodeLambda_local_initial_no_return() = compositionTest {
         var condition by mutableStateOf(true)
         compose {
+            currentComposer.disableSourceInformation()
             Text("Before outer")
             InlineLinear {
                 Text("Before inner")
@@ -3501,6 +3506,7 @@ class CompositionTests {
     fun test_returnConditionally_fromNodeLambda_nonLocal_initial_return() = compositionTest {
         var condition by mutableStateOf(true)
         compose {
+            currentComposer.disableSourceInformation()
             Text("Before outer")
             InlineLinear outer@{
                 Text("Before inner")
@@ -3539,6 +3545,7 @@ class CompositionTests {
     fun test_returnConditionally_fromNodeLambda_nonLocal_initial_no_return() = compositionTest {
         var condition by mutableStateOf(true)
         compose {
+            currentComposer.disableSourceInformation()
             Text("Before outer")
             InlineLinear outer@{
                 Text("Before inner")
@@ -3578,6 +3585,7 @@ class CompositionTests {
         compositionTest {
             var condition by mutableStateOf(true)
             compose {
+                currentComposer.disableSourceInformation()
                 Text("Before outer")
                 InlineLinear outer@{
                     Text("Before inner")
@@ -3807,6 +3815,136 @@ class CompositionTests {
                 }
             }
         }
+    }
+
+    @Test
+    fun earlyComposableUnitReturn() = compositionTest {
+        var state by mutableStateOf(true)
+        compose {
+            when (state) {
+                true -> return@compose Text("true")
+                false -> Text("false")
+            }
+            Text("after")
+        }
+        validate {
+            Text("true")
+        }
+
+        state = false
+        expectChanges()
+
+        validate {
+            Text("false")
+            Text("after")
+        }
+    }
+
+    // Regression test for b/288717411
+    @Test
+    fun test_forgottenValue_isFreedFromSlotTable() = compositionTest {
+        val value = Any()
+        var rememberValue by mutableStateOf(false)
+        val composers = mutableSetOf<Composer>()
+        compose {
+            composers += currentComposer
+            if (rememberValue) {
+                remember { value }
+            }
+        }
+
+        validate {
+            assertFalse(value in composition!!.getSlots())
+        }
+
+        rememberValue = true
+        expectChanges()
+
+        validate {
+            assertTrue(value in composition!!.getSlots())
+        }
+
+        rememberValue = false
+        expectChanges()
+
+        validate {
+            assertFalse(value in composition!!.getSlots())
+            assertFalse(composers.any { value in it.getInsertTableSlots() })
+        }
+    }
+
+    @Stable
+    class VarargConsumer(var invokeCount: Int = 0) {
+        @Composable fun Varargs(vararg ints: Int) {
+            invokeCount++
+            for (i in ints) {
+                use(i)
+            }
+        }
+    }
+
+    // Regression test for b/286132194
+    @Test
+    fun composableVarargs_skipped() = compositionTest {
+        val consumer = VarargConsumer()
+        var recomposeTrigger by mutableStateOf(0)
+        compose {
+            Linear {
+                use(recomposeTrigger)
+                consumer.Varargs(0, 1, 2, 3)
+            }
+        }
+
+        assertEquals(1, consumer.invokeCount)
+
+        recomposeTrigger = 1
+        advance()
+
+        assertEquals(1, consumer.invokeCount)
+    }
+
+    fun interface TestFunInterface {
+        fun compute(value: Int)
+    }
+
+    @Composable fun TestMemoizedFun(compute: TestFunInterface) {
+        val oldCompute = remember { compute }
+        assertEquals(oldCompute, compute)
+    }
+
+    @Test
+    fun funInterface_isMemoized() = compositionTest {
+        var recomposeTrigger by mutableStateOf(0)
+        val capture = 0
+        compose {
+            use(recomposeTrigger)
+            TestMemoizedFun {
+                // no captures
+                use(it)
+            }
+            TestMemoizedFun {
+                // stable captures
+                use(capture)
+            }
+        }
+
+        recomposeTrigger++
+        advance()
+    }
+
+    // regression test for b/264467571, checks that composing with continue doesn't crash runtime
+    @Test
+    fun continueInALoop() = compositionTest {
+        var iterations by mutableIntStateOf(5)
+        compose {
+            for (i in 1..iterations) {
+                if (i == 4) continue
+                Text(i.toString())
+            }
+        }
+
+        iterations++
+        expectChanges()
     }
 
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {

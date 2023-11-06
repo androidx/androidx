@@ -28,6 +28,7 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_READER_P
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IO_EXECUTOR;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_JPEG_COMPRESSION_QUALITY;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SCREEN_FLASH_UI_CONTROL;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
@@ -48,7 +49,6 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_HIGH_RESOLUTION_DIS
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_ZSL_DISABLED;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
-import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.internal.utils.ImageUtil.computeCropRectFromAspectRatio;
 import static androidx.camera.core.internal.utils.ImageUtil.isAspectRatioValid;
 import static androidx.core.util.Preconditions.checkNotNull;
@@ -106,6 +106,7 @@ import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
@@ -226,16 +227,52 @@ public final class ImageCapture extends UseCase {
     @ExperimentalZeroShutterLag
     public static final int CAPTURE_MODE_ZERO_SHUTTER_LAG = 2;
 
+    private static final int FLASH_MODE_UNKNOWN = -1;
     /**
      * Auto flash. The flash will be used according to the camera system's determination when taking
      * a picture.
      */
-    private static final int FLASH_MODE_UNKNOWN = -1;
     public static final int FLASH_MODE_AUTO = 0;
     /** Always flash. The flash will always be used when taking a picture. */
     public static final int FLASH_MODE_ON = 1;
     /** No flash. The flash will never be used when taking a picture. */
     public static final int FLASH_MODE_OFF = 2;
+    /**
+     * Screen flash. Display screen brightness will be used as alternative to flash when taking
+     * a picture with front camera.
+     *
+     * <p> This flash mode can be set via {@link #setFlashMode(int)} after setting a non-null
+     * {@link ScreenFlashUiControl} with {@link #setScreenFlashUiControl(ScreenFlashUiControl)}.
+     * This mode will always invoke all the necessary operations for a screen flash image capture,
+     * i.e. it is similar to {@link #FLASH_MODE_ON}, not {@link #FLASH_MODE_AUTO}.
+     *
+     * <p> The following code snippet shows an example implementation of how this flash mode can be
+     * set to an {@link ImageCapture} instance.
+     * <pre>{@code
+     * imageCapture.setScreenFlashUiControl(new ImageCapture.ScreenFlashUiControl() {
+     *     @Override
+     *     public void applyScreenFlashUi(@NonNUll ScreenFlashUiCompleter screenFlashUiCompleter) {
+     *         whiteColorOverlayView.setVisibility(View.VISIBLE);
+     *         maximizeScreenBrightness();
+     *         screenFlashUiCompleter.complete();
+     *     }
+     *
+     *     @Override
+     *     public void clearScreenFlashUi() {
+     *         restoreScreenBrightness();
+     *         whiteColorOverlayView.setVisibility(View.INVISIBLE);
+     *     }
+     * });
+     *
+     * imageCapture.setFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+     * }</pre>
+     *
+     * @see #setFlashMode(int)
+     */
+    public static final int FLASH_MODE_SCREEN = 3;
+
+    /** The timeout in seconds for {@link ScreenFlashUiCompleter} to be completed. */
+    public static final long SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS = 3;
 
     /**
      * When flash is required for taking a picture, a normal one shot flash will be used.
@@ -295,6 +332,7 @@ public final class ImageCapture extends UseCase {
     @FlashMode
     private int mFlashMode = FLASH_MODE_UNKNOWN;
     private Rational mCropAspectRatio = null;
+    private ScreenFlashUiControl mScreenFlashUiControl;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
@@ -326,6 +364,7 @@ public final class ImageCapture extends UseCase {
         }
 
         mFlashType = useCaseConfig.getFlashType(FLASH_TYPE_ONE_SHOT_FLASH);
+        mScreenFlashUiControl = useCaseConfig.getScreenFlashUiControl();
     }
 
     private boolean isSessionProcessorEnabledInCurrentCamera() {
@@ -446,6 +485,15 @@ public final class ImageCapture extends UseCase {
     @Override
     public void onCameraControlReady() {
         trySetFlashModeToCameraControl();
+        setScreenFlashUiControlToCameraControl();
+    }
+
+    private @CameraSelector.LensFacing int getCameraLens() {
+        Camera camera = getCamera();
+        if (camera != null) {
+            return camera.getCameraInfo().getLensFacing();
+        }
+        return CameraSelector.LENS_FACING_UNKNOWN;
     }
 
     /**
@@ -467,8 +515,9 @@ public final class ImageCapture extends UseCase {
      *
      * <p>The flash control for the subsequent photo capture requests. Applications can check if
      * there is a flash unit via {@link CameraInfo#hasFlashUnit()} and update UI component if
-     * necessary. If there is no flash unit, then calling this API will take no effect for the
-     * subsequent photo capture requests and they will act like {@link #FLASH_MODE_OFF}.
+     * necessary. If there is no flash unit and {@code flashMode} is not {@link #FLASH_MODE_SCREEN},
+     * then calling this API will take no effect for the subsequent photo capture requests and
+     * they will act like {@link #FLASH_MODE_OFF}.
      *
      * <p>When the torch is enabled via {@link CameraControl#enableTorch(boolean)}, the torch
      * will remain enabled during photo capture regardless of flashMode setting. When
@@ -478,19 +527,74 @@ public final class ImageCapture extends UseCase {
      * mode could cause a crash. To workaround this CameraX will disable the auto flash behavior
      * internally on devices that have this issue.
      *
+     * <p>If {@link #FLASH_MODE_SCREEN} is set, a {@link ScreenFlashUiControl} implementation
+     * must be set via {@link #setScreenFlashUiControl(ScreenFlashUiControl)} before calling this
+     * API. Trying to use {@link #FLASH_MODE_SCREEN} without a ScreenFlashUiControl set or with a
+     * non-front camera will result in an {@link IllegalArgumentException}. It is the application's
+     * responsibility to change flashMode while switching the camera in case it leads to a
+     * non-supported case (e.g. switching to rear camera while FLASH_MODE_SCREEN is still on).
+     *
      * @param flashMode the flash mode. Value is {@link #FLASH_MODE_AUTO}, {@link #FLASH_MODE_ON},
-     *                  or {@link #FLASH_MODE_OFF}.
+     *                  {@link #FLASH_MODE_SCREEN} or {@link #FLASH_MODE_OFF}.
+     *
+     * @throws IllegalArgumentException If flash mode is invalid or FLASH_MODE_SCREEN is used
+     *                                  without a ScreenFlashUiControl or front camera.
      */
     public void setFlashMode(@FlashMode int flashMode) {
         if (flashMode != FLASH_MODE_AUTO && flashMode != FLASH_MODE_ON
                 && flashMode != FLASH_MODE_OFF) {
-            throw new IllegalArgumentException("Invalid flash mode: " + flashMode);
+            if (flashMode == FLASH_MODE_SCREEN) {
+                if (mScreenFlashUiControl == null) {
+                    throw new IllegalArgumentException(
+                            "ScreenFlashUiControl not set for FLASH_MODE_SCREEN");
+                }
+
+                if (getCamera() != null && getCameraLens() != CameraSelector.LENS_FACING_FRONT) {
+                    throw new IllegalArgumentException(
+                            "Not a front camera despite setting FLASH_MODE_SCREEN");
+                }
+            } else {
+                throw new IllegalArgumentException("Invalid flash mode: " + flashMode);
+            }
         }
 
         synchronized (mLockedFlashMode) {
             mFlashMode = flashMode;
             trySetFlashModeToCameraControl();
         }
+    }
+
+    /**
+     * Sets {@link ScreenFlashUiControl} for subsequent photo capture requests.
+     *
+     * <p>The calling of this API will take effect for {@link #FLASH_MODE_SCREEN} only
+     * and the {@code screenFlashUiControl} will be ignored for other flash modes.
+     *
+     * <p>If the implementation provided by the user is no longer valid (e.g. due to any
+     * {@link android.app.Activity} or {@link android.view.View} reference used in the
+     * implementation becoming invalid), user needs to re-set a new valid ScreenFlashUiControl or
+     * clear the previous one with {@code setScreenFlashUiControl(null)}, whichever appropriate.
+     *
+     * @param screenFlashUiControl A {@link ScreenFlashUiControl} implementation that is used to
+     *                             notify API users when app side changes need to be done. This
+     *                             will replace the previous {@code ScreenFlashUiControl} set
+     *                             with this method.
+     */
+    public void setScreenFlashUiControl(@Nullable ScreenFlashUiControl screenFlashUiControl) {
+        mScreenFlashUiControl = screenFlashUiControl;
+        setScreenFlashUiControlToCameraControl();
+    }
+
+    /**
+     * Returns the {@link ScreenFlashUiControl} currently set, null if none.
+     */
+    @Nullable
+    public ScreenFlashUiControl getScreenFlashUiControl() {
+        return mScreenFlashUiControl;
+    }
+
+    private void setScreenFlashUiControlToCameraControl() {
+        getCameraControl().setScreenFlashUiControl(mScreenFlashUiControl);
     }
 
     /**
@@ -610,82 +714,6 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
-     * Sets the desired rotation of the output image in degrees.
-     *
-     * <p>In general, it is best to use an {@link  android.view.OrientationEventListener} to set
-     * the target rotation. This way, the rotation output will indicate which way is down for a
-     * given image. This is important since display orientation may be locked by device default,
-     * user setting, or app configuration, and some devices may not transition to a
-     * reverse-portrait display orientation. In these cases, use
-     * {@code setTargetRotationDegrees()} to set target rotation dynamically according
-     * to the {@link  android.view.OrientationEventListener}, without re-creating the use case.
-     * The sample code is as below:
-     * <pre>{@code
-     * public class CameraXActivity extends AppCompatActivity {
-     *
-     *     private OrientationEventListener mOrientationEventListener;
-     *
-     *     @Override
-     *     protected void onStart() {
-     *         super.onStart();
-     *         if (mOrientationEventListener == null) {
-     *             mOrientationEventListener = new OrientationEventListener(this) {
-     *                 @Override
-     *                 public void onOrientationChanged(int orientation) {
-     *                     if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) {
-     *                         return;
-     *                     }
-     *                     mImageCapture.setTargetRotationDegrees(orientation);
-     *                 }
-     *             };
-     *         }
-     *         mOrientationEventListener.enable();
-     *     }
-     *
-     *     @Override
-     *     protected void onStop() {
-     *         super.onStop();
-     *         mOrientationEventListener.disable();
-     *     }
-     * }
-     * }</pre>
-     *
-     * <p>{@code setTargetRotationDegrees()} cannot rotate the camera image to an arbitrary angle,
-     * instead it maps the angle to one of {@link Surface#ROTATION_0},
-     * {@link Surface#ROTATION_90}, {@link Surface#ROTATION_180} and {@link Surface#ROTATION_270}
-     * as the input of {@link #setTargetRotation(int)}. The rule is as follows:
-     * <p>If the input degrees is not in the range [0..359], it will be converted to the equivalent
-     * degrees in the range [0..359]. And then take the following mapping based on the input
-     * degrees.
-     * <p>degrees >= 315 || degrees < 45 -> {@link Surface#ROTATION_0}
-     * <p>degrees >= 225 && degrees < 315 -> {@link Surface#ROTATION_90}
-     * <p>degrees >= 135 && degrees < 225 -> {@link Surface#ROTATION_180}
-     * <p>degrees >= 45 && degrees < 135 -> {@link Surface#ROTATION_270}
-     * <p>The rotation value can be obtained by {@link #getTargetRotation()}. This means the
-     * rotation previously set by {@link #setTargetRotation(int)} will be overridden by
-     * {@code setTargetRotationDegrees(int)}, and vice versa.
-     *
-     * <p>When this function is called, value set by
-     * {@link ImageCapture.Builder#setTargetResolution(Size)} will be updated automatically to make
-     * sure the suitable resolution can be selected when the use case is bound. Value set by
-     * {@link ImageCapture#setCropAspectRatio(Rational)} will also be updated automatically to
-     * make sure the output image is cropped into expected aspect ratio.
-     *
-     * <p>takePicture uses the target rotation at the time it begins executing (which may be delayed
-     * waiting on a previous takePicture call to complete).
-     *
-     * @param degrees Desired rotation degree of the output image.
-     * @see #setTargetRotation(int)
-     * @see #getTargetRotation()
-     * @deprecated Use {@link UseCase#snapToSurfaceRotation(int)} and
-     * {@link #setTargetRotation(int)} to convert and set the rotation.
-     */
-    @Deprecated // TODO(b/277999375): Remove API setTargetRotationDegrees.
-    public void setTargetRotationDegrees(int degrees) {
-        setTargetRotation(snapToSurfaceRotation(within360(degrees)));
-    }
-
-    /**
      * Returns the set capture mode.
      *
      * <p>This is set when constructing an ImageCapture using
@@ -784,6 +812,9 @@ public final class ImageCapture extends UseCase {
      *
      * @param executor The executor in which the callback methods will be run.
      * @param callback Callback to be invoked for the newly captured image
+     *
+     * @throws IllegalArgumentException If {@link ImageCapture#FLASH_MODE_SCREEN} is used without a
+     *                                  ScreenFlashUiControl.
      */
     public void takePicture(@NonNull Executor executor,
             final @NonNull OnImageCapturedCallback callback) {
@@ -808,6 +839,9 @@ public final class ImageCapture extends UseCase {
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
+     *
+     * @throws IllegalArgumentException If {@link ImageCapture#FLASH_MODE_SCREEN} is used without a
+     *                                  ScreenFlashUiControl.
      * @see ViewPort
      */
     public void takePicture(
@@ -949,7 +983,6 @@ public final class ImageCapture extends UseCase {
      * @return {@code true} if software JPEG will be used after applying constraints.
      */
     boolean enforceSoftwareJpegConstraints(@NonNull MutableConfig mutableConfig) {
-        // Software encoder currently only supports API 26+.
         if (Boolean.TRUE.equals(
                 mutableConfig.retrieveOption(OPTION_USE_SOFTWARE_JPEG_ENCODER, false))) {
             boolean supported = true;
@@ -992,6 +1025,12 @@ public final class ImageCapture extends UseCase {
     public void onBind() {
         CameraInternal camera = getCamera();
         checkNotNull(camera, "Attached camera cannot be null");
+
+        if (getFlashMode() == FLASH_MODE_SCREEN
+                && getCameraLens() != CameraSelector.LENS_FACING_FRONT) {
+            throw new IllegalArgumentException(
+                    "Not a front camera despite setting FLASH_MODE_SCREEN in ImageCapture");
+        }
     }
 
     /**
@@ -1061,10 +1100,14 @@ public final class ImageCapture extends UseCase {
         Log.d(TAG, String.format("createPipeline(cameraId: %s, streamSpec: %s)",
                 cameraId, streamSpec));
         Size resolution = streamSpec.getResolution();
-
-        checkState(mImagePipeline == null);
         boolean isVirtualCamera = !requireNonNull(getCamera()).getHasTransform()
                 || isSessionProcessorEnabledInCurrentCamera();
+        if (mImagePipeline != null) {
+            checkState(isVirtualCamera);
+            // On LEGACY devices, when the app is backgrounded, it will trigger StreamSharing's
+            // SessionConfig error callback and recreate children pipeline.
+            mImagePipeline.close();
+        }
         mImagePipeline = new ImagePipeline(config, resolution, getEffect(), isVirtualCamera);
 
         if (mTakePictureManager == null) {
@@ -1101,6 +1144,9 @@ public final class ImageCapture extends UseCase {
 
     /**
      * Takes a picture with the new architecture.
+     *
+     * @throws IllegalArgumentException If {@link ImageCapture#FLASH_MODE_SCREEN} is used without a
+     *                                  ScreenFlashUiControl.
      */
     @MainThread
     private void takePictureInternal(@NonNull Executor executor,
@@ -1108,6 +1154,10 @@ public final class ImageCapture extends UseCase {
             @Nullable ImageCapture.OnImageSavedCallback onDiskCallback,
             @Nullable OutputFileOptions outputFileOptions) {
         checkMainThread();
+        if (getFlashMode() == ImageCapture.FLASH_MODE_SCREEN && mScreenFlashUiControl == null) {
+            throw new IllegalArgumentException(
+                    "ScreenFlashUiControl not set for FLASH_MODE_SCREEN");
+        }
         Log.d(TAG, "takePictureInternal");
         CameraInternal camera = getCamera();
         if (camera == null) {
@@ -1232,6 +1282,37 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
+     * Returns an estimate of the capture and processing sequence duration based on the current
+     * camera configuration and scene conditions. The value will vary as the scene and/or camera
+     * configuration change.
+     *
+     * <p>The processing estimate can vary based on device processing load.
+     *
+     * <p>If the image capture latency estimate is not supported then
+     * {@link ImageCaptureLatencyEstimate#UNDEFINED_IMAGE_CAPTURE_LATENCY} is returned. If the
+     * capture latency is not supported then the capture latency component will be
+     * {@link ImageCaptureLatencyEstimate#UNDEFINED_CAPTURE_LATENCY}. If the processing
+     * latency is not supported then the processing latency component will be
+     * {@link ImageCaptureLatencyEstimate#UNDEFINED_PROCESSING_LATENCY}.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public ImageCaptureLatencyEstimate getRealtimeCaptureLatencyEstimate() {
+        final CameraInternal camera = getCamera();
+        if (camera == null) {
+            return ImageCaptureLatencyEstimate.UNDEFINED_IMAGE_CAPTURE_LATENCY;
+        }
+
+        final CameraConfig config = camera.getExtendedConfig();
+        final SessionProcessor sessionProcessor = config.getSessionProcessor();
+        final Pair<Long, Long> latencyEstimate = sessionProcessor.getRealtimeCaptureLatency();
+        if (latencyEstimate == null) {
+            return ImageCaptureLatencyEstimate.UNDEFINED_IMAGE_CAPTURE_LATENCY;
+        }
+        return new ImageCaptureLatencyEstimate(latencyEstimate.first, latencyEstimate.second);
+    }
+
+    /**
      * Describes the error that occurred during an image capture operation (such as {@link
      * ImageCapture#takePicture(Executor, OnImageCapturedCallback)}).
      *
@@ -1269,7 +1350,7 @@ public final class ImageCapture extends UseCase {
      * the torch is disabled, flash will function as specified by
      * {@link #setFlashMode(int)}.
      */
-    @IntDef({FLASH_MODE_UNKNOWN, FLASH_MODE_AUTO, FLASH_MODE_ON, FLASH_MODE_OFF})
+    @IntDef({FLASH_MODE_UNKNOWN, FLASH_MODE_AUTO, FLASH_MODE_ON, FLASH_MODE_SCREEN, FLASH_MODE_OFF})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface FlashMode {
@@ -1286,6 +1367,21 @@ public final class ImageCapture extends UseCase {
 
     /** Listener containing callbacks for image file I/O events. */
     public interface OnImageSavedCallback {
+        /**
+         * Called when the capture is started.
+         *
+         * <p>This callback is guaranteed to be called once and before
+         * {@link #onImageSaved(OutputFileResults)} for the same invocation of
+         * {@link #takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}.
+         *
+         * <p>It's recommended to play shutter sound or trigger UI indicators of
+         * capture when receiving this callback.
+         */
+        // TODO(b/307277146): Promote this to a public API once it's ready.
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        default void onCaptureStarted() {
+        }
+
         /** Called when an image has been successfully saved. */
         void onImageSaved(@NonNull OutputFileResults outputFileResults);
 
@@ -1299,9 +1395,24 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
-     * Callback for when an image capture has completed.
+     * Callback for image capture events.
      */
     public abstract static class OnImageCapturedCallback {
+        /**
+         * Callback for when the camera has started exposing a frame.
+         *
+         * <p>This callback is guaranteed to be called once and before
+         * {@link #onCaptureSuccess(ImageProxy)} for the same invocation of
+         * {@link #takePicture(Executor, OnImageCapturedCallback)}.
+         *
+         * <p>It's recommended to play shutter sound or trigger UI indicators of
+         * capture when receiving this callback.
+         */
+        // TODO(b/307277146): Promote this to a public API once it's ready.
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public void onCaptureStarted() {
+        }
+
         /**
          * Callback for when the image has been captured.
          *
@@ -1346,6 +1457,68 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
+     * Interface to inform if application UI change has been completed for a screen flash image
+     * capture.
+     */
+    public interface ScreenFlashUiCompleter {
+        /**
+         * Completes this {@link ScreenFlashUiCompleter} instance so that CameraX is no
+         * longer waiting.
+         *
+         * @see ScreenFlashUiControl#applyScreenFlashUi
+         */
+        void complete();
+    }
+
+    /** Interface to do the application UI changes for screen flash operations. */
+    public interface ScreenFlashUiControl {
+        /**
+         * Applies the necessary application UI changes for a screen flash photo capture.
+         *
+         * <p>CameraX will invoke this method when the application UI needs to be changed for a
+         * successful photo capture with screen flash feature. When this callback is invoked, the
+         * application UI should utilize the screen to provide extra light as an alternative to
+         * physical flash. For example, the screen brightness can be maximized and screen color
+         * can be covered with some bright color like white.
+         *
+         * <p>With a timeout of {@link #SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS} seconds, CameraX
+         * will wait for the provided {@link ScreenFlashUiCompleter} argument to be completed
+         * before starting any operation that is dependent on the UI change. Applications must call
+         * {@link ScreenFlashUiCompleter#complete()} after their UI changes are done so that
+         * CameraX is not unnecessarily waiting. If the application does not call {@code
+         * ScreenFlashUiCompleter#complete} within the timeout, CameraX will stop waiting and
+         * move forward with the subsequent operations regardless. In such case, it is the
+         * application's responsibility to clear any UI change done after
+         * {@link #clearScreenFlashUi} has been invoked.
+         *
+         * <p>The following code snippet shows an example implementation of this API.
+         * <pre>{@code
+         * @Override
+         * public void applyScreenFlashUi(@NonNull ScreenFlashUiCompleter screenFlashUiCompleter) {
+         *     // Enable top overlay to make screen color white
+         *     whiteColorOverlay.setVisible(true);
+         *     // Maximize screen brightness
+         *     maximizeScreenBrightness();
+         *     screenFlashUiCompleter.complete();
+         * }}</pre>
+         *
+         * @param screenFlashUiCompleter Used to notify when UI changes have been applied.
+         */
+        @UiThread
+        void applyScreenFlashUi(@NonNull ScreenFlashUiCompleter screenFlashUiCompleter);
+
+        /**
+         * Clears any application UI change done for screen flash, if required.
+         *
+         * <p>CameraX will invoke this method when a screen flash photo capture has been completed
+         * and the application screen can be safely changed to a state not conforming to screen
+         * flash photo capture.
+         */
+        @UiThread
+        void clearScreenFlashUi();
+    }
+
+    /**
      * Provides a base static default configuration for the ImageCapture
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
@@ -1372,7 +1545,6 @@ public final class ImageCapture extends UseCase {
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY)
                     .setTargetAspectRatio(DEFAULT_ASPECT_RATIO)
                     .setResolutionSelector(DEFAULT_RESOLUTION_SELECTOR)
-                    .setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE)
                     .setDynamicRange(DEFAULT_DYNAMIC_RANGE);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
@@ -1882,6 +2054,7 @@ public final class ImageCapture extends UseCase {
                                 + oldConfigClass);
             }
 
+            setCaptureType(UseCaseConfigFactory.CaptureType.IMAGE_CAPTURE);
             setTargetClass(ImageCapture.class);
         }
 
@@ -1934,7 +2107,9 @@ public final class ImageCapture extends UseCase {
          *
          * @return A {@link ImageCapture} populated with the current state.
          * @throws IllegalArgumentException if attempting to set both target aspect ratio and
-         *                                  target resolution.
+         *                                  target resolution, or attempting to set
+         *                                  {@link ImageCapture#FLASH_MODE_SCREEN} without
+         *                                  setting a non-null {@link ScreenFlashUiControl}.
          */
         @Override
         @NonNull
@@ -1970,9 +2145,18 @@ public final class ImageCapture extends UseCase {
                 Integer flashMode = getMutableConfig().retrieveOption(OPTION_FLASH_MODE);
 
                 if (flashMode == null || (flashMode != FLASH_MODE_AUTO && flashMode != FLASH_MODE_ON
-                        && flashMode != FLASH_MODE_OFF)) {
+                        && flashMode != FLASH_MODE_SCREEN && flashMode != FLASH_MODE_OFF)) {
                     throw new IllegalArgumentException(
                             "The flash mode is not allowed to set: " + flashMode);
+                }
+
+                if (flashMode == FLASH_MODE_SCREEN) {
+                    if (getMutableConfig().retrieveOption(OPTION_SCREEN_FLASH_UI_CONTROL, null)
+                            == null) {
+                        throw new IllegalArgumentException(
+                                "The flash mode is not allowed to set to FLASH_MODE_SCREEN "
+                                        + "without setting ScreenFlashUiControl");
+                    }
                 }
             }
 
@@ -2005,15 +2189,40 @@ public final class ImageCapture extends UseCase {
          *
          * <p>If not set, the flash mode will default to {@link #FLASH_MODE_OFF}.
          *
+         * <p>If set to {@link #FLASH_MODE_SCREEN}, a non-null {@link ScreenFlashUiControl} must
+         * also be set with {@link #setScreenFlashUiControl(ScreenFlashUiControl)}. Otherwise, an
+         * {@link IllegalArgumentException} will be thrown when {@link #build()} is invoked.
+         *
          * <p>See {@link ImageCapture#setFlashMode(int)} for more information.
          *
          * @param flashMode The requested flash mode. Value is {@link #FLASH_MODE_AUTO},
-         *                  {@link #FLASH_MODE_ON}, or {@link #FLASH_MODE_OFF}.
+         *                  {@link #FLASH_MODE_ON}, {@link #FLASH_MODE_SCREEN}, or
+         *                  {@link #FLASH_MODE_OFF}.
          * @return The current Builder.
          */
         @NonNull
         public Builder setFlashMode(@FlashMode int flashMode) {
             getMutableConfig().insertOption(OPTION_FLASH_MODE, flashMode);
+            return this;
+        }
+
+        /**
+         * Sets the {@link ScreenFlashUiControl} necessary for screen flash operations.
+         *
+         * <p>If not set, the control will be set to null and users will need to set it later
+         * before calling {@link #setFlashMode(int)} with {@link #FLASH_MODE_SCREEN}.
+         *
+         * <p>See {@link ImageCapture#setScreenFlashUiControl(ScreenFlashUiControl)} for more
+         * information.
+         *
+         * @param screenFlashUiControl The {@link ScreenFlashUiControl} to notify caller for the
+         *                             UI side changes required for photo capture with
+         *                             {@link #FLASH_MODE_SCREEN}.
+         * @return The current Builder.
+         */
+        @NonNull
+        public Builder setScreenFlashUiControl(@NonNull ScreenFlashUiControl screenFlashUiControl) {
+            getMutableConfig().insertOption(OPTION_SCREEN_FLASH_UI_CONTROL, screenFlashUiControl);
             return this;
         }
 
@@ -2445,6 +2654,7 @@ public final class ImageCapture extends UseCase {
          * Sets the {@link DynamicRange}.
          *
          * <p>This is currently only exposed to internally set the dynamic range to SDR.
+         *
          * @return The current Builder.
          * @see DynamicRange
          */

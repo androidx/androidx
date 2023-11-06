@@ -16,7 +16,6 @@
 
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
-import androidx.build.SupportConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -24,6 +23,14 @@ plugins {
 }
 
 androidx.configureAarAsJarForConfiguration("testImplementation")
+
+// android.jar and xmlpull has the same classes, but android.jar has stubs instead of real
+// implementation, so we remove org.xmlpull.* from android.jar used for tests
+tasks.register("strippedAndroidJar", Jar).configure {
+    it.from(zipTree(SdkHelperKt.getSdkDependency(project).getFiles().first()))
+    it.exclude("org/xmlpull/**")
+    it.archiveFileName.set("stripped-android.jar")
+}
 
 dependencies {
     implementation(libs.xpp3)
@@ -38,26 +45,15 @@ dependencies {
     testImplementation(projectOrArtifact(":room:room-compiler-processing-testing"), {
         exclude group: "androidx.room", module: "room-compiler-processing"
     })
-    testImplementation(fileTree(
-            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include : "android.jar"
-    ))
     testImplementationAarAsJar(project(":navigation:navigation-common"))
     testImplementationAarAsJar(project(":lifecycle:lifecycle-viewmodel-savedstate"))
+    testImplementation(tasks.named("strippedAndroidJar").map { it.outputs.files })
 }
 
-tasks.findByName("test").doFirst {
-    // android.jar and xmlpull has the same classes, but android.jar has stubs instead of real
-    // implementation, so we move android.jar to end of classpath
-    def classpath = it.classpath.getFiles()
-    def androidJar = classpath.find { it.name == "android.jar" }
-    it.classpath = files(classpath.minus(androidJar).plus(androidJar))
-}
 tasks.withType(Test).configureEach {
     // https://github.com/google/compile-testing/issues/222
     it.jvmArgs "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED"
 }
-
 
 androidx {
     name = "Navigation TypeSafe Arguments Generator"

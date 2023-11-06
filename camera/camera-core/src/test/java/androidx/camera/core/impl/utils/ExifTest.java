@@ -33,7 +33,7 @@ import org.robolectric.shadows.ShadowSystemClock;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -157,10 +157,10 @@ public class ExifTest {
     @Test
     public void attachedTimestampUsesSystemWallTime() {
         long beforeTimestamp = SystemClock.uptimeMillis();
-        ShadowSystemClock.advanceBy(Duration.ofMillis(100));
+        ShadowSystemClock.advanceBy(100, TimeUnit.MILLISECONDS);
 
         mExif.attachTimestamp();
-        ShadowSystemClock.advanceBy(Duration.ofMillis(100));
+        ShadowSystemClock.advanceBy(100, TimeUnit.MILLISECONDS);
         long afterTimestamp = SystemClock.uptimeMillis();
 
         // Check that the attached timestamp is in the closed range [beforeTimestamp,

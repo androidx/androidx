@@ -1,94 +1,76 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.1.0-alpha07">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public var argumentSource: Bundle? = null"
-        errorLine2="           ~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 19): `stopAllPerfettoProcesses`"
+        errorLine1="        PerfettoHelper.stopAllPerfettoProcesses()"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/benchmark/Arguments.kt"/>
+            file="src/androidTest/java/androidx/benchmark/PerfettoHelperTest.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="object Arguments {"
-        errorLine2="       ~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 21 (current min is 19): `getPidsForProcess`"
+        errorLine1="        fun getPerfettoPids() = Shell.getPidsForProcess(if (unbundled) &quot;tracebox&quot; else &quot;perfetto&quot;)"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/benchmark/Arguments.kt"/>
+            file="src/androidTest/java/androidx/benchmark/PerfettoHelperTest.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public object Outputs {"
-        errorLine2="              ~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 19): `PerfettoCapture`"
+        errorLine1="        val capture = PerfettoCapture(unbundled)"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/benchmark/Outputs.kt"/>
+            file="src/androidTest/java/androidx/benchmark/PerfettoHelperTest.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class ProfileSession {"
-        errorLine2="             ~~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 19): `start`"
+        errorLine1="        capture.start("
+        errorLine2="                ~~~~~">
         <location
-            file="src/main/java/androidx/benchmark/simpleperf/ProfileSession.java"/>
+            file="src/androidTest/java/androidx/benchmark/PerfettoHelperTest.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class RecordOptions {"
-        errorLine2="             ~~~~~~~~~~~~~">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 19): `isRunning`"
+        errorLine1="        assertTrue(capture.isRunning())"
+        errorLine2="                           ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/benchmark/simpleperf/RecordOptions.java"/>
+            file="src/androidTest/java/androidx/benchmark/PerfettoHelperTest.kt"/>
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(TimeUnit.SECONDS.toMillis(sleepSeconds))"
-        errorLine2="                   ~~~~~">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 19): `stopAllPerfettoProcesses`"
+        errorLine1="        PerfettoHelper.stopAllPerfettoProcesses()"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/benchmark/BenchmarkState.kt"/>
+            file="src/androidTest/java/androidx/benchmark/PerfettoHelperTest.kt"/>
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)"
-        errorLine2="               ~~~~~">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 19): `isRunning`"
+        errorLine1="        assertFalse(capture.isRunning())"
+        errorLine2="                            ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/benchmark/Profiler.kt"/>
+            file="src/androidTest/java/androidx/benchmark/PerfettoHelperTest.kt"/>
     </issue>
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)"
-        errorLine2="               ~~~~~">
+        id="NewApi"
+        message="Call requires API level 23 (current min is 19): `isAbiSupported`"
+        errorLine1="        Assume.assumeTrue(PerfettoHelper.isAbiSupported())"
+        errorLine2="                                         ~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/benchmark/Profiler.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/Profiler.kt"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/benchmark/Profiler.kt"/>
+            file="src/androidTest/java/androidx/benchmark/PerfettoHelperTest.kt"/>
     </issue>
 
 </issues>

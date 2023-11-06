@@ -40,6 +40,11 @@ shadowJar {
     configurations = [project.configurations.shadowed]
     relocate("kotlinx.metadata", "androidx.room.jarjarred.kotlinx.metadata")
     mergeServiceFiles() // kotlinx-metadata-jvm has a service descriptor that needs transformation
+    // Exclude Kotlin metadata files from kotlinx-metadata-jvm
+    exclude 'META-INF/kotlinx-metadata-jvm.kotlin_module'
+    exclude 'META-INF/kotlinx-metadata.kotlin_module'
+    exclude 'META-INF/metadata.jvm.kotlin_module'
+    exclude 'META-INF/metadata.kotlin_module'
 }
 
 jar {
@@ -79,8 +84,10 @@ dependencies {
     testImplementation(libs.jsr250)
     testImplementation(libs.ksp)
     testImplementation(libs.kotlinMetadataJvm)
+    testImplementation(libs.testParameterInjector)
     testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(project(":internal-testutils-common"))
+    testImplementation(project(":kruth:kruth"))
 }
 
 tasks.withType(KotlinCompile).configureEach {
@@ -93,8 +100,9 @@ tasks.withType(KotlinCompile).configureEach {
     }
 }
 
-tasks.withType(Test).configureEach {
-   it.systemProperty("androidx.room.compiler.processing.strict", "true")
+tasks.withType(Test).configureEach { test ->
+    test.maxParallelForks(2)
+    test.systemProperty("androidx.room.compiler.processing.strict", "true")
 }
 
 androidx {

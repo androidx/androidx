@@ -28,7 +28,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import android.animation.ValueAnimator;
-import android.os.Build;
 import android.view.Gravity;
 import android.view.ViewConfiguration;
 
@@ -37,7 +36,6 @@ import androidx.core.util.Pair;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.Suppress;
 import androidx.testutils.AnimationDurationScaleRule;
 import androidx.testutils.PollingCheck;
@@ -139,14 +137,12 @@ public class ItemTouchHelperTest extends BaseRecyclerViewInstrumentationTest {
 
     // Test is disabled as it is flaky.
     @Suppress
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Test
     public void swipeStartInRTL() throws Throwable {
         mSetupRTL = true;
         basicSwipeTest(START, START | END, getActivity().getWindow().getDecorView().getWidth());
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN_MR1)
     @Test
     @FlakyTest(bugId = 190192628)
     public void swipeEndInRTL() throws Throwable {

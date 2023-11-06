@@ -61,7 +61,7 @@ public fun <R, E : Throwable> Continuation<R>.asOutcomeReceiver(): OutcomeReceiv
 private class ContinuationOutcomeReceiver<R, E : Throwable>(
     private val continuation: Continuation<R>
 ) : OutcomeReceiver<R, E>, AtomicBoolean(false) {
-    override fun onResult(result: R & Any) {
+    override fun onResult(result: R) {
         // Do not attempt to resume more than once, even if the caller of the returned
         // OutcomeReceiver is buggy and tries anyway.
         if (compareAndSet(false, true)) {

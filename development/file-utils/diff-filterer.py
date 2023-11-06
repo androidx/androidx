@@ -126,6 +126,17 @@ class FileIo(object):
           return result
     return result
 
+  # returns the time at which <path> was last modified, without following symlinks
+  def getModificationTime(self, path):
+    if os.path.exists(path):
+      if os.path.islink(path):
+        # for a symlink, the last time the link itself was modified is the ctime (mtime for a broken link is undefined)
+        return os.path.getctime(path)
+      else:
+        # for a file, the last time its content was modified is the mtime
+        return os.path.getmtime(path)
+    return None
+
 fileIo = FileIo()
 
 # Returns cpu usage
@@ -137,44 +148,6 @@ class CpuStats(object):
     return psutil.cpu_times_percent(interval=None)
 
 cpuStats = CpuStats()
-
-# Fast file copying
-class FileCopyCache(object):
-  def __init__(self):
-    self.modificationTimes = {}
-
-  # Puts a copy of <sourcePath> at <destPath>
-  # If we already have an unmodified copy, we just hardlink our existing unmodified copy
-  # If we don't have an unmodified copy, we first make a copy
-  def copyFile(self, sourcePath, destPath, cachePath):
-    if cachePath is None:
-      fileIo.copyFile(sourcePath, destPath)
-    else:
-      shareable = self.getShareableFile(sourcePath, cachePath)
-      fileIo.hardLink(shareable, destPath)
-
-  # gets a shareable copy of <sourcePath> in <cachePath> and returns its path
-  def getShareableFile(self, sourcePath, cachePath):
-    # note that absolute sourcePath is supported
-    path = os.path.abspath(cachePath + "/" + sourcePath)
-    if path in self.modificationTimes:
-      # we've already shared this file before; let's check whether it has been modified since then
-      if self.modificationTimes[path] == self.getModificationTime(path):
-        # this file hasn't been modified since we last shared it; we can just reuse it
-        return path
-    # we don't have an existing file that we can reuse, so we have to make one
-    fileIo.copyFile(sourcePath, path)
-    self.modificationTimes[path] = self.getModificationTime(path)
-    return path
-
-  # returns the time at which <path> was last modified
-  def getModificationTime(self, path):
-    if os.path.exists(path):
-      return os.path.getmtime(path)
-    return None
-
-
-fileCopyCache = FileCopyCache()
 
 # Runs a shell command
 class ShellScript(object):
@@ -193,7 +166,7 @@ class ShellScript(object):
 
 # Base class that can hold the state of a file
 class FileContent(object):
-  def apply(self, filePath, cachePath=None):
+  def apply(self, filePath):
     pass
 
   def equals(self, other, checkWithFileSystem=False):
@@ -206,8 +179,8 @@ class FileBacked_FileContent(FileContent):
     self.referencePath = referencePath
     self.isLink = os.path.islink(self.referencePath)
 
-  def apply(self, filePath, cachePath=None):
-    fileCopyCache.copyFile(self.referencePath, filePath, cachePath)
+  def apply(self, filePath):
+    fileIo.copyFile(self.referencePath, filePath)
 
   def equals(self, other, checkWithFileSystem=False):
     if not isinstance(other, FileBacked_FileContent):
@@ -230,7 +203,7 @@ class MissingFile_FileContent(FileContent):
   def __init__(self):
     super(MissingFile_FileContent, self).__init__()
 
-  def apply(self, filePath, cachePath=None):
+  def apply(self, filePath):
     fileIo.removePath(filePath)
 
   def equals(self, other, checkWithFileSystem=False):
@@ -244,7 +217,7 @@ class Directory_FileContent(FileContent):
   def __init__(self):
     super(Directory_FileContent, self).__init__()
 
-  def apply(self, filePath, cachePath=None):
+  def apply(self, filePath):
     fileIo.ensureDirExists(filePath)
 
   def equals(self, other, checkWithFileSystem=False):
@@ -258,9 +231,9 @@ class FilesState(object):
   def __init__(self):
     self.fileStates = OrderedDict()
 
-  def apply(self, filePath, cachePath=None):
+  def apply(self, filePath):
     for relPath, state in self.fileStates.items():
-      state.apply(fileIo.join(filePath, relPath), cachePath)
+      state.apply(fileIo.join(filePath, relPath))
 
   def add(self, filePath, fileContent):
     self.fileStates[filePath] = fileContent
@@ -487,15 +460,15 @@ def filesStateFromTree(rootPath):
   return state
 
 # runs a Job in this process
-def runJobInSameProcess(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe):
-  job = Job(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe)
+def runJobInSameProcess(shellCommand, workPath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe):
+  job = Job(shellCommand, workPath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe)
   job.runAndReport()
 
 # starts a Job in a new process
-def runJobInOtherProcess(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, queue, identifier):
+def runJobInOtherProcess(shellCommand, workPath, originalState, assumeNoSideEffects, full_resetTo_state, testState, queue, identifier):
   parentWriter, childReader = multiprocessing.Pipe()
   childInfo = TwoWayPipe(childReader, queue, identifier)
-  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, childInfo,))
+  process = multiprocessing.Process(target=runJobInSameProcess, args=(shellCommand, workPath, originalState, assumeNoSideEffects, full_resetTo_state, testState, childInfo,))
   process.start()
   return parentWriter
 
@@ -507,7 +480,7 @@ class TwoWayPipe(object):
 
 # Stores a subprocess for running tests and some information about which tests to run
 class Job(object):
-  def __init__(self, shellCommand, workPath, cachePath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe):
+  def __init__(self, shellCommand, workPath, originalState, assumeNoSideEffects, full_resetTo_state, testState, twoWayPipe):
     # the test to run
     self.shellCommand = shellCommand
     # directory to run the test in
@@ -521,7 +494,6 @@ class Job(object):
     # the changes we're considering
     self.testState = testState
     self.pipe = twoWayPipe
-    self.cachePath = cachePath
 
   def runAndReport(self):
     succeeded = False
@@ -561,7 +533,8 @@ class Job(object):
         if isinstance(modified, FileBacked_FileContent):
           # If any filepath wasn't modified since the start of the test, then its content matches the original
           # (If the content is known to match the original, we won't have to reset it next time)
-          if os.path.getmtime(modified.referencePath) < testStartSeconds:
+          referenceModification = fileIo.getModificationTime(modified.referencePath)
+          if referenceModification is not None and referenceModification < testStartSeconds:
             original = fullStateToTest.getContent(key)
             if original is not None:
               if isinstance(original, FileBacked_FileContent):
@@ -624,7 +597,6 @@ class DiffRunner(object):
             except IOError as e:
               if attempt >= numAttempts - 1:
                 raise Exception("Failed to remove " + path, e)
-    fileIo.removePath(os.path.join(self.workPath, "caches"))
 
   def runnerTest(self, testState, timeout = None):
     workPath = self.getWorkPath(0)
@@ -662,9 +634,6 @@ class DiffRunner(object):
 
   def getWorkPath(self, jobId):
     return os.path.join(self.workPath, "job-" + str(jobId))
-
-  def getFilesCachePath(self, jobId):
-    return os.path.join(self.workPath, "caches", "job-" + str(jobId))
 
   def run(self):
     start = datetime.datetime.now()
@@ -716,6 +685,10 @@ class DiffRunner(object):
     numCompletedTests = 2 # Already tested initial passing state and initial failing state
     numJobsAtFirstSuccessAfterMerge = None
     timedOut = False
+    summaryLogPath = os.path.join(self.workPath, "diff-filterer.log")
+    summaryLog = open(summaryLogPath, "w")
+    summaryLog.write("diff-filterer.py starting at " + str(datetime.datetime.now()))
+    summaryLog.flush()
     # continue until all files fail and no jobs are running
     while (numFailuresSinceLastSplitOrSuccess < self.resetTo_state.size() and not timedOut) or len(activeTestStatesById) > 0:
       # display status message
@@ -753,7 +726,8 @@ class DiffRunner(object):
           numConsecutiveFailures = 0
           numFailuresSinceLastSplitOrSuccess = 0
           acceptedState = box #.getAllFiles()
-          #print("Succeeded : " + acceptedState.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()))
+          summaryLog.write("Succeeded : " + acceptedState.summarize() + " (job " + str(identifier) + ") at " + str(datetime.datetime.now()) + "\n")
+          summaryLog.flush()
           maxRunningSize = max([state.size() for state in activeTestStatesById.values()])
           maxRelevantSize = maxRunningSize / len(activeTestStatesById)
           if acceptedState.size() < maxRelevantSize:
@@ -888,12 +862,11 @@ class DiffRunner(object):
               jobId += 1
             # start job
             workingDir = self.getWorkPath(jobId)
-            cacheDir = self.getFilesCachePath(jobId)
             if jobId in workerStatesById:
               workerPreviousState = workerStatesById[jobId]
             else:
               workerPreviousState = FilesState()
-            runJobInOtherProcess(self.testScript_path, workingDir, cacheDir, workerPreviousState, self.assumeNoSideEffects, self.full_resetTo_state, box, queue, jobId)
+            runJobInOtherProcess(self.testScript_path, workingDir, workerPreviousState, self.assumeNoSideEffects, self.full_resetTo_state, box, queue, jobId)
             activeTestStatesById[jobId] = box
             availableTestStates = availableTestStates[1:]
 

@@ -28,9 +28,7 @@ class AndroidXPaparazziPlugin : Plugin<Project> {
     override fun apply(project: Project) {
         val supportRoot = project.getSupportRootFolder()
         project.apply(
-            mapOf(
-                "from" to "$supportRoot/buildSrc/apply/applyAndroidXPaparazziImplPlugin.gradle"
-            )
+            mapOf("from" to "$supportRoot/buildSrc/apply/applyAndroidXPaparazziImplPlugin.gradle")
         )
     }
 }

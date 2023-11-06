@@ -380,6 +380,6 @@ private fun Rect.bottomRight() = Rect(right, bottom, right, bottom)
 // Find the active descendant.
 @Suppress("ModifierFactoryExtensionFunction", "ModifierFactoryReturnType")
 private fun FocusTargetNode.activeNode(): FocusTargetNode {
-    check(focusState == ActiveParent)
+    check(focusState == ActiveParent) { "Searching for active node in inactive hierarchy" }
     return findActiveFocusNode() ?: error(NoActiveChild)
 }

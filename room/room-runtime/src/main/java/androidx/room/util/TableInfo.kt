@@ -15,7 +15,6 @@
  */
 package androidx.room.util
 
-import android.annotation.SuppressLint
 import android.database.Cursor
 import android.os.Build
 import androidx.annotation.IntDef
@@ -36,7 +35,6 @@ import java.util.TreeMap
  *
  * Even though SQLite column names are case insensitive, this class uses case sensitive matching.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 // if you change this class, you must change TableInfoValidationWriter.kt
@@ -227,7 +225,6 @@ class TableInfo(
              * compare the two values by ignoring the surrounding parenthesis.
              *
              */
-            @SuppressLint("SyntheticAccessor")
             @VisibleForTesting
             @JvmStatic
             fun defaultValueEquals(current: String, other: String?): Boolean {
@@ -334,7 +331,6 @@ class TableInfo(
     /**
      * Holds the information about an SQLite foreign key
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     class ForeignKey(
@@ -398,7 +394,6 @@ class TableInfo(
     /**
      * Holds the information about an SQLite index
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     class Index(

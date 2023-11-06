@@ -24,7 +24,6 @@ import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.util.Log;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 
 import java.util.List;
@@ -93,6 +92,7 @@ public class TestUtil {
     public void overrideAllowlists(boolean override) {
         String overrideStr = override ? "*" : "null";
         runShellCommand("device_config put adservices ppapi_app_allow_list " + overrideStr);
+        runShellCommand("device_config put adservices msmt_api_app_allow_list " + overrideStr);
         runShellCommand("device_config put adservices ppapi_app_signature_allow_list "
                 + overrideStr);
         runShellCommand(
@@ -113,6 +113,18 @@ public class TestUtil {
         } else {
             runShellCommand("setprop debug.adservices.appsetid_kill_switch " + null);
         }
+    }
+
+    public void enableBackCompat() {
+        runShellCommand("device_config put adservices enable_back_compat true");
+        runShellCommand("device_config put adservices consent_source_of_truth 3");
+        runShellCommand("device_config put adservices blocked_topics_source_of_truth 3");
+    }
+
+    public void disableBackCompat() {
+        runShellCommand("device_config put adservices enable_back_compat false");
+        runShellCommand("device_config put adservices consent_source_of_truth null");
+        runShellCommand("device_config put adservices blocked_topics_source_of_truth null");
     }
 
     // Override measurement related kill switch to ignore the effect of actual PH values.
@@ -228,7 +240,7 @@ public class TestUtil {
                 .queryIntentServices(intent, PackageManager.MATCH_SYSTEM_ONLY);
 
         // TODO: b/271866693 avoid hardcoding package names
-        if (resolveInfos != null && BuildCompat.isAtLeastT()) {
+        if (resolveInfos != null && Build.VERSION.SDK_INT >= 33) {
             resolveInfos = resolveInfos.stream()
                     .filter(info ->
                             !info.serviceInfo.packageName.contains(EXT_SERVICES_PACKAGE_NAME))

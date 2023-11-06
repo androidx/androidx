@@ -34,16 +34,17 @@ configurations {
 dependencies {
     implementation(libs.kotlinStdlib)
     implementation(gradleApi())
-    implementation("com.android.tools.build:gradle:7.3.0")
+    compileOnly("com.android.tools.build:gradle:7.3.0")
     compileOnly(libs.kotlinGradlePluginz)
     compileOnly(libs.kspGradlePluginz)
 
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(gradleTestKit())
     testImplementation(libs.junit)
-    testImplementation(libs.truth)
+    testImplementation(project(":kruth:kruth"))
     testImplementation(libs.testParameterInjector)
 
+    testPlugin("com.android.tools.build:gradle:7.3.0")
     testPlugin(libs.kotlinGradlePluginz)
     testPlugin(libs.kspGradlePluginz)
 }
@@ -61,6 +62,7 @@ tasks.withType(PluginUnderTestMetadata.class).named("pluginUnderTestMetadata").c
 // Configure publishing tasks to be dependencies of 'test' so those artifacts are available for
 // the test project executed with Gradle Test Kit.
 tasks.findByPath("test").dependsOn(
+        tasks.findByPath(":annotation:annotation:publish"),
         tasks.findByPath(":annotation:annotation-experimental:publish"),
         tasks.findByPath(":room:room-common:publish"),
         tasks.findByPath(":room:room-runtime:publish"),

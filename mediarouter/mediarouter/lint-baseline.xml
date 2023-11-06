@@ -1,23 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 27 (current min is 14): `android.app.Activity#setTurnScreenOn`"
-        errorLine1="        setTurnScreenOn(true);"
-        errorLine2="        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/mediarouter/media/MediaRouter2TestActivity.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 27 (current min is 14): `android.app.Activity#setShowWhenLocked`"
-        errorLine1="        setShowWhenLocked(true);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/mediarouter/media/MediaRouter2TestActivity.java"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanThreadSleep"
@@ -47,48 +29,201 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));"
-        errorLine2="                                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        blurScript.setRadius(radius);"
-        errorLine2="                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        blurScript.setInput(allocation);"
-        errorLine2="                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        blurScript.forEach(blurAllocation);"
-        errorLine2="                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"/>
-    </issue>
-
-    <issue
         id="MissingTestSizeAnnotation"
         message="Missing test size annotation"
         errorLine1="    public void testReset() {"
         errorLine2="                ~~~~~~~~~">
         <location
             file="src/androidTest/java/androidx/mediarouter/media/MediaRouterTest.java"/>
+    </issue>
+
+    <issue
+        id="UnspecifiedRegisterReceiverFlag"
+        message="`mActionReceiver` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for androidx.mediarouter.media.actions.ACTION_ITEM_STATUS_CHANGED, androidx.mediarouter.media.actions.ACTION_SESSION_STATUS_CHANGED, androidx.mediarouter.media.actions.ACTION_MESSAGE_RECEIVED"
+        errorLine1="            context.registerReceiver(mActionReceiver, actionFilter);"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/RemotePlaybackClient.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= 17) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 17"
+        errorLine1="    @RequiresApi(17)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="@RequiresApi(16)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouterApi16Impl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouterApi16Impl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouterApi16Impl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; 16 || Build.VERSION.SDK_INT > 17) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouterApi16Impl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; 16 || Build.VERSION.SDK_INT > 17) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouterApi16Impl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; 16 || Build.VERSION.SDK_INT > 17) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouterApi16Impl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; 16 || Build.VERSION.SDK_INT > 17) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouterApi16Impl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 17"
+        errorLine1="@RequiresApi(17)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouterApi17Impl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT != 17) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouterApi17Impl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT != 17) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouterApi17Impl.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 16) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/RemoteControlClientCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/RemoteControlClientCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 18) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/SystemMediaRouteProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/SystemMediaRouteProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 16) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/SystemMediaRouteProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/SystemMediaRouteProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 17"
+        errorLine1="    @RequiresApi(17)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/SystemMediaRouteProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 18"
+        errorLine1="    @RequiresApi(18)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/SystemMediaRouteProvider.java"/>
     </issue>
 
 </issues>

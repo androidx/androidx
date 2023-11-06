@@ -796,7 +796,7 @@ public abstract class DynamicAnimation<T extends DynamicAnimation<T>>
     /****************Sub class animations**************/
     /**
      * Returns the acceleration at the given value with the given velocity.
-     **/
+     */
     abstract float getAcceleration(float value, float velocity);
 
     /**

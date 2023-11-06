@@ -40,7 +40,7 @@ class ActivityStack @RestrictTo(LIBRARY_GROUP) constructor(
      * process(es), [activitiesInProcess] will return an empty list, but this method will return
      * `false`.
      */
-    val isEmpty: Boolean
+    val isEmpty: Boolean,
 ) {
 
     /**

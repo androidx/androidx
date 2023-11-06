@@ -37,7 +37,7 @@ import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseAttachState;
 import androidx.camera.core.impl.utils.futures.Futures;
-import androidx.camera.testing.DeferrableSurfacesUtil;
+import androidx.camera.testing.impl.DeferrableSurfacesUtil;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -60,9 +60,9 @@ public class FakeCamera implements CameraInternal {
             new LiveDataObservable<>();
     private final CameraControlInternal mCameraControlInternal;
     private final CameraInfoInternal mCameraInfoInternal;
-    private String mCameraId;
-    private UseCaseAttachState mUseCaseAttachState;
-    private Set<UseCase> mAttachedUseCases = new HashSet<>();
+    private final String mCameraId;
+    private final UseCaseAttachState mUseCaseAttachState;
+    private final Set<UseCase> mAttachedUseCases = new HashSet<>();
     private State mState = State.CLOSED;
     private int mAvailableCameraCount = 1;
     private final List<UseCase> mUseCaseActiveHistory = new ArrayList<>();
@@ -204,7 +204,9 @@ public class FakeCamera implements CameraInternal {
         Logger.d(TAG, "Use case " + useCase + " ACTIVE for camera " + mCameraId);
         mUseCaseActiveHistory.add(useCase);
         mUseCaseAttachState.setUseCaseActive(useCase.getName() + useCase.hashCode(),
-                useCase.getSessionConfig(), useCase.getCurrentConfig());
+                useCase.getSessionConfig(), useCase.getCurrentConfig(),
+                useCase.getAttachedStreamSpec(),
+                Collections.singletonList(useCase.getCurrentConfig().getCaptureType()));
         updateCaptureSessionConfig();
     }
 
@@ -223,7 +225,9 @@ public class FakeCamera implements CameraInternal {
         Logger.d(TAG, "Use case " + useCase + " UPDATED for camera " + mCameraId);
         mUseCaseUpdateHistory.add(useCase);
         mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
-                useCase.getSessionConfig(), useCase.getCurrentConfig());
+                useCase.getSessionConfig(), useCase.getCurrentConfig(),
+                useCase.getAttachedStreamSpec(),
+                Collections.singletonList(useCase.getCurrentConfig().getCaptureType()));
         updateCaptureSessionConfig();
     }
 
@@ -232,7 +236,9 @@ public class FakeCamera implements CameraInternal {
         Logger.d(TAG, "Use case " + useCase + " RESET for camera " + mCameraId);
         mUseCaseResetHistory.add(useCase);
         mUseCaseAttachState.updateUseCase(useCase.getName() + useCase.hashCode(),
-                useCase.getSessionConfig(), useCase.getCurrentConfig());
+                useCase.getSessionConfig(), useCase.getCurrentConfig(),
+                useCase.getAttachedStreamSpec(),
+                Collections.singletonList(useCase.getCurrentConfig().getCaptureType()));
         updateCaptureSessionConfig();
         openCaptureSession();
     }
@@ -255,7 +261,9 @@ public class FakeCamera implements CameraInternal {
             mUseCaseAttachState.setUseCaseAttached(
                     useCase.getName() + useCase.hashCode(),
                     useCase.getSessionConfig(),
-                    useCase.getCurrentConfig());
+                    useCase.getCurrentConfig(),
+                    useCase.getAttachedStreamSpec(),
+                    Collections.singletonList(useCase.getCurrentConfig().getCaptureType()));
         }
 
         open();
@@ -309,21 +317,39 @@ public class FakeCamera implements CameraInternal {
         return mCameraInfoInternal;
     }
 
+    /**
+     * Returns a list of active use cases ordered chronologically according to
+     * {@link #onUseCaseActive} invocations.
+     */
     @NonNull
     public List<UseCase> getUseCaseActiveHistory() {
         return mUseCaseActiveHistory;
     }
 
+    /**
+     * Returns a list of inactive use cases ordered chronologically according to
+     * {@link #onUseCaseInactive} invocations.
+     */
     @NonNull
     public List<UseCase> getUseCaseInactiveHistory() {
         return mUseCaseInactiveHistory;
     }
 
+
+    /**
+     * Returns a list of updated use cases ordered chronologically according to
+     * {@link #onUseCaseUpdated} invocations.
+     */
     @NonNull
     public List<UseCase> getUseCaseUpdateHistory() {
         return mUseCaseUpdateHistory;
     }
 
+
+    /**
+     * Returns a list of reset use cases ordered chronologically according to
+     * {@link #onUseCaseReset} invocations.
+     */
     @NonNull
     public List<UseCase> getUseCaseResetHistory() {
         return mUseCaseResetHistory;
@@ -365,7 +391,7 @@ public class FakeCamera implements CameraInternal {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    void updateCaptureSessionConfig() {
+    private void updateCaptureSessionConfig() {
         SessionConfig.ValidatingBuilder validatingBuilder;
         validatingBuilder = mUseCaseAttachState.getActiveAndAttachedBuilder();
 

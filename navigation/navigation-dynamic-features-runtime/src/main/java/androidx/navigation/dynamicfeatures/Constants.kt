@@ -20,8 +20,6 @@ import androidx.annotation.RestrictTo
 
 /**
  * Internal constants for dynamic feature navigator.
- *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public object Constants {

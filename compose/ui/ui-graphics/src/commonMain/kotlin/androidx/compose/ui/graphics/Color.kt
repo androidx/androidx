@@ -16,6 +16,10 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.annotation.ColorInt
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
+import androidx.annotation.Size
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.colorspace.ColorModel
@@ -462,7 +466,7 @@ fun Color(
  * @return A non-null instance of {@link Color}
  */
 @Stable
-fun Color(/*@ColorInt*/ color: Int): Color {
+fun Color(@ColorInt color: Int): Color {
     return Color(value = color.toULong() shl 32)
 }
 
@@ -497,14 +501,10 @@ fun Color(color: Long): Color {
  */
 @Stable
 fun Color(
-    /*@IntRange(from = 0, to = 0xFF)*/
-    red: Int,
-    /*@IntRange(from = 0, to = 0xFF)*/
-    green: Int,
-    /*@IntRange(from = 0, to = 0xFF)*/
-    blue: Int,
-    /*@IntRange(from = 0, to = 0xFF)*/
-    alpha: Int = 0xFF
+    @IntRange(from = 0, to = 0xFF) red: Int,
+    @IntRange(from = 0, to = 0xFF) green: Int,
+    @IntRange(from = 0, to = 0xFF) blue: Int,
+    @IntRange(from = 0, to = 0xFF) alpha: Int = 0xFF
 ): Color {
     val color = ((alpha and 0xFF) shl 24) or
         ((red and 0xFF) shl 16) or
@@ -520,7 +520,7 @@ fun Color(
  * in the [ColorSpaces.Oklab] color space.
  */
 @Stable
-fun lerp(start: Color, stop: Color, /*@FloatRange(from = 0.0, to = 1.0)*/ fraction: Float): Color {
+fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: Float): Color {
     val colorSpace = ColorSpaces.Oklab
     val startColor = start.convert(colorSpace)
     val endColor = stop.convert(colorSpace)
@@ -592,7 +592,7 @@ private inline fun compositeComponent(
  *
  * @return A new, non-null array whose size is 4
  */
-/*@Size(value = 4)*/
+@Size(value = 4)
 private fun Color.getComponents(): FloatArray = floatArrayOf(red, green, blue, alpha)
 
 /**
@@ -634,7 +634,7 @@ private fun saturate(v: Float): Float {
  * @return An ARGB color in the sRGB color space
  */
 @Stable
-// @ColorInt
+@ColorInt
 fun Color.toArgb(): Int {
     return (convert(ColorSpaces.Srgb).value shr 32).toInt()
 }

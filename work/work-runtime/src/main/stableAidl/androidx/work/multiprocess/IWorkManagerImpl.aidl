@@ -20,9 +20,8 @@ import androidx.work.multiprocess.IWorkManagerImplCallback;
 
 /**
  * Implementation for {@link IWorkManager}.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IWorkManagerImpl {
     // Enqueues WorkRequests
     void enqueueWorkRequests(in byte[] request, IWorkManagerImplCallback callback);

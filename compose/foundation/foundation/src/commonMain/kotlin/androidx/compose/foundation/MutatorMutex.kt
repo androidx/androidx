@@ -176,4 +176,38 @@ class MutatorMutex {
             }
         }
     }
+
+    /**
+     * Attempt to mutate synchronously if there is no other active caller.
+     * If there is no other active caller, the [block] will be executed in a lock. If there is
+     * another active caller, this method will return false, indicating that the active caller
+     * needs to be cancelled through a [mutate] or [mutateWith] call with an equal or higher
+     * mutation priority.
+     *
+     * Calls to [mutate] and [mutateWith] will suspend until execution of the [block] has finished.
+     *
+     * @param block mutation code to run mutually exclusive with any other call to [mutate],
+     * [mutateWith] or [tryMutate].
+     * @return true if the [block] was executed, false if there was another active caller and the
+     * [block] was not executed.
+     */
+    inline fun tryMutate(block: () -> Unit): Boolean {
+        val didLock = tryLock()
+        if (didLock) {
+            try {
+                block()
+            } finally {
+                unlock()
+            }
+        }
+        return didLock
+    }
+
+    @PublishedApi
+    internal fun tryLock(): Boolean = mutex.tryLock()
+
+    @PublishedApi
+    internal fun unlock() {
+        mutex.unlock()
+    }
 }

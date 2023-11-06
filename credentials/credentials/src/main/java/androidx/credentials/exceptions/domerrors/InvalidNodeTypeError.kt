@@ -16,24 +16,17 @@
 
 package androidx.credentials.exceptions.domerrors
 
-import androidx.annotation.VisibleForTesting
-import androidx.credentials.exceptions.publickeycredential.CreatePublicKeyCredentialDomException
-
 /**
  * During the create public key credential flow, this is thrown when an authenticator response
  * exception contains an invalid_node_type_err from the fido spec, indicating tthe supplied node is
  * incorrect or has an incorrect ancestor for this operation. The fido spec can be found
  * [here](https://webidl.spec.whatwg.org/#idl-DOMException-error-names).
- *
- * @see CreatePublicKeyCredentialDomException
  */
-@Suppress("ExtendsError")
+@Suppress("ExtendsError") // This is not a real java `Error`
 class InvalidNodeTypeError :
     DomError(TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_NODE_TYPE_ERROR) {
-    /** @hide */
-    companion object {
-        @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-        const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_NODE_TYPE_ERROR: String =
-            "androidx.credentials.TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_NODE_TYPE_ERROR"
+    internal companion object {
+        internal const val TYPE_CREATE_PUBLIC_KEY_CREDENTIAL_INVALID_NODE_TYPE_ERROR: String =
+            "androidx.credentials.TYPE_INVALID_NODE_TYPE_ERROR"
     }
 }

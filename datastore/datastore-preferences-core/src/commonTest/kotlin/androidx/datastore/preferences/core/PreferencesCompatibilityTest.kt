@@ -18,6 +18,7 @@ package androidx.datastore.preferences.core
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.test.runTest
 import okio.Buffer
 import okio.ByteString.Companion.decodeBase64
@@ -28,7 +29,7 @@ import okio.ByteString.Companion.decodeBase64
 class PreferencesCompatibilityTest {
 
     @Test
-    fun testWireCompatibility() = runTest(dispatchTimeoutMs = 10000) {
+    fun testWireCompatibility() = runTest(timeout = 10000.milliseconds) {
 
         // base64 output of serializing "expectedProto"
         val protoBase64 = "ChAKB215RmxvYXQSBRXNzIw/ChUKCG15RG91YmxlEgk5mpmZmZmZ8T8KCwoFbXlJbnQSAh" +

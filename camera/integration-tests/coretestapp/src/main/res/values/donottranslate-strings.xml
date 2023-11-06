@@ -16,6 +16,8 @@
   -->
 
 <resources>
+    <string name="camerax_service">CameraX Service</string>
+    <string name="foreground_service_note">Foreground Service control is in the notification.\nLeave this activity and play on notification.</string>
     <string name="fps_counter_template">%1$s fps</string>
     <string name="toggle_preview_on">preview\non</string>
     <string name="toggle_preview_off">preview\noff</string>
@@ -29,8 +31,21 @@
     <string name="toggle_capture_quality_off">MIN</string>
     <string name="toggle_capture_zsl_on">ZSL ON</string>
     <string name="toggle_capture_zsl_off">ZSL OFF</string>
+    <string name="toggle_preview_stabilization_on">PS ON</string>
+    <string name="toggle_preview_stabilization_off">PS OFF</string>
     <string name="toggle_plus_ev">+EV</string>
     <string name="toggle_dec_ev">-EV</string>
     <string name="toggle_zoom_in_2x">2X</string>
     <string name="toggle_zoom_reset">1X</string>
+    <string name="toggle_video_persistent_on">Pers. On</string>
+    <string name="toggle_video_persistent_off">Pers. Off</string>
+    <string name="toggle_video_dyn_rng_sdr">SDR</string>
+    <string name="toggle_video_dyn_rng_hdr_auto">HDR\nAuto</string>
+    <string name="toggle_video_dyn_rng_hlg">HLG</string>
+    <string name="toggle_video_dyn_rng_hdr_ten">HDR10</string>
+    <string name="toggle_video_dyn_rng_hdr_ten_plus">HDR10+</string>
+    <string name="toggle_video_dyn_rng_hdr_dolby_vision_10">Dlby\n10bit</string>
+    <string name="toggle_video_dyn_rng_hdr_dolby_vision_8">Dlby\n8bit</string>
+    <string name="toggle_video_dyn_rng_unknown">\?</string>
+
 </resources>

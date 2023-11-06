@@ -47,3 +47,7 @@ MutableBareField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mFrom:
     Bare field mFrom must be marked final, or moved behind accessors if mutable
 MutableBareField: androidx.swiperefreshlayout.widget.SwipeRefreshLayout#mOriginalOffsetTop:
     Bare field mOriginalOffsetTop must be marked final, or moved behind accessors if mutable
+
+
+NotCloseable: androidx.swiperefreshlayout.widget.CircularProgressDrawable:
+    Classes that release resources (stop()) should implement AutoCloseable and CloseGuard: class androidx.swiperefreshlayout.widget.CircularProgressDrawable

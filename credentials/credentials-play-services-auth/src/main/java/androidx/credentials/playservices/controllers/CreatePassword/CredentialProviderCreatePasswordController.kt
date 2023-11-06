@@ -16,7 +16,7 @@
 
 package androidx.credentials.playservices.controllers.CreatePassword
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.CancellationSignal
@@ -30,6 +30,7 @@ import androidx.credentials.CreatePasswordRequest
 import androidx.credentials.CreatePasswordResponse
 import androidx.credentials.CredentialManagerCallback
 import androidx.credentials.exceptions.CreateCredentialException
+import androidx.credentials.exceptions.CreateCredentialUnknownException
 import androidx.credentials.playservices.CredentialProviderPlayServicesImpl
 import androidx.credentials.playservices.HiddenActivity
 import androidx.credentials.playservices.controllers.CredentialProviderBaseController
@@ -40,17 +41,15 @@ import java.util.concurrent.Executor
 
 /**
  * A controller to handle the CreatePassword flow with play services.
- *
- * @hide
  */
 @Suppress("deprecation")
-class CredentialProviderCreatePasswordController(private val activity: Activity) :
+internal class CredentialProviderCreatePasswordController(private val context: Context) :
     CredentialProviderController<
         CreatePasswordRequest,
         SavePasswordRequest,
         Unit,
         CreateCredentialResponse,
-        CreateCredentialException>(activity) {
+        CreateCredentialException>(context) {
 
     /**
      * The callback object state, used in the protected handleResponse method.
@@ -101,10 +100,16 @@ class CredentialProviderCreatePasswordController(private val activity: Activity)
         }
 
         val convertedRequest: SavePasswordRequest = this.convertRequestToPlayServices(request)
-        val hiddenIntent = Intent(activity, HiddenActivity::class.java)
+        val hiddenIntent = Intent(context, HiddenActivity::class.java)
         hiddenIntent.putExtra(REQUEST_TAG, convertedRequest)
         generateHiddenActivityIntent(resultReceiver, hiddenIntent, CREATE_PASSWORD_TAG)
-        activity.startActivity(hiddenIntent)
+        try {
+            context.startActivity(hiddenIntent)
+        } catch (e: Exception) {
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+                this.callback.onError(
+                    CreateCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)) } }
+        }
     }
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int) {
@@ -136,22 +141,21 @@ class CredentialProviderCreatePasswordController(private val activity: Activity)
     }
 
     companion object {
-        private val TAG = CredentialProviderCreatePasswordController::class.java.name
+        private const val TAG = "CreatePassword"
         private var controller: CredentialProviderCreatePasswordController? = null
-        // TODO(b/262924507) : Test multiple calls (re-instantiation validates but just in case)
         /**
          * This finds a past version of the
          * [CredentialProviderCreatePasswordController] if it exists, otherwise
          * it generates a new instance.
          *
-         * @param activity the calling activity for this controller
+         * @param context the calling context for this controller
          * @return a credential provider controller for CreatePasswordController
          */
         @JvmStatic
-        fun getInstance(activity: Activity):
+        fun getInstance(context: Context):
             CredentialProviderCreatePasswordController {
             if (controller == null) {
-                controller = CredentialProviderCreatePasswordController(activity)
+                controller = CredentialProviderCreatePasswordController(context)
             }
             return controller!!
         }

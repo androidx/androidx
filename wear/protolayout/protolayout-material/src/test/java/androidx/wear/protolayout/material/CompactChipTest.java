@@ -17,6 +17,8 @@
 package androidx.wear.protolayout.material;
 
 import static androidx.wear.protolayout.material.Utils.areChipColorsEqual;
+import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_ICON;
+import static androidx.wear.protolayout.materialcore.Chip.METADATA_TAG_TEXT;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -25,6 +27,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import android.content.Context;
 import android.graphics.Color;
 
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.ActionBuilders.LaunchAction;
@@ -58,7 +61,7 @@ public class CompactChipTest {
         CompactChip compactChip =
                 new CompactChip.Builder(CONTEXT, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS).build();
 
-        assertChip(compactChip, ChipDefaults.COMPACT_PRIMARY_COLORS);
+        assertChip(compactChip, ChipDefaults.COMPACT_PRIMARY_COLORS, /* iconId= */ null);
     }
 
     @Test
@@ -68,7 +71,19 @@ public class CompactChipTest {
                         .setChipColors(COLORS)
                         .build();
 
-        assertChip(compactChip, COLORS);
+        assertChip(compactChip, COLORS, /* iconId= */ null);
+    }
+
+    @Test
+    public void testCompactChipIconCustomColor() {
+        String iconId = "icon_id";
+        CompactChip compactChip =
+                new CompactChip.Builder(CONTEXT, MAIN_TEXT, CLICKABLE, DEVICE_PARAMETERS)
+                        .setChipColors(COLORS)
+                        .setIconContent(iconId)
+                        .build();
+
+        assertChip(compactChip, COLORS, /* iconId= */ iconId);
     }
 
     @Test
@@ -101,25 +116,30 @@ public class CompactChipTest {
         assertThat(CompactChip.fromLayoutElement(box)).isNull();
     }
 
-    private void assertChip(CompactChip actualCompactChip, ChipColors colors) {
-        assertChipIsEqual(actualCompactChip, colors);
-        assertFromLayoutElementChipIsEqual(actualCompactChip, colors);
+    private void assertChip(
+            CompactChip actualCompactChip, ChipColors colors, @Nullable String iconId) {
+        assertChipIsEqual(actualCompactChip, colors, iconId);
+        assertFromLayoutElementChipIsEqual(actualCompactChip, colors, iconId);
         assertThat(CompactChip.fromLayoutElement(actualCompactChip)).isEqualTo(actualCompactChip);
     }
 
-    private void assertChipIsEqual(CompactChip actualCompactChip, ChipColors colors) {
-        assertThat(actualCompactChip.getMetadataTag()).isEqualTo(CompactChip.METADATA_TAG);
+    private void assertChipIsEqual(
+            CompactChip actualCompactChip, ChipColors colors, @Nullable String iconId) {
+        String expectedTag = iconId == null ? METADATA_TAG_TEXT : METADATA_TAG_ICON;
+        assertThat(actualCompactChip.getMetadataTag()).isEqualTo(expectedTag);
         assertThat(actualCompactChip.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
         assertThat(areChipColorsEqual(actualCompactChip.getChipColors(), colors)).isTrue();
         assertThat(actualCompactChip.getText()).isEqualTo(MAIN_TEXT);
+        assertThat(actualCompactChip.getIconContent()).isEqualTo(iconId);
     }
 
-    private void assertFromLayoutElementChipIsEqual(CompactChip chip, ChipColors colors) {
+    private void assertFromLayoutElementChipIsEqual(
+            CompactChip chip, ChipColors colors, @Nullable String iconId) {
         Box box = new Box.Builder().addContent(chip).build();
 
         CompactChip newChip = CompactChip.fromLayoutElement(box.getContents().get(0));
 
         assertThat(newChip).isNotNull();
-        assertChipIsEqual(newChip, colors);
+        assertChipIsEqual(newChip, colors, iconId);
     }
 }

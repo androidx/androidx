@@ -19,12 +19,15 @@ package androidx.compose.material3
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -43,20 +46,58 @@ import kotlin.math.roundToInt
  * This modifier is not needed for touch target expansion to happen. It only affects layout, to make
  * sure there is adequate space for touch target expansion.
  */
-@OptIn(ExperimentalMaterial3Api::class)
-fun Modifier.minimumInteractiveComponentSize(): Modifier = composed(
-    inspectorInfo = debugInspectorInfo {
+fun Modifier.minimumInteractiveComponentSize(): Modifier = this then MinimumInteractiveModifier
+
+internal object MinimumInteractiveModifier :
+    ModifierNodeElement<MinimumInteractiveModifierNode>() {
+
+    override fun create(): MinimumInteractiveModifierNode = MinimumInteractiveModifierNode()
+
+    override fun update(node: MinimumInteractiveModifierNode) {}
+
+    override fun InspectorInfo.inspectableProperties() {
         name = "minimumInteractiveComponentSize"
         // TODO: b/214589635 - surface this information through the layout inspector in a better way
         //  - for now just add some information to help developers debug what this size represents.
         properties["README"] = "Reserves at least 48.dp in size to disambiguate touch " +
             "interactions if the element would measure smaller"
     }
-) {
-    if (LocalMinimumInteractiveComponentEnforcement.current) {
-        MinimumInteractiveComponentSizeModifier(minimumInteractiveComponentSize)
-    } else {
-        Modifier
+
+    override fun hashCode(): Int = System.identityHashCode(this)
+    override fun equals(other: Any?) = (other === this)
+}
+
+internal class MinimumInteractiveModifierNode :
+    Modifier.Node(),
+    CompositionLocalConsumerModifierNode,
+    LayoutModifierNode {
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        val size = minimumInteractiveComponentSize
+        val placeable = measurable.measure(constraints)
+        val enforcement = isAttached && currentValueOf(LocalMinimumInteractiveComponentEnforcement)
+
+        // Be at least as big as the minimum dimension in both dimensions
+        val width = if (enforcement) {
+            maxOf(placeable.width, size.width.roundToPx())
+        } else {
+            placeable.width
+        }
+        val height = if (enforcement) {
+            maxOf(placeable.height, size.height.roundToPx())
+        } else {
+            placeable.height
+        }
+
+        return layout(width, height) {
+            val centerX = ((width - placeable.width) / 2f).roundToInt()
+            val centerY = ((height - placeable.height) / 2f).roundToInt()
+            placeable.place(centerX, centerY)
+        }
     }
 }
 

@@ -36,10 +36,10 @@ public class ButtonColors {
     /**
      * Constructor for {@link ButtonColors} object.
      *
-     * @param backgroundColor The background color to be used for {@link Button}.
-     *     Should be in ARGB format.
-     * @param contentColor The content color or tint color to be used for {@link Button}. Should
-     *     be in ARGB format.
+     * @param backgroundColor The background color to be used for {@link Button}. Should be in ARGB
+     *     format.
+     * @param contentColor The content color or tint color to be used for {@link Button}. Should be
+     *     in ARGB format.
      */
     public ButtonColors(@ColorInt int backgroundColor, @ColorInt int contentColor) {
         mBackgroundColor = argb(backgroundColor);

@@ -23,8 +23,10 @@ import android.hardware.SyncFence
 import android.os.Build
 import android.view.AttachedSurfaceControl
 import android.view.SurfaceControl
+import android.view.SurfaceControl.Transaction
 import android.view.SurfaceView
 import androidx.annotation.RequiresApi
+import androidx.hardware.SyncFenceCompat
 import androidx.hardware.SyncFenceImpl
 import androidx.hardware.SyncFenceV33
 import java.util.concurrent.Executor
@@ -122,14 +124,14 @@ internal class SurfaceControlV33 internal constructor(
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer?,
             fence: SyncFenceImpl?,
-            releaseCallback: (() -> Unit)?
+            releaseCallback: ((SyncFenceCompat) -> Unit)?
         ): Transaction {
             mTransaction.setBuffer(
                 surfaceControl.asFrameworkSurfaceControl(),
                 buffer,
                 fence?.asSyncFence()
-            ) {
-                releaseCallback?.invoke()
+            ) { syncFence ->
+                releaseCallback?.invoke(SyncFenceCompat(syncFence))
             }
             return this
         }
@@ -259,6 +261,86 @@ internal class SurfaceControlV33 internal constructor(
         }
 
         /**
+         * See [SurfaceControlCompat.Transaction.setExtendedRangeBrightness]
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        override fun setExtendedRangeBrightness(
+            surfaceControl: SurfaceControlImpl,
+            currentBufferRatio: Float,
+            desiredRatio: Float
+        ): SurfaceControlImpl.Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                SurfaceControlTransactionVerificationHelperV34.setExtendedRangeBrightness(
+                    mTransaction,
+                    surfaceControl.asFrameworkSurfaceControl(),
+                    currentBufferRatio,
+                    desiredRatio
+                )
+                return this
+            } else {
+                throw UnsupportedOperationException(
+                    "Configuring the extended range brightness is only available on Android U+"
+                )
+            }
+        }
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setDataSpace]
+         */
+        override fun setDataSpace(
+            surfaceControl: SurfaceControlImpl,
+            dataSpace: Int
+        ): SurfaceControlImpl.Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                SurfaceControlTransactionVerificationHelperV33.setDataSpace(
+                    mTransaction,
+                    surfaceControl.asFrameworkSurfaceControl(),
+                    dataSpace
+                )
+            } else {
+                throw UnsupportedOperationException(
+                    "Configuring the data space is only available on Android T+"
+                )
+            }
+            return this
+        }
+
+        override fun setFrameRate(
+            scImpl: SurfaceControlImpl,
+            frameRate: Float,
+            compatibility: Int,
+            changeFrameRateStrategy: Int
+        ): Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                SurfaceControlVerificationHelperV31.setFrameRate(
+                    mTransaction,
+                    scImpl.asFrameworkSurfaceControl(),
+                    frameRate,
+                    compatibility,
+                    changeFrameRateStrategy
+                )
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                SurfaceControlVerificationHelperV30.setFrameRate(
+                    mTransaction,
+                    scImpl.asFrameworkSurfaceControl(),
+                    frameRate,
+                    compatibility
+                )
+            }
+            return this
+        }
+
+        override fun clearFrameRate(scImpl: SurfaceControlImpl): SurfaceControlImpl.Transaction {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                SurfaceControlVerificationHelperV34.clearFrameRate(
+                    mTransaction,
+                    scImpl.asFrameworkSurfaceControl()
+                )
+            }
+            return this
+        }
+
+        /**
          * See [SurfaceControlImpl.Transaction.commit]
          */
         override fun commit() {
@@ -295,5 +377,67 @@ internal class SurfaceControlV33 internal constructor(
             } else {
                 throw IllegalArgumentException("Parent implementation is not for Android T")
             }
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private object SurfaceControlTransactionVerificationHelperV34 {
+
+    @androidx.annotation.DoNotInline
+    fun setExtendedRangeBrightness(
+        transaction: Transaction,
+        surfaceControl: SurfaceControl,
+        currentBufferRatio: Float,
+        desiredRatio: Float
+    ) {
+        transaction.setExtendedRangeBrightness(surfaceControl, currentBufferRatio, desiredRatio)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+private object SurfaceControlTransactionVerificationHelperV33 {
+
+    @androidx.annotation.DoNotInline
+    fun setDataSpace(transaction: Transaction, surfaceControl: SurfaceControl, dataspace: Int) {
+        transaction.setDataSpace(surfaceControl, dataspace)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.S)
+private object SurfaceControlVerificationHelperV31 {
+    @androidx.annotation.DoNotInline
+    fun setFrameRate(
+        transaction: Transaction,
+        surfaceControl: SurfaceControl,
+        frameRate: Float,
+        compatibility: Int,
+        strategy: Int
+    ) {
+        transaction.setFrameRate(surfaceControl, frameRate, compatibility, strategy)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+private object SurfaceControlVerificationHelperV30 {
+    @androidx.annotation.DoNotInline
+    fun setFrameRate(
+        transaction: Transaction,
+        surfaceControl: SurfaceControl,
+        frameRate: Float,
+        compatibility: Int
+    ) {
+        transaction.setFrameRate(surfaceControl, frameRate, compatibility)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+private object SurfaceControlVerificationHelperV34 {
+
+    @androidx.annotation.DoNotInline
+    fun clearFrameRate(
+        transaction: Transaction,
+        surfaceControl: SurfaceControl
+    ) {
+        transaction.clearFrameRate(surfaceControl)
     }
 }

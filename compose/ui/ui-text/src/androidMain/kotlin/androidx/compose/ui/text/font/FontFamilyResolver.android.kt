@@ -86,7 +86,6 @@ fun createFontFamilyResolver(
  *
  * This is primarily useful for testing or benchmarking.
  *
- * @suppress
  */
 @InternalTextApi // exposed for benchmarking, not a stable API.
 fun emptyCacheFontFamilyResolver(context: Context): FontFamily.Resolver {

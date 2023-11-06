@@ -15,10 +15,15 @@
  */
 package androidx.privacysandbox.sdkruntime.client
 
+import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
+import android.os.Binder
 import android.os.Build
 import android.os.Bundle
+import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
+import androidx.privacysandbox.sdkruntime.client.activity.SdkActivity
+import androidx.privacysandbox.sdkruntime.client.loader.CatchingSdkActivityHandler
 import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
 import androidx.privacysandbox.sdkruntime.client.loader.extractSdkProviderFieldValue
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
@@ -26,16 +31,17 @@ import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_INTERNAL_ERROR
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_SDK_DEFINED_ERROR
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkInfo
+import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertThrows
 import org.junit.Assume.assumeTrue
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito
@@ -116,7 +122,10 @@ class SdkSandboxManagerCompatTest {
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val result = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
         }
 
         assertThat(result.getInterface()!!.javaClass.classLoader)
@@ -125,7 +134,7 @@ class SdkSandboxManagerCompatTest {
         assertThat(result.getSdkInfo())
             .isEqualTo(
                 SandboxedSdkInfo(
-                    name = "androidx.privacysandbox.sdkruntime.test.v1",
+                    name = TestSdkConfigs.CURRENT.packageName,
                     version = 42
                 )
             )
@@ -141,7 +150,10 @@ class SdkSandboxManagerCompatTest {
 
         val result = assertThrows(LoadSdkCompatException::class.java) {
             runBlocking {
-                managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", params)
+                managerCompat.loadSdk(
+                    TestSdkConfigs.CURRENT.packageName,
+                    params
+                )
             }
         }
 
@@ -157,8 +169,8 @@ class SdkSandboxManagerCompatTest {
         val result = assertThrows(LoadSdkCompatException::class.java) {
             runBlocking {
                 managerCompat.loadSdk(
-                    sdkName = "androidx.privacysandbox.sdkruntime.test.invalidEntryPoint",
-                    params = Bundle()
+                    TestSdkConfigs.forSdkName("invalidEntryPoint").packageName,
+                    Bundle()
                 )
             }
         }
@@ -172,7 +184,7 @@ class SdkSandboxManagerCompatTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
-        val sdkName = "androidx.privacysandbox.sdkruntime.test.v1"
+        val sdkName = TestSdkConfigs.CURRENT.packageName
 
         val sdkToUnload = runBlocking {
             managerCompat.loadSdk(sdkName, Bundle())
@@ -210,7 +222,7 @@ class SdkSandboxManagerCompatTest {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
-        val sdkName = "androidx.privacysandbox.sdkruntime.test.v1"
+        val sdkName = TestSdkConfigs.CURRENT.packageName
 
         runBlocking {
             managerCompat.loadSdk(sdkName, Bundle())
@@ -228,6 +240,31 @@ class SdkSandboxManagerCompatTest {
 
         assertThat(managerCompat.getSandboxedSdks())
             .isEmpty()
+    }
+
+    @Test
+    fun unloadSdk_unregisterActivityHandlers() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val packageName = TestSdkConfigs.forSdkName("v4").packageName
+        val localSdk = runBlocking {
+            managerCompat.loadSdk(
+                packageName,
+                Bundle()
+            )
+        }
+
+        val testSdk = localSdk.asTestSdk()
+        val token = testSdk.registerSdkSandboxActivityHandler(CatchingSdkActivityHandler())
+
+        val registeredBefore = LocalSdkActivityHandlerRegistry.isRegistered(token)
+        assertThat(registeredBefore).isTrue()
+
+        managerCompat.unloadSdk(packageName)
+
+        val registeredAfter = LocalSdkActivityHandlerRegistry.isRegistered(token)
+        assertThat(registeredAfter).isFalse()
     }
 
     @Test
@@ -283,18 +320,66 @@ class SdkSandboxManagerCompatTest {
         verify(context, Mockito.never()).getSystemService(any())
     }
 
-    @Ignore("b/277764220")
+    @Test
+    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
+    fun startSdkSandboxActivity_whenSandboxNotAvailable_dontDelegateToSandbox() {
+        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
+        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
+
+        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val fromActivitySpy = Mockito.mock(Activity::class.java)
+        managerCompat.startSdkSandboxActivity(fromActivitySpy, Binder())
+
+        verify(context, Mockito.never()).getSystemService(any())
+    }
+
+    @Test
+    fun startSdkSandboxActivity_startLocalSdkActivity() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val managerCompat = SdkSandboxManagerCompat.from(context)
+
+        val localSdk = runBlocking {
+            managerCompat.loadSdk(
+                TestSdkConfigs.forSdkName("v4").packageName,
+                Bundle()
+            )
+        }
+
+        val handler = CatchingSdkActivityHandler()
+
+        val testSdk = localSdk.asTestSdk()
+        val token = testSdk.registerSdkSandboxActivityHandler(handler)
+
+        with(ActivityScenario.launch(EmptyActivity::class.java)) {
+            withActivity {
+                managerCompat.startSdkSandboxActivity(this, token)
+            }
+        }
+
+        val activityHolder = handler.waitForActivity()
+        assertThat(activityHolder.getActivity()).isInstanceOf(SdkActivity::class.java)
+    }
+
     @Test
     fun sdkController_getSandboxedSdks_returnsLocallyLoadedSdks() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val localSdk = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v2", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.forSdkName("v2").packageName,
+                Bundle()
+            )
         }
 
         val anotherLocalSdk = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
         }
 
         val testSdk = localSdk.asTestSdk()
@@ -317,7 +402,10 @@ class SdkSandboxManagerCompatTest {
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
         val localSdk = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
         }
 
         val sandboxedSdks = managerCompat.getSandboxedSdks()

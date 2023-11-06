@@ -22,11 +22,14 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Picture
 import android.graphics.PixelFormat
 import android.graphics.Rect
+import android.hardware.display.DisplayManager
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
@@ -34,6 +37,7 @@ import android.os.IBinder
 import android.provider.Settings
 import android.support.wearable.watchface.SharedMemoryImage
 import android.support.wearable.watchface.WatchFaceStyle
+import android.view.Display
 import android.view.Gravity
 import android.view.Surface
 import android.view.Surface.FRAME_RATE_COMPATIBILITY_DEFAULT
@@ -50,6 +54,7 @@ import androidx.wear.watchface.complications.SystemDataSources
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.control.HeadlessWatchFaceImpl
+import androidx.wear.watchface.control.InteractiveInstanceManager
 import androidx.wear.watchface.control.RemoteWatchFaceView
 import androidx.wear.watchface.control.WatchFaceControlService
 import androidx.wear.watchface.control.data.ComplicationRenderParams
@@ -85,16 +90,20 @@ private const val SYSTEM_DECIDES_FRAME_RATE = 0f
  * The type of watch face, whether it's digital or analog. This influences the time displayed for
  * remote previews.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @IntDef(value = [WatchFaceType.DIGITAL, WatchFaceType.ANALOG])
-public annotation class WatchFaceType {
-    public companion object {
-        /* The WatchFace has an analog time display. */
-        public const val ANALOG: Int = 0
+public annotation class WatchFaceTypeIntDef
 
-        /* The WatchFace has a digital time display. */
-        public const val DIGITAL: Int = 1
-    }
+/**
+ * The type of watch face, whether it's digital or analog. This influences the time displayed in
+ * preview images.
+ */
+public object WatchFaceType {
+    /* The WatchFace has an analog time display. */
+    public const val ANALOG: Int = 0
+
+    /* The WatchFace has a digital time display. */
+    public const val DIGITAL: Int = 1
 }
 
 /**
@@ -106,7 +115,7 @@ public annotation class WatchFaceType {
  * @param renderer The [Renderer] for this WatchFace.
  */
 public class WatchFace(
-    @WatchFaceType public var watchFaceType: Int,
+    @WatchFaceTypeIntDef public var watchFaceType: Int,
     public val renderer: Renderer
 ) {
     internal var tapListener: TapListener? = null
@@ -243,7 +252,9 @@ public class WatchFace(
                     }
                     .apply { setContext(context) }
 
-            val engine = watchFaceService.createHeadlessEngine() as WatchFaceService.EngineWrapper
+            val engine =
+                watchFaceService.createHeadlessEngine(componentName)
+                    as WatchFaceService.EngineWrapper
             val headlessWatchFaceImpl = engine.createHeadlessInstance(params)
             return engine.deferredWatchFaceImpl.await().WFEditorDelegate(headlessWatchFaceImpl)
         }
@@ -275,6 +286,12 @@ public class WatchFace(
 
         /** [Intent] to launch the complication permission request rationale dialog. */
         public val complicationRationaleDialogIntent: Intent?
+
+        /**
+         * Allows the delegate to inform the watch face if it's obscured by the editor UI. If the
+         * watch face is not visible, it will stop animating.
+         */
+        public var editorObscuresWatchFace: Boolean
 
         /**
          * Renders the watchface to a [Bitmap] with the [CurrentUserStyleRepository]'s [UserStyle].
@@ -329,7 +346,7 @@ public class WatchFace(
          */
         @UiThread
         public fun onTapEvent(
-            @TapType tapType: Int,
+            @TapTypeIntDef tapType: Int,
             tapEvent: TapEvent,
             complicationSlot: ComplicationSlot?
         )
@@ -390,9 +407,11 @@ public class WatchFace(
 
     /**
      * This class allows the watch face to configure the status overlay which is rendered by the
-     * system on top of the watch face. These settings are applicable from Wear 3.0 and will be
-     * ignored on earlier devices.
+     * system on top of the watch face.
+     *
+     * Note: This is not a supported API and will be removed.
      */
+    @Deprecated("OverlayStyle will be removed in a future release.")
     public class OverlayStyle(
         /**
          * The background color of the status indicator tray. This can be any color, including
@@ -424,6 +443,7 @@ public class WatchFace(
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
 
+            @Suppress("Deprecation")
             other as OverlayStyle
 
             if (backgroundColor != other.backgroundColor) return false
@@ -453,11 +473,18 @@ public class WatchFace(
         }
     }
 
-    /** The [OverlayStyle] which affects Wear 3.0 devices and beyond. */
+    /** The [OverlayStyle]. This feature is unimplemented on any platform, and will be removed. */
+    @Deprecated("OverlayStyle will be removed in a future release.")
+    @Suppress("Deprecation")
     public var overlayStyle: OverlayStyle = OverlayStyle()
         private set
 
-    /** Sets the [OverlayStyle] which affects Wear 3.0 devices and beyond. */
+    /**
+     * Sets the [OverlayStyle] which is ignored because this feature is unimplemented on any
+     * platform, and will be removed.
+     */
+    @Deprecated("OverlayStyle will be removed in a future release.")
+    @Suppress("Deprecation")
     public fun setOverlayStyle(watchFaceOverlayStyle: OverlayStyle): WatchFace = apply {
         this.overlayStyle = watchFaceOverlayStyle
     }
@@ -534,7 +561,6 @@ internal class MockTime(var speed: Double, var minTime: Long, var maxTime: Long)
 }
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-@SuppressLint("SyntheticAccessor")
 public class WatchFaceImpl
 @UiThread
 constructor(
@@ -546,6 +572,16 @@ constructor(
     internal val broadcastsObserver: BroadcastsObserver,
     internal var broadcastsReceiver: BroadcastsReceiver?
 ) {
+    internal var editorObscuresWatchFace = false
+        set(value) {
+            field = value
+
+            // Start animating again if needed.
+            if (!value) {
+                scheduleDraw()
+            }
+        }
+
     internal companion object {
         internal const val NO_DEFAULT_DATA_SOURCE = SystemDataSources.NO_DATA_SOURCE
 
@@ -617,7 +653,7 @@ constructor(
     private val tapListener = watchface.tapListener
     internal var complicationDeniedDialogIntent = watchface.complicationDeniedDialogIntent
     internal var complicationRationaleDialogIntent = watchface.complicationRationaleDialogIntent
-    internal var overlayStyle = watchface.overlayStyle
+    @Suppress("Deprecation") internal var overlayStyle = watchface.overlayStyle
 
     private var mockTime = MockTime(1.0, 0, Long.MAX_VALUE)
 
@@ -628,11 +664,34 @@ constructor(
     internal var lastDrawTimeMillis: Long = 0
     internal var nextDrawTimeMillis: Long = 0
 
-    internal val componentName =
-        ComponentName(
-            watchFaceHostApi.getContext().packageName,
-            watchFaceHostApi.getContext().javaClass.name
+    internal val componentName = watchFaceHostApi.getComponentName()
+    private val displayManager: DisplayManager
+    private val displayListener: DisplayManager.DisplayListener
+
+    init {
+        val context = watchFaceHostApi.getContext()
+         displayManager = context.getSystemService(Context.DISPLAY_SERVICE) as DisplayManager
+         displayListener = object : DisplayManager.DisplayListener {
+            override fun onDisplayAdded(displayId: Int) {}
+
+            override fun onDisplayChanged(displayId: Int) {
+                val display = displayManager.getDisplay(Display.DEFAULT_DISPLAY)!!
+                if (display.state == Display.STATE_OFF && watchState.isVisible.value == false) {
+                    // We want to avoid a glimpse of a stale time when transitioning from
+                    // hidden to visible, so we render two black frames to clear the buffers
+                    // when the display has been turned off and the watch is not visible.
+                    renderer.renderBlackFrame()
+                    renderer.renderBlackFrame()
+                }
+            }
+
+            override fun onDisplayRemoved(displayId: Int) {}
+        }
+        displayManager.registerDisplayListener(
+            displayListener,
+            watchFaceHostApi.getUiThreadHandler()
         )
+    }
 
     internal fun getWatchFaceStyle() =
         WatchFaceStyle(
@@ -698,6 +757,7 @@ constructor(
         }
     }
 
+    @UiThread
     internal fun onVisibility(isVisible: Boolean) {
         TraceEvent("WatchFaceImpl.visibility").use {
             if (isVisible) {
@@ -711,10 +771,6 @@ constructor(
                 }
                 scheduleDraw()
             } else {
-                // We want to avoid a glimpse of a stale time when transitioning from hidden to
-                // visible, so we render two black frames to clear the buffers.
-                renderer.renderBlackFrame()
-                renderer.renderBlackFrame()
                 unregisterReceivers()
             }
         }
@@ -835,43 +891,32 @@ constructor(
         override val complicationRationaleDialogIntent
             get() = watchFaceHostApi.getComplicationRationaleIntent()
 
+        override var editorObscuresWatchFace: Boolean
+            get() =
+                InteractiveInstanceManager.getCurrentInteractiveInstance()
+                    ?.engine
+                    ?.editorObscuresWatchFace
+                    ?: false
+            set(value) {
+                InteractiveInstanceManager.getCurrentInteractiveInstance()?.engine?.let {
+                    it.editorObscuresWatchFace = value
+                }
+            }
+
         override fun renderWatchFaceToBitmap(
             renderParameters: RenderParameters,
             instant: Instant,
             slotIdToComplicationData: Map<Int, ComplicationData>?
         ): Bitmap =
             TraceEvent("WFEditorDelegate.takeScreenshot").use {
-                val oldComplicationData =
-                    complicationSlotsManager.complicationSlots.values.associateBy(
-                        { it.id },
-                        { it.renderer.getData() }
-                    )
-
-                slotIdToComplicationData?.let {
-                    for ((id, complicationData) in it) {
-                        complicationSlotsManager.setComplicationDataUpdateSync(
-                            id,
-                            complicationData,
-                            instant
+                slotIdToComplicationData
+                    ?.let { complicationSlotsManager.setComplicationDataForScreenshot(it, instant) }
+                    .use {
+                        renderer.takeScreenshot(
+                            ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
+                            renderParameters
                         )
                     }
-                }
-                val screenShot =
-                    renderer.takeScreenshot(
-                        ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
-                        renderParameters
-                    )
-                slotIdToComplicationData?.let {
-                    val now = getNow()
-                    for ((id, complicationData) in oldComplicationData) {
-                        complicationSlotsManager.setComplicationDataUpdateSync(
-                            id,
-                            complicationData,
-                            now
-                        )
-                    }
-                }
-                return screenShot
             }
 
         override fun setComplicationSlotConfigExtrasChangeCallback(
@@ -883,6 +928,9 @@ constructor(
         @SuppressLint("NewApi") // release
         override fun onDestroy(): Unit =
             TraceEvent("WFEditorDelegate.onDestroy").use {
+                InteractiveInstanceManager.getCurrentInteractiveInstance()?.engine?.let {
+                    it.editorObscuresWatchFace = false
+                }
                 if (watchState.isHeadless) {
                     headlessWatchFaceImpl!!.release()
                     this@WatchFaceImpl.onDestroy()
@@ -896,6 +944,7 @@ constructor(
             WatchFace.unregisterEditorDelegate(componentName)
         }
         unregisterReceivers()
+        displayManager.unregisterDisplayListener(displayListener)
     }
 
     @UiThread
@@ -924,7 +973,12 @@ constructor(
     private fun scheduleDraw() {
         // Separate calls are issued to deliver the state of isAmbient and isVisible, so during init
         // we might not yet know the state of both (which is required by the shouldAnimate logic).
-        if (!watchState.isAmbient.hasValue() || !watchState.isVisible.hasValue()) {
+        // If the editor is obscuring the watch face, there's no need to schedule a frame.
+        if (
+            !watchState.isAmbient.hasValue() ||
+                !watchState.isVisible.hasValue() ||
+                editorObscuresWatchFace
+        ) {
             return
         }
 
@@ -973,7 +1027,8 @@ constructor(
         renderer.renderInternal(startTime)
         lastDrawTimeMillis = startTimeMillis
 
-        if (renderer.shouldAnimate()) {
+        // If the editor is obscuring the watch face, there's no need to draw.
+        if (renderer.shouldAnimate() && !editorObscuresWatchFace) {
             val currentTimeMillis = systemTimeProvider.getSystemTimeMillis()
             var delayMillis =
                 computeDelayTillNextFrame(startTimeMillis, currentTimeMillis, Instant.now())
@@ -1065,11 +1120,11 @@ constructor(
      * Called when a tap or touch related event occurs. Detects taps on [ComplicationSlot]s and
      * triggers the associated action.
      *
-     * @param tapType The [TapType] of the event
+     * @param tapType The [TapTypeIntDef] of the event
      * @param tapEvent The received [TapEvent]
      */
     @UiThread
-    internal fun onTapCommand(@TapType tapType: Int, tapEvent: TapEvent) {
+    internal fun onTapCommand(@TapTypeIntDef tapType: Int, tapEvent: TapEvent) {
         val tappedComplication =
             complicationSlotsManager.getComplicationSlotAt(tapEvent.xPos, tapEvent.yPos)
         tapListener?.onTapEvent(tapType, tapEvent, tappedComplication)
@@ -1105,54 +1160,26 @@ constructor(
     @RequiresApi(27)
     internal fun renderWatchFaceToBitmap(params: WatchFaceRenderParams): Bundle =
         TraceEvent("WatchFaceImpl.renderWatchFaceToBitmap").use {
-            val oldStyle = currentUserStyleRepository.userStyle.value
             val instant = Instant.ofEpochMilli(params.calendarTimeMillis)
-
-            params.userStyle?.let {
-                currentUserStyleRepository.updateUserStyle(
-                    UserStyle(UserStyleData(it), currentUserStyleRepository.schema)
-                )
-            }
-
-            val oldComplicationData =
-                complicationSlotsManager.complicationSlots.values.associateBy(
-                    { it.id },
-                    { it.renderer.getData() }
-                )
-
-            params.idAndComplicationDatumWireFormats?.let {
-                for (idAndData in it) {
-                    complicationSlotsManager.setComplicationDataUpdateSync(
-                        idAndData.id,
-                        idAndData.complicationData.toApiComplicationData(),
+            val bitmap =
+                setForScreenshot(
+                        params.userStyle?.let {
+                            UserStyle(UserStyleData(it), currentUserStyleRepository.schema)
+                        },
+                        params.idAndComplicationDatumWireFormats?.let { idAndData ->
+                            idAndData.associate {
+                                it.id to it.complicationData.toApiComplicationData()
+                            }
+                        },
                         instant
                     )
-                }
-            }
-
-            val bitmap =
-                renderer.takeScreenshot(
-                    ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
-                    RenderParameters(params.renderParametersWireFormat)
-                )
-
-            // Restore previous style & complicationSlots if required.
-            if (params.userStyle != null) {
-                currentUserStyleRepository.updateUserStyle(oldStyle)
-            }
-
-            if (params.idAndComplicationDatumWireFormats != null) {
-                val now = getNow()
-                for ((id, complicationData) in oldComplicationData) {
-                    complicationSlotsManager.setComplicationDataUpdateSync(
-                        id,
-                        complicationData,
-                        now
-                    )
-                }
-            }
-
-            return SharedMemoryImage.ashmemWriteImageBundle(bitmap)
+                    .use {
+                        renderer.takeScreenshot(
+                            ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
+                            RenderParameters(params.renderParametersWireFormat)
+                        )
+                    }
+            SharedMemoryImage.ashmemWriteImageBundle(bitmap)
         }
 
     @UiThread
@@ -1179,62 +1206,93 @@ constructor(
     @RequiresApi(27)
     internal fun renderComplicationToBitmap(params: ComplicationRenderParams): Bundle? =
         TraceEvent("WatchFaceImpl.renderComplicationToBitmap").use {
-            val zonedDateTime =
-                ZonedDateTime.ofInstant(
-                    Instant.ofEpochMilli(params.calendarTimeMillis),
-                    ZoneId.of("UTC")
+            val slot = complicationSlotsManager[params.complicationSlotId] ?: return@use null
+            setForScreenshot(
+                    params.userStyle?.let {
+                        UserStyle(UserStyleData(it), currentUserStyleRepository.schema)
+                    },
+                    params.complicationData?.let {
+                        mapOf(params.complicationSlotId to it.toApiComplicationData())
+                    },
+                    Instant.ofEpochMilli(params.calendarTimeMillis)
                 )
-            return complicationSlotsManager[params.complicationSlotId]?.let {
-                val oldStyle = currentUserStyleRepository.userStyle.value
-                val instant = Instant.ofEpochMilli(params.calendarTimeMillis)
+                .use {
+                    val zonedDateTime =
+                        ZonedDateTime.ofInstant(
+                            Instant.ofEpochMilli(params.calendarTimeMillis),
+                            ZoneId.of("UTC")
+                        )
+                    // Compute the bounds of the complication based on the display rather than
+                    // the headless renderer (which may be smaller).
+                    val bounds =
+                        slot.computeBounds(
+                            Rect(
+                                0,
+                                0,
+                                Resources.getSystem().displayMetrics.widthPixels,
+                                Resources.getSystem().displayMetrics.heightPixels
+                            )
+                        )
 
-                val newStyle = params.userStyle
-                if (newStyle != null) {
-                    currentUserStyleRepository.updateUserStyle(
-                        UserStyle(UserStyleData(newStyle), currentUserStyleRepository.schema)
-                    )
+                    val complicationBitmap: Bitmap
+                    val picture = Picture()
+                    if (Build.VERSION.SDK_INT >= 28) {
+                        slot.renderer.render(
+                            picture.beginRecording(bounds.width(), bounds.height()),
+                            Rect(0, 0, bounds.width(), bounds.height()),
+                            zonedDateTime,
+                            RenderParameters(params.renderParametersWireFormat),
+                            params.complicationSlotId
+                        )
+                        picture.endRecording()
+                        complicationBitmap =
+                            Api28CreateBitmapHelper.createBitmap(
+                                picture,
+                                bounds.width(),
+                                bounds.height(),
+                                Bitmap.Config.ARGB_8888
+                            )
+                    } else {
+                        complicationBitmap =
+                            Bitmap.createBitmap(
+                                bounds.width(),
+                                bounds.height(),
+                                Bitmap.Config.ARGB_8888
+                            )
+                        slot.renderer.render(
+                            Canvas(complicationBitmap),
+                            Rect(0, 0, bounds.width(), bounds.height()),
+                            zonedDateTime,
+                            RenderParameters(params.renderParametersWireFormat),
+                            params.complicationSlotId
+                        )
+                    }
+                    val bundle = SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)
+                    complicationBitmap.recycle()
+                    bundle
                 }
-
-                val bounds = it.computeBounds(renderer.screenBounds)
-                val complicationBitmap =
-                    Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888)
-
-                var prevData: ComplicationData? = null
-                val screenshotComplicationData = params.complicationData
-                if (screenshotComplicationData != null) {
-                    prevData = it.renderer.getData()
-                    complicationSlotsManager.setComplicationDataUpdateSync(
-                        params.complicationSlotId,
-                        screenshotComplicationData.toApiComplicationData(),
-                        instant
-                    )
-                }
-
-                it.renderer.render(
-                    Canvas(complicationBitmap),
-                    Rect(0, 0, bounds.width(), bounds.height()),
-                    zonedDateTime,
-                    RenderParameters(params.renderParametersWireFormat),
-                    params.complicationSlotId
-                )
-
-                // Restore previous ComplicationData & style if required.
-                if (prevData != null) {
-                    val now = getNow()
-                    complicationSlotsManager.setComplicationDataUpdateSync(
-                        params.complicationSlotId,
-                        prevData,
-                        now
-                    )
-                }
-
-                if (newStyle != null) {
-                    currentUserStyleRepository.updateUserStyle(oldStyle)
-                }
-
-                SharedMemoryImage.ashmemWriteImageBundle(complicationBitmap)
-            }
         }
+
+    /** Sets the user style and complication data, and returns a restoration function. */
+    internal fun setForScreenshot(
+        userStyle: UserStyle?,
+        complicationIdToData: Map<Int, ComplicationData>?,
+        instant: Instant,
+    ): AutoCloseable {
+        val restoreUserStyle =
+            userStyle?.let { currentUserStyleRepository.updateUserStyleForScreenshot(it) }
+        try {
+            val restoreComplications =
+                complicationIdToData?.let {
+                    complicationSlotsManager.setComplicationDataForScreenshot(it, instant)
+                }
+            return AutoCloseable { restoreUserStyle?.use { restoreComplications?.close() } }
+        } catch (e: Throwable) {
+            // Cleanup on failure.
+            restoreUserStyle?.close()
+            throw e
+        }
+    }
 
     @UiThread
     internal fun dump(writer: IndentingPrintWriter) {
@@ -1251,6 +1309,17 @@ constructor(
             "currentUserStyleRepository.userStyle=${currentUserStyleRepository.userStyle.value}"
         )
         writer.println("currentUserStyleRepository.schema=${currentUserStyleRepository.schema}")
+        writer.println("editorObscuresWatchFace=$editorObscuresWatchFace")
+        writer.println("additionalContentDescriptionLabels:")
+        writer.increaseIndent()
+        for (label in renderer.additionalContentDescriptionLabels) {
+            if (Build.TYPE.equals("userdebug")) {
+                writer.println("${label.first}: ${label.second}")
+            } else {
+                writer.println("${label.first}: Redacted")
+            }
+        }
+        writer.decreaseIndent()
         overlayStyle.dump(writer)
         watchState.dump(writer)
         complicationSlotsManager.dump(writer)
@@ -1291,52 +1360,27 @@ internal object CreateRemoteWatchFaceViewHelper {
         return RemoteWatchFaceView(view, host, watchFaceHostApi.getUiThreadCoroutineScope()) {
             surfaceHolder,
             params ->
-            val oldStyle = watchFaceImpl.currentUserStyleRepository.userStyle.value
             val instant = Instant.ofEpochMilli(params.calendarTimeMillis)
-
-            params.userStyle?.let {
-                watchFaceImpl.currentUserStyleRepository.updateUserStyle(
-                    UserStyle(UserStyleData(it), watchFaceImpl.currentUserStyleRepository.schema)
+            watchFaceImpl
+                .setForScreenshot(
+                    params.userStyle?.let {
+                        UserStyle(
+                            UserStyleData(it),
+                            watchFaceImpl.currentUserStyleRepository.schema
+                        )
+                    },
+                    params.idAndComplicationDatumWireFormats?.associate {
+                        it.id to it.complicationData.toApiComplicationData()
+                    },
+                    instant
                 )
-            }
-
-            val oldComplicationData =
-                watchFaceImpl.complicationSlotsManager.complicationSlots.values.associateBy(
-                    { it.id },
-                    { it.renderer.getData() }
-                )
-
-            params.idAndComplicationDatumWireFormats?.let {
-                for (idAndData in it) {
-                    watchFaceImpl.complicationSlotsManager.setComplicationDataUpdateSync(
-                        idAndData.id,
-                        idAndData.complicationData.toApiComplicationData(),
-                        instant
+                .use {
+                    watchFaceImpl.renderer.renderScreenshotToSurface(
+                        ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
+                        RenderParameters(params.renderParametersWireFormat),
+                        surfaceHolder
                     )
                 }
-            }
-
-            watchFaceImpl.renderer.renderScreenshotToSurface(
-                ZonedDateTime.ofInstant(instant, ZoneId.of("UTC")),
-                RenderParameters(params.renderParametersWireFormat),
-                surfaceHolder
-            )
-
-            // Restore previous style & complicationSlots if required.
-            if (params.userStyle != null) {
-                watchFaceImpl.currentUserStyleRepository.updateUserStyle(oldStyle)
-            }
-
-            if (params.idAndComplicationDatumWireFormats != null) {
-                val now = watchFaceImpl.getNow()
-                for ((id, complicationData) in oldComplicationData) {
-                    watchFaceImpl.complicationSlotsManager.setComplicationDataUpdateSync(
-                        id,
-                        complicationData,
-                        now
-                    )
-                }
-            }
         }
     }
 }

@@ -23,7 +23,7 @@ import android.hardware.camera2.CameraMetadata
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
-import androidx.camera.camera2.pipe.integration.adapter.CameraFactoryAdapter
+import androidx.camera.camera2.pipe.integration.adapter.CameraFactoryProvider
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -67,10 +67,10 @@ class CameraCompatibilityFilterTest {
         ReflectionHelpers.setStaticField(Build::class.java, "FINGERPRINT", "fake-fingerprint")
 
         setupCameras()
-        val cameraFactoryAdapter = CameraFactoryAdapter(
-            ApplicationProvider.getApplicationContext<Context>(), CameraThreadConfig.create(
+        val cameraFactoryAdapter = CameraFactoryProvider().newInstance(
+            ApplicationProvider.getApplicationContext(), CameraThreadConfig.create(
                 CameraXExecutors.mainThreadExecutor(), Handler(Looper.getMainLooper())
-            ), null
+            ), null, -1L
         )
 
         Truth.assertThat(cameraFactoryAdapter.availableCameraIds).containsExactly("0", "1", "2")
@@ -84,10 +84,10 @@ class CameraCompatibilityFilterTest {
 
         setupCameras()
 
-        val cameraFactoryAdapter = CameraFactoryAdapter(
+        val cameraFactoryAdapter = CameraFactoryProvider().newInstance(
             ApplicationProvider.getApplicationContext(), CameraThreadConfig.create(
                 CameraXExecutors.mainThreadExecutor(), Handler(Looper.getMainLooper())
-            ), CameraSelector.DEFAULT_BACK_CAMERA
+            ), CameraSelector.DEFAULT_BACK_CAMERA, -1L
         )
 
         Truth.assertThat(cameraFactoryAdapter.availableCameraIds).containsExactly("0", "2")
@@ -97,10 +97,10 @@ class CameraCompatibilityFilterTest {
     fun NotFilterOutIncompatibleCameras_whenBuildFingerprintIsRobolectric() {
         setupCameras()
 
-        val cameraFactoryAdapter = CameraFactoryAdapter(
+        val cameraFactoryAdapter = CameraFactoryProvider().newInstance(
             ApplicationProvider.getApplicationContext(), CameraThreadConfig.create(
                 CameraXExecutors.mainThreadExecutor(), Handler(Looper.getMainLooper())
-            ), null
+            ), null, -1L
         )
 
         Truth.assertThat(cameraFactoryAdapter.availableCameraIds)

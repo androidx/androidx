@@ -317,6 +317,10 @@ fun XTypeName.defaultValue(): String {
         "null"
     } else if (this == XTypeName.PRIMITIVE_BOOLEAN) {
         "false"
+    } else if (this == XTypeName.PRIMITIVE_DOUBLE) {
+        "0.0"
+    } else if (this == XTypeName.PRIMITIVE_FLOAT) {
+        "0f"
     } else {
         "0"
     }

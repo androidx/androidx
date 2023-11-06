@@ -23,6 +23,7 @@ import androidx.kruth.assertThat
 import androidx.kruth.assertThrows
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
@@ -32,21 +33,23 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
-abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
+abstract class DataMigrationInitializerTest<F : TestFile<F>, IOE : Throwable>
     (private val testIO: TestIO<F, IOE>) {
 
     private lateinit var storage: Storage<Byte>
     private lateinit var testScope: TestScope
     private lateinit var dataStoreScope: TestScope
+    protected lateinit var testFile: F
 
     @BeforeTest
     fun setUp() {
         testScope = TestScope(UnconfinedTestDispatcher())
         dataStoreScope = TestScope(UnconfinedTestDispatcher())
+        testFile = testIO.newTempFile()
     }
 
     fun doTest(test: suspend TestScope.() -> Unit) {
-        testScope.runTest(dispatchTimeoutMs = 10000) {
+        testScope.runTest(timeout = 10000.milliseconds) {
             test(testScope)
         }
     }
@@ -141,10 +144,12 @@ abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
             cleanUpFunction = { cleanUpFinished.complete(Unit) }
         )
 
+        val testFile = testIO.newTempFile()
+
         val storage = testIO.getStorage(
             TestingSerializerConfig(failingWrite = true),
-            { createSingleProcessCoordinator() }
-        ) { testIO.newTempFile() }
+            { createSingleProcessCoordinator(testFile.path()) }
+        ) { testFile }
         val store = newDataStore(
             initTasksList = listOf(
                 DataMigrationInitializer.getInitializer(listOf(noOpMigration))
@@ -195,7 +200,8 @@ abstract class DataMigrationInitializerTest<F : TestFile, IOE : Throwable>
         initTasksList: List<suspend (api: InitializerApi<Byte>) -> Unit> = listOf(),
         storage: Storage<Byte> = testIO.getStorage(
             TestingSerializerConfig(),
-            { createSingleProcessCoordinator() }
+            { createSingleProcessCoordinator(testFile.path()) },
+            { testFile }
         )
     ): DataStore<Byte> {
         return DataStoreImpl(

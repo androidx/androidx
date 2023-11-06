@@ -21,6 +21,13 @@ import androidx.lifecycle.Lifecycle
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -48,5 +55,15 @@ class TestLifecycleOwnerAndroidTest {
         val owner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
         owner.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
         assertThat(owner.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class, ExperimentalStdlibApi::class)
+    @Test
+    fun testSetCurrentStateInRunTest() = runTest(timeout = 5000.milliseconds) {
+        Dispatchers.setMain(coroutineContext[CoroutineDispatcher]!!)
+        val owner = TestLifecycleOwner()
+        owner.setCurrentState(Lifecycle.State.RESUMED)
+        assertThat(owner.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        Dispatchers.resetMain()
     }
 }

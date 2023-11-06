@@ -824,6 +824,18 @@ class MutableVectorTest {
     }
 
     @Test
+    fun removeIf() {
+        val l = mutableVectorOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+        l.removeIf { it % 2 == 0 }
+        assertEquals(5, l.size)
+        assertTrue(l.contentEquals(mutableVectorOf(1, 3, 5, 7, 9)))
+
+        l.removeIf { it % 2 != 0 }
+        assertEquals(0, l.size)
+        assertTrue(l.isEmpty())
+    }
+
+    @Test
     fun sortWith() {
         val l = mutableVectorOf(1, 4, 2, 5, 3)
         l.sortWith(Comparator { p0, p1 -> p0 - p1 })

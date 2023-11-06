@@ -16,6 +16,7 @@
 
 package androidx.wear.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.SpringSpec
@@ -47,6 +48,8 @@ import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastMaxBy
+import androidx.compose.ui.util.fastMinByOrNull
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.material.SwipeableDefaults.StandardResistanceFactor
 import androidx.wear.compose.material.SwipeableDefaults.VelocityThreshold
@@ -442,7 +445,7 @@ open class SwipeableState<T>(
 class SwipeProgress<T>(
     val from: T,
     val to: T,
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     val fraction: Float
 ) {
     override fun equals(other: Any?): Boolean {
@@ -660,7 +663,7 @@ data class FixedThreshold(private val offset: Dp) : ThresholdConfig {
 @Immutable
 @ExperimentalWearMaterialApi
 data class FractionalThreshold(
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     private val fraction: Float
 ) : ThresholdConfig {
     override fun Density.computeThreshold(fromValue: Float, toValue: Float): Float {
@@ -693,11 +696,11 @@ data class FractionalThreshold(
 @Immutable
 @ExperimentalWearMaterialApi
 class ResistanceConfig(
-    /*@FloatRange(from = 0.0, fromInclusive = false)*/
+    @FloatRange(from = 0.0, fromInclusive = false)
     val basis: Float,
-    /*@FloatRange(from = 0.0)*/
+    @FloatRange(from = 0.0)
     val factorAtMin: Float = StandardResistanceFactor,
-    /*@FloatRange(from = 0.0)*/
+    @FloatRange(from = 0.0)
     val factorAtMax: Float = StandardResistanceFactor
 ) {
     fun computeResistance(overflow: Float): Float {
@@ -743,8 +746,8 @@ private fun findBounds(
     anchors: Set<Float>
 ): List<Float> {
     // Find the anchors the target lies between with a little bit of rounding error.
-    val a = anchors.filter { it <= offset + 0.001 }.maxOrNull()
-    val b = anchors.filter { it >= offset - 0.001 }.minOrNull()
+    val a = anchors.filter { it <= offset + 0.001 }.fastMaxBy { it }
+    val b = anchors.filter { it >= offset - 0.001 }.fastMinByOrNull { it }
 
     return when {
         a == null ->

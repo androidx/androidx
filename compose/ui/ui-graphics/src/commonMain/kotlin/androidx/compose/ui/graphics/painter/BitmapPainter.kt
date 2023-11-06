@@ -120,6 +120,7 @@ class BitmapPainter(
     }
 
     private fun validateSize(srcOffset: IntOffset, srcSize: IntSize): IntSize {
+        @Suppress("ExceptionMessage")
         require(
             srcOffset.x >= 0 &&
                 srcOffset.y >= 0 &&

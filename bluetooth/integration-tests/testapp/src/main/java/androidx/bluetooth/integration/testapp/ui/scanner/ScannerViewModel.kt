@@ -16,60 +16,63 @@
 
 package androidx.bluetooth.integration.testapp.ui.scanner
 
-// TODO(ofy) Migrate to androidx.bluetooth.ScanResult once in place
-import android.bluetooth.BluetoothGattService
-import android.bluetooth.le.ScanResult
+import android.annotation.SuppressLint
+import android.util.Log
+import androidx.bluetooth.BluetoothLe
+import androidx.bluetooth.ScanResult
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filterNot
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.update
 
-class ScannerViewModel : ViewModel() {
+@HiltViewModel
+class ScannerViewModel @Inject constructor(
+    private val bluetoothLe: BluetoothLe
+) : ViewModel() {
 
     internal companion object {
         private const val TAG = "ScannerViewModel"
-
-        internal const val NEW_DEVICE = -1
     }
 
-    internal val results: List<ScanResult> get() = _results.values.toList()
-    private val _results = mutableMapOf<String, ScanResult>()
+    private val scanResultsMap = mutableMapOf<String, ScanResult>()
 
-    internal val devices: Set<DeviceConnection> get() = _devices
-    private val _devices = mutableSetOf<DeviceConnection>()
+    var scanJob: Job? = null
 
-    fun addScanResultIfNew(scanResult: ScanResult): Boolean {
-        val deviceAddress = scanResult.device.address
+    private val _uiState = MutableStateFlow(ScannerUiState())
+    val uiState: StateFlow<ScannerUiState> = _uiState.asStateFlow()
 
-        if (_results.containsKey(deviceAddress)) {
-            return false
-        }
+    @SuppressLint("MissingPermission")
+    fun startScan() {
+        Log.d(TAG, "startScan() called")
 
-        _results[deviceAddress] = scanResult
-        return true
+        scanJob = bluetoothLe.scan()
+            .onStart {
+                Log.d(TAG, "bluetoothLe.scan() onStart")
+                _uiState.update {
+                    it.copy(isScanning = true)
+                }
+            }.filterNot { scanResultsMap.containsKey(it.deviceAddress.address) }
+            .onEach { scanResult ->
+                Log.d(TAG, "bluetoothLe.scan() onEach: $scanResult")
+                scanResultsMap[scanResult.deviceAddress.address] = scanResult
+                _uiState.update {
+                    it.copy(scanResults = scanResultsMap.values.toList())
+                }
+            }.onCompletion { throwable ->
+                Log.e(TAG, "bluetoothLe.scan() onCompletion", throwable)
+                _uiState.update {
+                    it.copy(isScanning = false)
+                }
+            }.launchIn(viewModelScope)
     }
-
-    fun addDeviceConnectionIfNew(scanResult: ScanResult): Int {
-        val deviceConnection = DeviceConnection(scanResult)
-
-        val indexOf = _devices.map { it.scanResult }.indexOf(scanResult)
-        if (indexOf != -1) {
-            // Index 0 is Results page; Tabs for devices start from 1.
-            return indexOf + 1
-        }
-
-        _devices.add(deviceConnection)
-        return NEW_DEVICE
-    }
-
-    fun deviceConnection(position: Int): DeviceConnection {
-        // Index 0 is Results page; Tabs for devices start from 1.
-        return devices.elementAt(position - 1)
-    }
-}
-
-class DeviceConnection(val scanResult: ScanResult) {
-    var status = Status.NOT_CONNECTED
-    var services = emptyList<BluetoothGattService>()
-}
-
-enum class Status {
-    NOT_CONNECTED, CONNECTING, CONNECTED, CONNECTION_FAILED
 }

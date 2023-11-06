@@ -92,7 +92,7 @@ private fun rememberColumnSlots(
     columns: StaggeredGridCells,
     horizontalArrangement: Arrangement.Horizontal,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> LazyStaggeredGridSlots>(
+) = remember<LazyGridStaggeredGridSlotsProvider>(
     columns,
     horizontalArrangement,
     contentPadding,
@@ -182,7 +182,7 @@ private fun rememberRowSlots(
     rows: StaggeredGridCells,
     verticalArrangement: Arrangement.Vertical,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> LazyStaggeredGridSlots>(
+) = remember<LazyGridStaggeredGridSlotsProvider>(
     rows,
     verticalArrangement,
     contentPadding,
@@ -209,10 +209,16 @@ private fun rememberRowSlots(
     }
 }
 
+// Note: Implementing function interface is prohibited in K/JS (class A: () -> Unit)
+// therefore we workaround this limitation by inheriting a fun interface instead
+internal fun interface LazyGridStaggeredGridSlotsProvider {
+    fun invoke(density: Density, constraints: Constraints): LazyStaggeredGridSlots
+}
+
 /** measurement cache to avoid recalculating row/column sizes on each scroll. */
 private class LazyStaggeredGridSlotCache(
     private val calculation: Density.(Constraints) -> LazyStaggeredGridSlots
-) : (Density, Constraints) -> LazyStaggeredGridSlots {
+) : LazyGridStaggeredGridSlotsProvider {
     private var cachedConstraints = Constraints()
     private var cachedDensity: Float = 0f
     private var cachedSizes: LazyStaggeredGridSlots? = null
@@ -236,7 +242,7 @@ private class LazyStaggeredGridSlotCache(
     }
 }
 
-/** Dsl marker for [LazyStaggeredGridScope] below **/
+/** Dsl marker for [LazyStaggeredGridScope] below */
 @DslMarker
 internal annotation class LazyStaggeredGridScopeMarker
 

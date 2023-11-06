@@ -16,7 +16,9 @@
 
 package androidx.activity.compose.samples
 
+import androidx.activity.BackEventCompat
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.PredictiveBackHandler
 import androidx.annotation.Sampled
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
@@ -24,6 +26,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.coroutines.flow.Flow
 
 @Sampled
 @Composable
@@ -39,3 +43,33 @@ fun BackHandler() {
         // handle back event
     }
 }
+
+@Sampled
+@Composable
+fun PredictiveBack(callback: SampleCallbackHelper) {
+    var text by remember { mutableStateOf("") }
+
+    TextField(
+        value = text,
+        onValueChange = { text = it }
+    )
+
+    PredictiveBackHandler(text.isNotEmpty()) { progress: Flow<BackEventCompat> ->
+        callback.preparePop()
+        try {
+            progress.collect { backEvent ->
+                callback.updateProgress(backEvent.progress)
+            }
+            callback.popBackStack()
+        } catch (e: CancellationException) {
+            callback.cancelPop()
+        }
+    }
+}
+
+public class SampleCallbackHelper(
+    val preparePop: () -> Unit,
+    val updateProgress: (progress: Float) -> Unit,
+    val popBackStack: () -> Unit,
+    val cancelPop: () -> Unit
+)

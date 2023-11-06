@@ -28,7 +28,6 @@ import android.view.SurfaceHolder
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.RequiresDevice
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import java.util.concurrent.CountDownLatch
@@ -46,7 +45,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@SdkSuppress(minSdkVersion = 29, maxSdkVersion = 32) // b/268117749
+@SdkSuppress(minSdkVersion = 29)
 class SurfaceControlWrapperTest {
     var executor: Executor? = null
 
@@ -106,7 +105,7 @@ class SurfaceControlWrapperTest {
         var mCallbackTime = -1L
         var mLatch = CountDownLatch(1)
 
-        override fun onTransactionCompleted() {
+        override fun onTransactionCompleted(transactionStats: Long) {
             mCallbackTime = SystemClock.elapsedRealtime()
             mLatch.countDown()
         }
@@ -1015,7 +1014,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @RequiresDevice // b/268117749
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_null() {
@@ -1061,7 +1059,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @RequiresDevice // b/268117749
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_standardCrop() {
@@ -1107,7 +1104,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @RequiresDevice // b/268117749
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetCrop_standardThenNullCrop() {
@@ -1173,7 +1169,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @RequiresDevice // b/268117749
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetPosition() {
@@ -1230,7 +1225,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @RequiresDevice // b/268117749
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetScale() {
@@ -1288,7 +1282,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @RequiresDevice // b/268117749
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetBufferTransform_identity() {
@@ -1352,7 +1345,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @RequiresDevice // b/268117749
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetGeometry_identity() {
@@ -1420,7 +1412,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @RequiresDevice // b/268117749
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.S)
     fun testTransactionSetBufferTransform_singleTransform() {
@@ -1487,7 +1478,6 @@ class SurfaceControlWrapperTest {
         }
     }
 
-    @RequiresDevice // b/268117749
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     fun testTransactionSetGeometry_singleTransform() {

@@ -20,9 +20,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
-import androidx.camera.testing.fakes.FakeCaptureStage;
-import androidx.camera.testing.fakes.FakeImageInfo;
-import androidx.camera.testing.fakes.FakeImageProxy;
+import androidx.camera.testing.impl.fakes.FakeCaptureStage;
+import androidx.camera.testing.impl.fakes.FakeImageInfo;
+import androidx.camera.testing.impl.fakes.FakeImageProxy;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

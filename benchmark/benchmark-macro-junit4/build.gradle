@@ -36,10 +36,10 @@ dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.1.0")
     api(project(":benchmark:benchmark-macro"))
+    api("androidx.test.uiautomator:uiautomator:2.3.0-alpha04")
     implementation(project(":benchmark:benchmark-common"))
     implementation("androidx.test:rules:1.5.0")
-    implementation("androidx.test:runner:1.5.0")
-    implementation("androidx.test.uiautomator:uiautomator:2.2.0")
+    implementation("androidx.test:runner:1.5.2")
 
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(libs.testExtJunit)
@@ -57,4 +57,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     description = "Android Benchmark - Macrobenchmark JUnit4"
+    metalavaK2UastEnabled = true
 }

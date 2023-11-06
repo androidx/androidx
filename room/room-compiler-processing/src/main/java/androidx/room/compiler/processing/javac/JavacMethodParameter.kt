@@ -32,24 +32,44 @@ internal class JavacMethodParameter(
 ) : JavacVariableElement(env, element), XExecutableParameterElement {
     override fun isContinuationParam() =
         enclosingElement is JavacMethodElement &&
-        enclosingElement.isSuspendFunction() &&
-        enclosingElement.parameters.last() == this
+            enclosingElement.isSuspendFunction() &&
+            enclosingElement.parameters.last() == this
 
     override fun isReceiverParam() =
         enclosingElement is JavacMethodElement &&
-        enclosingElement.isExtensionFunction() &&
-        enclosingElement.parameters.first() == this
+            enclosingElement.isExtensionFunction() &&
+            enclosingElement.parameters.first() == this
+
+    override fun isVarArgs() =
+        kotlinMetadata?.isVarArgs() ?: (enclosingElement.isVarArgs() &&
+            enclosingElement.parameters.last() == this)
 
     override fun isKotlinPropertyParam() =
         enclosingElement is JavacMethodElement &&
-        enclosingElement.isKotlinPropertyMethod()
+            enclosingElement.isKotlinPropertyMethod()
 
     override val kotlinMetadata by lazy { kotlinMetadataFactory() }
 
-    override val name: String
-        get() = (kotlinMetadata?.name ?: super.name).sanitizeAsJavaParameterName(
-            argIndex = argIndex
-        )
+    override val name: String by lazy {
+        if (isReceiverParam() && enclosingElement.isAbstract()) {
+            // Receiver parameter names for abstract methods are not reliable across different
+            // versions of KAPT so we just build the name ourselves to match KSP.
+            // https://youtrack.jetbrains.com/issue/KT-18048/kapt-drops-method-parameter-names
+            "\$this\$${enclosingElement.name}"
+        } else {
+            (kotlinMetadata?.name ?: element.simpleName.toString()).let {
+                if (it == "<set-?>") {
+                    "p$argIndex"
+                } else {
+                    it
+                }
+            }
+        }
+    }
+
+    override val jvmName: String by lazy {
+        name.sanitizeAsJavaParameterName(argIndex)
+    }
 
     override val kotlinType: KmTypeContainer?
         get() = kotlinMetadata?.type

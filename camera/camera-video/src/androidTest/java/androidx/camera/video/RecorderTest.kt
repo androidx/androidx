@@ -46,18 +46,20 @@ import androidx.camera.core.impl.Observable.Observer
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.AudioUtil
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.GarbageCollectionUtil
-import androidx.camera.testing.LabTestRule
-import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.asFlow
-import androidx.camera.testing.mocks.MockConsumer
-import androidx.camera.testing.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
-import androidx.camera.testing.mocks.helpers.CallTimes
-import androidx.camera.testing.mocks.helpers.CallTimesAtLeast
+import androidx.camera.testing.impl.AudioUtil
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.GarbageCollectionUtil
+import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.asFlow
+import androidx.camera.testing.impl.mocks.MockConsumer
+import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor as ArgumentCaptorCameraX
+import androidx.camera.testing.impl.mocks.helpers.CallTimes
+import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
+import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE
+import androidx.camera.video.Recorder.VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
 import androidx.camera.video.VideoOutput.SourceState.ACTIVE_NON_STREAMING
 import androidx.camera.video.VideoOutput.SourceState.ACTIVE_STREAMING
 import androidx.camera.video.VideoOutput.SourceState.INACTIVE
@@ -104,6 +106,7 @@ import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
@@ -520,6 +523,7 @@ class RecorderTest(
         runLocationTest(createLocation(-27.14394722411734, -109.33053675296067))
     }
 
+    @Ignore // b/293639941
     @Test
     fun stop_withErrorWhenDurationLimitReached() {
         // Arrange.
@@ -1009,6 +1013,31 @@ class RecorderTest(
         }
     }
 
+    @Test
+    fun defaultVideoCapabilitiesSource() {
+        val recorder = createRecorder()
+
+        assertThat(recorder.videoCapabilitiesSource)
+            .isEqualTo(VIDEO_CAPABILITIES_SOURCE_CAMCORDER_PROFILE)
+    }
+
+    @Test
+    fun canSetVideoCapabilitiesSource() {
+        val recorder = createRecorder(
+            videoCapabilitiesSource = VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES
+        )
+
+        assertThat(recorder.videoCapabilitiesSource)
+            .isEqualTo(VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES)
+    }
+
+    @Test
+    fun setNonSupportedVideoCapabilitiesSource_throwException() {
+        assertThrows(IllegalArgumentException::class.java) {
+            createRecorder(videoCapabilitiesSource = Integer.MAX_VALUE)
+        }
+    }
+
     private fun testRecorderIsConfiguredBasedOnTargetVideoEncodingBitrate(targetBitrate: Int) {
         // Arrange.
         val recorder = createRecorder(targetBitrate = targetBitrate)
@@ -1043,6 +1072,7 @@ class RecorderTest(
         sendSurfaceRequest: Boolean = true,
         initSourceState: VideoOutput.SourceState = ACTIVE_STREAMING,
         qualitySelector: QualitySelector? = null,
+        videoCapabilitiesSource: Int? = null,
         executor: Executor? = null,
         videoEncoderFactory: EncoderFactory? = null,
         audioEncoderFactory: EncoderFactory? = null,
@@ -1050,6 +1080,7 @@ class RecorderTest(
     ): Recorder {
         val recorder = Recorder.Builder().apply {
             qualitySelector?.let { setQualitySelector(it) }
+            videoCapabilitiesSource?.let { setVideoCapabilitiesSource(it) }
             executor?.let { setExecutor(it) }
             videoEncoderFactory?.let { setVideoEncoderFactory(it) }
             audioEncoderFactory?.let { setAudioEncoderFactory(it) }

@@ -40,6 +40,7 @@ import java.util.List;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 @AutoValue
 public abstract class SurfaceConfig {
+    public static final long DEFAULT_STREAM_USE_CASE_VALUE = 0;
     /** Prevent subclassing */
     SurfaceConfig() {
     }
@@ -49,7 +50,16 @@ public abstract class SurfaceConfig {
      */
     @NonNull
     public static SurfaceConfig create(@NonNull ConfigType type, @NonNull ConfigSize size) {
-        return new AutoValue_SurfaceConfig(type, size);
+        return new AutoValue_SurfaceConfig(type, size, DEFAULT_STREAM_USE_CASE_VALUE);
+    }
+
+    /**
+     * Creates a new instance of SurfaceConfig with the given parameters.
+     */
+    @NonNull
+    public static SurfaceConfig create(@NonNull ConfigType type, @NonNull ConfigSize size,
+            long streamUseCase) {
+        return new AutoValue_SurfaceConfig(type, size, streamUseCase);
     }
 
     /** Returns the configuration type. */
@@ -59,6 +69,21 @@ public abstract class SurfaceConfig {
     /** Returns the configuration size. */
     @NonNull
     public abstract ConfigSize getConfigSize();
+
+    /**
+     * Returns the stream use case.
+     * <p>Stream use case constants are implementation-specific constants that allow the
+     * implementation to optimize power and quality characteristics of a stream depending on how
+     * it will be used.
+     * <p> Stream use case is an int flag used to specify the purpose of the stream associated
+     * with this surface. Use cases for the camera2 implementation that are available on devices can
+     * be found in
+     * {@link android.hardware.camera2.CameraCharacteristics#SCALER_AVAILABLE_STREAM_USE_CASES}
+     *
+     * <p>See {@link android.hardware.camera2.params.OutputConfiguration#setStreamUseCase}
+     * to see how Camera2 framework uses this.
+     */
+    public abstract long getStreamUseCase();
 
     /**
      * Check whether the input surface configuration has a smaller size than this object and can be

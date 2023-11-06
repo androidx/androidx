@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that the annotated element represents a packed gravity int. If applied to an int
- * array, every element in the array represents a gravity int.
+ * Denotes that the annotated element represents a packed gravity int. If applied to an int array,
+ * every element in the array represents a gravity int.
  *
  * Example:
  * ```

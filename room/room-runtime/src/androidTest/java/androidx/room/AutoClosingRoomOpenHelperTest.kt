@@ -21,6 +21,7 @@ import android.database.Cursor
 import android.database.sqlite.SQLiteException
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.kruth.assertThat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
@@ -28,7 +29,6 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
-import com.google.common.truth.Truth.assertThat
 import java.io.IOException
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit

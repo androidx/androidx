@@ -35,6 +35,11 @@ _formatted as “Jetpack libraries are…” with sub-points “Libraries should
         API complexity for the most common simpler use cases.
 -   Have **backing data or a researched hypothesis** (research, demand etc) to
     prove the library is necessary and sufficient.
+-   Include only functionality that is relevant to the library's stated use case
+    -   End user and developer trust depend on libraries being transparent about
+        their operation. See
+        [Functionality](/company/teams/androidx/api_guidelines#functionality) in
+        the API Guidelines for details.
 
 ### 3. Aware of the existing developer ecosystem
 

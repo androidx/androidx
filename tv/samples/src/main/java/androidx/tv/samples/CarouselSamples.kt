@@ -36,36 +36,59 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.unit.dp
 import androidx.tv.material3.Carousel
 import androidx.tv.material3.CarouselDefaults
-import androidx.tv.material3.CarouselState
 import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.rememberCarouselState
 
 @OptIn(ExperimentalTvMaterial3Api::class, ExperimentalAnimationApi::class)
 @Sampled
 @Composable
 fun SimpleCarousel() {
+    @Composable
+    fun Modifier.onFirstGainingVisibility(onGainingVisibility: () -> Unit): Modifier {
+        var isVisible by remember { mutableStateOf(false) }
+        LaunchedEffect(isVisible) {
+            if (isVisible) onGainingVisibility()
+        }
+
+        return onPlaced { isVisible = true }
+    }
+
+    @Composable
+    fun Modifier.requestFocusOnFirstGainingVisibility(): Modifier {
+        val focusRequester = remember { FocusRequester() }
+        return focusRequester(focusRequester)
+            .onFirstGainingVisibility { focusRequester.requestFocus() }
+    }
+
     val backgrounds = listOf(
         Color.Red.copy(alpha = 0.3f),
         Color.Yellow.copy(alpha = 0.3f),
         Color.Green.copy(alpha = 0.3f)
     )
 
+    var carouselFocused by remember { mutableStateOf(false) }
     Carousel(
         itemCount = backgrounds.size,
         modifier = Modifier
             .height(300.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .onFocusChanged { carouselFocused = it.isFocused },
         contentTransformEndToStart =
         fadeIn(tween(1000)).togetherWith(fadeOut(tween(1000))),
         contentTransformStartToEnd =
@@ -77,16 +100,22 @@ fun SimpleCarousel() {
                 .border(2.dp, Color.White.copy(alpha = 0.5f))
                 .fillMaxSize()
         ) {
-            var isFocused by remember { mutableStateOf(false) }
+            var buttonFocused by remember { mutableStateOf(false) }
+            val buttonModifier =
+                if (carouselFocused) {
+                    Modifier.requestFocusOnFirstGainingVisibility()
+                } else {
+                    Modifier
+                }
 
             Button(
                 onClick = { },
-                modifier = Modifier
-                    .onFocusChanged { isFocused = it.isFocused }
+                modifier = buttonModifier
+                    .onFocusChanged { buttonFocused = it.isFocused }
                     .padding(40.dp)
                     .border(
                         width = 2.dp,
-                        color = if (isFocused) Color.Red else Color.Transparent,
+                        color = if (buttonFocused) Color.Red else Color.Transparent,
                         shape = RoundedCornerShape(50)
                     )
                     // Duration of animation here should be less than or equal to carousel's
@@ -113,7 +142,7 @@ fun CarouselIndicatorWithRectangleShape() {
         Color.Yellow.copy(alpha = 0.3f),
         Color.Green.copy(alpha = 0.3f)
     )
-    val carouselState = remember { CarouselState() }
+    val carouselState = rememberCarouselState()
 
     Carousel(
         itemCount = backgrounds.size,

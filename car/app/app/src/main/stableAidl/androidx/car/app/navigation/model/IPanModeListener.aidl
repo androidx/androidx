@@ -18,7 +18,7 @@ package androidx.car.app.navigation.model;
 
 import androidx.car.app.IOnDoneCallback;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IPanModeListener {
   void onPanModeChanged(boolean isInPanMode, IOnDoneCallback callback) = 1;
 }

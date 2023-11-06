@@ -376,7 +376,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                 });
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void onInitNodeInfoWithNestedDelegateReturnsNodeProvider() throws Throwable {
         final AccessibilityNodeProviderCompat expectedNodeProvider =
@@ -432,7 +431,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                 });
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void performActionWithhNestedDelegate() throws Throwable {
         final int expectedActionId = 42;
@@ -450,7 +448,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                 });
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void performActionWithhNestedDelegateCallsView() throws Throwable {
         final int expectedActionId = 42;
@@ -478,7 +475,6 @@ public class RecyclerViewAccessibilityLifecycleTest extends BaseRecyclerViewInst
                 });
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void customItemDelegate() throws Throwable {
         final RecyclerView recyclerView = new RecyclerView(getActivity()) {

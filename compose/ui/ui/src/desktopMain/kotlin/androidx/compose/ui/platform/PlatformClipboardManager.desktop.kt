@@ -27,7 +27,7 @@ internal actual class PlatformClipboardManager : ClipboardManager {
         Toolkit.getDefaultToolkit().getSystemClipboard()
     } catch (e: java.awt.HeadlessException) { null }
 
-    override fun getText(): AnnotatedString? {
+    actual override fun getText(): AnnotatedString? {
         return systemClipboard?.let {
             try {
                 AnnotatedString(it.getData(DataFlavor.stringFlavor) as String)
@@ -37,7 +37,7 @@ internal actual class PlatformClipboardManager : ClipboardManager {
         }
     }
 
-    override fun setText(annotatedString: AnnotatedString) {
+    actual override fun setText(annotatedString: AnnotatedString) {
         systemClipboard?.setContents(StringSelection(annotatedString.text), null)
     }
 }

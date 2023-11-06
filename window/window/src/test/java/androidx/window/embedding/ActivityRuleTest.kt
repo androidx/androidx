@@ -16,7 +16,6 @@
 
 package androidx.window.embedding
 
-import android.content.ComponentName
 import androidx.window.core.ActivityComponentInfo
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -80,12 +79,8 @@ class ActivityRuleTest {
     @Test
     fun test_ActivityRule_Builder() {
         val filters = HashSet<ActivityFilter>()
-        filters.add(
-            ActivityFilter(
-                ComponentName("a", "b"),
-                "ACTION"
-            )
-        )
+        filters.add(FILTER_WITH_ACTIVITY)
+
         val rule = ActivityRule.Builder(filters)
             .setAlwaysExpand(true)
             .setTag(TEST_TAG)
@@ -93,6 +88,23 @@ class ActivityRuleTest {
         assertTrue(rule.alwaysExpand)
         assertEquals(TEST_TAG, rule.tag)
         assertEquals(filters, rule.filters)
+    }
+
+    @Test
+    fun testToString() {
+        val filters = HashSet<ActivityFilter>()
+        filters.add(FILTER_WITH_ACTIVITY)
+        val alwaysExpand = true
+
+        val ruleString = ActivityRule.Builder(filters)
+            .setAlwaysExpand(alwaysExpand)
+            .setTag(TEST_TAG)
+            .build()
+            .toString()
+
+        assertTrue(ruleString.contains(filters.toString()))
+        assertTrue(ruleString.contains(alwaysExpand.toString()))
+        assertTrue(ruleString.contains(TEST_TAG))
     }
 
     companion object {

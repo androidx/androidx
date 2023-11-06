@@ -24,6 +24,7 @@ import android.view.SurfaceView
 import androidx.annotation.RequiresApi
 import androidx.wear.watchface.control.data.WatchFaceRenderParams
 import androidx.wear.watchface.utility.AsyncTraceEvent
+import androidx.wear.watchface.utility.aidlMethod
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -65,21 +66,22 @@ internal class RemoteWatchFaceView(
         )
     }
 
-    override fun getApiVersion() = IRemoteWatchFaceView.API_VERSION
+    override fun getApiVersion() =
+        aidlMethod(TAG, "getApiVersion") { IRemoteWatchFaceView.API_VERSION }
 
-    override fun renderWatchFace(params: WatchFaceRenderParams) {
-        val traceEvent = AsyncTraceEvent("RemoteWatchFaceView.renderWatchFace")
-        uiThreadCoroutineScope.launch {
-            renderCallback(deferredSurfaceHolder.await(), params)
-            traceEvent.close()
+    override fun renderWatchFace(params: WatchFaceRenderParams): Unit =
+        aidlMethod(TAG, "renderWatchFace") {
+            val traceEvent = AsyncTraceEvent("RemoteWatchFaceView.renderWatchFace")
+            uiThreadCoroutineScope.launch {
+                renderCallback(deferredSurfaceHolder.await(), params)
+                traceEvent.close()
+            }
         }
-    }
 
-    override fun getSurfacePackage(): SurfaceControlViewHost.SurfacePackage {
-        return host.surfacePackage!!
-    }
+    override fun getSurfacePackage(): SurfaceControlViewHost.SurfacePackage =
+        aidlMethod(TAG, "getSurfacePackage") {
+            return host.surfacePackage!!
+        }
 
-    override fun close() {
-        host.release()
-    }
+    override fun close() = aidlMethod(TAG, "close") { host.release() }
 }

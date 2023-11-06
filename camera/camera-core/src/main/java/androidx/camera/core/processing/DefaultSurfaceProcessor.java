@@ -38,6 +38,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.WorkerThread;
+import androidx.arch.core.util.Function;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceOutput;
 import androidx.camera.core.SurfaceProcessor;
@@ -46,7 +48,6 @@ import androidx.camera.core.impl.utils.MatrixExt;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.core.util.Supplier;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -97,8 +98,8 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
     private final List<PendingSnapshot> mPendingSnapshots = new ArrayList<>();
 
     /** Constructs {@link DefaultSurfaceProcessor} with default shaders. */
-    DefaultSurfaceProcessor() {
-        this(ShaderProvider.DEFAULT);
+    DefaultSurfaceProcessor(@NonNull DynamicRange dynamicRange) {
+        this(dynamicRange, ShaderProvider.DEFAULT);
     }
 
     /**
@@ -107,14 +108,15 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
      * @param shaderProvider custom shader provider for OpenGL rendering.
      * @throws IllegalArgumentException if the shaderProvider provides invalid shader.
      */
-    DefaultSurfaceProcessor(@NonNull ShaderProvider shaderProvider) {
+    DefaultSurfaceProcessor(@NonNull DynamicRange dynamicRange,
+            @NonNull ShaderProvider shaderProvider) {
         mGlThread = new HandlerThread("GL Thread");
         mGlThread.start();
         mGlHandler = new Handler(mGlThread.getLooper());
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);
         mGlRenderer = new OpenGlRenderer();
         try {
-            initGlRenderer(shaderProvider);
+            initGlRenderer(dynamicRange, shaderProvider);
         } catch (RuntimeException e) {
             release();
             throw e;
@@ -209,7 +211,6 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             // Ignore frame update if released.
             return;
         }
-
         surfaceTexture.updateTexImage();
         surfaceTexture.getTransformMatrix(mTextureMatrix);
         // Surface, size and transform matrix for JPEG Surface if exists
@@ -221,7 +222,14 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
             surfaceOutput.updateTransformMatrix(mSurfaceOutputMatrix, mTextureMatrix);
             if (surfaceOutput.getFormat() == INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
                 // Render GPU output directly.
-                mGlRenderer.render(surfaceTexture.getTimestamp(), mSurfaceOutputMatrix, surface);
+                try {
+                    mGlRenderer.render(surfaceTexture.getTimestamp(), mSurfaceOutputMatrix,
+                            surface);
+                } catch (RuntimeException e) {
+                    // This should not happen. However, when it happens, we catch the exception
+                    // to prevent the crash.
+                    Logger.e(TAG, "Failed to render with OpenGL.", e);
+                }
             } else {
                 checkState(surfaceOutput.getFormat() == ImageFormat.JPEG,
                         "Unsupported format: " + surfaceOutput.getFormat());
@@ -306,12 +314,11 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
     private Bitmap getBitmap(@NonNull Size size,
             @NonNull float[] textureTransform,
             int rotationDegrees) {
-        // Flip the snapshot. This is for reverting the GL transform added in SurfaceOutputImpl.
         float[] snapshotTransform = new float[16];
-        // TODO(b/278109696): move GL flipping to MatrixExt.
         Matrix.setIdentityM(snapshotTransform, 0);
-        Matrix.translateM(snapshotTransform, 0, 0f, 1f, 0f);
-        Matrix.scaleM(snapshotTransform, 0, 1f, -1f, 1f);
+
+        // Flip the snapshot. This is for reverting the GL transform added in SurfaceOutputImpl.
+        MatrixExt.preVerticalFlip(snapshotTransform, 0.5f);
 
         // Rotate the output if requested.
         MatrixExt.preRotate(snapshotTransform, rotationDegrees, 0.5f, 0.5f);
@@ -343,11 +350,12 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         }
     }
 
-    private void initGlRenderer(@NonNull ShaderProvider shaderProvider) {
+    private void initGlRenderer(@NonNull DynamicRange dynamicRange,
+            @NonNull ShaderProvider shaderProvider) {
         ListenableFuture<Void> initFuture = CallbackToFutureAdapter.getFuture(completer -> {
             executeSafely(() -> {
                 try {
-                    mGlRenderer.init(shaderProvider);
+                    mGlRenderer.init(dynamicRange, shaderProvider);
                     completer.set(null);
                 } catch (RuntimeException e) {
                     completer.setException(e);
@@ -424,21 +432,23 @@ public class DefaultSurfaceProcessor implements SurfaceProcessorInternal,
         private Factory() {
         }
 
-        private static Supplier<SurfaceProcessorInternal> sSupplier = DefaultSurfaceProcessor::new;
+        private static Function<DynamicRange, SurfaceProcessorInternal> sSupplier =
+                DefaultSurfaceProcessor::new;
 
         /**
          * Creates a new {@link DefaultSurfaceProcessor} with no-op shader.
          */
         @NonNull
-        public static SurfaceProcessorInternal newInstance() {
-            return sSupplier.get();
+        public static SurfaceProcessorInternal newInstance(@NonNull DynamicRange dynamicRange) {
+            return sSupplier.apply(dynamicRange);
         }
 
         /**
          * Overrides the {@link DefaultSurfaceProcessor} supplier for testing.
          */
         @VisibleForTesting
-        public static void setSupplier(@NonNull Supplier<SurfaceProcessorInternal> supplier) {
+        public static void setSupplier(
+                @NonNull Function<DynamicRange, SurfaceProcessorInternal> supplier) {
             sSupplier = supplier;
         }
     }

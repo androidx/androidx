@@ -237,21 +237,7 @@ class RuleParserTests {
             .parseRules(application, R.xml.test_split_config_custom_activity_rule)
         assertEquals(1, rules.size)
         val rule: ActivityRule = rules.first() as ActivityRule
-        assertEquals("rule1", rule.tag)
-        assertTrue(rule.alwaysExpand)
-    }
-
-    /**
-     * Verifies that [ActivityRule.tag] and [ActivityRule.alwaysExpand] are set correctly when
-     * reading [ActivityRule] from XML.
-     */
-    @Test
-    fun testSetTagAndAlwaysExpand_ActivityRule_Xml() {
-        val rules = RuleController
-            .parseRules(application, R.xml.test_split_config_activity_rule_with_tag)
-        assertEquals(1, rules.size)
-        val rule: ActivityRule = rules.first() as ActivityRule
-        assertEquals(TEST_TAG, rule.tag)
+        assertEquals(TAG_CUSTOM_ACTIVITY_RULE, rule.tag)
         assertTrue(rule.alwaysExpand)
     }
 
@@ -283,10 +269,10 @@ class RuleParserTests {
     @Test
     fun testReplacingRuleWithTag() {
         var rules = RuleController
-            .parseRules(application, R.xml.test_split_config_activity_rule_with_tag)
+            .parseRules(application, R.xml.test_split_config_custom_activity_rule)
         assertEquals(1, rules.size)
         var rule = rules.first()
-        assertEquals(TEST_TAG, rule.tag)
+        assertEquals(TAG_CUSTOM_ACTIVITY_RULE, rule.tag)
         val staticRule = rule as ActivityRule
         assertTrue(staticRule.alwaysExpand)
         ruleController.setRules(rules)
@@ -300,7 +286,7 @@ class RuleParserTests {
         )
         val rule1 = ActivityRule.Builder(filters)
             .setAlwaysExpand(true)
-            .setTag(TEST_TAG)
+            .setTag(TAG_CUSTOM_ACTIVITY_RULE)
             .build()
         ruleController.addRule(rule1)
 
@@ -314,7 +300,7 @@ class RuleParserTests {
             .setMinWidthDp(123)
             .setMinHeightDp(456)
             .setMinSmallestWidthDp(789)
-            .setTag(TEST_TAG)
+            .setTag(TAG_CUSTOM_ACTIVITY_RULE)
             .build()
 
         ruleController.addRule(rule2)
@@ -325,7 +311,25 @@ class RuleParserTests {
         assertEquals(rule2, rule)
     }
 
+    @Test
+    fun testRemoveRule() {
+        val expectedRules = RuleController
+            .parseRules(application, R.xml.test_split_config_custom_activity_rule)
+        ruleController.setRules(expectedRules)
+        var actualRules = ruleController.getRules()
+
+        assertEquals(expectedRules, actualRules)
+
+        val removedRule = expectedRules.first()
+        ruleController.removeRule(removedRule)
+
+        actualRules = ruleController.getRules()
+        assertEquals(expectedRules.size - 1, actualRules.size)
+        assertFalse(removedRule in actualRules)
+    }
+
     companion object {
         const val TEST_TAG = "test"
+        const val TAG_CUSTOM_ACTIVITY_RULE = "rule1"
     }
 }

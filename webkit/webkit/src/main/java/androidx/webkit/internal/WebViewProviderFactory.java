@@ -22,6 +22,7 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 
 import org.chromium.support_lib_boundary.DropDataContentProviderBoundaryInterface;
+import org.chromium.support_lib_boundary.ProfileStoreBoundaryInterface;
 import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.ServiceWorkerControllerBoundaryInterface;
 import org.chromium.support_lib_boundary.StaticsBoundaryInterface;
@@ -87,4 +88,12 @@ public interface WebViewProviderFactory {
      */
     @NonNull
     DropDataContentProviderBoundaryInterface getDropDataProvider();
+
+    /**
+     * Fetch the boundary interface representing profile store for Multi-Profile.
+     */
+    @NonNull
+    ProfileStoreBoundaryInterface getProfileStore();
+
+
 }

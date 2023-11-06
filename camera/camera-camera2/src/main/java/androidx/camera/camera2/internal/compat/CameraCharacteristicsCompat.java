@@ -129,7 +129,16 @@ public class CameraCharacteristicsCompat {
     @NonNull
     public StreamConfigurationMapCompat getStreamConfigurationMapCompat() {
         if (mStreamConfigurationMapCompat == null) {
-            StreamConfigurationMap map = get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            StreamConfigurationMap map;
+            try {
+                map = get(
+                        CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            } catch (AssertionError e) {
+                // Some devices may throw AssertionError when querying stream configuration map
+                // from CameraCharacteristics during bindToLifecycle. Catch the AssertionError and
+                // throw IllegalArgumentException so app level can decide how to handle.
+                throw new IllegalArgumentException(e.getMessage());
+            }
             if (map == null) {
                 throw new IllegalArgumentException("StreamConfigurationMap is null!");
             }

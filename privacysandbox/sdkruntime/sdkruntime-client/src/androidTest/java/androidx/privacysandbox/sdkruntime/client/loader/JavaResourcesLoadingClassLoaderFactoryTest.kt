@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.sdkruntime.client.loader
 
+import androidx.privacysandbox.sdkruntime.client.TestSdkConfigs
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -42,12 +43,7 @@ class JavaResourcesLoadingClassLoaderFactoryTest {
                     parent
             }
         )
-        testSdkConfig = LocalSdkConfig(
-            packageName = "androidx.privacysandbox.sdkruntime.test.v1",
-            dexPaths = listOf("RuntimeEnabledSdks/V1/classes.dex"),
-            entryPoint = "androidx.privacysandbox.sdkruntime.test.v1.CompatProvider",
-            javaResourcesRoot = "RuntimeEnabledSdks/V1/javaresources"
-        )
+        testSdkConfig = TestSdkConfigs.CURRENT_WITH_RESOURCES
     }
 
     @Test
@@ -59,7 +55,7 @@ class JavaResourcesLoadingClassLoaderFactoryTest {
         val resource = classLoader.getResource("test.txt")
 
         val appResource = appClassloader.getResource(
-            "assets/RuntimeEnabledSdks/V1/javaresources/test.txt"
+            "assets/RuntimeEnabledSdks/javaresources/test.txt"
         )
         assertThat(resource).isNotNull()
         assertThat(resource).isEqualTo(appResource)
@@ -92,7 +88,7 @@ class JavaResourcesLoadingClassLoaderFactoryTest {
         assertThat(resources.isEmpty()).isFalse()
 
         val appResources = appClassloader
-            .getResources("assets/RuntimeEnabledSdks/V1/javaresources/test.txt")
+            .getResources("assets/RuntimeEnabledSdks/javaresources/test.txt")
             .toList()
 
         assertThat(appResources).isEqualTo(resources)

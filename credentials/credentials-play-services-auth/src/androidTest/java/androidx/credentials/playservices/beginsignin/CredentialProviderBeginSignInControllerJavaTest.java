@@ -34,6 +34,7 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.HashSet;
 import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
@@ -44,68 +45,66 @@ public class CredentialProviderBeginSignInControllerJavaTest {
     public void convertRequestToPlayServices_setPasswordOptionRequestAndFalseAutoSelect_success() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(activity -> {
+        activityScenario.onActivity(
+                activity -> {
+                    BeginSignInRequest actualResponse =
+                            CredentialProviderBeginSignInController.getInstance(activity)
+                                    .convertRequestToPlayServices(
+                                            new GetCredentialRequest(
+                                                    List.of(new GetPasswordOption())));
 
-            BeginSignInRequest actualResponse =
-                    CredentialProviderBeginSignInController
-                            .getInstance(activity)
-                            .convertRequestToPlayServices(new GetCredentialRequest(List.of(
-                                    new GetPasswordOption()
-                            )));
-
-            assertThat(actualResponse.getPasswordRequestOptions().isSupported()).isTrue();
-            assertThat(actualResponse.isAutoSelectEnabled()).isFalse();
-        });
+                    assertThat(actualResponse.getPasswordRequestOptions().isSupported()).isTrue();
+                    assertThat(actualResponse.isAutoSelectEnabled()).isFalse();
+                });
     }
 
     @Test
     public void convertRequestToPlayServices_setPasswordOptionRequestAndTrueAutoSelect_success() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(activity -> {
+        activityScenario.onActivity(
+                activity -> {
+                    BeginSignInRequest actualResponse =
+                            CredentialProviderBeginSignInController.getInstance(activity)
+                                    .convertRequestToPlayServices(
+                                            new GetCredentialRequest(
+                                                    List.of(
+                                                            new GetPasswordOption(
+                                                                    new HashSet<>(), true))));
 
-            BeginSignInRequest actualResponse =
-                    CredentialProviderBeginSignInController
-                            .getInstance(activity)
-                            .convertRequestToPlayServices(new GetCredentialRequest(List.of(
-                                    new GetPasswordOption(true)
-                            )));
-
-            assertThat(actualResponse.getPasswordRequestOptions().isSupported()).isTrue();
-            assertThat(actualResponse.isAutoSelectEnabled()).isTrue();
-        });
+                    assertThat(actualResponse.getPasswordRequestOptions().isSupported()).isTrue();
+                    assertThat(actualResponse.isAutoSelectEnabled()).isTrue();
+                });
     }
 
     @Test
     public void convertRequestToPlayServices_nullRequest_throws() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(activity -> {
-
-            assertThrows(
-                    "null get credential request must throw exception",
-                    NullPointerException.class,
-                    () -> CredentialProviderBeginSignInController
-                            .getInstance(activity)
-                            .convertRequestToPlayServices(null)
-            );
-        });
+        activityScenario.onActivity(
+                activity -> {
+                    assertThrows(
+                            "null get credential request must throw exception",
+                            NullPointerException.class,
+                            () ->
+                                    CredentialProviderBeginSignInController.getInstance(activity)
+                                            .convertRequestToPlayServices(null));
+                });
     }
 
     @Test
     public void convertResponseToCredentialManager_nullRequest_throws() {
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
-        activityScenario.onActivity(activity -> {
-
-            assertThrows(
-                    "null sign in credential response must throw exception",
-                    NullPointerException.class,
-                    () -> CredentialProviderBeginSignInController
-                            .getInstance(activity)
-                            .convertResponseToCredentialManager(null)
-            );
-        });
+        activityScenario.onActivity(
+                activity -> {
+                    assertThrows(
+                            "null sign in credential response must throw exception",
+                            NullPointerException.class,
+                            () ->
+                                    CredentialProviderBeginSignInController.getInstance(activity)
+                                            .convertResponseToCredentialManager(null));
+                });
     }
 
     @Test
@@ -113,39 +112,54 @@ public class CredentialProviderBeginSignInControllerJavaTest {
         ActivityScenario<TestCredentialsActivity> activityScenario =
                 ActivityScenario.launch(TestCredentialsActivity.class);
 
-        GetGoogleIdOption option = new GetGoogleIdOption.Builder()
-                .setServerClientId("server_client_id")
-                .setNonce("nonce")
-                .setFilterByAuthorizedAccounts(true)
-                .setRequestVerifiedPhoneNumber(false)
-                .associateLinkedAccounts("link_service_id", List.of("a", "b", "c"))
-                .setAutoSelectEnabled(true)
-                .build();
+        GetGoogleIdOption option =
+                new GetGoogleIdOption.Builder()
+                        .setServerClientId("server_client_id")
+                        .setNonce("nonce")
+                        .setFilterByAuthorizedAccounts(true)
+                        .setRequestVerifiedPhoneNumber(false)
+                        .associateLinkedAccounts("link_service_id", List.of("a", "b", "c"))
+                        .setAutoSelectEnabled(true)
+                        .build();
 
-        activityScenario.onActivity(activity -> {
+        activityScenario.onActivity(
+                activity -> {
+                    BeginSignInRequest actualRequest =
+                            CredentialProviderBeginSignInController.getInstance(activity)
+                                    .convertRequestToPlayServices(
+                                            new GetCredentialRequest(List.of(option)));
 
-            BeginSignInRequest actualRequest =
-                    CredentialProviderBeginSignInController
-                            .getInstance(activity)
-                            .convertRequestToPlayServices(new GetCredentialRequest(List.of(
-                                    option
-                            )));
+                    assertThat(actualRequest.getGoogleIdTokenRequestOptions().isSupported())
+                            .isTrue();
+                    assertThat(actualRequest.isAutoSelectEnabled()).isTrue();
 
-            assertThat(actualRequest.getGoogleIdTokenRequestOptions().isSupported()).isTrue();
-            assertThat(actualRequest.isAutoSelectEnabled()).isTrue();
+                    BeginSignInRequest.GoogleIdTokenRequestOptions actualOption =
+                            actualRequest.getGoogleIdTokenRequestOptions();
+                    assertThat(actualOption.getServerClientId())
+                            .isEqualTo(option.getServerClientId());
+                    assertThat(actualOption.getNonce()).isEqualTo(option.getNonce());
+                    assertThat(actualOption.filterByAuthorizedAccounts())
+                            .isEqualTo(option.getFilterByAuthorizedAccounts());
+                    assertThat(actualOption.requestVerifiedPhoneNumber())
+                            .isEqualTo(option.getRequestVerifiedPhoneNumber());
+                    assertThat(actualOption.getLinkedServiceId())
+                            .isEqualTo(option.getLinkedServiceId());
+                    assertThat(actualOption.getIdTokenDepositionScopes())
+                            .isEqualTo(option.getIdTokenDepositionScopes());
+                });
+    }
 
-            BeginSignInRequest.GoogleIdTokenRequestOptions actualOption =
-                    actualRequest.getGoogleIdTokenRequestOptions();
-            assertThat(actualOption.getServerClientId()).isEqualTo(option.getServerClientId());
-            assertThat(actualOption.getNonce()).isEqualTo(option.getNonce());
-            assertThat(actualOption.filterByAuthorizedAccounts()).isEqualTo(
-                    option.getFilterByAuthorizedAccounts());
-            assertThat(actualOption.requestVerifiedPhoneNumber()).isEqualTo(
-                    option.getRequestVerifiedPhoneNumber());
-            assertThat(actualOption.getLinkedServiceId()).isEqualTo(option.getLinkedServiceId());
-            assertThat(actualOption.getIdTokenDepositionScopes()).isEqualTo(
-                    option.getIdTokenDepositionScopes());
-
-        });
+    @Test
+    public void duplicateGetInstance_shouldBeEqual() {
+        ActivityScenario<TestCredentialsActivity> activityScenario =
+                ActivityScenario.launch(TestCredentialsActivity.class);
+        activityScenario.onActivity(
+                activity -> {
+                    CredentialProviderBeginSignInController firstInstance =
+                            CredentialProviderBeginSignInController.getInstance(activity);
+                    CredentialProviderBeginSignInController secondInstance =
+                            CredentialProviderBeginSignInController.getInstance(activity);
+                    assertThat(firstInstance).isEqualTo(secondInstance);
+                });
     }
 }

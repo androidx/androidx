@@ -28,6 +28,8 @@ import android.app.AlarmManager;
 import android.content.Context;
 
 import androidx.core.content.ContextCompat;
+import androidx.wear.protolayout.LayoutElementBuilders;
+import androidx.wear.protolayout.TimelineBuilders;
 import androidx.wear.tiles.TilesTestRunner;
 
 import com.google.common.truth.Expect;
@@ -81,18 +83,13 @@ public class TilesTimelineManagerTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineManager_singleTileImmediatelySet() {
-        List<androidx.wear.tiles.LayoutElementBuilders.Layout> returnedLayouts = new ArrayList<>();
-        androidx.wear.tiles.LayoutElementBuilders.Layout layout = buildTextLayout("Hello World");
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
-                        .setLayout(layout)
-                        .build();
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
-                        .addTimelineEntry(entry)
-                        .build();
+        List<LayoutElementBuilders.Layout> returnedLayouts = new ArrayList<>();
+        LayoutElementBuilders.Layout layout = buildTextLayout("Hello World");
+        TimelineBuilders.TimelineEntry entry =
+                new TimelineBuilders.TimelineEntry.Builder().setLayout(layout).build();
+        TimelineBuilders.Timeline timeline =
+                new TimelineBuilders.Timeline.Builder().addTimelineEntry(entry).build();
 
         mTimelineManager =
                 new TilesTimelineManager(
@@ -111,47 +108,46 @@ public class TilesTimelineManagerTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineManager_tileWithRollover() {
-        List<androidx.wear.tiles.LayoutElementBuilders.Layout> returnedLayouts = new ArrayList<>();
+        List<LayoutElementBuilders.Layout> returnedLayouts = new ArrayList<>();
         final long cutover1Millis = mCurrentTime + Duration.ofMinutes(10).toMillis();
         final long cutover2Millis = mCurrentTime + Duration.ofMinutes(20).toMillis();
 
-        androidx.wear.tiles.LayoutElementBuilders.Layout layout1 = buildTextLayout("Tile1");
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry1 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        LayoutElementBuilders.Layout layout1 = buildTextLayout("Tile1");
+        TimelineBuilders.TimelineEntry entry1 =
+                new TimelineBuilders.TimelineEntry.Builder()
                         .setLayout(layout1)
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimelineBuilders.TimeInterval.Builder()
                                         .setStartMillis(0)
                                         .setEndMillis(cutover1Millis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.LayoutElementBuilders.Layout layout2 = buildTextLayout("Tile2");
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry2 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        LayoutElementBuilders.Layout layout2 = buildTextLayout("Tile2");
+        TimelineBuilders.TimelineEntry entry2 =
+                new TimelineBuilders.TimelineEntry.Builder()
                         .setLayout(layout2)
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimelineBuilders.TimeInterval.Builder()
                                         .setStartMillis(cutover1Millis)
                                         .setEndMillis(cutover2Millis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.LayoutElementBuilders.Layout layout3 = buildTextLayout("Tile3");
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry3 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        LayoutElementBuilders.Layout layout3 = buildTextLayout("Tile3");
+        TimelineBuilders.TimelineEntry entry3 =
+                new TimelineBuilders.TimelineEntry.Builder()
                         .setLayout(layout3)
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimelineBuilders.TimeInterval.Builder()
                                         .setStartMillis(cutover2Millis)
                                         .setEndMillis(Long.MAX_VALUE)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
+        TimelineBuilders.Timeline timeline =
+                new TimelineBuilders.Timeline.Builder()
                         .addTimelineEntry(entry1)
                         .addTimelineEntry(entry2)
                         .addTimelineEntry(entry3)
@@ -187,33 +183,32 @@ public class TilesTimelineManagerTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineManager_alarmsCanceledOnDeInit() {
-        List<androidx.wear.tiles.LayoutElementBuilders.Layout> returnedLayouts = new ArrayList<>();
+        List<LayoutElementBuilders.Layout> returnedLayouts = new ArrayList<>();
         final long cutover1Millis = mCurrentTime + Duration.ofMinutes(10).toMillis();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry1 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineBuilders.TimelineEntry entry1 =
+                new TimelineBuilders.TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Tile1"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimelineBuilders.TimeInterval.Builder()
                                         .setStartMillis(0)
                                         .setEndMillis(cutover1Millis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry2 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        TimelineBuilders.TimelineEntry entry2 =
+                new TimelineBuilders.TimelineEntry.Builder()
                         .setLayout(buildTextLayout("Tile2"))
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimelineBuilders.TimeInterval.Builder()
                                         .setStartMillis(cutover1Millis)
                                         .setEndMillis(Long.MAX_VALUE)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
+        TimelineBuilders.Timeline timeline =
+                new TimelineBuilders.Timeline.Builder()
                         .addTimelineEntry(entry1)
                         .addTimelineEntry(entry2)
                         .build();
@@ -236,37 +231,36 @@ public class TilesTimelineManagerTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineManager_minDelayEnforced() {
-        List<androidx.wear.tiles.LayoutElementBuilders.Layout> returnedLayouts = new ArrayList<>();
+        List<LayoutElementBuilders.Layout> returnedLayouts = new ArrayList<>();
 
         final long cutover1Millis =
                 mCurrentTime + TilesTimelineManager.MIN_TILE_UPDATE_DELAY_MILLIS / 2;
 
-        androidx.wear.tiles.LayoutElementBuilders.Layout layout1 = buildTextLayout("Tile1");
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry1 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        LayoutElementBuilders.Layout layout1 = buildTextLayout("Tile1");
+        TimelineBuilders.TimelineEntry entry1 =
+                new TimelineBuilders.TimelineEntry.Builder()
                         .setLayout(layout1)
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimelineBuilders.TimeInterval.Builder()
                                         .setStartMillis(0)
                                         .setEndMillis(cutover1Millis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.LayoutElementBuilders.Layout layout2 = buildTextLayout("Tile2");
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry2 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        LayoutElementBuilders.Layout layout2 = buildTextLayout("Tile2");
+        TimelineBuilders.TimelineEntry entry2 =
+                new TimelineBuilders.TimelineEntry.Builder()
                         .setLayout(layout2)
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimelineBuilders.TimeInterval.Builder()
                                         .setStartMillis(cutover1Millis)
                                         .setEndMillis(Long.MAX_VALUE)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
+        TimelineBuilders.Timeline timeline =
+                new TimelineBuilders.Timeline.Builder()
                         .addTimelineEntry(entry1)
                         .addTimelineEntry(entry2)
                         .build();
@@ -295,53 +289,52 @@ public class TilesTimelineManagerTest {
     }
 
     @Test
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     public void timelineManager_minDelayUsesCorrectEntry() {
         // This has three entries, one initial one, one that happens after MIN_DELAY/2, and one that
         // happens after MIN_DELAY. This should totally skip the middle entry, and only show the
         // first and last entries.
-        List<androidx.wear.tiles.LayoutElementBuilders.Layout> returnedLayouts = new ArrayList<>();
+        List<LayoutElementBuilders.Layout> returnedLayouts = new ArrayList<>();
 
         final long cutover1Millis =
                 mCurrentTime + TilesTimelineManager.MIN_TILE_UPDATE_DELAY_MILLIS / 2;
         final long cutover2Millis =
                 cutover1Millis + TilesTimelineManager.MIN_TILE_UPDATE_DELAY_MILLIS / 2;
 
-        androidx.wear.tiles.LayoutElementBuilders.Layout layout1 = buildTextLayout("Tile1");
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry1 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        LayoutElementBuilders.Layout layout1 = buildTextLayout("Tile1");
+        TimelineBuilders.TimelineEntry entry1 =
+                new TimelineBuilders.TimelineEntry.Builder()
                         .setLayout(layout1)
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimelineBuilders.TimeInterval.Builder()
                                         .setStartMillis(0)
                                         .setEndMillis(cutover1Millis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.LayoutElementBuilders.Layout layout2 = buildTextLayout("Tile2");
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry2 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        LayoutElementBuilders.Layout layout2 = buildTextLayout("Tile2");
+        TimelineBuilders.TimelineEntry entry2 =
+                new TimelineBuilders.TimelineEntry.Builder()
                         .setLayout(layout2)
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimelineBuilders.TimeInterval.Builder()
                                         .setStartMillis(cutover1Millis)
                                         .setEndMillis(cutover2Millis)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.LayoutElementBuilders.Layout layout3 = buildTextLayout("Tile3");
-        androidx.wear.tiles.TimelineBuilders.TimelineEntry entry3 =
-                new androidx.wear.tiles.TimelineBuilders.TimelineEntry.Builder()
+        LayoutElementBuilders.Layout layout3 = buildTextLayout("Tile3");
+        TimelineBuilders.TimelineEntry entry3 =
+                new TimelineBuilders.TimelineEntry.Builder()
                         .setLayout(layout3)
                         .setValidity(
-                                new androidx.wear.tiles.TimelineBuilders.TimeInterval.Builder()
+                                new TimelineBuilders.TimeInterval.Builder()
                                         .setStartMillis(cutover2Millis)
                                         .setEndMillis(Long.MAX_VALUE)
                                         .build())
                         .build();
 
-        androidx.wear.tiles.TimelineBuilders.Timeline timeline =
-                new androidx.wear.tiles.TimelineBuilders.Timeline.Builder()
+        TimelineBuilders.Timeline timeline =
+                new TimelineBuilders.Timeline.Builder()
                         .addTimelineEntry(entry1)
                         .addTimelineEntry(entry2)
                         .addTimelineEntry(entry3)
@@ -366,16 +359,13 @@ public class TilesTimelineManagerTest {
         expectLayoutsEqual(returnedLayouts.get(1), layout3);
     }
 
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
-    private static androidx.wear.tiles.LayoutElementBuilders.Layout buildTextLayout(String text) {
-        return new androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
-                .setRoot(
-                        new androidx.wear.tiles.LayoutElementBuilders.Text.Builder()
-                                .setText(text)
-                                .build())
+    private static LayoutElementBuilders.Layout buildTextLayout(String text) {
+        return new LayoutElementBuilders.Layout.Builder()
+                .setRoot(new LayoutElementBuilders.Text.Builder().setText(text).build())
                 .build();
     }
 
+    @SuppressWarnings("deprecation") // ScheduledAlarm usage, see b/284981234
     private void seekToTime(long timeMillis) {
         ShadowAlarmManager shadowAlarmManager = shadowOf(mAlarmManager);
 
@@ -399,10 +389,8 @@ public class TilesTimelineManagerTest {
         expect.that(shadowAlarmManager.getScheduledAlarms()).isEmpty();
     }
 
-    @SuppressWarnings("deprecation") // TODO(b/276343540): Use protolayout types
     private void expectLayoutsEqual(
-            androidx.wear.tiles.LayoutElementBuilders.Layout actual,
-            androidx.wear.tiles.LayoutElementBuilders.Layout expected) {
+            LayoutElementBuilders.Layout actual, LayoutElementBuilders.Layout expected) {
         expect.that(actual.toProto()).isEqualTo(expected.toProto());
     }
 }

@@ -36,7 +36,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation('com.google.android.gms:play-services-base:18.0.1')
-    androidTestImplementation('com.google.android.gms:play-services-nearby:18.5.0', {
+    androidTestImplementation('com.google.android.gms:play-services-nearby:19.0.0', {
         exclude group: "androidx.core"
     })
     androidTestImplementation(libs.multidex)
@@ -56,4 +56,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "RxJava3 integration for UWB module"
+    metalavaK2UastEnabled = true
 }

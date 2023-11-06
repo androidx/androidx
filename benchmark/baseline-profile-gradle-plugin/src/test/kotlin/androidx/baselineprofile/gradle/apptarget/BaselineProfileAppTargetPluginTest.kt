@@ -17,15 +17,18 @@
 package androidx.baselineprofile.gradle.apptarget
 
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
-import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_0_0
-import androidx.baselineprofile.gradle.utils.TEST_AGP_VERSION_8_1_0
+import androidx.baselineprofile.gradle.utils.TestAgpVersion
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_0_0
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_0
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import com.google.common.truth.Truth.assertThat
+import java.io.File
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.junit.runners.Parameterized
 
 private val buildGradle = """
     plugins {
@@ -35,7 +38,11 @@ private val buildGradle = """
 
     android {
         namespace 'com.example.namespace'
-        buildTypes { anotherRelease { initWith(release) } }
+        buildTypes {
+            anotherRelease {
+                initWith(release)
+            }
+        }
     }
 
     androidComponents {
@@ -48,16 +55,86 @@ private val buildGradle = """
                 text += "profileable=" + buildType.profileable.toString() + "\n"
                 t.text.set(text)
             }
+            tasks.register(variant.name + "JavaSources", DisplaySourceSets) { t ->
+                t.srcs.set(variant.sources.java.all)
+            }
+            tasks.register(variant.name + "KotlinSources", DisplaySourceSets) { t ->
+                t.srcs.set(variant.sources.kotlin.all)
+            }
         }
     }
     """.trimIndent()
+
+@RunWith(Parameterized::class)
+class BaselineProfileAppTargetPluginTest(agpVersion: TestAgpVersion) {
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
+
+    companion object {
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = TestAgpVersion.values()
+    }
+
+    @Test
+    fun testSrcSetAreAddedToVariantsForApplications() {
+        projectSetup.appTarget.setBuildGradle(buildGradle)
+
+        data class TaskAndExpected(val taskName: String, val expectedDirs: List<String>)
+
+        arrayOf(
+            TaskAndExpected(
+                taskName = "nonMinifiedAnotherReleaseJavaSources",
+                expectedDirs = listOf(
+                    "src/main/java",
+                    "src/anotherRelease/java",
+                    "src/nonMinifiedAnotherRelease/java",
+                )
+            ),
+            TaskAndExpected(
+                taskName = "nonMinifiedReleaseJavaSources",
+                expectedDirs = listOf(
+                    "src/main/java",
+                    "src/release/java",
+                    "src/nonMinifiedRelease/java",
+                )
+            ),
+            TaskAndExpected(
+                taskName = "nonMinifiedAnotherReleaseKotlinSources",
+                expectedDirs = listOf(
+                    "src/main/kotlin",
+                    "src/anotherRelease/kotlin",
+                    "src/nonMinifiedAnotherRelease/kotlin",
+                )
+            ),
+            TaskAndExpected(
+                taskName = "nonMinifiedReleaseKotlinSources",
+                expectedDirs = listOf(
+                    "src/main/kotlin",
+                    "src/release/kotlin",
+                    "src/nonMinifiedRelease/kotlin",
+                )
+            )
+        )
+            .forEach { t ->
+
+                // Runs the task and assert
+                projectSetup.appTarget.gradleRunner.buildAndAssertThatOutput(t.taskName) {
+                    t.expectedDirs
+                        .map { File(projectSetup.appTarget.rootDir, it) }
+                        .forEach { e -> contains(e.absolutePath) }
+                }
+            }
+    }
+}
 
 @RunWith(JUnit4::class)
 class BaselineProfileAppTargetPluginTestWithAgp80 {
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = TEST_AGP_VERSION_8_0_0
+        forceAgpVersion = TEST_AGP_VERSION_8_0_0.versionString
     )
 
     @Test
@@ -95,7 +172,7 @@ class BaselineProfileAppTargetPluginTestWithAgp81 {
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = TEST_AGP_VERSION_8_1_0
+        forceAgpVersion = TEST_AGP_VERSION_8_1_0.versionString
     )
 
     @Test

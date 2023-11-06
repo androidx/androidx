@@ -159,7 +159,6 @@ public class WriteAheadLoggingTest {
         stopObserver(user1, observer);
     }
 
-    @Ignore("b/239575607")
     @Test
     public void parallelWrites() throws InterruptedException, ExecutionException {
         int numberOfThreads = 10;

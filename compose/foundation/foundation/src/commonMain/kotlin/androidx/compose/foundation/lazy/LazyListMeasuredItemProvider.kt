@@ -52,7 +52,7 @@ internal abstract class LazyListMeasuredItemProvider @ExperimentalFoundationApi 
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
-     **/
+     */
     val keyIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyIndexMap
 
     abstract fun createItem(

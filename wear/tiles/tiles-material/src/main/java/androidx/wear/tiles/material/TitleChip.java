@@ -17,11 +17,6 @@
 package androidx.wear.tiles.material;
 
 import static androidx.annotation.Dimension.DP;
-import static androidx.wear.tiles.material.ChipDefaults.TITLE_HEIGHT;
-import static androidx.wear.tiles.material.ChipDefaults.TITLE_HORIZONTAL_PADDING;
-import static androidx.wear.tiles.material.ChipDefaults.TITLE_PRIMARY_COLORS;
-import static androidx.wear.tiles.material.Helper.checkNotNull;
-import static androidx.wear.tiles.material.Helper.checkTag;
 
 import android.content.Context;
 
@@ -30,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 /**
@@ -92,7 +88,7 @@ public class TitleChip implements androidx.wear.tiles.LayoutElementBuilders.Layo
         private final androidx.wear.tiles.DeviceParametersBuilders.DeviceParameters
                 mDeviceParameters;
 
-        @NonNull private ChipColors mChipColors = TITLE_PRIMARY_COLORS;
+        @NonNull private ChipColors mChipColors = ChipDefaults.TITLE_PRIMARY_COLORS;
 
         @androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment
         private int mHorizontalAlign =
@@ -177,9 +173,9 @@ public class TitleChip implements androidx.wear.tiles.LayoutElementBuilders.Layo
                             .setChipColors(mChipColors)
                             .setContentDescription(mText)
                             .setHorizontalAlignment(mHorizontalAlign)
-                            .setHeight(TITLE_HEIGHT)
+                            .setHeight(ChipDefaults.TITLE_HEIGHT)
                             .setMaxLines(1)
-                            .setHorizontalPadding(TITLE_HORIZONTAL_PADDING)
+                            .setHorizontalPadding(ChipDefaults.TITLE_HORIZONTAL_PADDING)
                             .setPrimaryLabelContent(mText)
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_TITLE2)
                             .setIsPrimaryLabelScalable(false);
@@ -213,7 +209,7 @@ public class TitleChip implements androidx.wear.tiles.LayoutElementBuilders.Layo
     /** Returns text content of this Chip. */
     @NonNull
     public String getText() {
-        return checkNotNull(mElement.getPrimaryLabelContent());
+        return androidx.wear.tiles.material.Helper.checkNotNull(mElement.getPrimaryLabelContent());
     }
 
     /** Returns the horizontal alignment of the content in this Chip. */
@@ -245,7 +241,8 @@ public class TitleChip implements androidx.wear.tiles.LayoutElementBuilders.Layo
         }
         androidx.wear.tiles.LayoutElementBuilders.Box boxElement =
                 (androidx.wear.tiles.LayoutElementBuilders.Box) element;
-        if (!checkTag(boxElement.getModifiers(), METADATA_TAG)) {
+        if (!androidx.wear.tiles.material.Helper.checkTag(
+                boxElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
         // Now we are sure that this element is a TitleChip.
@@ -257,5 +254,12 @@ public class TitleChip implements androidx.wear.tiles.LayoutElementBuilders.Layo
     @Override
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
         return mElement.toLayoutElementProto();
+    }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public Fingerprint getFingerprint() {
+        return mElement.getFingerprint();
     }
 }

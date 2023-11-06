@@ -27,7 +27,6 @@ import androidx.sqlite.db.SupportSQLiteStatement
  * database.
  *
  * @param T The type parameter of the entity to be inserted
- * @suppress
 */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 abstract class EntityInsertionAdapter<T>(database: RoomDatabase) : SharedSQLiteStatement(database) {

@@ -44,7 +44,9 @@ class LocalSdkFolderProviderTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
 
-        sdkRootFolder = File(context.cacheDir, "RuntimeEnabledSdk")
+        val codeCache = File(context.applicationInfo.dataDir, "code_cache")
+
+        sdkRootFolder = File(codeCache, "RuntimeEnabledSdk")
         versionFile = File(sdkRootFolder, "Folder.version")
 
         @Suppress("DEPRECATION")

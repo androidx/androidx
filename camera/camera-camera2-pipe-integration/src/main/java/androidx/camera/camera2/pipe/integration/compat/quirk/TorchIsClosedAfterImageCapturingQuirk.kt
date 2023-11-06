@@ -25,7 +25,7 @@ import androidx.camera.core.impl.Quirk
  * QuirkSummary
  * - Bug Id: 228272227
  * - Description: The Torch is unexpectedly turned off after taking a picture.
- * - Device(s): Redmi 4X, Redmi 5A, Mi A1, Mi A2, Mi A2 lite and Redmi 6 Pro.
+ * - Device(s): Redmi 4X, Redmi 5A, Redmi Note 5 (Pro), Mi A1, Mi A2, Mi A2 lite and Redmi 6 Pro.
  */
 @SuppressLint("CameraXQuirksClassDetector") // TODO(b/270421716): enable when kotlin is supported.
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
@@ -39,6 +39,8 @@ class TorchIsClosedAfterImageCapturingQuirk : Quirk {
             "mi a2 lite", // Xiaomi Mi A2 Lite
             "redmi 4x", // Xiaomi Redmi 4X
             "redmi 5a", // Xiaomi Redmi 5A
+            "redmi note 5", // Xiaomi Redmi Note 5
+            "redmi note 5 pro", // Xiaomi Redmi Note 5 Pro
             "redmi 6 pro", // Xiaomi Redmi 6 Pro
         )
 

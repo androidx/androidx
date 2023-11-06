@@ -26,7 +26,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 public class BenchmarkRuleNotUsedTest {
     @get:Rule
-    public val benchmarkRule: BenchmarkRule = BenchmarkRule(enableReport = true)
+    public val benchmarkRule: BenchmarkRule = BenchmarkRule()
 
     /**
      * Previously this test would fail, because BenchmarkState().report(...) used in the

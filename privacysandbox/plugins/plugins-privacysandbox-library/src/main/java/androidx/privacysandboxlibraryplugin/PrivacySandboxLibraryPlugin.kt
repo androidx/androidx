@@ -77,7 +77,7 @@ abstract class PrivacySandboxLibraryPlugin : Plugin<Project> {
 
             // Add additional dependencies required for KSP outputs
 
-            val toolsVersion = "1.0.0-alpha03"
+            val toolsVersion = "1.0.0-alpha04"
             project.dependencies {
                 add(
                     "ksp",
@@ -85,7 +85,7 @@ abstract class PrivacySandboxLibraryPlugin : Plugin<Project> {
                 )
                 add(
                     "implementation",
-                    "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3"
+                    "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
                 )
                 add(
                     "implementation",
@@ -93,11 +93,11 @@ abstract class PrivacySandboxLibraryPlugin : Plugin<Project> {
                 )
                 add(
                     "implementation",
-                    "androidx.privacysandbox.sdkruntime:sdkruntime-core:1.0.0-alpha01"
+                    "androidx.privacysandbox.sdkruntime:sdkruntime-core:1.0.0-alpha06"
                 )
                 add(
                     "implementation",
-                    "androidx.privacysandbox.sdkruntime:sdkruntime-client:1.0.0-alpha01"
+                    "androidx.privacysandbox.sdkruntime:sdkruntime-client:1.0.0-alpha06"
                 )
             }
             project.afterEvaluate {

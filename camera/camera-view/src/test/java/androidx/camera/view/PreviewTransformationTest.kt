@@ -14,17 +14,24 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.view
 
+import android.graphics.Matrix
 import android.graphics.Rect
+import android.graphics.RectF
 import android.os.Build
 import android.util.LayoutDirection
 import android.util.Size
 import android.view.Surface
+import android.view.Surface.ROTATION_0
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.ImageOutputConfig.ROTATION_NOT_SPECIFIED
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue
+import androidx.camera.core.impl.utils.TransformUtils.getRectToRect
 import androidx.camera.core.impl.utils.TransformUtils.sizeToVertices
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -45,8 +52,6 @@ private val SURFACE_SIZE = Size(60, 40)
 
 // 2:1 crop rect.
 private val CROP_RECT = Rect(20, 0, 40, 40)
-
-private val FULL_CROP_RECT = Rect(0, 0, 60, 40)
 
 // Off-center crop rect with 0 rotation.
 private val CROP_RECT_0 = Rect(0, 15, 20, 25)
@@ -114,12 +119,62 @@ class PreviewTransformationTest {
             // Height and width is swapped because rotation is 90°.
             SurfaceRequest.TransformationInfo.of(
                 cropRect, 90, ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             SURFACE_SIZE,
             BACK_CAMERA
         )
         return mPreviewTransform.isViewportAspectRatioMatchPreviewView(PREVIEW_VIEW_SIZE)
+    }
+
+    @Test
+    fun getSensorToViewTransformWithBackCamera_returnConcatenatedTransform() {
+        getSensorToViewTransform_returnConcatenatedTransform(BACK_CAMERA)
+    }
+
+    @Test
+    fun getSensorToViewTransformWithFrontCamera_returnConcatenatedTransform() {
+        getSensorToViewTransform_returnConcatenatedTransform(FRONT_CAMERA)
+    }
+
+    private fun getSensorToViewTransform_returnConcatenatedTransform(isFrontCamera: Boolean) {
+        // Arrange: set up a SurfaceRequest sensor -> surface transform
+        val surfaceSize = Size(640, 480)
+        val sensorSize = Size(320, 240)
+        val viewSize = Size(1280, 960)
+        val sensorToBuffer = getRectToRect(
+            RectF(0f, 0f, sensorSize.width.toFloat(), sensorSize.height.toFloat()),
+            RectF(0f, 0f, surfaceSize.width.toFloat(), surfaceSize.height.toFloat()),
+            /*rotationDegrees=*/0
+        )
+        mPreviewTransform.setTransformationInfo(
+            SurfaceRequest.TransformationInfo.of(
+                Rect(0, 0, surfaceSize.width, surfaceSize.height),
+                /*rotationDegrees*/0,
+                ROTATION_0,
+                /*hasCameraTransform=*/true,
+                sensorToBuffer,
+                /*mirroring=*/false
+            ),
+            surfaceSize,
+            isFrontCamera
+        )
+
+        // Act: apply the PreviewView size
+        val sensorToView = mPreviewTransform.getSensorToViewTransform(
+            Size(viewSize.width, viewSize.height),
+            LayoutDirection.LTR
+        )
+
+        // Assert: the overall transformation is sensor -> view
+        val expected = getRectToRect(
+            RectF(0f, 0f, sensorSize.width.toFloat(), sensorSize.height.toFloat()),
+            RectF(0f, 0f, viewSize.width.toFloat(), viewSize.height.toFloat()),
+            /*rotationDegrees=*/0, /*mirroring=*/isFrontCamera
+        )
+        assertThat(sensorToView).isEqualTo(expected)
     }
 
     @Test
@@ -132,7 +187,9 @@ class PreviewTransformationTest {
                 Rect(0, 0, croppedSize.width, croppedSize.height),
                 /*rotationDegrees*/0,
                 ROTATION_NOT_SPECIFIED,
-                /*hasCameraTransform=*/false
+                /*hasCameraTransform=*/false,
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             croppedSize,
             /*isFrontCamera=*/false
@@ -233,7 +290,9 @@ class PreviewTransformationTest {
                 CROP_RECT,
                 90,
                 rotation,
-                /*hasCameraTransform=*/true
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             SURFACE_SIZE,
             isFrontCamera
@@ -263,7 +322,9 @@ class PreviewTransformationTest {
                 CROP_RECT,
                 90,
                 ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             SURFACE_SIZE, BACK_CAMERA
         )
@@ -395,7 +456,9 @@ class PreviewTransformationTest {
                 MISMATCHED_CROP_RECT,
                 90,
                 ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             FIT_SURFACE_SIZE,
             isFrontCamera
@@ -482,7 +545,9 @@ class PreviewTransformationTest {
                 cropRect,
                 rotationDegrees,
                 ARBITRARY_ROTATION,
-                /*hasCameraTransform=*/true
+                /*hasCameraTransform=*/true,
+                /*sensorToBufferTransform=*/Matrix(),
+                /*mirroring=*/false
             ),
             SURFACE_SIZE,
             isFrontCamera

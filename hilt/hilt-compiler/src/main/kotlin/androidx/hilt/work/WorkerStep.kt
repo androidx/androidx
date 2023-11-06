@@ -16,99 +16,84 @@
 
 package androidx.hilt.work
 
-import androidx.hilt.AndroidXHiltProcessor
 import androidx.hilt.ClassNames
-import androidx.hilt.ext.hasAnnotation
-import com.google.auto.common.MoreElements
-import com.squareup.javapoet.TypeName
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
-import javax.lang.model.element.NestingKind
-import javax.lang.model.element.TypeElement
-import javax.lang.model.util.ElementFilter
+import androidx.room.compiler.codegen.toJavaPoet
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnvConfig
+import androidx.room.compiler.processing.XProcessingStep
+import androidx.room.compiler.processing.XTypeElement
 import javax.tools.Diagnostic
 
 /**
  * Processing step that generates code enabling assisted injection of Workers using Hilt.
  */
-class WorkerStep(
-    private val processingEnv: ProcessingEnvironment
-) : AndroidXHiltProcessor.Step {
+class WorkerStep : XProcessingStep {
 
-    private val elements = processingEnv.elementUtils
-    private val types = processingEnv.typeUtils
-    private val messager = processingEnv.messager
+    override fun annotations() = setOf(ClassNames.HILT_WORKER.canonicalName())
 
-    override fun annotation() = ClassNames.HILT_WORKER.canonicalName()
-
-    override fun process(annotatedElements: Set<Element>) {
-        val parsedElements = mutableSetOf<TypeElement>()
-        annotatedElements.forEach { element ->
-            val typeElement = MoreElements.asType(element)
-            if (parsedElements.add(typeElement)) {
-                parse(typeElement)?.let { worker ->
-                    WorkerGenerator(
-                        processingEnv,
-                        worker
-                    ).generate()
-                }
-            }
-        }
+    override fun process(
+        env: XProcessingEnv,
+        elementsByAnnotation: Map<String, Set<XElement>>,
+        isLastRound: Boolean
+    ): Set<XElement> {
+        elementsByAnnotation[ClassNames.HILT_WORKER.canonicalName()]
+            ?.filterIsInstance<XTypeElement>()
+            ?.mapNotNull { element -> parse(env, element) }
+            ?.forEach { worker -> WorkerGenerator(env, worker).generate() }
+        return emptySet()
     }
 
-    private fun parse(typeElement: TypeElement): WorkerElements? {
+    private fun parse(env: XProcessingEnv, workerTypeElement: XTypeElement): WorkerElement? {
         var valid = true
 
-        if (elements.getTypeElement(ClassNames.WORKER_ASSISTED_FACTORY.toString()) == null) {
-            error(
+        if (env.findTypeElement(ClassNames.WORKER_ASSISTED_FACTORY) == null) {
+            env.error(
                 "To use @HiltWorker you must add the 'work' artifact. " +
                     "androidx.hilt:hilt-work:<version>"
             )
             valid = false
         }
 
-        if (!types.isSubtype(
-                typeElement.asType(),
-                elements.getTypeElement(ClassNames.LISTENABLE_WORKER.toString()).asType()
-            )
-        ) {
-            error(
+        val workerType = workerTypeElement.type
+        val listenableWorkerType = env.requireType(ClassNames.LISTENABLE_WORKER)
+        if (!listenableWorkerType.isAssignableFrom(workerType)) {
+            env.error(
                 "@HiltWorker is only supported on types that subclass " +
-                    "${ClassNames.LISTENABLE_WORKER}."
+                    "${ClassNames.LISTENABLE_WORKER}.",
+                workerTypeElement
             )
             valid = false
         }
 
-        val constructors = ElementFilter.constructorsIn(typeElement.enclosedElements).filter {
-            if (it.hasAnnotation(ClassNames.INJECT.canonicalName())) {
-                error(
+        val constructors = workerTypeElement.getConstructors().filter {
+            if (it.hasAnnotation(ClassNames.INJECT)) {
+                env.error(
                     "Worker constructor should be annotated with @AssistedInject instead of " +
-                        "@Inject."
+                        "@Inject.",
+                    it
                 )
                 valid = false
             }
-            it.hasAnnotation(ClassNames.ASSISTED_INJECT.canonicalName())
+            it.hasAnnotation(ClassNames.ASSISTED_INJECT)
         }
         if (constructors.size != 1) {
-            error(
+            env.error(
                 "@HiltWorker annotated class should contain exactly one @AssistedInject " +
                     "annotated constructor.",
-                typeElement
+                workerTypeElement
             )
             valid = false
         }
-        constructors.filter { it.modifiers.contains(Modifier.PRIVATE) }.forEach {
-            error("@AssistedInject annotated constructors must not be private.", it)
+        constructors.filter { it.isPrivate() }.forEach {
+            env.error("@AssistedInject annotated constructors must not be private.", it)
             valid = false
         }
 
-        if (typeElement.nestingKind == NestingKind.MEMBER &&
-            !typeElement.modifiers.contains(Modifier.STATIC)
-        ) {
-            error(
+        if (workerTypeElement.isNested() && !workerTypeElement.isStatic()) {
+            env.error(
                 "@HiltWorker may only be used on inner classes if they are static.",
-                typeElement
+                workerTypeElement
             )
             valid = false
         }
@@ -119,35 +104,44 @@ class WorkerStep(
         var contextIndex = -1
         var workerParametersIndex = -1
         injectConstructor.parameters.forEachIndexed { index, param ->
-            if (TypeName.get(param.asType()) == ClassNames.CONTEXT) {
-                if (!param.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
-                    error("Missing @Assisted annotation in param '${param.simpleName}'.", param)
+            if (param.type.asTypeName().toJavaPoet() == ClassNames.CONTEXT) {
+                if (!param.hasAnnotation(ClassNames.ASSISTED)) {
+                    env.error("Missing @Assisted annotation in param '${param.name}'.", param)
                     valid = false
                 }
                 contextIndex = index
             }
-            if (TypeName.get(param.asType()) == ClassNames.WORKER_PARAMETERS) {
-                if (!param.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
-                    error("Missing @Assisted annotation in param '${param.simpleName}'.", param)
+            if (param.type.asTypeName().toJavaPoet() == ClassNames.WORKER_PARAMETERS) {
+                if (!param.hasAnnotation(ClassNames.ASSISTED)) {
+                    env.error("Missing @Assisted annotation in param '${param.name}'.", param)
                     valid = false
                 }
                 workerParametersIndex = index
             }
         }
         if (contextIndex > workerParametersIndex) {
-            error(
+            env.error(
                 "The 'Context' parameter must be declared before the 'WorkerParameters' in the " +
                     "@AssistedInject constructor of a @HiltWorker annotated class.",
                 injectConstructor
             )
+            valid = false
         }
 
         if (!valid) return null
 
-        return WorkerElements(typeElement, injectConstructor)
+        return WorkerElement(workerTypeElement, injectConstructor)
     }
 
-    private fun error(message: String, element: Element? = null) {
-        messager.printMessage(Diagnostic.Kind.ERROR, message, element)
+    private fun XProcessingEnv.error(message: String, element: XElement? = null) {
+        if (element != null) {
+            messager.printMessage(Diagnostic.Kind.ERROR, message, element)
+        } else {
+            messager.printMessage(Diagnostic.Kind.ERROR, message)
+        }
+    }
+
+    companion object {
+        val ENV_CONFIG = XProcessingEnvConfig.DEFAULT.copy(disableAnnotatedElementValidation = true)
     }
 }

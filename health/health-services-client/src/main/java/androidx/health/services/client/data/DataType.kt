@@ -345,7 +345,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
 
         /**
          * The number of golf shots taken since the last update, where a golf shot consists of
-         * swinging the club and hitting the ball. Expressed in seconds.
+         * swinging the club and hitting the ball.
          */
         @JvmField
         val GOLF_SHOT_COUNT: DeltaDataType<Long, IntervalDataPoint<Long>> =
@@ -353,7 +353,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
 
         /**
          * The total number of golf shots taken since the start of the current active exercise,
-         * where a golf shot consists swinging the club and hitting the ball. Expressed in seconds.
+         * where a golf shot consists swinging the club and hitting the ball.
          */
         @JvmField
         val GOLF_SHOT_COUNT_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =

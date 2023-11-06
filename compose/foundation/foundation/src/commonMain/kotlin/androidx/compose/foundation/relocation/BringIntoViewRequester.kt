@@ -38,6 +38,9 @@ import androidx.compose.ui.unit.toSize
  *
  * Here is a sample where part of a composable is brought into view:
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
+ *
+ * Note: this API is experimental while we optimise the performance and find the right API shape
+ * for it
  */
 @ExperimentalFoundationApi
 sealed interface BringIntoViewRequester {
@@ -73,6 +76,9 @@ sealed interface BringIntoViewRequester {
  *
  * Here is a sample where a part of a composable is brought into view:
  * @sample androidx.compose.foundation.samples.BringPartOfComposableIntoViewSample
+ *
+ * Note: this API is experimental while we optimise the performance and find the right API shape
+ * for it
  */
 @ExperimentalFoundationApi
 fun BringIntoViewRequester(): BringIntoViewRequester {
@@ -94,6 +100,9 @@ fun BringIntoViewRequester(): BringIntoViewRequester {
  *     hoisted object can be used to send
  *     [bringIntoView][BringIntoViewRequester.bringIntoView] requests to parents
  *     of the current composable.
+ *
+ * Note: this API is experimental while we optimise the performance and find the right API shape
+ * for it
  */
 @Suppress("ModifierInspectorInfo")
 @ExperimentalFoundationApi

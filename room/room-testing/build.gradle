@@ -38,7 +38,8 @@ dependencies {
     api(project(":room:room-migration"))
     api(libs.junit)
     implementation("androidx.arch.core:core-runtime:2.2.0")
-    androidTestImplementation(libs.truth)
+    androidTestImplementation(libs.truth) // Kruth currently lacks StringSubject#containsMatch
+    androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -58,4 +59,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Room Testing"
+    metalavaK2UastEnabled = true
 }

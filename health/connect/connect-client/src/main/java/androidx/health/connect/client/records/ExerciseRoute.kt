@@ -16,7 +16,6 @@
 
 package androidx.health.connect.client.records
 
-import androidx.annotation.RestrictTo
 import androidx.health.connect.client.units.Length
 import java.time.Instant
 
@@ -28,20 +27,12 @@ import java.time.Instant
  * Location points contain a timestamp, longitude, latitude, and optionally altitude, horizontal and
  * vertical accuracy.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-public class ExerciseRoute(public val route: List<Location>) {
-
+class ExerciseRoute constructor(val route: List<Location>) {
     init {
-        val sortedRoute: List<Location> = route.sortedWith { a, b -> a.time.compareTo(b.time) }
+        val sortedRoute: List<Location> = route.sortedBy { it.time }
         for (i in 0 until sortedRoute.lastIndex) {
             require(sortedRoute[i].time.isBefore(sortedRoute[i + 1].time))
         }
-    }
-    internal fun isWithin(startTime: Instant, endTime: Instant): Boolean {
-        // startTime is inclusive, endTime is exclusive
-        val sortedRoute: List<Location> = route.sortedWith { a, b -> a.time.compareTo(b.time) }
-        return !sortedRoute.first().time.isBefore(startTime) &&
-            sortedRoute.last().time.isBefore(endTime)
     }
 
     override fun equals(other: Any?): Boolean {
@@ -65,9 +56,9 @@ public class ExerciseRoute(public val route: List<Location>) {
      * @param horizontalAccuracy in [Length] unit. Optional field. Valid range: non-negative
      *   numbers.
      * @param verticalAccuracy in [Length] unit. Optional field. Valid range: non-negative numbers.
-     * @see ExerciseRoute
+     * @see ExerciseRouteResult
      */
-    public class Location(
+    class Location(
         val time: Instant,
         val latitude: Double,
         val longitude: Double,

@@ -24,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.takeOrElse
+import androidx.wear.compose.material3.tokens.ColorSchemeKeyTokens
+import androidx.wear.compose.material3.tokens.ColorTokens
 
 /**
  * A [ColorScheme] holds all the named color parameters for a [MaterialTheme].
@@ -77,32 +79,32 @@ import androidx.compose.ui.graphics.takeOrElse
  * @property onError Color used for text and icons displayed on top of the error color.
  */@Stable
 public class ColorScheme(
-    primary: Color = Color(0xFFD3E3FD),
-    primaryDim: Color = Color(0xFFA8C7FA),
-    primaryContainer: Color = Color(0xFF04409F),
-    onPrimary: Color = Color(0xFF001944),
-    onPrimaryContainer: Color = Color(0xFFD3E3FD),
-    secondary: Color = Color(0xFFC2E7FF),
-    secondaryDim: Color = Color(0xFF7FCFFF),
-    secondaryContainer: Color = Color(0xFF004A77),
-    onSecondary: Color = Color(0xFF001D35),
-    onSecondaryContainer: Color = Color(0xFFC2E7FF),
-    tertiary: Color = Color(0xFFC3EDCF),
-    tertiaryDim: Color = Color(0xFF73DC92),
-    tertiaryContainer: Color = Color(0xFF0F5223),
-    onTertiary: Color = Color(0xFF02210C),
-    onTertiaryContainer: Color = Color(0xFFC3EDCF),
-    surfaceDim: Color = Color(0xFF252626),
-    surface: Color = Color(0xFF303030),
-    surfaceBright: Color = Color(0xFF474747),
-    onSurface: Color = Color(0xFFF2F2F2),
-    onSurfaceVariant: Color = Color(0xFFC4C7C5),
-    outline: Color = Color(0xFF8E918F),
-    outlineVariant: Color = Color(0xFF5C5F5E),
-    background: Color = Color.Black,
-    onBackground: Color = Color(0xFFFFFFFF),
-    error: Color = Color(0xFFFD7267),
-    onError: Color = Color(0xFF410002),
+    primary: Color = ColorTokens.Primary,
+    primaryDim: Color = ColorTokens.PrimaryDim,
+    primaryContainer: Color = ColorTokens.PrimaryContainer,
+    onPrimary: Color = ColorTokens.OnPrimary,
+    onPrimaryContainer: Color = ColorTokens.OnPrimaryContainer,
+    secondary: Color = ColorTokens.Secondary,
+    secondaryDim: Color = ColorTokens.SecondaryDim,
+    secondaryContainer: Color = ColorTokens.SecondaryContainer,
+    onSecondary: Color = ColorTokens.OnSecondary,
+    onSecondaryContainer: Color = ColorTokens.OnSecondaryContainer,
+    tertiary: Color = ColorTokens.Tertiary,
+    tertiaryDim: Color = ColorTokens.TertiaryDim,
+    tertiaryContainer: Color = ColorTokens.TertiaryContainer,
+    onTertiary: Color = ColorTokens.OnTertiary,
+    onTertiaryContainer: Color = ColorTokens.OnTertiaryContainer,
+    surfaceDim: Color = ColorTokens.SurfaceDim,
+    surface: Color = ColorTokens.Surface,
+    surfaceBright: Color = ColorTokens.SurfaceBright,
+    onSurface: Color = ColorTokens.OnSurface,
+    onSurfaceVariant: Color = ColorTokens.OnSurfaceVariant,
+    outline: Color = ColorTokens.Outline,
+    outlineVariant: Color = ColorTokens.OutlineVariant,
+    background: Color = ColorTokens.Background,
+    onBackground: Color = ColorTokens.OnBackground,
+    error: Color = ColorTokens.Error,
+    onError: Color = ColorTokens.OnError,
 ) {
     /**
      * [primary] is the main color used across screens and components
@@ -414,11 +416,11 @@ public fun contentColorFor(backgroundColor: Color): Color =
 /**
  * Updates the internal values of the given [ColorScheme] with values from the [other] [ColorScheme]. This
  * allows efficiently updating a subset of [ColorScheme], without recomposing every composable that
- * consumes values from [LocalColors].
+ * consumes values from [LocalColorScheme].
  *
  * Because [ColorScheme] is very wide-reaching, and used by many expensive composables in the
- * hierarchy, providing a new value to [LocalColors] causes every composable consuming
- * [LocalColors] to recompose, which is prohibitively expensive in cases such as animating one
+ * hierarchy, providing a new value to [LocalColorScheme] causes every composable consuming
+ * [LocalColorScheme] to recompose, which is prohibitively expensive in cases such as animating one
  * color in the theme. Instead, [ColorScheme] is internally backed by [mutableStateOf], and this
  * function mutates the internal state of [this] to match values in [other]. This means that any
  * changes will mutate the internal state of [this], and only cause composables that are reading
@@ -453,7 +455,43 @@ internal fun ColorScheme.updateColorSchemeFrom(other: ColorScheme) {
     onError = other.onError
 }
 
-internal val LocalColors = staticCompositionLocalOf<ColorScheme> { ColorScheme() }
+/**
+ * Helper function for component color tokens. Here is an example on how to use component color
+ * tokens:
+ * ``MaterialTheme.colorScheme.fromToken(FilledButtonTokens.ContainerColor)``
+ */
+internal fun ColorScheme.fromToken(value: ColorSchemeKeyTokens): Color {
+    return when (value) {
+        ColorSchemeKeyTokens.Primary -> primary
+        ColorSchemeKeyTokens.PrimaryDim -> primaryDim
+        ColorSchemeKeyTokens.PrimaryContainer -> primaryContainer
+        ColorSchemeKeyTokens.OnPrimary -> onPrimary
+        ColorSchemeKeyTokens.OnPrimaryContainer -> onPrimaryContainer
+        ColorSchemeKeyTokens.Secondary -> secondary
+        ColorSchemeKeyTokens.SecondaryDim -> secondaryDim
+        ColorSchemeKeyTokens.SecondaryContainer -> secondaryContainer
+        ColorSchemeKeyTokens.OnSecondary -> onSecondary
+        ColorSchemeKeyTokens.OnSecondaryContainer -> onSecondaryContainer
+        ColorSchemeKeyTokens.Tertiary -> tertiary
+        ColorSchemeKeyTokens.TertiaryDim -> tertiaryDim
+        ColorSchemeKeyTokens.TertiaryContainer -> tertiaryContainer
+        ColorSchemeKeyTokens.OnTertiary -> onTertiary
+        ColorSchemeKeyTokens.OnTertiaryContainer -> onTertiaryContainer
+        ColorSchemeKeyTokens.SurfaceDim -> surfaceDim
+        ColorSchemeKeyTokens.Surface -> surface
+        ColorSchemeKeyTokens.SurfaceBright -> surfaceBright
+        ColorSchemeKeyTokens.OnSurface -> onSurface
+        ColorSchemeKeyTokens.OnSurfaceVariant -> onSurfaceVariant
+        ColorSchemeKeyTokens.Outline -> outline
+        ColorSchemeKeyTokens.OutlineVariant -> outlineVariant
+        ColorSchemeKeyTokens.Background -> background
+        ColorSchemeKeyTokens.OnBackground -> onBackground
+        ColorSchemeKeyTokens.Error -> error
+        ColorSchemeKeyTokens.OnError -> onError
+    }
+}
+
+internal val LocalColorScheme = staticCompositionLocalOf<ColorScheme> { ColorScheme() }
 
 /**
  * Convert given color to disabled color.
@@ -462,3 +500,12 @@ internal val LocalColors = staticCompositionLocalOf<ColorScheme> { ColorScheme()
 @Composable
 internal fun Color.toDisabledColor(disabledAlpha: Float = ContentAlpha.disabled) =
     this.copy(alpha = this.alpha * disabledAlpha)
+
+/**
+ * Converts a color token key to the local color scheme provided by the theme.
+ * The color references the [LocalColorScheme].
+ */
+internal val ColorSchemeKeyTokens.value: Color
+    @ReadOnlyComposable
+    @Composable
+    get() = MaterialTheme.colorScheme.fromToken(this)

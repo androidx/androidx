@@ -29,7 +29,10 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Matrix
+import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.text.ExperimentalTextApi
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextInputServiceAndroid.TextInputCommand.HideKeyboard
 import androidx.compose.ui.text.input.TextInputServiceAndroid.TextInputCommand.ShowKeyboard
@@ -51,17 +54,10 @@ private const val DEBUG_CLASS = "TextInputServiceAndroid"
  */
 internal class TextInputServiceAndroid(
     val view: View,
+    rootPositionCalculator: PositionCalculator,
     private val inputMethodManager: InputMethodManager,
-    private val platformTextInput: PlatformTextInput?,
     private val inputCommandProcessorExecutor: Executor = Choreographer.getInstance().asExecutor(),
 ) : PlatformTextInputService {
-
-    // Non-experimental constructor.
-    constructor(
-        view: View,
-        inputMethodManager: InputMethodManager,
-        inputCommandProcessorExecutor: Executor = Choreographer.getInstance().asExecutor(),
-    ) : this(view, inputMethodManager, platformTextInput = null, inputCommandProcessorExecutor)
 
     /**
      * Commands that can be sent into [textInputCommandQueue] to be processed by
@@ -73,6 +69,12 @@ internal class TextInputServiceAndroid(
         ShowKeyboard,
         HideKeyboard;
     }
+
+    /**
+     * True if the currently editable composable has connected. This is used to tell the platform
+     * when it asks if the compose view is a text editor.
+     */
+    private var editorHasFocus = false
 
     /**
      *  The following three observers are set when the editable composable has initiated the input
@@ -99,6 +101,9 @@ internal class TextInputServiceAndroid(
 
     private var focusedRect: AndroidRect? = null
 
+    private val cursorAnchorInfoController =
+        CursorAnchorInfoController(rootPositionCalculator, inputMethodManager)
+
     /**
      * A channel that is used to debounce rapid operations such as showing/hiding the keyboard and
      * starting/stopping input, so we can make the minimal number of calls on the
@@ -108,10 +113,10 @@ internal class TextInputServiceAndroid(
     private val textInputCommandQueue = mutableVectorOf<TextInputCommand>()
     private var frameCallback: Runnable? = null
 
-    constructor(view: View, context: PlatformTextInput? = null) : this(
+    constructor(view: View, positionCalculator: PositionCalculator) : this(
         view,
+        positionCalculator,
         InputMethodManagerImpl(view),
-        context
     )
 
     init {
@@ -123,7 +128,11 @@ internal class TextInputServiceAndroid(
     /**
      * Creates new input connection.
      */
-    fun createInputConnection(outAttrs: EditorInfo): InputConnection {
+    fun createInputConnection(outAttrs: EditorInfo): InputConnection? {
+        if (!editorHasFocus) {
+            return null
+        }
+
         outAttrs.update(imeOptions, state)
         outAttrs.updateWithEmojiCompat()
 
@@ -143,9 +152,27 @@ internal class TextInputServiceAndroid(
                     baseInputConnection.sendKeyEvent(event)
                 }
 
-                override fun onConnectionClosed(ic: RecordingInputConnection) {
+                override fun onRequestCursorAnchorInfo(
+                    immediate: Boolean,
+                    monitor: Boolean,
+                    includeInsertionMarker: Boolean,
+                    includeCharacterBounds: Boolean,
+                    includeEditorBounds: Boolean,
+                    includeLineBounds: Boolean
+                ) {
+                    cursorAnchorInfoController.requestUpdate(
+                        immediate,
+                        monitor,
+                        includeInsertionMarker,
+                        includeCharacterBounds,
+                        includeEditorBounds,
+                        includeLineBounds
+                    )
+                }
+
+                override fun onConnectionClosed(inputConnection: RecordingInputConnection) {
                     for (i in 0 until ics.size) {
-                        if (ics[i].get() == ic) {
+                        if (ics[i].get() == inputConnection) {
                             ics.removeAt(i)
                             return // No duplicated instances should be in the list.
                         }
@@ -160,6 +187,11 @@ internal class TextInputServiceAndroid(
         }
     }
 
+    /**
+     * Returns true if some editable component is focused.
+     */
+    fun isEditorFocused(): Boolean = editorHasFocus
+
     override fun startInput(
         value: TextFieldValue,
         imeOptions: ImeOptions,
@@ -170,7 +202,7 @@ internal class TextInputServiceAndroid(
             Log.d(TAG, "$DEBUG_CLASS.startInput")
         }
 
-        platformTextInput?.requestInputFocus()
+        editorHasFocus = true
         state = value
         this.imeOptions = imeOptions
         this.onEditCommand = onEditCommand
@@ -181,10 +213,23 @@ internal class TextInputServiceAndroid(
         sendInputCommand(StartInput)
     }
 
+    override fun startInput() {
+        if (DEBUG) {
+            Log.d(TAG, "$DEBUG_CLASS.startInput")
+        }
+
+        // Don't set editorHasFocus or any of the other properties used to support the legacy text
+        // input system.
+
+        // Don't actually send the command to the IME yet, it may be overruled by a subsequent call
+        // to stopInput.
+        sendInputCommand(StartInput)
+    }
+
     override fun stopInput() {
         if (DEBUG) Log.d(TAG, "$DEBUG_CLASS.stopInput")
 
-        platformTextInput?.releaseInputFocus()
+        editorHasFocus = false
         onEditCommand = {}
         onImeActionPerformed = {}
         focusedRect = null
@@ -296,6 +341,7 @@ internal class TextInputServiceAndroid(
                 )
             }
         }
+        textInputCommandQueue.clear()
 
         // Now that we've calculated what operations we need to perform on the actual input
         // manager, perform them.
@@ -329,6 +375,7 @@ internal class TextInputServiceAndroid(
         for (i in 0 until ics.size) {
             ics[i].get()?.mTextFieldValue = newValue
         }
+        cursorAnchorInfoController.invalidate()
 
         if (oldValue == newValue) {
             if (DEBUG) {
@@ -389,6 +436,24 @@ internal class TextInputServiceAndroid(
         }
     }
 
+    override fun updateTextLayoutResult(
+        textFieldValue: TextFieldValue,
+        offsetMapping: OffsetMapping,
+        textLayoutResult: TextLayoutResult,
+        textFieldToRootTransform: (Matrix) -> Unit,
+        innerTextFieldBounds: Rect,
+        decorationBoxBounds: Rect
+    ) {
+        cursorAnchorInfoController.updateTextLayoutResult(
+            textFieldValue,
+            offsetMapping,
+            textLayoutResult,
+            textFieldToRootTransform,
+            innerTextFieldBounds,
+            decorationBoxBounds
+        )
+    }
+
     /** Immediately restart the IME connection, bypassing the [textInputCommandQueue]. */
     private fun restartInputImmediately() {
         if (DEBUG) Log.d(TAG, "$DEBUG_CLASS.restartInputImmediately")
@@ -438,6 +503,9 @@ internal fun EditorInfo.update(imeOptions: ImeOptions, textFieldValue: TextField
         ImeAction.Send -> EditorInfo.IME_ACTION_SEND
         ImeAction.Done -> EditorInfo.IME_ACTION_DONE
         else -> error("invalid ImeAction")
+    }
+    (imeOptions.platformImeOptions as? AndroidImeOptions)?.privateImeOptions?.let {
+        privateImeOptions = it
     }
     when (imeOptions.keyboardType) {
         KeyboardType.Text -> this.inputType = InputType.TYPE_CLASS_TEXT

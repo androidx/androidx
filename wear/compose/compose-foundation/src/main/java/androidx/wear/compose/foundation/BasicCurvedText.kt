@@ -49,14 +49,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.resolveAsTypeface
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
+import kotlin.math.abs
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlin.math.sqrt
 
 /**
  * [basicCurvedText] is a component allowing developers to easily write curved text following
  * the curvature a circle (usually at the edge of a circular screen).
- * [basicCurvedText] can be only created within the [CurvedLayout] since it's not a not a
- * composable.
+ * [basicCurvedText] can be only created within a [CurvedLayout] since it's not a composable.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
@@ -86,8 +87,7 @@ public fun CurvedScope.basicCurvedText(
 /**
  * [basicCurvedText] is a component allowing developers to easily write curved text following
  * the curvature a circle (usually at the edge of a circular screen).
- * [basicCurvedText] can be only created within the [CurvedLayout] since it's not a not a
- * composable.
+ * [basicCurvedText] can be only created within a [CurvedLayout] since it's not a composable.
  *
  * @sample androidx.wear.compose.foundation.samples.CurvedAndNormalText
  *
@@ -220,6 +220,7 @@ internal class CurvedTextDelegate {
     private val textPath = android.graphics.Path()
 
     var lastLayoutInfo: CurvedLayoutInfo? = null
+    var lastParentSweepRadians: Float = 0f
 
     fun updateIfNeeded(
         text: String,
@@ -280,13 +281,17 @@ internal class CurvedTextDelegate {
         }
     }
 
-    private fun updatePathsIfNeeded(layoutInfo: CurvedLayoutInfo) {
-        if (layoutInfo != lastLayoutInfo) {
+    private fun updatePathsIfNeeded(layoutInfo: CurvedLayoutInfo, parentSweepRadians: Float) {
+        if (layoutInfo != lastLayoutInfo ||
+            abs(lastParentSweepRadians - parentSweepRadians) > 1e-4) {
             lastLayoutInfo = layoutInfo
+            lastParentSweepRadians = parentSweepRadians
+
             with(layoutInfo) {
                 val clockwiseFactor = if (clockwise) 1f else -1f
 
-                val sweepDegree = sweepRadians.toDegrees().coerceAtMost(360f)
+                val sweepDegree = min(sweepRadians, parentSweepRadians)
+                    .toDegrees().coerceAtMost(360f)
 
                 val centerX = centerOffset.x
                 val centerY = centerOffset.y
@@ -333,7 +338,7 @@ internal class CurvedTextDelegate {
         background: Color
     ) {
         updateTypeFace()
-        updatePathsIfNeeded(layoutInfo)
+        updatePathsIfNeeded(layoutInfo, parentSweepRadians)
 
         drawIntoCanvas { canvas ->
             if (background.isSpecified && background != Color.Transparent) {

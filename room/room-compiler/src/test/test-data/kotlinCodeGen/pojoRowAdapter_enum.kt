@@ -12,7 +12,6 @@ import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -27,10 +26,10 @@ public class MyDao_Impl(
     init {
         this.__db = __db
         this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`pk`,`enum`,`nullableEnum`) VALUES (?,?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindString(2, __Fruit_enumToString(entity.enum))
                 val _tmpNullableEnum: Fruit? = entity.nullableEnum
@@ -43,7 +42,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun addEntity(item: MyEntity): Unit {
+    public override fun addEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {
@@ -77,7 +76,7 @@ public class MyDao_Impl(
                 }
                 _result = MyEntity(_tmpPk,_tmpEnum,_tmpNullableEnum)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
             }
             return _result
         } finally {

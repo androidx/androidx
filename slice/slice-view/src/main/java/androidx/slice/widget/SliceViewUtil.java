@@ -51,10 +51,10 @@ import java.util.Calendar;
 /**
  * A bunch of utilities for slice UI.
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class SliceViewUtil {
 
     /**

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Futures.immediateFuture can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="    private var imageSaveTerminationFuture: ListenableFuture&lt;Any?> = Futures.immediateFuture(null)"
+        errorLine2="                                                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/Camera2ExtensionsActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Futures.immediateFuture can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="    private var imageSaveTerminationFuture: ListenableFuture&lt;Any?> = Futures.immediateFuture(null)"
+        errorLine2="                                                                                             ~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/Camera2ExtensionsActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.directExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        mPreviewView.setFrameUpdateListener(CameraXExecutors.directExecutor(), (timestamp) -> {"
+        errorLine2="                                                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="PreviewView.setFrameUpdateListener can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        mPreviewView.setFrameUpdateListener(CameraXExecutors.directExecutor(), (timestamp) -> {"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.ioExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            imageAnalysis.setAnalyzer(CameraXExecutors.ioExecutor(),  img -> {"
+        errorLine2="                                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/CameraExtensionsActivity.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Exif.createFromFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        val exif = Exif.createFromFile(tempFile)"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/utils/FileUtil.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Exif.createFromFile can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        val exif = Exif.createFromFile(tempFile)"
+        errorLine2="                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/utils/FileUtil.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Exif.rotate can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        exif.rotate(rotationDegrees)"
+        errorLine2="             ~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/utils/FileUtil.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Exif.save can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="        exif.save()"
+        errorLine2="             ~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/utils/FileUtil.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                CameraXExecutors.mainThreadExecutor()"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/validation/ImageCaptureActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                CameraXExecutors.mainThreadExecutor()"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/validation/ImageCaptureActivity.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="CameraXExecutors.mainThreadExecutor can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                        CameraXExecutors.mainThreadExecutor()"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/extensions/validation/ImageCaptureActivity.kt"/>
+    </issue>
+
+</issues>

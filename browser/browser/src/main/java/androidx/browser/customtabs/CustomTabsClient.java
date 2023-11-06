@@ -407,6 +407,31 @@ public class CustomTabsClient {
                     }
                 });
             }
+
+            @Override
+            public void onWarmupCompleted(final @NonNull Bundle extras) throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onWarmupCompleted(extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onActivityLayout(final int left, final int top, final int right,
+                    final int bottom, @CustomTabsCallback.ActivityLayoutState int state,
+                    @NonNull Bundle extras)
+                    throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onActivityLayout(left, top, right, bottom, state, extras);
+                    }
+                });
+            }
         };
     }
 

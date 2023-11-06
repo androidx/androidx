@@ -16,11 +16,13 @@ dependencies {
 
     api("androidx.annotation:annotation:1.6.0")
     api("androidx.annotation:annotation-experimental:1.3.0")
-    api("androidx.lifecycle:lifecycle-runtime:2.3.1")
+    api("androidx.lifecycle:lifecycle-runtime:2.6.2")
     api("androidx.versionedparcelable:versionedparcelable:1.1.1")
     implementation("androidx.collection:collection:1.0.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation("androidx.interpolator:interpolator:1.0.0")
+
+    api(libs.kotlinStdlib)
 
     // We don't ship this as a public artifact, so it must remain a project-type dependency.
     annotationProcessor(projectOrArtifact(":versionedparcelable:versionedparcelable-compiler"))
@@ -37,7 +39,7 @@ dependencies {
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testUiautomator)
 
-    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.3.1")
+    androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.2")
 
     // Including both dexmakers allows support for all API levels plus final mocking support on
     // API 28+. The implementation is swapped based on the finality of the mock type. This
@@ -54,6 +56,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-mockito"))
 
     testImplementation(libs.junit)
+    testImplementation(libs.testExtJunit)
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
@@ -97,4 +100,5 @@ androidx {
     description = "Provides backward-compatible implementations of Android platform APIs and " +
             "features."
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

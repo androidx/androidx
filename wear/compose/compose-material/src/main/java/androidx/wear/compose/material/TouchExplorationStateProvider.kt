@@ -23,7 +23,6 @@ import android.view.accessibility.AccessibilityManager.TouchExplorationStateChan
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -75,7 +74,7 @@ internal class DefaultTouchExplorationStateProvider : TouchExplorationStateProvi
             }
         )
 
-        return remember { derivedStateOf { listener.isEnabled() } }
+        return listener
     }
 
     @Composable
@@ -95,9 +94,13 @@ internal class DefaultTouchExplorationStateProvider : TouchExplorationStateProvi
         }
     }
 
-    private class Listener : AccessibilityStateChangeListener, TouchExplorationStateChangeListener {
+    private class Listener : AccessibilityStateChangeListener, TouchExplorationStateChangeListener,
+        State<Boolean> {
         private var accessibilityEnabled by mutableStateOf(false)
         private var touchExplorationEnabled by mutableStateOf(false)
+
+        override val value: Boolean
+            get() = accessibilityEnabled && touchExplorationEnabled
 
         fun isEnabled() = accessibilityEnabled && touchExplorationEnabled
 

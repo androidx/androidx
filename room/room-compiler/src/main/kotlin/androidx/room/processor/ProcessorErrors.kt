@@ -64,6 +64,8 @@ object ProcessorErrors {
     val CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES = "Cannot use unbound generics in Dao classes." +
         " If you are trying to create a base DAO, create a normal class, extend it with type" +
         " params then mark the subclass with @Dao."
+    val CANNOT_USE_MAP_COLUMN_AND_MAP_INFO_SIMULTANEOUSLY = "Cannot use @MapColumn and " +
+        " @MapInfo annotation in the same function. Please prefer using @MapColumn only."
     val CANNOT_FIND_GETTER_FOR_FIELD = "Cannot find getter for field."
     val CANNOT_FIND_SETTER_FOR_FIELD = "Cannot find setter for field."
     val MISSING_PRIMARY_KEY = "An entity must have at least 1 field annotated with @PrimaryKey"
@@ -152,24 +154,18 @@ object ProcessorErrors {
     val DELETION_MISSING_PARAMS = "Method annotated with" +
         " @Delete but does not have any parameters to delete."
 
-    fun cannotMapInfoSpecifiedColumn(column: String, columnsInQuery: List<String>) =
-        "Column specified in the provided @MapInfo annotation must be present in the query. " +
+    fun cannotMapSpecifiedColumn(column: String, columnsInQuery: List<String>, annotation: String) =
+        "Column specified in the provided @$annotation annotation must be present in the query. " +
             "Provided: $column. Columns found: ${columnsInQuery.joinToString(", ")}"
 
     val MAP_INFO_MUST_HAVE_AT_LEAST_ONE_COLUMN_PROVIDED = "To use the @MapInfo annotation, you " +
         "must provide either the key column name, value column name, or both."
 
-    fun keyMayNeedMapInfo(keyArg: String): String {
+    fun mayNeedMapColumn(columnArg: String): String {
         return """
-            Looks like you may need to use @MapInfo to clarify the 'keyColumn' needed for
-            the return type of a method. Type argument that needs @MapInfo: $keyArg
-            """.trim()
-    }
-
-    fun valueMayNeedMapInfo(valueArg: String): String {
-        return """
-            Looks like you may need to use @MapInfo to clarify the 'valueColumn' needed for
-            the return type of a method. Type argument that needs @MapInfo: $valueArg
+            Looks like you may need to use @MapColumn to clarify the 'columnName' needed for
+            type argument(s) in the return type of a method. Type argument that needs
+            @MapColumn: $columnArg
             """.trim()
     }
 
@@ -271,8 +267,9 @@ object ProcessorErrors {
         return MISSING_PARAMETER_FOR_BIND.format(bindVarName.joinToString(", "))
     }
 
-    fun valueCollectionMustBeListOrSet(mapValueTypeName: String): String {
-        return "Multimap 'value' collection type must be a List or Set. Found $mapValueTypeName."
+    fun valueCollectionMustBeListOrSetOrMap(mapValueTypeName: String): String {
+        return "Multimap 'value' collection type must be a List, Set or Map. " +
+            "Found $mapValueTypeName."
     }
 
     private val UNUSED_QUERY_METHOD_PARAMETER = "Unused parameter%s: %s"
@@ -927,31 +924,23 @@ object ProcessorErrors {
                 " be greater than the From version."
         }
 
-    fun autoMigrationSchemasNotFound(schemaFile: String, schemaOutFolderPath: String): String {
-        return "Schema '$schemaFile' required for migration was not found at the schema out " +
-            "folder: $schemaOutFolderPath. Cannot generate auto migrations."
+    fun autoMigrationSchemasNotFound(schemaVersion: Int, schemaOutFolderPath: String): String {
+        return "Schema '$schemaVersion.json' required for migration was not found at the schema " +
+            "out folder: $schemaOutFolderPath. Cannot generate auto migrations."
     }
 
-    fun autoMigrationSchemaIsEmpty(schemaFile: String, schemaOutFolderPath: String): String {
-        return "Found empty schema file '$schemaFile' required for migration was not found at the" +
-            " schema out folder: $schemaOutFolderPath. Cannot generate auto migrations."
+    fun autoMigrationSchemaIsEmpty(schemaVersion: Int, schemaOutFolderPath: String): String {
+        return "Found empty schema file '$schemaVersion.json' required for migration was not " +
+            "found at the schema out folder: $schemaOutFolderPath. Cannot generate auto migrations."
     }
 
-    fun invalidAutoMigrationSchema(schemaFile: String, schemaOutFolderPath: String): String {
-        return "Found invalid schema file '$schemaFile.json' at the schema out " +
+    fun invalidAutoMigrationSchema(schemaVersion: Int, schemaOutFolderPath: String): String {
+        return "Found invalid schema file '$schemaVersion.json' at the schema out " +
             "folder: $schemaOutFolderPath.\nIf you've modified the file, you might've broken the " +
             "JSON format, try deleting the file and re-running the compiler.\n" +
             "If you've not modified the file, please file a bug at " +
             "https://issuetracker.google.com/issues/new?component=413107&template=1096568 " +
             "with a sample app to reproduce the issue."
-    }
-
-    fun autoMigrationSchemasMustBeRoomGenerated(
-        fromFile: Int,
-        toFile: Int
-    ): String {
-        return "Found invalid schema file(s): '$fromFile.json' and $toFile.json'. The schema " +
-            "files must be generated by Room. Cannot generate auto migrations."
     }
 
     fun newNotNullColumnMustHaveDefaultValue(columnName: String): String {

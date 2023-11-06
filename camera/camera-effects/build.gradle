@@ -23,6 +23,31 @@ plugins {
 }
 dependencies {
     api(project(":camera:camera-core"))
+    implementation(libs.autoValueAnnotations)
+    implementation("androidx.concurrent:concurrent-futures:1.0.0")
+
+    annotationProcessor(libs.autoValue)
+
+    testImplementation(libs.robolectric)
+    testImplementation(libs.testRunner)
+    testImplementation(libs.kotlinStdlib)
+    testImplementation(libs.truth)
+    testImplementation(libs.testRules)
+    testImplementation(libs.testCore)
+
+    androidTestImplementation(libs.multidex)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner)
+    androidTestImplementation(libs.testRules)
+    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinCoroutinesAndroid)
+    androidTestImplementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
 }
 android {
     defaultConfig {
@@ -39,4 +64,5 @@ androidx {
     description = "Camera effects components for the Jetpack Camera Library, a library providing " +
             "camera post-processing features such as portrait mode that can be used with the " +
             "CameraX library."
+    metalavaK2UastEnabled = true
 }

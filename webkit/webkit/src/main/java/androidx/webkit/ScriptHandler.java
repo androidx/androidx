@@ -17,29 +17,19 @@
 package androidx.webkit;
 
 import androidx.annotation.RequiresFeature;
-import androidx.annotation.RestrictTo;
 
 /**
- * This class represents the return result from {@link WebViewCompat#addDocumentStartJavaScript(
- * android.webkit.WebView, String, Set)}. Call {@link ScriptHandler#remove()} when the
+ * This interface represents the return result from {@link WebViewCompat#addDocumentStartJavaScript(
+ * android.webkit.WebView, String, java.util.Set)}. Call {@link ScriptHandler#remove()} when the
  * corresponding JavaScript script should be removed.
  *
- * @see WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView, String, Set)
- *
- * TODO(swestphal): unhide when ready.
+ * @see WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView, String, java.util.Set)
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class ScriptHandler {
+public interface ScriptHandler {
     /**
      * Removes the corresponding script, it will take effect from next page load.
      */
     @RequiresFeature(name = WebViewFeature.DOCUMENT_START_SCRIPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
-    public abstract void remove();
-
-    /**
-     * This class cannot be created by applications.
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public ScriptHandler() {}
+    void remove();
 }

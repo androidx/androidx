@@ -18,8 +18,8 @@ package androidx.appactions.interaction.service.testing.internal
 
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
+import androidx.appactions.interaction.capabilities.core.HostProperties
 import androidx.appactions.interaction.capabilities.core.ValueListener
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
 import androidx.appactions.interaction.capabilities.core.impl.task.SessionBridge
@@ -30,19 +30,15 @@ import androidx.appactions.interaction.capabilities.core.properties.StringValue
 private const val CAPABILITY_NAME = "actions.intent.FAKE_CAPABILITY"
 
 class FakeCapability private constructor() {
-    class Properties(
-        val fieldOne: Property<StringValue>? = null,
-    )
-
     class Arguments internal constructor(
         val fieldOne: String?,
     ) {
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var fieldOne: String? = null
             fun setFieldOne(value: String) = apply {
                 fieldOne = value
             }
-            override fun build() = Arguments(fieldOne)
+            fun build() = Arguments(fieldOne)
         }
     }
 
@@ -75,35 +71,26 @@ class FakeCapability private constructor() {
             builder.build()
         }
 
-        private var fieldOne: Property<StringValue>? = null
+        public override fun setExecutionSessionFactory(
+            sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession
+        ) = super.setExecutionSessionFactory(sessionFactory)
 
-        fun setFieldOne(fieldOne: Property<StringValue>) = apply {
-            this.fieldOne = fieldOne
-        }
-
-        override fun build(): Capability {
-            super.setProperty(
-                mutableMapOf(
-                    "fieldOne" to (
-                        fieldOne ?: Property.Builder<StringValue>().build()
-                        )
-                )
-            )
-            return super.build()
-        }
+        fun setFieldOne(fieldOne: Property<StringValue>) = setProperty(
+            "fieldOne",
+            fieldOne,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
     }
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-            .setArguments(Arguments::class.java, Arguments::Builder)
+            .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
             .setOutput(Output::class.java)
             .bindParameter(
                 "fieldOne",
-                { properties -> properties["fieldOne"] as? Property<StringValue> },
+                Arguments::fieldOne,
                 Arguments.Builder::setFieldOne,
-                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                TypeConverters.STRING_VALUE_ENTITY_CONVERTER,
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER
             )
             .build()
     }

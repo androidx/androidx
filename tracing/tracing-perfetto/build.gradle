@@ -15,7 +15,7 @@
  */
 
 import androidx.build.Publish
-import androidx.build.SupportConfigKt
+import androidx.build.AndroidXConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -34,7 +34,7 @@ android {
             // `TRACING_PERFETTO_REUSE_PREBUILTS_AAR` for more information.
             // TODO(239041710): create a test that verifies that `tracing:tracing-perfetto-binary`
             // matches its source code.
-            srcDirs += SupportConfigKt
+            srcDirs += AndroidXConfig
                     .getPrebuiltsRoot(project).toPath()
                     .resolve(
                             "androidx/internal/androidx/tracing/tracing-perfetto-binary/" +
@@ -46,7 +46,7 @@ android {
 
 dependencies {
     api("androidx.annotation:annotation:1.3.0")
-    implementation(project(":tracing:tracing-perfetto-common"))
+    implementation("androidx.startup:startup-runtime:1.1.1")
     implementation(libs.kotlinStdlib)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -60,9 +60,9 @@ dependencies {
 androidx {
     name = "Tracing Perfetto"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.TRACING_PERFETTO
     inceptionYear = "2022"
     description = "AndroidX Tracing: Perfetto SDK"
+    metalavaK2UastEnabled = true
 }
 
 android {

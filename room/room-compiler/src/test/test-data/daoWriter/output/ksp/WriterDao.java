@@ -30,12 +30,12 @@ public final class WriterDao_Impl implements WriterDao {
         this.__insertionAdapterOfUser = new EntityInsertionAdapter<User>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "INSERT OR ABORT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final User entity) {
                 statement.bindLong(1, entity.uid);
                 statement.bindString(2, entity.name);
@@ -46,12 +46,12 @@ public final class WriterDao_Impl implements WriterDao {
         this.__insertionAdapterOfUser_1 = new EntityInsertionAdapter<User>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "INSERT OR REPLACE INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final User entity) {
                 statement.bindLong(1, entity.uid);
                 statement.bindString(2, entity.name);
@@ -62,12 +62,12 @@ public final class WriterDao_Impl implements WriterDao {
         this.__insertionAdapterOfUser_2 = new EntityInsertionAdapter<User>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "INSERT INTO `User` (`uid`,`name`,`lastName`,`ageColumn`) VALUES (?,?,?,?)";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final User entity) {
                 statement.bindLong(1, entity.uid);
                 statement.bindString(2, entity.name);
@@ -78,12 +78,12 @@ public final class WriterDao_Impl implements WriterDao {
         this.__insertionAdapterOfBook = new EntityInsertionAdapter<Book>(__db) {
             @Override
             @NonNull
-            public String createQuery() {
+            protected String createQuery() {
                 return "INSERT OR ABORT INTO `Book` (`bookId`,`uid`) VALUES (?,?)";
             }
 
             @Override
-            public void bind(@NonNull final SupportSQLiteStatement statement,
+            protected void bind(@NonNull final SupportSQLiteStatement statement,
                     @NonNull final Book entity) {
                 statement.bindLong(1, entity.bookId);
                 statement.bindLong(2, entity.uid);

@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastSumBy
 import kotlin.math.absoluteValue
+import kotlin.math.floor
 import kotlin.math.sign
 
 /**
@@ -52,11 +53,17 @@ fun SnapLayoutInfoProvider(
         get() = lazyListState.layoutInfo
 
     // Decayed page snapping is the default
-    override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
-        val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(this)
+    override fun calculateApproachOffset(initialVelocity: Float): Float {
+        val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(lazyListState.density)
         val offset =
             decayAnimationSpec.calculateTargetValue(NoDistance, initialVelocity).absoluteValue
-        val finalDecayOffset = (offset - calculateSnapStepSize()).coerceAtLeast(0f)
+
+        val estimatedNumberOfItemsInDecay = floor(offset.absoluteValue / averageItemSize())
+
+        // Decay to exactly half an item before the item where this decay would let us finish.
+        // The rest of the animation will be a snapping animation.
+        val approachOffset = estimatedNumberOfItemsInDecay * averageItemSize() - averageItemSize()
+        val finalDecayOffset = approachOffset.coerceAtLeast(0f)
         return if (finalDecayOffset == 0f) {
             finalDecayOffset
         } else {
@@ -64,7 +71,7 @@ fun SnapLayoutInfoProvider(
         }
     }
 
-    override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
+    override fun calculateSnappingOffset(currentVelocity: Float): Float {
         var lowerBoundOffset = Float.NEGATIVE_INFINITY
         var upperBoundOffset = Float.POSITIVE_INFINITY
 
@@ -91,10 +98,14 @@ fun SnapLayoutInfoProvider(
             }
         }
 
-        return calculateFinalOffset(currentVelocity, lowerBoundOffset, upperBoundOffset)
+        return calculateFinalOffset(
+            with(lazyListState.density) { calculateFinalSnappingItem(currentVelocity) },
+            lowerBoundOffset,
+            upperBoundOffset
+        )
     }
 
-    override fun Density.calculateSnapStepSize(): Float = with(layoutInfo) {
+    fun averageItemSize(): Float = with(layoutInfo) {
         if (visibleItemsInfo.isNotEmpty()) {
             visibleItemsInfo.fastSumBy { it.size } / visibleItemsInfo.size.toFloat()
         } else {
@@ -119,3 +130,25 @@ fun rememberSnapFlingBehavior(lazyListState: LazyListState): FlingBehavior {
 
 internal val LazyListLayoutInfo.singleAxisViewportSize: Int
     get() = if (orientation == Orientation.Vertical) viewportSize.height else viewportSize.width
+
+@kotlin.jvm.JvmInline
+internal value class FinalSnappingItem internal constructor(
+    @Suppress("unused") private val value: Int
+) {
+    companion object {
+
+        val ClosestItem: FinalSnappingItem = FinalSnappingItem(0)
+
+        val NextItem: FinalSnappingItem = FinalSnappingItem(1)
+
+        val PreviousItem: FinalSnappingItem = FinalSnappingItem(2)
+    }
+}
+
+internal fun Density.calculateFinalSnappingItem(velocity: Float): FinalSnappingItem {
+    return if (velocity.absoluteValue < MinFlingVelocityDp.toPx()) {
+        FinalSnappingItem.ClosestItem
+    } else {
+        if (velocity > 0) FinalSnappingItem.NextItem else FinalSnappingItem.PreviousItem
+    }
+}

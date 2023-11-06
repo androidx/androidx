@@ -24,6 +24,7 @@
     <string name="mr_cast_button_connected" msgid="6073720094880410356">"Prebacite. Povezan je"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"Prebacite na"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"Traže se uređaji"</string>
+    <string name="mr_chooser_looking_for_devices" msgid="4257319068277776035">"Traže se uređaji…"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"Prekini vezu"</string>
     <string name="mr_controller_stop_casting" msgid="804210341192624074">"Zaustavi prebacivanje"</string>
     <string name="mr_controller_close_description" msgid="5684434439232634509">"Zatvori"</string>
@@ -41,12 +42,13 @@
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"Dodajte uređaj"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Puštajte u grupi"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Nema dostupnih informacija"</string>
-    <!-- no translation found for mr_chooser_zero_routes_found_title (5213435473397442608) -->
-    <skip />
-    <!-- no translation found for mr_chooser_zero_routes_description (5123320430013505927) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description (337903053432238985) -->
-    <skip />
-    <!-- no translation found for mr_chooser_done_button_label (7897288652928484627) -->
-    <skip />
+    <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Nije dostupan nijedan uređaj"</string>
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"Uverite se da je drugi uređaj povezan na istu WiFi mrežu kao ovaj telefon"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"Uverite se da je drugi uređaj povezan na istu WiFi mrežu kao ovaj tablet"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"Uverite se da je drugi uređaj povezan na istu WiFi mrežu kao ovaj tv"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"Uverite se da je drugi uređaj povezan na istu WiFi mrežu kao ovaj sat"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"Uverite se da je drugi uređaj povezan na istu WiFi mrežu kao ovaj automobil"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"Uverite se da je drugi uređaj povezan na istu WiFi mrežu kao ovaj uređaj"</string>
+    <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Saznajte više"</a></string>
+    <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"Saznajte kako da prebacujete"</string>
 </resources>

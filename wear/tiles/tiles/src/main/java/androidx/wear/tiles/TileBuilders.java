@@ -56,8 +56,8 @@ public final class TileBuilders {
         }
 
         /**
-         * Gets a {@link Timeline} containing the layouts for the tiles to show in the carousel,
-         * along with their validity periods.
+         * Gets the {@link androidx.wear.protolayout.TimelineBuilders.Timeline} containing the
+         * layouts for the tiles to show in the carousel, along with their validity periods.
          *
          * @since 1.0
          */
@@ -104,7 +104,7 @@ public final class TileBuilders {
         }
 
         /**
-         * Gets a {@link androidx.wear.tiles.TimelineBuilders.Timeline} containing the layouts for
+         * Gets the {@link androidx.wear.tiles.TimelineBuilders.Timeline} containing the layouts for
          * the tiles to show in the carousel, along with their validity periods.
          *
          * @since 1.0
@@ -172,8 +172,8 @@ public final class TileBuilders {
             }
 
             /**
-             * Sets a {@link Timeline} containing the layouts for the tiles to show in the carousel,
-             * along with their validity periods.
+             * Sets the {@link androidx.wear.protolayout.TimelineBuilders.Timeline} containing the
+             * layouts for the tiles to show in the carousel, along with their validity periods.
              *
              * @since 1.0
              */
@@ -216,7 +216,7 @@ public final class TileBuilders {
             }
 
             /**
-             * Sets a {@link androidx.wear.tiles.TimelineBuilders.Timeline} containing the layouts
+             * Sets the {@link androidx.wear.tiles.TimelineBuilders.Timeline} containing the layouts
              * for the tiles to show in the carousel, along with their validity periods.
              *
              * @since 1.0

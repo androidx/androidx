@@ -32,6 +32,7 @@ androidx {
     mavenVersion = LibraryVersions.EMOJI
     inceptionYear = "2017"
     description = "EmojiCompat Widgets for AppCompat integration"
+    metalavaK2UastEnabled = true
 }
 
 android {

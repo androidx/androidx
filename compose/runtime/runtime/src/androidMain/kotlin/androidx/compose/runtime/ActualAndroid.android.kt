@@ -113,3 +113,13 @@ private const val LogTag = "ComposeInternal"
 internal actual fun logError(message: String, e: Throwable) {
     Log.e(LogTag, message, e)
 }
+
+internal actual val MainThreadId: Long =
+    try {
+        Looper.getMainLooper().thread.id
+    } catch (e: Exception) {
+        // When linked against Android SDK stubs and running host-side tests, APIs such as
+        // Looper.getMainLooper() can throw or return null
+        // This branch intercepts that exception and returns default value for such cases.
+        -1
+    }

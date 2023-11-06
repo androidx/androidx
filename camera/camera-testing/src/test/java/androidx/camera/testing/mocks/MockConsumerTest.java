@@ -21,9 +21,10 @@ import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.os.Build;
 
-import androidx.camera.testing.mocks.helpers.ArgumentCaptor;
-import androidx.camera.testing.mocks.helpers.CallTimes;
-import androidx.camera.testing.mocks.helpers.CallTimesAtLeast;
+import androidx.camera.testing.impl.mocks.MockConsumer;
+import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor;
+import androidx.camera.testing.impl.mocks.helpers.CallTimes;
+import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast;
 
 import org.junit.Before;
 import org.junit.Test;

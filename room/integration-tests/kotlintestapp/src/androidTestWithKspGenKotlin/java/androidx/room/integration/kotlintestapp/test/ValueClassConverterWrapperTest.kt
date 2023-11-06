@@ -18,6 +18,7 @@ package androidx.room.integration.kotlintestapp.test
 
 import android.content.Context
 import androidx.kruth.assertThat
+import androidx.kruth.assertThrows
 import androidx.room.Dao
 import androidx.room.Database
 import androidx.room.Entity
@@ -76,6 +77,9 @@ class ValueClassConverterWrapperTest {
     @JvmInline
     value class UserWithByteArray(val password: ByteArray)
 
+    @JvmInline
+    value class NullableValue(val data: Int?)
+
     @Entity
     @TypeConverters(DateConverter::class, SchrodingerConverter::class)
     class UserInfo(
@@ -113,17 +117,32 @@ class ValueClassConverterWrapperTest {
         }
     }
 
+    @Entity
+    data class UserInfoNullable(
+        @PrimaryKey
+        val pk: Int,
+        val nullableUserIntPwd: UserWithInt?,
+        val nullableData: NullableValue,
+        val doubleNullableData: NullableValue?
+    )
+
     @Dao
     interface SampleDao {
         @Query("SELECT * FROM UserInfo")
         fun getEntity(): UserInfo
 
+        @Query("SELECT * FROM UserInfoNullable")
+        fun getNullableEntity(): UserInfoNullable
+
         @Insert
         fun insert(item: UserInfo)
+
+        @Insert
+        fun insertNullableEntity(item: UserInfoNullable)
     }
 
     @Database(
-        entities = [UserInfo::class],
+        entities = [UserInfo::class, UserInfoNullable::class],
         version = 1,
         exportSchema = false
     )
@@ -165,6 +184,39 @@ class ValueClassConverterWrapperTest {
         val readEntity = db.dao().getEntity()
 
         assertThat(readEntity).isEqualTo(customerInfo)
+    }
+
+    @Test
+    fun readAndWriteNullableValueClassToDatabase() {
+        val data = UserInfoNullable(
+            pk = 1,
+            nullableUserIntPwd = null,
+            nullableData = NullableValue(1),
+            null
+        )
+
+        db.dao().insertNullableEntity(data)
+
+        val readEntity = db.dao().getNullableEntity()
+
+        assertThat(readEntity).isEqualTo(data)
+    }
+
+    @Test
+    fun invalidWriteNullableValueClassToDatabase() {
+        val data = UserInfoNullable(
+            pk = 1,
+            nullableUserIntPwd = null,
+            nullableData = NullableValue(null),
+            null
+        )
+
+        assertThrows<IllegalStateException> {
+            db.dao().insertNullableEntity(data)
+        }.hasMessageThat().isEqualTo(
+            "Cannot bind NULLABLE value 'data' of inline class 'NullableValue' to " +
+                "a NOT NULL column."
+        )
     }
 
     @Before

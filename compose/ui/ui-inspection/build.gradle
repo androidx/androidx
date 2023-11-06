@@ -26,7 +26,9 @@ plugins {
 }
 
 dependencies {
-    implementation("androidx.annotation:annotation:1.1.0")
+    implementation("androidx.annotation:annotation:1.1.0", {
+        exclude group: "org.jetbrains.kotlin", module: "kotlin-stdlib"
+    })
     // Following dependencies will be provided by inspected app itself
     // because compose:ui-inspector can be run only in app with compose:ui:ui
     // thus all its transitive dependencies will be present too.
@@ -83,11 +85,6 @@ android {
             path "src/main/cpp/CMakeLists.txt"
             version libs.versions.cmake.get()
         }
-    }
-
-    lintOptions {
-        // Restriction not important for inspectors, which only runs at dev-time
-        disable("SyntheticAccessor")
     }
     namespace "androidx.compose.ui.inspection"
 }

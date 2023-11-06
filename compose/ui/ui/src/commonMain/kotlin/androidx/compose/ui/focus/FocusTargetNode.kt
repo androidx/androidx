@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.layout.BeyondBoundsLayout
 import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.modifier.ModifierLocalModifierNode
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.Nodes
 import androidx.compose.ui.node.ObserverModifierNode
@@ -37,6 +38,7 @@ import androidx.compose.ui.node.visitSelfAndAncestors
 import androidx.compose.ui.platform.InspectorInfo
 
 internal class FocusTargetNode :
+    CompositionLocalConsumerModifierNode,
     FocusTargetModifierNode,
     ObserverModifierNode,
     ModifierLocalModifierNode,
@@ -45,8 +47,20 @@ internal class FocusTargetNode :
     private var isProcessingCustomExit = false
     private var isProcessingCustomEnter = false
 
+    // During a transaction, changes to the state are stored as uncommitted focus state. At the
+    // end of the transaction, this state is stored as committed focus state.
+    private var committedFocusState: FocusStateImpl = Inactive
+
     @OptIn(ExperimentalComposeUiApi::class)
-    override var focusState: FocusStateImpl = Inactive
+    override var focusState: FocusStateImpl
+        get() = focusTransactionManager?.run { uncommittedFocusState } ?: committedFocusState
+        set(value) {
+            with(requireTransactionManager()) {
+                uncommittedFocusState = value
+            }
+        }
+
+    var previouslyFocusedChildHash: Int = 0
 
     val beyondBoundsLayoutParent: BeyondBoundsLayout?
         get() = ModifierLocalBeyondBoundsLayout.current
@@ -69,7 +83,7 @@ internal class FocusTargetNode :
             ActiveParent -> {
                 scheduleInvalidationForFocusEvents()
                 // This node might be reused, so reset the state to Inactive.
-                focusState = Inactive
+                requireTransactionManager().withNewTransaction { focusState = Inactive }
             }
             Inactive -> scheduleInvalidationForFocusEvents()
         }
@@ -142,6 +156,14 @@ internal class FocusTargetNode :
         }
     }
 
+    internal fun commitFocusState() {
+        with(requireTransactionManager()) {
+            committedFocusState = checkNotNull(uncommittedFocusState) {
+                "committing a node that was not updated in the current transaction"
+            }
+        }
+    }
+
     internal fun invalidateFocus() {
         when (focusState) {
             // Clear focus from the current FocusTarget.
@@ -195,6 +217,13 @@ internal class FocusTargetNode :
         override fun equals(other: Any?) = other === this
     }
 }
+
+internal fun FocusTargetNode.requireTransactionManager(): FocusTransactionManager {
+    return requireOwner().focusOwner.focusTransactionManager
+}
+
+private val FocusTargetNode.focusTransactionManager: FocusTransactionManager?
+    get() = node.coordinator?.layoutNode?.owner?.focusOwner?.focusTransactionManager
 
 internal fun FocusTargetNode.invalidateFocusTarget() {
     requireOwner().focusOwner.scheduleInvalidation(this)

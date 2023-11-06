@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.os.Build
+import androidx.camera.camera2.pipe.CameraExtensionMetadata
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Metadata
@@ -61,6 +62,9 @@ class ZoomCompatTest {
             get() = TODO("Not yet implemented")
         override val physicalRequestKeys: Set<CaptureRequest.Key<*>>
             get() = TODO("Not yet implemented")
+        override val supportedExtensions: Set<Int>
+            get() = TODO("Not yet implemented")
+
         override val requestKeys: Set<CaptureRequest.Key<*>>
             get() = TODO("Not yet implemented")
         override val resultKeys: Set<CaptureResult.Key<*>>
@@ -72,9 +76,20 @@ class ZoomCompatTest {
             TODO("Not yet implemented")
         }
 
+        override suspend fun getExtensionMetadata(extension: Int): CameraExtensionMetadata {
+            TODO("Not yet implemented")
+        }
+
+        override fun awaitExtensionMetadata(extension: Int): CameraExtensionMetadata {
+            TODO("Not yet implemented")
+        }
+
         override fun <T> get(key: CameraCharacteristics.Key<T>): T? {
             println("throwingCameraMetadata get: key = $key")
-            if (key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE) {
+            if (
+                Build.VERSION.SDK_INT >= 30 &&
+                key == CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE
+            ) {
                 throw AssertionError()
             }
             TODO("Not yet implemented")

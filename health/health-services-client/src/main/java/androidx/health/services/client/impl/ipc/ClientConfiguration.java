@@ -23,7 +23,6 @@ import androidx.annotation.RestrictTo.Scope;
  * An interface that provides basic information about the IPC service. This is required for building
  * the service in {@link Client}.
  *
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public class ClientConfiguration {

@@ -1,4 +1,3 @@
-
 /*
  * Copyright 2022 The Android Open Source Project
  *
@@ -17,25 +16,18 @@
 
 package androidx.tv.foundation
 
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.CubicBezierEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.focusGroup
+import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.Orientation.Horizontal
 import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.platform.inspectable
+import kotlin.math.abs
 
 /* Copied from
  compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/gestures/
@@ -67,95 +59,66 @@ fun Modifier.scrollableWithPivot(
     pivotOffsets: PivotOffsets,
     enabled: Boolean = true,
     reverseDirection: Boolean = false
-): Modifier = composed(
-    inspectorInfo = debugInspectorInfo {
-        name = "scrollableWithPivot"
-        properties["orientation"] = orientation
-        properties["state"] = state
-        properties["enabled"] = enabled
-        properties["reverseDirection"] = reverseDirection
-        properties["pivotOffsets"] = pivotOffsets
-    },
-    factory = {
-        val coroutineScope = rememberCoroutineScope()
-        val keepFocusedChildInViewModifier =
-            remember(coroutineScope, orientation, state, reverseDirection, pivotOffsets, enabled) {
-                ContentInViewModifier(
-                    scope = coroutineScope,
-                    orientation = orientation,
-                    scrollState = state,
-                    reverseDirection = reverseDirection,
-                    pivotOffsets = pivotOffsets,
-                    userScrollEnabled = enabled
-                )
+): Modifier = this then Modifier.inspectable(debugInspectorInfo {
+    name = "scrollableWithPivot"
+    properties["orientation"] = orientation
+    properties["state"] = state
+    properties["enabled"] = enabled
+    properties["reverseDirection"] = reverseDirection
+    properties["pivotOffsets"] = pivotOffsets
+}) {
+    Modifier.scrollable(
+        state = state,
+        orientation = orientation,
+        enabled = enabled,
+        reverseDirection = reverseDirection,
+        overscrollEffect = null,
+        bringIntoViewSpec = TvBringIntoViewSpec(pivotOffsets, enabled)
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+private class TvBringIntoViewSpec(
+    val pivotOffsets: PivotOffsets,
+    val userScrollEnabled: Boolean
+) : BringIntoViewSpec {
+
+    override val scrollAnimationSpec: AnimationSpec<Float> = tween<Float>(
+        durationMillis = 125,
+        easing = CubicBezierEasing(0.25f, 0.1f, .25f, 1f)
+    )
+
+    override fun calculateScrollDistance(offset: Float, size: Float, containerSize: Float): Float {
+        if (!userScrollEnabled) return 0f
+        val leadingEdgeOfItemRequestingFocus = offset
+        val trailingEdgeOfItemRequestingFocus = offset + size
+
+        val sizeOfItemRequestingFocus =
+            abs(trailingEdgeOfItemRequestingFocus - leadingEdgeOfItemRequestingFocus)
+        val childSmallerThanParent = sizeOfItemRequestingFocus <= containerSize
+        val initialTargetForLeadingEdge =
+            pivotOffsets.parentFraction * containerSize -
+                (pivotOffsets.childFraction * sizeOfItemRequestingFocus)
+        val spaceAvailableToShowItem = containerSize - initialTargetForLeadingEdge
+
+        val targetForLeadingEdge =
+            if (childSmallerThanParent && spaceAvailableToShowItem < sizeOfItemRequestingFocus) {
+                containerSize - sizeOfItemRequestingFocus
+            } else {
+                initialTargetForLeadingEdge
             }
 
-        Modifier
-            .focusGroup()
-            .then(keepFocusedChildInViewModifier.modifier)
-            .pointerScrollable(
-                orientation,
-                reverseDirection,
-                state,
-                enabled
-            )
-    }
-)
-
-@Suppress("ComposableModifierFactory")
-@Composable
-private fun Modifier.pointerScrollable(
-    orientation: Orientation,
-    reverseDirection: Boolean,
-    controller: ScrollableState,
-    enabled: Boolean
-): Modifier {
-    val nestedScrollDispatcher = remember { mutableStateOf(NestedScrollDispatcher()) }
-    val scrollLogic = rememberUpdatedState(
-        ScrollingLogic(
-            orientation,
-            reverseDirection,
-            controller
-        )
-    )
-    val nestedScrollConnection = remember(enabled) {
-        scrollableNestedScrollConnection(scrollLogic, enabled)
+        return leadingEdgeOfItemRequestingFocus - targetForLeadingEdge
     }
 
-    return this.nestedScroll(nestedScrollConnection, nestedScrollDispatcher.value)
-}
-
-private class ScrollingLogic(
-    val orientation: Orientation,
-    val reverseDirection: Boolean,
-    val scrollableState: ScrollableState,
-) {
-    fun Float.toOffset(): Offset = when {
-        this == 0f -> Offset.Zero
-        orientation == Horizontal -> Offset(this, 0f)
-        else -> Offset(0f, this)
+    override fun hashCode(): Int {
+        var result = pivotOffsets.hashCode()
+        result = 31 * result + userScrollEnabled.hashCode()
+        return result
     }
 
-    fun Offset.toFloat(): Float = if (orientation == Horizontal) this.x else this.y
-    fun Float.reverseIfNeeded(): Float = if (reverseDirection) this * -1 else this
-
-    fun performRawScroll(scroll: Offset): Offset {
-        return if (scrollableState.isScrollInProgress) {
-            Offset.Zero
-        } else {
-            scrollableState.dispatchRawDelta(scroll.toFloat().reverseIfNeeded())
-                .reverseIfNeeded().toOffset()
-        }
+    override fun equals(other: Any?): Boolean {
+        if (other !is TvBringIntoViewSpec) return false
+        return pivotOffsets == other.pivotOffsets && userScrollEnabled == other.userScrollEnabled
     }
-}
-
-private fun scrollableNestedScrollConnection(
-    scrollLogic: State<ScrollingLogic>,
-    enabled: Boolean
-): NestedScrollConnection = object : NestedScrollConnection {
-    override fun onPostScroll(
-        consumed: Offset,
-        available: Offset,
-        source: NestedScrollSource
-    ): Offset = if (enabled) scrollLogic.value.performRawScroll(available) else Offset.Zero
 }

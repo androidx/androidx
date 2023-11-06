@@ -16,17 +16,38 @@
 
 package androidx.privacysandbox.sdkruntime.client.controller
 
+import android.os.IBinder
+import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
+import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
+import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
 
 /**
  * Local implementation that will be injected to locally loaded SDKs.
  */
 internal class LocalController(
-    private val locallyLoadedSdks: LocallyLoadedSdks
+    private val sdkPackageName: String,
+    private val locallyLoadedSdks: LocallyLoadedSdks,
+    private val appOwnedSdkRegistry: AppOwnedSdkRegistry
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         return locallyLoadedSdks.getLoadedSdks()
+    }
+
+    override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> =
+        appOwnedSdkRegistry.getAppOwnedSdkSandboxInterfaces()
+
+    override fun registerSdkSandboxActivityHandler(
+        handlerCompat: SdkSandboxActivityHandlerCompat
+    ): IBinder {
+        return LocalSdkActivityHandlerRegistry.register(sdkPackageName, handlerCompat)
+    }
+
+    override fun unregisterSdkSandboxActivityHandler(
+        handlerCompat: SdkSandboxActivityHandlerCompat
+    ) {
+        LocalSdkActivityHandlerRegistry.unregister(handlerCompat)
     }
 }

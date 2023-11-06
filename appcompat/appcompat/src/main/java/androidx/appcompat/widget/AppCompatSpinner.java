@@ -276,7 +276,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                     }
 
                     @Override
-                    @SuppressLint("SyntheticAccessor")
                     public boolean onForwardingStarted() {
                         if (!getInternalPopup().isShowing()) {
                             showPopup();

@@ -65,6 +65,7 @@ internal class LayoutTreeConsistencyChecker(
             // remeasure or relayout is scheduled
             if (measurePending) {
                 return relayoutNodes.contains(this) ||
+                    layoutState == LayoutNode.LayoutState.LookaheadMeasuring ||
                     parent?.measurePending == true ||
                     parent?.lookaheadMeasurePending == true ||
                     parentLayoutState == LayoutNode.LayoutState.Measuring

@@ -37,10 +37,10 @@ import java.util.Objects;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(19)
+@Deprecated
 public class CompatPermissionManager {
     public static final String ALL_SUFFIX = "_all";
 

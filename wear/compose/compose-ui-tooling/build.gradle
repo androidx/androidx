@@ -28,6 +28,7 @@ dependencies {
 
     implementation(libs.kotlinStdlibCommon)
     implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation("androidx.wear:wear-tooling-preview:1.0.0-alpha01")
 
     samples(project(":wear:compose:compose-material-samples"))
 }
@@ -41,4 +42,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Tools for Wear Composable"
+    metalavaK2UastEnabled = true
 }

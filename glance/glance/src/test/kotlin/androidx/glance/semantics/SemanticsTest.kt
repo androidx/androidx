@@ -16,20 +16,59 @@
 
 package androidx.glance.semantics
 
+import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.findModifier
+import androidx.glance.layout.size
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 
 class SemanticsTest {
     @Test
-    fun testModifier() {
-        val modifiers = GlanceModifier.semantics({ contentDescription = "test_description" })
+    fun contentDescription() {
+        val modifiers = GlanceModifier.semantics { contentDescription = "test_description" }
 
         val semanticsModifier = checkNotNull(modifiers.findModifier<SemanticsModifier>())
         assertThat(
-            semanticsModifier.configuration
-                .get(SemanticsProperties.ContentDescription).joinToString())
-            .isEqualTo("test_description")
+            semanticsModifier.configuration.getOrNull(SemanticsProperties.ContentDescription)
+                ?.joinToString()
+        ).isEqualTo("test_description")
+    }
+
+    @Test
+    fun noContentDescription() {
+        val modifiers = GlanceModifier.semantics { testTag = "test" }
+
+        val semanticsModifier = checkNotNull(modifiers.findModifier<SemanticsModifier>())
+        assertThat(
+            semanticsModifier.configuration.getOrNull(SemanticsProperties.ContentDescription)
+        ).isNull()
+    }
+
+    @Test
+    fun testTag() {
+        val modifiers = GlanceModifier.semantics { testTag = "test_tag" }
+
+        val semanticsModifier = checkNotNull(modifiers.findModifier<SemanticsModifier>())
+        assertThat(
+            semanticsModifier.configuration.getOrNull(SemanticsProperties.TestTag)
+        ).isEqualTo("test_tag")
+    }
+
+    @Test
+    fun noTestTag() {
+        val modifiers = GlanceModifier.semantics { contentDescription = "desc" }
+
+        val semanticsModifier = checkNotNull(modifiers.findModifier<SemanticsModifier>())
+        assertThat(
+            semanticsModifier.configuration.getOrNull(SemanticsProperties.TestTag)
+        ).isNull()
+    }
+
+    @Test
+    fun noSemantics() {
+        val modifiers = GlanceModifier.size(10.dp)
+
+        assertThat(modifiers.findModifier<SemanticsModifier>()).isNull()
     }
 }

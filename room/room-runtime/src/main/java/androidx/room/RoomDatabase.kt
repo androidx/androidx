@@ -110,7 +110,6 @@ abstract class RoomDatabase {
     private var writeAheadLoggingEnabled = false
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated("Will be hidden in a future release.")
@@ -120,9 +119,9 @@ abstract class RoomDatabase {
     /**
      * A map of auto migration spec classes to their provided instance.
      *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     protected var autoMigrationSpecs: MutableMap<Class<out AutoMigrationSpec>, AutoMigrationSpec> =
         mutableMapOf()
     private val readWriteLock = ReentrantReadWriteLock()
@@ -154,7 +153,6 @@ abstract class RoomDatabase {
     /**
      * Gets the map for storing extension properties of Kotlin type.
      *
-     * @hide
      */
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val backingFieldMap: MutableMap<String, Any> = Collections.synchronizedMap(mutableMapOf())
@@ -298,7 +296,6 @@ abstract class RoomDatabase {
      * @return A list of migration instances each of which is a generated autoMigration
      * @param autoMigrationSpecs
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmSuppressWildcards // Suppress wildcards due to generated Java code
@@ -369,7 +366,6 @@ abstract class RoomDatabase {
      *
      * @return Creates a set that will include all required auto migration specs for this database.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open fun getRequiredAutoMigrationSpecs(): Set<Class<out AutoMigrationSpec>> {
@@ -434,7 +430,6 @@ abstract class RoomDatabase {
     /**
      * Asserts that we are not on the main thread.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX) // used in generated code
     open fun assertNotMainThread() {
@@ -450,7 +445,6 @@ abstract class RoomDatabase {
     /**
      * Asserts that we are not on a suspending transaction.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // used in generated code
     open fun assertNotSuspendingTransaction() {
@@ -1532,7 +1526,7 @@ abstract class RoomDatabase {
      *
      * Can be set using [RoomDatabase.Builder.setQueryCallback].
      */
-    interface QueryCallback {
+    fun interface QueryCallback {
         /**
          * Called when a SQL query is executed.
          *
@@ -1546,7 +1540,6 @@ abstract class RoomDatabase {
         /**
          * Unfortunately, we cannot read this value so we are only setting it to the SQLite default.
          *
-         * @hide
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
         const val MAX_BIND_PARAMETER_CNT = 999

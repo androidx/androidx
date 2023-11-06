@@ -19,6 +19,7 @@ package androidx.camera.core.impl;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -90,6 +91,11 @@ public class ForwardingCameraControl implements CameraControlInternal {
     @Override
     public void setFlashMode(@ImageCapture.FlashMode int flashMode) {
         mCameraControlInternal.setFlashMode(flashMode);
+    }
+
+    @Override
+    public void setScreenFlashUiControl(@Nullable ImageCapture.ScreenFlashUiControl callback) {
+        mCameraControlInternal.setScreenFlashUiControl(callback);
     }
 
     @Override

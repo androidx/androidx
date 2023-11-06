@@ -24,6 +24,7 @@
     <string name="mr_cast_button_connected" msgid="6073720094880410356">"Ülekandmine. Ühendatud"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"Ülekandmine seadmesse"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"Seadmete otsimine"</string>
+    <string name="mr_chooser_looking_for_devices" msgid="4257319068277776035">"Seadmete otsimine …"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"Katkesta ühendus"</string>
     <string name="mr_controller_stop_casting" msgid="804210341192624074">"Katkesta ülekandmine"</string>
     <string name="mr_controller_close_description" msgid="5684434439232634509">"Sule"</string>
@@ -41,12 +42,13 @@
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"Seadme lisamine"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"Grupis esitamine"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"Teave puudub"</string>
-    <!-- no translation found for mr_chooser_zero_routes_found_title (5213435473397442608) -->
-    <skip />
-    <!-- no translation found for mr_chooser_zero_routes_description (5123320430013505927) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description (337903053432238985) -->
-    <skip />
-    <!-- no translation found for mr_chooser_done_button_label (7897288652928484627) -->
-    <skip />
+    <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"Ühtegi seadet pole saadaval"</string>
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"Veenduge, et teine seade oleks samas WiFi-võrgus kui see telefon"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"Veenduge, et teine seade oleks samas WiFi-võrgus kui see tahvelarvuti"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"Veenduge, et teine seade oleks samas WiFi-võrgus kui see teler"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"Veenduge, et teine seade oleks samas WiFi-võrgus kui see kell"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"Veenduge, et teine seade oleks samas WiFi-võrgus kui see auto"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"Veenduge, et teine seade oleks samas WiFi-võrgus kui see seade"</string>
+    <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"Lisateave"</a></string>
+    <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"Lisateave ülekandmise kohta"</string>
 </resources>

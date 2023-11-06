@@ -14,26 +14,65 @@
  * limitations under the License.
  */
 
+
+import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
 }
 
-dependencies {
-    api("androidx.annotation:annotation:1.3.0")
-    api(libs.kotlinStdlibJdk8)
-    testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.guava)
-    testImplementation(project(":internal-testutils-kmp"))
+androidXMultiplatform {
+    jvm() {
+        withJava()
+    }
+    mac()
+    linux()
+    ios()
+
+    defaultPlatform(PlatformIdentifier.JVM)
+
+    sourceSets {
+        all {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+        }
+
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(projectOrArtifact(":annotation:annotation"))
+
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(project(":kruth:kruth"))
+                implementation(libs.kotlinTest)
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.guava)
+                implementation(libs.kotlinTestJunit)
+            }
+        }
+    }
 }
 
 androidx {
     name = "Room-Common"
+    type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Room-Common"
+    legacyDisableKotlinStrictApiMode = true
+    metalavaK2UastEnabled = true
 }

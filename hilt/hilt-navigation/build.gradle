@@ -34,9 +34,10 @@ dependencies {
 androidx {
     name = "Navigation Hilt Extension"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.HILT
+    mavenVersion = LibraryVersions.HILT_NAVIGATION
     inceptionYear = "2021"
     description = "Android Navigation Hilt Extension"
+    metalavaK2UastEnabled = true
 }
 
 android {

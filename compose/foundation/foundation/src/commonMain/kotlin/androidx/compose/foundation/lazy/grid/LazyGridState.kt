@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.lazy.grid
 
+import androidx.annotation.IntRange as AndroidXIntRange
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation
@@ -38,7 +39,6 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.layout.Remeasurement
 import androidx.compose.ui.layout.RemeasurementModifier
 import androidx.compose.ui.unit.Constraints
@@ -249,7 +249,7 @@ class LazyGridState constructor(
      * scroll the item further upward (taking it partly offscreen).
      */
     suspend fun scrollToItem(
-        /*@IntRange(from = 0)*/
+        @AndroidXIntRange(from = 0)
         index: Int,
         scrollOffset: Int = 0
     ) {
@@ -393,6 +393,8 @@ class LazyGridState constructor(
 
     internal val prefetchState = LazyLayoutPrefetchState()
 
+    private val numOfItemsToTeleport: Int get() = 100 * slotsPerLine
+
     /**
      * Animate (smooth scroll) to the given item.
      *
@@ -402,11 +404,11 @@ class LazyGridState constructor(
      * scroll the item further upward (taking it partly offscreen).
      */
     suspend fun animateScrollToItem(
-        /*@IntRange(from = 0)*/
+        @AndroidXIntRange(from = 0)
         index: Int,
         scrollOffset: Int = 0
     ) {
-        animateScrollScope.animateScrollToItem(index, scrollOffset)
+        animateScrollScope.animateScrollToItem(index, scrollOffset, numOfItemsToTeleport, density)
     }
 
     /**
@@ -433,7 +435,7 @@ class LazyGridState constructor(
      */
     internal fun updateScrollPositionIfTheFirstItemWasMoved(
         itemProvider: LazyGridItemProvider,
-        firstItemIndex: Int = Snapshot.withoutReadObservation { scrollPosition.index }
+        firstItemIndex: Int
     ): Int = scrollPosition.updateScrollPositionIfTheFirstItemWasMoved(itemProvider, firstItemIndex)
 
     companion object {

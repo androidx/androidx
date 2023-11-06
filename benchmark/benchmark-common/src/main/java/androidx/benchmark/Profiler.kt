@@ -16,15 +16,21 @@
 
 package androidx.benchmark
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Debug
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.benchmark.BenchmarkState.Companion.TAG
 import androidx.benchmark.Outputs.dateToFileName
+import androidx.benchmark.perfetto.StackSamplingConfig
 import androidx.benchmark.simpleperf.ProfileSession
 import androidx.benchmark.simpleperf.RecordOptions
+import androidx.benchmark.vmtrace.ArtTrace
+import java.io.File
+import java.io.FileOutputStream
 
 /**
  * Profiler abstraction used for the timing stage.
@@ -39,14 +45,38 @@ import androidx.benchmark.simpleperf.RecordOptions
  * avoid these however, in order to avoid the runtime visiting a new class in the hot path, when
  * switching from warmup -> timing phase, when [start] would be called.
  */
-internal sealed class Profiler {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+sealed class Profiler {
     class ResultFile(
         val label: String,
-        val outputRelativePath: String
-    )
+        val outputRelativePath: String,
+        val source: Profiler?
+    ) {
+        constructor(
+            label: String,
+            absolutePath: String
+        ) : this(
+            label = label,
+            outputRelativePath = Outputs.relativePathFor(absolutePath),
+            source = null
+        )
+
+        fun embedInPerfettoTrace(perfettoTracePath: String) {
+            source?.embedInPerfettoTrace(
+                File(Outputs.outputDirectory, outputRelativePath),
+                File(perfettoTracePath)
+            )
+        }
+        val sanitizedOutputRelativePath: String
+            get() = outputRelativePath
+                .replace("(", "\\(")
+                .replace(")", "\\)")
+    }
 
     abstract fun start(traceUniqueName: String): ResultFile?
     abstract fun stop()
+    internal open fun config(packageNames: List<String>): StackSamplingConfig? = null
+    open fun embedInPerfettoTrace(profilerTrace: File, perfettoTrace: File) {}
 
     /**
      * Measure exactly one loop (one repeat, one iteration).
@@ -98,14 +128,17 @@ internal sealed class Profiler {
             .mapKeys { it.key.lowercase() }[name.lowercase()]
 
         fun traceName(traceUniqueName: String, traceTypeLabel: String): String {
-            return "$traceUniqueName-$traceTypeLabel-${dateToFileName()}.trace"
+            return Outputs.sanitizeFilename(
+                "$traceUniqueName-$traceTypeLabel-${dateToFileName()}.trace"
+            )
         }
     }
 }
 
 internal fun startRuntimeMethodTracing(
     traceFileName: String,
-    sampled: Boolean
+    sampled: Boolean,
+    profiler: Profiler,
 ): Profiler.ResultFile {
     val path = Outputs.testOutputFile(traceFileName).absolutePath
 
@@ -123,7 +156,8 @@ internal fun startRuntimeMethodTracing(
 
     return Profiler.ResultFile(
         outputRelativePath = traceFileName,
-        label = if (sampled) "Stack Sampling (legacy) Trace" else "Method Trace"
+        label = if (sampled) "Stack Sampling (legacy) Trace" else "Method Trace",
+        source = profiler
     )
 }
 
@@ -139,7 +173,8 @@ internal object StackSamplingLegacy : Profiler() {
         isRunning = true
         return startRuntimeMethodTracing(
             traceFileName = traceName(traceUniqueName, "stackSamplingLegacy"),
-            sampled = true
+            sampled = true,
+            profiler = this
         )
     }
 
@@ -155,7 +190,8 @@ internal object MethodTracing : Profiler() {
     override fun start(traceUniqueName: String): ResultFile {
         return startRuntimeMethodTracing(
             traceFileName = traceName(traceUniqueName, "methodTracing"),
-            sampled = false
+            sampled = false,
+            profiler = this
         )
     }
 
@@ -164,8 +200,13 @@ internal object MethodTracing : Profiler() {
     }
 
     override val requiresSingleMeasurementIteration: Boolean = true
-}
 
+    override fun embedInPerfettoTrace(profilerTrace: File, perfettoTrace: File) {
+        ArtTrace(profilerTrace)
+            .writeAsPerfettoTrace(FileOutputStream(perfettoTrace, /* append = */ true))
+    }
+}
+@SuppressLint("BanThreadSleep") // needed for connected profiling
 internal object ConnectedAllocation : Profiler() {
     override fun start(traceUniqueName: String): ResultFile? {
         Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
@@ -181,6 +222,7 @@ internal object ConnectedAllocation : Profiler() {
     override val requiresLibraryOutputDir: Boolean = false
 }
 
+@SuppressLint("BanThreadSleep") // needed for connected profiling
 internal object ConnectedSampling : Profiler() {
     override fun start(traceUniqueName: String): ResultFile? {
         Thread.sleep(CONNECTED_PROFILING_SLEEP_MS)
@@ -210,10 +252,10 @@ internal object StackSamplingSimpleperf : Profiler() {
     @RequiresApi(29)
     private val securityPerfHarden = PropOverride("security.perf_harden", "0")
 
-    var outputRelativePath: String? = null
+    private var outputRelativePath: String? = null
 
     @RequiresApi(29)
-    override fun start(traceUniqueName: String): ResultFile? {
+    override fun start(traceUniqueName: String): ResultFile {
         session?.stopRecording() // stop previous
 
         // for security perf harden, enable temporarily
@@ -242,7 +284,8 @@ internal object StackSamplingSimpleperf : Profiler() {
         }
         return ResultFile(
             label = "Stack Sampling Trace",
-            outputRelativePath = outputRelativePath!!
+            outputRelativePath = outputRelativePath!!,
+            source = this
         )
     }
 
@@ -250,8 +293,7 @@ internal object StackSamplingSimpleperf : Profiler() {
     override fun stop() {
         session!!.stopRecording()
         Outputs.writeFile(
-            fileName = outputRelativePath!!,
-            reportKey = "simpleperf_trace"
+            fileName = outputRelativePath!!
         ) {
             session!!.convertSimpleperfOutputToProto("simpleperf.data", it.absolutePath)
         }
@@ -259,6 +301,12 @@ internal object StackSamplingSimpleperf : Profiler() {
         session = null
         securityPerfHarden.resetIfOverridden()
     }
+
+    override fun config(packageNames: List<String>) = StackSamplingConfig(
+        packageNames = packageNames,
+        frequency = Arguments.profilerSampleFrequency.toLong(),
+        duration = Arguments.profilerSampleDurationSeconds,
+    )
 
     override val requiresLibraryOutputDir: Boolean = false
 }

@@ -20,7 +20,6 @@ import androidx.work.lint.Stubs.LISTENABLE_WORKER
 import androidx.work.lint.Stubs.PERIODIC_WORK_REQUEST
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.kotlin
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
-import org.junit.Ignore
 import org.junit.Test
 
 class InvalidPeriodicWorkRequestIntervalDetectorTest {
@@ -33,12 +32,10 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
 
             import androidx.work.ListenableWorker
 
-            class TestWorker: ListenableWorker() {
-
-            }
+            class TestWorker: ListenableWorker()
             """
         ).indented().within("src")
-
+        /* ktlint-disable max-line-length */
         val snippet = kotlin(
             "com/example/Test.kt",
             """
@@ -50,14 +47,11 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
 
             class Test {
                 fun enqueue() {
-                    val worker = TestWorker()
-                    val builder = PeriodicWorkRequest.Builder(worker, 15L, TimeUnit.MILLISECONDS)
+                    val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, 15L, TimeUnit.MILLISECONDS)
                 }
             }
             """
         ).indented().within("src")
-
-        /* ktlint-disable max-line-length */
         lint().files(
             LISTENABLE_WORKER,
             PERIODIC_WORK_REQUEST,
@@ -67,9 +61,9 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             .run()
             .expect(
                 """
-                src/com/example/Test.kt:10: Error: Interval duration for `PeriodicWorkRequest`s must be at least 15 minutes. [InvalidPeriodicWorkRequestInterval]
-                        val builder = PeriodicWorkRequest.Builder(worker, 15L, TimeUnit.MILLISECONDS)
-                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/Test.kt:9: Error: Interval duration for `PeriodicWorkRequest`s must be at least 15 minutes. [InvalidPeriodicWorkRequestInterval]
+                        val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, 15L, TimeUnit.MILLISECONDS)
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
                 """.trimIndent()
             )
@@ -85,12 +79,11 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
 
             import androidx.work.ListenableWorker
 
-            class TestWorker: ListenableWorker() {
-
-            }
+            class TestWorker: ListenableWorker()
             """
         ).indented().within("src")
 
+        /* ktlint-disable max-line-length */
         val snippet = kotlin(
             "com/example/Test.kt",
             """
@@ -103,11 +96,12 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             class Test {
                 fun enqueue() {
                     val worker = TestWorker()
-                    val builder = PeriodicWorkRequest.Builder(worker, 15L, TimeUnit.MINUTES)
+                    val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, 15L, TimeUnit.MINUTES)
                 }
             }
             """
         ).indented().within("src")
+        /* ktlint-enable max-line-length */
 
         lint().files(
             LISTENABLE_WORKER,
@@ -119,7 +113,54 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             .expectClean()
     }
 
-    @Ignore("b/196831196")
+    @Test
+    fun testWithInvalidDurationTypeStaticImport() {
+        val worker = kotlin(
+            "com/example/TestWorker.kt",
+            """
+            package com.example
+
+            import androidx.work.ListenableWorker
+
+            class TestWorker: ListenableWorker()
+            """
+        ).indented().within("src")
+        /* ktlint-disable max-line-length */
+        val snippet = kotlin(
+            "com/example/Test.kt",
+            """
+            package com.example
+
+            import androidx.work.PeriodicWorkRequest
+            import com.example.TestWorker
+            import java.time.Duration.ofNanos
+
+            class Test {
+                fun enqueue() {
+                    val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, ofNanos(10L))
+                }
+            }
+            """
+        ).indented().within("src")
+
+        lint().files(
+            LISTENABLE_WORKER,
+            PERIODIC_WORK_REQUEST,
+            worker,
+            snippet
+        ).issues(InvalidPeriodicWorkRequestIntervalDetector.ISSUE)
+            .run()
+            .expect(
+                """
+                src/com/example/Test.kt:9: Error: Interval duration for `PeriodicWorkRequest`s must be at least 15 minutes. [InvalidPeriodicWorkRequestInterval]
+                        val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, ofNanos(10L))
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+                """.trimIndent()
+            )
+        /* ktlint-enable max-line-length */
+    }
+
     @Test
     fun testWithInvalidDurationType() {
         val worker = kotlin(
@@ -129,12 +170,10 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
 
             import androidx.work.ListenableWorker
 
-            class TestWorker: ListenableWorker() {
-
-            }
+            class TestWorker: ListenableWorker()
             """
         ).indented().within("src")
-
+        /* ktlint-disable max-line-length */
         val snippet = kotlin(
             "com/example/Test.kt",
             """
@@ -146,14 +185,12 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
 
             class Test {
                 fun enqueue() {
-                    val worker = TestWorker()
-                    val builder = PeriodicWorkRequest.Builder(worker, Duration.ofNanos(15))
+                    val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, Duration.ofSeconds(10L))
                 }
             }
             """
         ).indented().within("src")
 
-        /* ktlint-disable max-line-length */
         lint().files(
             LISTENABLE_WORKER,
             PERIODIC_WORK_REQUEST,
@@ -163,9 +200,9 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
             .run()
             .expect(
                 """
-                src/com/example/Test.kt:10: Error: Interval duration for `PeriodicWorkRequest`s must be at least 15 minutes. [InvalidPeriodicWorkRequestInterval]
-                        val builder = PeriodicWorkRequest.Builder(worker, Duration.ofNanos(15))
-                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/com/example/Test.kt:9: Error: Interval duration for `PeriodicWorkRequest`s must be at least 15 minutes. [InvalidPeriodicWorkRequestInterval]
+                        val builder = PeriodicWorkRequest.Builder(TestWorker::class.java, Duration.ofSeconds(10L))
+                                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
                 """.trimIndent()
             )

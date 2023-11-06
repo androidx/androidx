@@ -34,6 +34,7 @@ dependencies {
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
     testImplementation(libs.mockitoCore4)
+    testImplementation(libs.mockitoKotlin4)
 }
 
 androidx {
@@ -41,6 +42,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Lifecycle LiveData Core"
+    metalavaK2UastEnabled = true
 }
 
 android {

@@ -39,7 +39,6 @@ public interface Manager {
      * @throws IllegalStateException if the class exists, but there was an error trying to
      *         instantiate it.
      *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable

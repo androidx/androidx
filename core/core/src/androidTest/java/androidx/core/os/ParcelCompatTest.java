@@ -236,7 +236,7 @@ public class ParcelCompatTest {
 
     @Test
     public void readParcelableArrayTyped_postU() {
-        if (!BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT < 34) return;
         Parcel p = Parcel.obtain();
         Signature[] s = {new Signature("1234"),
                 null,
@@ -258,7 +258,7 @@ public class ParcelCompatTest {
 
     @Test
     public void readParcelableArrayTyped_preU() {
-        if (BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT >= 34) return;
         Parcel p = Parcel.obtain();
         Signature[] s = {new Signature("1234"),
                 null,

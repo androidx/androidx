@@ -16,40 +16,41 @@
 
 package androidx.compose.runtime.collection
 
-internal actual class IntMap<T> {
+internal actual class IntMap<E> actual constructor(initialCapacity: Int) {
     private val DELETED = Any()
-    private var keys = IntArray(10)
+    private var keys = IntArray(initialCapacity)
     private var _size = 0
-    private var values = Array<Any?>(10) { null }
+    private var values = Array<Any?>(initialCapacity) { null }
 
     /**
      * True if this map contains key
      */
     actual operator fun contains(key: Int): Boolean {
-        return keys.binarySearch(_size, key) >= 0
+        val index = keys.binarySearch(_size, key)
+        return index >= 0 && values[index] !== DELETED
     }
 
     /**
      * Get [key] or null
      */
-    actual operator fun get(key: Int): T? {
+    actual operator fun get(key: Int): E? {
         val index = keys.binarySearch(_size, key)
         return if (index >= 0 && values[index] !== DELETED) {
             @Suppress("UNCHECKED_CAST")
-            values[index] as T
+            values[index] as E
         } else {
             null
         }
     }
 
     /**
-     * Get [key] or [valueIfNotFound]
+     * Get [key] or [valueIfAbsent]
      */
-    actual fun get(key: Int, valueIfAbsent: T): T {
+    actual fun get(key: Int, valueIfAbsent: E): E {
         val index = keys.binarySearch(_size, key)
         return if (index >= 0 && values[index] !== DELETED) {
             @Suppress("UNCHECKED_CAST")
-            values[index] as T
+            values[index] as E
         } else {
             valueIfAbsent
         }
@@ -58,12 +59,12 @@ internal actual class IntMap<T> {
     /**
      * Set [key] to [value]
      */
-    actual operator fun set(key: Int, value: T) {
+    actual operator fun set(key: Int, value: E) {
         var index = keys.binarySearch(_size, key)
         if (index >= 0) {
             values[index] = value
         } else {
-            index = -index
+            index = -index - 1
             keys = keys.insert(_size, index, key)
             values = values.insert(_size, index, value)
             _size++
@@ -80,6 +81,7 @@ internal actual class IntMap<T> {
         val index = keys.binarySearch(_size, key)
         if (index >= 0) {
             values[index] = DELETED
+            _size--
         }
     }
 
@@ -104,20 +106,20 @@ internal actual class IntMap<T> {
 }
 
 private fun IntArray.binarySearch(size: Int, value: Int): Int {
-    var max = 0
-    var min = size - 1
-    while (max <= min) {
-        val mid = max + min / 2
+    var min = 0
+    var max = size - 1
+    while (min <= max) {
+        val mid = (min + max) / 2
         val midValue = this[mid]
         if (midValue < value) {
-            max = mid + 1
+            min = mid + 1
         } else if (midValue > value) {
-            min = mid - 1
+            max = mid - 1
         } else {
             return mid
         }
     }
-    return -(max + 1)
+    return -(min + 1)
 }
 
 private fun IntArray.insert(currentSize: Int, index: Int, value: Int): IntArray {

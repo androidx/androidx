@@ -25,7 +25,6 @@ import android.text.TextPaint
 import android.text.TextUtils.TruncateAt
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.core.os.BuildCompat
 
 /**
  * Factory Class for BoringLayout
@@ -41,7 +40,6 @@ internal object BoringLayoutFactory {
      * @return null if not boring; the width, ascent, and descent in a BoringLayout.Metrics
      * object.
      */
-    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     fun measure(
         text: CharSequence,
         paint: TextPaint,
@@ -73,8 +71,7 @@ internal object BoringLayoutFactory {
      *
      * @see BoringLayout.isFallbackLineSpacingEnabled
      * @see StaticLayout.Builder.setUseLineSpacingFromFallbacks
-     **/
-    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
+     */
     fun create(
         text: CharSequence,
         paint: TextPaint,
@@ -86,8 +83,8 @@ internal object BoringLayoutFactory {
         ellipsize: TruncateAt? = null,
         ellipsizedWidth: Int = width,
     ): BoringLayout {
-        require(width >= 0)
-        require(ellipsizedWidth >= 0)
+        require(width >= 0) { "negative width" }
+        require(ellipsizedWidth >= 0) { "negative ellipsized width" }
 
         return if (Build.VERSION.SDK_INT >= 33) {
             BoringLayoutFactory33.create(
@@ -122,7 +119,6 @@ internal object BoringLayoutFactory {
     /**
      * Returns whether fallbackLineSpacing is enabled for the given layout.
      */
-    @androidx.annotation.OptIn(markerClass = [BuildCompat.PrereleaseSdkCheck::class])
     fun isFallbackLineSpacingEnabled(layout: BoringLayout): Boolean {
         return if (Build.VERSION.SDK_INT >= 33) {
             BoringLayoutFactory33.isFallbackLineSpacingEnabled(layout)

@@ -207,6 +207,7 @@ public final class EditorInfoCompat {
      * for IMEs to provide many modern features right after the connection setup. We recommend
      * calling this method in your implementation.
      *
+     * @param editorInfo the editor with which to set the text.
      * @param sourceText The complete input text.
      */
     public static void setInitialSurroundingText(@NonNull EditorInfo editorInfo,
@@ -227,6 +228,7 @@ public final class EditorInfoCompat {
      * try to include the selected text within {@code subText} to give the system best flexibility
      * to choose where and how to trim {@code subText} when necessary.
      *
+     * @param editorInfo the editor with which to set the text.
      * @param subText The input text. When it was trimmed, {@code subTextStart} must be provided
      *                correctly.
      * @param subTextStart  The position that the input text got trimmed. For example, when the
@@ -344,6 +346,7 @@ public final class EditorInfoCompat {
      * Get <var>n</var> characters of text before the current cursor position. May be {@code null}
      * when the protocol is not supported.
      *
+     * @param editorInfo the editor with which to get the text.
      * @param length The expected length of the text.
      * @param flags Supplies additional options controlling how the text is returned. May be
      * either 0 or {@link InputConnection#GET_TEXT_WITH_STYLES}.
@@ -381,6 +384,7 @@ public final class EditorInfoCompat {
      * Gets the selected text, if any. May be {@code null} when no text is selected or the selected
      * text is way too long.
      *
+     * @param editorInfo the editor with which to get the text.
      * @param flags Supplies additional options controlling how the text is returned. May be
      * either 0 or {@link InputConnection#GET_TEXT_WITH_STYLES}.
      * @return the text that is currently selected, if any. It could be an empty string when there
@@ -425,6 +429,7 @@ public final class EditorInfoCompat {
      * Get <var>n</var> characters of text after the current cursor position. May be {@code null}
      * when the protocol is not supported.
      *
+     * @param editorInfo the editor with which to get the text.
      * @param length The expected length of the text.
      * @param flags Supplies additional options controlling how the text is returned. May be
      * either 0 or {@link InputConnection#GET_TEXT_WITH_STYLES}.

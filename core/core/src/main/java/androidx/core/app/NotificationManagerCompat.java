@@ -24,12 +24,14 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationChannelGroup;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ShortcutInfo;
 import android.os.Build;
@@ -808,6 +810,41 @@ public final class NotificationManagerCompat {
     }
 
     /**
+     * Returns whether the calling app can send fullscreen intents.
+     *
+     * <p>Fullscreen intents were introduced in Android
+     * {@link android.os.Build.VERSION_CODES#HONEYCOMB}, where apps could always attach a full
+     * screen intent to their notification via
+     * {@link Notification.Builder#setFullScreenIntent(PendingIntent, boolean)}}.
+     *
+     * <p>Android {@link android.os.Build.VERSION_CODES#Q} introduced the
+     * {@link android.Manifest.permission#USE_FULL_SCREEN_INTENT}
+     * permission, where SystemUI will only show the full screen intent attached to a notification
+     * if the permission is declared in the manifest.
+     *
+     * <p>Starting from Android {@link android.os.Build.VERSION_CODES#UPSIDE_DOWN_CAKE}, apps
+     * may not have permission to use {@link android.Manifest.permission#USE_FULL_SCREEN_INTENT}. If
+     * the FSI permission is denied, SystemUI will show the notification as an expanded heads up
+     * notification on lockscreen.
+     *
+     * <p>To request access, add the {@link android.Manifest.permission#USE_FULL_SCREEN_INTENT}
+     * permission to your manifest, and use
+     * {@link android.provider.Settings#ACTION_MANAGE_APP_USE_FULL_SCREEN_INTENT} to send the user
+     * to the settings page where they can grant your app the FSI permission.
+     */
+    public boolean canUseFullScreenIntent() {
+        if (Build.VERSION.SDK_INT < 29) {
+            return true;
+        }
+        if (Build.VERSION.SDK_INT < 34) {
+            final int permissionState =
+                    mContext.checkSelfPermission(Manifest.permission.USE_FULL_SCREEN_INTENT);
+            return permissionState == PackageManager.PERMISSION_GRANTED;
+        }
+        return Api34Impl.canUseFullScreenIntent(mNotificationManager);
+    }
+
+    /**
      * Returns true if this notification should use the side channel for delivery.
      */
     private static boolean useSideChannelForNotification(Notification notification) {
@@ -1362,4 +1399,18 @@ public final class NotificationManagerCompat {
         }
     }
 
+    /**
+     * A class for wrapping calls to {@link Notification.Builder} methods which
+     * were added in API 34; these calls must be wrapped to avoid performance issues.
+     * See the UnsafeNewApiCall lint rule for more details.
+     */
+    @RequiresApi(34)
+    static class Api34Impl {
+        private Api34Impl() { }
+
+        @DoNotInline
+        static boolean canUseFullScreenIntent(NotificationManager notificationManager) {
+            return notificationManager.canUseFullScreenIntent();
+        }
+    }
 }

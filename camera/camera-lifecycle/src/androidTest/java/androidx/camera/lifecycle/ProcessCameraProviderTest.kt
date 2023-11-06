@@ -30,18 +30,19 @@ import androidx.camera.core.CameraXConfig
 import androidx.camera.core.ConcurrentCamera.SingleCameraConfig
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
+import androidx.camera.core.concurrent.CameraCoordinator.CAMERA_OPERATING_MODE_UNSPECIFIED
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeCameraCoordinator
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
-import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.fakes.FakeLifecycleOwner
-import androidx.camera.testing.fakes.FakeSurfaceEffect
-import androidx.camera.testing.fakes.FakeSurfaceProcessor
-import androidx.camera.testing.fakes.FakeUseCaseConfigFactory
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager
+import androidx.camera.testing.impl.fakes.FakeCameraFactory
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
+import androidx.camera.testing.impl.fakes.FakeSurfaceProcessor
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
@@ -63,6 +64,7 @@ class ProcessCameraProviderTest {
     private val context = ApplicationProvider.getApplicationContext() as Context
     private val lifecycleOwner0 = FakeLifecycleOwner()
     private val lifecycleOwner1 = FakeLifecycleOwner()
+    private val cameraCoordinator = FakeCameraCoordinator()
 
     private lateinit var provider: ProcessCameraProvider
 
@@ -71,7 +73,7 @@ class ProcessCameraProviderTest {
         runBlocking(MainScope().coroutineContext) {
             try {
                 val provider = ProcessCameraProvider.getInstance(context).await()
-                provider.shutdown().await()
+                provider.shutdownAsync().await()
             } catch (e: IllegalStateException) {
                 // ProcessCameraProvider may not be configured. Ignore.
             }
@@ -466,7 +468,7 @@ class ProcessCameraProviderTest {
     @Test
     fun bindUseCases_withNotExistedLensFacingCamera() {
         val cameraFactoryProvider =
-            CameraFactory.Provider { _, _, _ ->
+            CameraFactory.Provider { _, _, _, _ ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertCamera(
                     CameraSelector.LENS_FACING_BACK,
@@ -660,11 +662,15 @@ class ProcessCameraProviderTest {
         runBlocking {
             provider = ProcessCameraProvider.getInstance(context).await()
             // Clear the configuration so we can reinit
-            provider.shutdown().await()
+            provider.shutdownAsync().await()
         }
 
         // Should not throw exception
         ProcessCameraProvider.configureInstance(FakeAppConfig.create())
+        assertThat(cameraCoordinator.cameraOperatingMode).isEqualTo(
+            CAMERA_OPERATING_MODE_UNSPECIFIED)
+        assertThat(cameraCoordinator.concurrentCameraSelectors).isEmpty()
+        assertThat(cameraCoordinator.activeConcurrentCameraInfos).isEmpty()
     }
 
     @Test
@@ -841,7 +847,6 @@ class ProcessCameraProviderTest {
     }
 
     private fun createConcurrentCameraAppConfig(): CameraXConfig {
-        val cameraCoordinator = FakeCameraCoordinator()
         val combination0 = mapOf(
             "0" to CameraSelector.Builder().requireLensFacing(LENS_FACING_BACK).build(),
             "1" to CameraSelector.Builder().requireLensFacing(LENS_FACING_FRONT).build())
@@ -852,7 +857,7 @@ class ProcessCameraProviderTest {
         cameraCoordinator.addConcurrentCameraIdsAndCameraSelectors(combination0)
         cameraCoordinator.addConcurrentCameraIdsAndCameraSelectors(combination1)
         val cameraFactoryProvider =
-            CameraFactory.Provider { _, _, _ ->
+            CameraFactory.Provider { _, _, _, _ ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertCamera(
                     CameraSelector.LENS_FACING_BACK,

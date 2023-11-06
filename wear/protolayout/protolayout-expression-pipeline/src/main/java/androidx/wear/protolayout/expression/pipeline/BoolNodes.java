@@ -61,11 +61,11 @@ class BoolNodes {
     /** Dynamic boolean node that gets value from the state. */
     static class StateBoolNode extends StateSourceNode<Boolean> {
         StateBoolNode(
-                StateStore stateStore,
+                DataStore dataStore,
                 StateBoolSource protoNode,
                 DynamicTypeValueReceiverWithPreUpdate<Boolean> downstream) {
             super(
-                    stateStore,
+                    dataStore,
                     StateSourceNode.<DynamicBool>createKey(
                             protoNode.getSourceNamespace(), protoNode.getSourceKey()),
                     se -> se.getBoolVal().getValue(),

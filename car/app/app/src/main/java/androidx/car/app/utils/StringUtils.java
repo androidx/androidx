@@ -24,7 +24,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Assorted string manipulation utilities.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public final class StringUtils {

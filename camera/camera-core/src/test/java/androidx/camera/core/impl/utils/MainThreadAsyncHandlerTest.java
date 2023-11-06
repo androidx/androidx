@@ -39,15 +39,10 @@ public class MainThreadAsyncHandlerTest {
     @Test
     public void canPostTaskToMainLooper() {
         Handler handler = MainThreadAsyncHandler.getInstance();
-
         final AtomicBoolean didRun = new AtomicBoolean(false);
 
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                didRun.set(true);
-            }
-        });
+        ShadowLooper.pauseMainLooper();
+        handler.post(() -> didRun.set(true));
 
         boolean ranBeforeTrigger = didRun.get();
         ShadowLooper.runMainLooperOneTask();

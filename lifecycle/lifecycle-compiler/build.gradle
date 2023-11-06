@@ -30,22 +30,22 @@ dependencies {
     testImplementation(libs.jsr250)
 }
 
-// The following tasks are used to regenerate src/test/test-data/lib/src/test-library.jar
-// and is run manually when these jars need updating.
+// The following tasks are used to create test-library.jar used by ValidCasesTest.kt
 // We actually need to compile :lifecycle:lifecycle-common, but compileJava is easier
-tasks.register("compileTestLibrarySource", JavaCompile).configure {
-    dependsOn(compileJava)
-    source "src/test/test-data/lib/src"
-    classpath = project.compileJava.classpath
-    destinationDirectory.set(new File(project.buildDir, "test-data/lib/classes"))
+def compileTestLibrarySource = tasks.register("compileTestLibrarySource", JavaCompile) {
+    it.dependsOn(compileJava)
+    it.source "src/test/test-data/lib/src"
+    it.classpath = project.compileJava.classpath
+    it.destinationDirectory.set(layout.buildDirectory.dir("test-data-lib-classes"))
 }
 
-tasks.register("jarTestLibrarySource", Jar).configure {
-    dependsOn("compileTestLibrarySource")
-    from compileTestLibrarySource.destinationDir
-    archiveFileName.set("test-library.jar")
-    destinationDirectory.set(file("src/test/test-data/lib/"))
+def testLibraryJar = tasks.register("jarTestLibrarySource", Jar) {
+    it.from(compileTestLibrarySource.map { it.destinationDirectory })
+    it.archiveFileName.set("test-library.jar")
+    it.destinationDirectory.set(layout.buildDirectory.dir("test-data-lib-jar"))
 }
+
+sourceSets.test.output.dir(testLibraryJar.map { it.destinationDirectory })
 
 tasks.withType(Test).configureEach {
     // https://github.com/google/compile-testing/issues/222

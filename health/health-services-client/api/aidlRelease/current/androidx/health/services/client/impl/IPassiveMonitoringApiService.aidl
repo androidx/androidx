@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.health.services.client.impl;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IPassiveMonitoringApiService {
   int getApiVersion() = 0;
   androidx.health.services.client.impl.response.PassiveMonitoringCapabilitiesResponse getCapabilities(in androidx.health.services.client.impl.request.CapabilitiesRequest request) = 5;

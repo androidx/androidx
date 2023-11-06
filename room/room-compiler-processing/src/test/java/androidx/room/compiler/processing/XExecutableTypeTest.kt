@@ -16,13 +16,17 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
+import androidx.room.compiler.codegen.XTypeName
+import androidx.room.compiler.codegen.asMutableClassName
 import androidx.room.compiler.processing.util.CONTINUATION_JCLASS_NAME
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.UNIT_JCLASS_NAME
 import androidx.room.compiler.processing.util.getMethodByJvmName
+import androidx.room.compiler.processing.util.runKspTest
 import androidx.room.compiler.processing.util.runProcessorTest
 import androidx.room.compiler.processing.util.typeName
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
@@ -99,7 +103,7 @@ class XExecutableTypeTest {
                 vararg subjects: XTypeElement,
                 callback: (XMethodType) -> Unit
             ) {
-                assertThat(subjects).isNotEmpty()
+                Truth.assertThat(subjects).isNotEmpty() // Kruth doesn't support arrays yet
                 subjects.forEach {
                     callback(myInterface.getMethodByJvmName(methodName).asMemberOf(it.type))
                     callback(it.getMethodByJvmName(methodName).asMemberOf(it.type))
@@ -440,7 +444,7 @@ class XExecutableTypeTest {
                 vararg subjects: XTypeElement,
                 callback: (XMethodType) -> Unit
             ) {
-                assertThat(subjects).isNotEmpty()
+                Truth.assertThat(subjects).isNotEmpty() // Kruth doesn't support arrays yet
                 subjects.forEach {
                     callback(myInterface.getMethodByJvmName(methodName).asMemberOf(it.type))
                     callback(it.getMethodByJvmName(methodName).asMemberOf(it.type))
@@ -457,7 +461,7 @@ class XExecutableTypeTest {
                 }
 
                 assertThat(method.parameterTypes).isEmpty()
-                assertThat(method.typeVariableNames).isEmpty()
+                assertThat(method.typeVariables).isEmpty()
             }
             checkMethods("getMutableT", subject) { method ->
                 assertThat(method.returnType.typeName).isEqualTo(String::class.typeName())
@@ -467,7 +471,7 @@ class XExecutableTypeTest {
                     assertThat(method.returnType.nullability).isEqualTo(XNullability.NULLABLE)
                 }
                 assertThat(method.parameterTypes).isEmpty()
-                assertThat(method.typeVariableNames).isEmpty()
+                assertThat(method.typeVariables).isEmpty()
             }
             checkMethods("setMutableT", subject) { method ->
                 assertThat(method.returnType.typeName).isEqualTo(TypeName.VOID)
@@ -475,7 +479,7 @@ class XExecutableTypeTest {
                     .isEqualTo(XNullability.NULLABLE)
                 assertThat(method.parameterTypes.first().typeName)
                     .isEqualTo(String::class.typeName())
-                assertThat(method.typeVariableNames).isEmpty()
+                assertThat(method.typeVariables).isEmpty()
             }
             checkMethods("getList", subject) { method ->
                 assertThat(method.returnType.typeName).isEqualTo(
@@ -508,7 +512,7 @@ class XExecutableTypeTest {
                     assertThat(method.returnType.nullability).isEqualTo(XNullability.NULLABLE)
                 }
                 assertThat(method.parameterTypes).isEmpty()
-                assertThat(method.typeVariableNames).isEmpty()
+                assertThat(method.typeVariables).isEmpty()
             }
 
             checkMethods("getMutableT", nullableSubject) { method ->
@@ -519,7 +523,7 @@ class XExecutableTypeTest {
                     assertThat(method.returnType.nullability).isEqualTo(XNullability.NULLABLE)
                 }
                 assertThat(method.parameterTypes).isEmpty()
-                assertThat(method.typeVariableNames).isEmpty()
+                assertThat(method.typeVariables).isEmpty()
             }
 
             checkMethods("setMutableT", nullableSubject) { method ->
@@ -528,7 +532,7 @@ class XExecutableTypeTest {
                     .isEqualTo(XNullability.NULLABLE)
                 assertThat(method.parameterTypes.first().typeName)
                     .isEqualTo(String::class.typeName())
-                assertThat(method.typeVariableNames).isEmpty()
+                assertThat(method.typeVariables).isEmpty()
             }
 
             checkMethods("getList", nullableSubject) { method ->
@@ -565,6 +569,80 @@ class XExecutableTypeTest {
                     ).isEqualTo(
                         XNullability.NULLABLE
                     )
+                }
+            }
+        }
+    }
+
+    @Test
+    fun typeVariableTest() {
+        val kotlinSrc = Source.kotlin(
+            "KotlinSubject.kt",
+            """
+            class KotlinSubject {
+              fun <T> oneTypeVar(): Unit = TODO()
+              fun <T : MutableList<*>> oneBoundedTypeVar(): Unit = TODO()
+              fun <A, B> twoTypeVar(param: B): A = TODO()
+            }
+            """.trimIndent()
+        )
+        val javaSrc = Source.java(
+            "JavaSubject",
+            """
+            import java.util.List;
+            class JavaSubject {
+              <T> void oneTypeVar() {}
+              <T extends List<?>> void oneBoundedTypeVar() { }
+              <A, B> A twoTypeVar(B param) { return null; }
+            }
+            """.trimIndent()
+        )
+        runKspTest(sources = listOf(kotlinSrc, javaSrc)) { invocation ->
+            listOf("KotlinSubject", "JavaSubject",).forEach { subjectFqn ->
+                val subject = invocation.processingEnv.requireTypeElement(subjectFqn)
+                subject.getMethodByJvmName("oneTypeVar").let {
+                    val typeVar = it.executableType.typeVariables.single()
+                    assertThat(typeVar.asTypeName())
+                        .isEqualTo(XTypeName.getTypeVariableName("T"))
+                    assertThat(typeVar.superTypes.map { it.asTypeName() })
+                        .containsExactly(XTypeName.ANY_OBJECT.copy(nullable = true))
+                    assertThat(typeVar.typeArguments).isEmpty()
+                    assertThat(typeVar.typeElement).isNull()
+                }
+                subject.getMethodByJvmName("oneBoundedTypeVar").let {
+                    val typeVar = it.executableType.typeVariables.single()
+                    assertThat(typeVar.asTypeName())
+                        .isEqualTo(
+                            XTypeName.getTypeVariableName(
+                                name = "T",
+                                bounds = listOf(
+                                    List::class.asMutableClassName()
+                                        .parametrizedBy(XTypeName.ANY_WILDCARD)
+                                )
+                            )
+                        )
+                    assertThat(typeVar.superTypes.map { it.asTypeName() })
+                        .containsExactly(
+                            XTypeName.ANY_OBJECT.copy(nullable = true),
+                            List::class.asMutableClassName()
+                                .parametrizedBy(XTypeName.ANY_WILDCARD)
+                        )
+                    assertThat(typeVar.typeArguments).isEmpty()
+                    assertThat(typeVar.typeElement).isNull()
+                }
+                subject.getMethodByJvmName("twoTypeVar").let {
+                    // TODO(b/294102849): Figure out origin JAVA bounds difference between type
+                    //  var declaration and usage.
+                    if (invocation.isKsp && subjectFqn == "JavaSubject") {
+                        return@let
+                    }
+                    val firstTypeVar = it.executableType.typeVariables[0]
+                    assertThat(firstTypeVar.isSameType(it.returnType)).isTrue()
+                    assertThat(firstTypeVar).isNotEqualTo(it.parameters.single().type)
+
+                    val secondTypeVar = it.executableType.typeVariables[1].asTypeName()
+                    assertThat(secondTypeVar).isNotEqualTo(it.returnType.asTypeName())
+                    assertThat(secondTypeVar).isEqualTo(it.parameters.single().type.asTypeName())
                 }
             }
         }

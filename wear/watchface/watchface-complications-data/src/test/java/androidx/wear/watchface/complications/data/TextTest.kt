@@ -18,27 +18,30 @@ package androidx.wear.watchface.complications.data
 
 import android.content.Context
 import android.icu.util.TimeZone
-import android.support.wearable.complications.ComplicationText
+import android.os.Build
 import android.support.wearable.complications.ComplicationText as WireComplicationText
 import android.support.wearable.complications.ComplicationText.TimeDifferenceBuilder as WireTimeDifferenceBuilder
 import android.support.wearable.complications.ComplicationText.TimeFormatBuilder as WireTimeFormatBuilder
 import android.support.wearable.complications.TimeFormatText
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString
+import androidx.wear.watchface.complications.data.ParcelableSubject.Companion.assertThat
 import com.google.common.truth.Truth.assertThat
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 import org.junit.Assert.assertNull
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.robolectric.annotation.Config
 
 @RunWith(SharedRobolectricTestRunner::class)
 public class AsWireComplicationTextTest {
     @Test
     public fun plainText() {
         val text = PlainComplicationText.Builder("abc").build()
-        ParcelableSubject.assertThat(text.toWireComplicationText())
+        assertThat(text.toWireComplicationText())
             .hasSameSerializationAs(WireComplicationText.plainText("abc"))
-        ParcelableSubject.assertThat(text.toWireComplicationText())
+        assertThat(text.toWireComplicationText())
             .hasDifferentSerializationAs(WireComplicationText.plainText("abc1"))
     }
 
@@ -55,7 +58,7 @@ public class AsWireComplicationTextTest {
                 .setMinimumTimeUnit(TimeUnit.SECONDS)
                 .build()
 
-        ParcelableSubject.assertThat(text.toWireComplicationText())
+        assertThat(text.toWireComplicationText())
             .hasSameSerializationAs(
                 WireTimeDifferenceBuilder()
                     .setStyle(WireComplicationText.DIFFERENCE_STYLE_STOPWATCH)
@@ -85,7 +88,7 @@ public class AsWireComplicationTextTest {
                 .setMinimumTimeUnit(TimeUnit.SECONDS)
                 .build()
 
-        ParcelableSubject.assertThat(text.toWireComplicationText())
+        assertThat(text.toWireComplicationText())
             .hasSameSerializationAs(
                 WireTimeDifferenceBuilder()
                     .setStyle(WireComplicationText.DIFFERENCE_STYLE_STOPWATCH)
@@ -111,7 +114,7 @@ public class AsWireComplicationTextTest {
                 .setTimeZone(TimeZone.getTimeZone("Europe/London"))
                 .build()
 
-        ParcelableSubject.assertThat(text.toWireComplicationText())
+        assertThat(text.toWireComplicationText())
             .hasSameSerializationAs(
                 WireTimeFormatBuilder()
                     .setFormat("h:m")
@@ -119,6 +122,17 @@ public class AsWireComplicationTextTest {
                     .setStyle(WireComplicationText.FORMAT_STYLE_UPPER_CASE)
                     .setTimeZone(java.util.TimeZone.getTimeZone("Europe/London"))
                     .build()
+            )
+    }
+
+    @Test
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    public fun dynamicText() {
+        val text = DynamicComplicationText(DynamicString.constant("dynamic"), "fallback")
+
+        assertThat(text.toWireComplicationText())
+            .hasSameSerializationAs(
+                WireComplicationText("fallback", DynamicString.constant("dynamic"))
             )
     }
 
@@ -197,6 +211,20 @@ public class FromWireComplicationTextTest {
     }
 
     @Test
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    public fun dynamicText() {
+        val wireText = WireComplicationText("fallback", DynamicString.constant("dynamic"))
+
+        val text = wireText.toApiComplicationText()
+
+        assertThat(text).isInstanceOf(DynamicComplicationText::class.java)
+        text as DynamicComplicationText
+        assertThat(text.dynamicValue.toDynamicStringByteArray())
+            .isEqualTo(DynamicString.constant("dynamic").toDynamicStringByteArray())
+        assertThat(text.fallbackValue).isEqualTo("fallback")
+    }
+
+    @Test
     public fun testGetMinimumTimeUnit_WithValidTimeDependentTextObject() {
         val minimumTimeUnit = TimeUnit.SECONDS
 
@@ -227,8 +255,8 @@ public class FromWireComplicationTextTest {
 
     @Test
     public fun testGetMinimumTimeUnit_WithWrongTimeDependentTextObject() {
-        val tft = TimeFormatText("E 'in' LLL", ComplicationText.FORMAT_STYLE_DEFAULT, null)
-        val text = TimeDifferenceComplicationText(ComplicationText("test", tft))
+        val tft = TimeFormatText("E 'in' LLL", WireComplicationText.FORMAT_STYLE_DEFAULT, null)
+        val text = TimeDifferenceComplicationText(WireComplicationText("test", tft))
 
         assertNull(text.getMinimumTimeUnit())
     }

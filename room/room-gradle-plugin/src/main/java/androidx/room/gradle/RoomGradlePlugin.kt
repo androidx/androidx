@@ -16,17 +16,22 @@
 
 package androidx.room.gradle
 
+import androidx.room.gradle.RoomExtension.VariantMatchName
 import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ComponentIdentity
-import com.android.build.api.variant.Variant
+import com.android.build.api.variant.HasAndroidTest
 import com.android.build.gradle.api.AndroidBasePlugin
 import com.google.devtools.ksp.gradle.KspTaskJvm
+import java.io.File
+import java.security.MessageDigest
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 import kotlin.io.path.Path
+import kotlin.io.path.copyTo
+import kotlin.io.path.createDirectories
 import kotlin.io.path.notExists
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
@@ -48,9 +53,7 @@ import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.SkipWhenEmpty
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
-import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.process.CommandLineArgumentProvider
 import org.gradle.work.DisableCachingByDefault
 import org.jetbrains.kotlin.gradle.internal.KaptTask
@@ -78,7 +81,7 @@ class RoomGradlePlugin @Inject constructor(
             project.extensions.create("room", RoomExtension::class.java)
         val componentsExtension =
             project.extensions.findByType(AndroidComponentsExtension::class.java)
-        project.check(componentsExtension != null) {
+        project.check(componentsExtension != null, isFatal = true) {
             "Could not find the Android Gradle Plugin (AGP) extension, the Room Gradle plugin " +
                 "should be only applied to an Android projects."
         }
@@ -87,43 +90,61 @@ class RoomGradlePlugin @Inject constructor(
                 "version 7.3.0 or higher (found ${componentsExtension.pluginVersion})."
         }
         componentsExtension.onVariants { variant ->
-            val locationProvider = roomExtension.schemaDirectory
-            project.check(locationProvider != null) {
-                "The Room Gradle plugin was applied but not schema location was specified. " +
+            project.check(roomExtension.schemaDirectories.isNotEmpty(), isFatal = true) {
+                "The Room Gradle plugin was applied but no schema location was specified. " +
                     "Use the `room { schemaDirectory(...) }` DSL to specify one."
             }
-            val schemaDirectory = locationProvider.get()
-            project.check(schemaDirectory.isNotEmpty()) {
-                "The schemaDirectory path must not be empty."
+            configureVariant(project, roomExtension, variant)
+            variant.unitTest?.let { configureVariant(project, roomExtension, it) }
+            if (variant is HasAndroidTest) {
+                variant.androidTest?.let { configureVariant(project, roomExtension, it) }
             }
-            configureVariant(project, schemaDirectory, variant)
         }
     }
 
     private fun configureVariant(
         project: Project,
-        schemaDirectory: String,
-        variant: Variant
+        roomExtension: RoomExtension,
+        variant: ComponentIdentity
     ) {
-        val androidVariantTaskNames = AndroidVariantsTaskNames(variant.name, variant)
         val configureTask: (Task, ComponentIdentity) -> RoomSchemaDirectoryArgumentProvider = {
                 task, variantIdentity ->
-            val schemaDirectoryPath = Path(schemaDirectory, variantIdentity.name)
+            // Find schema location for variant from user declared location with priority:
+            // * Full variant name specified, e.g. `schemaLocation("demoDebug", "...")`
+            // * Flavor name, e.g. `schemaLocation("demo", "...")`
+            // * Build type name, e.g. `schemaLocation("debug", "...")`
+            // * All variants location, e.g. `schemaLocation("...")`
+            val schemaDirectories = roomExtension.schemaDirectories
+            fun <V> Map<VariantMatchName, V>.findPair(key: String) =
+                VariantMatchName(key).let { if (containsKey(it)) it to getValue(it) else null }
+            val matchedPair = schemaDirectories.findPair(variantIdentity.name)
+                    ?: variantIdentity.flavorName?.let { schemaDirectories.findPair(it) }
+                    ?: variantIdentity.buildType?.let { schemaDirectories.findPair(it) }
+                    ?: schemaDirectories.findPair(RoomExtension.ALL_VARIANTS.actual)
+            project.check(matchedPair != null, isFatal = true) {
+               "No matching schema directory for variant '${variantIdentity.name}'."
+            }
+            val (matchedName, schemaDirectoryProvider) = matchedPair
+            val schemaDirectory = schemaDirectoryProvider.get()
+            project.check(schemaDirectory.isNotEmpty()) {
+                "The schema directory path for variant '${variantIdentity.name}' must not be empty."
+            }
+            val schemaDirectoryPath = Path(schemaDirectory)
             if (schemaDirectoryPath.notExists()) {
                 project.check(schemaDirectoryPath.toFile().mkdirs()) {
                     "Unable to create directory: $schemaDirectoryPath"
                 }
             }
+
             val schemaInputDir = objectFactory.directoryProperty().apply {
                 set(project.file(schemaDirectoryPath))
             }
-
             val schemaOutputDir =
                 projectLayout.buildDirectory.dir("intermediates/room/schemas/${task.name}")
 
-            val copyTask = androidVariantTaskNames.copyTasks.getOrPut(variant.name) {
+            val copyTask = roomExtension.copyTasks.getOrPut(matchedName) {
                 project.tasks.register(
-                    "copyRoomSchemas${variantIdentity.name.capitalize()}",
+                    "copyRoomSchemas${matchedName.actual.capitalize()}",
                     RoomSchemaCopyTask::class.java
                 ) {
                     it.schemaDirectory.set(schemaInputDir)
@@ -139,6 +160,7 @@ class RoomGradlePlugin @Inject constructor(
             )
         }
 
+        val androidVariantTaskNames = AndroidVariantsTaskNames(variant.name, variant)
         configureJavaTasks(project, androidVariantTaskNames, configureTask)
         configureKaptTasks(project, androidVariantTaskNames, configureTask)
         configureKspTasks(project, androidVariantTaskNames, configureTask)
@@ -198,19 +220,16 @@ class RoomGradlePlugin @Inject constructor(
         private val variantName: String,
         private val variantIdentity: ComponentIdentity
     ) {
-        // Variant name to copy task
-        val copyTasks = mutableMapOf<String, TaskProvider<RoomSchemaCopyTask>>()
-
         private val javaCompileName by lazy {
-            "compile${variantName.capitalized()}JavaWithJavac"
+            "compile${variantName.capitalize()}JavaWithJavac"
         }
 
         private val kaptTaskName by lazy {
-            "kapt${variantName.capitalized()}Kotlin"
+            "kapt${variantName.capitalize()}Kotlin"
         }
 
         private val kspTaskJvm by lazy {
-            "ksp${variantName.capitalized()}Kotlin"
+            "ksp${variantName.capitalize()}Kotlin"
         }
 
         fun withJavaCompile(taskName: String) =
@@ -236,14 +255,48 @@ class RoomGradlePlugin @Inject constructor(
 
         @TaskAction
         fun copySchemas() {
+            // Map of relative path to its source file hash.
+            val copiedHashes = mutableMapOf<String, MutableMap<String, String>>()
             variantSchemaOutputDirectories.files
                 .filter { it.exists() }
-                .forEach {
-                    // TODO(b/278266663): Error when two same relative path schemas are found in out
-                    //  dirs and their content is different an indicator of an inconsistency between
-                    //  the compile tasks of the same variant.
-                    it.copyRecursively(schemaDirectory.get().asFile, overwrite = true)
+                .forEach { outputDir ->
+                    outputDir.walkTopDown().filter { it.isFile }.forEach { schemaFile ->
+                        val schemaPath = schemaFile.toPath()
+                        val basePath = outputDir.toPath().relativize(schemaPath)
+                        schemaPath.copyTo(
+                            target = schemaDirectory.get().asFile.toPath().resolve(basePath)
+                                .apply { parent?.createDirectories() },
+                            overwrite = true
+                        )
+                        copiedHashes.getOrPut(basePath.toString()) { mutableMapOf() }
+                            .put(schemaFile.sha256(), schemaPath.toString())
+                    }
                 }
+            // Validate that if multiple schema files for the same database and version are copied
+            // to the same schema directory that they are the same in content (via checksum), as
+            // otherwise it would indicate per-variant schemas and thus requiring per-variant
+            // schema directories.
+            copiedHashes.filterValues { it.size > 1 }.forEach { (schemaDir, hashes) ->
+                val errorMsg = buildString {
+                    appendLine(
+                        "Inconsistency detected exporting schema files (checksum - source):"
+                    )
+                    hashes.entries.forEach {
+                        appendLine("  ${it.key} - ${it.value}")
+                    }
+                    appendLine(
+                        "The listed files differ in content but were copied into the same " +
+                            "schema directory '$schemaDir'. A possible indicator that " +
+                            "per-variant schema locations must be provided."
+                    )
+                }
+                throw GradleException(errorMsg)
+            }
+        }
+
+        private fun File.sha256(): String {
+            return MessageDigest.getInstance("SHA-256").digest(this.readBytes())
+                .joinToString("") { "%02x".format(it) }
         }
     }
 
@@ -276,11 +329,15 @@ class RoomGradlePlugin @Inject constructor(
         }
 
         @OptIn(ExperimentalContracts::class)
-        internal fun Project.check(value: Boolean, lazyMessage: () -> String) {
+        internal fun Project.check(
+            value: Boolean,
+            isFatal: Boolean = false,
+            lazyMessage: () -> String
+        ) {
             contract {
                 returns() implies value
             }
-            if (isGradleSyncRunning()) return
+            if (isGradleSyncRunning() && !isFatal) return
             if (!value) {
                 throw GradleException(lazyMessage())
             }

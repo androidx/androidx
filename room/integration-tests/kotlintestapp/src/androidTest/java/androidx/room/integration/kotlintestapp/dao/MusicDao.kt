@@ -13,6 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:Suppress("DEPRECATION") // For @MapInfo
+
 package androidx.room.integration.kotlintestapp.dao
 
 import androidx.collection.ArrayMap
@@ -20,7 +23,9 @@ import androidx.collection.LongSparseArray
 import androidx.collection.SparseArrayCompat
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
+import androidx.room.MapColumn
 import androidx.room.MapInfo
 import androidx.room.Query
 import androidx.room.RawQuery
@@ -32,6 +37,9 @@ import androidx.room.integration.kotlintestapp.vo.AlbumWithSongs
 import androidx.room.integration.kotlintestapp.vo.Artist
 import androidx.room.integration.kotlintestapp.vo.Image
 import androidx.room.integration.kotlintestapp.vo.ImageFormat
+import androidx.room.integration.kotlintestapp.vo.Playlist
+import androidx.room.integration.kotlintestapp.vo.PlaylistSongXRef
+import androidx.room.integration.kotlintestapp.vo.PlaylistWithSongs
 import androidx.room.integration.kotlintestapp.vo.ReleasedAlbum
 import androidx.room.integration.kotlintestapp.vo.Song
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -41,8 +49,8 @@ import com.google.common.collect.ImmutableSetMultimap
 import io.reactivex.Flowable
 import java.nio.ByteBuffer
 import java.util.Date
+import kotlinx.coroutines.flow.Flow
 
-@JvmDefaultWithCompatibility
 @Dao
 interface MusicDao {
     @Insert
@@ -53,6 +61,16 @@ interface MusicDao {
 
     @Insert
     fun addAlbums(vararg albums: Album)
+
+    @Insert
+    fun addPlaylists(vararg playlists: Playlist)
+
+    @Insert
+    fun addPlaylistSongRelations(vararg relations: PlaylistSongXRef)
+
+    @Delete
+    fun removePlaylistSongRelations(vararg relations: PlaylistSongXRef)
+
     @Insert
     fun addImages(vararg images: Image)
 
@@ -298,4 +316,103 @@ interface MusicDao {
     @MapInfo(keyColumn = "mImageYear")
     @RewriteQueriesToDropUnusedColumns
     fun allAlbumCoverYearToArtistsWithIntSparseArray(): SparseArrayCompat<Artist>
+
+    @Query(
+        """
+        SELECT * FROM Artist
+        JOIN Album ON (Artist.mArtistName = Album.mAlbumArtist)
+        JOIN Song ON (Album.mAlbumName = Song.mAlbum)
+        """
+    )
+    @RewriteQueriesToDropUnusedColumns
+    fun getArtistToAlbumsMappedToSongs(): Map<Artist, Map<Album, List<Song>>>
+
+    @Query(
+        """
+        SELECT * FROM Image
+        JOIN Artist ON Image.mArtistInImage = Artist.mArtistName
+        JOIN Album ON Artist.mArtistName = Album.mAlbumArtist
+        JOIN Song ON Album.mAlbumName = Song.mAlbum
+        """
+    )
+    @RewriteQueriesToDropUnusedColumns
+    fun getImageToArtistToAlbumsMappedToSongs():
+        Map<Image, Map<Artist, Map<Album, List<Song>>>>
+
+    @Query(
+        """
+        SELECT * FROM Artist
+        LEFT JOIN Album ON (Artist.mArtistName = Album.mAlbumArtist)
+        LEFT JOIN Song ON (Album.mAlbumName = Song.mAlbum)
+        """
+    )
+    @MapInfo(valueColumn = "mTitle")
+    @RewriteQueriesToDropUnusedColumns
+    fun getArtistToAlbumsMappedToSongNamesMapInfoLeftJoin(): Map<Artist, Map<Album, String>>
+
+    @Query(
+        """
+        SELECT * FROM Image
+        LEFT JOIN Artist ON Image.mArtistInImage = Artist.mArtistName
+        LEFT JOIN Album ON Artist.mArtistName = Album.mAlbumArtist
+        LEFT JOIN Song ON Album.mAlbumName = Song.mAlbum
+        """
+    )
+    @MapInfo(keyColumn = "mImageYear")
+    @RewriteQueriesToDropUnusedColumns
+    fun getImageYearToArtistToAlbumsMappedToSongs(): Map<Long, Map<Artist, Map<Album, List<Song>>>>
+
+    @Query(
+        """
+        SELECT * FROM Image
+        LEFT JOIN Artist ON Image.mArtistInImage = Artist.mArtistName
+        LEFT JOIN Album ON Artist.mArtistName = Album.mAlbumArtist
+        LEFT JOIN Song ON Album.mAlbumName = Song.mAlbum
+        """
+    )
+    @MapInfo(keyColumn = "mImageYear", valueColumn = "mTitle")
+    @RewriteQueriesToDropUnusedColumns
+    fun getNestedMapWithMapInfoKeyAndValue(): Map<Long, Map<Artist, Map<Album, List<String>>>>
+
+    @Transaction
+    @Query("SELECT * FROM Playlist WHERE mPlaylistId = :id")
+    fun getPlaylistsWithSongsFlow(id: Int): Flow<PlaylistWithSongs>
+
+    @Query("SELECT * FROM Artist JOIN Song ON Artist.mArtistName = Song.mArtist")
+    @RewriteQueriesToDropUnusedColumns
+    fun artistNameToSongsMapColumn():
+        Map<@MapColumn(columnName = "mArtistName") String,
+            List<@MapColumn(columnName = "mReleasedYear") Int>>
+
+    @Query(
+        """
+        SELECT * FROM Image
+        LEFT JOIN Artist ON Image.mArtistInImage = Artist.mArtistName
+        LEFT JOIN Album ON Artist.mArtistName = Album.mAlbumArtist
+        LEFT JOIN Song ON Album.mAlbumName = Song.mAlbum
+        """
+    )
+    @RewriteQueriesToDropUnusedColumns
+    fun getImageYearToArtistToAlbumsToSongsMapColumn():
+        Map<@MapColumn(columnName = "mImageYear") Long, Map<Artist,
+            Map<@MapColumn(columnName = "mAlbumName") String, List<Song>>>>
+
+    @Query(
+        """
+        SELECT * FROM Image
+        LEFT JOIN Artist ON Image.mArtistInImage = Artist.mArtistName
+        LEFT JOIN Album ON Artist.mArtistName = Album.mAlbumArtist
+        LEFT JOIN Song ON Album.mAlbumName = Song.mAlbum
+        """
+    )
+    @RewriteQueriesToDropUnusedColumns
+    fun getImageYearToArtistToAlbumsToSongsMultiMapColumn():
+        Map<Image, Map<Artist, Map<@MapColumn(columnName = "mAlbumName") String,
+            List<@MapColumn(columnName = "mReleasedYear") Int>>>>
+
+    @RawQuery
+    @RewriteQueriesToDropUnusedColumns
+    fun getImageYearToArtistToAlbumsToSongsMultiMapColumn(query: SupportSQLiteQuery):
+        Map<Image, Map<Artist, Map<@MapColumn(columnName = "mAlbumName") String,
+            List<@MapColumn(columnName = "mReleasedYear") Int>>>>
 }

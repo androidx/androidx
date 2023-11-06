@@ -46,7 +46,67 @@ class PlaceholderTest {
     @RequiresApi(Build.VERSION_CODES.O)
     @OptIn(ExperimentalWearMaterialApi::class)
     @Test
-    fun placeholder_initially_show_content() {
+    fun placeholder_initially_show_content_when_contentready_true() {
+        lateinit var contentReady: MutableState<Boolean>
+        lateinit var placeholderState: PlaceholderState
+        rule.setContentWithTheme {
+            contentReady = remember { mutableStateOf(true) }
+            placeholderState = rememberPlaceholderState {
+                contentReady.value
+            }
+        }
+
+        // For testing we need to manually manage the frame clock for the placeholder animation
+        placeholderState.initializeTestFrameMillis(PlaceholderStage.ShowContent)
+
+        // Advance placeholder clock without changing the content ready and confirm still in
+        // ShowPlaceholder
+        placeholderState.advanceToNextPlaceholderAnimationLoopAndCheckStage(
+            PlaceholderStage.ShowContent
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @OptIn(ExperimentalWearMaterialApi::class)
+    @Test
+    fun placeholder_initially_show_placeholder_transitions_correctly() {
+        lateinit var contentReady: MutableState<Boolean>
+        lateinit var placeholderState: PlaceholderState
+        rule.setContentWithTheme {
+            contentReady = remember { mutableStateOf(false) }
+            placeholderState = rememberPlaceholderState {
+                contentReady.value
+            }
+        }
+
+        // For testing we need to manually manage the frame clock for the placeholder animation
+        placeholderState.initializeTestFrameMillis()
+
+        // Advance placeholder clock without changing the content ready and confirm still in
+        // ShowPlaceholder
+        placeholderState.advanceFrameMillisAndCheckState(
+            PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS,
+            PlaceholderStage.ShowPlaceholder
+        )
+
+        // Change contentReady and confirm that state is now WipeOff
+        contentReady.value = true
+        placeholderState.advanceFrameMillisAndCheckState(
+            1L,
+            PlaceholderStage.WipeOff
+        )
+
+        // Advance the clock by one cycle and check we have moved to ShowContent
+        placeholderState.advanceFrameMillisAndCheckState(
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
+            PlaceholderStage.ShowContent
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @OptIn(ExperimentalWearMaterialApi::class)
+    @Test
+    fun placeholder_resets_content_after_show_content_when_contentready_false() {
         lateinit var contentReady: MutableState<Boolean>
         lateinit var placeholderState: PlaceholderState
         rule.setContentWithTheme {
@@ -55,9 +115,7 @@ class PlaceholderTest {
                 contentReady.value
             }
             Chip(
-                modifier = Modifier
-                    .testTag("test-item")
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 content = {},
                 onClick = {},
                 colors = ChipDefaults.secondaryChipColors(),
@@ -76,53 +134,10 @@ class PlaceholderTest {
 
         contentReady.value = false
 
-        // Check that the state does not go to ShowPlaceholder
-        placeholderState.advanceToNextPlaceholderAnimationLoopAndCheckStage(
-            PlaceholderStage.ShowContent
-        )
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    @OptIn(ExperimentalWearMaterialApi::class)
-    @Test
-    fun placeholder_initially_show_placeholder_transitions_correctly() {
-        var contentReady = false
-        lateinit var placeholderState: PlaceholderState
-        rule.setContentWithTheme {
-            placeholderState = rememberPlaceholderState {
-                contentReady
-            }
-            Chip(
-                modifier = Modifier
-                    .testTag("test-item")
-                    .fillMaxWidth(),
-                content = {},
-                onClick = {},
-                colors = ChipDefaults.secondaryChipColors(),
-                border = ChipDefaults.chipBorder()
-            )
-        }
-
-        // For testing we need to manually manage the frame clock for the placeholder animation
-        placeholderState.initializeTestFrameMillis()
-
-        // Advance placeholder clock without changing the content ready and confirm still in
-        // ShowPlaceholder
+        // Check that the state is set to ResetContent
         placeholderState.advanceFrameMillisAndCheckState(
-            PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS,
-            PlaceholderStage.ShowPlaceholder)
-
-        // Change contentReady and confirm that state is now WipeOff
-        contentReady = true
-        placeholderState.advanceFrameMillisAndCheckState(
-            0L,
-            PlaceholderStage.WipeOff
-        )
-
-        // Advance the clock by one cycle and check we have moved to ShowContent
-        placeholderState.advanceFrameMillisAndCheckState(
-            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
-            PlaceholderStage.ShowContent
+            (PLACEHOLDER_RESET_ANIMATION_DURATION * 0.5f).toLong(),
+            PlaceholderStage.ResetContent
         )
     }
 
@@ -182,15 +197,18 @@ class PlaceholderTest {
                 expectedPlaceholderColor
             )
 
+        // Change contentReady and confirm that state is now WipeOff
         contentReady.value = true
+        placeholderState.advanceFrameMillisAndCheckState(
+            1L,
+            PlaceholderStage.WipeOff
+        )
 
-        // Advance the clock to the next placeholder animation loop and check for wipe-off mode
-        placeholderState
-            .advanceToNextPlaceholderAnimationLoopAndCheckStage(PlaceholderStage.WipeOff)
-
-        // Advance the clock to the next placeholder animation loop and check for show content mode
-        placeholderState
-            .advanceToNextPlaceholderAnimationLoopAndCheckStage(PlaceholderStage.ShowContent)
+        // Advance the clock by one cycle and check we have moved to ShowContent
+        placeholderState.advanceFrameMillisAndCheckState(
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
+            PlaceholderStage.ShowContent
+        )
 
         rule.onNodeWithTag("test-item")
             .captureToImage()
@@ -239,7 +257,7 @@ class PlaceholderTest {
         // Move the start of the next placeholder shimmer animation loop and them advance the
         // clock to show the shimmer.
         placeholderState.advanceFrameMillisAndCheckState(
-                (PLACEHOLDER_SHIMMER_DURATION_MS * 0.5f).toLong(),
+            (PLACEHOLDER_SHIMMER_DURATION_MS * 0.5f).toLong(),
             PlaceholderStage.ShowPlaceholder
         )
 
@@ -249,11 +267,12 @@ class PlaceholderTest {
             .captureToImage()
             .assertDoesNotContainColor(expectedBackgroundColor)
 
-        // Prepare to start to wipe off and show contents.
+        // Change contentReady and confirm that state is now WipeOff
         contentReady.value = true
-
-        placeholderState
-            .advanceToNextPlaceholderAnimationLoopAndCheckStage(PlaceholderStage.WipeOff)
+        placeholderState.advanceFrameMillisAndCheckState(
+            1L,
+            PlaceholderStage.WipeOff
+        )
 
         // Check the background color is correct
         rule.onNodeWithTag("test-item")
@@ -262,8 +281,11 @@ class PlaceholderTest {
                 expectedBackgroundColor, 80f
             )
 
-        placeholderState
-            .advanceToNextPlaceholderAnimationLoopAndCheckStage(PlaceholderStage.ShowContent)
+        // Advance the clock by one cycle and check we have moved to ShowContent
+        placeholderState.advanceFrameMillisAndCheckState(
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
+            PlaceholderStage.ShowContent
+        )
 
         // Check that the shimmer is no longer visible
         rule.onNodeWithTag("test-item")
@@ -322,11 +344,12 @@ class PlaceholderTest {
                 expectedBackgroundColor
             )
 
-        // Prepare to start to wipe off and show contents.
+        // Change contentReady and confirm that state is now WipeOff
         contentReady.value = true
-
-        placeholderState
-            .advanceToNextPlaceholderAnimationLoopAndCheckStage(PlaceholderStage.WipeOff)
+        placeholderState.advanceFrameMillisAndCheckState(
+            1L,
+            PlaceholderStage.WipeOff
+        )
 
         // Check that placeholder background is still visible
         rule.onNodeWithTag("test-item")
@@ -404,10 +427,12 @@ class PlaceholderTest {
 
         // Trigger move to WipeOff stage
         placeholderState.value?.advanceFrameMillisAndCheckState(
-            1, PlaceholderStage.WipeOff)
+            1, PlaceholderStage.WipeOff
+        )
 
         placeholderState.value?.advanceFrameMillisAndCheckState(
-            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS, PlaceholderStage.ShowContent)
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS, PlaceholderStage.ShowContent
+        )
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -428,6 +453,7 @@ class PlaceholderTest {
             Chip(
                 modifier = Modifier
                     .testTag("test-item")
+                    .fillMaxWidth()
                     .placeholderShimmer(placeholderState),
                 content = {},
                 onClick = {},
@@ -450,14 +476,16 @@ class PlaceholderTest {
                 expectedPlaceholderBackgroundColor
             )
 
+        // Change contentReady and confirm that state is now WipeOff
         contentReady.value = true
-
-        // Trigger move to WipeOff stage
         placeholderState.advanceFrameMillisAndCheckState(
-            1, PlaceholderStage.WipeOff)
+            1L, PlaceholderStage.WipeOff
+        )
 
         placeholderState.advanceFrameMillisAndCheckState(
-            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS, PlaceholderStage.ShowContent)
+            PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS,
+            PlaceholderStage.ShowContent
+        )
 
         // Check the placeholder background has gone and that we can see the chips background
         rule.onNodeWithTag("test-item")

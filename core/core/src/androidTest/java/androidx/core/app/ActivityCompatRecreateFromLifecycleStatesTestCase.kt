@@ -60,16 +60,11 @@ public class ActivityCompatRecreateFromLifecycleStatesTestCase {
         // Wait for the new activity to come up. In most (all?) cases, the result of the initial
         // call to launchActivity should be the new activity; however, we haven't verified this
         // across all SDK versions so we'll check the test rule's activity.
-        PollingCheck.waitFor(5000) {
-            activityTestRule.activity != firstActivity
-        }
+        PollingCheck.waitFor(5000) { activityTestRule.activity != firstActivity }
 
         // Wait until the new activity is resumed.
         val secondActivity = activityTestRule.activity
-        LifecycleOwnerUtils.waitUntilState(
-            secondActivity,
-            Lifecycle.State.RESUMED
-        )
+        LifecycleOwnerUtils.waitUntilState(secondActivity, Lifecycle.State.RESUMED)
     }
 
     @Test
@@ -94,16 +89,11 @@ public class ActivityCompatRecreateFromLifecycleStatesTestCase {
         // Wait for the new activity to come up. In most (all?) cases, the result of the initial
         // call to launchActivity should be the new activity; however, we haven't verified this
         // across all SDK versions so we'll check the test rule's activity.
-        PollingCheck.waitFor(5000) {
-            activityTestRule.activity != firstActivity
-        }
+        PollingCheck.waitFor(5000) { activityTestRule.activity != firstActivity }
 
         // Wait until the new activity is resumed.
         val secondActivity = activityTestRule.activity
-        LifecycleOwnerUtils.waitUntilState(
-            secondActivity,
-            Lifecycle.State.RESUMED
-        )
+        LifecycleOwnerUtils.waitUntilState(secondActivity, Lifecycle.State.RESUMED)
     }
 
     @Test
@@ -125,10 +115,7 @@ public class ActivityCompatRecreateFromLifecycleStatesTestCase {
         calledRecreate.await(5000, TimeUnit.MILLISECONDS)
 
         // Ensure the first activity is destroyed.
-        LifecycleOwnerUtils.waitUntilState(
-            firstActivity,
-            Lifecycle.State.DESTROYED
-        )
+        LifecycleOwnerUtils.waitUntilState(firstActivity, Lifecycle.State.DESTROYED)
 
         // Make sure that we didn't start a new activity.
         assertEquals(firstActivity, activityTestRule.activity)

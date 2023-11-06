@@ -82,8 +82,8 @@ package androidx.tvprovider.media.tv {
   @WorkerThread public class ChannelLogoUtils {
     ctor @Deprecated public ChannelLogoUtils();
     method @WorkerThread public static android.graphics.Bitmap? loadChannelLogo(android.content.Context, long);
-    method public static boolean storeChannelLogo(android.content.Context, long, android.net.Uri);
     method @WorkerThread public static boolean storeChannelLogo(android.content.Context, long, android.graphics.Bitmap);
+    method public static boolean storeChannelLogo(android.content.Context, long, android.net.Uri);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class CollectionUtils {
@@ -224,7 +224,7 @@ package androidx.tvprovider.media.tv {
     method public boolean isTransient();
     method public android.content.ContentValues! toContentValues();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.ContentValues! toContentValues(boolean);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String![]! PROJECTION;
+    field public static final String![] PROJECTION;
   }
 
   public static final class PreviewProgram.Builder {
@@ -367,20 +367,20 @@ package androidx.tvprovider.media.tv {
   }
 
   public final class TvContractCompat {
-    method public static android.net.Uri! buildChannelLogoUri(long);
     method public static android.net.Uri! buildChannelLogoUri(android.net.Uri!);
+    method public static android.net.Uri! buildChannelLogoUri(long);
     method public static android.net.Uri! buildChannelUri(long);
     method public static android.net.Uri! buildChannelUriForPassthroughInput(String!);
     method public static android.net.Uri! buildChannelsUriForInput(String?);
     method public static String! buildInputId(android.content.ComponentName!);
     method public static android.net.Uri! buildPreviewProgramUri(long);
-    method public static android.net.Uri! buildPreviewProgramsUriForChannel(long);
     method public static android.net.Uri! buildPreviewProgramsUriForChannel(android.net.Uri!);
+    method public static android.net.Uri! buildPreviewProgramsUriForChannel(long);
     method public static android.net.Uri! buildProgramUri(long);
-    method public static android.net.Uri! buildProgramsUriForChannel(long);
     method public static android.net.Uri! buildProgramsUriForChannel(android.net.Uri!);
-    method public static android.net.Uri! buildProgramsUriForChannel(long, long, long);
     method public static android.net.Uri! buildProgramsUriForChannel(android.net.Uri!, long, long);
+    method public static android.net.Uri! buildProgramsUriForChannel(long);
+    method public static android.net.Uri! buildProgramsUriForChannel(long, long, long);
     method public static android.net.Uri! buildRecordedProgramUri(long);
     method public static android.net.Uri! buildWatchNextProgramUri(long);
     method public static boolean isChannelUri(android.net.Uri!);
@@ -517,7 +517,7 @@ package androidx.tvprovider.media.tv {
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @StringDef({androidx.tvprovider.media.tv.TvContractCompat.Channels.VIDEO_RESOLUTION_SD, androidx.tvprovider.media.tv.TvContractCompat.Channels.VIDEO_RESOLUTION_ED, androidx.tvprovider.media.tv.TvContractCompat.Channels.VIDEO_RESOLUTION_HD, androidx.tvprovider.media.tv.TvContractCompat.Channels.VIDEO_RESOLUTION_FHD, androidx.tvprovider.media.tv.TvContractCompat.Channels.VIDEO_RESOLUTION_UHD}) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface TvContractCompat.Channels.VideoResolution {
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static interface TvContractCompat.PreviewProgramColumns {
+  public static interface TvContractCompat.PreviewProgramColumns {
     field public static final int ASPECT_RATIO_16_9 = 0; // 0x0
     field public static final int ASPECT_RATIO_1_1 = 3; // 0x3
     field public static final int ASPECT_RATIO_2_3 = 4; // 0x4
@@ -829,7 +829,7 @@ package androidx.tvprovider.media.tv {
     method public boolean isTransient();
     method public android.content.ContentValues! toContentValues();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.content.ContentValues! toContentValues(boolean);
-    field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final String![]! PROJECTION;
+    field public static final String![] PROJECTION;
     field public static final int WATCH_NEXT_TYPE_UNKNOWN = -1; // 0xffffffff
   }
 

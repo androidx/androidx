@@ -117,14 +117,14 @@ class TextStyle internal constructor(
             drawStyle = null
         ),
         ParagraphStyle(
-            textAlign = textAlign,
-            textDirection = textDirection,
+            textAlign = textAlign ?: TextAlign.Unspecified,
+            textDirection = textDirection ?: TextDirection.Unspecified,
             lineHeight = lineHeight,
             textIndent = textIndent,
             platformStyle = null,
             lineHeightStyle = null,
-            lineBreak = null,
-            hyphens = null,
+            lineBreak = LineBreak.Unspecified,
+            hyphens = Hyphens.Unspecified,
             textMotion = null
         ),
         platformStyle = null
@@ -177,14 +177,14 @@ class TextStyle internal constructor(
             drawStyle = null
         ),
         ParagraphStyle(
-            textAlign = textAlign,
-            textDirection = textDirection,
+            textAlign = textAlign ?: TextAlign.Unspecified,
+            textDirection = textDirection ?: TextDirection.Unspecified,
             lineHeight = lineHeight,
             textIndent = textIndent,
             platformStyle = platformStyle?.paragraphStyle,
             lineHeightStyle = lineHeightStyle,
-            lineBreak = null,
-            hyphens = null,
+            lineBreak = LineBreak.Unspecified,
+            hyphens = Hyphens.Unspecified,
             textMotion = null
         ),
         platformStyle = platformStyle
@@ -275,14 +275,77 @@ class TextStyle internal constructor(
             platformStyle = platformStyle?.spanStyle
         ),
         ParagraphStyle(
-            textAlign = textAlign,
-            textDirection = textDirection,
+            textAlign = textAlign ?: TextAlign.Unspecified,
+            textDirection = textDirection ?: TextDirection.Unspecified,
             lineHeight = lineHeight,
             textIndent = textIndent,
             platformStyle = platformStyle?.paragraphStyle,
             lineHeightStyle = lineHeightStyle,
-            lineBreak = lineBreak,
-            hyphens = hyphens
+            lineBreak = lineBreak ?: LineBreak.Unspecified,
+            hyphens = hyphens ?: Hyphens.Unspecified
+        ),
+        platformStyle = platformStyle
+    )
+
+    @Deprecated("TextStyle constructors that take nullable TextAlign, " +
+        "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
+        "where these parameters are non-nullable. Null value has been replaced by a special " +
+        "Unspecified object for performance reason.",
+        level = DeprecationLevel.HIDDEN)
+    constructor(
+        color: Color = Color.Unspecified,
+        fontSize: TextUnit = TextUnit.Unspecified,
+        fontWeight: FontWeight? = null,
+        fontStyle: FontStyle? = null,
+        fontSynthesis: FontSynthesis? = null,
+        fontFamily: FontFamily? = null,
+        fontFeatureSettings: String? = null,
+        letterSpacing: TextUnit = TextUnit.Unspecified,
+        baselineShift: BaselineShift? = null,
+        textGeometricTransform: TextGeometricTransform? = null,
+        localeList: LocaleList? = null,
+        background: Color = Color.Unspecified,
+        textDecoration: TextDecoration? = null,
+        shadow: Shadow? = null,
+        drawStyle: DrawStyle? = null,
+        textAlign: TextAlign? = null,
+        textDirection: TextDirection? = null,
+        lineHeight: TextUnit = TextUnit.Unspecified,
+        textIndent: TextIndent? = null,
+        platformStyle: PlatformTextStyle? = null,
+        lineHeightStyle: LineHeightStyle? = null,
+        lineBreak: LineBreak? = null,
+        hyphens: Hyphens? = null,
+        textMotion: TextMotion? = null,
+    ) : this(
+        SpanStyle(
+            color = color,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis,
+            fontFamily = fontFamily,
+            fontFeatureSettings = fontFeatureSettings,
+            letterSpacing = letterSpacing,
+            baselineShift = baselineShift,
+            textGeometricTransform = textGeometricTransform,
+            localeList = localeList,
+            background = background,
+            textDecoration = textDecoration,
+            shadow = shadow,
+            platformStyle = platformStyle?.spanStyle,
+            drawStyle = drawStyle
+        ),
+        ParagraphStyle(
+            textAlign = textAlign ?: TextAlign.Unspecified,
+            textDirection = textDirection ?: TextDirection.Unspecified,
+            lineHeight = lineHeight,
+            textIndent = textIndent,
+            platformStyle = platformStyle?.paragraphStyle,
+            lineHeightStyle = lineHeightStyle,
+            lineBreak = lineBreak ?: LineBreak.Unspecified,
+            hyphens = hyphens ?: Hyphens.Unspecified,
+            textMotion = textMotion
         ),
         platformStyle = platformStyle
     )
@@ -343,14 +406,14 @@ class TextStyle internal constructor(
         textDecoration: TextDecoration? = null,
         shadow: Shadow? = null,
         drawStyle: DrawStyle? = null,
-        textAlign: TextAlign? = null,
-        textDirection: TextDirection? = null,
+        textAlign: TextAlign = TextAlign.Unspecified,
+        textDirection: TextDirection = TextDirection.Unspecified,
         lineHeight: TextUnit = TextUnit.Unspecified,
         textIndent: TextIndent? = null,
         platformStyle: PlatformTextStyle? = null,
         lineHeightStyle: LineHeightStyle? = null,
-        lineBreak: LineBreak? = null,
-        hyphens: Hyphens? = null,
+        lineBreak: LineBreak = LineBreak.Unspecified,
+        hyphens: Hyphens = Hyphens.Unspecified,
         textMotion: TextMotion? = null,
     ) : this(
         SpanStyle(
@@ -445,14 +508,14 @@ class TextStyle internal constructor(
         textDecoration: TextDecoration? = null,
         shadow: Shadow? = null,
         drawStyle: DrawStyle? = null,
-        textAlign: TextAlign? = null,
-        textDirection: TextDirection? = null,
+        textAlign: TextAlign = TextAlign.Unspecified,
+        textDirection: TextDirection = TextDirection.Unspecified,
         lineHeight: TextUnit = TextUnit.Unspecified,
         textIndent: TextIndent? = null,
         platformStyle: PlatformTextStyle? = null,
         lineHeightStyle: LineHeightStyle? = null,
-        lineBreak: LineBreak? = null,
-        hyphens: Hyphens? = null,
+        lineBreak: LineBreak = LineBreak.Unspecified,
+        hyphens: Hyphens = Hyphens.Unspecified,
         textMotion: TextMotion? = null
     ) : this(
         SpanStyle(
@@ -483,6 +546,71 @@ class TextStyle internal constructor(
             lineHeightStyle = lineHeightStyle,
             lineBreak = lineBreak,
             hyphens = hyphens,
+            textMotion = textMotion
+        ),
+        platformStyle = platformStyle
+    )
+
+    @Deprecated("TextStyle constructors that take nullable TextAlign, " +
+        "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
+        "where these parameters are non-nullable. Null value has been replaced by a special " +
+        "Unspecified object for performance reason.",
+        level = DeprecationLevel.HIDDEN)
+    constructor(
+        brush: Brush?,
+        alpha: Float = Float.NaN,
+        fontSize: TextUnit = TextUnit.Unspecified,
+        fontWeight: FontWeight? = null,
+        fontStyle: FontStyle? = null,
+        fontSynthesis: FontSynthesis? = null,
+        fontFamily: FontFamily? = null,
+        fontFeatureSettings: String? = null,
+        letterSpacing: TextUnit = TextUnit.Unspecified,
+        baselineShift: BaselineShift? = null,
+        textGeometricTransform: TextGeometricTransform? = null,
+        localeList: LocaleList? = null,
+        background: Color = Color.Unspecified,
+        textDecoration: TextDecoration? = null,
+        shadow: Shadow? = null,
+        drawStyle: DrawStyle? = null,
+        textAlign: TextAlign? = null,
+        textDirection: TextDirection? = null,
+        lineHeight: TextUnit = TextUnit.Unspecified,
+        textIndent: TextIndent? = null,
+        platformStyle: PlatformTextStyle? = null,
+        lineHeightStyle: LineHeightStyle? = null,
+        lineBreak: LineBreak? = null,
+        hyphens: Hyphens? = null,
+        textMotion: TextMotion? = null
+    ) : this(
+        SpanStyle(
+            brush = brush,
+            alpha = alpha,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis,
+            fontFamily = fontFamily,
+            fontFeatureSettings = fontFeatureSettings,
+            letterSpacing = letterSpacing,
+            baselineShift = baselineShift,
+            textGeometricTransform = textGeometricTransform,
+            localeList = localeList,
+            background = background,
+            textDecoration = textDecoration,
+            shadow = shadow,
+            platformStyle = platformStyle?.spanStyle,
+            drawStyle = drawStyle
+        ),
+        ParagraphStyle(
+            textAlign = textAlign ?: TextAlign.Unspecified,
+            textDirection = textDirection ?: TextDirection.Unspecified,
+            lineHeight = lineHeight,
+            textIndent = textIndent,
+            platformStyle = platformStyle?.paragraphStyle,
+            lineHeightStyle = lineHeightStyle,
+            lineBreak = lineBreak ?: LineBreak.Unspecified,
+            hyphens = hyphens ?: Hyphens.Unspecified,
             textMotion = textMotion
         ),
         platformStyle = platformStyle
@@ -564,13 +692,13 @@ class TextStyle internal constructor(
         textDecoration: TextDecoration? = null,
         shadow: Shadow? = null,
         drawStyle: DrawStyle? = null,
-        textAlign: TextAlign? = null,
-        textDirection: TextDirection? = null,
+        textAlign: TextAlign = TextAlign.Unspecified,
+        textDirection: TextDirection = TextDirection.Unspecified,
         lineHeight: TextUnit = TextUnit.Unspecified,
         textIndent: TextIndent? = null,
         lineHeightStyle: LineHeightStyle? = null,
-        lineBreak: LineBreak? = null,
-        hyphens: Hyphens? = null,
+        lineBreak: LineBreak = LineBreak.Unspecified,
+        hyphens: Hyphens = Hyphens.Unspecified,
         platformStyle: PlatformTextStyle? = null,
         textMotion: TextMotion? = null
     ): TextStyle {
@@ -603,6 +731,73 @@ class TextStyle internal constructor(
             lineHeightStyle = lineHeightStyle,
             lineBreak = lineBreak,
             hyphens = hyphens,
+            textMotion = textMotion
+        )
+        if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) return this
+        return TextStyle(mergedSpanStyle, mergedParagraphStyle)
+    }
+
+    @Deprecated("merge that takes nullable TextAlign, " +
+        "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
+        "where these parameters are non-nullable. Null value has been replaced by a special " +
+        "Unspecified object for performance reason.",
+        level = DeprecationLevel.HIDDEN)
+    @Stable
+    fun merge(
+        color: Color = Color.Unspecified,
+        fontSize: TextUnit = TextUnit.Unspecified,
+        fontWeight: FontWeight? = null,
+        fontStyle: FontStyle? = null,
+        fontSynthesis: FontSynthesis? = null,
+        fontFamily: FontFamily? = null,
+        fontFeatureSettings: String? = null,
+        letterSpacing: TextUnit = TextUnit.Unspecified,
+        baselineShift: BaselineShift? = null,
+        textGeometricTransform: TextGeometricTransform? = null,
+        localeList: LocaleList? = null,
+        background: Color = Color.Unspecified,
+        textDecoration: TextDecoration? = null,
+        shadow: Shadow? = null,
+        drawStyle: DrawStyle? = null,
+        textAlign: TextAlign? = null,
+        textDirection: TextDirection? = null,
+        lineHeight: TextUnit = TextUnit.Unspecified,
+        textIndent: TextIndent? = null,
+        lineHeightStyle: LineHeightStyle? = null,
+        lineBreak: LineBreak? = null,
+        hyphens: Hyphens? = null,
+        platformStyle: PlatformTextStyle? = null,
+        textMotion: TextMotion? = null
+    ): TextStyle {
+        val mergedSpanStyle: SpanStyle = spanStyle.fastMerge(
+            color = color,
+            brush = null,
+            alpha = Float.NaN,
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            fontStyle = fontStyle,
+            fontSynthesis = fontSynthesis,
+            fontFamily = fontFamily,
+            fontFeatureSettings = fontFeatureSettings,
+            letterSpacing = letterSpacing,
+            baselineShift = baselineShift,
+            textGeometricTransform = textGeometricTransform,
+            localeList = localeList,
+            background = background,
+            textDecoration = textDecoration,
+            shadow = shadow,
+            platformStyle = platformStyle?.spanStyle,
+            drawStyle = drawStyle
+        )
+        val mergedParagraphStyle: ParagraphStyle = paragraphStyle.fastMerge(
+            textAlign = textAlign ?: TextAlign.Unspecified,
+            textDirection = textDirection ?: TextDirection.Unspecified,
+            lineHeight = lineHeight,
+            textIndent = textIndent,
+            platformStyle = platformStyle?.paragraphStyle,
+            lineHeightStyle = lineHeightStyle,
+            lineBreak = lineBreak ?: LineBreak.Unspecified,
+            hyphens = hyphens ?: Hyphens.Unspecified,
             textMotion = textMotion
         )
         if (spanStyle === mergedSpanStyle && paragraphStyle === mergedParagraphStyle) return this
@@ -703,8 +898,8 @@ class TextStyle internal constructor(
                 drawStyle = this.spanStyle.drawStyle
             ),
             paragraphStyle = ParagraphStyle(
-                textAlign = textAlign,
-                textDirection = textDirection,
+                textAlign = textAlign ?: TextAlign.Unspecified,
+                textDirection = textDirection ?: TextDirection.Unspecified,
                 lineHeight = lineHeight,
                 textIndent = textIndent,
                 platformStyle = this.paragraphStyle.platformStyle,
@@ -769,8 +964,8 @@ class TextStyle internal constructor(
                 drawStyle = this.spanStyle.drawStyle
             ),
             paragraphStyle = ParagraphStyle(
-                textAlign = textAlign,
-                textDirection = textDirection,
+                textAlign = textAlign ?: TextAlign.Unspecified,
+                textDirection = textDirection ?: TextDirection.Unspecified,
                 lineHeight = lineHeight,
                 textIndent = textIndent,
                 platformStyle = platformStyle?.paragraphStyle,
@@ -837,20 +1032,25 @@ class TextStyle internal constructor(
                 drawStyle = this.drawStyle
             ),
             paragraphStyle = ParagraphStyle(
-                textAlign = textAlign,
-                textDirection = textDirection,
+                textAlign = textAlign ?: TextAlign.Unspecified,
+                textDirection = textDirection ?: TextDirection.Unspecified,
                 lineHeight = lineHeight,
                 textIndent = textIndent,
                 platformStyle = platformStyle?.paragraphStyle,
                 lineHeightStyle = lineHeightStyle,
-                lineBreak = lineBreak,
-                hyphens = hyphens,
+                lineBreak = lineBreak ?: LineBreak.Unspecified,
+                hyphens = hyphens ?: Hyphens.Unspecified,
                 textMotion = this.textMotion
             ),
             platformStyle = platformStyle
         )
     }
 
+    @Deprecated("copy constructors that take nullable TextAlign, " +
+        "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
+        "where these parameters are non-nullable. Null value has been replaced by a special " +
+        "Unspecified object for performance reason.",
+        level = DeprecationLevel.HIDDEN)
     fun copy(
         color: Color = this.spanStyle.color,
         fontSize: TextUnit = this.spanStyle.fontSize,
@@ -901,6 +1101,70 @@ class TextStyle internal constructor(
                 drawStyle = drawStyle
             ),
             paragraphStyle = ParagraphStyle(
+                textAlign = textAlign ?: TextAlign.Unspecified,
+                textDirection = textDirection ?: TextDirection.Unspecified,
+                lineHeight = lineHeight,
+                textIndent = textIndent,
+                platformStyle = platformStyle?.paragraphStyle,
+                lineHeightStyle = lineHeightStyle,
+                lineBreak = lineBreak ?: LineBreak.Unspecified,
+                hyphens = hyphens ?: Hyphens.Unspecified,
+                textMotion = textMotion
+            ),
+            platformStyle = platformStyle
+        )
+    }
+
+    fun copy(
+        color: Color = this.spanStyle.color,
+        fontSize: TextUnit = this.spanStyle.fontSize,
+        fontWeight: FontWeight? = this.spanStyle.fontWeight,
+        fontStyle: FontStyle? = this.spanStyle.fontStyle,
+        fontSynthesis: FontSynthesis? = this.spanStyle.fontSynthesis,
+        fontFamily: FontFamily? = this.spanStyle.fontFamily,
+        fontFeatureSettings: String? = this.spanStyle.fontFeatureSettings,
+        letterSpacing: TextUnit = this.spanStyle.letterSpacing,
+        baselineShift: BaselineShift? = this.spanStyle.baselineShift,
+        textGeometricTransform: TextGeometricTransform? = this.spanStyle.textGeometricTransform,
+        localeList: LocaleList? = this.spanStyle.localeList,
+        background: Color = this.spanStyle.background,
+        textDecoration: TextDecoration? = this.spanStyle.textDecoration,
+        shadow: Shadow? = this.spanStyle.shadow,
+        drawStyle: DrawStyle? = this.spanStyle.drawStyle,
+        textAlign: TextAlign = this.paragraphStyle.textAlign,
+        textDirection: TextDirection = this.paragraphStyle.textDirection,
+        lineHeight: TextUnit = this.paragraphStyle.lineHeight,
+        textIndent: TextIndent? = this.paragraphStyle.textIndent,
+        platformStyle: PlatformTextStyle? = this.platformStyle,
+        lineHeightStyle: LineHeightStyle? = this.paragraphStyle.lineHeightStyle,
+        lineBreak: LineBreak = this.paragraphStyle.lineBreak,
+        hyphens: Hyphens = this.paragraphStyle.hyphens,
+        textMotion: TextMotion? = this.paragraphStyle.textMotion,
+    ): TextStyle {
+        return TextStyle(
+            spanStyle = SpanStyle(
+                textForegroundStyle = if (color == this.spanStyle.color) {
+                    spanStyle.textForegroundStyle
+                } else {
+                    TextForegroundStyle.from(color)
+                },
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                fontStyle = fontStyle,
+                fontSynthesis = fontSynthesis,
+                fontFamily = fontFamily,
+                fontFeatureSettings = fontFeatureSettings,
+                letterSpacing = letterSpacing,
+                baselineShift = baselineShift,
+                textGeometricTransform = textGeometricTransform,
+                localeList = localeList,
+                background = background,
+                textDecoration = textDecoration,
+                shadow = shadow,
+                platformStyle = platformStyle?.spanStyle,
+                drawStyle = drawStyle
+            ),
+            paragraphStyle = ParagraphStyle(
                 textAlign = textAlign,
                 textDirection = textDirection,
                 lineHeight = lineHeight,
@@ -915,6 +1179,11 @@ class TextStyle internal constructor(
         )
     }
 
+    @Deprecated("copy constructors that take nullable TextAlign, " +
+        "TextDirection, LineBreak, and Hyphens are deprecated. Please use a new constructor " +
+        "where these parameters are non-nullable. Null value has been replaced by a special " +
+        "Unspecified object for performance reason.",
+        level = DeprecationLevel.HIDDEN)
     fun copy(
         brush: Brush?,
         alpha: Float = this.spanStyle.alpha,
@@ -940,6 +1209,68 @@ class TextStyle internal constructor(
         lineHeightStyle: LineHeightStyle? = this.paragraphStyle.lineHeightStyle,
         lineBreak: LineBreak? = this.paragraphStyle.lineBreak,
         hyphens: Hyphens? = this.paragraphStyle.hyphens,
+        textMotion: TextMotion? = this.paragraphStyle.textMotion,
+    ): TextStyle {
+        return TextStyle(
+            spanStyle = SpanStyle(
+                brush = brush,
+                alpha = alpha,
+                fontSize = fontSize,
+                fontWeight = fontWeight,
+                fontStyle = fontStyle,
+                fontSynthesis = fontSynthesis,
+                fontFamily = fontFamily,
+                fontFeatureSettings = fontFeatureSettings,
+                letterSpacing = letterSpacing,
+                baselineShift = baselineShift,
+                textGeometricTransform = textGeometricTransform,
+                localeList = localeList,
+                background = background,
+                textDecoration = textDecoration,
+                shadow = shadow,
+                platformStyle = platformStyle?.spanStyle,
+                drawStyle = drawStyle
+            ),
+            paragraphStyle = ParagraphStyle(
+                textAlign = textAlign ?: TextAlign.Unspecified,
+                textDirection = textDirection ?: TextDirection.Unspecified,
+                lineHeight = lineHeight,
+                textIndent = textIndent,
+                platformStyle = platformStyle?.paragraphStyle,
+                lineHeightStyle = lineHeightStyle,
+                lineBreak = lineBreak ?: LineBreak.Unspecified,
+                hyphens = hyphens ?: Hyphens.Unspecified,
+                textMotion = textMotion
+            ),
+            platformStyle = platformStyle
+        )
+    }
+
+    fun copy(
+        brush: Brush?,
+        alpha: Float = this.spanStyle.alpha,
+        fontSize: TextUnit = this.spanStyle.fontSize,
+        fontWeight: FontWeight? = this.spanStyle.fontWeight,
+        fontStyle: FontStyle? = this.spanStyle.fontStyle,
+        fontSynthesis: FontSynthesis? = this.spanStyle.fontSynthesis,
+        fontFamily: FontFamily? = this.spanStyle.fontFamily,
+        fontFeatureSettings: String? = this.spanStyle.fontFeatureSettings,
+        letterSpacing: TextUnit = this.spanStyle.letterSpacing,
+        baselineShift: BaselineShift? = this.spanStyle.baselineShift,
+        textGeometricTransform: TextGeometricTransform? = this.spanStyle.textGeometricTransform,
+        localeList: LocaleList? = this.spanStyle.localeList,
+        background: Color = this.spanStyle.background,
+        textDecoration: TextDecoration? = this.spanStyle.textDecoration,
+        shadow: Shadow? = this.spanStyle.shadow,
+        drawStyle: DrawStyle? = this.spanStyle.drawStyle,
+        textAlign: TextAlign = this.paragraphStyle.textAlign,
+        textDirection: TextDirection = this.paragraphStyle.textDirection,
+        lineHeight: TextUnit = this.paragraphStyle.lineHeight,
+        textIndent: TextIndent? = this.paragraphStyle.textIndent,
+        platformStyle: PlatformTextStyle? = this.platformStyle,
+        lineHeightStyle: LineHeightStyle? = this.paragraphStyle.lineHeightStyle,
+        lineBreak: LineBreak = this.paragraphStyle.lineBreak,
+        hyphens: Hyphens = this.paragraphStyle.hyphens,
         textMotion: TextMotion? = this.paragraphStyle.textMotion,
     ): TextStyle {
         return TextStyle(
@@ -1071,14 +1402,24 @@ class TextStyle internal constructor(
     /**
      * The alignment of the text within the lines of the paragraph.
      */
-    val textAlign: TextAlign? get() = this.paragraphStyle.textAlign
+    val textAlign: TextAlign get() = this.paragraphStyle.textAlign
+
+    @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
+    @get:JvmName("getTextAlign")
+    @Suppress("unused")
+    val deprecated_boxing_textAlign: TextAlign? get() = this.textAlign
 
     /**
      * The algorithm to be used to resolve the final text and paragraph
      * direction: Left To Right or Right To Left. If no value is provided the system will use the
      * [LayoutDirection] as the primary signal.
      */
-    val textDirection: TextDirection? get() = this.paragraphStyle.textDirection
+    val textDirection: TextDirection get() = this.paragraphStyle.textDirection
+
+    @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
+    @get:JvmName("getTextDirection")
+    @Suppress("unused")
+    val deprecated_boxing_textDirection: TextDirection? get() = this.textDirection
 
     /**
      * Line height for the [Paragraph] in [TextUnit] unit, e.g. SP or EM.
@@ -1103,12 +1444,22 @@ class TextStyle internal constructor(
     /**
      * The hyphens configuration of the paragraph.
      */
-    val hyphens: Hyphens? get() = this.paragraphStyle.hyphens
+    val hyphens: Hyphens get() = this.paragraphStyle.hyphens
+
+    @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
+    @get:JvmName("getHyphens")
+    @Suppress("unused")
+    val deprecated_boxing_hyphens: Hyphens? get() = this.hyphens
 
     /**
      * The line breaking configuration of the paragraph.
      */
-    val lineBreak: LineBreak? get() = this.paragraphStyle.lineBreak
+    val lineBreak: LineBreak get() = this.paragraphStyle.lineBreak
+
+    @Deprecated("Kept for backwards compatibility.", level = DeprecationLevel.WARNING)
+    @get:JvmName("getLineBreak")
+    @Suppress("unused")
+    val deprecated_boxing_lineBreak: LineBreak? get() = this.lineBreak
 
     /**
      * Text character placement configuration, whether to optimize for animated or static text.
@@ -1241,14 +1592,14 @@ fun resolveDefaults(style: TextStyle, direction: LayoutDirection) = TextStyle(
  */
 internal fun resolveTextDirection(
     layoutDirection: LayoutDirection,
-    textDirection: TextDirection?
+    textDirection: TextDirection
 ): TextDirection {
     return when (textDirection) {
         TextDirection.Content -> when (layoutDirection) {
             LayoutDirection.Ltr -> TextDirection.ContentOrLtr
             LayoutDirection.Rtl -> TextDirection.ContentOrRtl
         }
-        null -> when (layoutDirection) {
+        TextDirection.Unspecified -> when (layoutDirection) {
             LayoutDirection.Ltr -> TextDirection.Ltr
             LayoutDirection.Rtl -> TextDirection.Rtl
         }

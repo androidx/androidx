@@ -28,6 +28,7 @@ dependencies {
     api("androidx.test:core:1.5.0")
     api(libs.kotlinStdlib)
     api(project(":fragment:fragment-testing-manifest"))
+    implementation(projectOrArtifact(":core:core-ktx"))
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.testExtJunit)
@@ -47,6 +48,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Extensions for testing 'fragment' artifact"
+    metalavaK2UastEnabled = true
 }
 
 android {

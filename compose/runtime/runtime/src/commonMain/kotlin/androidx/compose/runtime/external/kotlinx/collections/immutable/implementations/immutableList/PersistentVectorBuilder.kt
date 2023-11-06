@@ -238,8 +238,8 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
      * Returns the resulting root.
      */
     private fun pushBuffers(root: Array<Any?>?, rootSize: Int, shift: Int, buffersIterator: Iterator<Array<Any?>>): Array<Any?> {
-        check(buffersIterator.hasNext())
-        check(shift >= 0)
+        require(buffersIterator.hasNext()) {"invalid buffersIterator"}
+        require(shift >= 0) {"negative shift"}
 
         if (shift == 0) {
             return buffersIterator.next()
@@ -415,7 +415,7 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
             nullBuffers: Int,
             nextBuffer: Array<Any?>
     ) {
-        checkNotNull(root)
+        checkNotNull(root) { "root is null" }
 
         val startLeafIndex = index shr LOG_MAX_BUFFER_SIZE
         val startLeaf = shiftLeafBuffers(startLeafIndex, rightShift, buffers, nullBuffers, nextBuffer)
@@ -443,7 +443,7 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
             nullBuffers: Int,
             nextBuffer: Array<Any?>
     ): Array<Any?> {
-        checkNotNull(root)
+        checkNotNull(root) { "root is null" }
 
         val leafCount = rootSize() shr LOG_MAX_BUFFER_SIZE
 
@@ -476,7 +476,7 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
             nullBuffers: Int,
             nextBuffer: Array<Any?>
     ) {
-        check(nullBuffers >= 1)
+        require(nullBuffers >= 1) { "requires at least one nullBuffer" }
 
         val firstBuffer = makeMutable(startBuffer)
         buffers[0] = firstBuffer
@@ -742,7 +742,7 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
      * If the height of the root is bigger than needed to store [size] elements, it's decreased.
      */
     private fun retainFirst(root: Array<Any?>, size: Int): Array<Any?>? {
-        check(size and MAX_BUFFER_SIZE_MINUS_ONE == 0)
+        require(size and MAX_BUFFER_SIZE_MINUS_ONE == 0) { "invalid size" }
 
         if (size == 0) {
             rootShift = 0
@@ -765,7 +765,7 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
      * Used to prevent memory leaks after reusing nodes.
      */
     private fun nullifyAfter(root: Array<Any?>, index: Int, shift: Int): Array<Any?> {
-        check(shift >= 0)
+        require(shift >= 0) { "shift should be positive" }
 
         if (shift == 0) {
             // the `root` is a leaf buffer.
@@ -974,17 +974,17 @@ internal class PersistentVectorBuilder<E>(private var vector: PersistentList<E>,
     }
 
     private fun leafBufferIterator(index: Int): ListIterator<Array<Any?>> {
-        checkNotNull(root)
+        val root = checkNotNull(root) { "Invalid root" }
 
         val leafCount = rootSize() shr LOG_MAX_BUFFER_SIZE
 
         checkPositionIndex(index, leafCount)
 
         if (rootShift == 0) {
-            return SingleElementListIterator(root!!, index)
+            return SingleElementListIterator(root, index)
         }
 
         val trieHeight = rootShift / LOG_MAX_BUFFER_SIZE
-        return TrieIterator(root!!, index, leafCount, trieHeight)
+        return TrieIterator(root, index, leafCount, trieHeight)
     }
 }

@@ -25,20 +25,46 @@ internal class MetricsContainer(
      * Metrics are usually indexed by the names provided for them by the MetricCaptures, or an index
      */
     private val metrics: Array<MetricCapture> = arrayOf(TimeCapture()),
-    private val REPEAT_COUNT: Int
+    private val repeatCount: Int
 ) {
 
-    internal val data: Array<LongArray> = Array(metrics.size) {
-        LongArray(REPEAT_COUNT)
-    }
+    internal val names: List<String> = metrics.flatMap { it.names }
 
     /**
-     * Array of start / stop time, per measurement, to be passed to [UserspaceTracing].
+     * Each entry in the top level list is a multi-metric set of measurements.
+     *
+     * ```
+     * Example layout:
+     *     repeatCount = 2
+     *     metrics = [ MetricCapture(names = "X","Y"), MetricCapture(names = "Z") ]
+     *
+     * names = [ "X", "Y", "Z" ]
+     * data = [
+     *    // NOTE: Z start()'d first, but stop()'d last
+     *    [X1, Y1, Z1]
+     *    [X2, Y2, Z2]
+     * ]
+     * ```
+     *
+     * NOTE: Performance of warmup is very dependent on this structure, be very careful changing
+     * changing this. E.g. using a single linear LongArray or an Array<LongArray> both caused
+     * warmup measurements of a noop loop to fluctuate, and increase significantly
+     * (from 75ns to 450ns on an API 30 Bramble).
+     */
+    internal val data: List<LongArray> = List(repeatCount) { LongArray(names.size) }
+
+    /**
+     * Array of start / stop time, per measurement, to be passed to [InMemoryTracing].
      *
      * These values are used both in metric calculation and trace data, so tracing is extremely low
      * overhead - just the cost of storing the timing data in an additional place in memory.
      */
-    private val traceTiming = LongArray(REPEAT_COUNT * 2)
+    private val repeatTiming = LongArray(repeatCount * 2)
+
+    fun peekSingleRepeatTime(): Long {
+        check(repeatCount == 1) { "Observed repeat count $repeatCount, expected 1" }
+        return repeatTiming[1] - repeatTiming[0]
+    }
 
     private var runNum: Int = 0
 
@@ -58,9 +84,9 @@ internal class MetricsContainer(
      */
     fun captureStart() {
         val timeNs = System.nanoTime()
-        traceTiming[runNum * 2] = timeNs
-        for (i in 0..metrics.lastIndex) {
-            metrics[i].captureStart(timeNs) // put the most sensitive metric last to avoid overhead
+        repeatTiming[runNum * 2] = timeNs
+        for (i in metrics.lastIndex downTo 0) {
+            metrics[i].captureStart(timeNs) // put the most sensitive metric first to avoid overhead
         }
     }
 
@@ -71,10 +97,12 @@ internal class MetricsContainer(
      */
     fun captureStop() {
         val timeNs = System.nanoTime()
-        for (i in metrics.lastIndex downTo 0) { // stop in reverse order
-            data[i][runNum] = metrics[i].captureStop(timeNs)
+        var offset = 0
+        for (i in 0..metrics.lastIndex) { // stop in reverse order from start
+            metrics[i].captureStop(timeNs, data[runNum], offset)
+            offset += metrics[i].names.size
         }
-        traceTiming[runNum * 2 + 1] = timeNs
+        repeatTiming[runNum * 2 + 1] = timeNs
         runNum += 1
     }
 
@@ -106,30 +134,28 @@ internal class MetricsContainer(
      * Call exactly once at the end of a benchmark.
      */
     fun captureFinished(maxIterations: Int): List<MetricResult> {
-        for (i in 0..traceTiming.lastIndex step 2) {
-            UserspaceTracing.beginSection("measurement ${i / 2}", nanoTime = traceTiming[i])
-            UserspaceTracing.endSection(nanoTime = traceTiming[i + 1])
+        for (i in 0..repeatTiming.lastIndex step 2) {
+            InMemoryTracing.beginSection("measurement ${i / 2}", nanoTime = repeatTiming[i])
+            InMemoryTracing.endSection(nanoTime = repeatTiming[i + 1])
         }
-        return data.mapIndexed { index, longMeasurementArray ->
-            val metric = metrics[index]
 
-            // convert to floats and divide by iter count here for efficiency
-            val scaledMeasurements = longMeasurementArray
-                .map { it / maxIterations.toDouble() }
-
-            scaledMeasurements.chunked(10)
+        return names.mapIndexed { index, name ->
+            val metricData = List(repeatCount) {
+                // convert to floats and divide by iter count here for efficiency
+                data[it][index] / maxIterations.toDouble()
+            }
+            metricData.chunked(10)
                 .forEachIndexed { chunkNum, chunk ->
                     Log.d(
                         BenchmarkState.TAG,
-                        metric.name + "[%2d:%2d]: %s".format(
+                        name + "[%2d:%2d]: %s".format(
                             chunkNum * 10,
                             (chunkNum + 1) * 10,
                             chunk.joinToString(" ") { it.toLong().toString() }
                         )
                     )
                 }
-
-            MetricResult(metric.name, scaledMeasurements)
+            MetricResult(name, metricData)
         }
     }
 }

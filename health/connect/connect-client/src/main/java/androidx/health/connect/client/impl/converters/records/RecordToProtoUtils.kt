@@ -100,8 +100,10 @@ internal fun SleepSessionRecord.Stage.toProto(): DataProto.SubTypeDataValue {
             enumValFromInt(stage, SleepSessionRecord.STAGE_TYPE_INT_TO_STRING_MAP)?.let {
                 putValues("stage", it)
             }
-        }.build()
+        }
+        .build()
 }
+
 internal fun ExerciseSegment.toProto(): DataProto.SubTypeDataValue {
     return DataProto.SubTypeDataValue.newBuilder()
         .setStartTimeMillis(startTime.toEpochMilli())

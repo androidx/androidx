@@ -22,10 +22,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.caches.LruCache
 import androidx.compose.ui.text.caches.SimpleArrayMap
-import androidx.compose.ui.text.fastDistinctBy
-import androidx.compose.ui.text.fastFilter
+import androidx.compose.ui.text.platform.FontCacheManagementDispatcher
 import androidx.compose.ui.text.platform.createSynchronizedObject
 import androidx.compose.ui.text.platform.synchronized
+import androidx.compose.ui.util.fastDistinctBy
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import kotlin.coroutines.CoroutineContext
@@ -53,7 +54,10 @@ internal class FontListFontFamilyTypefaceAdapter(
 
     private var asyncLoadScope: CoroutineScope = CoroutineScope(
         // order is important, we prefer our handler but allow injected to overwrite
-        DropExceptionHandler + injectedContext + SupervisorJob(injectedContext[Job])
+        DropExceptionHandler /* default */ +
+            FontCacheManagementDispatcher /* default */ +
+            injectedContext /* from caller */ +
+            SupervisorJob(injectedContext[Job]) /* forced */
     )
 
     suspend fun preload(

@@ -54,6 +54,7 @@ import android.widget.TextView;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.DrawableRes;
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -142,6 +143,11 @@ public final class TextViewCompat {
      * {@link TextView#setCompoundDrawables} or related methods.
      *
      * @param textView The TextView against which to invoke the method.
+     * @param start position in pixels of the start bound
+     * @param top position in pixels of the top bound
+     * @param end position in pixels of the end bound
+     * @param bottom position in pixels of the bottom bound
+     *
      * @attr name android:drawableStart
      * @attr name android:drawableTop
      * @attr name android:drawableEnd
@@ -169,6 +175,11 @@ public final class TextViewCompat {
      * {@link TextView#setCompoundDrawables} or related methods.
      *
      * @param textView The TextView against which to invoke the method.
+     * @param start drawable to use at start
+     * @param top drawable to use at top
+     * @param end drawable to use at end
+     * @param bottom drawable to use at bottom
+     *
      * @attr name android:drawableStart
      * @attr name android:drawableTop
      * @attr name android:drawableEnd
@@ -318,6 +329,7 @@ public final class TextViewCompat {
      * Specify whether this widget should automatically scale the text to try to perfectly fit
      * within the layout bounds by using the default auto-size configuration.
      *
+     * @param textView TextView for which to set the mode.
      * @param autoSizeTextType the type of auto-size. Must be one of
      *        {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_NONE} or
      *        {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}
@@ -339,6 +351,7 @@ public final class TextViewCompat {
      * within the layout bounds. If all the configuration params are valid the type of auto-size is
      * set to {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}.
      *
+     * @param textView TextView for which to set the mode.
      * @param autoSizeMinTextSize the minimum text size available for auto-size
      * @param autoSizeMaxTextSize the maximum text size available for auto-size
      * @param autoSizeStepGranularity the auto-size step granularity. It is used in conjunction with
@@ -376,6 +389,7 @@ public final class TextViewCompat {
      * within the layout bounds. If at least one value from the <code>presetSizes</code> is valid
      * then the type of auto-size is set to {@link TextViewCompat#AUTO_SIZE_TEXT_TYPE_UNIFORM}.
      *
+     * @param textView TextView for which to set the mode.
      * @param presetSizes an {@code int} array of sizes in pixels
      * @param unit the desired dimension unit for the preset sizes above. See {@link TypedValue} for
      *             the possible dimension units
@@ -701,6 +715,7 @@ public final class TextViewCompat {
      * <strong>Note</strong> that if {@code FontMetrics.top} or {@code FontMetrics.ascent} was
      * already greater than {@code firstBaselineToTopHeight}, the top padding is not updated.
      *
+     * @param textView TextView for which to set the padding.
      * @param firstBaselineToTopHeight distance between first baseline to top of the container
      *      in pixels
      *
@@ -746,6 +761,7 @@ public final class TextViewCompat {
      * <strong>Note</strong> that if {@code FontMetrics.bottom} or {@code FontMetrics.descent} was
      * already greater than {@code lastBaselineToBottomHeight}, the bottom padding is not updated.
      *
+     * @param textView TextView for which to set the padding.
      * @param lastBaselineToBottomHeight distance between last baseline to bottom of the container
      *      in pixels
      *
@@ -806,6 +822,7 @@ public final class TextViewCompat {
      * Sets an explicit line height for this TextView. This is equivalent to the vertical distance
      * between subsequent baselines in the TextView.
      *
+     * @param textView the TextView to modify
      * @param lineHeight the line height in pixels
      *
      * @see TextView#setLineSpacing(float, float)
@@ -823,6 +840,38 @@ public final class TextViewCompat {
         if (lineHeight != fontHeight) {
             // Set lineSpacingExtra by the difference of lineSpacing with lineHeight
             textView.setLineSpacing(lineHeight - fontHeight, 1f);
+        }
+    }
+
+    /**
+     * Sets an explicit line height to a given unit and value for the TextView. This is equivalent
+     * to the vertical distance between subsequent baselines in the TextView. See {@link
+     * TypedValue} for the possible dimension units.
+     *
+     * @param textView the TextView to modify
+     * @param unit The desired dimension unit. SP units are strongly recommended so that line height
+     *             stays proportional to the text size when fonts are scaled up for accessibility.
+     * @param lineHeight The desired line height in the given units.
+     *
+     * @see TextView#setLineSpacing(float, float)
+     * @see TextView#getLineSpacingExtra()
+     *
+     * @attr ref android.R.styleable#TextView_lineHeight
+     */
+    public static void setLineHeight(
+            @NonNull TextView textView,
+            int unit,
+            @FloatRange(from = 0) float lineHeight
+    ) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setLineHeight(textView, unit, lineHeight);
+        } else {
+            float lineHeightPx = TypedValue.applyDimension(
+                    unit,
+                    lineHeight,
+                    textView.getResources().getDisplayMetrics()
+            );
+            setLineHeight(textView, Math.round(lineHeightPx));
         }
     }
 
@@ -1281,6 +1330,22 @@ public final class TextViewCompat {
         @DoNotInline
         static DecimalFormatSymbols getInstance(Locale locale) {
             return DecimalFormatSymbols.getInstance(locale);
+        }
+    }
+
+    @RequiresApi(34)
+    static class Api34Impl {
+        private Api34Impl() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        public static void setLineHeight(
+                @NonNull TextView textView,
+                int unit,
+                @FloatRange(from = 0) float lineHeight
+        ) {
+            textView.setLineHeight(unit, lineHeight);
         }
     }
 }

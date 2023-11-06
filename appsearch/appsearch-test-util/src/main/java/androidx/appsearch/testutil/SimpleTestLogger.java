@@ -35,7 +35,7 @@ import java.util.List;
 /**
  * Non-thread-safe simple logger implementation for testing.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class SimpleTestLogger implements AppSearchLogger {

@@ -1,524 +1,218 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.1.0-alpha07">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static class DefaultEmojiCompatConfigFactory {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            } else if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/DefaultEmojiCompatConfig.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        public DefaultEmojiCompatConfigFactory(@Nullable DefaultEmojiCompatConfigHelper helper) {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/DefaultEmojiCompatConfig.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        public EmojiCompat.Config create(@NonNull Context context) {"
-        errorLine2="                                  ~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/DefaultEmojiCompatConfig.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        FontRequest queryForDefaultFontRequest(@NonNull Context context) {"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/DefaultEmojiCompatConfig.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static class DefaultEmojiCompatConfigHelper {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/DefaultEmojiCompatConfig.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static class DefaultEmojiCompatConfigHelper_API19"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/DefaultEmojiCompatConfig.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static class DefaultEmojiCompatConfigHelper_API28"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/DefaultEmojiCompatConfig.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="class DefaultGlyphChecker implements EmojiCompat.GlyphChecker {"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/DefaultGlyphChecker.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    private @interface LoadState {"
-        errorLine2="                       ~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        mHelper = Build.VERSION.SDK_INT &lt; 19 ? new CompatInternal(this) : new CompatInternal19("
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @interface ReplaceStrategy {"
-        errorLine2="                      ~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @interface LoadStrategy {"
-        errorLine2="                      ~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @interface CodepointSequenceMatchResult {"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static EmojiCompat init(@NonNull Context context,"
-        errorLine2="                              ~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static EmojiCompat reset(@NonNull final Config config) {"
-        errorLine2="                              ~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
+            file="src/main/java/androidx/emoji2/text/EmojiCompatInitializer.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static EmojiCompat reset(@Nullable final EmojiCompat emojiCompat) {"
-        errorLine2="                              ~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
+            file="src/main/java/androidx/emoji2/text/EmojiCompatInitializer.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static void skipDefaultConfigurationLookup(boolean shouldSkip) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
+            file="src/main/java/androidx/emoji2/text/EmojiCompatInitializer.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public boolean isEmojiSpanIndicatorEnabled() {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
+            file="src/main/java/androidx/emoji2/text/EmojiCompatInitializer.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @ColorInt int getEmojiSpanIndicatorColor() {"
-        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
+            file="src/main/java/androidx/emoji2/text/EmojiCompatInitializer.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static class DefaultSpanFactory implements SpanFactory {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/EmojiCompat.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class EmojiDefaults {"
-        errorLine2="             ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/EmojiDefaults.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="final class EmojiProcessor {"
-        errorLine2="            ~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/EmojiProcessor.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    EmojiSpan(@NonNull final TypefaceEmojiRasterizer rasterizer) {"
-        errorLine2="    ~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/EmojiProcessor.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/EmojiSpan.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    final int getWidth() {"
-        errorLine2="              ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/EmojiSpan.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public final int getHeight() {"
-        errorLine2="                     ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/EmojiSpan.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    final float getRatio() {"
-        errorLine2="                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/EmojiSpan.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public final int getId() {"
-        errorLine2="                     ~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/EmojiSpan.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public FontRequestEmojiCompatConfig(@NonNull Context context, @NonNull FontRequest request,"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/FontRequestEmojiCompatConfig.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static class FontProviderHelper {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/FontRequestEmojiCompatConfig.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="class MetadataListReader {"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/FontRequestEmojiCompatConfig.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(19)"
+        errorLine2="        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji2/text/FontRequestEmojiCompatConfig.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/MetadataListReader.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static MetadataRepo create(@NonNull final Typeface typeface) {"
-        errorLine2="                               ~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/MetadataRepo.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    Typeface getTypeface() {"
-        errorLine2="             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/MetadataRepo.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    int getMetadataVersion() {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/MetadataRepo.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    Node getRootNode() {"
-        errorLine2="         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/MetadataRepo.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public char[] getEmojiCharArray() {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/MetadataRepo.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public MetadataList getMetadataList() {"
-        errorLine2="                        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/MetadataRepo.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    void put(@NonNull final TypefaceEmojiRasterizer data) {"
-        errorLine2="         ~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/MetadataRepo.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    static class Node {"
-        errorLine2="                 ~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/MetadataRepo.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public final class SpannableBuilder extends SpannableStringBuilder {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/SpannableBuilder.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    SpannableBuilder(@NonNull Class&lt;?> watcherClass) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/SpannableBuilder.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    SpannableBuilder(@NonNull Class&lt;?> watcherClass, @NonNull CharSequence text) {"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/SpannableBuilder.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    SpannableBuilder(@NonNull Class&lt;?> watcherClass, @NonNull CharSequence text, int start,"
-        errorLine2="    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/SpannableBuilder.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static SpannableBuilder create(@NonNull Class&lt;?> clazz, @NonNull CharSequence text) {"
-        errorLine2="                                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/SpannableBuilder.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public void beginBatchEdit() {"
-        errorLine2="                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/SpannableBuilder.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public void endBatchEdit() {"
-        errorLine2="                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/SpannableBuilder.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @interface HasGlyph {"
-        errorLine2="                      ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    static final int HAS_GLYPH_UNKNOWN = 0;"
-        errorLine2="                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    static final int HAS_GLYPH_ABSENT = 1;"
-        errorLine2="                     ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    static final int HAS_GLYPH_EXISTS = 2;"
-        errorLine2="                     ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    TypefaceEmojiRasterizer(@NonNull final MetadataRepo metadataRepo,"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public int getId() {"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public short getCompatAdded() {"
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public short getSdkAdded() {"
-        errorLine2="                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public int getHasGlyph() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public void resetHasGlyphCache() {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public void setHasGlyph(boolean hasGlyph) {"
-        errorLine2="                ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public void setExclusion(boolean exclude) {"
-        errorLine2="                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/emoji2/text/TypefaceEmojiRasterizer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public final class TypefaceEmojiSpan extends EmojiSpan {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/emoji2/text/TypefaceEmojiSpan.java"/>
     </issue>

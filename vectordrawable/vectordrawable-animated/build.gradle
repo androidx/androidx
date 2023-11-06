@@ -8,7 +8,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
     api(project(":vectordrawable:vectordrawable"))
-    implementation("androidx.core:core:1.6.0")
+    implementation(project(":core:core"))
     implementation("androidx.interpolator:interpolator:1.0.0")
     implementation("androidx.collection:collection:1.1.0")
 
@@ -40,4 +40,5 @@ androidx {
     inceptionYear = "2015"
     description = "Android Support AnimatedVectorDrawable"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

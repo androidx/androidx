@@ -32,8 +32,8 @@ import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeCameraCoordinator
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -44,12 +44,13 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.util.ReflectionHelpers
 
-// @Config() is left out since there currently aren't any API level dependencies in this workaround
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
+@Config(minSdk = 21)
 class PreviewPixelHDRnetQuirkTest(
     private val manufacturer: String,
     private val device: String,
@@ -102,7 +103,7 @@ class PreviewPixelHDRnetQuirkTest(
     @Test
     fun previewShouldApplyToneModeForHDRNet() {
         // Arrange
-        val cameraUseCaseAdapter = configureCameraUseCaseAdapter(
+        cameraUseCaseAdapter = configureCameraUseCaseAdapter(
             resolutionVGA,
             configType = PreviewConfig::class.java
         )

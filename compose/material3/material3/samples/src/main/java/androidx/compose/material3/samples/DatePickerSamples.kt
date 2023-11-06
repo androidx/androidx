@@ -83,7 +83,9 @@ fun DatePickerDialogSample() {
     // TODO demo how to read the selected date from the state.
     if (openDialog.value) {
         val datePickerState = rememberDatePickerState()
-        val confirmEnabled = derivedStateOf { datePickerState.selectedDateMillis != null }
+        val confirmEnabled = remember {
+            derivedStateOf { datePickerState.selectedDateMillis != null }
+        }
         DatePickerDialog(
             onDismissRequest = {
                 // Dismiss the dialog when the user clicks outside the dialog or on the back

@@ -26,6 +26,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.work.Data;
+import androidx.work.DefaultWorkerFactory;
 import androidx.work.ForegroundUpdater;
 import androidx.work.ListenableWorker;
 import androidx.work.ProgressUpdater;
@@ -73,7 +74,7 @@ public class TestListenableWorkerBuilder<W extends ListenableWorker> {
         mTags = Collections.emptyList();
         mRunAttemptCount = 1;
         mRuntimeExtras = new WorkerParameters.RuntimeExtras();
-        mWorkerFactory = WorkerFactory.getDefaultWorkerFactory();
+        mWorkerFactory = DefaultWorkerFactory.INSTANCE;
         mTaskExecutor = new InstantWorkTaskExecutor();
         mExecutor = mTaskExecutor.getSerialTaskExecutor();
         mProgressUpdater = new TestProgressUpdater();

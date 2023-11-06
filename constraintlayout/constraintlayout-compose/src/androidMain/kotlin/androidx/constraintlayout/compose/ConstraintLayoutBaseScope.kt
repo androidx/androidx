@@ -39,6 +39,7 @@ abstract class ConstraintLayoutBaseScope internal constructor(extendFrom: CLObje
     @Deprecated("Tasks is unused, it breaks the immutability promise.")
     protected val tasks = mutableListOf<(State) -> Unit>()
 
+    @PublishedApi
     internal val containerObject: CLObject = extendFrom?.clone() ?: CLObject(charArrayOf())
 
     fun applyTo(state: State) {

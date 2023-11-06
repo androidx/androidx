@@ -47,72 +47,80 @@ import java.util.Set;
 /**
  * Contains metadata about an item, such as the title, artist, etc. This is optional, but you'd
  * better to provide this as much as possible when you're using media widget and/or session APIs.
- * <p>
- * The media widget components build its UI based on the metadata here. For an example,
- * {@link androidx.media2.widget.MediaControlView} will show title from the metadata.
- * <p>
- * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require
- * some metadata values when it provides
- * {@link MediaItem}s to {@link androidx.media2.session.MediaBrowser}.
- * <p>
- * Topics covered here:
+ *
+ * <p>The media widget components build its UI based on the metadata here. For an example, {@link
+ * androidx.media2.widget.MediaControlView} will show title from the metadata.
+ *
+ * <p>The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require some
+ * metadata values when it provides {@link MediaItem}s to {@link
+ * androidx.media2.session.MediaBrowser}.
+ *
+ * <p>Topics covered here:
+ *
  * <ol>
- * <li><a href="#MediaId">Media ID</a>
- * <li><a href="#Browsable">Browsable type</a>
- * <li><a href="#Playable">Playable</a>
- * <li><a href="#Duration">Duration</a>
- * <li><a href="#UserRating">User rating</a>
+ *   <li><a href="#MediaId">Media ID</a>
+ *   <li><a href="#Browsable">Browsable type</a>
+ *   <li><a href="#Playable">Playable</a>
+ *   <li><a href="#Duration">Duration</a>
+ *   <li><a href="#UserRating">User rating</a>
  * </ol>
+ *
  * <h3 id="MediaId">{@link MediaMetadata#METADATA_KEY_MEDIA_ID Media ID}</h3>
- * <p>
- * If set, the media ID must be the persistent key for the underlying media contents, so
- * {@link androidx.media2.session.MediaController} and {@link androidx.media2.session.MediaBrowser}
- * can store the information and reuse it later. Some APIs requires a media ID (e.g.
- * {@link androidx.media2.session.MediaController#setRating}, so you'd better specify
- * one.
- * <p>
- * Typical example of using media ID is the URI of the contents, but use it with the caution because
- * the metadata is shared across the process in plain text.
- * <p>
- * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require it
- * for the library root, so {@link androidx.media2.session.MediaBrowser} can call subsequent
- * {@link androidx.media2.session.MediaBrowser#getChildren} with the ID.
+ *
+ * <p>If set, the media ID must be the persistent key for the underlying media contents, so {@link
+ * androidx.media2.session.MediaController} and {@link androidx.media2.session.MediaBrowser} can
+ * store the information and reuse it later. Some APIs requires a media ID (e.g. {@link
+ * androidx.media2.session.MediaController#setRating}, so you'd better specify one.
+ *
+ * <p>Typical example of using media ID is the URI of the contents, but use it with the caution
+ * because the metadata is shared across the process in plain text.
+ *
+ * <p>The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require it
+ * for the library root, so {@link androidx.media2.session.MediaBrowser} can call subsequent {@link
+ * androidx.media2.session.MediaBrowser#getChildren} with the ID.
+ *
  * <h3 id="Browsable">{@link MediaMetadata#METADATA_KEY_BROWSABLE Browsable type}</h3>
- * <p>
- * Browsable defines whether the media item has children and type of children if any. With this,
- * {@link androidx.media2.session.MediaBrowser} can know whether the subsequent
- * {@link androidx.media2.session.MediaBrowser#getChildren} would successfully run.
- * <p>
- * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require
- * the explicit browsable type for the media items returned by the
- * {@link
+ *
+ * <p>Browsable defines whether the media item has children and type of children if any. With this,
+ * {@link androidx.media2.session.MediaBrowser} can know whether the subsequent {@link
+ * androidx.media2.session.MediaBrowser#getChildren} would successfully run.
+ *
+ * <p>The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require the
+ * explicit browsable type for the media items returned by the {@link
  * androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback}.
+ *
  * <h3 id="Playable">{@link MediaMetadata#METADATA_KEY_PLAYABLE Playable type}</h3>
- * <p>
- * Playable defines whether the media item can be played or not. It may be possible for a playlist
- * to contain a media item which isn't playable in order to show a disabled media item.
- * <p>
- * The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require
- * the explicit playable value for the media items returned by the
- * {@link
+ *
+ * <p>Playable defines whether the media item can be played or not. It may be possible for a
+ * playlist to contain a media item which isn't playable in order to show a disabled media item.
+ *
+ * <p>The {@link androidx.media2.session.MediaLibraryService.MediaLibrarySession} would require the
+ * explicit playable value for the media items returned by the {@link
  * androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibrarySessionCallback}.
+ *
  * <h3 id="Duration">{@link MediaMetadata#METADATA_KEY_DURATION Duration}</h3>
+ *
  * The duration is the length of the contents. The {@link androidx.media2.session.MediaController}
  * can only get the duration through the metadata. This tells when would the playback ends, and also
  * tells about the allowed range of {@link androidx.media2.session.MediaController#seekTo(long)}.
- * <p>
- * If it's not set by developer, {@link androidx.media2.session.MediaSession} would update
- * the duration in the metadata with the {@link SessionPlayer#getDuration()}.
+ *
+ * <p>If it's not set by developer, {@link androidx.media2.session.MediaSession} would update the
+ * duration in the metadata with the {@link SessionPlayer#getDuration()}.
+ *
  * <h3 id="UserRating">{@link MediaMetadata#METADATA_KEY_USER_RATING User rating}</h3>
- * <p>
- * Prefer to have unrated user rating instead of {@code null}, so
- * {@link androidx.media2.session.MediaController} can know the possible user rating type
- * for calling {@link androidx.media2.session.MediaController#setRating(String, Rating)}.
+ *
+ * <p>Prefer to have unrated user rating instead of {@code null}, so {@link
+ * androidx.media2.session.MediaController} can know the possible user rating type for calling
+ * {@link androidx.media2.session.MediaController#setRating(String, Rating)}.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
 // New version of MediaMetadata with following changes
 //   - Don't implement Parcelable for updatable support.
 //   - Also support MediaDescription features. MediaDescription is deprecated instead because
 //     it was insufficient for controller to display media contents. (e.g. duration is missing)
+@Deprecated
 @VersionedParcelize(isCustom = true)
 public final class MediaMetadata extends CustomVersionedParcelable {
     private static final String TAG = "MediaMetadata";
@@ -982,9 +990,13 @@ public final class MediaMetadata extends CustomVersionedParcelable {
     }
 
     /**
-     * Use to build MediaMetadatax objects. The system defined metadata keys must
-     * use the appropriate data type.
+     * Use to build MediaMetadatax objects. The system defined metadata keys must use the
+     * appropriate data type.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static final class Builder {
         final Bundle mBundle;
 
@@ -1242,7 +1254,11 @@ public final class MediaMetadata extends CustomVersionedParcelable {
 
     /**
      * Stores a bitmap and the matching key. Used for sending bitmaps to other process one-by-one.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     @VersionedParcelize
     static final class BitmapEntry implements VersionedParcelable {
         static final int BITMAP_SIZE_LIMIT_IN_BYTES = 256 * 1024; // 256 KB

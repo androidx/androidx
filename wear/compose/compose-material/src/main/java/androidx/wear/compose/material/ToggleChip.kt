@@ -15,43 +15,23 @@
  */
 package androidx.wear.compose.material
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.calculateEndPadding
-import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.materialIcon
 import androidx.compose.material.icons.materialPath
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -63,7 +43,6 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -79,6 +58,8 @@ import androidx.compose.ui.unit.dp
  *
  * The [ToggleChip] is Stadium shaped and has a max height designed to take no more than
  * two lines of text of [Typography.button] style.
+ * With localisation and/or large font sizes, the [ToggleChip] height adjusts to
+ * accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * The recommended set of [ToggleChipColors] can be obtained from
  * [ToggleChipDefaults], e.g. [ToggleChipDefaults.toggleChipColors].
@@ -138,88 +119,45 @@ public fun ToggleChip(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.small,
-) {
-    Box(
-        modifier = modifier
-            .height(ToggleChipDefaults.Height)
-            .clip(shape = shape)
-            .width(IntrinsicSize.Max)
-            .paint(
-                painter = colors.background(enabled = enabled, checked = checked).value,
-                contentScale = ContentScale.Crop
-            )
-            .toggleable(
-                enabled = enabled,
-                value = checked,
-                onValueChange = onCheckedChange,
-                role = Role.Checkbox,
-                indication = rememberRipple(),
-                interactionSource = interactionSource
-            )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxHeight()
-                .padding(contentPadding),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (appIcon != null) {
-                Box(
-                    modifier = Modifier.wrapContentSize(align = Alignment.Center)
-                ) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides colors.contentColor(
-                            enabled = enabled,
-                            checked = checked
-                        ).value,
-                        LocalContentAlpha provides
-                            colors.contentColor(
-                                enabled = enabled,
-                                checked = checked
-                            ).value.alpha,
-                    ) {
-                        appIcon()
-                    }
-                }
-                Spacer(modifier = Modifier.size(ToggleChipDefaults.IconSpacing))
-            }
-            Labels(
-                contentColor = colors.contentColor(enabled = enabled, checked = checked).value,
-                secondaryContentColor = colors.secondaryContentColor(
-                    enabled = enabled,
-                    checked = checked
-                ).value,
-                label = label,
-                secondaryLabel = secondaryLabel,
-            )
-            Spacer(
-                modifier = Modifier.size(
-                    ToggleChipDefaults.ToggleControlSpacing
-                )
-            )
-            Box(
-                modifier = Modifier
-                    .align(Alignment.CenterVertically)
-                    .width(24.dp)
-                    .wrapContentWidth(align = Alignment.End)
-            ) {
-                CompositionLocalProvider(
-                    LocalContentColor provides
-                        colors.toggleControlColor(
-                            enabled = enabled,
-                            checked = checked
-                        ).value,
-                    LocalContentAlpha provides
-                        colors.toggleControlColor(
-                            enabled = enabled,
-                            checked = checked
-                        ).value.alpha,
-                    content = toggleControl
-                )
-            }
-        }
-    }
-}
+) = androidx.wear.compose.materialcore.ToggleButton(
+    checked = checked,
+    onCheckedChange = onCheckedChange,
+    label = provideScopeContent(
+        contentColor = colors.contentColor(enabled = enabled, checked),
+        textStyle = MaterialTheme.typography.button,
+        content = label
+    ),
+    selectionControl = provideContent(
+        contentColor = colors.toggleControlColor(enabled, checked),
+        content = toggleControl
+    ),
+    modifier = modifier
+        .defaultMinSize(minHeight = ToggleChipDefaults.Height)
+        .height(IntrinsicSize.Min),
+    icon = provideNullableScopeContent(
+        contentColor = colors.contentColor(enabled = enabled, checked = checked),
+        content = appIcon
+    ),
+    secondaryLabel = provideNullableScopeContent(
+        contentColor = colors.secondaryContentColor(enabled = enabled, checked),
+        textStyle = MaterialTheme.typography.caption2,
+        content = secondaryLabel
+    ),
+    background = { isEnabled, isChecked ->
+        val painter = colors.background(
+            enabled = isEnabled,
+            checked = isChecked
+        ).value
+
+        Modifier.paint(painter = painter, contentScale = ContentScale.Crop)
+    },
+    enabled = enabled,
+    interactionSource = interactionSource,
+    contentPadding = contentPadding,
+    shape = shape,
+    selectionControlHeight = TOGGLE_CONTROL_HEIGHT,
+    selectionControlWidth = TOGGLE_CONTROL_WIDTH
+)
 
 /**
  * A [SplitToggleChip] is a specialized type of [Chip] that includes a slot for a toggle control,
@@ -240,6 +178,8 @@ public fun ToggleChip(
  *
  * The [SplitToggleChip] is Stadium shaped and has a max height designed to take no more than
  * two lines of text of [Typography.button] style.
+ * With localisation and/or large font sizes, the [SplitToggleChip] height adjusts
+ * to accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * The recommended set of [SplitToggleChipColors] can be obtained from
  * [ToggleChipDefaults], e.g. [ToggleChipDefaults.splitToggleChipColors].
@@ -303,134 +243,40 @@ public fun SplitToggleChip(
     clickInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
     shape: Shape = MaterialTheme.shapes.small,
-) {
-    Box(
-        modifier = modifier
-            .height(ToggleChipDefaults.Height)
-            .width(IntrinsicSize.Max)
-            .clip(shape = shape)
-            .background(colors.backgroundColor(enabled = enabled).value)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxHeight()
-        ) {
-            Row(
-                modifier = Modifier
-                    .clickable(
-                        enabled = enabled,
-                        onClick = onClick,
-                        role = Role.Checkbox,
-                        indication = rememberRipple(),
-                        interactionSource = clickInteractionSource,
-                    )
-                    .fillMaxHeight()
-                    .padding(
-                        start = contentPadding
-                            .calculateStartPadding(LocalLayoutDirection.current),
-                        end = 0.dp,
-                        top = contentPadding.calculateTopPadding(),
-                        bottom = contentPadding.calculateBottomPadding()
-                    )
-                    .weight(1.0f),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Labels(
-                    contentColor = colors.contentColor(enabled).value,
-                    secondaryContentColor = colors.secondaryContentColor(enabled = enabled).value,
-                    label = label,
-                    secondaryLabel = secondaryLabel,
-                )
-                Spacer(
-                    modifier = Modifier
-                        .size(ToggleChipDefaults.ToggleControlSpacing)
-                )
-            }
-            var splitBoxModifier = Modifier.toggleable(
-                enabled = enabled,
-                value = checked,
-                onValueChange = onCheckedChange,
-                role = Role.Checkbox,
-                indication = rememberRipple(),
-                interactionSource = checkedInteractionSource,
-            )
-            val splitBackgroundOverlayColor = colors.splitBackgroundOverlay(
-                enabled = enabled,
-                checked = checked,
-            ).value
-            splitBoxModifier = splitBoxModifier
-                .fillMaxHeight()
-                .drawWithContent {
-                    drawContent()
-                    drawRect(color = splitBackgroundOverlayColor)
-                }
-                .align(Alignment.CenterVertically)
-                .width(52.dp)
-                .wrapContentHeight(align = Alignment.CenterVertically)
-                .wrapContentWidth(align = Alignment.End)
-                .padding(
-                    start = 0.dp,
-                    end = contentPadding
-                        .calculateEndPadding(
-                            layoutDirection = LocalLayoutDirection.current
-                        ),
-                    top = contentPadding.calculateTopPadding(),
-                    bottom = contentPadding.calculateBottomPadding()
-                )
-            Box(
-                modifier = splitBoxModifier
-            ) {
-                CompositionLocalProvider(
-                    LocalContentColor provides
-                        colors.toggleControlColor(
-                            enabled = enabled,
-                            checked = checked
-                        ).value,
-                    LocalContentAlpha provides
-                        colors.toggleControlColor(
-                            enabled = enabled,
-                            checked = checked
-                        ).value.alpha,
-                ) {
-                    toggleControl()
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RowScope.Labels(
-    contentColor: Color,
-    secondaryContentColor: Color,
-    label: @Composable RowScope.() -> Unit,
-    secondaryLabel: @Composable (RowScope.() -> Unit)?
-) {
-    Column(modifier = Modifier.weight(1.0f)) {
-        Row {
-            CompositionLocalProvider(
-                LocalContentColor provides
-                    contentColor,
-                LocalTextStyle provides MaterialTheme.typography.button,
-                LocalContentAlpha provides
-                    contentColor.alpha,
-            ) {
-                label()
-            }
-        }
-        if (secondaryLabel != null) {
-            Row {
-                CompositionLocalProvider(
-                    LocalContentColor provides secondaryContentColor,
-                    LocalTextStyle provides MaterialTheme.typography.caption2,
-                    LocalContentAlpha provides secondaryContentColor.alpha,
-                ) {
-                    secondaryLabel()
-                }
-            }
-        }
-    }
-}
+) = androidx.wear.compose.materialcore.SplitToggleButton(
+    checked = checked,
+    onCheckedChange = onCheckedChange,
+    label = provideScopeContent(
+        contentColor = colors.contentColor(enabled = enabled),
+        textStyle = MaterialTheme.typography.button,
+        content = label
+    ),
+    onClick = onClick,
+    selectionControl = provideScopeContent(
+        contentColor = colors.toggleControlColor(enabled = enabled, checked = checked),
+        content = toggleControl
+    ),
+    modifier = modifier
+        .defaultMinSize(minHeight = ToggleChipDefaults.Height)
+        .height(IntrinsicSize.Min),
+    secondaryLabel = provideNullableScopeContent(
+        contentColor = colors.secondaryContentColor(enabled = enabled),
+        textStyle = MaterialTheme.typography.caption2,
+        content = secondaryLabel
+    ),
+    backgroundColor = { isEnabled, _ -> colors.backgroundColor(enabled = isEnabled) },
+    splitBackgroundColor = { isEnabled, isChecked ->
+        colors.splitBackgroundOverlay(
+            enabled = isEnabled,
+            checked = isChecked
+        )
+    },
+    enabled = enabled,
+    checkedInteractionSource = checkedInteractionSource,
+    clickInteractionSource = clickInteractionSource,
+    contentPadding = contentPadding,
+    shape = shape
+)
 
 /**
  * Represents the background and content colors used in [ToggleChip]s
@@ -774,7 +620,7 @@ public object ToggleChipDefaults {
      * Note that you can override it by applying Modifier.heightIn directly on [ToggleChip] or
      * [SplitToggleChip].
      */
-    internal val Height = 52.dp
+    public val Height = 52.dp
 
     /**
      * The default size of app icons or toggle controls when used inside a [ToggleChip] or
@@ -1220,3 +1066,6 @@ private class DefaultSplitToggleChipColors(
         return result
     }
 }
+
+private val TOGGLE_CONTROL_HEIGHT = 24.dp
+private val TOGGLE_CONTROL_WIDTH = 24.dp

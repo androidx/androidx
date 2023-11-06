@@ -20,9 +20,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.content.ComponentName;
 
-import androidx.wear.protolayout.expression.AppDataKey;
-import androidx.wear.protolayout.expression.DynamicBuilders;
-import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.proto.ActionProto;
 
 import org.junit.Test;
@@ -33,31 +30,18 @@ import java.util.Map;
 
 @RunWith(RobolectricTestRunner.class)
 public class ActionBuildersTest {
-    private static final ComponentName LAUNCH_COMPONENT = new ComponentName("com.package",
-            "launchClass");
-
-    @Test
-    public void setStateAction() {
-        AppDataKey<DynamicBuilders.DynamicString> key = new AppDataKey<>("key");
-        DynamicDataBuilders.DynamicDataValue value =
-                DynamicDataBuilders.DynamicDataValue.fromString("value");
-        ActionBuilders.SetStateAction setStateAction = new ActionBuilders.SetStateAction.Builder()
-                .setTargetKey(key).setValue(value).build();
-
-        assertThat(setStateAction.getTargetKey()).isEqualTo(key);
-        assertThat(setStateAction.getValue().toDynamicDataValueProto()).isEqualTo(
-                value.toDynamicDataValueProto());
-    }
+    private static final ComponentName LAUNCH_COMPONENT =
+            new ComponentName("com.package", "launchClass");
 
     @Test
     public void launchAction() {
         ActionBuilders.LaunchAction launchAction = ActionBuilders.launchAction(LAUNCH_COMPONENT);
 
         ActionProto.LaunchAction launchActionProto = launchAction.toActionProto().getLaunchAction();
-        assertThat(launchActionProto.getAndroidActivity().getPackageName()).isEqualTo(
-                LAUNCH_COMPONENT.getPackageName());
-        assertThat(launchActionProto.getAndroidActivity().getClassName()).isEqualTo(
-                LAUNCH_COMPONENT.getClassName());
+        assertThat(launchActionProto.getAndroidActivity().getPackageName())
+                .isEqualTo(LAUNCH_COMPONENT.getPackageName());
+        assertThat(launchActionProto.getAndroidActivity().getClassName())
+                .isEqualTo(LAUNCH_COMPONENT.getClassName());
     }
 
     @Test
@@ -69,19 +53,20 @@ public class ActionBuildersTest {
         ActionBuilders.AndroidIntExtra intExtra =
                 new ActionBuilders.AndroidIntExtra.Builder().setValue(42).build();
 
-        ActionBuilders.LaunchAction launchAction = ActionBuilders.launchAction(LAUNCH_COMPONENT,
-                Map.of(keyInt, intExtra, keyString, stringExtra));
+        ActionBuilders.LaunchAction launchAction =
+                ActionBuilders.launchAction(
+                        LAUNCH_COMPONENT, Map.of(keyInt, intExtra, keyString, stringExtra));
 
         ActionProto.LaunchAction launchActionProto = launchAction.toActionProto().getLaunchAction();
-        assertThat(launchActionProto.getAndroidActivity().getPackageName()).isEqualTo(
-                LAUNCH_COMPONENT.getPackageName());
-        assertThat(launchActionProto.getAndroidActivity().getClassName()).isEqualTo(
-                LAUNCH_COMPONENT.getClassName());
+        assertThat(launchActionProto.getAndroidActivity().getPackageName())
+                .isEqualTo(LAUNCH_COMPONENT.getPackageName());
+        assertThat(launchActionProto.getAndroidActivity().getClassName())
+                .isEqualTo(LAUNCH_COMPONENT.getClassName());
         Map<String, ActionProto.AndroidExtra> keyToExtraMap =
                 launchActionProto.getAndroidActivity().getKeyToExtraMap();
         assertThat(keyToExtraMap).hasSize(2);
-        assertThat(keyToExtraMap.get(keyString).getStringVal().getValue()).isEqualTo(
-                stringExtra.getValue());
+        assertThat(keyToExtraMap.get(keyString).getStringVal().getValue())
+                .isEqualTo(stringExtra.getValue());
         assertThat(keyToExtraMap.get(keyInt).getIntVal().getValue()).isEqualTo(intExtra.getValue());
     }
 }

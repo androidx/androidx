@@ -156,6 +156,7 @@ class DarwinBenchmarkPlugin : Plugin<Project> {
         // Context: b/257326666
         return providers.environmentVariable(DIST_DIR).map { value ->
             val parent = value.ifBlank {
+                @Suppress("DEPRECATION") // b/290811136
                 project.buildDir.absolutePath
             }
             File(parent, LIBRARY_METRICS)

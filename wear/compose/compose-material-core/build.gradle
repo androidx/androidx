@@ -74,6 +74,7 @@ androidx {
             "components that are shared between different WearOS Compose Material libraries. It " +
             "builds upon the Jetpack Compose libraries."
     targetsJavaConsumers = false
+    metalavaK2UastEnabled = true
 }
 
 tasks.withType(KotlinCompile).configureEach {

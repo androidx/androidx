@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.graph
 
+import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraBackend
@@ -93,6 +94,22 @@ constructor(
                 require(containsPreviewStream || containsVideoStream) {
                     "Cannot create a HIGH_SPEED CameraGraph without having a Preview or Video " +
                         "stream. Configured outputs are ${streamGraph.outputs}"
+                }
+            }
+        }
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            require(graphConfig.input == null) {
+                "Reprocessing not supported under Android M"
+            }
+        }
+        if (graphConfig.input != null) {
+            require(graphConfig.input.isNotEmpty()) {
+                "At least one InputConfiguration is required for reprocessing"
+            }
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
+                require(graphConfig.input.size <= 1) {
+                    "Multi resolution reprocessing not supported under Android S"
                 }
             }
         }

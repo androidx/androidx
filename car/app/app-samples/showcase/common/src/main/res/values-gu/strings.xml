@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"સૂચિ ટૅબ"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ટૅબનું લાંબું શીર્ષક ધરાવતું ગ્રીડ ટૅબ"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"શોધ ટૅબ"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ટૅબ લોડ થઈ રહ્યું છે"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ટૅબનો નમૂનો લોડ થવાનો ડેમો"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ટૅબના નમૂનાનો, ટૅબ વિનાનો ડેમો"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"અજાણ્યા હોસ્ટ માટે છબીઓ બતાવી શકાતી નથી"</string>

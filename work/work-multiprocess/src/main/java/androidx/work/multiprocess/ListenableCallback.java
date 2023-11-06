@@ -100,7 +100,7 @@ public abstract class ListenableCallback<I> {
 
         /**
          * Dispatches failures callbacks safely.
-         **/
+         */
         public static void reportFailure(
                 @NonNull IWorkManagerImplCallback callback,
                 @NonNull Throwable throwable) {

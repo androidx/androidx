@@ -38,7 +38,7 @@ class TraceSectionMetricTest {
     @Test
     fun activityThreadMain() = verifyFirstSum(
         tracePath = api24ColdStart,
-        packageName = Packages.TEST,
+        packageName = Packages.TARGET,
         sectionName = "ActivityThreadMain",
         expectedFirstMs = 12.639
     )
@@ -46,7 +46,7 @@ class TraceSectionMetricTest {
     @Test
     fun activityStart() = verifyFirstSum(
         tracePath = api24ColdStart,
-        packageName = Packages.TEST,
+        packageName = Packages.TARGET,
         sectionName = "activityStart",
         expectedFirstMs = 81.979
     )
@@ -54,17 +54,18 @@ class TraceSectionMetricTest {
     @Test
     fun startActivityAndWait() = verifyFirstSum(
         tracePath = api24ColdStart,
-        packageName = Packages.TEST,
+        packageName = "androidx.benchmark.integration.macrobenchmark.test",
         sectionName = "startActivityAndWait",
-        expectedFirstMs = 1_110.689
+        expectedFirstMs = 1_110.689,
     )
 
     @Test
     fun launching() = verifyFirstSum(
         tracePath = api24ColdStart,
-        packageName = Packages.TEST,
+        packageName = Packages.TARGET,
         sectionName = "launching: androidx.benchmark.integration.macrobenchmark.target",
-        expectedFirstMs = 269.947
+        expectedFirstMs = 269.947,
+        targetPackageOnly = false // slice from system_server
     )
 
     @Test
@@ -76,43 +77,66 @@ class TraceSectionMetricTest {
     )
 
     @Test
-    fun multiSection() = verifyFirstSum(
+    fun multiSection_targetOnly() = verifyFirstSum(
+        tracePath = api24ColdStart,
+        packageName = Packages.TARGET,
+        sectionName = "inflate",
+        expectedFirstMs = 4.949, // first inflation
+        expectedSumMs = 19.779, // total inflation
+        expectedSumCount = 3,
+        targetPackageOnly = true,
+    )
+
+    @Test
+    fun multiSection_unfiltered() = verifyFirstSum(
         tracePath = api24ColdStart,
         packageName = Packages.TARGET,
         sectionName = "inflate",
         expectedFirstMs = 13.318, // first inflation
-        expectedSumMs = 43.128 // total inflation
+        expectedSumMs = 43.128, // total inflation
+        expectedSumCount = 8,
+        targetPackageOnly = false,
     )
 
     companion object {
-        private val captureInfo = Metric.CaptureInfo(
-            targetPackageName = Packages.TEST,
-            testPackageName = Packages.TEST,
-            startupMode = StartupMode.COLD,
-            apiLevel = 24
-        )
-
         private fun verifyMetric(
             tracePath: String,
             packageName: String,
             sectionName: String,
             mode: TraceSectionMetric.Mode,
-            expectedMs: Double
+            expectedMs: Double,
+            expectedCount: Int,
+            targetPackageOnly: Boolean
         ) {
             assumeTrue(PerfettoHelper.isAbiSupported())
 
-            val metric = TraceSectionMetric(sectionName, mode)
+            val metric = TraceSectionMetric(sectionName, mode, targetPackageOnly)
             metric.configure(packageName = packageName)
 
             val result = PerfettoTraceProcessor.runSingleSessionServer(tracePath) {
                 metric.getResult(
-                    captureInfo = captureInfo,
+                    // note that most args are incorrect here, but currently
+                    // only targetPackageName matters in this context
+                    captureInfo = Metric.CaptureInfo(
+                        targetPackageName = packageName,
+                        testPackageName = Packages.TEST,
+                        startupMode = StartupMode.COLD,
+                        apiLevel = 24
+                    ),
                     traceSession = this
                 )
             }
 
+            var measurements = listOf(Metric.Measurement(sectionName + "Ms", expectedMs))
+
+            if (mode == TraceSectionMetric.Mode.Sum) {
+                measurements = measurements + listOf(
+                    Metric.Measurement(sectionName + "Count", expectedCount.toDouble())
+                )
+            }
+
             assertEqualMeasurements(
-                expected = listOf(Metric.Measurement(sectionName + "Ms", expectedMs)),
+                expected = measurements,
                 observed = result,
                 threshold = 0.001
             )
@@ -123,21 +147,27 @@ class TraceSectionMetricTest {
             packageName: String,
             sectionName: String,
             expectedFirstMs: Double,
-            expectedSumMs: Double = expectedFirstMs // default implies only one matching section
+            expectedSumMs: Double = expectedFirstMs, // default implies only one matching section
+            expectedSumCount: Int = 1,
+            targetPackageOnly: Boolean = true,
         ) {
             verifyMetric(
                 tracePath = tracePath,
                 packageName = packageName,
                 sectionName = sectionName,
                 mode = TraceSectionMetric.Mode.First,
-                expectedMs = expectedFirstMs
+                expectedMs = expectedFirstMs,
+                expectedCount = 1,
+                targetPackageOnly = targetPackageOnly,
             )
             verifyMetric(
                 tracePath = tracePath,
                 packageName = packageName,
                 sectionName = sectionName,
                 mode = TraceSectionMetric.Mode.Sum,
-                expectedMs = expectedSumMs
+                expectedMs = expectedSumMs,
+                expectedCount = expectedSumCount,
+                targetPackageOnly = targetPackageOnly,
             )
         }
     }

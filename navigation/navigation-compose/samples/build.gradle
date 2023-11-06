@@ -28,7 +28,7 @@ plugins {
 dependencies {
     implementation(libs.kotlinStdlib)
 
-    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    compileOnly(project(":annotation:annotation-sampled"))
     implementation("androidx.compose.foundation:foundation:1.0.1")
     implementation("androidx.compose.ui:ui-tooling:1.4.0-beta02")
     implementation(projectOrArtifact(":navigation:navigation-compose"))

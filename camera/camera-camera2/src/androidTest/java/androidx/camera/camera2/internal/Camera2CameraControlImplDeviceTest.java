@@ -20,6 +20,7 @@ import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF;
 import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON;
 import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH;
 import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_AUTO_FLASH;
+import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_EXTERNAL_FLASH;
 import static android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_AUTO;
 import static android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_CONTINUOUS_PICTURE;
 import static android.hardware.camera2.CameraMetadata.CONTROL_AF_MODE_OFF;
@@ -30,9 +31,11 @@ import static android.hardware.camera2.CameraMetadata.FLASH_MODE_TORCH;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeFalse;
+import static org.junit.Assume.assumeThat;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -75,9 +78,9 @@ import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CameraXUtil;
-import androidx.camera.testing.HandlerUtil;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.CameraXUtil;
+import androidx.camera.testing.impl.HandlerUtil;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -133,25 +136,29 @@ public final class Camera2CameraControlImplDeviceTest {
 
     @Before
     public void setUp() throws InterruptedException {
-        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+        mHandlerThread = new HandlerThread("ControlThread");
+        mHandlerThread.start();
+        mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig config = Camera2Config.defaultConfig();
         CameraXUtil.initialize(context, config);
 
-        mCameraCharacteristics = CameraUtil.getCameraCharacteristics(
-                CameraSelector.LENS_FACING_BACK);
+        setUp(CameraSelector.LENS_FACING_BACK);
+    }
+
+    private void setUp(int lensFacing) throws InterruptedException {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing));
+
+        mCameraCharacteristics = CameraUtil.getCameraCharacteristics(lensFacing);
         Boolean hasFlashUnit =
                 mCameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
         mHasFlashUnit = hasFlashUnit != null && hasFlashUnit.booleanValue();
 
         mControlUpdateCallback = mock(CameraControlInternal.ControlUpdateCallback.class);
-        mHandlerThread = new HandlerThread("ControlThread");
-        mHandlerThread.start();
-        mHandler = HandlerCompat.createAsync(mHandlerThread.getLooper());
 
         ScheduledExecutorService executorService = CameraXExecutors.newHandlerExecutor(mHandler);
-        String cameraId = CameraUtil.getCameraIdWithLensFacing(CameraSelector.LENS_FACING_BACK);
+        String cameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing);
         mCameraCharacteristicsCompat = CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
                 mCameraCharacteristics, cameraId);
         mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristicsCompat,
@@ -328,6 +335,58 @@ public final class Camera2CameraControlImplDeviceTest {
             assertThat(
                     mCamera2CameraControlImpl.getZslControl().isZslDisabledByFlashMode()).isFalse();
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void enableExternalFlashAeMode_aeModeSetAndRequestUpdated() throws InterruptedException {
+        setUp(CameraSelector.LENS_FACING_FRONT);
+
+        assumeThat("CONTROL_AE_MODE_ON_EXTERNAL_FLASH not supported",
+                mCamera2CameraControlImpl.getSupportedAeMode(CONTROL_AE_MODE_ON_EXTERNAL_FLASH),
+                equalTo(CONTROL_AE_MODE_ON_EXTERNAL_FLASH));
+        // Other flash modes may override the external flash AE mode
+        mCamera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+        Mockito.reset(mControlUpdateCallback);
+
+        mCamera2CameraControlImpl.getFocusMeteringControl().enableExternalFlashAeMode(true);
+
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        verify(mControlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig();
+        SessionConfig sessionConfig = mCamera2CameraControlImpl.getSessionConfig();
+        Camera2ImplConfig camera2Config = new Camera2ImplConfig(
+                sessionConfig.getImplementationOptions());
+
+        assertAeMode(camera2Config, CONTROL_AE_MODE_ON_EXTERNAL_FLASH);
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 28)
+    public void disableExternalFlashAeMode_aeModeUnsetAndRequestUpdated()
+            throws InterruptedException {
+        setUp(CameraSelector.LENS_FACING_FRONT);
+
+        assumeThat("CONTROL_AE_MODE_ON_EXTERNAL_FLASH not supported",
+                mCamera2CameraControlImpl.getSupportedAeMode(CONTROL_AE_MODE_ON_EXTERNAL_FLASH),
+                equalTo(CONTROL_AE_MODE_ON_EXTERNAL_FLASH));
+        mCamera2CameraControlImpl.setFlashMode(ImageCapture.FLASH_MODE_SCREEN);
+        Mockito.reset(mControlUpdateCallback);
+
+        mCamera2CameraControlImpl.getFocusMeteringControl().enableExternalFlashAeMode(true);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        mCamera2CameraControlImpl.getFocusMeteringControl().enableExternalFlashAeMode(false);
+
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        verify(mControlUpdateCallback, times(2)).onCameraControlUpdateSessionConfig();
+        SessionConfig sessionConfig = mCamera2CameraControlImpl.getSessionConfig();
+        Camera2ImplConfig camera2Config = new Camera2ImplConfig(
+                sessionConfig.getImplementationOptions());
+
+        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.CONTROL_AE_MODE,
+                null)).isNotEqualTo(CONTROL_AE_MODE_ON_EXTERNAL_FLASH);
     }
 
     @Test

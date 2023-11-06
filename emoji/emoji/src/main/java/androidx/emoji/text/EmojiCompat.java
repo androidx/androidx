@@ -897,7 +897,7 @@ public class EmojiCompat {
          * information, and some predefined OEMs, it is possible to write the following code
          * snippet.
          *
-         * {@sample frameworks/support/samples/SupportEmojiDemos/src/main/java/com/example/android/support/text/emoji/sample/GlyphCheckerSample.java glyphchecker}
+         * {@sample samples/SupportEmojiDemos/src/main/java/com/example/android/support/text/emoji/sample/GlyphCheckerSample.java glyphchecker}
          *
          * @param charSequence the CharSequence that is being processed
          * @param start the inclusive starting offset for the emoji in the {@code charSequence}
@@ -1280,7 +1280,6 @@ public class EmojiCompat {
             }
         }
 
-        @SuppressWarnings("SyntheticAccessor")
         void onMetadataLoadSuccess(@NonNull final MetadataRepo metadataRepo) {
             //noinspection ConstantConditions
             if (metadataRepo == null) {

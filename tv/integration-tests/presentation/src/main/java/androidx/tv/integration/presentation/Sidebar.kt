@@ -17,7 +17,7 @@
 package androidx.tv.integration.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.focusable
+import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -101,30 +102,37 @@ fun Sidebar(
             }
         }
 
-    FocusGroup {
-        Column(
-            modifier = Modifier
-                .width(60.dp)
-                .fillMaxHeight()
-                .background(pageColor)
-                .focusable(false),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-        ) {
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
+
+    Column(
+        modifier = Modifier
+            .width(60.dp)
+            .fillMaxHeight()
+            .background(pageColor)
+            .then(focusRestorerModifiers.parentModifier)
+            .focusGroup(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        key(0) {
             drawIcon(
-                imageVector = Icons.Outlined.Home,
-                index = 0,
-                modifier = Modifier.initiallyFocused(),
+                Icons.Outlined.Home,
+                0,
+                focusRestorerModifiers.childModifier,
             )
+        }
+        key(1) {
             drawIcon(
-                imageVector = Icons.Outlined.Movie,
-                index = 1,
-                modifier = Modifier.restorableFocus(),
+                Icons.Outlined.Movie,
+                1,
+                Modifier,
             )
+        }
+        key(2) {
             drawIcon(
-                imageVector = Icons.Outlined.Tv,
-                index = 2,
-                modifier = Modifier.restorableFocus(),
+                Icons.Outlined.Tv,
+                2,
+                Modifier,
             )
         }
     }

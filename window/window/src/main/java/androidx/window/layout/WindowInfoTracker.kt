@@ -23,9 +23,10 @@ import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiContext
+import androidx.window.WindowSdkExtensions
 import androidx.window.core.ConsumerAdapter
 import androidx.window.layout.adapter.WindowBackend
-import androidx.window.layout.adapter.extensions.ExtensionWindowLayoutInfoBackend
+import androidx.window.layout.adapter.extensions.ExtensionWindowBackend
 import androidx.window.layout.adapter.sidecar.SidecarWindowBackend
 import kotlinx.coroutines.flow.Flow
 
@@ -52,6 +53,9 @@ interface WindowInfoTracker {
      * A derived class may throw NotImplementedError if this method is not overridden.
      * Obtaining a [WindowInfoTracker] through [WindowInfoTracker.getOrCreate] guarantees having a
      * default implementation for this method.
+     *
+     * If the passed [context] is not an [Activity] and [WindowSdkExtensions.extensionVersion]
+     * is less than 2, the flow will return empty [WindowLayoutInfo] list flow.
      *
      * @param context a [UiContext] such as an [Activity], an [InputMethodService], or an instance
      * created via [Context.createWindowContext] that listens to configuration changes.
@@ -106,7 +110,7 @@ interface WindowInfoTracker {
                     SafeWindowLayoutComponentProvider(loader, ConsumerAdapter(loader))
                 }
                 provider?.windowLayoutComponent?.let { component ->
-                    ExtensionWindowLayoutInfoBackend(component, ConsumerAdapter(loader))
+                    ExtensionWindowBackend.newInstance(component, ConsumerAdapter(loader))
                 }
             } catch (t: Throwable) {
                 if (DEBUG) {

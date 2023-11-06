@@ -93,17 +93,18 @@ class ModelValidator private constructor(val api: ParsedApi) {
                     errors.add(
                         "Error in ${annotatedInterface.type.qualifiedName}.${method.name}: " +
                             "only primitives, lists, data classes annotated with " +
-                            "@PrivacySandboxValue and interfaces annotated with " +
-                            "@PrivacySandboxCallback or @PrivacySandboxInterface are supported " +
-                            "as parameter types."
+                            "@PrivacySandboxValue, interfaces annotated with " +
+                            "@PrivacySandboxCallback or @PrivacySandboxInterface, and " +
+                            "SdkActivityLaunchers are supported as parameter types."
                     )
                 }
                 if (!isValidInterfaceReturnType(method.returnType)) {
                     errors.add(
                         "Error in ${annotatedInterface.type.qualifiedName}.${method.name}: " +
                             "only primitives, lists, data classes annotated with " +
-                            "@PrivacySandboxValue and interfaces annotated with " +
-                            "@PrivacySandboxInterface are supported as return types."
+                            "@PrivacySandboxValue, interfaces annotated with " +
+                            "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
+                            "return types."
                     )
                 }
             }
@@ -117,8 +118,9 @@ class ModelValidator private constructor(val api: ParsedApi) {
                     errors.add(
                         "Error in ${value.type.qualifiedName}.${property.name}: " +
                             "only primitives, lists, data classes annotated with " +
-                            "@PrivacySandboxValue and interfaces annotated with " +
-                            "@PrivacySandboxInterface are supported as properties."
+                            "@PrivacySandboxValue, interfaces annotated with " +
+                            "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
+                            "properties."
                     )
                 }
             }
@@ -132,8 +134,9 @@ class ModelValidator private constructor(val api: ParsedApi) {
                     errors.add(
                         "Error in ${callback.type.qualifiedName}.${method.name}: " +
                             "only primitives, lists, data classes annotated with " +
-                            "@PrivacySandboxValue and interfaces annotated with " +
-                            "@PrivacySandboxInterface are supported as callback parameter types."
+                            "@PrivacySandboxValue, interfaces annotated with " +
+                            "@PrivacySandboxInterface, and SdkActivityLaunchers are supported as " +
+                            "callback parameter types."
                     )
                 }
                 if (method.returnType != Types.unit || method.isSuspend) {
@@ -147,13 +150,20 @@ class ModelValidator private constructor(val api: ParsedApi) {
     }
 
     private fun isValidInterfaceParameterType(type: Type) =
-        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type) || isCallback(type)
+        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type) ||
+            isCallback(type) || isBundledType(type)
+
     private fun isValidInterfaceReturnType(type: Type) =
-        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type)
+        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type) ||
+            isBundledType(type)
+
     private fun isValidValuePropertyType(type: Type) =
-        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type)
+        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type) ||
+            isBundledType(type)
+
     private fun isValidCallbackParameterType(type: Type) =
-        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type)
+        isValue(type) || isInterface(type) || isPrimitive(type) || isList(type) ||
+            isBundledType(type)
 
     private fun isValue(type: Type) = values.contains(type.asNonNull())
     private fun isInterface(type: Type) = interfaces.contains(type.asNonNull())
@@ -171,6 +181,8 @@ class ModelValidator private constructor(val api: ParsedApi) {
         }
         return false
     }
+
+    private fun isBundledType(type: Type) = type == Types.sdkActivityLauncher
 }
 
 data class ValidationResult(val errors: List<String>) {

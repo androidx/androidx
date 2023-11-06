@@ -177,7 +177,7 @@ internal interface SurfaceControlImpl {
             surfaceControl: SurfaceControlImpl,
             buffer: HardwareBuffer?,
             fence: SyncFenceImpl? = null,
-            releaseCallback: (() -> Unit)? = null
+            releaseCallback: ((SyncFenceCompat) -> Unit)? = null
         ): Transaction
 
         /**
@@ -307,6 +307,43 @@ internal interface SurfaceControlImpl {
         fun setBufferTransform(
             surfaceControl: SurfaceControlImpl,
             @SurfaceControlCompat.Companion.BufferTransform transformation: Int
+        ): Transaction
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setExtendedRangeBrightness]
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        fun setExtendedRangeBrightness(
+            surfaceControl: SurfaceControlImpl,
+            currentBufferRatio: Float,
+            desiredRatio: Float
+        ): Transaction
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setDataSpace]
+         */
+        fun setDataSpace(
+            surfaceControl: SurfaceControlImpl,
+            dataSpace: Int
+        ): Transaction
+
+        /**
+         * See [SurfaceControlCompat.Transaction.setFrameRate]
+         */
+        @RequiresApi(Build.VERSION_CODES.R)
+        fun setFrameRate(
+            scImpl: SurfaceControlImpl,
+            frameRate: Float,
+            compatibility: Int,
+            changeFrameRateStrategy: Int
+        ): Transaction
+
+        /**
+         * See [SurfaceControlCompat.Transaction.clearFrameRate]
+         */
+        @RequiresApi(Build.VERSION_CODES.R)
+        fun clearFrameRate(
+            scImpl: SurfaceControlImpl,
         ): Transaction
 
         /**

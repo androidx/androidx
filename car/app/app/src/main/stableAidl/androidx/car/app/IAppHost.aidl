@@ -20,7 +20,7 @@ import android.location.Location;
 import androidx.car.app.ISurfaceCallback;
 import androidx.car.app.serialization.Bundleable;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IAppHost {
   /** Requests the current template to be invalidated. */
   void invalidate() = 1;

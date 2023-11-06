@@ -22,7 +22,7 @@
     <string name="exit_action_title" msgid="9086586388884500731">"Surt"</string>
     <string name="refresh_action_title" msgid="3674260822403151377">"Actualitza"</string>
     <string name="close_action_title" msgid="2661907510124308560">"Tanca"</string>
-    <string name="grant_access_action_title" msgid="4033140828804350723">"Dona accés"</string>
+    <string name="grant_access_action_title" msgid="4033140828804350723">"Concedeix accés"</string>
     <string name="enable_location_action_title" msgid="8181862247222797044">"Activa la ubicació"</string>
     <string name="cancel_action_title" msgid="1149738685397349236">"Cancel·la"</string>
     <string name="stop_action_title" msgid="1187619482795416314">"Atura"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Pestanya de llista"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Pestanya de quadrícula amb títol llarg"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Pestanya de cerca"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"S\'està carregant la pestanya"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demostració de càrrega d\'una plantilla de pestanya"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demostració d\'una plantilla de pestanya sense pestanyes"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"No es poden mostrar les imatges per a un amfitrió desconegut"</string>

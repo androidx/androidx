@@ -25,18 +25,6 @@ plugins {
 
 dependencies {
     api project(":work:work-runtime")
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesAndroid)
-
-    androidTestImplementation("androidx.concurrent:concurrent-futures:1.0.0")
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has its own MockMaker
-    androidTestImplementation("androidx.room:room-testing:2.5.0")
-    testImplementation(libs.junit)
 }
 
 androidx {
@@ -44,6 +32,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android WorkManager Kotlin Extensions"
+    metalavaK2UastEnabled = true
 }
 
 android {

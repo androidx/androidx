@@ -31,6 +31,7 @@ import static androidx.wear.protolayout.renderer.helper.TestDsl.image;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.layout;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.row;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.text;
+import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.TEXT_AUTOSIZES_LIMIT;
 import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.getFrameLayoutGravity;
 import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.getRenderedMetadata;
 import static androidx.wear.protolayout.renderer.test.R.drawable.android_animated_24dp;
@@ -38,6 +39,8 @@ import static androidx.wear.protolayout.renderer.test.R.drawable.android_animate
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -47,6 +50,7 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.graphics.Paint.Cap;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimatedVectorDrawable;
@@ -82,6 +86,7 @@ import androidx.wear.protolayout.expression.pipeline.StateStore;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationParameters;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Repeatable;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
@@ -96,7 +101,6 @@ import androidx.wear.protolayout.expression.proto.FixedProto.FixedColor;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
-import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.proto.ActionProto.Action;
 import androidx.wear.protolayout.proto.ActionProto.AndroidActivity;
 import androidx.wear.protolayout.proto.ActionProto.AndroidBooleanExtra;
@@ -111,7 +115,11 @@ import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignment;
 import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignmentProp;
 import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignment;
 import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignmentProp;
+import androidx.wear.protolayout.proto.ColorProto.Brush;
 import androidx.wear.protolayout.proto.ColorProto.ColorProp;
+import androidx.wear.protolayout.proto.ColorProto.ColorStop;
+import androidx.wear.protolayout.proto.ColorProto.SweepGradient;
+import androidx.wear.protolayout.proto.DimensionProto;
 import androidx.wear.protolayout.proto.DimensionProto.ArcLineLength;
 import androidx.wear.protolayout.proto.DimensionProto.ArcSpacerLength;
 import androidx.wear.protolayout.proto.DimensionProto.ContainerDimension;
@@ -187,6 +195,7 @@ import androidx.wear.protolayout.renderer.helper.TestFingerprinter;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.InflateResult;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewGroupMutation;
 import androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.ViewMutationException;
+import androidx.wear.protolayout.renderer.inflater.RenderedMetadata.ViewProperties;
 import androidx.wear.protolayout.renderer.test.R;
 import androidx.wear.widget.ArcLayout;
 import androidx.wear.widget.CurvedTextView;
@@ -278,6 +287,28 @@ public class ProtoLayoutInflaterTest {
 
         TextView tv = (TextView) rootLayout.getChildAt(0);
         expect.that(tv.getText().toString()).isEmpty();
+    }
+
+    @Test
+    public void inflate_textView_withEmptyValueForLayout() {
+        StringProp stringProp =
+                StringProp.newBuilder()
+                        .setValue("abcde")
+                        .setDynamicValue(
+                                DynamicString.newBuilder()
+                                        .setFixed(
+                                                FixedString.newBuilder()
+                                                        .setValue("Dynamic Fixed Text")))
+                        .setValueForLayout("")
+                        .build();
+
+        LayoutElement root =
+                LayoutElement.newBuilder().setText(Text.newBuilder().setText(stringProp)).build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        FrameLayout sizedContainer = (FrameLayout) rootLayout.getChildAt(0);
+        expect.that(sizedContainer.getWidth()).isEqualTo(0);
     }
 
     // obsoleteContentDescription is tested for backward compatibility
@@ -1041,6 +1072,39 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_arc_withGradient() {
+        Brush.Builder brush =
+                Brush.newBuilder()
+                        .setSweepGradient(
+                                SweepGradient.newBuilder()
+                                        .addColorStops(colorStop(Color.BLUE, 0.5f))
+                                        .addColorStops(colorStop(Color.RED, 1f)));
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .setAnchorAngle(degrees(0).build())
+                                        .addContents(
+                                                ArcLayoutElement.newBuilder()
+                                                        .setLine(
+                                                                ArcLine.newBuilder()
+                                                                        .setLength(degrees(30))
+                                                                        .setStrokeCap(
+                                                                                strokeCapButt())
+                                                                        .setThickness(dp(12))
+                                                                        .setBrush(brush))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
+        assertThat(arcLayout.getChildCount()).isEqualTo(1);
+        WearCurvedLineView line = (WearCurvedLineView) arcLayout.getChildAt(0);
+        assertThat(line.mSweepGradientHelper).isNotNull();
+    }
+
+    @Test
     public void inflate_arc_withLineDrawnWithAddOval() {
         LayoutElement root =
                 LayoutElement.newBuilder()
@@ -1097,6 +1161,31 @@ public class ProtoLayoutInflaterTest {
         assertThat(textView1.getText()).isEqualTo("text1");
         CurvedTextView textView2 = (CurvedTextView) arcLayout.getChildAt(1);
         assertThat(textView2.getText()).isEqualTo("text2");
+    }
+
+    @Test
+    public void inflate_arc_withText_autoSize_notSet() {
+        int lastSize = 12;
+        FontStyle.Builder style = FontStyle.newBuilder()
+                .addAllSize(buildSizesList(new int[]{10, 20, lastSize}));
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .setAnchorAngle(degrees(0).build())
+                                        .addContents(
+                                                ArcLayoutElement.newBuilder()
+                                                        .setText(
+                                                                ArcText.newBuilder()
+                                                                        .setText(string("text1"))
+                                                                        .setFontStyle(style))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
+        CurvedTextView tv = (CurvedTextView) arcLayout.getChildAt(0);
+        assertThat(tv.getText()).isEqualTo("text1");
+        expect.that(tv.getTextSize()).isEqualTo(lastSize);
     }
 
     @Test
@@ -1828,6 +1917,31 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_textView_marquee_animationsDisabled() {
+        String textContents = "Marquee Animation";
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(textContents))
+                                        .setMaxLines(Int32Prop.newBuilder().setValue(1))
+                                        .setOverflow(
+                                                TextOverflowProp.newBuilder()
+                                                        .setValue(
+                                                                TextOverflow.TEXT_OVERFLOW_MARQUEE)
+                                                        .build()))
+                        .build();
+
+        FrameLayout rootLayout =
+                renderer(
+                                newRendererConfigBuilder(fingerprintedLayout(root))
+                                        .setAnimationEnabled(false))
+                        .inflate();
+        TextView tv = (TextView) rootLayout.getChildAt(0);
+        expect.that(tv.getEllipsize()).isNull();
+    }
+
+    @Test
     public void inflate_textView_marqueeAnimationInMultiLine() {
         String textContents = "Marquee Animation";
         LayoutElement root =
@@ -1885,6 +1999,166 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_textView_autosize_set() {
+        String text = "Test text";
+        int[] presetSizes = new int[]{12, 20, 10};
+        List<DimensionProto.SpProp> sizes = buildSizesList(presetSizes);
+
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(text))
+                                        .setFontStyle(
+                                                FontStyle.newBuilder()
+                                                        .addAllSize(sizes)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder().setBox(
+                        Box.newBuilder()
+                                .setWidth(expand())
+                                .setHeight(expand())
+                                .addContents(textElement)).build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ViewGroup firstChild = (ViewGroup) rootLayout.getChildAt(0);
+        TextView tv = (TextView) firstChild.getChildAt(0);
+
+        // TextView sorts preset sizes.
+        Arrays.sort(presetSizes);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_UNIFORM);
+        expect.that(tv.getAutoSizeTextAvailableSizes()).isEqualTo(presetSizes);
+        expect.that(tv.getTextSize()).isEqualTo(20);
+    }
+
+    @Test
+    public void inflate_textView_autosize_setLimit_usesSingleSize() {
+        String text = "Test text";
+        int sizesLength = TEXT_AUTOSIZES_LIMIT + 5;
+        int[] presetSizes = new int[sizesLength];
+        int expectedLastSize = 120;
+        for (int i = 0; i < sizesLength - 1; i++) {
+            presetSizes[i] = i + 1;
+        }
+        presetSizes[sizesLength - 1] = expectedLastSize;
+        List<DimensionProto.SpProp> sizes = buildSizesList(presetSizes);
+
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(text))
+                                        .setMaxLines(Int32Prop.newBuilder().setValue(4))
+                                        .setFontStyle(
+                                                FontStyle.newBuilder()
+                                                        .addAllSize(sizes)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder().setBox(
+                        Box.newBuilder()
+                                .setWidth(expand())
+                                .setHeight(expand())
+                                .addContents(textElement)).build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ViewGroup firstChild = (ViewGroup) rootLayout.getChildAt(0);
+        TextView tv = (TextView) firstChild.getChildAt(0);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
+        expect.that(tv.getAutoSizeTextAvailableSizes()).isEmpty();
+        expect.that(tv.getTextSize()).isEqualTo(expectedLastSize);
+    }
+
+    @Test
+    public void inflate_textView_autosize_notSet() {
+        String text = "Test text";
+        int size = 24;
+        List<DimensionProto.SpProp> sizes = buildSizesList(new int[]{size});
+
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(text))
+                                        .setFontStyle(
+                                                FontStyle.newBuilder()
+                                                        .addAllSize(sizes)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder().setBox(
+                        Box.newBuilder()
+                                .setWidth(expand())
+                                .setHeight(expand())
+                                .addContents(textElement)).build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ViewGroup firstChild = (ViewGroup) rootLayout.getChildAt(0);
+        TextView tv = (TextView) firstChild.getChildAt(0);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
+        expect.that(tv.getAutoSizeTextAvailableSizes()).isEmpty();
+        expect.that(tv.getTextSize()).isEqualTo(size);
+    }
+
+    @Test
+    public void inflate_textView_autosize_setDynamic_noop() {
+        String text = "Test text";
+        int lastSize = 24;
+        List<DimensionProto.SpProp> sizes = buildSizesList(new int[]{10, 30, lastSize});
+
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(dynamicString(text))
+                                        .setFontStyle(
+                                                FontStyle.newBuilder()
+                                                        .addAllSize(sizes)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder().setBox(
+                        Box.newBuilder()
+                                .setWidth(expand())
+                                .setHeight(expand())
+                                .addContents(textElement)).build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ArrayList<View> textChildren = new ArrayList<>();
+        rootLayout.findViewsWithText(textChildren, text, View.FIND_VIEWS_WITH_TEXT);
+        TextView tv = (TextView) textChildren.get(0);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
+        expect.that(tv.getAutoSizeTextAvailableSizes()).isEmpty();
+        expect.that(tv.getTextSize()).isEqualTo(lastSize);
+    }
+
+    @Test
+    public void inflate_textView_autosize_wrongSizes_noop() {
+        String text = "Test text";
+        List<DimensionProto.SpProp> sizes = buildSizesList(new int[]{0, -2, 0});
+
+        LayoutElement textElement =
+                LayoutElement.newBuilder()
+                        .setText(
+                                Text.newBuilder()
+                                        .setText(string(text))
+                                        .setFontStyle(
+                                                FontStyle.newBuilder()
+                                                        .addAllSize(sizes)))
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder().setBox(
+                        Box.newBuilder()
+                                .setWidth(expand())
+                                .setHeight(expand())
+                                .addContents(textElement)).build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        ArrayList<View> textChildren = new ArrayList<>();
+        rootLayout.findViewsWithText(textChildren, text, View.FIND_VIEWS_WITH_TEXT);
+        TextView tv = (TextView) textChildren.get(0);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
+        expect.that(tv.getAutoSizeTextAvailableSizes()).isEmpty();
+    }
+
+    @Test
     public void inflate_spannable_marqueeAnimation() {
         String text = "Marquee Animation";
         LayoutElement root =
@@ -1912,6 +2186,29 @@ public class ProtoLayoutInflaterTest {
         if (VERSION.SDK_INT >= VERSION_CODES.Q) {
             expect.that(tv.isSingleLine()).isTrue();
         }
+    }
+
+    @Test
+    public void inflate_spantext_ignoresMultipleSizes() {
+        String text = "Test text";
+        int firstSize = 12;
+        FontStyle.Builder style = FontStyle.newBuilder()
+                .addAllSize(buildSizesList(new int[]{firstSize, 10, 20}));
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpannable(
+                                Spannable.newBuilder()
+                                        .addSpans(
+                                                Span.newBuilder()
+                                                        .setText(
+                                                                SpanText.newBuilder()
+                                                                        .setText(string(text))
+                                                                        .setFontStyle(style))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+        TextView tv = (TextView) rootLayout.getChildAt(0);
+        expect.that(tv.getAutoSizeTextType()).isEqualTo(TextView.AUTO_SIZE_TEXT_TYPE_NONE);
     }
 
     @Test
@@ -2096,23 +2393,23 @@ public class ProtoLayoutInflaterTest {
         DynamicFloat arcLength =
                 DynamicFloat.newBuilder().setFixed(FixedFloat.newBuilder().setValue(45f)).build();
 
+        ArcLayoutElement arcLine =
+                ArcLayoutElement.newBuilder()
+                        .setLine(
+                                ArcLine.newBuilder()
+                                        // Shorter than 360 degrees, so should be drawn as an arc:
+                                        .setLength(
+                                                degreesDynamic(
+                                                        arcLength, /* valueForLayout= */ 180f))
+                                        .setThickness(dp(12)))
+                        .build();
+
         LayoutElement root =
                 LayoutElement.newBuilder()
                         .setArc(
                                 Arc.newBuilder()
                                         .setAnchorAngle(degrees(0).build())
-                                        .addContents(
-                                                ArcLayoutElement.newBuilder()
-                                                        .setLine(
-                                                                ArcLine.newBuilder()
-                                                                        // Shorter than 360 degrees,
-                                                                        // so should be drawn as an
-                                                                        // arc:
-                                                                        .setLength(
-                                                                                degreesDynamic(
-                                                                                        arcLength,
-                                                                                        180f))
-                                                                        .setThickness(dp(12)))))
+                                        .addContents(arcLine))
                         .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
@@ -2125,6 +2422,39 @@ public class ProtoLayoutInflaterTest {
         assertThat(sizedContainer.getSweepAngleDegrees()).isEqualTo(180f);
         assertThat(line.getLineSweepAngleDegrees()).isEqualTo(45f);
         assertThat(line.getMaxSweepAngleDegrees()).isEqualTo(180f);
+    }
+
+    @Test
+    public void inflate_arcLine_usesZeroValueForLayout() {
+        DynamicFloat arcLength =
+                DynamicFloat.newBuilder().setFixed(FixedFloat.newBuilder().setValue(45f)).build();
+
+        ArcLayoutElement arcLine =
+                ArcLayoutElement.newBuilder()
+                        .setLine(
+                                ArcLine.newBuilder()
+                                        .setLength(
+                                                degreesDynamic(arcLength, /* valueForLayout= */ 0f))
+                                        .setThickness(dp(12)))
+                        .build();
+
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .setAnchorAngle(degrees(0).build())
+                                        .addContents(arcLine))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
+        SizedArcContainer sizedContainer = (SizedArcContainer) arcLayout.getChildAt(0);
+        expect.that(sizedContainer.getSweepAngleDegrees()).isEqualTo(0f);
+        WearCurvedLineView line = (WearCurvedLineView) sizedContainer.getChildAt(0);
+        expect.that(line.getMaxSweepAngleDegrees()).isEqualTo(0f);
     }
 
     @Test
@@ -2150,23 +2480,22 @@ public class ProtoLayoutInflaterTest {
                                                                         .setSourceKey("foo"))))
                         .build();
 
+        ArcLayoutElement arcLine =
+                ArcLayoutElement.newBuilder()
+                        .setLine(
+                                ArcLine.newBuilder()
+                                        // Shorter than 360 degrees, so should be drawn as an arc:
+                                        .setLength(
+                                                degreesDynamic(
+                                                        arcLength, /* valueForLayout= */ 180f))
+                                        .setThickness(dp(12)))
+                        .build();
         LayoutElement root =
                 LayoutElement.newBuilder()
                         .setArc(
                                 Arc.newBuilder()
                                         .setAnchorAngle(degrees(0).build())
-                                        .addContents(
-                                                ArcLayoutElement.newBuilder()
-                                                        .setLine(
-                                                                ArcLine.newBuilder()
-                                                                        // Shorter than 360 degrees,
-                                                                        // so should be drawn as an
-                                                                        // arc:
-                                                                        .setLength(
-                                                                                degreesDynamic(
-                                                                                        arcLength,
-                                                                                        180f))
-                                                                        .setThickness(dp(12)))))
+                                        .addContents(arcLine))
                         .build();
 
         FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
@@ -2237,7 +2566,7 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
-    public void inflate_arcLine_withoutValueForLayout_noLegacyMode_usesArcLength() {
+    public void inflate_arcLine_withoutValueForLayout_legacyMode_usesArcLength() {
         DynamicFloat arcLength =
                 DynamicFloat.newBuilder().setFixed(FixedFloat.newBuilder().setValue(45f)).build();
 
@@ -2556,8 +2885,7 @@ public class ProtoLayoutInflaterTest {
         assertThat(tv1AfterMutation.getText().toString()).isEqualTo("Hello");
         assertThat(tv2AfterMutation.getText().toString()).isEqualTo("Mars");
         // Can't get android resource ID from image, so use the size to infer that the image has
-        // been
-        // correctly updated to a different one:
+        // been correctly updated to a different one:
         assertThat(imageAfterMutation.getDrawable().getIntrinsicHeight()).isEqualTo(120);
         assertThat(imageAfterMutation.getDrawable().getIntrinsicWidth()).isEqualTo(120);
         assertThat(imageAfterMutation.getMeasuredHeight()).isEqualTo(50);
@@ -3003,7 +3331,7 @@ public class ProtoLayoutInflaterTest {
         // Compute the mutation
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         assertThat(mutation).isNotNull();
         assertThat(mutation.isNoOp()).isFalse();
 
@@ -3049,10 +3377,10 @@ public class ProtoLayoutInflaterTest {
         // Compute the mutation
         ViewGroupMutation mutation2 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent1), layout2);
+                        getRenderedMetadata(inflatedViewParent1), layout2, ViewProperties.EMPTY);
         ViewGroupMutation mutation3 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent1), layout3);
+                        getRenderedMetadata(inflatedViewParent1), layout3, ViewProperties.EMPTY);
 
         renderer.mRenderer.applyMutation(inflatedViewParent1, mutation3).get();
         assertThrows(
@@ -3140,7 +3468,7 @@ public class ProtoLayoutInflaterTest {
         // Apply first mutation
         ViewGroupMutation mutation1 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         assertThat(mutation1).isNotNull();
         assertThat(mutation1.isNoOp()).isFalse();
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation1).get();
@@ -3161,7 +3489,7 @@ public class ProtoLayoutInflaterTest {
         // Apply second mutation
         ViewGroupMutation mutation2 =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout3);
+                        getRenderedMetadata(inflatedViewParent), layout3, ViewProperties.EMPTY);
         assertThat(mutation2).isNotNull();
         assertThat(mutation2.isNoOp()).isFalse();
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation2).get();
@@ -3234,7 +3562,7 @@ public class ProtoLayoutInflaterTest {
 
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation).get();
 
         ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
@@ -3277,7 +3605,7 @@ public class ProtoLayoutInflaterTest {
 
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation).get();
 
         ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
@@ -3321,7 +3649,7 @@ public class ProtoLayoutInflaterTest {
 
         ViewGroupMutation mutation =
                 renderer.mRenderer.computeMutation(
-                        getRenderedMetadata(inflatedViewParent), layout2);
+                        getRenderedMetadata(inflatedViewParent), layout2, ViewProperties.EMPTY);
         renderer.mRenderer.applyMutation(inflatedViewParent, mutation).get();
 
         ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
@@ -3366,7 +3694,8 @@ public class ProtoLayoutInflaterTest {
                         getApplicationContext(), layout, resourceResolvers.build())
                 .setClickableIdExtra(EXTRA_CLICKABLE_ID)
                 .setLoadActionListener(p -> {})
-                .setLoadActionExecutor(ContextCompat.getMainExecutor(getApplicationContext()));
+                .setLoadActionExecutor(ContextCompat.getMainExecutor(getApplicationContext()))
+                .setApplyFontVariantBodyAsDefault(true);
     }
 
     private Renderer renderer(Layout layout) {
@@ -3384,7 +3713,7 @@ public class ProtoLayoutInflaterTest {
             FixedQuotaManagerImpl quotaManager) {
         mDataPipeline =
                 new ProtoLayoutDynamicDataPipeline(
-                        /* sensorGateway= */ null,
+                        /* platformDataProviders= */ ImmutableMap.of(),
                         mStateStore,
                         quotaManager,
                         new FixedQuotaManagerImpl(MAX_VALUE));
@@ -3419,7 +3748,7 @@ public class ProtoLayoutInflaterTest {
         }
 
         ViewGroupMutation computeMutation(RenderedMetadata renderedMetadata, Layout targetLayout) {
-            return mRenderer.computeMutation(renderedMetadata, targetLayout);
+            return mRenderer.computeMutation(renderedMetadata, targetLayout, ViewProperties.EMPTY);
         }
 
         boolean applyMutation(ViewGroup parent, ViewGroupMutation mutation) {
@@ -3898,6 +4227,35 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void exitTransition_noQuota_notPlayed_withDynamicNode() {
+        Renderer renderer =
+                renderer(
+                        newRendererConfigBuilder(
+                                fingerprintedLayout(
+                                        getDynamicTextElementWithExitAnimation(
+                                                "Hello", /* iterations= */ 1))),
+                        new FixedQuotaManagerImpl(/* quotaCap= */ 0));
+        mDataPipeline.setFullyVisible(true);
+        FrameLayout inflatedViewParent = renderer.inflate();
+        shadowOf(getMainLooper()).idle();
+
+        ViewGroupMutation mutation =
+                renderer.computeMutation(
+                        getRenderedMetadata(inflatedViewParent),
+                        fingerprintedLayout(textFadeIn("World")));
+
+        Runnable onEndTest = mock(Runnable.class);
+
+        mutation.mPipelineMaker
+                .get()
+                .playExitAnimations(inflatedViewParent, /* isReattaching= */ false, onEndTest);
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        verify(onEndTest).run();
+    }
+
+    @Test
     public void exitTransition_noQuota_notPlayed() throws Exception {
         Renderer renderer =
                 renderer(
@@ -4111,6 +4469,57 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void layoutGetsApplied_whenApplyingSecondMutation_beforeExitAnimationsAreFinished()
+            throws Exception {
+        Renderer renderer =
+                renderer(
+                        fingerprintedLayout(
+                                getTextElementWithExitAnimation("Hello", /* iterations= */ 10)));
+        mDataPipeline.setFullyVisible(true);
+        FrameLayout inflatedViewParent = renderer.inflate();
+        shadowOf(getMainLooper()).idle();
+        ShadowChoreographer.setPaused(true);
+        ShadowChoreographer.setFrameDelay(Duration.ofMillis(15));
+
+        ViewGroupMutation mutation =
+                renderer.computeMutation(
+                        getRenderedMetadata(inflatedViewParent),
+                        fingerprintedLayout(
+                                getTextElementWithExitAnimation("World", /* iterations= */ 10)));
+        ListenableFuture<Void> applyMutationFuture =
+                renderer.mRenderer.applyMutation(inflatedViewParent, mutation);
+
+        shadowOf(getMainLooper()).idleFor(Duration.ofMillis(100));
+        assertThat(mDataPipeline.getRunningAnimationsCount()).isEqualTo(1);
+
+        ViewGroupMutation secondMutation =
+                renderer.computeMutation(
+                        getRenderedMetadata(inflatedViewParent),
+                        fingerprintedLayout(
+                                getTextElementWithExitAnimation(
+                                        "Second mutation", /* iterations= */ 10)));
+
+        ListenableFuture<Void> applySecondMutationFuture =
+                renderer.mRenderer.applyMutation(inflatedViewParent, secondMutation);
+
+        // the previous mutation should be finished
+        assertThat(applyMutationFuture.isDone()).isTrue();
+        assertThat(((TextView) inflatedViewParent.getChildAt(0)).getText().toString())
+                .isEqualTo("World");
+
+        shadowOf(getMainLooper()).idleFor(Duration.ofMillis(100));
+        assertThat(mDataPipeline.getRunningAnimationsCount()).isEqualTo(1);
+
+        ShadowChoreographer.setPaused(false);
+        shadowOf(getMainLooper()).idleFor(Duration.ofSeconds(5));
+        applySecondMutationFuture.get();
+
+        assertThat(mDataPipeline.getRunningAnimationsCount()).isEqualTo(0);
+        assertThat(((TextView) inflatedViewParent.getChildAt(0)).getText().toString())
+                .isEqualTo("Second mutation");
+    }
+
+    @Test
     public void slideInTransition_snapToOutside_startsFromOutsideParentBounds() throws Exception {
         Renderer renderer =
                 renderer(
@@ -4243,6 +4652,16 @@ public class ProtoLayoutInflaterTest {
                 .build();
     }
 
+    private LayoutElement getDynamicTextElementWithExitAnimation(String text, int iterations) {
+        return LayoutElement.newBuilder()
+                .setText(
+                        dynamicTextAnimVisibility(
+                                AnimatedVisibility.newBuilder()
+                                        .setExitTransition(getFadeOutExitAnimation(iterations)),
+                                text))
+                .build();
+    }
+
     private LayoutElement getMultipleTextElementWithExitAnimation(
             List<String> texts, int iterations) {
         Column.Builder column = Column.newBuilder();
@@ -4296,6 +4715,22 @@ public class ProtoLayoutInflaterTest {
                 .setText(string(text).build());
     }
 
+    @NonNull
+    private Text.Builder dynamicTextAnimVisibility(AnimatedVisibility.Builder snapTo, String text) {
+        return Text.newBuilder()
+                .setModifiers(Modifiers.newBuilder().setContentUpdateAnimation(snapTo.build()))
+                .setText(
+                        StringProp.newBuilder()
+                                .setDynamicValue(
+                                        DynamicString.newBuilder()
+                                                .setFixed(
+                                                        FixedString.newBuilder()
+                                                                .setValue(text)
+                                                                .build())
+                                                .build())
+                                .build());
+    }
+
     private EnterTransition.Builder slideIn(int snapTo) {
         return EnterTransition.newBuilder()
                 .setSlideIn(
@@ -4318,6 +4753,11 @@ public class ProtoLayoutInflaterTest {
     }
 
     @NonNull
+    private static DimensionProto.SpProp sp(float value) {
+        return DimensionProto.SpProp.newBuilder().setValue(value).build();
+    }
+
+    @NonNull
     private static ContainerDimension.Builder expand() {
         return ContainerDimension.newBuilder()
                 .setExpandedDimension(ExpandedDimensionProp.getDefaultInstance());
@@ -4334,6 +4774,21 @@ public class ProtoLayoutInflaterTest {
     }
 
     @NonNull
+    private static ColorStop.Builder colorStop(int color, float offset) {
+        return colorStop(color).setOffset(FloatProp.newBuilder().setValue(offset));
+    }
+
+    @NonNull
+    private static ColorStop.Builder colorStop(int color) {
+        return ColorStop.newBuilder().setColor(argb(color));
+    }
+
+    @NonNull
+    private static ColorProp.Builder argb(int value) {
+        return ColorProp.newBuilder().setArgb(value);
+    }
+
+    @NonNull
     private static ExpandedAngularDimensionProp expandAngular(float value) {
         return ExpandedAngularDimensionProp.newBuilder()
                 .setLayoutWeight(FloatProp.newBuilder().setValue(value).build())
@@ -4346,8 +4801,26 @@ public class ProtoLayoutInflaterTest {
     }
 
     @NonNull
+    private static StringProp.Builder dynamicString(String value) {
+        return StringProp.newBuilder()
+                .setValue(value)
+                .setDynamicValue(
+                        DynamicString.newBuilder()
+                                .setFixed(FixedString.newBuilder().setValue(value)));
+    }
+
+    @NonNull
     private static ImageDimension.Builder expandImage() {
         return ImageDimension.newBuilder()
                 .setExpandedDimension(ExpandedDimensionProp.getDefaultInstance());
+    }
+
+    @NonNull
+    private static List<DimensionProto.SpProp> buildSizesList(int[] presetSizes) {
+        List<DimensionProto.SpProp> sizes = new ArrayList<>(3);
+        for (int s: presetSizes) {
+            sizes.add(sp(s));
+        }
+        return sizes;
     }
 }

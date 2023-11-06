@@ -41,6 +41,7 @@ import org.mockito.Mockito.mock
 // TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
 @RequiresExtension(extension = AD_SERVICES, version = 4)
 @SdkSuppress(minSdkVersion = TIRAMISU)
+@Suppress("DEPRECATION")
 class SandboxedSdkProviderAdapterTest {
 
     private lateinit var context: Context

@@ -16,17 +16,25 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON
+import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
 import android.os.Build
 import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.useCaseThreads
+import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.integration.testing.FakeZoomCompat
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.ZoomState
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
@@ -137,5 +145,115 @@ class CameraInfoAdapterTest {
         assertWithMessage("zoomState did not return default zoom state successfully")
             .that(currentZoomState)
             .isEqualTo(zoomControl.defaultZoomState)
+    }
+
+    @Test
+    fun cameraInfo_getImplementationType_legacy() {
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                    )
+                )
+            )
+        )
+        assertThat(cameraInfo.implementationType).isEqualTo(
+            CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY
+        )
+    }
+
+    @Test
+    fun cameraInfo_getImplementationType_noneLegacy() {
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL to
+                            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
+                    )
+                )
+            )
+        )
+        assertThat(cameraInfo.implementationType).isEqualTo(
+            CameraInfo.IMPLEMENTATION_TYPE_CAMERA2
+        )
+    }
+
+    @Test
+    fun cameraInfo_isPreviewStabilizationSupported() {
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
+                            intArrayOf(
+                                CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                                CONTROL_VIDEO_STABILIZATION_MODE_ON,
+                                CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+                            )
+                    )
+                )
+            )
+        )
+
+        assertThat(cameraInfo.isPreviewStabilizationSupported).isTrue()
+    }
+
+    @Test
+    fun cameraInfo_isPreviewStabilizationNotSupported() {
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
+                            intArrayOf(
+                                CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                                CONTROL_VIDEO_STABILIZATION_MODE_ON
+                            )
+                    )
+                )
+            )
+        )
+
+        assertThat(cameraInfo.isPreviewStabilizationSupported).isFalse()
+    }
+
+    @Test
+    fun cameraInfo_isVideoStabilizationSupported() {
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
+                            intArrayOf(
+                                CONTROL_VIDEO_STABILIZATION_MODE_OFF,
+                                CONTROL_VIDEO_STABILIZATION_MODE_ON
+                            )
+                    )
+                )
+            )
+        )
+
+        assertThat(cameraInfo.isVideoStabilizationSupported).isTrue()
+    }
+
+    @Test
+    fun cameraInfo_isVideoStabilizationNotSupported() {
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES to
+                            intArrayOf(
+                                CONTROL_VIDEO_STABILIZATION_MODE_OFF
+                            )
+                    )
+                )
+            )
+        )
+
+        assertThat(cameraInfo.isVideoStabilizationSupported).isFalse()
     }
 }

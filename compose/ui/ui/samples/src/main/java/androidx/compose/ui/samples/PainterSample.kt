@@ -55,7 +55,7 @@ fun PainterModifierSample() {
                 .padding(30.dp)
                 .background(color = Color.Yellow)
                 .paint(CustomPainter())
-    ) { /** intentionally empty **/ }
+    ) { /** intentionally empty */ }
 }
 
 @Sampled

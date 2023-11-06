@@ -34,15 +34,22 @@ android {
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
     api(libs.guavaListenableFuture)
+    api(libs.autoServiceAnnotations)
 
     implementation('androidx.collection:collection:1.2.0')
     implementation('androidx.concurrent:concurrent-futures:1.0.0')
-    implementation('androidx.core:core:1.7.0')
+    implementation("androidx.core:core:1.6.0")
 
     androidTestAnnotationProcessor project(':appsearch:appsearch-compiler')
+    androidTestImplementation project(':appsearch:appsearch-builtin-types')
     androidTestImplementation project(':appsearch:appsearch-local-storage')
     androidTestImplementation project(':appsearch:appsearch-platform-storage')
+    androidTestImplementation project(':appsearch:appsearch-play-services-storage')
     androidTestImplementation project(':appsearch:appsearch-test-util')
+    // Needed to check if PlayServicesAppSearch throws ApiException.
+    androidTestImplementation("com.google.android.gms:play-services-basement:18.1.0", {
+        exclude group: "androidx.core", module: "core"
+    })
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.truth)
@@ -59,4 +66,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = '2019'
     description = 'AndroidX AppSearch - App Indexing'
+    metalavaK2UastEnabled = true
 }

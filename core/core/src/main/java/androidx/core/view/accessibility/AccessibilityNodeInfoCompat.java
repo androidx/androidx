@@ -22,6 +22,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import static java.util.Collections.emptyList;
 
+import android.accessibilityservice.AccessibilityService;
 import android.annotation.SuppressLint;
 import android.content.ClipData;
 import android.graphics.Rect;
@@ -37,6 +38,7 @@ import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeInfo.TouchDelegateInfo;
 
@@ -49,7 +51,6 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.accessibilityservice.AccessibilityServiceInfoCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand.CommandArguments;
 import androidx.core.view.accessibility.AccessibilityViewCommand.MoveAtGranularityArguments;
@@ -61,6 +62,7 @@ import androidx.core.view.accessibility.AccessibilityViewCommand.SetSelectionArg
 import androidx.core.view.accessibility.AccessibilityViewCommand.SetTextArguments;
 
 import java.lang.ref.WeakReference;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -96,8 +98,8 @@ public class AccessibilityNodeInfoCompat {
      * </p>
      * <p class="note">
      * <strong>Note:</strong> Views which support these actions should invoke
-     * {@link View#setImportantForAccessibility(int)} with
-     * {@link View#IMPORTANT_FOR_ACCESSIBILITY_YES} to ensure an
+     * {@link ViewCompat#setImportantForAccessibility(View, int)} with
+     * {@link ViewCompat#IMPORTANT_FOR_ACCESSIBILITY_YES} to ensure an
      * {@link android.accessibilityservice.AccessibilityService} can discover the set of supported
      * actions.
      * </p>
@@ -108,12 +110,22 @@ public class AccessibilityNodeInfoCompat {
 
         /**
          * Action that gives input focus to the node.
+         * <p>The focus request sends an event of {@link AccessibilityEvent#TYPE_VIEW_FOCUSED}
+         * if successful. In the View system, this is handled by {@link View#requestFocus}.
+         *
+         * <p>The node that is focused should return {@code true} for
+         * {@link AccessibilityNodeInfoCompat#isFocused()}.
+         *
+         * @see #ACTION_ACCESSIBILITY_FOCUS for the difference between system focus and
+         * accessibility focus.
          */
         public static final AccessibilityActionCompat ACTION_FOCUS =
                 new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_FOCUS, null);
 
         /**
          * Action that clears input focus of the node.
+         * <p>The node that is cleared should return {@code false} for
+         * {@link AccessibilityNodeInfoCompat#isFocused()}.
          */
         public static final AccessibilityActionCompat ACTION_CLEAR_FOCUS =
                 new AccessibilityActionCompat(
@@ -135,12 +147,29 @@ public class AccessibilityNodeInfoCompat {
 
         /**
          * Action that clicks on the node info.
+         *
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_CLICKED} event. In the View system,
+         * the default handling of this action when performed by a service is to call
+         * {@link View#performClick()}, and setting a
+         * {@link View#setOnClickListener(View.OnClickListener)} automatically adds this action.
+         *
+         * <p>{@link #isClickable()} should return true if this action is available.
          */
         public static final AccessibilityActionCompat ACTION_CLICK =
                 new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_CLICK, null);
 
         /**
          * Action that long clicks on the node.
+         *
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_LONG_CLICKED} event. In the View system,
+         * the default handling of this action when performed by a service is to call
+         * {@link View#performLongClick()}, and setting a
+         * {@link View#setOnLongClickListener(View.OnLongClickListener)} automatically adds this
+         * action.
+         *
+         * <p>{@link #isLongClickable()} should return true if this action is available.
          */
         public static final AccessibilityActionCompat ACTION_LONG_CLICK =
                 new AccessibilityActionCompat(
@@ -148,6 +177,16 @@ public class AccessibilityNodeInfoCompat {
 
         /**
          * Action that gives accessibility focus to the node.
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_ACCESSIBILITY_FOCUSED} event
+         * if successful. The node that is focused should return {@code true} for
+         * {@link AccessibilityNodeInfoCompat#isAccessibilityFocused()}.
+         *
+         * <p>This is intended to be used by screen readers to assist with user navigation. Apps
+         * changing focus can confuse screen readers, so the resulting behavior can vary by device
+         * and screen reader version.
+         * <p>This is distinct from {@link #ACTION_FOCUS}, which refers to system focus. System
+         * focus is typically used to convey targets for keyboard navigation.
          */
         public static final AccessibilityActionCompat ACTION_ACCESSIBILITY_FOCUS =
                 new AccessibilityActionCompat(
@@ -155,6 +194,10 @@ public class AccessibilityNodeInfoCompat {
 
         /**
          * Action that clears accessibility focus of the node.
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_ACCESSIBILITY_FOCUS_CLEARED} event if successful. The
+         * node that is cleared should return {@code false} for
+         * {@link AccessibilityNodeInfoCompat#isAccessibilityFocused()}.
          */
         public static final AccessibilityActionCompat ACTION_CLEAR_ACCESSIBILITY_FOCUS =
                 new AccessibilityActionCompat(
@@ -352,6 +395,11 @@ public class AccessibilityNodeInfoCompat {
          * </code></pre></p>
          * </p>
          *
+         * <p> If this is a text selection, the UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_TEXT_SELECTION_CHANGED} event if its selection is
+         * updated. This element should also return {@code true} for
+         * {@link AccessibilityNodeInfoCompat#isTextSelectable()}.
+         *
          * @see AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SELECTION_START_INT
          *  AccessibilityNodeInfoCompat.ACTION_ARGUMENT_SELECTION_START_INT
          * @see AccessibilityNodeInfoCompat#ACTION_ARGUMENT_SELECTION_END_INT
@@ -398,6 +446,10 @@ public class AccessibilityNodeInfoCompat {
          *       "android");
          *  info.performAction(AccessibilityActionCompat.ACTION_SET_TEXT.getId(), arguments);
          * </code></pre></p>
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_TEXT_CHANGED} event if its text is updated.
+         * This element should also return {@code true} for
+         * {@link AccessibilityNodeInfoCompat#isEditable()}.
          */
         public static final AccessibilityActionCompat ACTION_SET_TEXT =
                 new AccessibilityActionCompat(AccessibilityNodeInfoCompat.ACTION_SET_TEXT, null,
@@ -501,6 +553,18 @@ public class AccessibilityNodeInfoCompat {
 
         /**
          * Action that context clicks the node.
+         *
+         * <p>The UI element that implements this should send a
+         * {@link AccessibilityEvent#TYPE_VIEW_CONTEXT_CLICKED} event. In the View system,
+         * the default handling of this action when performed by a service is to call
+         * {@link View#performContextClick()}, and setting a
+         * {@link View#setOnContextClickListener(View.OnContextClickListener)} automatically adds
+         * this action.
+         *
+         * <p>A context click usually occurs from a mouse pointer right-click or a stylus button
+         * press.
+         *
+         * <p>{@link #isContextClickable()} should return true if this action is available.
          */
         public static final AccessibilityActionCompat ACTION_CONTEXT_CLICK =
                 new AccessibilityActionCompat(Build.VERSION.SDK_INT >= 23
@@ -653,6 +717,36 @@ public class AccessibilityNodeInfoCompat {
                         ?   AccessibilityNodeInfo.AccessibilityAction.ACTION_SHOW_TEXT_SUGGESTIONS
                         :   null, android.R.id.accessibilityActionShowTextSuggestions, null,
                         null, null);
+
+        /**
+         * Action that brings fully on screen the next node in the specified direction.
+         *
+         * <p>
+         *     This should include wrapping around to the next/previous row, column, etc. in a
+         *     collection if one is available. If there is no node in that direction, the action
+         *     should fail and return false.
+         * </p>
+         * <p>
+         *     This action should be used instead of
+         *     {@link AccessibilityActionCompat#ACTION_SCROLL_TO_POSITION} when a widget does not
+         *     have clear row and column semantics or if a directional search is needed to find a
+         *     node in a complex ViewGroup where individual nodes may span multiple rows or
+         *     columns. The implementing widget must send a
+         *     {@link AccessibilityEventCompat#TYPE_VIEW_TARGETED_BY_SCROLL} accessibility event
+         *     with the scroll target as the source.  An accessibility service can listen for this
+         *     event, inspect its source, and use the result when determining where to place
+         *     accessibility focus.
+         * <p>
+         *     <strong>Arguments:</strong> {@link #ACTION_ARGUMENT_DIRECTION_INT}. This is a
+         *     required argument.<br>
+         * </p>
+         */
+        @NonNull
+        @OptIn(markerClass = androidx.core.os.BuildCompat.PrereleaseSdkCheck.class)
+        public static final AccessibilityActionCompat ACTION_SCROLL_IN_DIRECTION =
+                new AccessibilityActionCompat(
+                        Build.VERSION.SDK_INT >= 34 ? Api34Impl.getActionScrollInDirection() : null,
+                        android.R.id.accessibilityActionScrollInDirection, null, null, null);
 
         final Object mAction;
         private final int mId;
@@ -1136,6 +1230,169 @@ public class AccessibilityNodeInfoCompat {
                 return false;
             }
         }
+
+        /**
+         * Gets the row title at which the item is located.
+         *
+         * @return The row title.
+         */
+        @Nullable
+        public String getRowTitle() {
+            if (Build.VERSION.SDK_INT >= 33) {
+                return Api33Impl.getCollectionItemRowTitle(mInfo);
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Gets the column title at which the item is located.
+         *
+         * @return The column title.
+         */
+        @Nullable
+        public String getColumnTitle() {
+            if (Build.VERSION.SDK_INT >= 33) {
+                return Api33Impl.getCollectionItemColumnTitle(mInfo);
+            } else {
+                return null;
+            }
+        }
+
+        /**
+         * Builder for creating {@link CollectionItemInfoCompat} objects.
+         */
+        public static final class Builder {
+            private boolean mHeading;
+            private int mColumnIndex;
+            private int mRowIndex;
+            private int mColumnSpan;
+            private int mRowSpan;
+            private boolean mSelected;
+            private String mRowTitle;
+            private String mColumnTitle;
+
+            /**
+             * Creates a new Builder.
+             */
+            public Builder() {
+            }
+
+            /**
+             * Sets the collection item is a heading.
+             *
+             * @param heading The heading state
+             * @return This builder
+             */
+            @NonNull
+            public Builder setHeading(boolean heading) {
+                mHeading = heading;
+                return this;
+            }
+
+            /**
+             * Sets the column index at which the item is located.
+             *
+             * @param columnIndex The column index
+             * @return This builder
+             */
+            @NonNull
+            public Builder setColumnIndex(int columnIndex) {
+                mColumnIndex = columnIndex;
+                return this;
+            }
+
+            /**
+             * Sets the row index at which the item is located.
+             *
+             * @param rowIndex The row index
+             * @return This builder
+             */
+            @NonNull
+            public Builder setRowIndex(int rowIndex) {
+                mRowIndex = rowIndex;
+                return this;
+            }
+
+            /**
+             * Sets the number of columns the item spans.
+             *
+             * @param columnSpan The number of columns spans
+             * @return This builder
+             */
+            @NonNull
+            public Builder setColumnSpan(int columnSpan) {
+                mColumnSpan = columnSpan;
+                return this;
+            }
+
+            /**
+             * Sets the number of rows the item spans.
+             *
+             * @param rowSpan The number of rows spans
+             * @return This builder
+             */
+            @NonNull
+            public Builder setRowSpan(int rowSpan) {
+                mRowSpan = rowSpan;
+                return this;
+            }
+
+            /**
+             * Sets the collection item is selected.
+             *
+             * @param selected The number of rows spans
+             * @return This builder
+             */
+            @NonNull
+            public Builder setSelected(boolean selected) {
+                mSelected = selected;
+                return this;
+            }
+
+            /**
+             * Sets the row title at which the item is located.
+             *
+             * @param rowTitle The row title
+             * @return This builder
+             */
+            @NonNull
+            public Builder setRowTitle(@Nullable String rowTitle) {
+                mRowTitle = rowTitle;
+                return this;
+            }
+
+            /**
+             * Sets the column title at which the item is located.
+             *
+             * @param columnTitle The column title
+             * @return This builder
+             */
+            @NonNull
+            public Builder setColumnTitle(@Nullable String columnTitle) {
+                mColumnTitle = columnTitle;
+                return this;
+            }
+
+            /**
+             * Builds and returns a {@link AccessibilityNodeInfo.CollectionItemInfo}.
+             */
+            @NonNull
+            public CollectionItemInfoCompat build() {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    return Api33Impl.buildCollectionItemInfoCompat(mHeading, mColumnIndex,
+                            mRowIndex, mColumnSpan, mRowSpan, mSelected, mRowTitle, mColumnTitle);
+                } else if (Build.VERSION.SDK_INT >= 21) {
+                    return Api21Impl.createCollectionItemInfo(mRowIndex, mRowSpan, mColumnIndex,
+                            mColumnSpan, mHeading, mSelected);
+                } else if (Build.VERSION.SDK_INT >= 19) {
+                    return Api19Impl.createCollectionItemInfo(mRowIndex, mRowSpan, mColumnIndex,
+                            mColumnSpan, mHeading);
+                } else {
+                    return new CollectionItemInfoCompat(null);
+                }
+            }
+        }
     }
 
     /**
@@ -1171,6 +1428,26 @@ public class AccessibilityNodeInfoCompat {
 
         RangeInfoCompat(Object info) {
             mInfo = info;
+        }
+
+        /**
+         * Creates a new range.
+         *
+         * @param type The type of the range.
+         * @param min The minimum value. Use {@code Float.NEGATIVE_INFINITY} if the range has no
+         *            minimum.
+         * @param max The maximum value. Use {@code Float.POSITIVE_INFINITY} if the range has no
+         *            maximum.
+         * @param current The current value.
+         */
+        public RangeInfoCompat(int type, float min, float max, float current) {
+            if (Build.VERSION.SDK_INT >= 30) {
+                mInfo = Api30Impl.createRangeInfo(type, min, max, current);
+            } else if (Build.VERSION.SDK_INT >= 19) {
+                mInfo = Api19Impl.createRangeInfo(type, min, max, current);
+            } else {
+                mInfo = null;
+            }
         }
 
         /**
@@ -1352,6 +1629,12 @@ public class AccessibilityNodeInfoCompat {
     private static final String UNIQUE_ID_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat.UNIQUE_ID_KEY";
 
+    private static final String CONTAINER_TITLE_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.CONTAINER_TITLE_KEY";
+
+    private static final String BOUNDS_IN_WINDOW_KEY =
+            "androidx.view.accessibility.AccessibilityNodeInfoCompat.BOUNDS_IN_WINDOW_KEY";
+
     private static final String MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY =
             "androidx.view.accessibility.AccessibilityNodeInfoCompat."
                     + "MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY";
@@ -1362,7 +1645,11 @@ public class AccessibilityNodeInfoCompat {
     private static final int BOOLEAN_PROPERTY_IS_HEADING = 0x00000002;
     private static final int BOOLEAN_PROPERTY_IS_SHOWING_HINT = 0x00000004;
     private static final int BOOLEAN_PROPERTY_IS_TEXT_ENTRY_KEY = 0x00000008;
+
     private static final int BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS = 1 << 5;
+    private static final int BOOLEAN_PROPERTY_ACCESSIBILITY_DATA_SENSITIVE = 1 << 6;
+    private static final int BOOLEAN_PROPERTY_TEXT_SELECTABLE = 1 << 23;
+    private static final int BOOLEAN_PROPERTY_SUPPORTS_GRANULAR_SCROLLING = 1 << 26;
 
     private final AccessibilityNodeInfo mInfo;
 
@@ -1378,31 +1665,37 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Action that focuses the node.
+     * @see AccessibilityActionCompat#ACTION_FOCUS
      */
     public static final int ACTION_FOCUS = 0x00000001;
 
     /**
      * Action that unfocuses the node.
+     * @see AccessibilityActionCompat#ACTION_CLEAR_FOCUS
      */
     public static final int ACTION_CLEAR_FOCUS = 0x00000002;
 
     /**
      * Action that selects the node.
+     * @see AccessibilityActionCompat#ACTION_SELECT
      */
     public static final int ACTION_SELECT = 0x00000004;
 
     /**
      * Action that unselects the node.
+     * @see AccessibilityActionCompat#ACTION_CLEAR_SELECTION
      */
     public static final int ACTION_CLEAR_SELECTION = 0x00000008;
 
     /**
      * Action that clicks on the node info.
+     * @see AccessibilityActionCompat#ACTION_CLICK
      */
     public static final int ACTION_CLICK = 0x00000010;
 
     /**
      * Action that long clicks on the node.
+     * @see AccessibilityActionCompat#ACTION_LONG_CLICK
      */
     public static final int ACTION_LONG_CLICK = 0x00000020;
 
@@ -1410,6 +1703,7 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Action that gives accessibility focus to the node.
+     * @see AccessibilityActionCompat#ACTION_ACCESSIBILITY_FOCUS
      */
     public static final int ACTION_ACCESSIBILITY_FOCUS = 0x00000040;
 
@@ -1447,6 +1741,7 @@ public class AccessibilityNodeInfoCompat {
      * @see #MOVEMENT_GRANULARITY_LINE
      * @see #MOVEMENT_GRANULARITY_PARAGRAPH
      * @see #MOVEMENT_GRANULARITY_PAGE
+     * @see AccessibilityActionCompat#ACTION_NEXT_AT_MOVEMENT_GRANULARITY
      */
     public static final int ACTION_NEXT_AT_MOVEMENT_GRANULARITY = 0x00000100;
 
@@ -1480,6 +1775,7 @@ public class AccessibilityNodeInfoCompat {
      * @see #MOVEMENT_GRANULARITY_LINE
      * @see #MOVEMENT_GRANULARITY_PARAGRAPH
      * @see #MOVEMENT_GRANULARITY_PAGE
+     * @see AccessibilityActionCompat#ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY
      */
     public static final int ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY = 0x00000200;
 
@@ -1495,6 +1791,7 @@ public class AccessibilityNodeInfoCompat {
      *   info.performAction(AccessibilityNodeInfo.ACTION_NEXT_HTML_ELEMENT, arguments);
      * </code></pre></p>
      * </p>
+     * @see AccessibilityActionCompat#ACTION_NEXT_HTML_ELEMENT
      */
     public static final int ACTION_NEXT_HTML_ELEMENT = 0x00000400;
 
@@ -1510,16 +1807,20 @@ public class AccessibilityNodeInfoCompat {
      *   info.performAction(AccessibilityNodeInfo.ACTION_PREVIOUS_HTML_ELEMENT, arguments);
      * </code></pre></p>
      * </p>
+     *
+     * @see AccessibilityActionCompat#ACTION_PREVIOUS_HTML_ELEMENT
      */
     public static final int ACTION_PREVIOUS_HTML_ELEMENT = 0x00000800;
 
     /**
      * Action to scroll the node content forward.
+     * @see AccessibilityActionCompat#ACTION_SCROLL_FORWARD
      */
     public static final int ACTION_SCROLL_FORWARD = 0x00001000;
 
     /**
      * Action to scroll the node content backward.
+     * @see AccessibilityActionCompat#ACTION_SCROLL_BACKWARD
      */
     public static final int ACTION_SCROLL_BACKWARD = 0x00002000;
 
@@ -1527,16 +1828,19 @@ public class AccessibilityNodeInfoCompat {
 
     /**
      * Action to copy the current selection to the clipboard.
+     * @see AccessibilityActionCompat#ACTION_COPY
      */
     public static final int ACTION_COPY = 0x00004000;
 
     /**
      * Action to paste the current clipboard content.
+     * @see AccessibilityActionCompat#ACTION_PASTE
      */
     public static final int ACTION_PASTE = 0x00008000;
 
     /**
      * Action to cut the current selection and place it to the clipboard.
+     * @see AccessibilityActionCompat#ACTION_CUT
      */
     public static final int ACTION_CUT = 0x00010000;
 
@@ -1557,21 +1861,25 @@ public class AccessibilityNodeInfoCompat {
      *
      * @see #ACTION_ARGUMENT_SELECTION_START_INT
      * @see #ACTION_ARGUMENT_SELECTION_END_INT
+     * @see AccessibilityActionCompat#ACTION_SET_SELECTION
      */
     public static final int ACTION_SET_SELECTION = 0x00020000;
 
     /**
      * Action to expand an expandable node.
+     * @see AccessibilityActionCompat#ACTION_EXPAND
      */
     public static final int ACTION_EXPAND = 0x00040000;
 
     /**
      * Action to collapse an expandable node.
+     * @see AccessibilityActionCompat#ACTION_COLLAPSE
      */
     public static final int ACTION_COLLAPSE = 0x00080000;
 
     /**
-     * Action to dismiss a dismissable node.
+     * Action to dismiss a dismissible node.
+     * @see AccessibilityActionCompat#ACTION_DISMISS
      */
     public static final int ACTION_DISMISS = 0x00100000;
 
@@ -1588,6 +1896,7 @@ public class AccessibilityNodeInfoCompat {
      *       "android");
      *   info.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
      * </code></pre></p>
+     * @see AccessibilityActionCompat#ACTION_SET_TEXT
      */
     public static final int ACTION_SET_TEXT = 0x00200000;
 
@@ -1608,8 +1917,8 @@ public class AccessibilityNodeInfoCompat {
      * Argument for which HTML element to get moving to the next/previous HTML element.
      * <p>
      * <strong>Type:</strong> String<br>
-     * <strong>Actions:</strong> {@link #ACTION_NEXT_HTML_ELEMENT},
-     *         {@link #ACTION_PREVIOUS_HTML_ELEMENT}
+     * <strong>Actions:</strong> {@link AccessibilityActionCompat#ACTION_NEXT_HTML_ELEMENT},
+     *         {@link AccessibilityActionCompat#ACTION_PREVIOUS_HTML_ELEMENT}
      * </p>
      */
     public static final String ACTION_ARGUMENT_HTML_ELEMENT_STRING =
@@ -1624,8 +1933,8 @@ public class AccessibilityNodeInfoCompat {
      * {@link #ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY}
      * </p>
      *
-     * @see #ACTION_NEXT_AT_MOVEMENT_GRANULARITY
-     * @see #ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY
+     * @see AccessibilityActionCompat#ACTION_NEXT_AT_MOVEMENT_GRANULARITY
+     * @see AccessibilityActionCompat#ACTION_PREVIOUS_AT_MOVEMENT_GRANULARITY
      */
     public static final String ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN =
             "ACTION_ARGUMENT_EXTEND_SELECTION_BOOLEAN";
@@ -1637,7 +1946,7 @@ public class AccessibilityNodeInfoCompat {
      * <strong>Actions:</strong> {@link #ACTION_SET_SELECTION}
      * </p>
      *
-     * @see #ACTION_SET_SELECTION
+     * @see AccessibilityActionCompat#ACTION_SET_SELECTION
      */
     public static final String ACTION_ARGUMENT_SELECTION_START_INT =
             "ACTION_ARGUMENT_SELECTION_START_INT";
@@ -1649,7 +1958,7 @@ public class AccessibilityNodeInfoCompat {
      * <strong>Actions:</strong> {@link #ACTION_SET_SELECTION}
      * </p>
      *
-     * @see #ACTION_SET_SELECTION
+     * @see AccessibilityActionCompat#ACTION_SET_SELECTION
      */
     public static final String ACTION_ARGUMENT_SELECTION_END_INT =
             "ACTION_ARGUMENT_SELECTION_END_INT";
@@ -1661,7 +1970,7 @@ public class AccessibilityNodeInfoCompat {
      * <strong>Actions:</strong> {@link #ACTION_SET_TEXT}
      * </p>
      *
-     * @see #ACTION_SET_TEXT
+     * @see AccessibilityActionCompat#ACTION_SET_TEXT
      */
     public static final String ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE =
             "ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE";
@@ -1751,6 +2060,71 @@ public class AccessibilityNodeInfoCompat {
     public static final String ACTION_ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT =
             "android.view.accessibility.action.ARGUMENT_PRESS_AND_HOLD_DURATION_MILLIS_INT";
 
+    /**
+     * <p>Argument to represent the direction when using
+     * {@link AccessibilityActionCompat#ACTION_SCROLL_IN_DIRECTION}.</p>
+     *
+     * <p>
+     *     The value of this argument can be one of:
+     *     <ul>
+     *         <li>{@link View#FOCUS_DOWN}</li>
+     *         <li>{@link View#FOCUS_UP}</li>
+     *         <li>{@link View#FOCUS_LEFT}</li>
+     *         <li>{@link View#FOCUS_RIGHT}</li>
+     *         <li>{@link View#FOCUS_FORWARD}</li>
+     *         <li>{@link View#FOCUS_BACKWARD}</li>
+     *     </ul>
+     * </p>
+     */
+    public static final String ACTION_ARGUMENT_DIRECTION_INT =
+            "androidx.core.view.accessibility.action.ARGUMENT_DIRECTION_INT";
+
+    /**
+     * <p>Argument to represent the scroll amount as a percent of the visible area of a node, with
+     * 1.0F as the default. Values smaller than 1.0F represent a partial scroll of the node, and
+     * values larger than 1.0F represent a scroll that extends beyond the currently visible node
+     * Rect. Setting this to {@link Float#POSITIVE_INFINITY} or to another "too large" value should
+     * scroll to the end of the node. Negative values should not be used with this argument.
+     * </p>
+     *
+     * <p>
+     *     This argument should be used with the following scroll actions:
+     *     <ul>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_FORWARD}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_BACKWARD}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_UP}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_DOWN}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_LEFT}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_RIGHT}</li>
+     *     </ul>
+     * </p>
+     * <p>
+     *     Example: if a view representing a list of items implements
+     *     {@link AccessibilityActionCompat#ACTION_SCROLL_FORWARD} to scroll forward by an entire
+     *     screen
+     *     (one "page"), then passing a value of .25F via this argument should scroll that view
+     *     only by 1/4th of a screen. Passing a value of 1.50F via this argument should scroll the
+     *     view by 1 1/2 screens or to end of the node if the node doesn't extend to 1 1/2 screens.
+     * </p>
+     *
+     * <p>
+     *     This argument should not be used with the following scroll actions, which don't cleanly
+     *     conform to granular scroll semantics:
+     *     <ul>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_IN_DIRECTION}</li>
+     *         <li>{@link AccessibilityActionCompat#ACTION_SCROLL_TO_POSITION}</li>
+     *     </ul>
+     * </p>
+     *
+     * <p>
+     *     Views that support this argument should set
+     *     {@link #setGranularScrollingSupported(boolean)} to true. Clients should use
+     *     {@link #isGranularScrollingSupported()} to check if granular scrolling is supported.
+     * </p>
+     */
+    public static final String ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT =
+            "androidx.core.view.accessibility.action.ARGUMENT_SCROLL_AMOUNT_FLOAT";
+
     // Focus types
 
     /**
@@ -1833,6 +2207,73 @@ public class AccessibilityNodeInfoCompat {
      * The maximum allowed length of the requested text location data.
      */
     public static final int EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_MAX_LENGTH = 20000;
+
+    /**
+     * Prefetching strategy that prefetches the ancestors of the requested node.
+     * <p> Ancestors will be prefetched before siblings and descendants.
+     *
+     * @see #getChild(int, int)
+     * @see #getParent(int)
+     * @see AccessibilityWindowInfoCompat#getRoot(int)
+     * @see AccessibilityService#getRootInActiveWindow(int)
+     * @see AccessibilityEvent#getSource(int)
+     */
+    public static final int FLAG_PREFETCH_ANCESTORS = 0x00000001;
+
+    /**
+     * Prefetching strategy that prefetches the siblings of the requested node.
+     * <p> To avoid disconnected trees, this flag will also prefetch the parent. Siblings will be
+     * prefetched before descendants.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS for where to use these flags.
+     */
+    public static final int FLAG_PREFETCH_SIBLINGS = 0x00000002;
+
+    /**
+     * Prefetching strategy that prefetches the descendants in a hybrid depth first and breadth
+     * first approach.
+     * <p> The children of the root node is prefetched before recursing on the children. This
+     * must not be combined with {@link #FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST} or
+     * {@link #FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST} or this will trigger an
+     * IllegalArgumentException.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS for where to use these flags.
+     */
+    public static final int FLAG_PREFETCH_DESCENDANTS_HYBRID = 0x00000004;
+
+    /**
+     * Prefetching strategy that prefetches the descendants of the requested node depth-first.
+     * <p> This must not be combined with {@link #FLAG_PREFETCH_DESCENDANTS_HYBRID} or
+     * {@link #FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST} or this will trigger an
+     * IllegalArgumentException.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS for where to use these flags.
+     */
+    public static final int FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST = 0x00000008;
+
+    /**
+     * Prefetching strategy that prefetches the descendants of the requested node breadth-first.
+     * <p> This must not be combined with {@link #FLAG_PREFETCH_DESCENDANTS_HYBRID} or
+     * {@link #FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST} or this will trigger an
+     * IllegalArgumentException.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS for where to use these flags.
+     */
+    public static final int FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST = 0x00000010;
+
+    /**
+     * Prefetching flag that specifies prefetching should not be interrupted by a request to
+     * retrieve a node or perform an action on a node.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS for where to use these flags.
+     */
+    public static final int FLAG_PREFETCH_UNINTERRUPTIBLE = 0x00000020;
+
+    /**
+     * Maximum batch size of prefetched nodes for a request.
+     */
+    @SuppressLint("MinMaxConstant")
+    public static final int MAX_NUMBER_OF_PREFETCHED_NODES = 50;
 
     private static int sClickableSpanId = 0;
 
@@ -2053,6 +2494,26 @@ public class AccessibilityNodeInfoCompat {
      */
     public AccessibilityNodeInfoCompat getChild(int index) {
         return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getChild(index));
+    }
+
+    /**
+     * Get the child at given index.
+     *
+     * @param index The child index.
+     * @param prefetchingStrategy the prefetching strategy.
+     * @return The child node.
+     *
+     * @throws IllegalStateException If called outside of an {@link AccessibilityService} and before
+     *                               calling {@link #setQueryFromAppProcessEnabled}.
+     *
+     * @see AccessibilityNodeInfoCompat#getParent(int) for a description of prefetching.
+     */
+    @Nullable
+    public AccessibilityNodeInfoCompat getChild(int index, int prefetchingStrategy) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return Api33Impl.getChild(mInfo, index, prefetchingStrategy);
+        }
+        return getChild(index);
     }
 
     /**
@@ -2320,6 +2781,41 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the parent.
+     *
+     * <p>
+     * Use {@code prefetchingStrategy} to determine the types of
+     * nodes prefetched from the app if the requested node is not in the cache and must be retrieved
+     * by the app. The default strategy for {@link #getParent()} is a combination of ancestor and
+     * sibling strategies. The app will prefetch until all nodes fulfilling the strategies are
+     * fetched, another node request is sent, or the maximum prefetch batch size of
+     * {@link #MAX_NUMBER_OF_PREFETCHED_NODES} nodes is reached. To prevent interruption by another
+     * request and to force prefetching of the max batch size, use
+     * {@link AccessibilityNodeInfoCompat#FLAG_PREFETCH_UNINTERRUPTIBLE}.
+     * </p>
+     *
+     * @param prefetchingStrategy the prefetching strategy.
+     * @return The parent.
+     *
+     * @throws IllegalStateException If called outside of an {@link AccessibilityService} and before
+     *                               calling {@link #setQueryFromAppProcessEnabled}.
+     *
+     * @see #FLAG_PREFETCH_ANCESTORS
+     * @see #FLAG_PREFETCH_DESCENDANTS_BREADTH_FIRST
+     * @see #FLAG_PREFETCH_DESCENDANTS_DEPTH_FIRST
+     * @see #FLAG_PREFETCH_DESCENDANTS_HYBRID
+     * @see #FLAG_PREFETCH_SIBLINGS
+     * @see #FLAG_PREFETCH_UNINTERRUPTIBLE
+     */
+    @Nullable
+    public AccessibilityNodeInfoCompat getParent(int prefetchingStrategy) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            return Api33Impl.getParent(mInfo, prefetchingStrategy);
+        }
+        return getParent();
+    }
+
+    /**
      * Sets the parent.
      * <p>
      * <strong>Note:</strong> Cannot be called from an
@@ -2426,6 +2922,57 @@ public class AccessibilityNodeInfoCompat {
      */
     public void setBoundsInScreen(Rect bounds) {
         mInfo.setBoundsInScreen(bounds);
+    }
+
+    /**
+     * Gets the node bounds in window coordinates.
+     * <p>
+     * When magnification is enabled, the bounds in window are scaled up by magnification scale
+     * and the positions are also adjusted according to the offset of magnification viewport.
+     * For example, it returns Rect(-180, -180, 0, 0) for original bounds Rect(10, 10, 100, 100),
+     * when the magnification scale is 2 and offsets for X and Y are both 200.
+     * <p/>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: No-op</li>
+     * </ul>
+     * @param outBounds The output node bounds.
+     */
+    public void getBoundsInWindow(@NonNull  Rect outBounds) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.getBoundsInWindow(mInfo, outBounds);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Rect extraBounds = Api19Impl.getExtras(mInfo).getParcelable(BOUNDS_IN_WINDOW_KEY);
+            if (extraBounds != null) {
+                outBounds.set(extraBounds.left, extraBounds.top, extraBounds.right,
+                        extraBounds.bottom);
+            }
+        }
+    }
+
+    /**
+     * Sets the node bounds in window coordinates.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: No-op</li>
+     * </ul>
+     * @param bounds The node bounds.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setBoundsInWindow(@NonNull Rect bounds) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setBoundsInWindow(mInfo, bounds);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putParcelable(BOUNDS_IN_WINDOW_KEY, bounds);
+        }
     }
 
     /**
@@ -2730,6 +3277,44 @@ public class AccessibilityNodeInfoCompat {
         mInfo.setScrollable(scrollable);
     }
 
+
+    /**
+     * Gets if the node supports granular scrolling.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>Api &lt; 19: Returns false.</li>
+     * </ul>
+     * @return True if all scroll actions that could support
+     * {@link #ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT} have done so, false otherwise.
+     */
+    public boolean isGranularScrollingSupported() {
+        return getBooleanProperty(BOOLEAN_PROPERTY_SUPPORTS_GRANULAR_SCROLLING);
+    }
+
+    /**
+     * Sets if the node supports granular scrolling. This should be set to true if all scroll
+     * actions which could support {@link #ACTION_ARGUMENT_SCROLL_AMOUNT_FLOAT} have done so.
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>Api &lt; 19: No-op.</li>
+     * </ul>
+     * @param granularScrollingSupported True if the node supports granular scrolling, false
+     *                                  otherwise.
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setGranularScrollingSupported(boolean granularScrollingSupported) {
+        setBooleanProperty(BOOLEAN_PROPERTY_SUPPORTS_GRANULAR_SCROLLING,
+                granularScrollingSupported);
+    }
+
     /**
      * Gets if the node has selectable text.
      *
@@ -2737,11 +3322,12 @@ public class AccessibilityNodeInfoCompat {
      *     Services should use {@link #ACTION_SET_SELECTION} for selection. Editable text nodes must
      *     also be selectable. But not all UIs will populate this field, so services should consider
      *     'isTextSelectable | isEditable' to ensure they don't miss nodes with selectable text.
-     *  Compatibility:
-     *  <ul>
-     *      <li>Api &lt; 33: Returns false.</li>
-     *  </ul>
      * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>Api &lt; 19: Returns false.</li>
+     * </ul>
      *
      * @see #isEditable
      * @return True if the node has selectable text.
@@ -2750,7 +3336,7 @@ public class AccessibilityNodeInfoCompat {
         if (Build.VERSION.SDK_INT >= 33) {
             return Api33Impl.isTextSelectable(mInfo);
         } else {
-            return false;
+            return getBooleanProperty(BOOLEAN_PROPERTY_TEXT_SELECTABLE);
         }
     }
 
@@ -2760,10 +3346,12 @@ public class AccessibilityNodeInfoCompat {
      *   <strong>Note:</strong> Cannot be called from an
      *   {@link android.accessibilityservice.AccessibilityService}.
      *   This class is made immutable before being delivered to an AccessibilityService.
-     *  Compatibility:
-     *  <ul>
-     *      <li>Api &lt; 33: Does not operate.</li>
-     *  </ul>
+     * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>Api &lt; 19: Does not operate.</li>
+     * </ul>
      * </p>
      *
      * @param selectableText True if the node has selectable text, false otherwise.
@@ -2773,6 +3361,8 @@ public class AccessibilityNodeInfoCompat {
     public void setTextSelectable(boolean selectableText) {
         if (Build.VERSION.SDK_INT >= 33) {
             Api33Impl.setTextSelectable(mInfo, selectableText);
+        } else {
+            setBooleanProperty(BOOLEAN_PROPERTY_TEXT_SELECTABLE, selectableText);
         }
     }
 
@@ -2780,7 +3370,9 @@ public class AccessibilityNodeInfoCompat {
      * Gets the minimum time duration between two content change events.
      */
     public long getMinDurationBetweenContentChangesMillis() {
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return Api34Impl.getMinDurationBetweenContentChangeMillis(mInfo);
+        } else if (Build.VERSION.SDK_INT >= 19) {
             return Api19Impl.getExtras(mInfo).getLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY);
         }
         return 0;
@@ -2801,7 +3393,9 @@ public class AccessibilityNodeInfoCompat {
      * @param duration the minimum duration between content change events.
      */
     public void setMinDurationBetweenContentChangesMillis(long duration) {
-        if (Build.VERSION.SDK_INT >= 19) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setMinDurationBetweenContentChangeMillis(mInfo, duration);
+        } else if (Build.VERSION.SDK_INT >= 19) {
             Api19Impl.getExtras(mInfo).putLong(MIN_DURATION_BETWEEN_CONTENT_CHANGES_KEY, duration);
         }
     }
@@ -2836,6 +3430,52 @@ public class AccessibilityNodeInfoCompat {
     public void setImportantForAccessibility(boolean important) {
         if (Build.VERSION.SDK_INT >= 24) {
             mInfo.setImportantForAccessibility(important);
+        }
+    }
+
+    /**
+     * Gets if the node's accessibility data is considered sensitive.
+     *
+     * @return True if the node's data is considered sensitive, false otherwise.
+     * @see View#isAccessibilityDataSensitive()
+     */
+    public boolean isAccessibilityDataSensitive() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return Api34Impl.isAccessibilityDataSensitive(mInfo);
+        } else {
+            return getBooleanProperty(BOOLEAN_PROPERTY_ACCESSIBILITY_DATA_SENSITIVE);
+        }
+    }
+
+    /**
+     * Sets whether this node's accessibility data is considered sensitive.
+     *
+     * <p>
+     * For SDK 34 and higher: when set to true the framework will hide this node from
+     * accessibility services with the
+     * {@link android.accessibilityservice.AccessibilityServiceInfo#isAccessibilityTool}
+     * property set to false.
+     * </p>
+     * <p>
+     * Otherwise, for SDK 19 and higher: the framework cannot hide this node but this property may
+     * be read by accessibility services to provide modified behavior for sensitive nodes.
+     * </p>
+     * <p>
+     *   <strong>Note:</strong> Cannot be called from an
+     *   {@link android.accessibilityservice.AccessibilityService}.
+     *   This class is made immutable before being delivered to an AccessibilityService.
+     * </p>
+     *
+     * @param accessibilityDataSensitive True if the node's accessibility data is considered
+     *                                   sensitive.
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setAccessibilityDataSensitive(boolean accessibilityDataSensitive) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setAccessibilityDataSensitive(mInfo, accessibilityDataSensitive);
+        } else {
+            setBooleanProperty(BOOLEAN_PROPERTY_ACCESSIBILITY_DATA_SENSITIVE,
+                    accessibilityDataSensitive);
         }
     }
 
@@ -3037,8 +3677,8 @@ public class AccessibilityNodeInfoCompat {
      * than 19.
      */
     public @Nullable CharSequence getStateDescription() {
-        if (BuildCompat.isAtLeastR()) {
-            return mInfo.getStateDescription();
+        if (Build.VERSION.SDK_INT >= 30) {
+            return  Api30Impl.getStateDescription(mInfo);
         } else if (Build.VERSION.SDK_INT >= 19) {
             return Api19Impl.getExtras(mInfo).getCharSequence(STATE_DESCRIPTION_KEY);
         }
@@ -3072,8 +3712,8 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setStateDescription(@Nullable CharSequence stateDescription) {
-        if (BuildCompat.isAtLeastR()) {
-            mInfo.setStateDescription(stateDescription);
+        if (Build.VERSION.SDK_INT >= 30) {
+            Api30Impl.setStateDescription(mInfo, stateDescription);
         } else if (Build.VERSION.SDK_INT >= 19) {
             Api19Impl.getExtras(mInfo).putCharSequence(STATE_DESCRIPTION_KEY, stateDescription);
         }
@@ -3085,10 +3725,9 @@ public class AccessibilityNodeInfoCompat {
      * @return the unique id or null if android version smaller
      * than 19.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public @Nullable String getUniqueId() {
-        if (BuildCompat.isAtLeastT()) {
-            return mInfo.getUniqueId();
+        if (Build.VERSION.SDK_INT >= 33) {
+            return Api33Impl.getUniqueId(mInfo);
         } else if (Build.VERSION.SDK_INT >= 19) {
             return Api19Impl.getExtras(mInfo).getString(UNIQUE_ID_KEY);
         }
@@ -3106,13 +3745,68 @@ public class AccessibilityNodeInfoCompat {
      * @param uniqueId the unique id of this node.
      * @throws IllegalStateException If called from an AccessibilityService.
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public void setUniqueId(@Nullable String uniqueId) {
-        if (BuildCompat.isAtLeastT()) {
-            mInfo.setUniqueId(uniqueId);
+        if (Build.VERSION.SDK_INT >= 33) {
+            Api33Impl.setUniqueId(mInfo, uniqueId);
         } else if (Build.VERSION.SDK_INT >= 19) {
             Api19Impl.getExtras(mInfo).putString(UNIQUE_ID_KEY, uniqueId);
         }
+    }
+
+    /**
+     * Sets the container title for app-developer-defined container which can be any type of
+     * ViewGroup or layout.
+     * Container title will be used to group together related controls, similar to HTML fieldset.
+     * Or container title may identify a large piece of the UI that is visibly grouped together,
+     * such as a toolbar or a card, etc.
+     * <p>
+     * Container title helps to assist in navigation across containers and other groups.
+     * For example, a screen reader may use this to determine where to put accessibility focus.
+     * </p>
+     * <p>
+     * Container title is different from pane title{@link #setPaneTitle} which indicates that the
+     * node represents a window or activity.
+     * </p>
+     *
+     * <p>
+     *  Example: An app can set container titles on several non-modal menus, containing TextViews
+     *  or ImageButtons that have content descriptions, text, etc. Screen readers can quickly
+     *  switch accessibility focus among menus instead of child views.  Other accessibility-services
+     *  can easily find the menu.
+     * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: No-op</li>
+     * </ul>
+     * @param containerTitle The container title that is associated with a ViewGroup/Layout on the
+     *                       screen.
+     */
+    public void setContainerTitle(@Nullable CharSequence containerTitle) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setContainerTitle(mInfo, containerTitle);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            Api19Impl.getExtras(mInfo).putCharSequence(CONTAINER_TITLE_KEY, containerTitle);
+        }
+    }
+
+    /**
+     * Returns the container title.
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 19: Returns null</li>
+     * </ul>
+     * @see #setContainerTitle for details.
+     */
+    @Nullable
+    public CharSequence getContainerTitle() {
+        if (Build.VERSION.SDK_INT >= 34) {
+            return Api34Impl.getContainerTitle(mInfo);
+        } else if (Build.VERSION.SDK_INT >= 19) {
+            return Api19Impl.getExtras(mInfo).getCharSequence(CONTAINER_TITLE_KEY);
+        }
+        return null;
     }
 
     /**
@@ -4208,7 +4902,7 @@ public class AccessibilityNodeInfoCompat {
      * Returns whether node represents a heading.
      * <p><strong>Note:</strong> Returns {@code true} if either {@link #setHeading(boolean)}
      * marks this node as a heading or if the node has a {@link CollectionItemInfoCompat} that marks
-     * it as such, to accomodate apps that use the now-deprecated API.</p>
+     * it as such, to accommodate apps that use the now-deprecated API.</p>
      *
      * @return {@code true} if the node is a heading, {@code false} otherwise.
      */
@@ -4279,7 +4973,11 @@ public class AccessibilityNodeInfoCompat {
      */
     @SuppressLint("KotlinPropertyAccess")
     public boolean hasRequestInitialAccessibilityFocus() {
-        return getBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS);
+        if (Build.VERSION.SDK_INT >= 34) {
+            return Api34Impl.hasRequestInitialAccessibilityFocus(mInfo);
+        } else {
+            return getBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS);
+        }
     }
 
     /**
@@ -4302,8 +5000,12 @@ public class AccessibilityNodeInfoCompat {
      */
     @SuppressLint("GetterSetterNames")
     public void setRequestInitialAccessibilityFocus(boolean requestInitialAccessibilityFocus) {
-        setBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS,
-                requestInitialAccessibilityFocus);
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setRequestInitialAccessibilityFocus(mInfo, requestInitialAccessibilityFocus);
+        } else {
+            setBooleanProperty(BOOLEAN_PROPERTY_HAS_REQUEST_INITIAL_ACCESSIBILITY_FOCUS,
+                    requestInitialAccessibilityFocus);
+        }
     }
 
     /**
@@ -4413,6 +5115,59 @@ public class AccessibilityNodeInfoCompat {
         }
     }
 
+    /**
+     * Connects this node to the View's root so that operations on this node can query the entire
+     * {@link AccessibilityNodeInfoCompat} tree and perform accessibility actions on nodes.
+     *
+     * <p>
+     * Testing or debugging tools should create this {@link AccessibilityNodeInfoCompat} node using
+     * {@link ViewCompat#onInitializeAccessibilityNodeInfo(View, AccessibilityNodeInfoCompat)}
+     * or {@link AccessibilityNodeProviderCompat} and call this
+     * method, then navigate and interact with the node tree by calling methods on the node.
+     * Calling this method more than once on the same node is a no-op. After calling this method,
+     * all nodes linked to this node (children, ancestors, etc.) are also queryable.
+     * </p>
+     *
+     * <p>
+     * Here "query" refers to the following node operations:
+     * <ul>
+     *      <li>check properties of this node (example: {@link #isScrollable()})</li>
+     *      <li>find and query children (example: {@link #getChild(int)})</li>
+     *      <li>find and query the parent (example: {@link #getParent()})</li>
+     *      <li>find focus (examples: {@link #findFocus(int)}, {@link #focusSearch(int)})</li>
+     *      <li>find and query other nodes (example:
+     *      {@link #findAccessibilityNodeInfosByText(String)},
+     *      {@link #findAccessibilityNodeInfosByViewId(String)})</li>
+     *      <li>perform actions (example: {@link #performAction(int)})</li>
+     * </ul>
+     * </p>
+     *
+     * <p>
+     * This is intended for short-lived inspections from testing or debugging tools in the app
+     * process, as operations on this node tree will only succeed as long as the associated
+     * view hierarchy remains attached to a window. {@link AccessibilityNodeInfoCompat} objects can
+     * quickly become out of sync with their corresponding {@link View} objects; if you wish to
+     * inspect a changed or different view hierarchy then create a new node from any view in that
+     * hierarchy and call this method on that new node, instead of disabling & re-enabling the
+     * connection on the previous node.
+     * </p>
+     * <p>
+     * Compatibility:
+     * <ul>
+     *     <li>API &lt; 34: No-op</li>
+     * </ul>
+     *
+     * @param view The view that generated this node, or any view in the same view-root hierarchy.
+     * @param enabled Whether to enable (true) or disable (false) querying from the app process.
+     * @throws IllegalStateException If called from an {@link AccessibilityService}, or if provided
+     *                               a {@link View} that is not attached to a window.
+     */
+    public void setQueryFromAppProcessEnabled(@NonNull View view, boolean enabled) {
+        if (Build.VERSION.SDK_INT >= 34) {
+            Api34Impl.setQueryFromAppProcessEnabled(mInfo, view, enabled);
+        }
+    }
+
     @Override
     public int hashCode() {
         return (mInfo == null) ? 0 : mInfo.hashCode();
@@ -4461,11 +5216,18 @@ public class AccessibilityNodeInfoCompat {
         getBoundsInScreen(bounds);
         builder.append("; boundsInScreen: " + bounds);
 
+        getBoundsInWindow(bounds);
+        builder.append("; boundsInWindow: " + bounds);
+
         builder.append("; packageName: ").append(getPackageName());
         builder.append("; className: ").append(getClassName());
         builder.append("; text: ").append(getText());
+        builder.append("; error: ").append(getError());
+        builder.append("; maxTextLength: ").append(getMaxTextLength());
+        builder.append("; stateDescription: ").append(getStateDescription());
         builder.append("; contentDescription: ").append(getContentDescription());
-        builder.append("; viewId: ").append(getViewIdResourceName());
+        builder.append("; tooltipText: ").append(getTooltipText());
+        builder.append("; viewIdResName: ").append(getViewIdResourceName());
         builder.append("; uniqueId: ").append(getUniqueId());
 
         builder.append("; checkable: ").append(isCheckable());
@@ -4475,9 +5237,16 @@ public class AccessibilityNodeInfoCompat {
         builder.append("; selected: ").append(isSelected());
         builder.append("; clickable: ").append(isClickable());
         builder.append("; longClickable: ").append(isLongClickable());
+        builder.append("; contextClickable: ").append(isContextClickable());
         builder.append("; enabled: ").append(isEnabled());
         builder.append("; password: ").append(isPassword());
         builder.append("; scrollable: " + isScrollable());
+        builder.append("; containerTitle: ").append(getContainerTitle());
+        builder.append("; granularScrollingSupported: ").append(isGranularScrollingSupported());
+        builder.append("; importantForAccessibility: ").append(isImportantForAccessibility());
+        builder.append("; visible: ").append(isVisibleToUser());
+        builder.append("; isTextSelectable: ").append(isTextSelectable());
+        builder.append("; accessibilityDataSensitive: ").append(isAccessibilityDataSensitive());
 
         builder.append("; [");
         if (Build.VERSION.SDK_INT >= 21) {
@@ -4608,8 +5377,73 @@ public class AccessibilityNodeInfoCompat {
                 return "ACTION_DRAG_DROP";
             case android.R.id.accessibilityActionDragCancel:
                 return "ACTION_DRAG_CANCEL";
+            case android.R.id.accessibilityActionScrollInDirection:
+                return "ACTION_SCROLL_IN_DIRECTION";
             default:
                 return "ACTION_UNKNOWN";
+        }
+    }
+
+    @RequiresApi(19)
+    private static class Api19Impl {
+        private Api19Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static Bundle getExtras(AccessibilityNodeInfo info) {
+            return info.getExtras();
+        }
+
+        @DoNotInline
+        public static Object createRangeInfo(int type, float min, float max, float current) {
+            return AccessibilityNodeInfo.RangeInfo.obtain(type, min, max, current);
+        }
+
+        @DoNotInline
+        public static CollectionItemInfoCompat createCollectionItemInfo(int rowIndex, int rowSpan,
+                int columnIndex, int columnSpan, boolean heading) {
+            return new CollectionItemInfoCompat(
+                    AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
+                            columnSpan, heading));
+        }
+    }
+
+    @RequiresApi(21)
+    private static class Api21Impl {
+        private Api21Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static CollectionItemInfoCompat createCollectionItemInfo(int rowIndex, int rowSpan,
+                int columnIndex, int columnSpan, boolean heading, boolean selected) {
+            return new CollectionItemInfoCompat(
+                    AccessibilityNodeInfo.CollectionItemInfo.obtain(rowIndex, rowSpan, columnIndex,
+                            columnSpan, heading, selected));
+        }
+    }
+
+    @RequiresApi(30)
+    private static class Api30Impl {
+        private Api30Impl() {
+            // This class is non instantiable.
+        }
+
+        @DoNotInline
+        public static void setStateDescription(AccessibilityNodeInfo info,
+                CharSequence stateDescription) {
+            info.setStateDescription(stateDescription);
+        }
+
+        @DoNotInline
+        public static CharSequence getStateDescription(AccessibilityNodeInfo info) {
+            return info.getStateDescription();
+        }
+
+        @DoNotInline
+        public static Object createRangeInfo(int type, float min, float max, float current) {
+            return new AccessibilityNodeInfo.RangeInfo(type, min, max, current);
         }
     }
 
@@ -4634,17 +5468,128 @@ public class AccessibilityNodeInfoCompat {
         public static void setTextSelectable(AccessibilityNodeInfo info, boolean selectable) {
             info.setTextSelectable(selectable);
         }
+
+        @DoNotInline
+        public static CollectionItemInfoCompat buildCollectionItemInfoCompat(
+                boolean heading, int columnIndex, int rowIndex, int columnSpan,
+                int rowSpan, boolean selected, String rowTitle, String columnTitle) {
+            return new CollectionItemInfoCompat(
+                    new AccessibilityNodeInfo.CollectionItemInfo.Builder()
+                    .setHeading(heading).setColumnIndex(columnIndex)
+                    .setRowIndex(rowIndex)
+                    .setColumnSpan(columnSpan)
+                    .setRowSpan(rowSpan)
+                    .setSelected(selected)
+                    .setRowTitle(rowTitle)
+                    .setColumnTitle(columnTitle)
+                    .build());
+        }
+
+        @DoNotInline
+        public static AccessibilityNodeInfoCompat getChild(AccessibilityNodeInfo info, int index,
+                int prefetchingStrategy) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(info.getChild(index,
+                    prefetchingStrategy));
+        }
+
+        @DoNotInline
+        public static AccessibilityNodeInfoCompat getParent(AccessibilityNodeInfo info,
+                int prefetchingStrategy) {
+            return AccessibilityNodeInfoCompat.wrapNonNullInstance(info.getParent(
+                    prefetchingStrategy));
+        }
+
+        @DoNotInline
+        public static String getUniqueId(AccessibilityNodeInfo info) {
+            return info.getUniqueId();
+        }
+
+        @DoNotInline
+        public static void setUniqueId(AccessibilityNodeInfo info, String uniqueId) {
+            info.setUniqueId(uniqueId);
+        }
+
+        @DoNotInline
+        public static String getCollectionItemRowTitle(Object info) {
+            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getRowTitle();
+
+        }
+
+        @DoNotInline
+        public static String getCollectionItemColumnTitle(Object info) {
+            return ((AccessibilityNodeInfo.CollectionItemInfo) info).getColumnTitle();
+        }
     }
 
-    @RequiresApi(19)
-    private static class Api19Impl {
-        private Api19Impl() {
+    @RequiresApi(34)
+    private static class Api34Impl {
+        private Api34Impl() {
             // This class is non instantiable.
         }
 
         @DoNotInline
-        public static Bundle getExtras(AccessibilityNodeInfo info) {
-            return info.getExtras();
+        public static boolean isAccessibilityDataSensitive(AccessibilityNodeInfo info) {
+            return info.isAccessibilityDataSensitive();
+        }
+
+        @DoNotInline
+        public static void setAccessibilityDataSensitive(AccessibilityNodeInfo info,
+                boolean accessibilityDataSensitive) {
+            info.setAccessibilityDataSensitive(accessibilityDataSensitive);
+        }
+
+        @DoNotInline
+        public static CharSequence getContainerTitle(AccessibilityNodeInfo info) {
+            return info.getContainerTitle();
+        }
+
+        @DoNotInline
+        public static void setContainerTitle(AccessibilityNodeInfo info,
+                CharSequence containerTitle) {
+            info.setContainerTitle(containerTitle);
+        }
+
+        @DoNotInline
+        public static void getBoundsInWindow(AccessibilityNodeInfo info, Rect bounds) {
+            info.getBoundsInWindow(bounds);
+        }
+
+        @DoNotInline
+        public static void setBoundsInWindow(AccessibilityNodeInfo info, Rect bounds) {
+            info.setBoundsInWindow(bounds);
+        }
+
+        @DoNotInline
+        public static boolean hasRequestInitialAccessibilityFocus(AccessibilityNodeInfo info) {
+            return info.hasRequestInitialAccessibilityFocus();
+        }
+
+        @DoNotInline
+        public static void setRequestInitialAccessibilityFocus(AccessibilityNodeInfo info,
+                boolean requestInitialAccessibilityFocus) {
+            info.setRequestInitialAccessibilityFocus(requestInitialAccessibilityFocus);
+        }
+
+        @DoNotInline
+        public static long getMinDurationBetweenContentChangeMillis(AccessibilityNodeInfo info) {
+            return info.getMinDurationBetweenContentChanges().toMillis();
+        }
+
+        @DoNotInline
+        public static void setMinDurationBetweenContentChangeMillis(AccessibilityNodeInfo info,
+                long duration) {
+            info.setMinDurationBetweenContentChanges(Duration.ofMillis(duration));
+        }
+
+        @DoNotInline
+        public static void setQueryFromAppProcessEnabled(AccessibilityNodeInfo info, View view,
+                boolean enabled) {
+            info.setQueryFromAppProcessEnabled(view, enabled);
+        }
+
+        @DoNotInline
+        public static AccessibilityNodeInfo.AccessibilityAction getActionScrollInDirection() {
+            return AccessibilityNodeInfo.AccessibilityAction.ACTION_SCROLL_IN_DIRECTION;
         }
     }
 }

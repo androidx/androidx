@@ -1,0 +1,21 @@
+apply from: "../../shared.gradle"
+apply plugin: "java-gradle-plugin"
+
+sourceSets {
+    main.java.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/kotlin"
+    main.resources.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main" +
+            "/resources"
+}
+
+gradlePlugin {
+    plugins {
+        inspection {
+            id = "androidx.inspection"
+            implementationClass = "androidx.inspection.gradle.InspectionPlugin"
+        }
+    }
+}
+
+validatePlugins {
+    enableStricterValidation = true
+}

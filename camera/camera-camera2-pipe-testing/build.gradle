@@ -16,7 +16,6 @@
 
 
 import androidx.build.Publish
-import androidx.build.RunApiTasks
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -30,6 +29,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
 
     // Classes and types that are only needed at runtime
+    implementation(libs.atomicFu)
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
     implementation(libs.kotlinCoroutinesTest)
@@ -63,9 +63,9 @@ androidx {
     name = "Camera2 Pipe Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.CAMERA_PIPE
-    runApiTasks = new RunApiTasks.No("CameraPipe is an implementation detail of other libraries.")
     inceptionYear = "2020"
     description = "Testing components for the Camera2 Pipe Library, a library providing a " +
             "consistent and reliable camera foundation that enables great camera driven " +
             "experiences across all of Android."
+    metalavaK2UastEnabled = true
 }

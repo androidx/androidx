@@ -66,9 +66,9 @@ class ExtraSupportedSurfaceCombinationsQuirkTest(private val config: Config) {
             // Checks the combination is supported by the list retrieved from the
             // ExtraSupportedSurfaceCombinationsContainer.
             for (extraSurfaceCombination in extraSurfaceCombinations) {
-                if (extraSurfaceCombination.isSupported(
+                if (extraSurfaceCombination.getOrderedSupportedSurfaceConfigList(
                         expectedSupportedSurfaceCombination.surfaceConfigList
-                    )
+                    ) != null
                 ) {
                     isSupported = true
                     break

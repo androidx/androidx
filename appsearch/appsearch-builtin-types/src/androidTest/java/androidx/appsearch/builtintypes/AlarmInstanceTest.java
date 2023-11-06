@@ -136,5 +136,10 @@ public class AlarmInstanceTest {
                 .isEqualTo(AlarmInstance.STATUS_SCHEDULED);
         assertThat(genericDocument.getPropertyLong("snoozeDurationMillis"))
                 .isEqualTo(10000);
+
+        // Test that toDocumentClass doesn't lose information.
+        GenericDocument newGenericDocument = GenericDocument.fromDocumentClass(
+                genericDocument.toDocumentClass(AlarmInstance.class));
+        assertThat(newGenericDocument).isEqualTo(genericDocument);
     }
 }

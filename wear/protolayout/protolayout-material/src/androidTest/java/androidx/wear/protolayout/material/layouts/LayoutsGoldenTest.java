@@ -19,6 +19,7 @@ package androidx.wear.protolayout.material.layouts;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_HEIGHT;
 import static androidx.wear.protolayout.material.RunnerUtils.SCREEN_WIDTH;
 import static androidx.wear.protolayout.material.RunnerUtils.runSingleScreenshotTest;
+import static androidx.wear.protolayout.material.RunnerUtils.waitForNotificationToDisappears;
 import static androidx.wear.protolayout.material.layouts.TestCasesGenerator.generateTestCases;
 
 import android.content.Context;
@@ -26,7 +27,6 @@ import android.util.DisplayMetrics;
 
 import androidx.annotation.Dimension;
 import androidx.test.filters.LargeTest;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.wear.protolayout.DeviceParametersBuilders;
@@ -90,12 +90,13 @@ public class LayoutsGoldenTest {
 
         Map<String, LayoutElement> testCases = generateTestCases(context, deviceParameters, "");
 
+        waitForNotificationToDisappears();
+
         return testCases.entrySet().stream()
                 .map(test -> new Object[] {test.getKey(), test.getValue()})
                 .collect(Collectors.toList());
     }
 
-    @SdkSuppress(maxSdkVersion = 32) // b/271486183
     @Test
     public void test() {
         runSingleScreenshotTest(mScreenshotRule, mLayoutElement, mExpected);

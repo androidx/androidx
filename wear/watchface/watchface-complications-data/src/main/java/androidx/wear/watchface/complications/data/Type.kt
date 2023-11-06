@@ -51,8 +51,6 @@ public enum class ComplicationType(private val wireType: Int) {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY) public fun toWireComplicationType(): Int = wireType
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public companion object {
         /**
          * Converts the integer value used for serialization into a [ComplicationType].

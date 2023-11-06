@@ -194,7 +194,11 @@ class CameraUseCaseAdapterTest {
             CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_AUTO
         ).setCaptureRequestOption<Int>(
             CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_TORCH
-        ).setPhysicalCameraId(physicalCameraId)
+        ).apply {
+            if (Build.VERSION.SDK_INT >= 28) {
+                setPhysicalCameraId(physicalCameraId)
+            }
+        }
         val useCaseConfig = imageCaptureConfigBuilder.useCaseConfig
         val priorityAfMode = useCaseConfig.getCaptureRequestOptionPriority(
             CaptureRequest.CONTROL_AF_MODE
@@ -222,10 +226,11 @@ class CameraUseCaseAdapterTest {
                 CaptureRequest.FLASH_MODE, CaptureRequest.FLASH_MODE_OFF
             )
         ).isEqualTo(CaptureRequest.FLASH_MODE_TORCH)
-        assertThat(
-            config.getPhysicalCameraId(null)
-        ).isEqualTo(physicalCameraId)
-
+        if (Build.VERSION.SDK_INT >= 28) {
+            assertThat(
+                config.getPhysicalCameraId(null)
+            ).isEqualTo(physicalCameraId)
+        }
         // Make sures the priority of Camera2Interop is preserved after unpacking.
         assertThat(config.getCaptureRequestOptionPriority(CaptureRequest.CONTROL_AF_MODE))
             .isEqualTo(priorityAfMode)

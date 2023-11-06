@@ -22,6 +22,7 @@ import androidx.compose.runtime.mock.NonReusableLinear
 import androidx.compose.runtime.mock.NonReusableText
 import androidx.compose.runtime.mock.Text
 import androidx.compose.runtime.mock.View
+import androidx.compose.runtime.mock.ViewApplier
 import androidx.compose.runtime.mock.compositionTest
 import androidx.compose.runtime.mock.expectChanges
 import androidx.compose.runtime.mock.expectNoChanges
@@ -366,9 +367,17 @@ class CompositionReusingTests {
         val rememberedState = object : RememberObserver {
             var currentlyRemembered = false
             override fun toString(): String = "Test"
-            override fun onRemembered() { currentlyRemembered = true }
-            override fun onForgotten() { currentlyRemembered = false }
-            override fun onAbandoned() { currentlyRemembered = false }
+            override fun onRemembered() {
+                currentlyRemembered = true
+            }
+
+            override fun onForgotten() {
+                currentlyRemembered = false
+            }
+
+            override fun onAbandoned() {
+                currentlyRemembered = false
+            }
         }
 
         compose {
@@ -754,6 +763,208 @@ class CompositionReusingTests {
         expectChanges()
 
         assertEquals(listOf(true), onReleaseCalls)
+    }
+
+    @Test
+    fun compositionParentContextIsUpdatedAfterReuse() = compositionTest {
+        val local = compositionLocalOf { 0 }
+        var key by mutableStateOf(0)
+        var active by mutableStateOf(true)
+        var subcomposition: Composition? = null
+
+        compose {
+            ReusableContentHost(active) {
+                ReusableContent(key) {
+                    CompositionLocalProvider(local provides key) {
+                        val context = rememberCompositionContext()
+                        if (subcomposition == null) {
+                            subcomposition =
+                                Composition(ViewApplier(root), context).apply {
+                                    setContent {
+                                        Text("${local.current}")
+                                    }
+                                }
+                        }
+                    }
+                }
+            }
+        }
+
+        validate {
+            Text("$key")
+        }
+
+        active = false
+        expectChanges()
+
+        active = true
+        key++
+        expectChanges()
+        subcomposition!!.setContent { Text("${local.current}") }
+
+        revalidate()
+    }
+
+    @Test
+    fun forceReuseForgetsWhenContentDidntChange() = compositionTest {
+        var active by mutableStateOf(true)
+
+        val rememberedState = object : RememberObserver {
+            var rememberCount = 0
+            var forgottenCount = 0
+            var abandonCount = 0
+
+            override fun toString(): String = "Some text"
+
+            override fun onRemembered() {
+                rememberCount++
+            }
+
+            override fun onForgotten() {
+                forgottenCount++
+            }
+
+            override fun onAbandoned() {
+                abandonCount++
+            }
+        }
+
+        val content = @Composable {
+            ReusableContentHost(active) {
+                Linear {
+                    val state = remember { rememberedState }
+                    Text(state.toString())
+                }
+            }
+        }
+
+        compose(content)
+
+        validate {
+            Linear {
+                Text(rememberedState.toString())
+            }
+        }
+
+        assertEquals(1, rememberedState.rememberCount)
+        assertEquals(0, rememberedState.forgottenCount)
+
+        active = false
+        active = true
+        expectNoChanges()
+        revalidate()
+
+        assertEquals(1, rememberedState.rememberCount)
+        assertEquals(0, rememberedState.forgottenCount)
+
+        (composition as CompositionImpl).setContentWithReuse(content)
+
+        revalidate()
+
+        assertEquals(2, rememberedState.rememberCount)
+        assertEquals(1, rememberedState.forgottenCount)
+        assertEquals(0, rememberedState.abandonCount)
+    }
+
+    @Test
+    fun deactivatesForgetsWhenContentDidntChange() = compositionTest {
+        val rememberedState = object : RememberObserver {
+            var rememberCount = 0
+            var forgottenCount = 0
+            var abandonCount = 0
+
+            override fun toString(): String = "Some text"
+
+            override fun onRemembered() {
+                rememberCount++
+            }
+
+            override fun onForgotten() {
+                forgottenCount++
+            }
+
+            override fun onAbandoned() {
+                abandonCount++
+            }
+        }
+
+        val content = @Composable {
+            Linear {
+                val state = remember { rememberedState }
+                Text(state.toString())
+            }
+        }
+
+        compose(content)
+
+        validate {
+            Linear {
+                Text(rememberedState.toString())
+            }
+        }
+
+        assertEquals(1, rememberedState.rememberCount)
+        assertEquals(0, rememberedState.forgottenCount)
+
+        (composition as CompositionImpl).deactivate()
+        assertEquals(1, rememberedState.rememberCount)
+        assertEquals(1, rememberedState.forgottenCount)
+
+        (composition as CompositionImpl).setContentWithReuse(content)
+
+        revalidate()
+
+        assertEquals(2, rememberedState.rememberCount)
+        assertEquals(1, rememberedState.forgottenCount)
+        assertEquals(0, rememberedState.abandonCount)
+    }
+
+    @Test
+    fun reusableContentTriggersRememberObserver() = compositionTest {
+        var reuseKey by mutableStateOf(0)
+
+        val rememberedState = object : RememberObserver {
+            var rememberCount = 0
+            var forgottenCount = 0
+            var abandonCount = 0
+
+            override fun toString(): String = "Some text"
+
+            override fun onRemembered() {
+                rememberCount++
+            }
+
+            override fun onForgotten() {
+                forgottenCount++
+            }
+
+            override fun onAbandoned() {
+                abandonCount++
+            }
+        }
+
+        compose {
+            ReusableContent(reuseKey) {
+                val state = remember { rememberedState }
+                Text("$state")
+            }
+        }
+
+        validate {
+            Text("$rememberedState")
+        }
+
+        assertEquals(1, rememberedState.rememberCount)
+        assertEquals(0, rememberedState.forgottenCount)
+        assertEquals(0, rememberedState.abandonCount)
+
+        reuseKey++
+        expectChanges()
+        revalidate()
+
+        assertEquals(2, rememberedState.rememberCount)
+        assertEquals(1, rememberedState.forgottenCount)
+        assertEquals(0, rememberedState.abandonCount)
     }
 }
 

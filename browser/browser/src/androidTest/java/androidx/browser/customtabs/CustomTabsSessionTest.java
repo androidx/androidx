@@ -16,13 +16,17 @@
 
 package androidx.browser.customtabs;
 
+import static android.app.PendingIntent.FLAG_IMMUTABLE;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.PendingIntent;
 import android.content.ComponentName;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -30,27 +34,33 @@ import android.support.customtabs.ICustomTabsCallback;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 /**
  * Tests for {@link CustomTabsSession}.
  */
 @RunWith(AndroidJUnit4.class)
 @SmallTest
+@SuppressWarnings("deprecation")
 public class CustomTabsSessionTest {
     private TestCustomTabsService mService;
     private TestCustomTabsCallback mCallback;
+    private PendingIntent mId;
     private CustomTabsSession mSession;
 
     @Before
     public void setup() {
         mService = new TestCustomTabsService();
         mCallback = new TestCustomTabsCallback();
+        mId = PendingIntent.getBroadcast(InstrumentationRegistry.getInstrumentation().getContext(),
+                0, new Intent(), FLAG_IMMUTABLE);
         mSession = new CustomTabsSession(
-                mService.getStub(), mCallback.getStub(), new ComponentName("", ""), null);
+                mService.getStub(), mCallback.getStub(), new ComponentName("", ""), mId);
     }
 
     @Test
@@ -58,6 +68,10 @@ public class CustomTabsSessionTest {
         when(mService.getMock().isEngagementSignalsApiAvailable(any(ICustomTabsCallback.class),
                 any(Bundle.class))).thenReturn(true);
         assertTrue(mSession.isEngagementSignalsApiAvailable(Bundle.EMPTY));
+        ArgumentCaptor<Bundle> captor = ArgumentCaptor.forClass(Bundle.class);
+        verify(mService.getMock()).isEngagementSignalsApiAvailable(any(ICustomTabsCallback.class),
+                captor.capture());
+        assertEquals(mId, captor.getValue().getParcelable(CustomTabsIntent.EXTRA_SESSION_ID));
     }
 
     @Test
@@ -66,8 +80,10 @@ public class CustomTabsSessionTest {
                 any(IBinder.class), any(Bundle.class))).thenReturn(true);
         EngagementSignalsCallback callback = new TestEngagementSignalsCallback();
         assertTrue(mSession.setEngagementSignalsCallback(callback, Bundle.EMPTY));
+        ArgumentCaptor<Bundle> captor = ArgumentCaptor.forClass(Bundle.class);
         verify(mService.getMock()).setEngagementSignalsCallback(any(ICustomTabsCallback.class),
-                any(IBinder.class), any(Bundle.class));
+                any(IBinder.class), captor.capture());
+        assertEquals(mId, captor.getValue().getParcelable(CustomTabsIntent.EXTRA_SESSION_ID));
     }
 
     @Test
@@ -77,14 +93,9 @@ public class CustomTabsSessionTest {
         EngagementSignalsCallback callback = new TestEngagementSignalsCallback();
         assertTrue(mSession.setEngagementSignalsCallback((r) -> {
         }, callback, Bundle.EMPTY));
+        ArgumentCaptor<Bundle> captor = ArgumentCaptor.forClass(Bundle.class);
         verify(mService.getMock()).setEngagementSignalsCallback(any(ICustomTabsCallback.class),
-                any(IBinder.class), any(Bundle.class));
-    }
-
-    @Test
-    public void testGetGreatestScrollPercentage() throws RemoteException {
-        when(mService.getMock().getGreatestScrollPercentage(any(ICustomTabsCallback.class),
-                any(Bundle.class))).thenReturn(75);
-        assertEquals(75, mSession.getGreatestScrollPercentage(Bundle.EMPTY));
+                any(IBinder.class), captor.capture());
+        assertEquals(mId, captor.getValue().getParcelable(CustomTabsIntent.EXTRA_SESSION_ID));
     }
 }

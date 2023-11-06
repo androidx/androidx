@@ -57,6 +57,11 @@ public class ChangeScroll extends Transition {
         captureValues(transitionValues);
     }
 
+    @Override
+    public boolean isSeekingSupported() {
+        return true;
+    }
+
     @Nullable
     @Override
     public String[] getTransitionProperties() {

@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.text.android.selection
 
-import androidx.compose.ui.text.android.InternalPlatformTextApi
 import java.text.BreakIterator
 import java.util.Locale
 
@@ -33,9 +32,7 @@ import java.util.Locale
  * [Editor.java](https://android.googlesource.com/platform/frameworks/base/+/master/core/java/android/widget/Editor.java)
  * @param locale Locale of the input text.
  * @param text The input text to be analyzed.
- * @suppress
  */
-@InternalPlatformTextApi
 internal class WordBoundary(
     locale: Locale,
     text: CharSequence

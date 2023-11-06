@@ -22,7 +22,7 @@ import android.util.Size
 import androidx.camera.core.DynamicRange
 import androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT
 import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
-import androidx.camera.testing.fakes.FakeUseCaseConfig
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfig
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -50,7 +50,7 @@ class StreamSpecTest {
 
     @Test
     fun canRetrieveDynamicRange() {
-        val dynamicRange = DynamicRange(DynamicRange.FORMAT_HLG, DynamicRange.BIT_DEPTH_10_BIT)
+        val dynamicRange = DynamicRange.HLG_10_BIT
         val streamSpec = StreamSpec.builder(TEST_RESOLUTION).setDynamicRange(dynamicRange).build()
 
         assertThat(streamSpec.dynamicRange).isEqualTo(dynamicRange)

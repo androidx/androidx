@@ -30,6 +30,8 @@ import android.webkit.WebView;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.webkit.Profile;
+import androidx.webkit.ProfileStore;
 import androidx.webkit.ProxyConfig;
 import androidx.webkit.ProxyController;
 import androidx.webkit.SafeBrowsingResponseCompat;
@@ -313,9 +315,9 @@ public class WebViewFeatureInternal {
      * {@link WebMessagePortCompat#postMessage(WebMessageCompat)} with ArrayBuffer type, and
      * {@link WebViewCompat#postWebMessage(WebView, WebMessageCompat, Uri)} with ArrayBuffer type.
      */
-    public static final ApiFeature.NoFramework WEB_MESSAGE_GET_MESSAGE_PAYLOAD =
-            new ApiFeature.NoFramework(WebViewFeature.WEB_MESSAGE_GET_MESSAGE_PAYLOAD,
-                    Features.WEB_MESSAGE_GET_MESSAGE_PAYLOAD);
+    public static final ApiFeature.NoFramework WEB_MESSAGE_ARRAY_BUFFER =
+            new ApiFeature.NoFramework(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER,
+                    Features.WEB_MESSAGE_ARRAY_BUFFER);
 
     /**
      * This feature covers
@@ -443,14 +445,6 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework PROXY_OVERRIDE = new ApiFeature.NoFramework(
             WebViewFeature.PROXY_OVERRIDE, Features.PROXY_OVERRIDE);
 
-    /**
-     * This feature covers
-     * {@link androidx.webkit.WebSettingsCompat#willSuppressErrorPage(WebSettings)} and
-     * {@link androidx.webkit.WebSettingsCompat#setWillSuppressErrorPage(WebSettings, boolean)}.
-     */
-    public static final ApiFeature.NoFramework SUPPRESS_ERROR_PAGE =
-            new ApiFeature.NoFramework(WebViewFeature.SUPPRESS_ERROR_PAGE,
-                    Features.SUPPRESS_ERROR_PAGE);
 
     /**
      * This feature covers {@link WebViewCompat#isMultiProcessEnabled()}.
@@ -538,6 +532,57 @@ public class WebViewFeatureInternal {
     public static final ApiFeature.NoFramework REQUESTED_WITH_HEADER_ALLOW_LIST =
             new ApiFeature.NoFramework(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST,
                     Features.REQUESTED_WITH_HEADER_ALLOW_LIST);
+
+    /**
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setUserAgentMetadata(WebSettings, UserAgentMetadata)} and
+     * {@link androidx.webkit.WebSettingsCompat#getUserAgentMetadata(WebSettings)}.
+     *
+     */
+    public static final ApiFeature.NoFramework USER_AGENT_METADATA =
+            new ApiFeature.NoFramework(WebViewFeature.USER_AGENT_METADATA,
+                    Features.USER_AGENT_METADATA);
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
+     * {@link Profile#getName()}.
+     * {@link Profile#getWebStorage()}.
+     * {@link Profile#getCookieManager()}.
+     * {@link Profile#getGeolocationPermissions()}.
+     * {@link Profile#getServiceWorkerController()}.
+     * {@link ProfileStore#getProfile(String)}.
+     * {@link ProfileStore#getOrCreateProfile(String)}.
+     * {@link ProfileStore#getAllProfileNames()}.
+     * {@link ProfileStore#deleteProfile(String)}.
+     * {@link ProfileStore#getInstance()}.
+     */
+    public static final ApiFeature.NoFramework MULTI_PROFILE =
+            new ApiFeature.NoFramework(WebViewFeature.MULTI_PROFILE, Features.MULTI_PROFILE) {
+                @Override
+                public boolean isSupportedByWebView() {
+                    // Multi-process mode is a requirement for Multi-Profile feature.
+                    if (!super.isSupportedByWebView()) {
+                        return false;
+                    }
+                    if (WebViewFeature.isFeatureSupported(WebViewFeature.MULTI_PROCESS)) {
+                        return WebViewCompat.isMultiProcessEnabled();
+                    }
+                    return false;
+                }
+            };
+
+    /**
+     * Feature for {@link WebViewFeature#isFeatureSupported(String)}.
+     * This feature covers
+     * {@link androidx.webkit.WebSettingsCompat#setAttributionRegistrationBehavior(WebSettings, int)}
+     * {@link androidx.webkit.WebSettingsCompat#getAttributionRegistrationBehavior(WebSettings)}
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final ApiFeature.NoFramework ATTRIBUTION_REGISTRATION_BEHAVIOR =
+            new ApiFeature.NoFramework(WebViewFeature.ATTRIBUTION_REGISTRATION_BEHAVIOR,
+                    Features.ATTRIBUTION_BEHAVIOR);
+
     // --- Add new feature constants above this line ---
 
     private WebViewFeatureInternal() {

@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.ksp.KspAnnotated.UseSiteFilter.Companion.NO_USE_SITE_OR_FIELD
 import androidx.room.compiler.processing.ksp.synthetic.KspSyntheticPropertyMethodElement
 import com.google.devtools.ksp.isPrivate
+import com.google.devtools.ksp.symbol.KSPropertyAccessor
 import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.Modifier
 
@@ -54,41 +55,39 @@ internal class KspFieldElement(
         get() = this.jvmDescriptor()
 
     val syntheticAccessors: List<KspSyntheticPropertyMethodElement> by lazy {
-        when {
-            declaration.hasJvmFieldAnnotation() -> {
-                // jvm fields cannot have accessors but KSP generates synthetic accessors for
-                // them. We check for JVM field first before checking the getter
-                emptyList()
-            }
-            declaration.isPrivate() -> emptyList()
-            declaration.modifiers.contains(Modifier.CONST) -> {
-                // No accessors are needed for const properties:
-                // https://kotlinlang.org/docs/java-to-kotlin-interop.html#static-fields
-                emptyList()
-            }
-            else -> {
-                sequenceOf(declaration.getter, declaration.setter)
-                    .filterNotNull()
-                    .filterNot {
-                        // KAPT does not generate methods for privates, KSP does so we filter
-                        // them out.
-                        it.modifiers.contains(Modifier.PRIVATE)
-                    }
-                    .map { accessor ->
-                        KspSyntheticPropertyMethodElement.create(
-                            env = env,
-                            field = this,
-                            accessor = accessor
-                        )
-                    }.toList()
-            }
-        }
+        listOfNotNull(getter, setter)
     }
 
-    val syntheticSetter
-        get() = syntheticAccessors.firstOrNull {
-            it.parameters.size == 1
+    override val getter: KspSyntheticPropertyMethodElement? by lazy {
+        declaration.getter?.let { createSyntheticMethod(it) }
+    }
+
+    override val setter: KspSyntheticPropertyMethodElement? by lazy {
+        declaration.setter?.let { createSyntheticMethod(it) }
+    }
+
+    private fun createSyntheticMethod(
+        accessor: KSPropertyAccessor
+    ): KspSyntheticPropertyMethodElement? {
+        return if (
+            // jvm fields cannot have accessors but KSP generates synthetic accessors for
+            // them. We check for JVM field first before checking the getter
+            declaration.hasJvmFieldAnnotation() ||
+            declaration.isPrivate() ||
+            // No accessors are needed for const properties:
+            // https://kotlinlang.org/docs/java-to-kotlin-interop.html#static-fields
+            declaration.modifiers.contains(Modifier.CONST) ||
+            accessor.modifiers.contains(Modifier.PRIVATE)) {
+            null
+        } else {
+            KspSyntheticPropertyMethodElement.create(
+                env = env,
+                field = this,
+                accessor = accessor,
+                isSyntheticStatic = false
+            )
         }
+    }
 
     override fun asMemberOf(other: XType): KspType {
         return if (closestMemberContainer.type?.isSameType(other) != false) {

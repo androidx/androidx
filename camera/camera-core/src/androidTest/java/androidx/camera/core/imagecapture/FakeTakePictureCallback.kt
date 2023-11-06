@@ -33,8 +33,10 @@ class FakeTakePictureCallback : TakePictureCallback {
     private var onDiskResult: OutputFileResults? = null
     private var onDiskResultCont: Continuation<OutputFileResults>? = null
 
+    override fun onCaptureStarted() {
+    }
+
     override fun onImageCaptured() {
-        TODO("onImageCaptured Not yet implemented")
     }
 
     override fun onFinalResult(outputFileResults: OutputFileResults) {
@@ -58,11 +60,9 @@ class FakeTakePictureCallback : TakePictureCallback {
     }
 
     override fun onCaptureFailure(imageCaptureException: ImageCaptureException) {
-        TODO("Not yet implemented")
     }
 
     override fun onProcessFailure(imageCaptureException: ImageCaptureException) {
-        TODO("Not yet implemented")
     }
 
     override fun isAborted(): Boolean {

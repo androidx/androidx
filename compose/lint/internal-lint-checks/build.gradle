@@ -26,6 +26,7 @@ dependencies {
     compileOnly(libs.androidLintApi)
     compileOnly(libs.kotlinStdlib)
     implementation(project(":compose:lint:common"))
+    implementation(project(":collection:collection"))
 
     testImplementation(project(":compose:lint:common-test"))
     testImplementation(libs.kotlinStdlib)

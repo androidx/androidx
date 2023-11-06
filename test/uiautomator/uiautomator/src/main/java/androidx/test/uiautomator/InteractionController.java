@@ -288,7 +288,7 @@ class InteractionController {
                 condition,
                 Configurator.getInstance().getScrollAcknowledgmentTimeout());
 
-        return !condition.getResult();
+        return Boolean.FALSE.equals(condition.getResult());
     }
 
     /**

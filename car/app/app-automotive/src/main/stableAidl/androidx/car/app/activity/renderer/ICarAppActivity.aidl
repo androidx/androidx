@@ -27,9 +27,8 @@ import androidx.car.app.serialization.Bundleable;
 
 /**
  * An interface to let renderer service communicate with the car activity.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ICarAppActivity {
     /** Sets the surface package. */
     void setSurfacePackage(in Bundleable surfacePackage) = 1;

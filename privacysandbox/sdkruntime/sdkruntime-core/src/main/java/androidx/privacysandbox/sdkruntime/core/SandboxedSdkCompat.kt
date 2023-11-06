@@ -60,7 +60,6 @@ class SandboxedSdkCompat private constructor(
      *
      * @param sdkInterface The SDK's interface.
      * @param sdkInfo Information about SDK's name and version.
-     * @suppress
      */
     @Keep // Reflection call from client part
     @RestrictTo(LIBRARY_GROUP)
@@ -73,7 +72,6 @@ class SandboxedSdkCompat private constructor(
      * Creates SandboxedSdkCompat wrapper around existing [SandboxedSdk] object.
      *
      * @param sandboxedSdk SandboxedSdk object. All calls will be delegated to that object.
-     * @suppress
      */
     @RequiresExtension(extension = AD_SERVICES, version = 4)
     @RestrictTo(LIBRARY_GROUP)
@@ -107,7 +105,8 @@ class SandboxedSdkCompat private constructor(
      * @return Platform SandboxedSdk
      */
     @RequiresExtension(extension = AD_SERVICES, version = 4)
-    internal fun toSandboxedSdk() = sdkImpl.toSandboxedSdk()
+    @RestrictTo(LIBRARY_GROUP)
+    fun toSandboxedSdk() = sdkImpl.toSandboxedSdk()
 
     internal interface SandboxedSdkImpl {
         fun getInterface(): IBinder?

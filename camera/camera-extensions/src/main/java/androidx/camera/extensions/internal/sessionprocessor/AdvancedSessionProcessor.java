@@ -22,7 +22,9 @@ import android.hardware.camera2.CaptureFailure;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.media.Image;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
@@ -47,6 +49,9 @@ import androidx.camera.extensions.impl.advanced.ImageReferenceImpl;
 import androidx.camera.extensions.impl.advanced.OutputSurfaceImpl;
 import androidx.camera.extensions.impl.advanced.RequestProcessorImpl;
 import androidx.camera.extensions.impl.advanced.SessionProcessorImpl;
+import androidx.camera.extensions.internal.ClientVersion;
+import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -109,6 +114,18 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         }
         camera2SessionConfigBuilder
                 .setSessionTemplateId(sessionConfigImpl.getSessionTemplateId());
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            try {
+                int sessionType = sessionConfigImpl.getSessionType();
+                if (sessionType == -1) { // -1 means using default value
+                    sessionType = SessionConfiguration.SESSION_REGULAR;
+                }
+                camera2SessionConfigBuilder.setSessionType(sessionType);
+            } catch (NoSuchMethodError e) {
+                camera2SessionConfigBuilder.setSessionType(SessionConfiguration.SESSION_REGULAR);
+            }
+        }
         return camera2SessionConfigBuilder.build();
     }
 
@@ -166,7 +183,12 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     @Override
     public int startTrigger(@NonNull Config config, @NonNull CaptureCallback callback) {
         HashMap<CaptureRequest.Key<?>, Object> map = convertConfigToMap(config);
-        return mImpl.startTrigger(map, new SessionProcessorImplCaptureCallbackAdapter(callback));
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3)) {
+            return mImpl.startTrigger(map,
+                    new SessionProcessorImplCaptureCallbackAdapter(callback));
+        }
+        return -1;
     }
 
     @Override
@@ -177,6 +199,16 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
     @Override
     public void abortCapture(int captureSequenceId) {
         mImpl.abortCapture(captureSequenceId);
+    }
+
+    @Nullable
+    @Override
+    public Pair<Long, Long> getRealtimeCaptureLatency() {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            return mImpl.getRealtimeCaptureLatency();
+        }
+        return null;
     }
 
     /**

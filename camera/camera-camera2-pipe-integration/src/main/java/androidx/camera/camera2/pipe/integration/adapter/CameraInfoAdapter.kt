@@ -20,6 +20,8 @@ package androidx.camera.camera2.pipe.integration.adapter
 
 import android.annotation.SuppressLint
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON
+import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.DynamicRangeProfiles
 import android.os.Build
@@ -40,15 +42,16 @@ import androidx.camera.camera2.pipe.integration.impl.DeviceInfoLogger
 import androidx.camera.camera2.pipe.integration.impl.FocusMeteringControl
 import androidx.camera.camera2.pipe.integration.interop.Camera2CameraInfo
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
+import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraState
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT
-import androidx.camera.core.DynamicRange.FORMAT_DOLBY_VISION
-import androidx.camera.core.DynamicRange.FORMAT_HDR10
-import androidx.camera.core.DynamicRange.FORMAT_HDR10_PLUS
-import androidx.camera.core.DynamicRange.FORMAT_HLG
+import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
+import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT
+import androidx.camera.core.DynamicRange.HDR10_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
+import androidx.camera.core.DynamicRange.HLG_10_BIT
+import androidx.camera.core.DynamicRange.SDR
 import androidx.camera.core.ExposureState
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
@@ -81,6 +84,12 @@ class CameraInfoAdapter @Inject constructor(
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
 ) : CameraInfoInternal {
     init { DeviceInfoLogger.logDeviceInfo(cameraProperties) }
+
+    private val isLegacyDevice by lazy {
+        cameraProperties.metadata[
+            CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
+        ] == CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+    }
 
     @OptIn(ExperimentalCamera2Interop::class)
     internal val camera2CameraInfo: Camera2CameraInfo by lazy {
@@ -137,7 +146,9 @@ class CameraInfoAdapter @Inject constructor(
     override fun removeSessionCaptureCallback(callback: CameraCaptureCallback) =
         cameraCallbackMap.removeCaptureCallback(callback)
 
-    override fun getImplementationType(): String = "CameraPipe"
+    override fun getImplementationType(): String =
+        if (isLegacyDevice) CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY
+        else CameraInfo.IMPLEMENTATION_TYPE_CAMERA2
 
     override fun getEncoderProfilesProvider(): EncoderProfilesProvider {
         return encoderProfilesProviderAdapter
@@ -198,7 +209,23 @@ class CameraInfoAdapter @Inject constructor(
                 return profileSetToDynamicRangeSet(availableProfiles.supportedProfiles)
             }
         }
-        return setOf(DynamicRange.SDR)
+        return setOf(SDR)
+    }
+
+    override fun isPreviewStabilizationSupported(): Boolean {
+        val availableVideoStabilizationModes = cameraProperties.metadata[
+            CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
+        return availableVideoStabilizationModes != null &&
+            availableVideoStabilizationModes.contains(
+            CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION)
+    }
+
+    override fun isVideoStabilizationSupported(): Boolean {
+        val availableVideoStabilizationModes = cameraProperties.metadata[
+            CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
+        return availableVideoStabilizationModes != null &&
+            availableVideoStabilizationModes.contains(
+            CONTROL_VIDEO_STABILIZATION_MODE_ON)
     }
 
     private fun profileSetToDynamicRangeSet(profileSet: Set<Long>): Set<DynamicRange> {
@@ -212,24 +239,19 @@ class CameraInfoAdapter @Inject constructor(
     }
 
     companion object {
-        private val DR_HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
-        private val DR_HDR10 = DynamicRange(FORMAT_HDR10, BIT_DEPTH_10_BIT)
-        private val DR_HDR10_PLUS = DynamicRange(FORMAT_HDR10_PLUS, BIT_DEPTH_10_BIT)
-        private val DR_DOLBY_VISION_10_BIT = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_10_BIT)
-        private val DR_DOLBY_VISION_8_BIT = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_8_BIT)
         private val PROFILE_TO_DR_MAP: Map<Long, DynamicRange> = mapOf(
-            DynamicRangeProfiles.STANDARD to DynamicRange.SDR,
-            DynamicRangeProfiles.HLG10 to DR_HLG10,
-            DynamicRangeProfiles.HDR10 to DR_HDR10,
-            DynamicRangeProfiles.HDR10_PLUS to DR_HDR10_PLUS,
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM to DR_DOLBY_VISION_10_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM_PO to DR_DOLBY_VISION_10_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF to DR_DOLBY_VISION_10_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO to DR_DOLBY_VISION_10_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM to DR_DOLBY_VISION_8_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM_PO to DR_DOLBY_VISION_8_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF to DR_DOLBY_VISION_8_BIT,
-            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO to DR_DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.STANDARD to SDR,
+            DynamicRangeProfiles.HLG10 to HLG_10_BIT,
+            DynamicRangeProfiles.HDR10 to HDR10_10_BIT,
+            DynamicRangeProfiles.HDR10_PLUS to HDR10_PLUS_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM to DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_OEM_PO to DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF to DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_10B_HDR_REF_PO to DOLBY_VISION_10_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM to DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_OEM_PO to DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF to DOLBY_VISION_8_BIT,
+            DynamicRangeProfiles.DOLBY_VISION_8B_HDR_REF_PO to DOLBY_VISION_8_BIT,
         )
     }
 }

@@ -37,7 +37,6 @@ public final class EventBuilders {
             this.mImpl = impl;
         }
 
-
         /**
          * Gets the instance ID of the tile, allocated when the tile instance is added to the
          * carousel. This ID will remain the same for this tile instance as long it is not removed
@@ -49,31 +48,25 @@ public final class EventBuilders {
             return mImpl.getTileId();
         }
 
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TileAddEvent fromProto(@NonNull EventProto.TileAddEvent proto) {
             return new TileAddEvent(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public EventProto.TileAddEvent toProto() {
             return mImpl;
         }
 
-    @Override
-    @NonNull
-    public String toString() {
-      return "TileAddEvent{" + "tileId=" + getTileId() + "}";
-    }
+        @Override
+        @NonNull
+        public String toString() {
+            return "TileAddEvent{" + "tileId=" + getTileId() + "}";
+        }
 
         /** Builder for {@link TileAddEvent} */
         public static final class Builder {
@@ -124,31 +117,25 @@ public final class EventBuilders {
             return mImpl.getTileId();
         }
 
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TileRemoveEvent fromProto(@NonNull EventProto.TileRemoveEvent proto) {
             return new TileRemoveEvent(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public EventProto.TileRemoveEvent toProto() {
             return mImpl;
         }
 
-    @Override
-    @NonNull
-    public String toString() {
-      return "TileRemoveEvent{" + "tileId=" + getTileId() + "}";
-    }
+        @Override
+        @NonNull
+        public String toString() {
+            return "TileRemoveEvent{" + "tileId=" + getTileId() + "}";
+        }
 
         /** Builder for {@link TileRemoveEvent} */
         public static final class Builder {
@@ -199,31 +186,25 @@ public final class EventBuilders {
             return mImpl.getTileId();
         }
 
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TileEnterEvent fromProto(@NonNull EventProto.TileEnterEvent proto) {
             return new TileEnterEvent(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public EventProto.TileEnterEvent toProto() {
             return mImpl;
         }
 
-    @Override
-    @NonNull
-    public String toString() {
-      return "TileEnterEvent{" + "tileId=" + getTileId() + "}";
-    }
+        @Override
+        @NonNull
+        public String toString() {
+            return "TileEnterEvent{" + "tileId=" + getTileId() + "}";
+        }
 
         /** Builder for {@link TileEnterEvent} */
         public static final class Builder {
@@ -275,20 +256,14 @@ public final class EventBuilders {
             return mImpl.getTileId();
         }
 
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static TileLeaveEvent fromProto(@NonNull EventProto.TileLeaveEvent proto) {
             return new TileLeaveEvent(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public EventProto.TileLeaveEvent toProto() {
@@ -298,10 +273,7 @@ public final class EventBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "TileLeaveEvent{"
-                    + "tileId="
-                    + getTileId()
-                    + "}";
+            return "TileLeaveEvent{" + "tileId=" + getTileId() + "}";
         }
 
         /** Builder for {@link TileLeaveEvent} */

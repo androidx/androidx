@@ -25,6 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
@@ -80,20 +82,26 @@ inline fun Box(
 internal fun rememberBoxMeasurePolicy(
     alignment: Alignment,
     propagateMinConstraints: Boolean
-) = if (alignment == Alignment.TopStart && !propagateMinConstraints) {
+): MeasurePolicy = if (alignment == Alignment.TopStart && !propagateMinConstraints) {
     DefaultBoxMeasurePolicy
 } else {
     remember(alignment, propagateMinConstraints) {
-        boxMeasurePolicy(alignment, propagateMinConstraints)
+        BoxMeasurePolicy(alignment, propagateMinConstraints)
     }
 }
 
-internal val DefaultBoxMeasurePolicy: MeasurePolicy = boxMeasurePolicy(Alignment.TopStart, false)
+private val DefaultBoxMeasurePolicy: MeasurePolicy = BoxMeasurePolicy(Alignment.TopStart, false)
 
-internal fun boxMeasurePolicy(alignment: Alignment, propagateMinConstraints: Boolean) =
-    MeasurePolicy { measurables, constraints ->
+private data class BoxMeasurePolicy(
+    private val alignment: Alignment,
+    private val propagateMinConstraints: Boolean
+) : MeasurePolicy {
+    override fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints
+    ): MeasureResult {
         if (measurables.isEmpty()) {
-            return@MeasurePolicy layout(
+            return layout(
                 constraints.minWidth,
                 constraints.minHeight
             ) {}
@@ -121,7 +129,7 @@ internal fun boxMeasurePolicy(alignment: Alignment, propagateMinConstraints: Boo
                     Constraints.fixed(constraints.minWidth, constraints.minHeight)
                 )
             }
-            return@MeasurePolicy layout(boxWidth, boxHeight) {
+            return layout(boxWidth, boxHeight) {
                 placeInBox(placeable, measurable, layoutDirection, boxWidth, boxHeight, alignment)
             }
         }
@@ -159,7 +167,7 @@ internal fun boxMeasurePolicy(alignment: Alignment, propagateMinConstraints: Boo
         }
 
         // Specify the size of the Box and position its children.
-        layout(boxWidth, boxHeight) {
+        return layout(boxWidth, boxHeight) {
             placeables.forEachIndexed { index, placeable ->
                 placeable as Placeable
                 val measurable = measurables[index]
@@ -167,6 +175,7 @@ internal fun boxMeasurePolicy(alignment: Alignment, propagateMinConstraints: Boo
             }
         }
     }
+}
 
 private fun Placeable.PlacementScope.placeInBox(
     placeable: Placeable,
@@ -197,7 +206,7 @@ private fun Placeable.PlacementScope.placeInBox(
  */
 @Composable
 fun Box(modifier: Modifier) {
-    Layout({}, measurePolicy = EmptyBoxMeasurePolicy, modifier = modifier)
+    Layout(measurePolicy = EmptyBoxMeasurePolicy, modifier = modifier)
 }
 
 internal val EmptyBoxMeasurePolicy = MeasurePolicy { _, constraints ->

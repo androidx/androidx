@@ -155,6 +155,7 @@ fun WideCardLayout(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun CardLayoutContent(
     title: @Composable () -> Unit,
@@ -195,11 +196,12 @@ object CardLayoutDefaults {
      *
      * This Card handles click events, calling its [onClick] lambda.
      *
-     * @param onClick called when this card is clicked
+     * @param onClick called when this card is clicked.
      * @param interactionSource the [MutableInteractionSource] representing the stream of
      * [Interaction]s for this card. When using with the CardLayout(s), it is recommended to
      * pass in the interaction state obtained from the parent lambda.
-     * @param modifier the [Modifier] to be applied to this card
+     * @param modifier the [Modifier] to be applied to this card.
+     * @param onLongClick called when this card is long clicked (long-pressed).
      * @param shape [CardShape] defines the shape of this card's container in different interaction
      * states. See [CardDefaults.shape].
      * @param colors [CardColors] defines the background & content colors used in this card for
@@ -217,6 +219,7 @@ object CardLayoutDefaults {
         onClick: () -> Unit,
         interactionSource: MutableInteractionSource,
         modifier: Modifier = Modifier,
+        onLongClick: (() -> Unit)? = null,
         shape: CardShape = CardDefaults.shape(),
         colors: CardColors = CardDefaults.colors(),
         scale: CardScale = CardDefaults.scale(),
@@ -226,6 +229,7 @@ object CardLayoutDefaults {
     ) {
         Card(
             onClick = onClick,
+            onLongClick = onLongClick,
             modifier = modifier,
             shape = shape,
             colors = colors,

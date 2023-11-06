@@ -271,24 +271,27 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
      * Allows shutting down this {@link ProcessCameraProvider} instance so a new instance can be
      * retrieved by {@link #getInstance(Context)}.
      *
-     * <p>Once shutdown, a new instance can be retrieved with
+     * <p>Once shutdownAsync is invoked, a new instance can be retrieved with
      * {@link ProcessCameraProvider#getInstance(Context)}.
      *
-     * <p>This method, along with {@link #configureInstance(CameraXConfig)} allows the process
-     * camera provider to be used in test suites which may need to initialize CameraX in
-     * different ways in between tests.
+     * <p>This method should be used for testing purposes only. Along with
+     * {@link #configureInstance(CameraXConfig)}, this allows the process camera provider to be
+     * used in test suites which may need to initialize CameraX in different ways in between tests.
      *
      * @return A {@link ListenableFuture} representing the shutdown status. Cancellation of this
      * future is a no-op.
-     * @hide
      */
     @VisibleForTesting
     @NonNull
-    public ListenableFuture<Void> shutdown() {
+    public ListenableFuture<Void> shutdownAsync() {
         runOnMainSync(() -> {
             unbindAll();
             mLifecycleCameraRepository.clear();
         });
+
+        if (mCameraX != null) {
+            mCameraX.getCameraFactory().getCameraCoordinator().shutdown();
+        }
 
         ListenableFuture<Void> shutdownFuture = mCameraX != null ? mCameraX.shutdown() :
                 Futures.immediateFuture(null);

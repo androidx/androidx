@@ -20,9 +20,9 @@ import android.os.Build
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.fakes.FakeSurfaceEffect
-import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
-import androidx.camera.testing.fakes.FakeUseCase
+import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
+import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
+import androidx.camera.testing.impl.fakes.FakeUseCase
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before

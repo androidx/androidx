@@ -20,6 +20,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.annotation.Sampled
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -73,8 +74,48 @@ fun BasicNav() {
     val navController = rememberNavController()
     NavHost(navController, startDestination = Screen.Profile.route) {
         composable(Screen.Profile.route) { Profile(navController) }
-        composable(Screen.Dashboard.route) { Dashboard(navController) }
-        composable(Screen.Scrollable.route) { Scrollable(navController) }
+        composable(
+            Screen.Dashboard.route,
+            enterTransition = {
+                if (initialState.destination.route == Screen.Scrollable.route) {
+                    // Slide in when entering from Scrollable
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Start)
+                } else {
+                    null
+                }
+            },
+            popExitTransition = {
+                if (targetState.destination.route == Screen.Scrollable.route) {
+                    // Slide out when popping back to Scrollable
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.End)
+                } else {
+                    null
+                }
+            }
+        ) {
+            Dashboard(navController)
+        }
+        composable(
+            Screen.Scrollable.route,
+            exitTransition = {
+                if (targetState.destination.route == Screen.Dashboard.route) {
+                    // Slide out when navigating to Dashboard
+                    slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Start)
+                } else {
+                    null
+                }
+            },
+            popEnterTransition = {
+                if (initialState.destination.route == Screen.Dashboard.route) {
+                    // Slide back in when returning from Dashboard
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.End)
+                } else {
+                    null
+                }
+            }
+        ) {
+            Scrollable(navController)
+        }
         dialog(Screen.Dialog.route) { DialogContent(navController) }
     }
 }

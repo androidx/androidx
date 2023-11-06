@@ -16,11 +16,11 @@
  */
 package com.example.android.leanback;
 
+import androidx.fragment.app.FragmentActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 
-import androidx.fragment.app.FragmentActivity;
 import androidx.leanback.app.SearchSupportFragment;
 import androidx.leanback.widget.SpeechRecognitionCallback;
 

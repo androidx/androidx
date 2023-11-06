@@ -67,9 +67,9 @@ private val EmptyCanvas = android.graphics.Canvas()
     // instance on each draw call
     @PublishedApi internal var internalCanvas: NativeCanvas = EmptyCanvas
 
-    private val srcRect = android.graphics.Rect()
+    private var srcRect: android.graphics.Rect? = null
 
-    private val dstRect = android.graphics.Rect()
+    private var dstRect: android.graphics.Rect? = null
 
     /**
      * @see Canvas.save
@@ -268,15 +268,19 @@ private val EmptyCanvas = android.graphics.Canvas()
         // There is no framework API to draw a subset of a target bitmap
         // that consumes only primitives so lazily allocate a src and dst
         // rect to populate the dimensions and re-use across calls
+        if (srcRect == null) {
+            srcRect = android.graphics.Rect()
+            dstRect = android.graphics.Rect()
+        }
         internalCanvas.drawBitmap(
             image.asAndroidBitmap(),
-            srcRect.apply {
+            srcRect!!.apply {
                 left = srcOffset.x
                 top = srcOffset.y
                 right = srcOffset.x + srcSize.width
                 bottom = srcOffset.y + srcSize.height
             },
-            dstRect.apply {
+            dstRect!!.apply {
                 left = dstOffset.x
                 top = dstOffset.y
                 right = dstOffset.x + dstSize.width

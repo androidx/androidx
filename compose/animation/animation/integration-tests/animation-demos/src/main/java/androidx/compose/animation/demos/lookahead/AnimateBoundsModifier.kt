@@ -33,7 +33,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.intermediateLayout
@@ -54,6 +58,7 @@ fun Modifier.animateBounds(
         Spring.DampingRatioNoBouncy,
         Spring.StiffnessMediumLow
     ),
+    debug: Boolean = false,
     lookaheadScope: (closestLookaheadScope: LookaheadScope) -> LookaheadScope = { it }
 ) = composed {
 
@@ -68,6 +73,17 @@ fun Modifier.animateBounds(
     // When the measure block is invoked after lookahead pass, the lookahead size of the
     // child will be accessible as a parameter to the measure block.
     this
+        .drawWithContent {
+            drawContent()
+            if (debug) {
+                val offset = outerOffsetAnimation.target!! - outerOffsetAnimation.value!!
+                translate(
+                    offset.x.toFloat(), offset.y.toFloat()
+                ) {
+                    drawRect(Color.Black.copy(alpha = 0.5f), style = Stroke(10f))
+                }
+            }
+        }
         .intermediateLayout { measurable, constraints ->
             val (w, h) = outerSizeAnimation.updateTarget(
                 lookaheadSize,
@@ -85,6 +101,17 @@ fun Modifier.animateBounds(
                 }
         }
         .then(modifier)
+        .drawWithContent {
+            drawContent()
+            if (debug) {
+                val offset = offsetAnimation.target!! - offsetAnimation.value!!
+                translate(
+                    offset.x.toFloat(), offset.y.toFloat()
+                ) {
+                    drawRect(Color.Green.copy(alpha = 0.5f), style = Stroke(10f))
+                }
+            }
+        }
         .intermediateLayout { measurable, _ ->
             // When layout changes, the lookahead pass will calculate a new final size for the
             // child modifier. This lookahead size can be used to animate the size

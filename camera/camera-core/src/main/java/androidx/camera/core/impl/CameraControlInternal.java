@@ -21,6 +21,7 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
@@ -29,6 +30,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageCapture.FlashMode;
 import androidx.camera.core.ImageCapture.FlashType;
+import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.impl.utils.futures.Futures;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -60,6 +62,14 @@ public interface CameraControlInternal extends CameraControl {
      * @param flashMode the {@link FlashMode}.
      */
     void setFlashMode(@FlashMode int flashMode);
+
+    /**
+     * Sets screen flash UI control.
+     *
+     * @param screenFlashUiControl An {@link ScreenFlashUiControl} used to notify API
+     *                             users when UI side changes need to be done.
+     */
+    default void setScreenFlashUiControl(@Nullable ScreenFlashUiControl screenFlashUiControl) {}
 
     /**
      * Adds zero-shutter lag config to {@link SessionConfig}.
@@ -150,6 +160,7 @@ public interface CameraControlInternal extends CameraControl {
         return this;
     }
 
+    @NonNull
     CameraControlInternal DEFAULT_EMPTY_INSTANCE = new CameraControlInternal() {
         @FlashMode
         @Override

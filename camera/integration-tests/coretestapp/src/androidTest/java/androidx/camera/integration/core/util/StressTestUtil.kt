@@ -36,7 +36,7 @@ import androidx.camera.integration.core.CameraXActivity.BIND_VIDEO_CAPTURE
 import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_CAMERA_ID
 import androidx.camera.integration.core.CameraXActivity.INTENT_EXTRA_USE_CASE_COMBINATION
 import androidx.camera.integration.core.waitForViewfinderIdle
-import androidx.camera.testing.CameraUtil
+import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapture
 import androidx.test.core.app.ActivityScenario

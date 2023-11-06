@@ -44,11 +44,11 @@ import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
-import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.SurfaceTextureProvider
-import androidx.camera.testing.fakes.FakeSessionProcessor
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.SurfaceTextureProvider
+import androidx.camera.testing.impl.fakes.FakeSessionProcessor
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -94,7 +94,8 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
                     CameraXExecutors.mainThreadExecutor(),
                     Handler(Looper.getMainLooper())
                 ),
-                null)
+                null,
+                -1L)
             return camera2CameraFactory.availableCameraIds
         }
     }
@@ -316,7 +317,11 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         )
 
         extraConfigurationQuirk.get(cameraId, hardwareLevel).forEach { surfaceCombination ->
-            if (surfaceCombination.isSupported(surfaceCombinationYuvPrivYuv.surfaceConfigList)) {
+            if (surfaceCombination.getOrderedSupportedSurfaceConfigList(
+                    surfaceCombinationYuvPrivYuv.surfaceConfigList
+                )
+                != null
+            ) {
                 return true
             }
         }
@@ -351,7 +356,10 @@ class ExtraSupportedSurfaceCombinationsContainerDeviceTest(val cameraId: String)
         )
 
         extraConfigurationQuirk.get(cameraId, hardwareLevel).forEach { surfaceCombination ->
-            if (surfaceCombination.isSupported(surfaceCombinationYuvYuvYuv.surfaceConfigList)) {
+            if (surfaceCombination.getOrderedSupportedSurfaceConfigList(
+                    surfaceCombinationYuvYuvYuv.surfaceConfigList
+                ) != null
+            ) {
                 return true
             }
         }

@@ -19,10 +19,9 @@ package androidx.camera.extensions.internal;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Logger;
 import androidx.camera.extensions.impl.ExtensionVersionImpl;
-
-import org.jetbrains.annotations.TestOnly;
 
 /**
  * Provides interfaces to check the extension version.
@@ -37,7 +36,7 @@ public abstract class ExtensionVersion {
      * For testing only. Inject a fake {@link ExtensionVersion}. Set it to {@code null} to unset
      * it.
      */
-    @TestOnly
+    @VisibleForTesting
     public static void injectInstance(@Nullable ExtensionVersion extensionVersion) {
         sExtensionVersion = extensionVersion;
     }
@@ -137,10 +136,10 @@ public abstract class ExtensionVersion {
             }
 
             String vendorVersion = sImpl.checkApiVersion(
-                    VersionName.getCurrentVersion().toVersionString());
+                    ClientVersion.getCurrentVersion().toVersionString());
             Version vendorVersionObj = Version.parse(vendorVersion);
             if (vendorVersionObj != null
-                    && VersionName.getCurrentVersion().getVersion().getMajor()
+                    && ClientVersion.getCurrentVersion().getVersion().getMajor()
                     == vendorVersionObj.getMajor()) {
                 mRuntimeVersion = vendorVersionObj;
             }

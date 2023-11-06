@@ -102,7 +102,7 @@ class StubDelegatesGenerator(
 
     private fun toSuspendFunSpec(method: Method): FunSpec {
         return FunSpec.builder(method.name).build {
-            addModifiers(KModifier.OVERRIDE)
+            addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
             addParameters(getParameters(method))
             addCode {
                 addControlFlow(
@@ -145,7 +145,7 @@ class StubDelegatesGenerator(
     }
 
     private fun toNonSuspendFunSpec(method: Method) = FunSpec.builder(method.name).build {
-        addModifiers(KModifier.OVERRIDE)
+        addModifiers(KModifier.PUBLIC, KModifier.OVERRIDE)
         addParameters(getParameters(method))
         addCode(CodeBlock.builder().build {
             addControlFlow("%L.%M", coroutineScopePropertyName, launchMethod) {

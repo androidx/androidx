@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.InputConfiguration;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.util.Range;
 import android.util.Size;
 
@@ -29,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.DynamicRange;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.internal.compat.workaround.SurfaceSorter;
 
 import com.google.auto.value.AutoValue;
@@ -50,6 +52,7 @@ import java.util.Set;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class SessionConfig {
+    public static final int DEFAULT_SESSION_TYPE = SessionConfiguration.SESSION_REGULAR;
     /** The set of {@link OutputConfig} that data from the camera will be put into. */
     private final List<OutputConfig> mOutputConfigs;
     /** The state callback for a {@link CameraDevice}. */
@@ -61,6 +64,8 @@ public final class SessionConfig {
     private final List<ErrorListener> mErrorListeners;
     /** The configuration for building the {@link CaptureRequest} used for repeating requests. */
     private final CaptureConfig mRepeatingCaptureConfig;
+    /** The type of the session */
+    private final int mSessionType;
 
     /**
      * Immutable class to store an input configuration that is used to create a reprocessable
@@ -113,7 +118,7 @@ public final class SessionConfig {
         /**
          * Returns the dynamic range for this output configuration.
          *
-         * <p>The dynamic range will determine the dynamic range format and profile of pixels in
+         * <p>The dynamic range will determine the dynamic range encoding and profile for pixels in
          * the surfaces associated with this output configuration.
          *
          * <p>If not set, this defaults to {@link DynamicRange#SDR}.
@@ -172,8 +177,8 @@ public final class SessionConfig {
             /**
              * Returns the dynamic range for this output configuration.
              *
-             * <p>The dynamic range will determine the dynamic range format and profile of pixels in
-             * the surfaces associated with this output configuration.
+             * <p>The dynamic range will determine the dynamic range encoding and profile for
+             * pixels in the surfaces associated with this output configuration.
              */
             @NonNull
             public abstract Builder setDynamicRange(@NonNull DynamicRange dynamicRange);
@@ -198,6 +203,7 @@ public final class SessionConfig {
      * @param repeatingCaptureConfig The configuration for building the {@link CaptureRequest}.
      * @param inputConfiguration     The input configuration to create a reprocessable capture
      *                               session.
+     * @param sessionType            The session type for the {@link CameraCaptureSession}.
      */
     SessionConfig(
             List<OutputConfig> outputConfigs,
@@ -206,7 +212,8 @@ public final class SessionConfig {
             List<CameraCaptureCallback> singleCameraCaptureCallbacks,
             List<ErrorListener> errorListeners,
             CaptureConfig repeatingCaptureConfig,
-            @Nullable InputConfiguration inputConfiguration) {
+            @Nullable InputConfiguration inputConfiguration,
+            int sessionType) {
         mOutputConfigs = outputConfigs;
         mDeviceStateCallbacks = Collections.unmodifiableList(deviceStateCallbacks);
         mSessionStateCallbacks = Collections.unmodifiableList(sessionStateCallbacks);
@@ -215,6 +222,7 @@ public final class SessionConfig {
         mErrorListeners = Collections.unmodifiableList(errorListeners);
         mRepeatingCaptureConfig = repeatingCaptureConfig;
         mInputConfiguration = inputConfiguration;
+        mSessionType = sessionType;
     }
 
     /** Returns an instance of a session configuration with minimal configurations. */
@@ -227,7 +235,8 @@ public final class SessionConfig {
                 new ArrayList<CameraCaptureCallback>(0),
                 new ArrayList<>(0),
                 new CaptureConfig.Builder().build(),
-                /* inputConfiguration */ null);
+                /* inputConfiguration */ null,
+                DEFAULT_SESSION_TYPE);
     }
 
     @Nullable
@@ -264,6 +273,10 @@ public final class SessionConfig {
 
     public int getTemplateType() {
         return mRepeatingCaptureConfig.getTemplateType();
+    }
+
+    public int getSessionType() {
+        return mSessionType;
     }
 
     @NonNull
@@ -364,6 +377,7 @@ public final class SessionConfig {
         final List<CameraCaptureCallback> mSingleCameraCaptureCallbacks = new ArrayList<>();
         @Nullable
         InputConfiguration mInputConfiguration;
+        int mSessionType = DEFAULT_SESSION_TYPE;
     }
 
     /**
@@ -419,6 +433,15 @@ public final class SessionConfig {
         }
 
         /**
+         * Sets the session type.
+         */
+        @NonNull
+        public Builder setSessionType(int sessionType) {
+            mSessionType = sessionType;
+            return this;
+        }
+
+        /**
          * Set the expected frame rate range of the SessionConfig.
          *
          * @param expectedFrameRateRange The frame rate range calculated from the UseCases for
@@ -427,6 +450,30 @@ public final class SessionConfig {
         @NonNull
         public Builder setExpectedFrameRateRange(@NonNull Range<Integer> expectedFrameRateRange) {
             mCaptureConfigBuilder.setExpectedFrameRateRange(expectedFrameRateRange);
+            return this;
+        }
+
+        /**
+         * Set the preview stabilization mode of the SessionConfig.
+         * @param mode {@link StabilizationMode}
+         */
+        @NonNull
+        public Builder setPreviewStabilization(@StabilizationMode.Mode int mode) {
+            if (mode != StabilizationMode.UNSPECIFIED) {
+                mCaptureConfigBuilder.setPreviewStabilization(mode);
+            }
+            return this;
+        }
+
+        /**
+         * Set the video stabilization mode of the SessionConfig.
+         * @param mode {@link StabilizationMode}
+         */
+        @NonNull
+        public Builder setVideoStabilization(@StabilizationMode.Mode int mode) {
+            if (mode != StabilizationMode.UNSPECIFIED) {
+                mCaptureConfigBuilder.setVideoStabilization(mode);
+            }
             return this;
         }
 
@@ -699,7 +746,8 @@ public final class SessionConfig {
                     new ArrayList<>(mSingleCameraCaptureCallbacks),
                     new ArrayList<>(mErrorListeners),
                     mCaptureConfigBuilder.build(),
-                    mInputConfiguration);
+                    mInputConfiguration,
+                    mSessionType);
         }
     }
 
@@ -748,6 +796,8 @@ public final class SessionConfig {
             }
 
             setOrVerifyExpectFrameRateRange(captureConfig.getExpectedFrameRateRange());
+            setPreviewStabilizationMode(captureConfig.getPreviewStabilizationMode());
+            setVideoStabilizationMode(captureConfig.getVideoStabilizationMode());
 
             TagBundle tagBundle = sessionConfig.getRepeatingCaptureConfig().getTagBundle();
             mCaptureConfigBuilder.addAllTags(tagBundle);
@@ -786,6 +836,19 @@ public final class SessionConfig {
                 mValid = false;
             }
 
+            if (sessionConfig.getSessionType() != mSessionType
+                    && sessionConfig.getSessionType() != DEFAULT_SESSION_TYPE
+                    && mSessionType != DEFAULT_SESSION_TYPE) {
+                String errorMessage =
+                        "Invalid configuration due to that two non-default session types are set";
+                Logger.d(TAG, errorMessage);
+                mValid = false;
+            } else {
+                if (sessionConfig.getSessionType() != DEFAULT_SESSION_TYPE) {
+                    mSessionType = sessionConfig.getSessionType();
+                }
+            }
+
             // The conflicting of options is handled in addImplementationOptions where it could
             // throw an IllegalArgumentException if the conflict cannot be resolved.
             mCaptureConfigBuilder.addImplementationOptions(
@@ -807,6 +870,18 @@ public final class SessionConfig {
             if (!mCaptureConfigBuilder.getExpectedFrameRateRange().equals(expectedFrameRateRange)) {
                 mValid = false;
                 Logger.d(TAG, "Different ExpectedFrameRateRange values");
+            }
+        }
+
+        private void setPreviewStabilizationMode(@StabilizationMode.Mode int mode) {
+            if (mode != StabilizationMode.UNSPECIFIED) {
+                mCaptureConfigBuilder.setPreviewStabilization(mode);
+            }
+        }
+
+        private void setVideoStabilizationMode(@StabilizationMode.Mode int mode) {
+            if (mode != StabilizationMode.UNSPECIFIED) {
+                mCaptureConfigBuilder.setVideoStabilization(mode);
             }
         }
 
@@ -852,7 +927,8 @@ public final class SessionConfig {
                     new ArrayList<>(mSingleCameraCaptureCallbacks),
                     new ArrayList<>(mErrorListeners),
                     mCaptureConfigBuilder.build(),
-                    mInputConfiguration);
+                    mInputConfiguration,
+                    mSessionType);
         }
 
         private int selectTemplateType(int type1, int type2) {

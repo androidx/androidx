@@ -21,9 +21,9 @@ import android.util.Size
 import android.view.View
 import android.widget.FrameLayout
 import androidx.camera.core.SurfaceRequest
-import androidx.camera.testing.CoreAppTestUtil
-import androidx.camera.testing.fakes.FakeActivity
 import androidx.camera.testing.fakes.FakeCamera
+import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.fakes.FakeActivity
 import androidx.camera.view.PreviewViewImplementation.OnSurfaceNotInUseListener
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider

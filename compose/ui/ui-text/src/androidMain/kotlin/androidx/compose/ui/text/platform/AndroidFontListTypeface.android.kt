@@ -25,9 +25,6 @@ import androidx.annotation.RequiresApi
 import androidx.collection.LruCache
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.android.InternalPlatformTextApi
-import androidx.compose.ui.text.fastDistinctBy
-import androidx.compose.ui.text.fastFilter
-import androidx.compose.ui.text.fastFilterNotNull
 import androidx.compose.ui.text.font.AndroidFont
 import androidx.compose.ui.text.font.AndroidPreloadedFont
 import androidx.compose.ui.text.font.Font
@@ -40,6 +37,9 @@ import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.ResourceFont
 import androidx.compose.ui.text.font.synthesizeTypeface
+import androidx.compose.ui.util.fastDistinctBy
+import androidx.compose.ui.util.fastFilter
+import androidx.compose.ui.util.fastFilterNotNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.core.content.res.ResourcesCompat
@@ -70,12 +70,9 @@ internal class AndroidFontListTypeface(
             fontMatcher.matchFont(blockingFonts, weight, style).firstOrNull()
         }?.fastFilterNotNull()?.fastDistinctBy { it }
         val targetFonts = matchedFonts ?: blockingFonts
+        check(targetFonts.isNotEmpty()) { "Could not match font" }
 
-        if (targetFonts.isEmpty()) {
-            throw IllegalStateException("Could not match font")
-        }
         val typefaces = mutableMapOf<Font, Typeface>()
-
         targetFonts.fastForEach {
             try {
                 typefaces[it] = AndroidTypefaceCache.getOrCreate(context, it)
@@ -94,10 +91,14 @@ internal class AndroidFontListTypeface(
         fontStyle: FontStyle,
         synthesis: FontSynthesis
     ): Typeface {
-        val font = fontMatcher.matchFont(ArrayList(loadedTypefaces.keys), fontWeight, fontStyle)
-            .firstOrNull() ?: throw IllegalStateException("Could not load font")
+        val font = fontMatcher
+            .matchFont(ArrayList(loadedTypefaces.keys), fontWeight, fontStyle)
+            .firstOrNull()
+        checkNotNull(font) { "Could not load font" }
+
         val typeface = loadedTypefaces[font]
-        requireNotNull(typeface)
+        checkNotNull(typeface) { "Could not load typeface" }
+
         return synthesis.synthesizeTypeface(typeface, font, fontWeight, fontStyle) as Typeface
     }
 }

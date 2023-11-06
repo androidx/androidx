@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.1.0-alpha07">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="NewApi"
-        message="Call requires API level 21 (current min is 14): `java.util.Locale#forLanguageTag`"
+        message="Call requires API level 21 (current min is 19): `java.util.Locale#forLanguageTag`"
         errorLine1="        Locale.setDefault(Locale.forLanguageTag(&quot;tr-TR&quot;))"
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
@@ -11,237 +11,93 @@
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="class FtsTableInfo("
-        errorLine2="      ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/util/FtsTableInfo.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    constructor(database: RoomDatabase, vararg tableNames: String) :"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/InvalidationTracker.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    open fun addWeakObserver(observer: Observer) {"
-        errorLine2="             ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/InvalidationTracker.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    open fun refreshVersionsSync() {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/InvalidationTracker.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    fun notifyObserversByTableNames(vararg tables: String) {"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/InvalidationTracker.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    open fun &lt;T> createLiveData("
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/InvalidationTracker.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    open fun &lt;T> createLiveData("
-        errorLine2="                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/InvalidationTracker.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public abstract class LimitOffsetDataSource&lt;T> extends androidx.paging.PositionalDataSource&lt;T> {"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public int countItems() {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public List&lt;T> loadRange(int startPosition, int loadCount) {"
-        errorLine2="                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/paging/LimitOffsetDataSource.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    protected var mCallbacks: List&lt;Callback>? = null"
-        errorLine2="                  ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    protected var autoMigrationSpecs: MutableMap&lt;Class&lt;out AutoMigrationSpec>, AutoMigrationSpec> ="
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    val backingFieldMap: MutableMap&lt;String, Any> = Collections.synchronizedMap(mutableMapOf())"
-        errorLine2="        ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    open fun getAutoMigrations("
-        errorLine2="             ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    open fun getRequiredAutoMigrationSpecs(): Set&lt;Class&lt;out AutoMigrationSpec>> {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    open fun assertNotMainThread() {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    open fun assertNotSuspendingTransaction() {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        const val MAX_BIND_PARAMETER_CNT = 999"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomDatabase.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="open class RoomOpenHelper("
-        errorLine2="           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomOpenHelper.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    abstract class Delegate(@JvmField val version: Int) {"
-        errorLine2="                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomOpenHelper.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    open class ValidationResult("
-        errorLine2="               ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/room/RoomOpenHelper.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="class RoomSQLiteQuery private constructor("
-        errorLine2="      ~~~~~~~~~~~~~~~">
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes = IntArray(limit)"
+        errorLine2="        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="class TableInfo("
-        errorLine2="      ~~~~~~~~~">
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="            when (bindingTypes[index]) {"
+        errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/util/TableInfo.kt"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    class ForeignKey("
-        errorLine2="          ~~~~~~~~~~">
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes[index] = NULL"
+        errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/util/TableInfo.kt"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    class Index("
-        errorLine2="          ~~~~~">
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes[index] = LONG"
+        errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/util/TableInfo.kt"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="class ViewInfo("
-        errorLine2="      ~~~~~~~~">
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes[index] = DOUBLE"
+        errorLine2="        ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/room/util/ViewInfo.kt"/>
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes[index] = STRING"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        bindingTypes[index] = BLOB"
+        errorLine2="        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        System.arraycopy(other.bindingTypes, 0, bindingTypes, 0, argCount)"
+        errorLine2="                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        System.arraycopy(other.bindingTypes, 0, bindingTypes, 0, argCount)"
+        errorLine2="                                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
+    </issue>
+
+    <issue
+        id="WrongConstant"
+        message="Must be one of: RoomSQLiteQuery.NULL, RoomSQLiteQuery.LONG, RoomSQLiteQuery.DOUBLE, RoomSQLiteQuery.STRING, RoomSQLiteQuery.BLOB"
+        errorLine1="        Arrays.fill(bindingTypes, NULL)"
+        errorLine2="                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomSQLiteQuery.kt"/>
     </issue>
 
     <issue
@@ -398,21 +254,309 @@
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IMultiInstanceInvalidationCallback {"
-        errorLine2="^">
+        id="RestrictedApiAndroidX"
+        message="Api29Impl.setNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/androidx/room/IMultiInstanceInvalidationCallback.aidl"/>
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IMultiInstanceInvalidationService {"
-        errorLine2="^">
+        id="RestrictedApiAndroidX"
+        message="Api29Impl.setNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
+        errorLine2="                                                              ~~~~~~~~">
         <location
-            file="src/main/aidl/androidx/room/IMultiInstanceInvalidationService.aidl"/>
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api29Impl.setNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
+        errorLine2="                                                                        ~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api29Impl.setNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)"
+        errorLine2="                                                                            ~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api19Impl.getNotificationUri can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            return SupportSQLiteCompat.Api19Impl.getNotificationUri(delegate)"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api19Impl.getNotificationUri can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            return SupportSQLiteCompat.Api19Impl.getNotificationUri(delegate)"
+        errorLine2="                                                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api29Impl.getNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            return SupportSQLiteCompat.Api29Impl.getNotificationUris(delegate)"
+        errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api29Impl.getNotificationUris can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            return SupportSQLiteCompat.Api29Impl.getNotificationUris(delegate)"
+        errorLine2="                                                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api23Impl.setExtras can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            SupportSQLiteCompat.Api23Impl.setExtras(delegate, extras)"
+        errorLine2="                                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api23Impl.setExtras can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            SupportSQLiteCompat.Api23Impl.setExtras(delegate, extras)"
+        errorLine2="                                                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api23Impl.setExtras can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            SupportSQLiteCompat.Api23Impl.setExtras(delegate, extras)"
+        errorLine2="                                                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api16Impl.createCancellationSignal can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="        SupportSQLiteCompat.Api16Impl.createCancellationSignal()"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/DBUtil.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api19Impl.isLowRamDevice can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="                SupportSQLiteCompat.Api19Impl.isLowRamDevice(activityManager)"
+        errorLine2="                                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="Api19Impl.isLowRamDevice can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="                SupportSQLiteCompat.Api19Impl.isLowRamDevice(activityManager)"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ProcessLock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="        val copyLock = ProcessLock("
+        errorLine2="                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ProcessLock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            name,"
+        errorLine2="            ~~~~">
+        <location
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ProcessLock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            context.filesDir,"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ProcessLock.lock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            copyLock.lock()"
+        errorLine2="                     ~~~~">
+        <location
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ProcessLock.unlock can only be called from within the same library group (referenced groupId=`androidx.sqlite` from groupId=`androidx.room`)"
+        errorLine1="            copyLock.unlock()"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="        @get:RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        @RequiresApi(api = Build.VERSION_CODES.KITKAT)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/AutoClosingRoomOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/CursorUtil.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/DBUtil.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &amp;&amp;"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/InvalidationTracker.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        val wal = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        return if (signal != null &amp;&amp; Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        return if (signal != null &amp;&amp; Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &amp;&amp;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.kt"/>
     </issue>
 
 </issues>

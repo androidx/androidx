@@ -3,3 +3,7 @@ MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDraw
     Missing nullability on parameter `bounds` in method `onBoundsChange`
 MissingNullability: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat#onStateChange(int[]) parameter #0:
     Missing nullability on parameter `state` in method `onStateChange`
+
+
+NotCloseable: androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat:
+    Classes that release resources (stop()) should implement AutoCloseable and CloseGuard: class androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat

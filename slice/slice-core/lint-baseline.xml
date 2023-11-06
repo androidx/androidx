@@ -1,680 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.1.0-alpha07">
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="class ArrayUtils {"
-        errorLine2="      ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/ArrayUtils.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public interface Clock {"
-        errorLine2="                 ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Clock.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class CompatPermissionManager {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class CompatPinnedList {"
-        errorLine2="             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class CornerDrawable extends InsetDrawable {"
-        errorLine2="             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/CornerDrawable.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static final String SUBTYPE_RANGE_MODE = &quot;range_mode&quot;;"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @interface SliceHint { }"
-        errorLine2="                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    Slice(ArrayList&lt;SliceItem> items, @SliceHint String[] hints, Uri uri,"
-        errorLine2="    ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public Slice() {"
-        errorLine2="           ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public Slice(@NonNull Bundle in) {"
-        errorLine2="           ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @NonNull Bundle toBundle() {"
-        errorLine2="                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @Nullable SliceSpec getSpec() {"
-        errorLine2="                               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @NonNull SliceItem[] getItemArray() {"
-        errorLine2="                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @NonNull @SliceHint String[] getHintArray() {"
-        errorLine2="                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public boolean hasHint(@NonNull @SliceHint String hint) {"
-        errorLine2="                   ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public void onPreParceling(boolean isStream) {"
-        errorLine2="                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public void onPostParceling() {"
-        errorLine2="                ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static class Builder {"
-        errorLine2="                        ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        public @NonNull Builder setSpec(@Nullable SliceSpec spec) {"
-        errorLine2="                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        public @NonNull Builder addRemoteInput(@NonNull RemoteInput remoteInput,"
-        errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        public @NonNull Builder addRemoteInput(@NonNull RemoteInput remoteInput,"
-        errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        public @NonNull Builder addItem(@NonNull SliceItem item) {"
-        errorLine2="                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public String toString(@NonNull String indent) {"
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static void appendHints(@NonNull StringBuilder sb, @Nullable String[] hints) {"
-        errorLine2="                       ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static Slice bindSlice(@NonNull Context context, @NonNull Uri uri,"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    static boolean isValidIcon(IconCompat icon) {"
-        errorLine2="                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/Slice.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class SliceActionImpl implements SliceAction {"
-        errorLine2="             ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/core/SliceActionImpl.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public SliceActionImpl(@NonNull PendingIntent action, @NonNull CharSequence actionTitle,"
-        errorLine2="           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/core/SliceActionImpl.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public SliceActionImpl(@NonNull SliceItem slice) {"
-        errorLine2="           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/core/SliceActionImpl.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public SliceItem getActionItem() {"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/core/SliceActionImpl.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static int parseImageMode(@NonNull SliceItem iconItem) {"
-        errorLine2="                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/core/SliceActionImpl.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static Set&lt;androidx.slice.SliceSpec> wrap("
-        errorLine2="                                                ~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceConvert.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class SliceHints {"
-        errorLine2="             ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/core/SliceHints.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @interface SliceType {"
-        errorLine2="                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    @Slice.SliceHint String[] mHints = Slice.NO_HINTS;"
-        errorLine2="                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public SliceItem(Object obj, @NonNull @SliceType String format, @Nullable String subType,"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public SliceItem(Object obj, @NonNull @SliceType String format, @Nullable String subType,"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public SliceItem() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public SliceItem(@NonNull PendingIntent intent, @Nullable Slice slice,"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public SliceItem(@NonNull ActionHandler action, @Nullable Slice slice,"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public @NonNull @Slice.SliceHint String[] getHintArray() {"
-        errorLine2="                                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public void addHint(@Slice.SliceHint @NonNull String hint) {"
-        errorLine2="                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public CharSequence getSanitizedText() {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public boolean fireActionInternal(@Nullable Context context, @Nullable Intent i)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public RemoteInput getRemoteInput() {"
-        errorLine2="                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public SliceItem(@NonNull Bundle in) {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public Bundle toBundle() {"
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public boolean hasHints(@Nullable @Slice.SliceHint String[] hints) {"
-        errorLine2="                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public boolean hasAnyHints(@Nullable @Slice.SliceHint String... hints) {"
-        errorLine2="                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static String typeToString(@NonNull String format) {"
-        errorLine2="                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public String toString(@NonNull String indent) {"
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public interface ActionHandler {"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItem.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class SliceItemHolder implements VersionedParcelable {"
-        errorLine2="             ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    SliceManager() {"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceManager.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public abstract @NonNull Set&lt;SliceSpec> getPinnedSpecs(@NonNull Uri uri);"
-        errorLine2="                                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceManager.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="class SliceManagerCompat extends SliceManager {"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceManagerCompat.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="class SliceManagerWrapper extends SliceManager {"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceManagerWrapper.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class SlicePermissionActivity extends AppCompatActivity implements OnClickListener,"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SlicePermissionActivity.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public Object getWrapper() {"
-        errorLine2="                  ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    protected CompatPermissionManager onCreatePermissionManager("
-        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public Slice createPermissionSlice(@NonNull Uri sliceUri,"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public void handleSlicePinned(@NonNull Uri sliceUri) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public void handleSliceUnpinned(@NonNull Uri sliceUri) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public void validateIncomingAuthority(@Nullable String authority) throws SecurityException {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static void setSpecs(@Nullable Set&lt;SliceSpec> specs) {"
-        errorLine2="                       ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static Set&lt;SliceSpec> getCurrentSpecs() {"
-        errorLine2="                                 ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static void setClock(@Nullable Clock clock) {"
-        errorLine2="                       ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public static Clock getClock() {"
-        errorLine2="                        ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceProvider.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class SliceProviderCompat {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class SliceProviderWrapperContainer {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class SliceQuery {"
-        errorLine2="             ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public final class SliceSpec implements VersionedParcelable {"
-        errorLine2="                   ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceSpec.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public SliceSpec() {"
-        errorLine2="           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceSpec.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class SliceSpecs {"
-        errorLine2="             ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceSpecs.java"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class SystemClock implements Clock {"
-        errorLine2="             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SystemClock.java"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanUncheckedReflection"
@@ -686,84 +11,381 @@
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public SliceProviderWrapper(androidx.slice.SliceProvider provider,"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/ArrayUtils.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                String[] autoGrantPermissions) {"
-        errorLine2="                ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/Clock.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public PendingIntent onCreatePermissionRequest(Uri sliceUri) {"
-        errorLine2="               ~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="               ~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/compat/CompatPinnedList.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                           ~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/Slice.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                                          ~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/core/SliceAction.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Bundle call(String method, String arg, Bundle extras) {"
-        errorLine2="                                                      ~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/core/SliceActionImpl.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Collection&lt;Uri> onGetSliceDescendants(Uri uri) {"
-        errorLine2="               ~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/core/SliceHints.java"/>
     </issue>
 
     <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Collection&lt;Uri> onGetSliceDescendants(Uri uri) {"
-        errorLine2="                                                     ~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/slice/compat/SliceProviderWrapperContainer.java"/>
+            file="src/main/java/androidx/slice/SliceItem.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceItemHolder.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceManager.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceManagerCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/compat/SlicePermissionActivity.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; 19) return false;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; 19) return null;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; 19 || Build.VERSION.SDK_INT >= 28) return null;"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceProvider.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/core/SliceQuery.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceSpec.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SliceSpecs.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/SystemClock.java"/>
     </issue>
 
 </issues>

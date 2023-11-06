@@ -21,7 +21,7 @@ import android.os.Build
 import android.util.Range
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
-import androidx.camera.testing.fakes.FakeConfig
+import androidx.camera.testing.impl.fakes.FakeConfig
 import com.google.common.truth.Truth
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -163,7 +163,4 @@ class Camera2ImplConfigTest {
             true
         }
     }
-
-    // TODO: After porting CameraEventCallback (used for extension) to CameraUseCaseAdapter,
-    //  also porting canExtendWithCameraEventCallback
 }

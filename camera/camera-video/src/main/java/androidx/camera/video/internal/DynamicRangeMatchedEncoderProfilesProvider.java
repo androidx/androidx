@@ -16,8 +16,7 @@
 
 package androidx.camera.video.internal;
 
-import static androidx.camera.video.internal.utils.DynamicRangeUtil.DR_TO_VP_BIT_DEPTH_MAP;
-import static androidx.camera.video.internal.utils.DynamicRangeUtil.DR_TO_VP_FORMAT_MAP;
+import static androidx.camera.video.internal.utils.DynamicRangeUtil.isHdrSettingsMatched;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,7 +31,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * An implementation that provides {@link EncoderProfilesProxy} containing video information
@@ -93,8 +91,7 @@ public class DynamicRangeMatchedEncoderProfilesProvider implements EncoderProfil
 
         List<VideoProfileProxy> validVideoProfiles = new ArrayList<>();
         for (VideoProfileProxy videoProfile : encoderProfiles.getVideoProfiles()) {
-            if (isBitDepthMatched(videoProfile, dynamicRange) && isHdrFormatMatched(videoProfile,
-                    dynamicRange)) {
+            if (isHdrSettingsMatched(videoProfile, dynamicRange)) {
                 validVideoProfiles.add(videoProfile);
             }
         }
@@ -105,19 +102,5 @@ public class DynamicRangeMatchedEncoderProfilesProvider implements EncoderProfil
                 encoderProfiles.getAudioProfiles(),
                 validVideoProfiles
         );
-    }
-
-    private static boolean isBitDepthMatched(@NonNull VideoProfileProxy videoProfile,
-            @NonNull DynamicRange dynamicRange) {
-        Set<Integer> matchedBitDepths = DR_TO_VP_BIT_DEPTH_MAP.get(dynamicRange.getBitDepth());
-
-        return matchedBitDepths != null && matchedBitDepths.contains(videoProfile.getBitDepth());
-    }
-
-    private static boolean isHdrFormatMatched(@NonNull VideoProfileProxy videoProfile,
-            @NonNull DynamicRange dynamicRange) {
-        Set<Integer> matchedHdrFormats = DR_TO_VP_FORMAT_MAP.get(dynamicRange.getFormat());
-
-        return matchedHdrFormats != null && matchedHdrFormats.contains(videoProfile.getHdrFormat());
     }
 }

@@ -57,5 +57,5 @@ public interface ProcessResultImpl {
      * @param progress             Value between 0 and 100.
      * @since 1.4
      */
-    void onCaptureProcessProgressed(int progress);
+    default void onCaptureProcessProgressed(int progress) {}
 }

@@ -107,10 +107,7 @@ class FileLinkingRule : TestRule {
 
         if (Outputs.outputDirectory == Outputs.dirUsableByAppAndShell) {
             InstrumentationResults.instrumentationReport {
-                ideSummaryRecord(
-                    summaryV1 = "", // not supported
-                    summaryV2 = summaryString.trim()
-                )
+                reportSummaryToIde(message = summaryString.trim())
             }
         } else {
             Log.d(TAG, "FileLinkingRule doesn't support outputDirectory != dirUsableByAppAndShell")

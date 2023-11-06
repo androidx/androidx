@@ -73,9 +73,12 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
 
     private suspend fun createClientSessionScope(isController: Boolean): UwbClientSessionScope {
         checkSystemFeature(context)
-        val hasGmsCore = GoogleApiAvailability.getInstance()
-            .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
-        return if (hasGmsCore) createGmsClientSessionScope(isController)
+        val pm = context.packageManager
+        val hasGmsCore = GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(
+            context, /* minApkVersion */230100000) == ConnectionResult.SUCCESS
+        val isChinaGcoreDevice = pm.hasSystemFeature("cn.google.services") &&
+            pm.hasSystemFeature("com.google.android.feature.services_updater")
+        return if (hasGmsCore && !isChinaGcoreDevice) createGmsClientSessionScope(isController)
         else createAospClientSessionScope(isController)
     }
 
@@ -83,6 +86,10 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
         Log.i(TAG, "Creating Gms Client session scope")
         val uwbClient = if (isController)
             Nearby.getUwbControllerClient(context) else Nearby.getUwbControleeClient(context)
+        if (!uwbClient.isAvailable().await()) {
+            Log.e(TAG, "Uwb availability : false")
+            throw RuntimeException("Cannot start a ranging session when UWB is unavailable")
+        }
         try {
             val nearbyLocalAddress = uwbClient.localAddress.await()
             val nearbyRangingCapabilities = uwbClient.rangingCapabilities.await()
@@ -91,9 +98,14 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                 nearbyRangingCapabilities.supportsDistance(),
                 nearbyRangingCapabilities.supportsAzimuthalAngle(),
                 nearbyRangingCapabilities.supportsElevationAngle(),
-                nearbyRangingCapabilities.getMinRangingInterval(),
-                nearbyRangingCapabilities.getSupportedChannels().toSet(),
-                nearbyRangingCapabilities.getSupportedConfigIds().toSet())
+                nearbyRangingCapabilities.minRangingInterval,
+                nearbyRangingCapabilities.supportedChannels.toSet(),
+                nearbyRangingCapabilities.supportedNtfConfigs.toSet(),
+                nearbyRangingCapabilities.supportedConfigIds.toSet(),
+                nearbyRangingCapabilities.supportedSlotDurations.toSet(),
+                nearbyRangingCapabilities.supportedRangingUpdateRates.toSet(),
+                nearbyRangingCapabilities.supportsRangingIntervalReconfigure(),
+                nearbyRangingCapabilities.hasBackgroundRangingSupport())
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel.await()
                 UwbControllerSessionScopeImpl(
@@ -134,7 +146,12 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
                     it.supportsElevationAngle,
                     it.minRangingInterval,
                     it.supportedChannels.toSet(),
-                    it.supportedConfigIds.toSet())
+                    it.supportedNtfConfigs.toSet(),
+                    it.supportedConfigIds.toSet(),
+                    it.supportedSlotDurations.toSet(),
+                    it.supportedRangingUpdateRates.toSet(),
+                    it.supportsRangingIntervalReconfigure,
+                    it.hasBackgroundRangingSupport)
             }
             return if (isController) {
                 val uwbComplexChannel = uwbClient.complexChannel

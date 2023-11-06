@@ -16,18 +16,23 @@
 
 package androidx.benchmark.macro
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.annotation.VisibleForTesting
 import androidx.benchmark.DeviceInfo
+import androidx.benchmark.Outputs
+import androidx.benchmark.Outputs.dateToFileName
 import androidx.benchmark.Shell
 import androidx.benchmark.macro.MacrobenchmarkScope.Companion.Api24ContextHelper.createDeviceProtectedStorageContextCompat
 import androidx.benchmark.macro.perfetto.forceTrace
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.tracing.trace
+import java.io.File
 
 /**
  * Provides access to common operations in app automation, such as killing the app,
@@ -46,8 +51,29 @@ public class MacrobenchmarkScope(
      */
     private val launchWithClearTask: Boolean
 ) {
+
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
     private val context = instrumentation.context
+
+    /**
+     * Controls if the process will be launched with method tracing turned on.
+     *
+     * Default to false, because we only want to turn on method tracing when explicitly enabled
+     * via `Arguments.methodTracingOptions`.
+     */
+    internal var launchWithMethodTracing: Boolean = false
+
+    /**
+     * Only use this for testing. This forces `--start-profiler` without the check for process
+     * live ness.
+     */
+    @VisibleForTesting
+    internal var methodTracingForTests: Boolean = false
+
+    /**
+     * This is `true` iff method tracing is currently active.
+     */
+    internal var isMethodTracing: Boolean = false
 
     /**
      * Current Macrobenchmark measurement iteration, or null if measurement is not yet enabled.
@@ -112,6 +138,7 @@ public class MacrobenchmarkScope(
         startActivityImpl(intent.toUri(Intent.URI_INTENT_SCHEME))
     }
 
+    @SuppressLint("BanThreadSleep") // Cannot always detect activity launches.
     private fun startActivityImpl(uri: String) {
         val ignoredUniqueNames = if (!launchWithClearTask) {
             emptyList()
@@ -120,8 +147,20 @@ public class MacrobenchmarkScope(
             getFrameStats().map { it.uniqueName }
         }
         val preLaunchTimestampNs = System.nanoTime()
-
-        val cmd = "am start -W \"$uri\""
+        // Only use --start-profiler is the package is not alive. Otherwise re-use the existing
+        // profiling session.
+        val profileArgs =
+            if (launchWithMethodTracing && (methodTracingForTests || !Shell.isPackageAlive(
+                    packageName
+                ))
+            ) {
+            isMethodTracing = true
+            val tracePath = methodTraceRecordPath(packageName)
+            "--start-profiler \"$tracePath\" --streaming"
+        } else {
+            ""
+        }
+        val cmd = "am start $profileArgs -W \"$uri\""
         Log.d(TAG, "Starting activity with command: $cmd")
 
         // executeShellScript used to access stderr, and avoid need to escape special chars like `;`
@@ -204,6 +243,7 @@ public class MacrobenchmarkScope(
      * each iteration.
      */
     @JvmOverloads
+    @SuppressLint("BanThreadSleep") // Defaults to no delays at all.
     public fun pressHome(delayDurationMs: Long = 0) {
         device.pressHome()
 
@@ -266,12 +306,54 @@ public class MacrobenchmarkScope(
     }
 
     /**
+     * Stops method tracing for the given [packageName] and copies the output to the
+     * `additionalTestOutputDir`.
+     *
+     * @return a [Pair] representing the label, and the absolute path of the method trace.
+     */
+    internal fun stopMethodTracing(uniqueLabel: String): Pair<String, String> {
+        Shell.executeScriptSilent("am profile stop $packageName")
+        // Wait for the profiles to get dumped :(
+        // ART Method tracing has a buffer size of 8M, so 1 second should be enough
+        // to dump the contents of the buffer.
+
+        val tracePath = methodTraceRecordPath(packageName)
+        // Using 50 ms as a poll duration for a max of 20 iterations. This is because
+        // we don't want to wait for longer than 1s. Also, anecdotally when polling from the
+        // shell I found a stable iteration count of 3 to be sufficient.
+        Shell.waitForFileFlush(
+            tracePath,
+            maxIterations = 20,
+            stableIterations = 3,
+            pollDurationMs = 50L
+        )
+        // unique label so source is clear, dateToFileName so each run of test is unique on host
+        val outputFileName = "$uniqueLabel-method-${dateToFileName()}.trace"
+        val stagingFile = File.createTempFile("methodTrace", null, Outputs.dirUsableByAppAndShell)
+        // Staging location before we write it again using Outputs.writeFile(...)
+        // NOTE: staging copy may be unnecessary if we just use a single `cp`
+        Shell.executeScriptSilent("cp '$tracePath' '$stagingFile'")
+
+        // Report file
+        val outputPath = Outputs.writeFile(outputFileName) {
+            Log.d(TAG, "Writing method traces to ${it.absolutePath}")
+            stagingFile.copyTo(it, overwrite = true)
+
+            // Cleanup
+            stagingFile.delete()
+            Shell.executeScriptSilent("rm \"$tracePath\"")
+        }
+        return "MethodTrace iteration ${this.iteration ?: 0}" to outputPath
+    }
+
+    /**
      * Drop caches via setprop added in API 31
      *
      * Feature for dropping caches without root added in 31: https://r.android.com/1584525
      * Passing 3 will cause caches to be dropped, and prop will go back to 0 when it's done
      */
     @RequiresApi(31)
+    @SuppressLint("BanThreadSleep") // Need to poll to drop kernel page caches
     private fun dropKernelPageCacheSetProp() {
         val result = Shell.executeScriptCaptureStdoutStderr("setprop perf.drop_caches 3")
         check(result.stdout.isEmpty() && result.stderr.isEmpty()) {
@@ -336,6 +418,13 @@ public class MacrobenchmarkScope(
                 context.codeCacheDir
             }
             return shaderDirectory.absolutePath.replace(context.packageName, packageName)
+        }
+
+        /**
+         * Path for method trace during record, before fully flushed/stopped, move to outputs
+         */
+        fun methodTraceRecordPath(packageName: String): String {
+            return "/data/local/tmp/$packageName-method.trace"
         }
 
         @RequiresApi(Build.VERSION_CODES.N)

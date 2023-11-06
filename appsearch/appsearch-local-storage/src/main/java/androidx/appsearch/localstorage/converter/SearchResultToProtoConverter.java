@@ -29,6 +29,7 @@ import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localstorage.AppSearchConfig;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;
@@ -43,7 +44,7 @@ import java.util.Map;
 /**
  * Translates a {@link SearchResultProto} into {@link SearchResult}s.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SearchResultToProtoConverter {
@@ -60,13 +61,14 @@ public class SearchResultToProtoConverter {
      */
     @NonNull
     public static SearchResultPage toSearchResultPage(@NonNull SearchResultProto proto,
-            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap)
+            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap,
+            @NonNull AppSearchConfig config)
             throws AppSearchException {
         Bundle bundle = new Bundle();
         bundle.putLong(SearchResultPage.NEXT_PAGE_TOKEN_FIELD, proto.getNextPageToken());
         ArrayList<Bundle> resultBundles = new ArrayList<>(proto.getResultsCount());
         for (int i = 0; i < proto.getResultsCount(); i++) {
-            SearchResult result = toUnprefixedSearchResult(proto.getResults(i), schemaMap);
+            SearchResult result = toUnprefixedSearchResult(proto.getResults(i), schemaMap, config);
             resultBundles.add(result.getBundle());
         }
         bundle.putParcelableArrayList(SearchResultPage.RESULTS_FIELD, resultBundles);
@@ -85,8 +87,8 @@ public class SearchResultToProtoConverter {
     @NonNull
     private static SearchResult toUnprefixedSearchResult(
             @NonNull SearchResultProto.ResultProto proto,
-            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap)
-            throws AppSearchException {
+            @NonNull Map<String, Map<String, SchemaTypeConfigProto>> schemaMap,
+            @NonNull AppSearchConfig config) throws AppSearchException {
 
         DocumentProto.Builder documentBuilder = proto.getDocument().toBuilder();
         String prefix = removePrefixesFromDocument(documentBuilder);
@@ -94,7 +96,7 @@ public class SearchResultToProtoConverter {
                 Preconditions.checkNotNull(schemaMap.get(prefix));
         GenericDocument document =
                 GenericDocumentToProtoConverter.toGenericDocument(documentBuilder, prefix,
-                        schemaTypeMap);
+                        schemaTypeMap, config);
         SearchResult.Builder builder =
                 new SearchResult.Builder(getPackageName(prefix), getDatabaseName(prefix))
                         .setGenericDocument(document).setRankingSignal(proto.getScore());
@@ -116,7 +118,7 @@ public class SearchResultToProtoConverter {
                         "Nesting joined results within joined results not allowed.");
             }
 
-            builder.addJoinedResult(toUnprefixedSearchResult(joinedResultProto, schemaMap));
+            builder.addJoinedResult(toUnprefixedSearchResult(joinedResultProto, schemaMap, config));
         }
         return builder.build();
     }

@@ -15,16 +15,28 @@
   -->
 <runtime-enabled-sdk-table>
     <runtime-enabled-sdk>
-        <compat-config-path>RuntimeEnabledSdks/V1/CompatSdkConfig.xml</compat-config-path>
-        <package-name>androidx.privacysandbox.sdkruntime.test.v1</package-name>
+        <compat-config-path>RuntimeEnabledSdks/current.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.current</package-name>
         <version-major>42</version-major>
     </runtime-enabled-sdk>
     <runtime-enabled-sdk>
-        <compat-config-path>RuntimeEnabledSdks/V2/CompatSdkConfig.xml</compat-config-path>
-        <package-name>androidx.privacysandbox.sdkruntime.test.v2</package-name>
+        <compat-config-path>RuntimeEnabledSdks/currentWithResources.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.currentWithResources</package-name>
     </runtime-enabled-sdk>
     <runtime-enabled-sdk>
-        <compat-config-path>RuntimeEnabledSdks/InvalidEntryPointSdkConfig.xml</compat-config-path>
-        <package-name>androidx.privacysandbox.sdkruntime.test.invalidEntryPoint</package-name>
+        <compat-config-path>RuntimeEnabledSdks/invalidEntryPoint.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.invalidEntryPoint</package-name>
+    </runtime-enabled-sdk>
+    <runtime-enabled-sdk>
+        <compat-config-path>RuntimeEnabledSdks/v1.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v1</package-name>
+    </runtime-enabled-sdk>
+    <runtime-enabled-sdk>
+        <compat-config-path>RuntimeEnabledSdks/v2.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v2</package-name>
+    </runtime-enabled-sdk>
+    <runtime-enabled-sdk>
+        <compat-config-path>RuntimeEnabledSdks/v4.xml</compat-config-path>
+        <package-name>androidx.privacysandbox.sdkruntime.testsdk.v4</package-name>
     </runtime-enabled-sdk>
 </runtime-enabled-sdk-table>

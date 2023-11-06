@@ -56,7 +56,7 @@ import java.util.concurrent.FutureTask;
  * A text object that contains the character metrics data and can be used to improve the performance
  * of text layout operations. When a PrecomputedTextCompat is created with a given
  * {@link CharSequence}, it will measure the text metrics during the creation. This PrecomputedText
- * instance can be set on {@linkandroid.widget.TextView} or {@link StaticLayout}. Since the text
+ * instance can be set on {@link android.widget.TextView} or {@link StaticLayout}. Since the text
  * layout information will be included in this instance, {@link android.widget.TextView} or
  * {@link StaticLayout} will not have to recalculate this information.
  *

@@ -49,14 +49,18 @@ MissingGetterMatchingBuilder: androidx.room.RoomDatabase.Builder#setJournalMode(
     T does not declare a `getJournalMode()` method matching method androidx.room.RoomDatabase.Builder.setJournalMode(androidx.room.RoomDatabase.JournalMode)
 
 
+NotCloseable: androidx.room.RoomDatabase:
+    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.room.RoomDatabase
+
+
 NullableCollection: androidx.room.DatabaseConfiguration#callbacks:
     Type of field androidx.room.DatabaseConfiguration.callbacks is a nullable collection (`java.util.List`); must be non-null
 NullableCollection: androidx.room.RoomDatabase.MigrationContainer#findMigrationPath(int, int):
     Return type of method androidx.room.RoomDatabase.MigrationContainer.findMigrationPath(int,int) is a nullable collection (`java.util.List`); must be non-null
 
 
-RegistrationName: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
-    Callback methods should be named register/unregister; was addCallback
+PairedRegistration: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
+    Found addCallback but not removeCallback in androidx.room.RoomDatabase.Builder
 
 
 StaticFinalBuilder: androidx.room.RoomDatabase.Builder:

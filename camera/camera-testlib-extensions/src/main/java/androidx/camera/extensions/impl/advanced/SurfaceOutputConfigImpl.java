@@ -16,16 +16,19 @@
 
 package androidx.camera.extensions.impl.advanced;
 
-import android.annotation.SuppressLint;
 import android.view.Surface;
+
+import androidx.annotation.NonNull;
 
 /**
  * Use Surface directly to create the OutputConfiguration.
+ *
+ * @since 1.2
  */
-@SuppressLint("UnknownNullness")
 public interface SurfaceOutputConfigImpl extends Camera2OutputConfigImpl {
     /**
      * Get the {@link Surface}. It'll return valid surface only when type is TYPE_SURFACE.
      */
+    @NonNull
     Surface getSurface();
 }

@@ -18,6 +18,7 @@ package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.KtxNameConventions
 import androidx.compose.compiler.plugins.kotlin.ModuleMetrics
+import androidx.compose.compiler.plugins.kotlin.analysis.StabilityInferencer
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.copyWithNewTypeParams
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.didDecoyHaveDefaultForValueParameter
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.isDecoy
@@ -88,10 +89,11 @@ import org.jetbrains.kotlin.util.OperatorNameConventions
 class ComposerParamTransformer(
     context: IrPluginContext,
     symbolRemapper: DeepCopySymbolRemapper,
+    stabilityInferencer: StabilityInferencer,
     private val decoysEnabled: Boolean,
     metrics: ModuleMetrics,
 ) :
-    AbstractComposeLowering(context, symbolRemapper, metrics),
+    AbstractComposeLowering(context, symbolRemapper, metrics, stabilityInferencer),
     ModuleLoweringPass {
 
     /**
@@ -192,10 +194,10 @@ class ComposerParamTransformer(
                 }
                 symbol.owner.withComposerParamIfNeeded()
             }
-            symbol.owner.hasComposableAnnotation() ->
-                symbol.owner.withComposerParamIfNeeded()
             isComposableLambdaInvoke() ->
                 symbol.owner.lambdaInvokeWithComposerParam()
+            symbol.owner.hasComposableAnnotation() ->
+                symbol.owner.withComposerParamIfNeeded()
             // Not a composable call
             else -> return this
         }
@@ -370,24 +372,23 @@ class ComposerParamTransformer(
 
     private fun IrSimpleFunction.copy(): IrSimpleFunction {
         // TODO(lmr): use deepCopy instead?
-        return context.irFactory.createFunction(
-            startOffset,
-            endOffset,
-            origin,
-            IrSimpleFunctionSymbolImpl(),
-            name,
-            visibility,
-            modality,
-            returnType,
-            isInline,
-            isExternal,
-            isTailrec,
-            isSuspend,
-            isOperator,
-            isInfix,
-            isExpect,
-            isFakeOverride,
-            containerSource
+        return context.irFactory.createSimpleFunction(
+            startOffset = startOffset,
+            endOffset = endOffset,
+            origin = origin,
+            name = name,
+            visibility = visibility,
+            isInline = isInline,
+            isExpect = isExpect,
+            returnType = returnType,
+            modality = modality,
+            symbol = IrSimpleFunctionSymbolImpl(),
+            isTailrec = isTailrec,
+            isSuspend = isSuspend,
+            isOperator = isOperator,
+            isInfix = isInfix,
+            isExternal = isExternal,
+            containerSource = containerSource
         ).also { fn ->
             fn.copyAttributes(this)
             val propertySymbol = correspondingPropertySymbol
@@ -594,8 +595,9 @@ class ComposerParamTransformer(
                     try {
                         // we don't want to pass the composer parameter in to composable calls
                         // inside of nested scopes.... *unless* the scope was inlined.
-                        isNestedScope =
-                            if (declaration.isNonComposableInlinedLambda()) wasNested else true
+                        isNestedScope = wasNested ||
+                            !inlineLambdaInfo.isInlineLambda(declaration) ||
+                            declaration.hasComposableAnnotation()
                         return super.visitFunction(declaration)
                     } finally {
                         isNestedScope = wasNested
@@ -631,9 +633,6 @@ class ComposerParamTransformer(
             else -> type.makeNullable()
         }
     }
-
-    private fun IrFunction.isNonComposableInlinedLambda(): Boolean =
-        inlineLambdaInfo.isInlineLambda(this) && !hasComposableAnnotation()
 
     /**
      * With klibs, composable functions are always deserialized from IR instead of being restored

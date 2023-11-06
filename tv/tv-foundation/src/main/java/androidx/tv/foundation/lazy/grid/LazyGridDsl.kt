@@ -16,7 +16,6 @@
 
 package androidx.tv.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -68,9 +67,8 @@ fun TvLazyVerticalGrid(
     pivotOffsets: PivotOffsets = PivotOffsets(),
     content: TvLazyGridScope.() -> Unit
 ) {
-    val slotSizesSums = rememberColumnWidthSums(columns, horizontalArrangement, contentPadding)
     LazyGrid(
-        slotSizesSums = slotSizesSums,
+        slots = rememberColumnWidthSums(columns, horizontalArrangement, contentPadding),
         modifier = modifier,
         state = state,
         contentPadding = contentPadding,
@@ -117,9 +115,8 @@ fun TvLazyHorizontalGrid(
     pivotOffsets: PivotOffsets = PivotOffsets(),
     content: TvLazyGridScope.() -> Unit
 ) {
-    val slotSizesSums = rememberRowHeightSums(rows, verticalArrangement, contentPadding)
     LazyGrid(
-        slotSizesSums = slotSizesSums,
+        slots = rememberRowHeightSums(rows, verticalArrangement, contentPadding),
         modifier = modifier,
         state = state,
         contentPadding = contentPadding,
@@ -139,12 +136,12 @@ private fun rememberColumnWidthSums(
     columns: TvGridCells,
     horizontalArrangement: Arrangement.Horizontal,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> List<Int>>(
+) = remember<Density.(Constraints) -> LazyGridSlots>(
     columns,
     horizontalArrangement,
     contentPadding,
 ) {
-    { constraints ->
+    GridSlotCache { constraints ->
         require(constraints.maxWidth != Constraints.Infinity) {
             "LazyVerticalGrid's width should be bound by parent."
         }
@@ -155,28 +152,29 @@ private fun rememberColumnWidthSums(
             calculateCrossAxisCellSizes(
                 gridWidth,
                 horizontalArrangement.spacing.roundToPx()
-            ).toMutableList().apply {
-                for (i in 1 until size) {
-                    this[i] += this[i - 1]
+            ).toIntArray().let { sizes ->
+                val positions = IntArray(sizes.size)
+                with(horizontalArrangement) {
+                    arrange(gridWidth, sizes, LayoutDirection.Ltr, positions)
                 }
+                LazyGridSlots(sizes, positions)
             }
         }
     }
 }
 
 /** Returns prefix sums of row heights. */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun rememberRowHeightSums(
     rows: TvGridCells,
     verticalArrangement: Arrangement.Vertical,
     contentPadding: PaddingValues
-) = remember<Density.(Constraints) -> List<Int>>(
+) = remember<Density.(Constraints) -> LazyGridSlots>(
     rows,
     verticalArrangement,
     contentPadding,
 ) {
-    { constraints ->
+    GridSlotCache { constraints ->
         require(constraints.maxHeight != Constraints.Infinity) {
             "LazyHorizontalGrid's height should be bound by parent."
         }
@@ -187,10 +185,39 @@ private fun rememberRowHeightSums(
             calculateCrossAxisCellSizes(
                 gridHeight,
                 verticalArrangement.spacing.roundToPx()
-            ).toMutableList().apply {
-                for (i in 1 until size) {
-                    this[i] += this[i - 1]
+            ).toIntArray().let { sizes ->
+                val positions = IntArray(sizes.size)
+                with(verticalArrangement) {
+                    arrange(gridHeight, sizes, positions)
                 }
+                LazyGridSlots(sizes, positions)
+            }
+        }
+    }
+}
+
+/** measurement cache to avoid recalculating row/column sizes on each scroll. */
+private class GridSlotCache(
+    private val calculation: Density.(Constraints) -> LazyGridSlots
+) : (Density, Constraints) -> LazyGridSlots {
+    private var cachedConstraints = Constraints()
+    private var cachedDensity: Float = 0f
+    private var cachedSizes: LazyGridSlots? = null
+
+    override fun invoke(density: Density, constraints: Constraints): LazyGridSlots {
+        with(density) {
+            if (
+                cachedSizes != null &&
+                cachedConstraints == constraints &&
+                cachedDensity == this.density
+            ) {
+                return cachedSizes!!
+            }
+
+            cachedConstraints = constraints
+            cachedDensity = this.density
+            return calculation(constraints).also {
+                cachedSizes = it
             }
         }
     }
@@ -228,7 +255,7 @@ interface TvGridCells {
      */
     class Fixed(private val count: Int) : TvGridCells {
         init {
-            require(count > 0)
+            require(count > 0) { "grid with no rows/columns" }
         }
 
         override fun Density.calculateCrossAxisCellSizes(
@@ -258,7 +285,7 @@ interface TvGridCells {
      */
     class Adaptive(private val minSize: Dp) : TvGridCells {
         init {
-            require(minSize > 0.dp)
+            require(minSize > 0.dp) { "Grid requires a positive minSize" }
         }
 
         override fun Density.calculateCrossAxisCellSizes(
@@ -275,6 +302,44 @@ interface TvGridCells {
 
         override fun equals(other: Any?): Boolean {
             return other is Adaptive && minSize == other.minSize
+        }
+    }
+
+    /**
+     * Defines a grid with as many rows or columns as possible on the condition that
+     * every cell takes exactly [size] space. The remaining space will be arranged through
+     * [TvLazyVerticalGrid] arrangements on corresponding axis. If [size] is larger than
+     * container size, the cell will be size to match the container.
+     *
+     * For example, for the vertical [TvLazyVerticalGrid] FixedSize(20.dp) would mean that
+     * there will be as many columns as possible and every column will be exactly 20.dp.
+     * If the screen is 88.dp wide tne there will be 4 columns 20.dp each with remaining 8.dp
+     * distributed through [Arrangement.Horizontal].
+     */
+    class FixedSize(private val size: Dp) : TvGridCells {
+        init {
+            require(size > 0.dp) { "Provided size $size should be larger than zero." }
+        }
+
+        override fun Density.calculateCrossAxisCellSizes(
+            availableSize: Int,
+            spacing: Int
+        ): List<Int> {
+            val cellSize = size.roundToPx()
+            return if (cellSize + spacing < availableSize + spacing) {
+                val cellCount = (availableSize + spacing) / (cellSize + spacing)
+                List(cellCount) { cellSize }
+            } else {
+                List(1) { availableSize }
+            }
+        }
+
+        override fun hashCode(): Int {
+            return size.hashCode()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            return other is FixedSize && size == other.size
         }
     }
 }
