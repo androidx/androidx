@@ -203,6 +203,11 @@ internal class MetalRedrawer(
     private var lastRenderTimestamp: NSTimeInterval = CACurrentMediaTime()
     private val pictureRecorder = PictureRecorder()
 
+    /**
+     * Lock used to avoid skia context being disposed in the middle of rendering encoding on a separate thread.
+     */
+    private val disposeLock = NSLock()
+
     // Semaphore for preventing command buffers count more than swapchain size to be scheduled/executed at the same time
     private val inflightSemaphore =
         dispatch_semaphore_create(metalLayer.maximumDrawableCount.toLong())
@@ -284,7 +289,7 @@ internal class MetalRedrawer(
         caDisplayLink.addToRunLoop(NSRunLoop.mainRunLoop, NSRunLoop.mainRunLoop.currentMode)
     }
 
-    fun dispose() {
+    fun dispose() = disposeLock.doLocked {
         check(caDisplayLink != null) { "MetalRedrawer.dispose() was called more than once" }
 
         applicationStateListener.dispose()
@@ -432,7 +437,16 @@ internal class MetalRedrawer(
             } else {
                 dispatch_async(renderingDispatchQueue) {
                     autoreleasepool {
-                        encodeAndPresentBlock()
+                        disposeLock.doLocked {
+                            if (caDisplayLink == null) {
+                                // Was disposed before render encoding started
+                                picture.close()
+                                surface.close()
+                                renderTarget.close()
+                            } else {
+                                encodeAndPresentBlock()
+                            }
+                        }
                     }
                 }
             }
