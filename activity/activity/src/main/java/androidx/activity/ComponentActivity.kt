@@ -65,6 +65,7 @@ import androidx.core.app.MultiWindowModeChangedInfo
 import androidx.core.app.OnMultiWindowModeChangedProvider
 import androidx.core.app.OnNewIntentProvider
 import androidx.core.app.OnPictureInPictureModeChangedProvider
+import androidx.core.app.OnUserLeaveHintProvider
 import androidx.core.app.PictureInPictureModeChangedInfo
 import androidx.core.content.ContextCompat
 import androidx.core.content.OnConfigurationChangedProvider
@@ -122,6 +123,7 @@ open class ComponentActivity() : androidx.core.app.ComponentActivity(),
     OnNewIntentProvider,
     OnMultiWindowModeChangedProvider,
     OnPictureInPictureModeChangedProvider,
+    OnUserLeaveHintProvider,
     MenuHost,
     FullyDrawnReporterOwner {
     internal class NonConfigurationInstances {
@@ -236,6 +238,7 @@ open class ComponentActivity() : androidx.core.app.ComponentActivity(),
         CopyOnWriteArrayList<Consumer<MultiWindowModeChangedInfo>>()
     private val onPictureInPictureModeChangedListeners =
         CopyOnWriteArrayList<Consumer<PictureInPictureModeChangedInfo>>()
+    private val onUserLeaveHintListeners = CopyOnWriteArrayList<Runnable>()
     private var dispatchingOnMultiWindowModeChanged = false
     private var dispatchingOnPictureInPictureModeChanged = false
 
@@ -1011,6 +1014,27 @@ open class ComponentActivity() : androidx.core.app.ComponentActivity(),
         listener: Consumer<PictureInPictureModeChangedInfo>
     ) {
         onPictureInPictureModeChangedListeners.remove(listener)
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Dispatches this call to all listeners added via [addOnUserLeaveHintListener].
+     */
+    @CallSuper
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+        for (listener in onUserLeaveHintListeners) {
+            listener.run()
+        }
+    }
+
+    final override fun addOnUserLeaveHintListener(listener: Runnable) {
+        onUserLeaveHintListeners.add(listener)
+    }
+
+    final override fun removeOnUserLeaveHintListener(listener: Runnable) {
+        onUserLeaveHintListeners.remove(listener)
     }
 
     override fun reportFullyDrawn() {
