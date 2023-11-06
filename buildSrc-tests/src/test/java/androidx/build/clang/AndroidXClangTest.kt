@@ -16,6 +16,7 @@
 
 package androidx.build.clang
 
+import androidx.build.KonanPrebuiltsSetup
 import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
 import java.io.File
@@ -23,6 +24,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.plugins.ExtraPropertiesExtension
 import org.gradle.testfixtures.ProjectBuilder
+import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.konan.target.HostManager
 import org.jetbrains.kotlin.konan.target.KonanTarget
@@ -50,8 +52,9 @@ class AndroidXClangTest {
             "prebuiltsRoot", File(projectSetup.props.rootProjectPath).resolve("../../prebuilts")
         )
         // register components required by NativeCompilerDownloader
-        project.pluginManager.apply(KotlinPluginWrapper::class.java)
+        project.pluginManager.apply(KotlinMultiplatformPluginWrapper::class.java)
         clangExtension = AndroidXClang(project)
+        KonanPrebuiltsSetup.configureKonanDirectory(project)
     }
 
     @Test
