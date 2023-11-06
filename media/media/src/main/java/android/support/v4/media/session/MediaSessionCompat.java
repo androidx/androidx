@@ -72,7 +72,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
-import androidx.core.app.BundleCompat;
 import androidx.media.MediaSessionManager;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 import androidx.media.VolumeProviderCompat;
@@ -1535,7 +1534,7 @@ public class MediaSessionCompat {
                         Bundle result = new Bundle();
                         Token token = sessionImpl.getSessionToken();
                         IMediaSession extraBinder = token.getExtraBinder();
-                        BundleCompat.putBinder(result, KEY_EXTRA_BINDER,
+                        result.putBinder(KEY_EXTRA_BINDER,
                                 extraBinder == null ? null : extraBinder.asBinder());
                         ParcelUtils.putVersionedParcelable(result,
                                 KEY_SESSION2_TOKEN, token.getSession2Token());
@@ -2077,7 +2076,7 @@ public class MediaSessionCompat {
             bundle.putParcelable(KEY_TOKEN, this);
             synchronized (mLock) {
                 if (mExtraBinder != null) {
-                    BundleCompat.putBinder(bundle, KEY_EXTRA_BINDER, mExtraBinder.asBinder());
+                    bundle.putBinder(KEY_EXTRA_BINDER, mExtraBinder.asBinder());
                 }
                 if (mSession2Token != null) {
                     ParcelUtils.putVersionedParcelable(bundle, KEY_SESSION2_TOKEN, mSession2Token);
@@ -2100,7 +2099,7 @@ public class MediaSessionCompat {
             }
             tokenBundle.setClassLoader(Token.class.getClassLoader());
             IMediaSession extraSession = IMediaSession.Stub.asInterface(
-                    BundleCompat.getBinder(tokenBundle, KEY_EXTRA_BINDER));
+                    tokenBundle.getBinder(KEY_EXTRA_BINDER));
             VersionedParcelable session2Token = ParcelUtils.getVersionedParcelable(tokenBundle,
                     KEY_SESSION2_TOKEN);
             Token token = tokenBundle.getParcelable(KEY_TOKEN);

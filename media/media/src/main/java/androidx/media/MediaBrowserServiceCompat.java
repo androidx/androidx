@@ -86,7 +86,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.collection.ArrayMap;
-import androidx.core.app.BundleCompat;
 import androidx.core.util.Pair;
 import androidx.media.MediaSessionManager.RemoteUserInfo;
 
@@ -328,7 +327,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 IMediaSession extraBinder = token.getExtraBinder();
                 if (extraBinder != null) {
                     for (Bundle rootExtras : mRootExtrasList) {
-                        BundleCompat.putBinder(rootExtras, EXTRA_SESSION_BINDER,
+                        rootExtras.putBinder(EXTRA_SESSION_BINDER,
                                 extraBinder.asBinder());
                     }
                 }
@@ -359,10 +358,10 @@ public abstract class MediaBrowserServiceCompat extends Service {
                 mMessenger = new Messenger(mHandler);
                 rootExtras = new Bundle();
                 rootExtras.putInt(EXTRA_SERVICE_VERSION, SERVICE_VERSION_CURRENT);
-                BundleCompat.putBinder(rootExtras, EXTRA_MESSENGER_BINDER, mMessenger.getBinder());
+                rootExtras.putBinder(EXTRA_MESSENGER_BINDER, mMessenger.getBinder());
                 if (mSession != null) {
                     IMediaSession extraBinder = mSession.getExtraBinder();
-                    BundleCompat.putBinder(rootExtras, EXTRA_SESSION_BINDER,
+                    rootExtras.putBinder(EXTRA_SESSION_BINDER,
                             extraBinder == null ? null : extraBinder.asBinder());
                 } else {
                     mRootExtrasList.add(rootExtras);
@@ -1604,7 +1603,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
 
                 mServiceBinderImpl.addSubscription(
                         data.getString(DATA_MEDIA_ITEM_ID),
-                        BundleCompat.getBinder(data, DATA_CALLBACK_TOKEN),
+                        data.getBinder(DATA_CALLBACK_TOKEN),
                         options,
                         new ServiceCallbacksCompat(msg.replyTo));
                 break;
@@ -1612,7 +1611,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
             case CLIENT_MSG_REMOVE_SUBSCRIPTION:
                 mServiceBinderImpl.removeSubscription(
                         data.getString(DATA_MEDIA_ITEM_ID),
-                        BundleCompat.getBinder(data, DATA_CALLBACK_TOKEN),
+                        data.getBinder(DATA_CALLBACK_TOKEN),
                         new ServiceCallbacksCompat(msg.replyTo));
                 break;
             case CLIENT_MSG_GET_MEDIA_ITEM:
