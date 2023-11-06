@@ -24,8 +24,8 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.impl.utils.futures.Futures;
 import androidx.camera.viewfinder.internal.utils.Logger;
-import androidx.camera.viewfinder.internal.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
