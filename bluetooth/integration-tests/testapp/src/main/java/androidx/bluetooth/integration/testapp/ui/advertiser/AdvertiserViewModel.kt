@@ -42,14 +42,16 @@ class AdvertiserViewModel @Inject constructor(
         private const val TAG = "AdvertiserViewModel"
     }
 
-    var includeDeviceAddress = false
-    var includeDeviceName = false
-    var connectable = false
-    var discoverable = false
-    var duration: Duration = Duration.ZERO
-    var manufacturerDatas = mutableListOf<Pair<Int, ByteArray>>()
-    var serviceDatas = mutableListOf<Pair<UUID, ByteArray>>()
-    var serviceUuids = mutableListOf<UUID>()
+    // TODO(b/309360030) Complete missing AdvertiseParams in testapp
+    internal var includeDeviceAddress: Boolean = false
+    internal var includeDeviceName: Boolean = true
+    internal var connectable: Boolean = true
+    internal var discoverable: Boolean = true
+    internal var duration: Duration = Duration.ZERO
+    internal var manufacturerDatas: MutableList<Pair<Int, ByteArray>> = mutableListOf()
+    internal var serviceDatas: MutableList<Pair<UUID, ByteArray>> = mutableListOf()
+    internal var serviceUuids: MutableList<UUID> = mutableListOf()
+    internal var serviceSolicitationUuids: MutableList<UUID> = mutableListOf()
 
     val advertiseData: List<String>
         get() = listOf(
@@ -61,6 +63,9 @@ class AdvertiserViewModel @Inject constructor(
                     "UUID: ${it.first} Data: 0x${it.second.toString(Charsets.UTF_8)}" },
             serviceUuids
                 .map { "128-bit Service UUID:\n" +
+                    "$it" },
+            serviceSolicitationUuids
+                .map { "128-bit Service Solicitation UUID:\n" +
                     "$it" }
         ).flatten()
 
@@ -75,7 +80,8 @@ class AdvertiserViewModel @Inject constructor(
             duration,
             manufacturerDatas.toMap(),
             serviceDatas.toMap(),
-            serviceUuids
+            serviceUuids,
+            serviceSolicitationUuids
         )
 
     private val _uiState = MutableStateFlow(AdvertiserUiState())
@@ -84,13 +90,17 @@ class AdvertiserViewModel @Inject constructor(
     fun removeAdvertiseDataAtIndex(index: Int) {
         val manufacturerDataSize = manufacturerDatas.size
         val serviceDataSize = serviceDatas.size
+        val serviceUuidsSize = serviceUuids.size
 
         if (index < manufacturerDataSize) {
             manufacturerDatas.removeAt(index)
-        } else if (index < serviceDataSize + manufacturerDataSize) {
+        } else if (index < manufacturerDataSize + serviceDataSize) {
             serviceDatas.removeAt(index - manufacturerDataSize)
-        } else {
+        } else if (index < manufacturerDataSize + serviceDataSize + serviceUuidsSize) {
             serviceUuids.removeAt(index - manufacturerDataSize - serviceDataSize)
+        } else {
+            serviceSolicitationUuids
+                .removeAt(index - manufacturerDataSize - serviceDataSize - serviceUuidsSize)
         }
     }
 
