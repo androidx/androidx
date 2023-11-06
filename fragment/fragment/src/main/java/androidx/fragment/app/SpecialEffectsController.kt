@@ -20,7 +20,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.BackEventCompat
 import androidx.annotation.CallSuper
-import androidx.core.os.CancellationSignal
 import androidx.core.view.ViewCompat
 import androidx.fragment.R
 import androidx.fragment.app.SpecialEffectsController.Operation.State.Companion.asOperationState
@@ -739,7 +738,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         }
 
         /**
-         * Complete a [CancellationSignal].
+         * Complete a [androidx.core.os.CancellationSignal].
          *
          * This calls through to [Operation.complete] when the last special effect is
          * complete.

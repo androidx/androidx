@@ -38,6 +38,7 @@ import android.location.LocationRequest;
 import android.os.Build.VERSION;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
+import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -52,7 +53,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.collection.SimpleArrayMap;
-import androidx.core.os.CancellationSignal;
 import androidx.core.os.ExecutorCompat;
 import androidx.core.util.Consumer;
 import androidx.core.util.ObjectsCompat;
@@ -160,6 +160,39 @@ public final class LocationManagerCompat {
         }
 
         return false;
+    }
+
+    /**
+     * Asynchronously returns a single current location fix from the given provider. This may
+     * activate sensors in order to compute a new location. The given callback will be invoked once
+     * and only once, either with a valid location or with a null location if the provider was
+     * unable to generate a valid location.
+     *
+     * <p>A client may supply an optional {@link CancellationSignal}. If this is used to cancel the
+     * operation, no callback should be expected after the cancellation.
+     *
+     * <p>This method may return locations from the very recent past (on the order of several
+     * seconds), but will never return older locations (for example, several minutes old or older).
+     * Clients may rely upon the guarantee that if this method returns a location, it will represent
+     * the best estimation of the location of the device in the present moment.
+     *
+     * <p>Clients calling this method from the background may notice that the method fails to
+     * determine a valid location fix more often than while in the foreground. Background
+     * applications may be throttled in their location accesses to some degree.
+     *
+     * @deprecated Use
+     * {@link #getCurrentLocation(LocationManager, String, CancellationSignal, Executor, Consumer)}
+     */
+    @Deprecated
+    @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
+    public static void getCurrentLocation(@NonNull LocationManager locationManager,
+            @NonNull String provider,
+            @Nullable androidx.core.os.CancellationSignal cancellationSignal,
+            @NonNull Executor executor, @NonNull final Consumer<Location> consumer) {
+        getCurrentLocation(locationManager, provider, cancellationSignal != null
+                        ? (CancellationSignal) cancellationSignal.getCancellationSignalObject() :
+                        null,
+                executor, consumer);
     }
 
     /**
@@ -1198,10 +1231,7 @@ public final class LocationManagerCompat {
                 @Nullable CancellationSignal cancellationSignal,
                 @NonNull Executor executor, final @NonNull Consumer<Location> consumer) {
             locationManager.getCurrentLocation(provider,
-                    cancellationSignal != null
-                            ? (android.os.CancellationSignal)
-                            cancellationSignal.getCancellationSignalObject()
-                            : null,
+                    cancellationSignal,
                     executor,
                     consumer::accept);
         }

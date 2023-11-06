@@ -30,7 +30,6 @@ import androidx.activity.BackEventCompat
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.collection.ArrayMap
-import androidx.core.os.CancellationSignal
 import androidx.core.view.OneShotPreDrawListener
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewGroupCompat
@@ -706,7 +705,8 @@ internal class DefaultSpecialEffectsController(
         val lastInViews: ArrayMap<String, View>,
         val isPop: Boolean
     ) : Effect() {
-        val transitionSignal = CancellationSignal()
+        @Suppress("DEPRECATION")
+        val transitionSignal = androidx.core.os.CancellationSignal()
 
         var controller: Any? = null
 
