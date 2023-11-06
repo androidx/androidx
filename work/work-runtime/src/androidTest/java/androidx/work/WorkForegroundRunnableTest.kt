@@ -108,10 +108,10 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
         insertWork(work)
         val worker = getWorkerSpy(work)
         val foregroundInfo = getForegroundInfo()
-        doReturn(foregroundInfo).`when`(worker).foregroundInfo
+        doReturn(foregroundInfo).`when`(worker).getForegroundInfo()
         val runnable = getWorkForegroundRunnable(work, worker)
         runnable.run()
-        verify(worker).foregroundInfo
+        verify(worker).getForegroundInfo()
         verify(worker).foregroundInfoAsync
         verify(foregroundUpdater).setForegroundAsync(context, work.id, foregroundInfo)
         assertThat(runnable.future.isDone, `is`(equalTo(true)))
@@ -134,7 +134,7 @@ public class WorkForegroundRunnableTest : DatabaseTest() {
         val worker = getWorkerSpy(work)
 
         try {
-         worker.foregroundInfo // should throw expected exception here
+         worker.getForegroundInfo() // should throw expected exception here
         } catch (ise: IllegalStateException) {
             // Nothing to do here. Test succeeded.
             return

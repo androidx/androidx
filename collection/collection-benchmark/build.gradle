@@ -62,7 +62,7 @@ androidXMultiplatform {
             }
         }
 
-        androidTest {
+        androidInstrumentedTest {
             dependsOn(commonTest)
             dependencies {
                 implementation(projectOrArtifact(":benchmark:benchmark-junit4"))
@@ -116,11 +116,14 @@ darwinBenchmark {
     )
     xcodeProjectName = "collection-benchmark-ios"
     scheme = "testapp-ios"
-    // ios 13, 15.2
-    destination = "platform=iOS Simulator,name=iPhone 13,OS=15.2"
+    // ios 13, 17.0
+    destination = "platform=iOS Simulator,name=iPhone 13,OS=17.0"
     referenceSha.set(androidx.getReferenceSha())
 }
 
 android {
     namespace "androidx.collection.benchmark"
+    defaultConfig {
+        minSdkVersion 22 // b/294570164
+    }
 }

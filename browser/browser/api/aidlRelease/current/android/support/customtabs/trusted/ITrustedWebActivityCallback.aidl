@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.support.customtabs.trusted;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ITrustedWebActivityCallback {
   void onExtraCallback(String callbackName, in android.os.Bundle bundle) = 1;
 }

@@ -21,6 +21,7 @@ import android.hardware.camera2.CameraAccessException
 import android.hardware.camera2.CameraCaptureSession
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraExtensionCharacteristics
 import android.hardware.camera2.CameraExtensionSession
 import android.hardware.camera2.CameraManager
 import android.hardware.camera2.CaptureRequest
@@ -28,8 +29,11 @@ import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
 import android.hardware.camera2.params.ExtensionSessionConfiguration
 import android.hardware.camera2.params.InputConfiguration
+import android.hardware.camera2.params.MultiResolutionStreamInfo
 import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
+import android.media.ImageReader
+import android.media.ImageWriter
 import android.os.Build
 import android.os.Handler
 import android.util.Size
@@ -290,10 +294,62 @@ internal object Api28Compat {
     ) {
         cameraManager.registerAvailabilityCallback(executor, callback)
     }
+
+    @JvmStatic
+    @DoNotInline
+    fun discardFreeBuffers(imageReader: ImageReader) {
+        imageReader.discardFreeBuffers()
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+internal object Api29Compat {
+    @JvmStatic
+    @DoNotInline
+    fun imageReaderNewInstance(
+        width: Int,
+        height: Int,
+        format: Int,
+        capacity: Int,
+        usage: Long
+    ): ImageReader {
+        return ImageReader.newInstance(width, height, format, capacity, usage)
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun imageWriterNewInstance(
+        surface: Surface,
+        maxImages: Int,
+        format: Int
+    ): ImageWriter {
+        return ImageWriter.newInstance(surface, maxImages, format)
+    }
+}
+
+@RequiresApi(Build.VERSION_CODES.R)
+internal object Api30Compat {
+    @JvmStatic
+    @DoNotInline
+    fun getConcurrentCameraIds(cameraManager: CameraManager): Set<Set<String>> {
+        return cameraManager.concurrentCameraIds
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.S)
 internal object Api31Compat {
+    @JvmStatic
+    @DoNotInline
+    fun newInputConfiguration(
+        inputConfigData: List<InputConfigData>,
+        cameraId: String
+    ): InputConfiguration {
+        val multiResolutionInput = inputConfigData.map { input ->
+            MultiResolutionStreamInfo(input.width, input.height, cameraId)
+        }
+        return InputConfiguration(multiResolutionInput, inputConfigData.first().format)
+    }
+
     @JvmStatic
     @DoNotInline
     fun createExtensionCaptureSession(
@@ -305,6 +361,13 @@ internal object Api31Compat {
 
     @JvmStatic
     @DoNotInline
+    fun getCameraExtensionCharacteristics(
+        cameraManager: CameraManager,
+        cameraId: String
+    ): CameraExtensionCharacteristics = cameraManager.getCameraExtensionCharacteristics(cameraId)
+
+    @JvmStatic
+    @DoNotInline
     fun newExtensionSessionConfiguration(
         extensionMode: Int,
         outputs: List<OutputConfiguration?>,
@@ -313,6 +376,29 @@ internal object Api31Compat {
     ): ExtensionSessionConfiguration {
         return ExtensionSessionConfiguration(extensionMode, outputs, executor, stateCallback)
     }
+
+    @JvmStatic
+    @DoNotInline
+    fun getSupportedExtensions(
+        extensionCharacteristics: CameraExtensionCharacteristics
+    ): List<Int> = extensionCharacteristics.supportedExtensions
+
+    @JvmStatic
+    @DoNotInline
+    fun getExtensionSupportedSizes(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+        imageFormat: Int
+    ): List<Size> = extensionCharacteristics.getExtensionSupportedSizes(extension, imageFormat)
+
+    @JvmStatic
+    @DoNotInline
+    fun getExtensionSupportedSizes(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+        klass: Class<*>
+    ): List<Size> =
+        extensionCharacteristics.getExtensionSupportedSizes(extension, klass)
 }
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -370,4 +456,30 @@ internal object Api33Compat {
     fun getTimestampBase(outputConfig: OutputConfiguration): Int {
         return outputConfig.timestampBase
     }
+
+    @JvmStatic
+    @DoNotInline
+    fun getAvailableCaptureRequestKeys(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int
+    ): Set<CaptureRequest.Key<Any>> =
+        extensionCharacteristics.getAvailableCaptureRequestKeys(extension)
+
+    @JvmStatic
+    @DoNotInline
+    fun getAvailableCaptureResultKeys(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int
+    ): Set<CaptureResult.Key<Any>> =
+        extensionCharacteristics.getAvailableCaptureResultKeys(extension)
+}
+
+@RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+internal object Api34Compat {
+    @JvmStatic
+    @DoNotInline
+    fun isPostviewAvailable(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int
+    ): Boolean = extensionCharacteristics.isPostviewAvailable(extension)
 }

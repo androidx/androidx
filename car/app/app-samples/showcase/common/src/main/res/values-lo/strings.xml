@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"ແຖບລາຍຊື່"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"ແຖບຕາໜ່າງພ້ອມຊື່ແຖບຍາວ"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"ແຖບຊອກຫາ"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ກຳລັງໂຫຼດແຖບ"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ເດໂມແມ່ແບບແຖບການໂຫຼດ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ເດໂມແມ່ແບບແຖບທີ່ບໍ່ມີແຖບ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ບໍ່ສາມາດສະແດງຮູບສຳລັບໂຮສທີ່ບໍ່ຮູ້ຈັກໄດ້"</string>

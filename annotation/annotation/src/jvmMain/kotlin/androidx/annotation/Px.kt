@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to represent a pixel dimension.
+ * Denotes that an integer parameter, field or method return value is expected to represent a pixel
+ * dimension.
  */
 @MustBeDocumented
 @Retention(AnnotationRetention.BINARY)

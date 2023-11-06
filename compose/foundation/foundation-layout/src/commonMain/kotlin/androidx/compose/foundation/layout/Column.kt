@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.Measured
 import androidx.compose.ui.layout.VerticalAlignmentLine
 
@@ -82,11 +84,10 @@ inline fun Column(
 }
 
 @PublishedApi
-internal val DefaultColumnMeasurePolicy = rowColumnMeasurePolicy(
+internal val DefaultColumnMeasurePolicy: MeasurePolicy = RowColumnMeasurePolicy(
     orientation = LayoutOrientation.Vertical,
-    arrangement = { totalSize, size, _, density, outPosition ->
-        with(Arrangement.Top) { density.arrange(totalSize, size, outPosition) }
-    },
+    verticalArrangement = Arrangement.Top,
+    horizontalArrangement = null,
     arrangementSpacing = Arrangement.Top.spacing,
     crossAxisAlignment = CrossAxisAlignment.horizontal(Alignment.Start),
     crossAxisSize = SizeMode.Wrap
@@ -97,15 +98,15 @@ internal val DefaultColumnMeasurePolicy = rowColumnMeasurePolicy(
 internal fun columnMeasurePolicy(
     verticalArrangement: Arrangement.Vertical,
     horizontalAlignment: Alignment.Horizontal
-) = if (verticalArrangement == Arrangement.Top && horizontalAlignment == Alignment.Start) {
+): MeasurePolicy =
+    if (verticalArrangement == Arrangement.Top && horizontalAlignment == Alignment.Start) {
         DefaultColumnMeasurePolicy
     } else {
         remember(verticalArrangement, horizontalAlignment) {
-            rowColumnMeasurePolicy(
+            RowColumnMeasurePolicy(
                 orientation = LayoutOrientation.Vertical,
-                arrangement = { totalSize, size, _, density, outPosition ->
-                    with(verticalArrangement) { density.arrange(totalSize, size, outPosition) }
-                },
+                verticalArrangement = verticalArrangement,
+                horizontalArrangement = null,
                 arrangementSpacing = verticalArrangement.spacing,
                 crossAxisAlignment = CrossAxisAlignment.horizontal(horizontalAlignment),
                 crossAxisSize = SizeMode.Wrap
@@ -139,7 +140,7 @@ interface ColumnScope {
      */
     @Stable
     fun Modifier.weight(
-        /*@FloatRange(from = 0.0, fromInclusive = false)*/
+        @FloatRange(from = 0.0, fromInclusive = false)
         weight: Float,
         fill: Boolean = true
     ): Modifier
@@ -200,7 +201,8 @@ internal object ColumnScopeInstance : ColumnScope {
         require(weight > 0.0) { "invalid weight $weight; must be greater than zero" }
         return this.then(
             LayoutWeightElement(
-                weight = weight,
+                // Coerce Float.POSITIVE_INFINITY to Float.MAX_VALUE to avoid errors
+                weight = weight.coerceAtMost(Float.MAX_VALUE),
                 fill = fill
             )
         )

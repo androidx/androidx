@@ -31,8 +31,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.tv.foundation.lazy.list.TvLazyRow
+import androidx.tv.material3.ExperimentalTvMaterial3Api
 import androidx.tv.material3.Text
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AppLazyRow(
     title: String,
@@ -42,6 +44,8 @@ fun AppLazyRow(
 ) {
     val paddingLeft = 58.dp
     var hasFocus by remember { mutableStateOf(false) }
+
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
 
     Column(modifier = modifier.onFocusChanged { hasFocus = it.hasFocus }) {
         Text(
@@ -55,14 +59,15 @@ fun AppLazyRow(
 
         TvLazyRow(
             contentPadding = PaddingValues(horizontal = paddingLeft),
-            horizontalArrangement = Arrangement.spacedBy(20.dp)
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            modifier = focusRestorerModifiers.parentModifier,
         ) {
             items.forEachIndexed { index, movie ->
                 item {
                     drawItem(
-                        movie = movie,
-                        index = index,
-                        modifier = Modifier
+                        movie,
+                        index,
+                        Modifier.ifElse(index == 0, focusRestorerModifiers.childModifier)
                     )
                 }
             }

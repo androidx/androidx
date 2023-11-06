@@ -19,12 +19,16 @@ package androidx.benchmark.perfetto
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.benchmark.Arguments
 import androidx.benchmark.Shell
 import java.io.File
 import perfetto.protos.AndroidPowerConfig
 import perfetto.protos.DataSourceConfig
 import perfetto.protos.FtraceConfig
+import perfetto.protos.HeapprofdConfig
 import perfetto.protos.MeminfoCounters
+import perfetto.protos.PerfEventConfig
+import perfetto.protos.PerfEvents
 import perfetto.protos.ProcessStatsConfig
 import perfetto.protos.SysStatsConfig
 import perfetto.protos.TraceConfig
@@ -81,17 +85,24 @@ sealed class PerfettoConfig constructor(
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     class Benchmark(
-        private val appTagPackages: List<String>
+        private val appTagPackages: List<String>,
+        private val useStackSamplingConfig: Boolean,
     ) : PerfettoConfig(isTextProto = false) {
         @RequiresApi(23)
         override fun writeTo(file: File) {
+            val stackSamplingConfig = if (useStackSamplingConfig) {
+                Arguments.profiler?.config(appTagPackages)
+            } else {
+                null
+            }
             file.writeBytes(
                 perfettoConfig(
                     atraceApps = if (Build.VERSION.SDK_INT <= 28 || appTagPackages.isEmpty()) {
                         appTagPackages
                     } else {
                         listOf("*")
-                    }
+                    },
+                    stackSamplingConfig = stackSamplingConfig
                 ).validateAndEncode()
             )
         }
@@ -120,6 +131,10 @@ private fun ftraceDataSource(
                 "kmem/ion_heap_grow",
                 "ion/ion_stat",
                 "oom/oom_score_adj_update",
+
+                // Disk I/O
+                "disk",
+                "ufs/ufshcd_clk_gating",
 
                 // Old (kernel) LMK
                 "lowmemorykiller/lowmemory_kill",
@@ -157,19 +172,22 @@ private fun ftraceDataSource(
     )
 )
 
-private val PROCESS_STATS_DATASOURCE = TraceConfig.DataSource(
-    config = DataSourceConfig(
-        name = "linux.process_stats",
-        target_buffer = 1,
-        process_stats_config = ProcessStatsConfig(
-            proc_stats_poll_ms = 10000,
-            // This flag appears to be unreliable on API 29 unbundled perfetto, so to avoid very
-            // frequent proc stats polling to name processes correctly, we currently use unbundled
-            // perfetto on API 29, even though the bundled version exists. (b/218668335)
-            scan_all_processes_on_start = true
+private fun processStatsDataSource(stackSamplingConfig: StackSamplingConfig?):
+    TraceConfig.DataSource {
+    return TraceConfig.DataSource(
+        config = DataSourceConfig(
+            name = "linux.process_stats",
+            target_buffer = 1,
+            process_stats_config = ProcessStatsConfig(
+                proc_stats_poll_ms = stackSamplingConfig?.frequency?.toInt() ?: 10000,
+                // This flag appears to be unreliable on API 29 unbundled perfetto, so to avoid very
+                // frequent proc stats polling to name processes correctly, we currently use unbundled
+                // perfetto on API 29, even though the bundled version exists. (b/218668335)
+                scan_all_processes_on_start = true
+            )
         )
     )
-)
+}
 
 private val PACKAGE_LIST_DATASOURCE = TraceConfig.DataSource(
     config = DataSourceConfig(
@@ -226,44 +244,120 @@ private val ANDROID_POWER_DATASOURCE = TraceConfig.DataSource(
 )
 
 /**
+ * A Perfetto data source to enable stack sampling.
+ */
+private fun stackSamplingSource(
+    config: StackSamplingConfig,
+): List<TraceConfig.DataSource> {
+    val sources = mutableListOf<TraceConfig.DataSource>()
+    sources += TraceConfig.DataSource(
+        config = DataSourceConfig(
+            name = "linux.perf",
+            target_buffer = 1,
+            perf_event_config = PerfEventConfig(
+                timebase = PerfEvents.Timebase(
+                    counter = PerfEvents.Counter.SW_CPU_CLOCK,
+                    frequency = config.frequency,
+                    timestamp_clock = PerfEvents.PerfClock.PERF_CLOCK_MONOTONIC
+                ),
+                callstack_sampling = PerfEventConfig.CallstackSampling(
+                    scope = PerfEventConfig.Scope(
+                        target_cmdline = config.packageNames
+                    )
+                ),
+                kernel_frames = false
+            )
+        )
+    )
+    sources += TraceConfig.DataSource(
+        config = DataSourceConfig(
+            name = "linux.perf",
+            target_buffer = 1,
+            perf_event_config = PerfEventConfig(
+                timebase = PerfEvents.Timebase(
+                    tracepoint = PerfEvents.Tracepoint(
+                        name = "sched_switch"
+                    ),
+                    period = 1
+                ),
+                callstack_sampling = PerfEventConfig.CallstackSampling(
+                    scope = PerfEventConfig.Scope(
+                        target_cmdline = config.packageNames
+                    )
+                ),
+                kernel_frames = false
+            )
+        )
+    )
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        // https://perfetto.dev/docs/reference/trace-config-proto#HeapprofdConfig
+        sources += TraceConfig.DataSource(
+            config = DataSourceConfig(
+                name = "android.heapprofd",
+                heapprofd_config = HeapprofdConfig(
+                    shmem_size_bytes = 8388608,
+                    sampling_interval_bytes = 2048,
+                    block_client = true,
+                    process_cmdline = config.packageNames,
+                    heaps = listOf(
+                        "com.android.art" // Java Heaps
+                    ),
+                    continuous_dump_config = HeapprofdConfig.ContinuousDumpConfig(
+                        dump_phase_ms = 0,
+                        dump_interval_ms = 500 // ms
+                    )
+                )
+            )
+        )
+    }
+    return sources
+}
+
+/**
  * Config for perfetto.
  *
  * Eventually, this should be more configurable.
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 internal fun perfettoConfig(
-    atraceApps: List<String>
-) = TraceConfig(
-    buffers = listOf(
-        BufferConfig(size_kb = 32768, FillPolicy.RING_BUFFER),
-        BufferConfig(size_kb = 4096, FillPolicy.RING_BUFFER)
-    ),
-    data_sources = listOf(
+    atraceApps: List<String>,
+    stackSamplingConfig: StackSamplingConfig?
+): TraceConfig {
+    val dataSources = mutableListOf(
         ftraceDataSource(atraceApps),
-        PROCESS_STATS_DATASOURCE,
+        processStatsDataSource(stackSamplingConfig),
         PACKAGE_LIST_DATASOURCE,
         LINUX_SYS_STATS_DATASOURCE,
         ANDROID_POWER_DATASOURCE,
+        TraceConfig.DataSource(DataSourceConfig("android.gpu.memory")),
         TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frame")),
         TraceConfig.DataSource(DataSourceConfig("android.surfaceflinger.frametimeline")),
         TraceConfig.DataSource(DataSourceConfig("track_event")) // required by tracing-perfetto
-    ),
-    // periodically dump to file, so we don't overrun our ring buffer
-    // buffers are expected to be big enough for 5 seconds, so conservatively set 2.5 dump
-    write_into_file = true,
-    file_write_period_ms = 2500,
+    )
+    if (stackSamplingConfig != null) {
+        dataSources += stackSamplingSource(
+            config = stackSamplingConfig
+        )
+    }
+    return TraceConfig(
+        buffers = listOf(
+            BufferConfig(size_kb = 32768, FillPolicy.RING_BUFFER),
+            BufferConfig(size_kb = 4096, FillPolicy.RING_BUFFER)
+        ),
+        data_sources = dataSources,
+        // periodically dump to file, so we don't overrun our ring buffer
+        // buffers are expected to be big enough for 5 seconds, so conservatively set 2.5 dump
+        write_into_file = true,
+        file_write_period_ms = 2500,
 
-    // multiple of file_write_period_ms, enables trace processor to work in batches
-    flush_period_ms = 5000
-)
+        // multiple of file_write_period_ms, enables trace processor to work in batches
+        flush_period_ms = 5000
+    )
+}
 
 @RequiresApi(21) // needed for shell access
 internal fun TraceConfig.validateAndEncode(): ByteArray {
-    val ftraceConfig = data_sources
-        .mapNotNull { it.config?.ftrace_config }
-        .first()
+    val ftraceConfig = data_sources.firstNotNullOf { it.config?.ftrace_config }
 
     // check tags against known-supported tags based on SDK_INT / root status
     val supportedTags = AtraceTag.supported(

@@ -57,9 +57,7 @@ fun NestedScrollConnectionSample() {
     val toolbarHeight = 48.dp
     val toolbarHeightPx = with(LocalDensity.current) { toolbarHeight.roundToPx().toFloat() }
     // our offset to collapse toolbar
-    val toolbarOffsetHeightPx =
-
-        remember { mutableStateOf(0f) }
+    val toolbarOffsetHeightPx = remember { mutableStateOf(0f) }
     // now, let's create connection to the nested scroll system and listen to the scroll
     // happening inside child LazyColumn
     val nestedScrollConnection = remember {

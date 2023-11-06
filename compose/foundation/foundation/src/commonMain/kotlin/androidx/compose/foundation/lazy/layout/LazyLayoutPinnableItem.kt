@@ -38,6 +38,10 @@ import androidx.compose.ui.layout.PinnableContainer
  * @param index index of the item inside the lazy layout
  * @param pinnedItemList container of currently pinned items
  * @param content inner content of this item
+ *
+ * Note: this function is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
  */
 @ExperimentalFoundationApi
 @Composable
@@ -60,6 +64,10 @@ fun LazyLayoutPinnableItem(
  * Read-only list of pinned items in a lazy layout.
  * The items are modified internally by the [PinnableContainer] consumers, for example if something
  * inside item content is focused.
+ *
+ * Note: this class is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
  */
 @ExperimentalFoundationApi
 class LazyLayoutPinnedItemList private constructor(
@@ -78,6 +86,10 @@ class LazyLayoutPinnedItemList private constructor(
     /**
      * Item pinned in a lazy layout. Pinned item should be always measured and laid out,
      * even if the item is beyond the boundaries of the layout.
+     *
+     * Note: this interface is a part of [LazyLayout] harness that allows for building custom lazy
+     * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+     * change.
      */
     @ExperimentalFoundationApi
     sealed interface PinnedItem {

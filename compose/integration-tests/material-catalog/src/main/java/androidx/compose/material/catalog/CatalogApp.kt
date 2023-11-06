@@ -20,8 +20,8 @@ import androidx.compose.material.catalog.ui.theme.CatalogTheme
 import androidx.compose.runtime.Composable
 
 @Composable
-fun CatalogApp() {
+fun CatalogApp(initialFavoriteRoute: String?) {
     CatalogTheme {
-        NavGraph()
+        NavGraph(initialFavoriteRoute = initialFavoriteRoute)
     }
 }

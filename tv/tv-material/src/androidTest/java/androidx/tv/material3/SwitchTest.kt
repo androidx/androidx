@@ -221,17 +221,17 @@ class SwitchTest {
         }
 
         rule.onNodeWithTag("spacer", useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp)
+            .assertLeftPositionInRootIsEqualTo(4.dp)
 
         rule.runOnIdle { checked = true }
 
         rule.onNodeWithTag("spacer", useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(28.dp)
+            .assertLeftPositionInRootIsEqualTo(20.dp)
 
         rule.runOnIdle { checked = false }
 
         rule.onNodeWithTag("spacer", useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp)
+            .assertLeftPositionInRootIsEqualTo(4.dp)
     }
 
     @Test
@@ -258,7 +258,7 @@ class SwitchTest {
             }
 
         rule.onNodeWithTag("spacer", useUnmergedTree = true)
-            .assertLeftPositionInRootIsEqualTo(8.dp)
+            .assertLeftPositionInRootIsEqualTo(4.dp)
     }
 
     // regression test for b/191375128

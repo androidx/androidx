@@ -24,7 +24,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.core:core:1.1.0")
-    api("androidx.recyclerview:recyclerview:1.2.1")
+    api("androidx.recyclerview:recyclerview:1.3.2")
     implementation("androidx.collection:collection:1.0.0")
 
     constraints {
@@ -45,9 +45,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 17
-    }
     namespace "androidx.leanback.widget"
 }
 
@@ -57,4 +54,5 @@ androidx {
     mavenVersion = LibraryVersions.LEANBACK_GRID
     inceptionYear = "2021"
     description = "This library adds grid view components to be used in TV"
+    metalavaK2UastEnabled = true
 }

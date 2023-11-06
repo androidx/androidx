@@ -150,8 +150,6 @@ internal fun appWidgetProviderInfo(
 internal fun TextUnit.toPixels(displayMetrics: DisplayMetrics) =
     TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, displayMetrics).toInt()
 
-internal inline fun <reified T> Collection<T>.toArrayList() = ArrayList<T>(this)
-
 inline fun <reified T : View> View.findView(noinline pred: (T) -> Boolean) =
     findView(pred, T::class.java)
 
@@ -176,7 +174,9 @@ fun <T : View> View.findView(predicate: (T) -> Boolean, klass: Class<T>): T? {
 internal class TestWidget(
     override val sizeMode: SizeMode = SizeMode.Single,
     val ui: @Composable () -> Unit,
-) : GlanceAppWidget() {
+) : GlanceAppWidget(errorUiLayout = 0) {
+    override var errorUiLayout: Int = 0
+
     val provideGlanceCalled = AtomicBoolean(false)
     override suspend fun provideGlance(
         context: Context,
@@ -184,6 +184,16 @@ internal class TestWidget(
     ) {
         provideGlanceCalled.set(true)
         provideContent(ui)
+    }
+
+    inline fun withErrorLayout(layout: Int, block: () -> Unit) {
+        val previousErrorLayout = errorUiLayout
+        errorUiLayout = layout
+        try {
+            block()
+        } finally {
+            errorUiLayout = previousErrorLayout
+        }
     }
 }
 

@@ -16,11 +16,14 @@
 
 package androidx.core.app;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 
@@ -227,5 +230,73 @@ public class PersonTest {
     public void resolveToLegacyUri() {
         Person person = new Person.Builder().setUri(TEST_URI).build();
         assertEquals(TEST_URI, person.resolveToLegacyUri());
+    }
+
+    @Test
+    public void equalsAndHashCode_minimalPersons_areEqual() {
+        Person person1 = createMinimalPerson();
+        Person person2 = createMinimalPerson();
+
+        assertThat(person1.equals(person2)).isTrue();
+        assertThat(person1.hashCode()).isEqualTo(person2.hashCode());
+    }
+
+    @Test
+    public void equalsAndHashCode_differentName_areNotEqual() {
+        Person person1 = createMinimalPersonBuilder().setName("Person1").build();
+        Person person2 = createMinimalPersonBuilder().setName("Person2").build();
+
+        assertThat(person1.equals(person2)).isFalse();
+        assertThat(person1.hashCode()).isNotEqualTo(person2.hashCode());
+    }
+
+    @Test
+    public void equalsAndHashCode_differentKey_areNotEqual() {
+        Person person1 = createMinimalPersonBuilder().setKey("Person1").build();
+        Person person2 = createMinimalPersonBuilder().setKey("Person2").build();
+
+        assertThat(person1.equals(person2)).isFalse();
+        assertThat(person1.hashCode()).isNotEqualTo(person2.hashCode());
+    }
+
+    @Test
+    public void equalsAndHashCode_differentUri_areNotEqual() {
+        Uri uri1 =
+                Uri.parse("http://foo.com/test/sender/uri1");
+        Uri uri2 =
+                Uri.parse("http://foo.com/test/sender/uri2");
+        Person person1 = createMinimalPersonBuilder().setUri(
+                uri1.toString()).build();
+        Person person2 = createMinimalPersonBuilder().setName(
+                uri2.toString()).build();
+
+        assertThat(person1.equals(person2)).isFalse();
+        assertThat(person1.hashCode()).isNotEqualTo(person2.hashCode());
+    }
+
+    @Test
+    public void equalsAndHashCode_differentBot_areNotEqual() {
+        Person person1 = createMinimalPersonBuilder().setBot(true).build();
+        Person person2 = createMinimalPersonBuilder().setBot(false).build();
+
+        assertThat(person1.equals(person2)).isFalse();
+        assertThat(person1.hashCode()).isNotEqualTo(person2.hashCode());
+    }
+
+    @Test
+    public void equalsAndHashCode_differentImportant_areNotEqual() {
+        Person person1 = createMinimalPersonBuilder().setImportant(true).build();
+        Person person2 = createMinimalPersonBuilder().setImportant(false).build();
+
+        assertThat(person1.equals(person2)).isFalse();
+        assertThat(person1.hashCode()).isNotEqualTo(person2.hashCode());
+    }
+
+    private Person.Builder createMinimalPersonBuilder() {
+        return new Person.Builder();
+    }
+
+    private Person createMinimalPerson() {
+        return createMinimalPersonBuilder().build();
     }
 }

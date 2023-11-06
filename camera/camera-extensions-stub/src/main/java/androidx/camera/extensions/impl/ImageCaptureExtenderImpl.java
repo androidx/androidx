@@ -90,16 +90,13 @@ public interface ImageCaptureExtenderImpl extends ExtenderStateListener {
     List<Pair<Integer, Size[]>> getSupportedResolutions();
 
     /**
-     * Returns the customized supported postview resolutions for a still capture using
-     * its size.
+     * Returns supported output format/size map for postview image. OEM is required to support
+     * both JPEG and YUV_420_888 format output.
      *
      * <p>Pair list composed with {@link ImageFormat} and {@link Size} array will be returned.
+     * The sizes must be smaller than or equal to the provided capture size and have the same
+     * aspect ratio as the given capture size.
      *
-     * <p>The returned resolutions should be subset of the supported sizes retrieved from
-     * {@link android.hardware.camera2.params.StreamConfigurationMap} for the camera device.
-     *
-     * @return the customized supported resolutions, or null to support all sizes retrieved from
-     *         {@link android.hardware.camera2.params.StreamConfigurationMap}.
      * @since 1.4
      */
     @Nullable

@@ -341,18 +341,6 @@ public class UiObjectTest extends BaseTest {
     }
 
     @Test
-    public void testLegacySetText() throws Exception {
-        launchTestActivity(ClearTextTestActivity.class);
-
-        UiObject editText = mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id"
-                + "/edit_text"));
-
-        assertEquals("sample_text", editText.getText());
-        editText.legacySetText("new_text");
-        assertEquals("new_text", editText.getText());
-    }
-
-    @Test
     public void testSetText() throws Exception {
         launchTestActivity(ClearTextTestActivity.class);
 
@@ -385,7 +373,6 @@ public class UiObjectTest extends BaseTest {
         assertUiObjectNotFound(noNode::getText);
         assertUiObjectNotFound(noNode::getClassName);
         assertUiObjectNotFound(noNode::getContentDescription);
-        assertUiObjectNotFound(() -> noNode.legacySetText("new_text"));
         assertUiObjectNotFound(() -> noNode.setText("new_text"));
         assertUiObjectNotFound(noNode::clearTextField);
         assertUiObjectNotFound(noNode::getPackageName);

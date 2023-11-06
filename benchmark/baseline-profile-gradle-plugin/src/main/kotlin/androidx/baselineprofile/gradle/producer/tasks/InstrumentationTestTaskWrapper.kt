@@ -59,4 +59,8 @@ internal class InstrumentationTestTaskWrapper(private val testTask: TaskProvider
             }
         }
     }
+
+    fun setTaskEnabled(enabled: Boolean) {
+        testTask.configure { t -> t.enabled = enabled }
+    }
 }

@@ -174,6 +174,7 @@ public class GridTemplateTest {
                         .setSingleList(TestUtils.getGridItemList(2))
                         .addAction(customAction)
                         .addAction(customAction)
+                        .addAction(customAction)
                         .build());
     }
 

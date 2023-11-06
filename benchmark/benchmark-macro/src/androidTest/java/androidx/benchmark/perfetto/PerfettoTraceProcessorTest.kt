@@ -21,7 +21,8 @@ import androidx.benchmark.Shell
 import androidx.benchmark.macro.createTempFileFromAsset
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.LargeTest
+import androidx.test.filters.MediumTest
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import java.net.ConnectException
@@ -37,7 +38,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class PerfettoTraceProcessorTest {
     @Test
@@ -93,37 +94,65 @@ class PerfettoTraceProcessorTest {
         }
     }
 
+    enum class QuerySlicesMode(val target: String?) {
+        ValidPackage("androidx.benchmark.integration.macrobenchmark.target"),
+        Unspecified(null),
+        InvalidPackage("not.a.real.package")
+    }
+
     @Test
-    fun querySlices() {
+    fun querySlices_validPackage() = validateQuerySlices(QuerySlicesMode.ValidPackage)
+
+    @Test
+    fun querySlices_invalidPackage() = validateQuerySlices(QuerySlicesMode.InvalidPackage)
+
+    @Test
+    fun querySlices_unspecified() = validateQuerySlices(QuerySlicesMode.Unspecified)
+
+    private fun validateQuerySlices(mode: QuerySlicesMode) {
         // check known slice content is queryable
         assumeTrue(isAbiSupported())
         val traceFile = createTempFileFromAsset("api31_startup_cold", ".perfetto-trace")
         PerfettoTraceProcessor.runSingleSessionServer(traceFile.absolutePath) {
             assertEquals(
-                expected = listOf(
-                    Slice(
-                        name = "activityStart",
-                        ts = 186975009436431,
-                        dur = 29580628
+                expected = when (mode) {
+                    QuerySlicesMode.InvalidPackage -> emptyList()
+                    else -> listOf(
+                        Slice(
+                            name = "activityStart",
+                            ts = 186975009436431,
+                            dur = 29580628
+                        )
                     )
-                ),
-                actual = querySlices("activityStart")
+                },
+                actual = querySlices("activityStart", packageName = mode.target)
             )
             assertEquals(
-                expected = listOf(
-                    Slice(
-                        name = "activityStart",
-                        ts = 186975009436431,
-                        dur = 29580628
-                    ),
-                    Slice(
-                        name = "activityResume",
-                        ts = 186975039764298,
-                        dur = 6570418
+                expected = when (mode) {
+                    QuerySlicesMode.InvalidPackage -> emptyList()
+                    else -> listOf(
+                        Slice(
+                            name = "activityStart",
+                            ts = 186975009436431,
+                            dur = 29580628
+                        ),
+                        Slice(
+                            name = "activityResume",
+                            ts = 186975039764298,
+                            dur = 6570418
+                        )
                     )
-                ),
-                actual = querySlices("activityStart", "activityResume")
+                },
+                actual = querySlices("activityStart", "activityResume", packageName = mode.target)
                     .sortedBy { it.ts }
+            )
+            assertEquals(
+                expected = when (mode) {
+                    QuerySlicesMode.ValidPackage -> 7
+                    QuerySlicesMode.Unspecified -> 127
+                    QuerySlicesMode.InvalidPackage -> 0
+                },
+                actual = querySlices("Lock contention %", packageName = mode.target).size
             )
         }
     }
@@ -253,6 +282,7 @@ class PerfettoTraceProcessorTest {
         assertTrue(!isRunning())
     }
 
+    @LargeTest
     @Test
     fun parseLongTrace() {
         val traceFile = File

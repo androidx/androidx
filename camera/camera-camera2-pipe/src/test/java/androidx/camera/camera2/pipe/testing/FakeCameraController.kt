@@ -17,11 +17,13 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraController
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraStatusMonitor
 import androidx.camera.camera2.pipe.StreamId
 
+@RequiresApi(21)
 internal class FakeCameraController : CameraController {
     var started = false
     var closed = false

@@ -25,11 +25,9 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.2.0")
 
-    implementation("androidx.annotation:annotation-experimental:1.3.0")
+    implementation("androidx.annotation:annotation-experimental:1.3.1")
+    implementation("androidx.collection:collection:1.2.0")
     implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
-
-    // Upgrade transitive kotlin-stdlib dependency from annotation-experimental.
-    implementation(libs.kotlinStdlib)
 
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
@@ -53,4 +51,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Create dynamic expressions (for late evaluation by a remote evaluator)."
+    metalavaK2UastEnabled = true
 }

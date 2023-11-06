@@ -4,7 +4,6 @@ import androidx.build.Publish
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("com.github.johnrengelman.shadow")
 }
 
 ext {
@@ -14,7 +13,8 @@ ext {
 BundleInsideHelper.forInsideAar(
     project,
     /* from = */ "com.google.flatbuffers",
-    /* to =   */ "androidx.text.emoji.flatbuffer"
+    /* to =   */ "androidx.text.emoji.flatbuffer",
+    /* dropResourcesWithSuffix = */ null
 )
 
 dependencies {
@@ -59,6 +59,7 @@ androidx {
     mavenVersion = LibraryVersions.EMOJI
     inceptionYear = "2017"
     description = "Core library to enable emoji compatibility in Kitkat and newer devices to avoid the empty emoji characters."
+    metalavaK2UastEnabled = true
 
     license {
         name = "SIL Open Font License, Version 1.1"

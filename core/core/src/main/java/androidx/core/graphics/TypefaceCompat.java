@@ -315,6 +315,7 @@ public class TypefaceCompat {
      * This method is thread safe.
      * </p>
      *
+     * @param context context to use for the creation.
      * @param family An existing {@link Typeface} object. In case of {@code null}, the default
      *               typeface is used instead.
      * @param weight The desired weight to be drawn.

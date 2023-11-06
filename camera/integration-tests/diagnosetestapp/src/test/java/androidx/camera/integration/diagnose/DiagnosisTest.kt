@@ -20,7 +20,7 @@ import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Build
-import androidx.camera.testing.fakes.FakeLifecycleOwner
+import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
 import androidx.camera.view.LifecycleCameraController
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat

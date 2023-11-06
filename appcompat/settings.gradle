@@ -1,6 +1,6 @@
 // see ../playground-common/README.md for details on how this works
 pluginManagement {
-    includeBuild "../playground-common/playground-plugin"
+    apply from: "../playground-common/configure-plugin-management.gradle", to: it
 }
 plugins {
     id "playground"
@@ -12,10 +12,6 @@ playground {
     setupPlayground("..")
     selectProjectsFromAndroidX({ name ->
         if (name.startsWith(":appcompat")) return true
-        if (name == ":internal-testutils-appcompat") return true
-        if (name == ":internal-testutils-runtime") return true
-        // Transitive dependencies of internal-testutils-appcompat
-        if (name.startsWith(":annotation:annotation-experimental")) return true
         return false
     })
 }

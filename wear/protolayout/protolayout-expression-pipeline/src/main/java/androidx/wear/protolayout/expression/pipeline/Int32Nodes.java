@@ -26,19 +26,23 @@ import androidx.annotation.UiThread;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicDataKey;
 import androidx.wear.protolayout.expression.PlatformHealthSources;
-import androidx.wear.protolayout.expression.pipeline.sensor.SensorGateway;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticInt32Op;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DurationPartType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32Op;
 import androidx.wear.protolayout.expression.proto.DynamicProto.GetDurationPartOp;
+import androidx.wear.protolayout.expression.proto.DynamicProto.GetZonedDateTimePartOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32Source;
 import androidx.wear.protolayout.expression.proto.DynamicProto.PlatformInt32SourceType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
+import androidx.wear.protolayout.expression.proto.DynamicProto.ZonedDateTimePartType;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 
 import java.time.Duration;
+import java.time.ZonedDateTime;
+import java.util.function.Function;
 
 /** Dynamic data nodes which yield integers. */
 class Int32Nodes {
@@ -77,24 +81,39 @@ class Int32Nodes {
     static class LegacyPlatformInt32SourceNode extends StateSourceNode<Integer> {
 
         LegacyPlatformInt32SourceNode(
-                StateStore stateStore,
+                PlatformDataStore dataStore,
                 PlatformInt32Source protoNode,
                 DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
-                    stateStore,
+                    dataStore,
                     getDataKey(protoNode.getSourceType()),
-                    se -> se.getInt32Val().getValue(),
+                    getStateExtractor(protoNode.getSourceType()),
                     downstream);
         }
 
         @NonNull
         private static DynamicDataKey<?> getDataKey(PlatformInt32SourceType type) {
             if (type == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE) {
-                return PlatformHealthSources.HEART_RATE_BPM;
+                return PlatformHealthSources.Keys.HEART_RATE_BPM;
             }
 
             if (type == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT) {
-                return PlatformHealthSources.DAILY_STEPS;
+                return PlatformHealthSources.Keys.DAILY_STEPS;
+            }
+
+            throw new IllegalArgumentException(
+                    "Unknown DynamicInt32 platform source type: " + type);
+        }
+
+        @NonNull
+        private static Function<DynamicDataValue, Integer> getStateExtractor(
+                PlatformInt32SourceType type) {
+            if (type == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE) {
+                return se -> (int) se.getFloatVal().getValue();
+            }
+
+            if (type == PlatformInt32SourceType.PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT) {
+                return se -> se.getInt32Val().getValue();
             }
 
             throw new IllegalArgumentException(
@@ -144,11 +163,11 @@ class Int32Nodes {
     static class StateInt32SourceNode extends StateSourceNode<Integer> {
 
         StateInt32SourceNode(
-                StateStore stateStore,
+                DataStore dataStore,
                 StateInt32Source protoNode,
                 DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
             super(
-                    stateStore,
+                    dataStore,
                     StateSourceNode.<DynamicInt32>createKey(
                             protoNode.getSourceNamespace(), protoNode.getSourceKey()),
                     se -> se.getInt32Val().getValue(),
@@ -328,6 +347,42 @@ class Int32Nodes {
 
         public DynamicTypeValueReceiverWithPreUpdate<Integer> getInputCallback() {
             return mInputCallback;
+        }
+    }
+
+    /** Dynamic integer node that gets date-time part from a zoned date-time. */
+    static class GetZonedDateTimePartOpNode
+            extends DynamicDataTransformNode<ZonedDateTime, Integer> {
+        private static final String TAG = "GetZonedDateTimePartOpNode";
+
+        GetZonedDateTimePartOpNode(
+                GetZonedDateTimePartOp protoNode,
+                DynamicTypeValueReceiverWithPreUpdate<Integer> downstream) {
+            super(downstream, zdt -> (int) getZonedDateTimePart(zdt, protoNode.getPartType()));
+        }
+
+        private static long getZonedDateTimePart(ZonedDateTime zdt, ZonedDateTimePartType type) {
+            switch (type) {
+                case ZONED_DATE_TIME_PART_UNDEFINED:
+                case UNRECOGNIZED:
+                    Log.e(TAG, "Unknown ZonedDateTime part.");
+                    return 0;
+                case ZONED_DATE_TIME_PART_SECOND:
+                    return zdt.getSecond();
+                case ZONED_DATE_TIME_PART_MINUTE:
+                    return zdt.getMinute();
+                case ZONED_DATE_TIME_PART_HOUR_24H:
+                    return zdt.getHour();
+                case ZONED_DATE_TIME_PART_DAY_OF_WEEK:
+                    return zdt.getDayOfWeek().getValue();
+                case ZONED_DATE_TIME_PART_DAY_OF_MONTH:
+                    return zdt.getDayOfMonth();
+                case ZONED_DATE_TIME_PART_MONTH:
+                    return zdt.getMonth().getValue();
+                case ZONED_DATE_TIME_PART_YEAR:
+                    return zdt.getYear();
+            }
+            throw new IllegalArgumentException("Unknown ZonedDateTime part.");
         }
     }
 }

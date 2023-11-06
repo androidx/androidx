@@ -15,7 +15,7 @@
  */
 
 import androidx.build.Publish
-import androidx.build.SupportConfigKt
+import androidx.build.AndroidXConfig
 
 plugins {
     id("AndroidXPlugin")
@@ -42,7 +42,7 @@ dependencies {
 }
 
 ext {
-    webviewBoundaryInterfacesDir = new File(SupportConfigKt.getExternalProjectPath(project),
+    webviewBoundaryInterfacesDir = new File(AndroidXConfig.getExternalProjectPath(project),
             "webview_support_interfaces")
 }
 
@@ -73,4 +73,5 @@ androidx {
     inceptionYear = "2017"
     description = "The WebKit Support Library is a static library you can add to your Android application in order to use android.webkit APIs that are not available for older platform versions."
     additionalDeviceTestApkKeys.add("chrome")
+    metalavaK2UastEnabled = true
 }

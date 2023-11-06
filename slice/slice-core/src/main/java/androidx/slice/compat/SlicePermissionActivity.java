@@ -40,10 +40,10 @@ import androidx.slice.core.R;
 
 /**
  * Dialog that grants slice permissions for an app.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class SlicePermissionActivity extends AppCompatActivity implements OnClickListener,
         OnDismissListener {
 

@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.model;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ISearchCallback {
   oneway void onSearchTextChanged(String text, androidx.car.app.IOnDoneCallback callback) = 1;
   oneway void onSearchSubmitted(String text, androidx.car.app.IOnDoneCallback callback) = 2;

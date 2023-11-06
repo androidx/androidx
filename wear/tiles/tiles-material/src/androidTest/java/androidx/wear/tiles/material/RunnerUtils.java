@@ -16,6 +16,7 @@
 
 package androidx.wear.tiles.material;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -87,6 +88,16 @@ public class RunnerUtils {
                 Thread.currentThread().interrupt();
             }
             Log.e("MaterialGoldenTest", "Error sleeping", ex);
+        }
+    }
+
+    @SuppressLint("BanThreadSleep")
+    public static void waitForNotificationToDisappears() {
+        try {
+            // Wait for the initial notification to disappear.
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            Log.e("MaterialGoldenTest", "Error sleeping", e);
         }
     }
 }

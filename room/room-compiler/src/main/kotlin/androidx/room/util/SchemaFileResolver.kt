@@ -16,9 +16,15 @@
 
 package androidx.room.util
 
-import java.io.File
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.nio.file.Path
 import java.util.ServiceLoader
+import kotlin.io.path.createDirectories
+import kotlin.io.path.exists
+import kotlin.io.path.inputStream
+import kotlin.io.path.outputStream
 
 /**
  * A service provider interface to resolve a schema path to a file. An implementation of this
@@ -27,11 +33,23 @@ import java.util.ServiceLoader
 interface SchemaFileResolver {
 
     /**
-     * Resolves the given path to a file. The path will be a either a sibling of Room's schema
-     * location or the folder itself as provided via the annotation processor options
-     * 'room.schemaLocation' or 'roomSchemaInput.
+     * Requests an input stream to be opened for a given path. The function implementation might
+     * return `null` if such path does not exist.
+     *
+     * The path will be a either a sibling of Room's schema location or the folder itself as
+     * provided via the annotation processor options 'room.schemaLocation' or 'roomSchemaInput.
      */
-    fun getFile(path: Path): File
+    @Throws(IOException::class)
+    fun readPath(path: Path): InputStream?
+
+    /**
+     * Requests an input stream to be opened for a given path.
+     *
+     * The path will be a either a sibling of Room's schema location or the folder itself as
+     * provided via the annotation processor options 'room.schemaLocation' or 'roomSchemaOutput.
+     */
+    @Throws(IOException::class)
+    fun writePath(path: Path): OutputStream
 
     companion object {
         val RESOLVER: SchemaFileResolver by lazy {
@@ -48,7 +66,18 @@ interface SchemaFileResolver {
         }
 
         private val DEFAULT_RESOLVER = object : SchemaFileResolver {
-            override fun getFile(path: Path) = path.toFile()
+
+            override fun readPath(path: Path): InputStream? {
+                return if (path.exists()) path.inputStream() else null
+            }
+
+            override fun writePath(path: Path): OutputStream {
+                val parent = path.parent
+                if (parent != null && !parent.exists()) {
+                    parent.createDirectories()
+                }
+                return path.outputStream()
+            }
         }
     }
 }

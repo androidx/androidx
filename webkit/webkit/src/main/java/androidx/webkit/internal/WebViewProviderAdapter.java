@@ -26,12 +26,14 @@ import android.webkit.WebViewClient;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.webkit.Profile;
 import androidx.webkit.WebMessageCompat;
 import androidx.webkit.WebMessagePortCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewRenderProcess;
 import androidx.webkit.WebViewRenderProcessClient;
 
+import org.chromium.support_lib_boundary.ProfileBoundaryInterface;
 import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
 
@@ -166,5 +168,23 @@ public class WebViewProviderAdapter {
                         new WebViewRenderProcessClientAdapter(executor, webViewRenderProcessClient))
                 : null;
         mImpl.setWebViewRendererClient(handler);
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#setProfile(WebView, String)}.
+     */
+    public void setProfileWithName(@NonNull String profileName) {
+        mImpl.setProfile(profileName);
+    }
+
+    /**
+     * Adapter method for {@link WebViewCompat#getProfile(WebView)}.
+     */
+    @NonNull
+    public Profile getProfile() {
+        ProfileBoundaryInterface profile = BoundaryInterfaceReflectionUtil.castToSuppLibClass(
+                ProfileBoundaryInterface.class, mImpl.getProfile());
+
+        return new ProfileImpl(profile);
     }
 }

@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val colors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/layoutanimation/AnimateEnterExitDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable itemList with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val itemList = itemListState.value"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/visualinspection/AnimatedVisibilityContentSizeChange.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field turquoiseColors with type List&lt;Color>: replace with LongList"
+        errorLine1="internal val turquoiseColors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/layoutanimation/AnimatedVisiblilityLazyColumnDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Color> of getTurquoiseColors: replace with LongList"
+        errorLine1="internal val turquoiseColors = listOf("
+        errorLine2="             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/layoutanimation/AnimatedVisiblilityLazyColumnDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable sizeMap with type Map&lt;T, IntSize>: replace with ObjectLongMap"
+        errorLine1="    val sizeMap = remember { mutableMapOf&lt;T, IntSize>() }"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/lookahead/CraneDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable offsetMap with type Map&lt;T, Offset>: replace with ObjectLongMap"
+        errorLine1="    val offsetMap = remember { mutableMapOf&lt;T, Offset>() }"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/lookahead/CraneDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val colors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/gesture/FancyScrollingDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val colors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/lookahead/LookaheadWithFlowRowDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val colors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/lookahead/LookaheadWithIntrinsicsDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field res with type List&lt;Integer>: replace with IntList"
+        errorLine1="val res = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/lookahead/LookaheadWithLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of getRes: replace with IntList"
+        errorLine1="val res = listOf("
+        errorLine2="    ~~~">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/lookahead/LookaheadWithLazyColumn.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val colors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/lookahead/LookaheadWithMovableContentDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val colors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/lookahead/LookaheadWithScaffold.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val colors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/lookahead/LookaheadWithSubcompose.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val colors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/visualinspection/SeekingDebugging.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val colors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/gesture/SpringBackScrollingDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field vibrantColors with type List&lt;Color>: replace with LongList"
+        errorLine1="private val vibrantColors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/fancy/SpringChainDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field pastelColors with type List&lt;Color>: replace with LongList"
+        errorLine1="internal val pastelColors = listOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/gesture/SwipeToDismissDemo.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Color> of getPastelColors: replace with LongList"
+        errorLine1="internal val pastelColors = listOf("
+        errorLine2="             ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/animation/demos/gesture/SwipeToDismissDemo.kt"/>
+    </issue>
+
+</issues>

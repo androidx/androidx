@@ -16,9 +16,11 @@
 
 package androidx.compose.animation.graphics.res
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
+import androidx.compose.animation.graphics.vector.StateVectorConfig
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.RenderVectorGroup
@@ -26,6 +28,7 @@ import androidx.compose.ui.graphics.vector.VectorComposable
 import androidx.compose.ui.graphics.vector.VectorConfig
 import androidx.compose.ui.graphics.vector.VectorGroup
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Creates and remembers a [Painter] to render an [AnimatedImageVector]. It renders the image
@@ -48,8 +51,9 @@ fun rememberAnimatedVectorPainter(
 }
 
 @ExperimentalAnimationGraphicsApi
+@VisibleForTesting
 @Composable
-private fun rememberAnimatedVectorPainter(
+internal fun rememberAnimatedVectorPainter(
     animatedImageVector: AnimatedImageVector,
     atEnd: Boolean,
     render: @Composable @VectorComposable (VectorGroup, Map<String, VectorConfig>) -> Unit
@@ -65,14 +69,19 @@ private fun rememberAnimatedVectorPainter(
         autoMirror = true
     ) { _, _ ->
         val transition = updateTransition(atEnd, label = animatedImageVector.imageVector.name)
-        render(
-            animatedImageVector.imageVector.root,
-            animatedImageVector.targets.associate { target ->
-                target.name to target.animator.createVectorConfig(
-                    transition,
-                    animatedImageVector.totalDuration
-                )
+        val map = mutableMapOf<String, StateVectorConfig>()
+        animatedImageVector.targets.fastForEach { target ->
+            val config = target.animator.createVectorConfig(
+                transition,
+                animatedImageVector.totalDuration
+            )
+            val currentConfig = map[target.name]
+            if (currentConfig != null) {
+                currentConfig.merge(config)
+            } else {
+                map[target.name] = config
             }
-        )
+        }
+        render(animatedImageVector.imageVector.root, map)
     }
 }

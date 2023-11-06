@@ -16,7 +16,7 @@
 
 package androidx.credentials.playservices.controllers.CreatePublicKeyCredential
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.CancellationSignal
@@ -47,16 +47,15 @@ import org.json.JSONException
 /**
  * A controller to handle the CreatePublicKeyCredential flow with play services.
  *
- * @hide
  */
 @Suppress("deprecation")
-class CredentialProviderCreatePublicKeyCredentialController(private val activity: Activity) :
+internal class CredentialProviderCreatePublicKeyCredentialController(private val context: Context) :
         CredentialProviderController<
             CreatePublicKeyCredentialRequest,
             PublicKeyCredentialCreationOptions,
             PublicKeyCredential,
             CreateCredentialResponse,
-            CreateCredentialException>(activity) {
+            CreateCredentialException>(context) {
 
     /**
      * The callback object state, used in the protected handleResponse method.
@@ -107,10 +106,9 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
         try {
             fidoRegistrationRequest = this.convertRequestToPlayServices(request)
         } catch (e: JSONException) {
-            // TODO(b/262924507) : Perfect error code parsing and pass-back
             cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
-                this.callback
-                .onError(CreatePublicKeyCredentialDomException(EncodingError(), e.message)) } }
+                this.callback.onError(JSONExceptionToPKCError(e))
+            } }
             return
         } catch (t: Throwable) {
             cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
@@ -121,11 +119,17 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
         if (CredentialProviderPlayServicesImpl.cancellationReviewer(cancellationSignal)) {
             return
         }
-        val hiddenIntent = Intent(activity, HiddenActivity::class.java)
+        val hiddenIntent = Intent(context, HiddenActivity::class.java)
         hiddenIntent.putExtra(REQUEST_TAG, fidoRegistrationRequest)
         generateHiddenActivityIntent(resultReceiver, hiddenIntent,
             CREATE_PUBLIC_KEY_CREDENTIAL_TAG)
-        activity.startActivity(hiddenIntent)
+        try {
+            context.startActivity(hiddenIntent)
+        } catch (e: Exception) {
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+                this.callback.onError(
+                    CreateCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)) } }
+        }
     }
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
@@ -182,28 +186,40 @@ class CredentialProviderCreatePublicKeyCredentialController(private val activity
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public override fun convertResponseToCredentialManager(response: PublicKeyCredential):
         CreateCredentialResponse {
-        return CreatePublicKeyCredentialResponse(PublicKeyCredentialControllerUtility
-            .toCreatePasskeyResponseJson(response))
+            try {
+                return CreatePublicKeyCredentialResponse(response.toJson())
+            } catch (t: Throwable) {
+                throw CreateCredentialUnknownException("The PublicKeyCredential response json " +
+                    "had an unexpected exception when parsing: ${t.message}")
+            }
+    }
+
+    private fun JSONExceptionToPKCError(exception: JSONException):
+        CreatePublicKeyCredentialDomException {
+        val myCopy: String? = exception.message
+        if (myCopy != null && myCopy.length > 0) {
+            return CreatePublicKeyCredentialDomException(EncodingError(), myCopy)
+        }
+        return CreatePublicKeyCredentialDomException(EncodingError(), "Unknown error")
     }
 
     companion object {
-        private val TAG = CredentialProviderCreatePublicKeyCredentialController::class.java.name
+        private const val TAG = "CreatePublicKey"
         private var controller: CredentialProviderCreatePublicKeyCredentialController? = null
-        // TODO(b/262924507) : Test multiple calls (re-instantiation validates but just in case)
 
         /**
          * This finds a past version of the
          * [CredentialProviderCreatePublicKeyCredentialController] if it exists, otherwise
          * it generates a new instance.
          *
-         * @param activity the calling activity for this controller
+         * @param context the calling context for this controller
          * @return a credential provider controller for CreatePublicKeyCredential
          */
         @JvmStatic
-        fun getInstance(activity: Activity):
+        fun getInstance(context: Context):
             CredentialProviderCreatePublicKeyCredentialController {
             if (controller == null) {
-                controller = CredentialProviderCreatePublicKeyCredentialController(activity)
+                controller = CredentialProviderCreatePublicKeyCredentialController(context)
             }
             return controller!!
         }

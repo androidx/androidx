@@ -23,16 +23,8 @@ plugins {
 }
 
 dependencies {
-    compileOnly(project(":annotation:annotation-sampled"))
     api("androidx.fragment:fragment:1.2.0")
     api(libs.kotlinStdlib)
-}
-
-androidx {
-    name = "Wear Watchface Permission Dialog Samples"
-    type = LibraryType.SAMPLES
-    inceptionYear = "2021"
-    description = "Contains sample code for building Watchface Permission Dialogs"
 }
 
 android {
@@ -40,4 +32,11 @@ android {
         minSdkVersion 26
     }
     namespace "androidx.wear.watchface.complications.permission.dialogs.sample"
+}
+
+androidx {
+    name = "Wear Watchface Permission Dialog Samples"
+    type = LibraryType.SAMPLES
+    inceptionYear = "2021"
+    description = "Contains sample code for building Watchface Permission Dialogs"
 }

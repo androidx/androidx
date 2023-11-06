@@ -29,11 +29,11 @@ import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PARTIAL
 import androidx.camera.integration.extensions.TestResultType.TEST_RESULT_PASSED
 import androidx.camera.integration.extensions.validation.CameraValidationResultActivity.Companion.getLensFacingStringFromInt
 
-class CameraValidationResultAdapter constructor(
+class CameraValidationResultAdapter(
     private val layoutInflater: LayoutInflater,
     private val cameraLensFacingMap: LinkedHashMap<String, Int>,
     private val cameraExtensionResultMap: LinkedHashMap<Pair<String, String>,
-        LinkedHashMap<Int, Int>>
+        LinkedHashMap<Int, Pair<Int, String>>>
 ) : BaseAdapter() {
 
     override fun getCount(): Int {
@@ -41,7 +41,7 @@ class CameraValidationResultAdapter constructor(
     }
 
     override fun getItem(position: Int): MutableMap.MutableEntry<Pair<String, String>,
-        LinkedHashMap<Int, Int>> {
+        LinkedHashMap<Int, Pair<Int, String>>> {
         return cameraExtensionResultMap.entries.elementAt(position)
     }
 
@@ -64,14 +64,18 @@ class CameraValidationResultAdapter constructor(
         var backgroundResource = 0
         var iconResource = 0
 
-        if (testResult == TEST_RESULT_PASSED) {
-            backgroundResource = R.drawable.test_pass_gradient
-            iconResource = R.drawable.outline_check_circle
-        } else if (testResult == TEST_RESULT_FAILED) {
-            backgroundResource = R.drawable.test_fail_gradient
-            iconResource = R.drawable.outline_error
-        } else if (testResult == TEST_RESULT_NOT_SUPPORTED) {
-            backgroundResource = R.drawable.test_disable_gradient
+        when (testResult) {
+            TEST_RESULT_PASSED -> {
+                backgroundResource = R.drawable.test_pass_gradient
+                iconResource = R.drawable.outline_check_circle
+            }
+            TEST_RESULT_FAILED -> {
+                backgroundResource = R.drawable.test_fail_gradient
+                iconResource = R.drawable.outline_error
+            }
+            TEST_RESULT_NOT_SUPPORTED -> {
+                backgroundResource = R.drawable.test_disable_gradient
+            }
         }
 
         val padding = 10
@@ -90,25 +94,29 @@ class CameraValidationResultAdapter constructor(
         var failCount = 0
 
         cameraExtensionResultMap[Pair(testType, cameraId)]?.forEach {
-            if (it.value == TEST_RESULT_NOT_TESTED) {
-                notTestedCount++
-            } else if (it.value == TEST_RESULT_PASSED) {
-                passCount++
-            } else if (it.value == TEST_RESULT_FAILED) {
-                failCount++
+            when (it.value.first) {
+                TEST_RESULT_NOT_TESTED -> {
+                    notTestedCount++
+                }
+                TEST_RESULT_PASSED -> {
+                    passCount++
+                }
+                TEST_RESULT_FAILED -> {
+                    failCount++
+                }
             }
         }
 
-        if (passCount == 0 && failCount == 0 && notTestedCount == 0) {
-            return TEST_RESULT_NOT_SUPPORTED
+        return if (passCount == 0 && failCount == 0 && notTestedCount == 0) {
+            TEST_RESULT_NOT_SUPPORTED
         } else if (passCount != 0 && failCount == 0 && notTestedCount == 0) {
-            return TEST_RESULT_PASSED
+            TEST_RESULT_PASSED
         } else if (failCount != 0 && notTestedCount == 0) {
-            return TEST_RESULT_FAILED
+            TEST_RESULT_FAILED
         } else if (passCount == 0 && failCount == 0 && notTestedCount != 0) {
-            return TEST_RESULT_NOT_TESTED
+            TEST_RESULT_NOT_TESTED
         } else {
-            return TEST_RESULT_PARTIALLY_TESTED
+            TEST_RESULT_PARTIALLY_TESTED
         }
     }
 }

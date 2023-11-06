@@ -28,6 +28,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraControl;
+import androidx.camera.core.impl.Config;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
 
@@ -67,7 +68,8 @@ final class CropRegionZoomImpl implements ZoomControl.ZoomImpl {
     @Override
     public void addRequestOption(@NonNull Camera2ImplConfig.Builder builder) {
         if (mCurrentCropRect != null) {
-            builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, mCurrentCropRect);
+            builder.setCaptureRequestOptionWithPriority(CaptureRequest.SCALER_CROP_REGION,
+                    mCurrentCropRect, Config.OptionPriority.REQUIRED);
         }
     }
 

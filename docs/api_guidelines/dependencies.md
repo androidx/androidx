@@ -7,43 +7,44 @@ third-party libraries.
 
 One of the most difficult aspects of independently-versioned releases is
 maintaining compatibility with public artifacts. In a mono repo such as Google's
-repository or Android Git at master revision, it's easy for an artifact to
+repository or Android Git at `master` revision, it's easy for an artifact to
 accidentally gain a dependency on a feature that may not be released on the same
 schedule.
 
 -   Project `project(":core:core")` uses the tip-of-tree sources for the
     `androidx.core:core` library and requires that they be loaded in the
     workspace.
--   Playground `projectOrArtifact(":core:core")` is used for
-    [Playground](/company/teams/androidx/playground.md) projects and will use
+-   Playground `projectOrArtifact(":core:core")` is used for the
+    [Playground](/company/teams/androidx/playground.md) workflow and will use
     tip-of-tree sources, if present in the workspace, or `SNAPSHOT` prebuilt
     artifacts from [androidx.dev](http://androidx.dev) otherwise.
--   Explicit `"androidx.core:core:1.4.0"` uses the prebuilt AAR and requires
-    that it be checked in to the `prebuilts/androidx/internal` local Maven
-    repository.
+-   Pinned `"androidx.core:core:1.4.0"` uses the prebuilt AAR and requires that
+    it be checked in to the `prebuilts/androidx/internal` local Maven repository
+    or, when using the Playground workflow, the remote Google Maven repository.
 
-Libraries should prefer explicit dependencies with the lowest possible versions
-that include the APIs or behaviors required by the library, using project or
-Playground specs only in cases where tip-of-tree APIs or behaviors are required.
+Libraries should prefer pinned dependencies with the lowest possible versions
+that include the APIs or behaviors required by the library, and should only use
+project or Playground specs in cases where tip-of-tree APIs or behaviors are
+required.
+
+**Do not** change a dependency version to increase adoption.
 
 #### Pre-release dependencies {#dependencies-pre-release}
 
 Pre-release suffixes **must** propagate up the dependency tree. For example, if
-your artifact has API-type dependencies on pre-release artifacts, ex.
-`1.1.0-alpha01`, then your artifact must also carry the `alpha` suffix. If you
-only have implementation-type dependencies, your artifact may carry either the
-`alpha` or `beta` suffix.
+your artifact has a dependency on an artifact versioned `1.1.0-alpha01` then
+your artifact must also carry the `alpha` suffix.
 
-Note: This does not apply to test dependencies: suffixes of test dependencies do
+NOTE This does not apply to test dependencies: suffixes of test dependencies do
 *not* carry over to your artifact.
 
 #### Pinned versions {#dependencies-prebuilt}
 
-To avoid issues with dependency versioning, consider pinning your artifact's
-dependencies to the oldest version (available via local `maven_repo` or Google
-Maven) that satisfies the artifact's API requirements. This will ensure that the
-artifact's release schedule is not accidentally tied to that of another artifact
-and will allow developers to use older libraries if desired.
+To avoid issues with dependency versioning, pin your dependencies to the oldest
+stable version of an artifact (available via local `maven_repo` or Google Maven)
+that includes the necessary APIs. This will ensure that the artifact's release
+schedule is not accidentally tied to that of another artifact and will allow
+developers to use older libraries if desired.
 
 ```
 dependencies {
@@ -52,14 +53,15 @@ dependencies {
 }
 ```
 
-Artifacts should be built and tested against both pinned and tip-of-tree
-versions of their dependencies to ensure behavioral compatibility.
+Artifacts are built and tested against both pinned and tip-of-tree versions of
+their dependencies to ensure behavioral compatibility.
 
 #### Tip-of-tree versions {#dependencies-project}
 
-Below is an example of a non-pinned dependency. It ties the artifact's release
-schedule to that of the dependency artifact, because the dependency will need to
-be released at the same time.
+Below is an example of a project dependency, which uses tip-of-tree sources for
+the dependency rather than a prebuilt `JAR` or `AAR`. It ties the artifact's
+release schedule to that of the dependency artifact because the dependency will
+need to be released at the same time.
 
 ```
 dependencies {
@@ -70,16 +72,16 @@ dependencies {
 
 ### Non-public APIs {#dependencies-non-public-apis}
 
-Artifacts may depend on non-public (e.g. `@hide`) APIs exposed within their own
+Artifacts may depend on non-public or restricted APIs exposed within their own
 artifact or another artifact in the same `groupId`; however, cross-artifact
-usages are subject to binary compatibility guarantees and
-`@RestrictTo(Scope.LIBRARY_GROUP)` APIs must be tracked like public APIs.
+usages are subject to binary compatibility guarantees. See
+[`@RestrictTo` APIs](/company/teams/androidx/api_guidelines#restricted-api) for
+more details.
 
-```
-Dependency versioning policies are enforced at build time in the createArchive task. This task will ensure that pre-release version suffixes are propagated appropriately.
-
-Cross-artifact API usage policies are enforced by the checkApi and checkApiRelease tasks (see Life of a release).
-```
+NOTE Dependency versioning policies are enforced at build time in the
+`createArchive` task, which ensures that pre-release version suffixes are
+propagated appropriately. Cross-artifact API usage policies are enforced by the
+`checkApi` and `checkApiRelease` tasks.
 
 ### Third-party libraries {#dependencies-3p}
 
@@ -98,6 +100,61 @@ must conform to the following guidelines:
 Please see Jetpack's
 [open-source policy page](/company/teams/androidx/open_source.md) for more
 details on using third-party libraries.
+
+### Platform extension (sidecar JAR) dependencies {#dependencies-sidecar}
+
+Platform extension or "sidecar JAR" libraries ship as part of the Android system
+image and are made available to developers through the `<uses-library>` manifest
+tag.
+
+Examples include Camera OEM extensions (`androidx.camera.extensions.impl`) and
+Window OEM extensions (`androidx.window.extensions`).
+
+Extension libraries may be defined in AndroidX library projects (see
+`androidx.window.extensions`) or externally, ex. in AOSP alongside the platform.
+In either case, we recommend that libraries use extensions as pinned, rather
+than project-type, dependencies to facilitate versioning across repositories.
+
+*Do not* ship extension interfaces to Google Maven. Teams may choose to ship
+stub JARs publicly, but that is not covered by AndroidX workflows.
+
+Project dependencies on extension libraries **must** use `compileOnly`:
+
+`build.gradle`:
+
+```
+dependencies {
+    // Extension interfaces defined in Jetpack
+    compileOnly(project(":window:extensions:extensions"))
+
+    // Extension interfaces defined in a stub JAR
+    compileOnly(
+        fileTree(
+            dir: "../wear_stubs",
+            include: ["com.google.android.wearable-stubs.jar"]
+        )
+    )
+}
+```
+
+Documentation dependencies **must** use the `stubs` configuration:
+
+`docs-public/build.gradle`:
+
+```
+dependencies {
+  stubs("androidx.window:window-extensions:1.0.0-alpha01")
+  stubs(
+    fileTree(
+        dir: "../wear/wear_stubs/",
+        include: ["com.google.android.wearable-stubs.jar"]
+    )
+  )
+}
+```
+
+See [Packaging and naming](/company/teams/androidx/api_guidelines#module-naming)
+for details about defining extension interfaces in Jetpack projects.
 
 ### Types of dependencies {#dependencies-types}
 
@@ -191,16 +248,34 @@ Kotlin is *strongly recommended* for new libraries and the Kotlin stdlib will
 already be present in the transitive dependencies of any library that depends on
 `androidx.annotations`.
 
+```
+plugins {
+    id("AndroidXPlugin")
+    id("kotlin-android")
+}
+
+dependencies {
+    implementation(libs.kotlinStdlib)
+}
+```
+
 Java-based libraries *may* migrate to Kotlin, but they must be careful to
-maintain binary compatibility during the migration.
+maintain binary compatibility during the migration. Metalava does not cover all
+possible aspects of migration, so some manual work will be required.
 
 #### Kotlin coroutines {#dependencies-coroutines}
 
-Kotlin's coroutine library adds around 100kB post-shrinking. New libraries that
-are written in Kotlin should prefer coroutines over `ListenableFuture`, but
+The Kotlin coroutines library adds around 100kB post-shrinking. New libraries
+that are written in Kotlin should prefer coroutines over `ListenableFuture`, but
 existing libraries must consider the size impact on their clients. See
 [Asynchronous work with return values](/company/teams/androidx/api_guidelines#async-return)
 for more details on using Kotlin coroutines in Jetpack libraries.
+
+```
+dependencies {
+    implementation(libs.kotlinCoroutinesAndroid)
+}
+```
 
 #### Guava {#dependencies-guava}
 

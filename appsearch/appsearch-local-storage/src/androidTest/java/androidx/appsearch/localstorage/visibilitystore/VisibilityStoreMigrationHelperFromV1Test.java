@@ -26,7 +26,9 @@ import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.VisibilityDocument;
+import androidx.appsearch.localstorage.AppSearchConfigImpl;
 import androidx.appsearch.localstorage.AppSearchImpl;
+import androidx.appsearch.localstorage.DefaultIcingOptionsConfig;
 import androidx.appsearch.localstorage.OptimizeStrategy;
 import androidx.appsearch.localstorage.UnlimitedLimitConfig;
 import androidx.appsearch.localstorage.util.PrefixUtil;
@@ -70,8 +72,10 @@ public class VisibilityStoreMigrationHelperFromV1Test {
         byte[] sha256CertBar = new byte[32];
 
         // Create AppSearchImpl with visibility document version 1;
-        AppSearchImpl appSearchImplInV1 = AppSearchImpl.create(mFile, new UnlimitedLimitConfig(),
-                /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
+        AppSearchImpl appSearchImplInV1 = AppSearchImpl.create(mFile,
+                new AppSearchConfigImpl(new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()), /*initStatsBuilder=*/ null,
+                ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
         InternalSetSchemaResponse internalSetSchemaResponse = appSearchImplInV1.setSchema(
                 VisibilityStore.VISIBILITY_PACKAGE_NAME,
@@ -118,17 +122,19 @@ public class VisibilityStoreMigrationHelperFromV1Test {
 
         // Persist to disk and re-open the AppSearchImpl
         appSearchImplInV1.close();
-        AppSearchImpl appSearchImpl = AppSearchImpl.create(mFile, new UnlimitedLimitConfig(),
-                /*initStatsBuilder=*/ null, ALWAYS_OPTIMIZE,
+        AppSearchImpl appSearchImpl = AppSearchImpl.create(mFile,
+                new AppSearchConfigImpl(new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig()), /*initStatsBuilder=*/ null,
+                ALWAYS_OPTIMIZE,
                 /*visibilityChecker=*/null);
 
-        VisibilityDocument actualDocument = new VisibilityDocument(
+        VisibilityDocument actualDocument = new VisibilityDocument.Builder(
                 appSearchImpl.getDocument(
                         VisibilityStore.VISIBILITY_PACKAGE_NAME,
                         VisibilityStore.VISIBILITY_DATABASE_NAME,
                         VisibilityDocument.NAMESPACE,
                         /*id=*/ prefix + "Schema",
-                        /*typePropertyPaths=*/ Collections.emptyMap()));
+                        /*typePropertyPaths=*/ Collections.emptyMap())).build();
 
         assertThat(actualDocument.isNotDisplayedBySystem()).isTrue();
         assertThat(actualDocument.getPackageNames()).asList().containsExactly(packageNameFoo,
@@ -140,5 +146,6 @@ public class VisibilityStoreMigrationHelperFromV1Test {
                         ImmutableSet.of(SetSchemaRequest.READ_SMS, SetSchemaRequest.READ_CALENDAR),
                         ImmutableSet.of(SetSchemaRequest.READ_HOME_APP_SEARCH_DATA),
                         ImmutableSet.of(SetSchemaRequest.READ_ASSISTANT_APP_SEARCH_DATA)));
+        appSearchImpl.close();
     }
 }

@@ -17,11 +17,13 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.os.Binder
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.mockito.kotlin.mock
 
+/** Unit tests for [SplitInfo] */
 class SplitInfoTest {
 
     @Test
@@ -30,7 +32,8 @@ class SplitInfoTest {
         val firstStack = createTestActivityStack(listOf(activity))
         val secondStack = createTestActivityStack(emptyList())
         val attributes = SplitAttributes()
-        val info = SplitInfo(firstStack, secondStack, attributes)
+        val token = Binder()
+        val info = SplitInfo(firstStack, secondStack, attributes, token)
 
         assertTrue(info.contains(activity))
     }
@@ -41,7 +44,8 @@ class SplitInfoTest {
         val firstStack = createTestActivityStack(emptyList())
         val secondStack = createTestActivityStack(listOf(activity))
         val attributes = SplitAttributes()
-        val info = SplitInfo(firstStack, secondStack, attributes)
+        val token = Binder()
+        val info = SplitInfo(firstStack, secondStack, attributes, token)
 
         assertTrue(info.contains(activity))
     }
@@ -52,11 +56,41 @@ class SplitInfoTest {
         val firstStack = createTestActivityStack(emptyList())
         val secondStack = createTestActivityStack(listOf(activity))
         val attributes = SplitAttributes()
-        val firstInfo = SplitInfo(firstStack, secondStack, attributes)
-        val secondInfo = SplitInfo(firstStack, secondStack, attributes)
+        val token = Binder()
+        val firstInfo = SplitInfo(firstStack, secondStack, attributes, token)
+        val secondInfo = SplitInfo(firstStack, secondStack, attributes, token)
 
         assertEquals(firstInfo, secondInfo)
         assertEquals(firstInfo.hashCode(), secondInfo.hashCode())
+    }
+
+    @Test
+    fun testSplitInfoProperties() {
+        val activity = mock<Activity>()
+        val firstStack = createTestActivityStack(emptyList())
+        val secondStack = createTestActivityStack(listOf(activity))
+        val attributes = SplitAttributes()
+        val token = Binder()
+        val splitInfo = SplitInfo(firstStack, secondStack, attributes, token)
+
+        assertEquals(firstStack, splitInfo.primaryActivityStack)
+        assertEquals(secondStack, splitInfo.secondaryActivityStack)
+        assertEquals(attributes, splitInfo.splitAttributes)
+    }
+
+    @Test
+    fun testToString() {
+        val activity = mock<Activity>()
+        val firstStack = createTestActivityStack(emptyList())
+        val secondStack = createTestActivityStack(listOf(activity))
+        val attributes = SplitAttributes()
+        val token = Binder()
+        val splitInfoString = SplitInfo(firstStack, secondStack, attributes, token).toString()
+
+        assertTrue(splitInfoString.contains(firstStack.toString()))
+        assertTrue(splitInfoString.contains(secondStack.toString()))
+        assertTrue(splitInfoString.contains(attributes.toString()))
+        assertTrue(splitInfoString.contains(token.toString()))
     }
 
     private fun createTestActivityStack(

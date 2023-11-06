@@ -52,18 +52,18 @@ import java.lang.annotation.RetentionPolicy;
  * <p>Here is an example implementation of a pager containing fragments of
  * lists:
  *
- * {@sample frameworks/support/samples/Support4Demos/src/main/java/com/example/android/supportv4/app/FragmentPagerSupport.java
+ * {@sample samples/Support4Demos/src/main/java/com/example/android/supportv4/app/FragmentPagerSupport.java
  *      complete}
  *
  * <p>The <code>R.layout.fragment_pager</code> resource of the top-level fragment is:
  *
- * {@sample frameworks/support/samples/Support4Demos/src/main/res/layout/fragment_pager.xml
+ * {@sample samples/Support4Demos/src/main/res/layout/fragment_pager.xml
  *      complete}
  *
  * <p>The <code>R.layout.fragment_pager_list</code> resource containing each
  * individual fragment's layout is:
  *
- * {@sample frameworks/support/samples/Support4Demos/src/main/res/layout/fragment_pager_list.xml
+ * {@sample samples/Support4Demos/src/main/res/layout/fragment_pager_list.xml
  *      complete}
  *
  * @deprecated Switch to {@link androidx.viewpager2.widget.ViewPager2} and use

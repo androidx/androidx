@@ -52,6 +52,8 @@ internal class KspSyntheticContinuationParameterElement(
 
     override fun isKotlinPropertyParam() = false
 
+    override fun isVarArgs() = false
+
     override val name: String by lazy {
         // KAPT uses `$completion` but it doesn't check for conflicts, we do. Be aware that before
         // Kotlin 1.8.0 the param was named 'continuation'.
@@ -65,6 +67,8 @@ internal class KspSyntheticContinuationParameterElement(
         }
         candidate
     }
+
+    override val jvmName = name
 
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(PARAM_NAME, enclosingElement)
@@ -139,6 +143,10 @@ internal class KspSyntheticContinuationParameterElement(
 
     override fun hashCode(): Int {
         return XEquality.hashCode(equalityItems)
+    }
+
+    override fun toString(): String {
+        return name
     }
 
     companion object {

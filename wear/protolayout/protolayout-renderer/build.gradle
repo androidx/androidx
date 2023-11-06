@@ -25,7 +25,6 @@ dependencies {
     annotationProcessor(libs.nullaway)
     api("androidx.annotation:annotation:1.2.0")
     api("androidx.core:core:1.7.0")
-    api(libs.guavaListenableFuture)
     api(libs.guava)
     implementation("androidx.core:core:1.3.2")
 
@@ -34,9 +33,8 @@ dependencies {
     api(project(":wear:protolayout:protolayout-expression-pipeline"))
     implementation "androidx.concurrent:concurrent-futures:1.1.0"
     implementation("androidx.core:core:1.7.0")
+    implementation("androidx.wear:wear:1.3.0")
     implementation("androidx.vectordrawable:vectordrawable-seekable:1.0.0-beta01")
-    implementation("androidx.collection:collection:1.2.0")
-    implementation("androidx.wear:wear:1.3.0-alpha04")
 
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.testExtJunit)
@@ -60,4 +58,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "Render ProtoLayouts to an Android surface"
+    metalavaK2UastEnabled = true
 }

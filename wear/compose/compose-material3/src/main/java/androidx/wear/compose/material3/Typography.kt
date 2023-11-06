@@ -15,13 +15,15 @@
  */
 package androidx.wear.compose.material3
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import androidx.wear.compose.material3.tokens.TypographyKeyTokens
+import androidx.wear.compose.material3.tokens.TypographyTokens
 
 /**
  * Class holding typography definitions as defined by the Wear Material typography specification.
@@ -29,20 +31,18 @@ import androidx.compose.ui.unit.sp
  * The text styles in this typography are scaled according to the user's preferred font size in
  * the system settings. Larger font sizes can be fixed if necessary in order to avoid pressure on
  * screen space, because they are already sufficiently accessible.
- * Here is an example of fixing the font size for Display1:
- * @sample androidx.wear.compose.material.samples.FixedFontSize
+ * Here is an example of fixing the font size for DisplayLarge:
+ * @sample androidx.wear.compose.material3.samples.FixedFontSize
  *
  * TODO(b/273526150) Review documentation for typography, add examples for each size.
- * @property displayExtraLarge DisplayExtraLarge is the largest headline. Displays are the
- * largest text on the screen, reserved for short, important text or numerals.
  *
- * @property displayLarge DisplayLarge is the second largest headline. Displays are the largest text
+ * @property displayLarge DisplayLarge is the largest headline. Displays are the largest text
  * on the screen, reserved for short, important text or numerals.
  *
- * @property displayMedium DisplayMedium is the third largest headline. Displays are the
+ * @property displayMedium DisplayMedium is the second largest headline. Displays are the
  * largest text on the screen, reserved for short, important text or numerals.
  *
- * @property displaySmall DisplaySmall is the fourth largest headline. Displays are the largest
+ * @property displaySmall DisplaySmall is the smallest headline. Displays are the largest
  * text on the screen, reserved for short, important text or numerals.
  *
  * @property titleLarge TitleLarge is the largest title. Titles are smaller than Displays. They are
@@ -54,234 +54,155 @@ import androidx.compose.ui.unit.sp
  * @property titleSmall TitleSmall is the smallest title. Titles are smaller than Displays. They are
  * typically reserved for medium-emphasis text that is shorter in length.
  *
+ * @property labelLarge LabelLarge is the largest label. They are used for displaying prominent
+ * texts like label on title buttons.
+ *
+ * @property labelMedium LabelMedium is the medium label. They are used for displaying texts like
+ * primary label on buttons.
+ *
+ * @property labelSmall LabelSmall is the small label. They are used for displaying texts like
+ * secondary label on buttons, labels on compact buttons.
+ *
  * @property bodyLarge BodyLarge is the largest body. Body texts are typically used for long-form
  * writing as it works well for small text sizes. For longer sections of text, a serif or
  * sans serif typeface is recommended.
  *
- * @property bodyMedium BodyMedium is the medium body. Body texts are typically used for long-form
+ * @property bodyMedium BodyMedium is second largest body. Body texts are typically used for
+ * long-form writing as it works well for small text sizes. For longer sections of text, a serif
+ * or sans serif typeface is recommended.
+ *
+ * @property bodySmall BodySmall is third largest body. Body texts are typically used for long-form
  * writing as it works well for small text sizes. For longer sections of text, a serif or sans serif
  * typeface is recommended.
  *
- * @property bodySmall BodySmall is the smallest body. Body texts are typically used for long-form
- * writing as it works well for small text sizes. For longer sections of text, a serif or sans serif
- * typeface is recommended.
- *
- * @property buttonMedium ButtonMedium text is a call to action used in different types of buttons
- * (such as text, outlined and contained buttons) and in tabs, dialogs, and cards. Button text is
- * typically sans serif, using all caps text.
- *
- * @property captionLarge CaptionLarge is the largest caption. Caption texts are the smallest
- * font sizes. They are used on secondary content.
- *
- * @property captionMedium CaptionMedium is the second largest caption. Caption texts are the
- * smallest font sizes. They are used on secondary content.
- *
- * @property captionSmall CaptionSmall is an exceptional small font size which is used for the extra
- * long-form writing like legal texts.
+ * @property bodyExtraSmall BodyExtraSmall is the smallest body. Body texts are typically used for
+ * long-form writing as it works well for small text sizes. For longer sections of text, a serif
+ * or sans serif typeface is recommended.
  */
 @Immutable
 public class Typography internal constructor(
-    public val displayExtraLarge: TextStyle,
     public val displayLarge: TextStyle,
     public val displayMedium: TextStyle,
     public val displaySmall: TextStyle,
     public val titleLarge: TextStyle,
     public val titleMedium: TextStyle,
     public val titleSmall: TextStyle,
+    public val labelLarge: TextStyle,
+    public val labelMedium: TextStyle,
+    public val labelSmall: TextStyle,
     public val bodyLarge: TextStyle,
     public val bodyMedium: TextStyle,
     public val bodySmall: TextStyle,
-    public val buttonMedium: TextStyle,
-    public val captionLarge: TextStyle,
-    public val captionMedium: TextStyle,
-    public val captionSmall: TextStyle,
+    public val bodyExtraSmall: TextStyle
 ) {
     public constructor (
         defaultFontFamily: FontFamily = FontFamily.Default,
-        displayExtraLarge: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 50.sp,
-            lineHeight = 56.sp,
-            letterSpacing = 0.5.sp
-        ),
-        displayLarge: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 40.sp,
-            lineHeight = 46.sp,
-            letterSpacing = 0.5.sp
-        ),
-        displayMedium: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 34.sp,
-            lineHeight = 40.sp,
-            letterSpacing = 1.sp
-        ),
-        displaySmall: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 30.sp,
-            lineHeight = 36.sp,
-            letterSpacing = 0.8.sp,
-        ),
-        titleLarge: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 24.sp,
-            lineHeight = 28.sp,
-            letterSpacing = 0.2.sp
-        ),
-        titleMedium: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 20.sp,
-            lineHeight = 24.sp,
-            letterSpacing = 0.2.sp
-        ),
-        titleSmall: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
-            lineHeight = 20.sp,
-            letterSpacing = 0.2.sp
-        ),
-        bodyLarge: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 16.sp,
-            lineHeight = 20.sp,
-            letterSpacing = 0.18.sp
-        ),
-        bodyMedium: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 16.sp,
-            lineHeight = 20.sp,
-            letterSpacing = 0.2.sp
-        ),
-        bodySmall: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Normal,
-            fontSize = 14.sp,
-            lineHeight = 18.sp,
-            letterSpacing = 0.2.sp
-        ),
-        buttonMedium: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 15.sp,
-            lineHeight = 19.sp,
-            letterSpacing = 0.2.sp
-        ),
-        captionLarge: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 14.sp,
-            lineHeight = 18.sp,
-            letterSpacing = 0.3.sp
-        ),
-        captionMedium: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 12.sp,
-            lineHeight = 16.sp,
-            letterSpacing = 0.4.sp
-        ),
-        captionSmall: TextStyle = DefaultTextStyle.copy(
-            fontWeight = FontWeight.Medium,
-            fontSize = 10.sp,
-            lineHeight = 14.sp,
-            letterSpacing = 0.4.sp
-        )
-
+        displayLarge: TextStyle = TypographyTokens.DisplayLarge,
+        displayMedium: TextStyle = TypographyTokens.DisplayMedium,
+        displaySmall: TextStyle = TypographyTokens.DisplaySmall,
+        titleLarge: TextStyle = TypographyTokens.TitleLarge,
+        titleMedium: TextStyle = TypographyTokens.TitleMedium,
+        titleSmall: TextStyle = TypographyTokens.TitleSmall,
+        labelLarge: TextStyle = TypographyTokens.LabelLarge,
+        labelMedium: TextStyle = TypographyTokens.LabelMedium,
+        labelSmall: TextStyle = TypographyTokens.LabelSmall,
+        bodyLarge: TextStyle = TypographyTokens.BodyLarge,
+        bodyMedium: TextStyle = TypographyTokens.BodyMedium,
+        bodySmall: TextStyle = TypographyTokens.BodySmall,
+        bodyExtraSmall: TextStyle = TypographyTokens.BodyExtraSmall
     ) : this(
-        displayExtraLarge = displayExtraLarge.withDefaultFontFamily(defaultFontFamily),
         displayLarge = displayLarge.withDefaultFontFamily(defaultFontFamily),
         displayMedium = displayMedium.withDefaultFontFamily(defaultFontFamily),
         displaySmall = displaySmall.withDefaultFontFamily(defaultFontFamily),
         titleLarge = titleLarge.withDefaultFontFamily(defaultFontFamily),
         titleMedium = titleMedium.withDefaultFontFamily(defaultFontFamily),
         titleSmall = titleSmall.withDefaultFontFamily(defaultFontFamily),
+        labelLarge = labelLarge.withDefaultFontFamily(defaultFontFamily),
+        labelMedium = labelMedium.withDefaultFontFamily(defaultFontFamily),
+        labelSmall = labelSmall.withDefaultFontFamily(defaultFontFamily),
         bodyLarge = bodyLarge.withDefaultFontFamily(defaultFontFamily),
         bodyMedium = bodyMedium.withDefaultFontFamily(defaultFontFamily),
         bodySmall = bodySmall.withDefaultFontFamily(defaultFontFamily),
-        buttonMedium = buttonMedium.withDefaultFontFamily(defaultFontFamily),
-        captionLarge = captionLarge.withDefaultFontFamily(defaultFontFamily),
-        captionMedium = captionMedium.withDefaultFontFamily(defaultFontFamily),
-        captionSmall = captionSmall.withDefaultFontFamily(defaultFontFamily),
+        bodyExtraSmall = bodyExtraSmall.withDefaultFontFamily(defaultFontFamily)
     )
 
     /**
      * Returns a copy of this Typography, optionally overriding some of the values.
      */
     public fun copy(
-        displayExtraLarge: TextStyle = this.displayExtraLarge,
         displayLarge: TextStyle = this.displayLarge,
         displayMedium: TextStyle = this.displayMedium,
         displaySmall: TextStyle = this.displaySmall,
         titleLarge: TextStyle = this.titleLarge,
         titleMedium: TextStyle = this.titleMedium,
         titleSmall: TextStyle = this.titleSmall,
+        labelLarge: TextStyle = this.labelLarge,
+        labelMedium: TextStyle = this.labelMedium,
+        labelSmall: TextStyle = this.labelSmall,
         bodyLarge: TextStyle = this.bodyLarge,
         bodyMedium: TextStyle = this.bodyMedium,
         bodySmall: TextStyle = this.bodySmall,
-        buttonMedium: TextStyle = this.buttonMedium,
-        captionLarge: TextStyle = this.captionLarge,
-        captionMedium: TextStyle = this.captionMedium,
-        captionSmall: TextStyle = this.captionSmall,
+        bodyExtraSmall: TextStyle = this.bodyExtraSmall
     ): Typography = Typography(
-        displayExtraLarge,
         displayLarge,
         displayMedium,
         displaySmall,
         titleLarge,
         titleMedium,
         titleSmall,
+        labelLarge,
+        labelMedium,
+        labelSmall,
         bodyLarge,
         bodyMedium,
         bodySmall,
-        buttonMedium,
-        captionLarge,
-        captionMedium,
-        captionSmall,
+        bodyExtraSmall
     )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is Typography) return false
 
-        if (displayExtraLarge != other.displayExtraLarge) return false
         if (displayLarge != other.displayLarge) return false
         if (displayMedium != other.displayMedium) return false
         if (displaySmall != other.displaySmall) return false
         if (titleLarge != other.titleLarge) return false
         if (titleMedium != other.titleMedium) return false
         if (titleSmall != other.titleSmall) return false
+        if (labelLarge != other.labelLarge) return false
+        if (labelMedium != other.labelMedium) return false
+        if (labelSmall != other.labelSmall) return false
         if (bodyLarge != other.bodyLarge) return false
         if (bodyMedium != other.bodyMedium) return false
         if (bodySmall != other.bodySmall) return false
-        if (buttonMedium != other.buttonMedium) return false
-        if (captionLarge != other.captionLarge) return false
-        if (captionMedium != other.captionMedium) return false
-        if (captionSmall != other.captionSmall) return false
+        if (bodyExtraSmall != other.bodyExtraSmall) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = displayExtraLarge.hashCode()
-        result = 31 * result + displayLarge.hashCode()
+        var result = displayLarge.hashCode()
         result = 31 * result + displayMedium.hashCode()
         result = 31 * result + displaySmall.hashCode()
         result = 31 * result + titleLarge.hashCode()
         result = 31 * result + titleMedium.hashCode()
         result = 31 * result + titleSmall.hashCode()
+        result = 31 * result + labelLarge.hashCode()
+        result = 31 * result + labelMedium.hashCode()
+        result = 31 * result + labelSmall.hashCode()
         result = 31 * result + bodyLarge.hashCode()
         result = 31 * result + bodyMedium.hashCode()
         result = 31 * result + bodySmall.hashCode()
-        result = 31 * result + buttonMedium.hashCode()
-        result = 31 * result + captionLarge.hashCode()
-        result = 31 * result + captionMedium.hashCode()
-        result = 31 * result + captionSmall.hashCode()
+        result = 31 * result + bodyExtraSmall.hashCode()
         return result
     }
 
     override fun toString(): String {
-        return "Typography(displayExtraLarge=$displayExtraLarge, displayLarge=$displayLarge, " +
-            "displayMedium=$displayMedium, displaySmall=$displaySmall, " +
-            "titleLarge=$titleLarge, titleMedium=$titleMedium, titleSmall=$titleSmall, " +
-            "bodyLarge=$bodyLarge, bodyMedium=$bodyMedium, bodySmall=$bodySmall, " +
-            "buttonMedium=$buttonMedium, captionLarge=$captionLarge, " +
-            "captionMedium=$captionMedium, captionSmall=$captionSmall)"
+        return "Typography(displayLarge=$displayLarge, displayMedium=$displayMedium, " +
+            "displaySmall=$displaySmall, titleLarge=$titleLarge, titleMedium=$titleMedium, " +
+            "titleSmall=$titleSmall, labelLarge=$labelLarge, labelMedium=$labelMedium, " +
+            "labelSmall=$labelSmall, bodyLarge=$bodyLarge, bodyMedium=$bodyMedium, " +
+            "bodySmall=$bodySmall, bodyExtraSmall=$bodyExtraSmall)"
     }
 }
 
@@ -293,12 +214,46 @@ private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
     return if (fontFamily != null) this else copy(fontFamily = default)
 }
 
+private const val DefaultIncludeFontPadding = false
+
 /**
  * Returns theme default [TextStyle] with default [PlatformTextStyle].
  */
 internal val DefaultTextStyle = TextStyle.Default.copy(
-    platformStyle = defaultPlatformTextStyle()
+    platformStyle = PlatformTextStyle(
+        includeFontPadding = DefaultIncludeFontPadding
+    )
 )
+
+/**
+ * Helper function for typography tokens.
+ */
+internal fun Typography.fromToken(value: TypographyKeyTokens): TextStyle {
+    return when (value) {
+        TypographyKeyTokens.DisplayLarge -> displayLarge
+        TypographyKeyTokens.DisplayMedium -> displayMedium
+        TypographyKeyTokens.DisplaySmall -> displaySmall
+        TypographyKeyTokens.TitleLarge -> titleLarge
+        TypographyKeyTokens.TitleMedium -> titleMedium
+        TypographyKeyTokens.TitleSmall -> titleSmall
+        TypographyKeyTokens.LabelLarge -> labelLarge
+        TypographyKeyTokens.LabelMedium -> labelMedium
+        TypographyKeyTokens.LabelSmall -> labelSmall
+        TypographyKeyTokens.BodyLarge -> bodyLarge
+        TypographyKeyTokens.BodyMedium -> bodyMedium
+        TypographyKeyTokens.BodySmall -> bodySmall
+        TypographyKeyTokens.BodyExtraSmall -> bodyExtraSmall
+    }
+}
+
+/**
+ * Converts the [TypographyKeyTokens] to the local text style provided by the theme.
+ * The text style refers to the [LocalTypography].
+ */
+internal val TypographyKeyTokens.value: TextStyle
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.typography.fromToken(this)
 
 /**
  * This Ambient holds on to the current definition of typography for this application as described

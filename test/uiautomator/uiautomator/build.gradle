@@ -24,6 +24,7 @@ plugins {
 dependencies {
     implementation(libs.junit)
     implementation("androidx.annotation:annotation:1.4.0")
+    implementation("androidx.tracing:tracing:1.1.0")
 
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
@@ -33,10 +34,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 18
-    }
-
     useLibrary "android.test.runner"
     useLibrary "android.test.base"
     useLibrary "android.test.mock"
@@ -49,4 +46,5 @@ androidx {
     inceptionYear = "2012"
     description = "UI testing framework suitable for cross-app functional UI testing"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

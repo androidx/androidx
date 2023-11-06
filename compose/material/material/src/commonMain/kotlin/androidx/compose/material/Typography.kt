@@ -22,6 +22,7 @@ import androidx.compose.ui.text.PlatformTextStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.unit.sp
 
 /**
@@ -121,66 +122,79 @@ class Typography internal constructor(
         h1: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Light,
             fontSize = 96.sp,
+            lineHeight = 112.sp,
             letterSpacing = (-1.5).sp
         ),
         h2: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Light,
             fontSize = 60.sp,
+            lineHeight = 72.sp,
             letterSpacing = (-0.5).sp
         ),
         h3: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 48.sp,
+            lineHeight = 56.sp,
             letterSpacing = 0.sp
         ),
         h4: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 34.sp,
+            lineHeight = 36.sp,
             letterSpacing = 0.25.sp
         ),
         h5: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 24.sp,
+            lineHeight = 24.sp,
             letterSpacing = 0.sp
         ),
         h6: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 20.sp,
+            lineHeight = 24.sp,
             letterSpacing = 0.15.sp
         ),
         subtitle1: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 16.sp,
+            lineHeight = 24.sp,
             letterSpacing = 0.15.sp
         ),
         subtitle2: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
+            lineHeight = 24.sp,
             letterSpacing = 0.1.sp
         ),
         body1: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 16.sp,
+            lineHeight = 24.sp,
             letterSpacing = 0.5.sp
         ),
         body2: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 14.sp,
+            lineHeight = 20.sp,
             letterSpacing = 0.25.sp
         ),
         button: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Medium,
             fontSize = 14.sp,
+            lineHeight = 16.sp,
             letterSpacing = 1.25.sp
         ),
         caption: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 12.sp,
+            lineHeight = 16.sp,
             letterSpacing = 0.4.sp
         ),
         overline: TextStyle = DefaultTextStyle.copy(
             fontWeight = FontWeight.Normal,
             fontSize = 10.sp,
+            lineHeight = 16.sp,
             letterSpacing = 1.5.sp
         )
     ) : this(
@@ -285,8 +299,14 @@ private fun TextStyle.withDefaultFontFamily(default: FontFamily): TextStyle {
     return if (fontFamily != null) this else copy(fontFamily = default)
 }
 
+internal val DefaultLineHeightStyle = LineHeightStyle(
+    alignment = LineHeightStyle.Alignment.Center,
+    trim = LineHeightStyle.Trim.None,
+)
+
 internal val DefaultTextStyle = TextStyle.Default.copy(
-    platformStyle = defaultPlatformTextStyle()
+    platformStyle = defaultPlatformTextStyle(),
+    lineHeightStyle = DefaultLineHeightStyle,
 )
 
 /**

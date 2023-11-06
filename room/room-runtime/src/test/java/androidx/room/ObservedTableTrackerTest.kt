@@ -15,7 +15,7 @@
  */
 package androidx.room
 
-import com.google.common.truth.Truth.assertThat
+import androidx.kruth.assertThat
 import java.util.Arrays
 import kotlin.test.assertNull
 import org.junit.Before

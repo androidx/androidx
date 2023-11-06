@@ -18,8 +18,20 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 
+/**
+ * This represents a single measured page in a [Pager] layout.
+ */
 @ExperimentalFoundationApi
-internal interface PageInfo {
+sealed interface PageInfo {
+
+    /**
+     * The index of this page.
+     */
     val index: Int
+
+    /**
+     * The main axis offset of the item in pixels. It is relative to the start of the [Pager]
+     * container.
+     */
     val offset: Int
 }

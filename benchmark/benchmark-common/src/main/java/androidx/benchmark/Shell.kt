@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Looper
 import android.os.ParcelFileDescriptor
@@ -36,7 +37,6 @@ import java.nio.charset.Charset
  * Wrappers for UiAutomation.executeShellCommand to handle compat behavior, and add additional
  * features like script execution (with piping), stdin/stderr.
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Shell {
@@ -119,8 +119,7 @@ object Shell {
             ShellImpl.executeCommandUnsafe("md5sum $path").substringBefore(" ")
         } else {
             // this isn't good, but it's good enough for API 22
-            val result = ShellImpl.executeCommandUnsafe("ls -l $path")
-            if (result.isBlank()) "" else result.split(Regex("\\s+"))[3]
+            return getFileSizeLsUnsafe(path) ?: ""
         }
         if (sum.isBlank()) {
             if (!ShellImpl.isSessionRooted) {
@@ -134,6 +133,74 @@ object Shell {
             }
         }
         return sum
+    }
+
+    /**
+     * Waits for the file size of the [path] to be table for at least [stableIterations].
+     */
+    @RequiresApi(21)
+    @SuppressLint("BanThreadSleep") // Need polling to wait for file content to be flushed
+    fun waitForFileFlush(
+        path: String,
+        stableIterations: Int,
+        maxIterations: Int,
+        pollDurationMs: Long
+    ) {
+        var iteration = 0
+        var stable = 0
+        var lastKnownSize = 0L
+        while (iteration < maxIterations) {
+            val currentSize = getFileSizeUnsafe(path)
+            if (currentSize > 0) {
+                if (currentSize == lastKnownSize) {
+                    stable += 1
+                    if (stable == stableIterations) {
+                        break
+                    }
+                } else {
+                    // reset
+                    stable = 0
+                    lastKnownSize = currentSize
+                }
+            }
+            iteration += 1
+            Thread.sleep(pollDurationMs)
+        }
+    }
+
+    /**
+     * Gets the file size for a given path.
+     */
+    @RequiresApi(21)
+    internal fun getFileSizeUnsafe(path: String): Long {
+        // API 23 comes with the helpful stat command
+        val fileSize = if (Build.VERSION.SDK_INT >= 23) {
+            // Using executeCommandUnsafe for perf reasons, but this API is still safe, given
+            // we validate the outputs.
+            ShellImpl.executeCommandUnsafe("stat -c %s $path")
+                .trim()
+                .toLongOrNull()
+        } else {
+            getFileSizeLsUnsafe(path)?.toLong()
+        }
+        require(fileSize != null) {
+            "Unable to obtain file size for the file $path"
+        }
+        return fileSize
+    }
+
+    /**
+     * Only use this API on API 22 or lower.
+     *
+     * This command uses [ShellImpl.executeCommandUnsafe] for performance reasons. The caller
+     * should always validate the outputs for a given invocation.
+     *
+     * @return `null` when the file [path] cannot be found.
+     */
+    @RequiresApi(21)
+    private fun getFileSizeLsUnsafe(path: String): String? {
+        val result = ShellImpl.executeCommandUnsafe("ls -l $path")
+        return if (result.isBlank()) null else result.split(Regex("\\s+"))[3]
     }
 
     /**
@@ -160,9 +227,11 @@ object Shell {
         val srcSum = getChecksum(src)
         val dstSum = getChecksum(dst)
         if (srcSum != dstSum) {
-            throw IllegalStateException("Failed to verify copied executable $dst, " +
-                "md5 sums $srcSum, $dstSum don't match. Check if root owns" +
-                " $dst and if so, delete it with `adb root`-ed shell session.")
+            throw IllegalStateException(
+                "Failed to verify copied executable $dst, " +
+                    "md5 sums $srcSum, $dstSum don't match. Check if root owns" +
+                    " $dst and if so, delete it with `adb root`-ed shell session."
+            )
         }
     }
 
@@ -519,7 +588,7 @@ object Shell {
             if (runningProcesses.isEmpty()) {
                 return
             }
-            userspaceTrace("wait for $runningProcesses to die") {
+            inMemoryTrace("wait for $runningProcesses to die") {
                 SystemClock.sleep(waitPollPeriodMs)
             }
             Log.d(BenchmarkState.TAG, "Waiting $waitPollPeriodMs ms for $runningProcesses to die")
@@ -539,6 +608,48 @@ object Shell {
             .substringAfter("Broadcast completed: result=")
             .trim()
             .toIntOrNull()
+    }
+
+    @RequiresApi(21)
+    fun disablePackages(appPackages: List<String>) {
+        // Additionally use `am force-stop` to force JobScheduler to drop all jobs.
+        val command = appPackages.joinToString(separator = "\n") { appPackage ->
+            """
+                am force-stop $appPackage
+                pm disable-user $appPackage
+            """".trimIndent()
+        }
+        executeScriptCaptureStdoutStderr(command)
+    }
+
+    @RequiresApi(21)
+    fun enablePackages(appPackages: List<String>) {
+        val command = appPackages.joinToString(separator = "\n") { appPackage ->
+            "pm enable $appPackage"
+        }
+        executeScriptCaptureStdoutStderr(command)
+    }
+
+    @RequiresApi(24)
+    fun disableBackgroundDexOpt() {
+        // Cancels the active job if any
+        ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --cancel")
+        ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --disable")
+    }
+
+    @RequiresApi(24)
+    fun enableBackgroundDexOpt() {
+        ShellImpl.executeCommandUnsafe("cmd package bg-dexopt-job --enable")
+    }
+
+    @RequiresApi(21)
+    fun isSELinuxEnforced(): Boolean {
+        return when (val value = executeScriptCaptureStdout("getenforce").trim()) {
+            "Permissive" -> false
+            "Disabled" -> false
+            "Enforcing" -> true
+            else -> throw IllegalStateException("unexpected result from getenforce: $value")
+        }
     }
 }
 

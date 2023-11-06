@@ -16,35 +16,35 @@
 
 package androidx.wear.compose.ui.tooling.preview
 
-import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.wear.tooling.preview.devices.WearDevices
 
 /**
  * [WearPreviewDevices] is a multi-preview annotation for composables with different Wear device
- * shapes and sizes. It supports [Devices.WEAR_OS_SMALL_ROUND], [Devices.WEAR_OS_LARGE_ROUND] and
- * [Devices.WEAR_OS_SQUARE].
+ * shapes and sizes. It supports [WearDevices.SMALL_ROUND], [WearDevices.LARGE_ROUND] and
+ * [WearDevices.SQUARE].
  *
  * @sample androidx.wear.compose.material.samples.ToggleButtonWithIconPreview
- * @see Devices.WEAR_OS_SMALL_ROUND
- * @see Devices.WEAR_OS_LARGE_ROUND
- * @see Devices.WEAR_OS_SQUARE
+ * @see WearDevices.SMALL_ROUND
+ * @see WearDevices.LARGE_ROUND
+ * @see WearDevices.SQUARE
  */
 @Preview(
-    device = Devices.WEAR_OS_SQUARE,
+    device = WearDevices.SQUARE,
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Devices - Small Square",
     showSystemUi = true
 )
 @Preview(
-    device = Devices.WEAR_OS_LARGE_ROUND,
+    device = WearDevices.LARGE_ROUND,
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Devices - Large Round",
     showSystemUi = true
 )
 @Preview(
-    device = Devices.WEAR_OS_SMALL_ROUND,
+    device = WearDevices.SMALL_ROUND,
     backgroundColor = 0xff000000,
     showBackground = true,
     group = "Devices - Small Round",

@@ -17,7 +17,6 @@
 package androidx.compose.foundation.gestures.snapping
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.ui.unit.Density
 
 /**
  * Describes the general positioning of a given snap item in its containing layout.
@@ -29,20 +28,39 @@ fun interface SnapPositionInLayout {
      * The offset calculation is the necessary diff that should be applied to the item offset to
      * align the item with a position within the container. As a base line, if we wanted to align
      * the start of the container and the start of the item, we would return 0 in this function.
+     *
+     * @param layoutSize The main axis layout size within which an item can be positioned.
+     * @param itemSize The main axis size for the item being positioned within this snapping
+     * layout.
+     * @param beforeContentPadding The content padding in pixels applied before this Layout's
+     * content.
+     * @param afterContentPadding The content padding in pixels applied after this Layout's
+     * content.
+     * @param itemIndex The index of the item being positioned.
      */
-    fun Density.position(layoutSize: Int, itemSize: Int, itemIndex: Int): Int
+    fun position(
+        layoutSize: Int,
+        itemSize: Int,
+        beforeContentPadding: Int,
+        afterContentPadding: Int,
+        itemIndex: Int
+    ): Int
 
     companion object {
         /**
          * Aligns the center of the item with the center of the containing layout.
          */
         val CenterToCenter =
-            SnapPositionInLayout { layoutSize, itemSize, _ -> layoutSize / 2 - itemSize / 2 }
+            SnapPositionInLayout {
+                layoutSize, itemSize, beforeContentPadding, afterContentPadding, _ ->
+                val availableLayoutSpace = layoutSize - beforeContentPadding - afterContentPadding
+                availableLayoutSpace / 2 - itemSize / 2
+            }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
-internal fun Density.calculateDistanceToDesiredSnapPosition(
+internal fun calculateDistanceToDesiredSnapPosition(
     mainAxisViewPortSize: Int,
     beforeContentPadding: Int,
     afterContentPadding: Int,
@@ -51,10 +69,14 @@ internal fun Density.calculateDistanceToDesiredSnapPosition(
     itemIndex: Int,
     snapPositionInLayout: SnapPositionInLayout
 ): Float {
-    val containerSize = mainAxisViewPortSize - beforeContentPadding - afterContentPadding
-
     val desiredDistance = with(snapPositionInLayout) {
-        position(containerSize, itemSize, itemIndex)
+        position(
+            mainAxisViewPortSize,
+            itemSize,
+            beforeContentPadding,
+            afterContentPadding,
+            itemIndex,
+        )
     }.toFloat()
 
     return itemOffset - desiredDistance

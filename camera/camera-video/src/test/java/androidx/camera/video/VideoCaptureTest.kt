@@ -14,9 +14,12 @@
  * limitations under the License.
  */
 
+@file:RequiresApi(21)
+
 package androidx.camera.video
 
 import android.content.Context
+import android.graphics.Matrix
 import android.graphics.Rect
 import android.media.CamcorderProfile.QUALITY_1080P
 import android.media.CamcorderProfile.QUALITY_2160P
@@ -31,6 +34,7 @@ import android.os.Looper
 import android.util.Range
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.arch.core.util.Function
 import androidx.camera.core.AspectRatio.RATIO_16_9
 import androidx.camera.core.AspectRatio.RATIO_4_3
@@ -45,8 +49,6 @@ import androidx.camera.core.CameraSelector.LENS_FACING_BACK
 import androidx.camera.core.CameraSelector.LENS_FACING_FRONT
 import androidx.camera.core.CameraXConfig
 import androidx.camera.core.DynamicRange
-import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.FORMAT_HLG
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
@@ -71,28 +73,29 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.processing.DefaultSurfaceProcessor
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_1080P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_2160P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_480P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_720P
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_1080P
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_2160P
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_480P
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_720P
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_QHD
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_QVGA
-import androidx.camera.testing.EncoderProfilesUtil.RESOLUTION_VGA
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
-import androidx.camera.testing.fakes.FakeCameraFactory
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
-import androidx.camera.testing.fakes.FakeSurfaceEffect
-import androidx.camera.testing.fakes.FakeSurfaceProcessorInternal
-import androidx.camera.testing.fakes.FakeVideoEncoderInfo
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_1080P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_480P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_720P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_1080P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_480P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_720P
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_QHD
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_QVGA
+import androidx.camera.testing.impl.EncoderProfilesUtil.RESOLUTION_VGA
+import androidx.camera.testing.impl.fakes.FakeCameraDeviceSurfaceManager
+import androidx.camera.testing.impl.fakes.FakeCameraFactory
+import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
+import androidx.camera.testing.impl.fakes.FakeSurfaceEffect
+import androidx.camera.testing.impl.fakes.FakeSurfaceProcessorInternal
+import androidx.camera.testing.impl.fakes.FakeUseCaseConfigFactory
+import androidx.camera.testing.impl.fakes.FakeVideoEncoderInfo
 import androidx.camera.video.Quality.FHD
 import androidx.camera.video.Quality.HD
 import androidx.camera.video.Quality.HIGHEST
@@ -100,7 +103,6 @@ import androidx.camera.video.Quality.LOWEST
 import androidx.camera.video.Quality.NONE
 import androidx.camera.video.Quality.SD
 import androidx.camera.video.Quality.UHD
-import androidx.camera.video.RecorderVideoCapabilities.CapabilitiesByQuality
 import androidx.camera.video.StreamInfo.StreamState
 import androidx.camera.video.impl.VideoCaptureConfig
 import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy
@@ -126,7 +128,7 @@ import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.ShadowLog
 
-private val ANY_SIZE = Size(640, 480)
+private val ANY_SIZE by lazy { Size(640, 480) }
 private const val CAMERA_ID_0 = "0"
 
 @RunWith(RobolectricTestRunner::class)
@@ -198,7 +200,11 @@ class VideoCaptureTest {
         videoCapture.effect = createFakeEffect()
         camera.hasTransform = false
         // Act: set no transform and create pipeline.
-        videoCapture.bindToCamera(camera, null, null)
+        videoCapture.bindToCamera(
+            camera,
+            null,
+            videoCapture.getDefaultConfig(true, FakeUseCaseConfigFactory())
+        )
         videoCapture.updateSuggestedStreamSpec(StreamSpec.builder(Size(640, 480)).build())
         videoCapture.onStateAttached()
         // Assert: camera edge does not have transform.
@@ -1046,7 +1052,7 @@ class VideoCaptureTest {
         // propagated to the SurfaceRequest. It should come from the StreamSpec.
         testSurfaceRequestContainsExpected(
             requestedDynamicRange = DynamicRange.HDR_UNSPECIFIED_10_BIT,
-            expectedDynamicRange = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
+            expectedDynamicRange = DynamicRange.HLG_10_BIT
         )
     }
 
@@ -1269,6 +1275,48 @@ class VideoCaptureTest {
         )
     }
 
+    @Test
+    fun adjustCropRectAndRotation_withInProgressTransformationInfo() {
+        // Arrange.
+        val targetCropRect = Rect(0, 0, 1024, 768)
+        val targetRotationDegrees = 90
+        val sourceCropRect = Rect(0, 0, 1920, 1080)
+        val sourceRotationDegrees = 270
+        var surfaceRequest: SurfaceRequest? = null
+        val videoOutput =
+            createVideoOutput(surfaceRequestListener = { request, _ -> surfaceRequest = request })
+        val videoCapture = createVideoCapture(
+            videoOutput = videoOutput
+        )
+        setupCamera(sensorRotation = sourceRotationDegrees)
+        createCameraUseCaseAdapter()
+        videoOutput.updateStreamInfo(
+            StreamInfo.of(
+                StreamInfo.STREAM_ID_ANY,
+                StreamState.INACTIVE,
+                SurfaceRequest.TransformationInfo.of(
+                    targetCropRect,
+                    targetRotationDegrees,
+                    0,
+                    false,
+                    Matrix(),
+                    /*mirroring=*/false
+                )
+            )
+        )
+        videoCapture.setViewPortCropRect(sourceCropRect)
+
+        // Act.
+        addAndAttachUseCases(videoCapture)
+
+        // Assert.
+        assertThat(surfaceRequest).isNotNull()
+        assertThat(surfaceRequest!!.resolution).isEqualTo(rectToSize(targetCropRect))
+        assertThat(videoCapture.cropRect).isEqualTo(targetCropRect)
+        assertThat(videoCapture.rotationDegrees)
+            .isEqualTo(sourceRotationDegrees - targetRotationDegrees)
+    }
+
     private fun testAdjustCropRectToValidSize(
         quality: Quality = HD, // HD maps to 1280x720 (4:3)
         videoEncoderInfo: VideoEncoderInfo = createVideoEncoderInfo(),
@@ -1303,6 +1351,14 @@ class VideoCaptureTest {
                 testImplementationOption
             )
         ).isEqualTo(newImplementationOptionValue)
+    }
+
+    @Test
+    fun canSetVideoStabilization() {
+        val videoCapture = VideoCapture.Builder(Recorder.Builder().build())
+            .setVideoStabilizationEnabled(true)
+            .build()
+        assertThat(videoCapture.isVideoStabilizationEnabled).isTrue()
     }
 
     private fun testSurfaceRequestContainsExpected(
@@ -1429,6 +1485,10 @@ class VideoCaptureTest {
         override fun getMediaCapabilities(cameraInfo: CameraInfo): VideoCapabilities {
             return videoCapabilities
         }
+
+        fun updateStreamInfo(streamInfo: StreamInfo) {
+            streamInfoObservable.setState(streamInfo)
+        }
     }
 
     private fun addAndAttachUseCases(vararg useCases: UseCase) {
@@ -1542,7 +1602,7 @@ class VideoCaptureTest {
         surfaceManager = FakeCameraDeviceSurfaceManager()
 
         val cameraXConfig = CameraXConfig.Builder.fromConfig(FakeAppConfig.create())
-            .setCameraFactoryProvider { _, _, _ -> cameraFactory }
+            .setCameraFactoryProvider { _, _, _, _ -> cameraFactory }
             .setDeviceSurfaceManagerProvider { _, _, _ -> surfaceManager }
             .build()
         CameraXUtil.initialize(context, cameraXConfig).get()
@@ -1655,6 +1715,10 @@ class VideoCaptureTest {
                     return videoCapabilitiesMap[dynamicRange]?.isQualitySupported(quality) ?: false
                 }
 
+                override fun isStabilizationSupported(): Boolean {
+                    return false
+                }
+
                 override fun getProfiles(
                     quality: Quality,
                     dynamicRange: DynamicRange
@@ -1662,20 +1726,20 @@ class VideoCaptureTest {
                     return videoCapabilitiesMap[dynamicRange]?.getProfiles(quality)
                 }
 
-                override fun findHighestSupportedEncoderProfilesFor(
+                override fun findNearestHigherSupportedEncoderProfilesFor(
                     size: Size,
                     dynamicRange: DynamicRange
                 ): VideoValidatedEncoderProfilesProxy? {
                     return videoCapabilitiesMap[dynamicRange]
-                        ?.findHighestSupportedEncoderProfilesFor(size)
+                        ?.findNearestHigherSupportedEncoderProfilesFor(size)
                 }
 
-                override fun findHighestSupportedQualityFor(
+                override fun findNearestHigherSupportedQualityFor(
                     size: Size,
                     dynamicRange: DynamicRange
                 ): Quality {
                     return videoCapabilitiesMap[dynamicRange]
-                        ?.findHighestSupportedQualityFor(size) ?: NONE
+                        ?.findNearestHigherSupportedQualityFor(size) ?: NONE
                 }
             }
         }

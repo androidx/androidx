@@ -48,6 +48,7 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.Matchers.greaterThanOrEqualTo;
 import static org.hamcrest.Matchers.isIn;
 import static org.hamcrest.Matchers.isOneOf;
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -59,6 +60,9 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 import android.content.ComponentName;
 import android.content.Context;
@@ -85,18 +89,19 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.testutils.RepeatRule;
 import androidx.work.BackoffPolicy;
-import androidx.work.Clock;
 import androidx.work.Configuration;
 import androidx.work.Constraints;
 import androidx.work.Constraints.ContentUriTrigger;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
+import androidx.work.WorkerFactory;
 import androidx.work.impl.background.greedy.GreedyScheduler;
 import androidx.work.impl.background.systemalarm.RescheduleReceiver;
 import androidx.work.impl.constraints.trackers.Trackers;
@@ -107,15 +112,19 @@ import androidx.work.impl.model.WorkSpec;
 import androidx.work.impl.model.WorkSpecDao;
 import androidx.work.impl.model.WorkTag;
 import androidx.work.impl.model.WorkTagDao;
+import androidx.work.impl.testutils.TestOverrideClock;
 import androidx.work.impl.utils.CancelWorkRunnable;
 import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.PreferenceUtils;
+import androidx.work.impl.utils.SynchronousExecutor;
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor;
 import androidx.work.impl.workers.ConstraintTrackingWorker;
 import androidx.work.impl.workers.ConstraintTrackingWorkerKt;
 import androidx.work.worker.InfiniteTestWorker;
 import androidx.work.worker.StopAwareWorker;
 import androidx.work.worker.TestWorker;
+
+import com.google.common.util.concurrent.Futures;
 
 import org.junit.After;
 import org.junit.Before;
@@ -124,7 +133,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
-import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -142,7 +150,7 @@ public class WorkManagerImplTest {
 
     private Context mContext;
     private Configuration mConfiguration;
-    private OverrideClock mClock = new OverrideClock();
+    private TestOverrideClock mClock = new TestOverrideClock();
     private WorkDatabase mDatabase;
     private Scheduler mScheduler;
     private WorkManagerImpl mWorkManagerImpl;
@@ -173,6 +181,7 @@ public class WorkManagerImplTest {
                 .setExecutor(Executors.newSingleThreadExecutor())
                 .setClock(mClock)
                 .setMinimumLoggingLevel(Log.DEBUG)
+                .setWorkerFactory(spy(WorkerFactory.class))
                 .build();
         InstantWorkTaskExecutor workTaskExecutor = new InstantWorkTaskExecutor();
         mWorkManagerImpl = spy(createWorkManager(mContext, mConfiguration, workTaskExecutor));
@@ -183,7 +192,7 @@ public class WorkManagerImplTest {
                         mContext,
                         mWorkManagerImpl.getConfiguration(),
                         mWorkManagerImpl.getTrackers(),
-                        mWorkManagerImpl.getProcessor(), workLauncher));
+                        mWorkManagerImpl.getProcessor(), workLauncher, workTaskExecutor));
         // Don't return any scheduler. We don't need to actually execute work for most of our tests.
         when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.<Scheduler>emptyList());
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
@@ -436,9 +445,9 @@ public class WorkManagerImplTest {
     public void testEnqueue_insertWorkInitialDelay()
             throws ExecutionException, InterruptedException {
 
-        final long expectedInitialDelay = 5000L;
+        final long expectedInitialDelayMillis = 5000L;
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setInitialDelay(expectedInitialDelay, TimeUnit.MILLISECONDS)
+                .setInitialDelay(expectedInitialDelayMillis, MILLISECONDS)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         mWorkManagerImpl.beginWith(work0).then(work1).enqueue().getResult().get();
@@ -446,7 +455,7 @@ public class WorkManagerImplTest {
         WorkSpec workSpec0 = mDatabase.workSpecDao().getWorkSpec(work0.getStringId());
         WorkSpec workSpec1 = mDatabase.workSpecDao().getWorkSpec(work1.getStringId());
 
-        assertThat(workSpec0.initialDelay, is(expectedInitialDelay));
+        assertThat(workSpec0.initialDelay, is(expectedInitialDelayMillis));
         assertThat(workSpec1.initialDelay, is(0L));
     }
 
@@ -456,7 +465,7 @@ public class WorkManagerImplTest {
             throws ExecutionException, InterruptedException {
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
-                .setBackoffCriteria(BackoffPolicy.LINEAR, 50000, TimeUnit.MILLISECONDS)
+                .setBackoffCriteria(BackoffPolicy.LINEAR, 50000, MILLISECONDS)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         mWorkManagerImpl.beginWith(work0).then(work1).enqueue().getResult().get();
@@ -503,7 +512,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
-                TimeUnit.MILLISECONDS)
+                MILLISECONDS)
                 .build();
 
         mWorkManagerImpl.enqueue(Collections.singletonList(periodicWork))
@@ -522,7 +531,7 @@ public class WorkManagerImplTest {
             throws ExecutionException, InterruptedException {
 
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        assertThat(work.getWorkSpec().lastEnqueueTime, is(0L));
+        assertThat(work.getWorkSpec().lastEnqueueTime, is(-1L));
 
         long beforeEnqueueTime = System.currentTimeMillis();
 
@@ -538,9 +547,9 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
-                TimeUnit.MILLISECONDS)
+                MILLISECONDS)
                 .build();
-        assertThat(periodicWork.getWorkSpec().lastEnqueueTime, is(0L));
+        assertThat(periodicWork.getWorkSpec().lastEnqueueTime, is(-1L));
         // Disable the greedy scheduler in this test. This is because sometimes the Worker
         // finishes instantly after enqueue(), and the periodStartTime gets updated.
         doNothing().when(mScheduler).schedule(any(WorkSpec.class));
@@ -583,7 +592,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 15L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .build();
         mWorkManagerImpl.enqueueUniquePeriodicWork(
                 uniqueName,
@@ -638,7 +647,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest originalWork = new PeriodicWorkRequest.Builder(
                 InfiniteTestWorker.class,
                 15L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .build();
         insertNamedWorks(uniqueName, originalWork);
 
@@ -648,7 +657,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 30L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .build();
         mWorkManagerImpl.enqueueUniquePeriodicWork(
                 uniqueName,
@@ -707,7 +716,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest originalWork = new PeriodicWorkRequest.Builder(
                 InfiniteTestWorker.class,
                 15L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .build();
         insertNamedWorks(uniqueName, originalWork);
 
@@ -717,7 +726,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 30L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .build();
         mWorkManagerImpl.enqueueUniquePeriodicWork(
                 uniqueName,
@@ -776,7 +785,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest originalWork = new PeriodicWorkRequest.Builder(
                 InfiniteTestWorker.class,
                 15L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .setInitialState(SUCCEEDED)
                 .build();
         insertNamedWorks(uniqueName, originalWork);
@@ -787,7 +796,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 30L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .build();
         mWorkManagerImpl.enqueueUniquePeriodicWork(
                 uniqueName,
@@ -811,8 +820,8 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest originalWork = new PeriodicWorkRequest.Builder(
                 InfiniteTestWorker.class,
                 15L,
-                TimeUnit.MINUTES)
-                .setLastEnqueueTime(enqueueTime, TimeUnit.MILLISECONDS)
+                MINUTES)
+                .setLastEnqueueTime(enqueueTime, MILLISECONDS)
                 .setInitialState(ENQUEUED)
                 .build();
         insertNamedWorks(uniqueName, originalWork);
@@ -823,7 +832,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 30L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .build();
         mWorkManagerImpl.enqueueUniquePeriodicWork(
                 uniqueName,
@@ -836,7 +845,7 @@ public class WorkManagerImplTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         WorkSpec workSpec = workSpecDao.getWorkSpec(originalWork.getStringId());
         assertThat(workSpec.lastEnqueueTime, is(enqueueTime));
-        assertThat(workSpec.intervalDuration, is(TimeUnit.MINUTES.toMillis(30)));
+        assertThat(workSpec.intervalDuration, is(MINUTES.toMillis(30)));
     }
 
     @Test
@@ -847,7 +856,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest originalWork = new PeriodicWorkRequest.Builder(
                 InfiniteTestWorker.class,
                 15L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .setInitialState(CANCELLED)
                 .build();
         insertNamedWorks(uniqueName, originalWork);
@@ -858,7 +867,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 30L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .build();
         mWorkManagerImpl.enqueueUniquePeriodicWork(
                 uniqueName,
@@ -876,7 +885,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 30L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .build();
         mWorkManagerImpl.enqueueUniquePeriodicWork(
                 uniqueName,
@@ -897,7 +906,7 @@ public class WorkManagerImplTest {
         PeriodicWorkRequest replacementWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 30L,
-                TimeUnit.MINUTES)
+                MINUTES)
                 .build();
         try {
             mWorkManagerImpl.enqueueUniquePeriodicWork(uniqueName,
@@ -906,6 +915,172 @@ public class WorkManagerImplTest {
         } catch (ExecutionException e) {
             assertThat(e.getCause(), instanceOf(UnsupportedOperationException.class));
         }
+    }
+
+    @Test
+    @SmallTest
+    public void testOverrideNextSchedule_selfRescheduleWorker_update()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "TestWorker";
+        ListenableWorker testWorker = mock(ListenableWorker.class);
+        setupTestOverrideScheduleWorker(uniqueName, testWorker,
+                ExistingPeriodicWorkPolicy.UPDATE);
+
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
+        when(mConfiguration.getWorkerFactory().createWorker(any(),
+                eq(ListenableWorker.class.getName()), any())).thenReturn(testWorker);
+        mClock.currentTimeMillis = TimeUnit.HOURS.toMillis(1);
+
+        PeriodicWorkRequest periodicWorkRequest =
+                new PeriodicWorkRequest.Builder(ListenableWorker.class, 1, TimeUnit.HOURS)
+                        .build();
+
+        // Runs immediately (periodic worker first run is instant)
+        mWorkManagerImpl.enqueueUniquePeriodicWork(uniqueName,
+                ExistingPeriodicWorkPolicy.UPDATE, periodicWorkRequest).getResult().get();
+
+        // Next run should be scheduled for T=10 hours, according to the Worker's override.
+        // Uses the same Id as before.
+        WorkInfo workInfo = mWorkManagerImpl
+                .getWorkInfoById(periodicWorkRequest.getId()).get();
+        assertThat(
+                workInfo.getNextScheduleTimeMillis(),
+                equalTo(TimeUnit.HOURS.toMillis(10)));
+
+        // Previous run completed successfully.
+        assertThat(
+                workInfo.getRunAttemptCount(),
+                equalTo(0));
+    }
+
+    @Test
+    @SmallTest
+    public void testOverrideNextSchedule_cancelAndReenqueue_fails()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "TestWorker";
+        ListenableWorker testWorker = mock(ListenableWorker.class);
+
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
+        when(mConfiguration.getWorkerFactory().createWorker(any(),
+                eq(ListenableWorker.class.getName()), any())).thenReturn(testWorker);
+        mClock.currentTimeMillis = TimeUnit.HOURS.toMillis(1);
+
+        PeriodicWorkRequest periodicWorkRequest =
+                new PeriodicWorkRequest.Builder(ListenableWorker.class, 1, TimeUnit.HOURS)
+                        .setNextScheduleTimeOverride(123456)
+                        .build();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                mWorkManagerImpl.enqueueUniquePeriodicWork(uniqueName,
+                        ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE,
+                        periodicWorkRequest).getResult().get());
+
+        assertThrows(IllegalArgumentException.class, () ->
+                mWorkManagerImpl.enqueueUniquePeriodicWork(uniqueName,
+                        ExistingPeriodicWorkPolicy.REPLACE,
+                        periodicWorkRequest).getResult().get());
+    }
+    @Test
+    @SmallTest
+    public void testOverrideNextSchedule_update_allowed()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "TestWorker";
+        ListenableWorker testWorker = mock(ListenableWorker.class);
+
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
+        when(mConfiguration.getWorkerFactory().createWorker(any(),
+                eq(ListenableWorker.class.getName()), any())).thenReturn(testWorker);
+        mClock.currentTimeMillis = TimeUnit.HOURS.toMillis(1);
+
+        PeriodicWorkRequest periodicWorkRequest =
+                new PeriodicWorkRequest.Builder(ListenableWorker.class, 1, TimeUnit.HOURS)
+                        .setNextScheduleTimeOverride(123456)
+                        .build();
+
+        mWorkManagerImpl.enqueueUniquePeriodicWork(uniqueName,
+                ExistingPeriodicWorkPolicy.UPDATE,
+                periodicWorkRequest).getResult().get();
+    }
+
+    @Test
+    @SmallTest
+    public void testOverrideNextSchedule_keep_allowed()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "TestWorker";
+        ListenableWorker testWorker = mock(ListenableWorker.class);
+
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
+        when(mConfiguration.getWorkerFactory().createWorker(any(),
+                eq(ListenableWorker.class.getName()), any())).thenReturn(testWorker);
+        mClock.currentTimeMillis = TimeUnit.HOURS.toMillis(1);
+
+        PeriodicWorkRequest periodicWorkRequest =
+                new PeriodicWorkRequest.Builder(ListenableWorker.class, 1, TimeUnit.HOURS)
+                        .setNextScheduleTimeOverride(123456)
+                        .build();
+
+        // KEEP isn't very useful, but it works.
+        mWorkManagerImpl.enqueueUniquePeriodicWork(uniqueName,
+                ExistingPeriodicWorkPolicy.KEEP,
+                periodicWorkRequest).getResult().get();
+    }
+
+    @Test
+    @SmallTest
+    public void testOverrideNextSchedule_selfRescheduleWorker_keep()
+            throws ExecutionException, InterruptedException {
+        final String uniqueName = "TestWorker";
+        ListenableWorker testWorker = mock(ListenableWorker.class);
+        setupTestOverrideScheduleWorker(uniqueName, testWorker,
+                ExistingPeriodicWorkPolicy.KEEP);
+
+        when(mWorkManagerImpl.getSchedulers()).thenReturn(Collections.singletonList(mScheduler));
+        when(mConfiguration.getWorkerFactory().createWorker(any(),
+                eq(ListenableWorker.class.getName()), any())).thenReturn(testWorker);
+        mClock.currentTimeMillis = TimeUnit.HOURS.toMillis(1);
+
+        PeriodicWorkRequest periodicWorkRequest =
+                new PeriodicWorkRequest.Builder(ListenableWorker.class, 1, TimeUnit.HOURS)
+                        .build();
+
+        // Runs immediately (periodic worker first run is instant)
+        mWorkManagerImpl.enqueueUniquePeriodicWork(uniqueName,
+                ExistingPeriodicWorkPolicy.UPDATE, periodicWorkRequest).getResult().get();
+
+        // KEEP meant that the override wasn't changed. It was cleared when the Worker finished.
+        WorkInfo workInfo = mWorkManagerImpl
+                .getWorkInfoById(periodicWorkRequest.getId()).get();
+        assertThat(
+                workInfo.getNextScheduleTimeMillis(),
+                equalTo(TimeUnit.HOURS.toMillis(2)));
+
+        // Previous run completed successfully.
+        assertThat(
+                workInfo.getRunAttemptCount(),
+                equalTo(0));
+    }
+
+    private void setupTestOverrideScheduleWorker(String uniqueName, ListenableWorker testWorker,
+            ExistingPeriodicWorkPolicy existingPolicy) {
+        when(testWorker.startWork()).thenAnswer(
+                invocation -> {
+                    PeriodicWorkRequest request =
+                            new PeriodicWorkRequest.Builder(
+                                    ListenableWorker.class, 1, TimeUnit.HOURS)
+                                    .setNextScheduleTimeOverride(
+                                            TimeUnit.HOURS.toMillis(10)).build();
+                    return Futures.transform(
+                            WorkManager.getInstance(mContext)
+                                    .enqueueUniquePeriodicWork(
+                                            uniqueName,
+                                            existingPolicy,
+                                            request
+                                    ).getResult(),
+                            (input) -> ListenableWorker.Result.Success.success(),
+                            new SynchronousExecutor()
+                    );
+                }
+        );
     }
 
     @Test
@@ -1204,7 +1379,7 @@ public class WorkManagerImplTest {
     public void testGetWorkInfoByIdSync_oneTime_schedules() throws Exception {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
-                .setInitialDelay(1234, TimeUnit.MILLISECONDS)
+                .setInitialDelay(1234, MILLISECONDS)
                 .build();
         insertWorkSpecAndTags(work);
 
@@ -1216,15 +1391,16 @@ public class WorkManagerImplTest {
 
     @Test
     @MediumTest
-    @SdkSuppress(minSdkVersion = 26)
     public void testGetWorkInfoByIdSync_periodic_schedules() throws Exception {
-        Duration repeatInterval = Duration.ofMinutes(60);
-        Duration flexInterval = Duration.ofMinutes(30);
+        long repeatIntervalMillis = MINUTES.toMillis(60);
+        long flexIntervalMillis = MINUTES.toMillis(30);
 
         PeriodicWorkRequest work =
-                new PeriodicWorkRequest.Builder(TestWorker.class, repeatInterval, flexInterval)
+                new PeriodicWorkRequest.Builder(TestWorker.class,
+                        repeatIntervalMillis, MILLISECONDS,
+                        flexIntervalMillis, MILLISECONDS)
                         .setInitialState(SUCCEEDED)
-                        .setInitialDelay(1234, TimeUnit.MILLISECONDS)
+                        .setInitialDelay(1234, MILLISECONDS)
                         .build();
         insertWorkSpecAndTags(work);
 
@@ -1232,9 +1408,9 @@ public class WorkManagerImplTest {
         assertThat(workInfo.getId().toString(), is(work.getStringId()));
         assertThat(workInfo.getInitialDelayMillis(), equalTo(1234L));
         assertThat(workInfo.getPeriodicityInfo().getRepeatIntervalMillis(), equalTo(
-                repeatInterval.toMillis()));
+                repeatIntervalMillis));
         assertThat(workInfo.getPeriodicityInfo().getFlexIntervalMillis(), equalTo(
-                flexInterval.toMillis()));
+                flexIntervalMillis));
     }
 
     @Test
@@ -1338,11 +1514,10 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 26)
     public void testGetWorkInfoById_nextScheduleTime_onetime_initialDelay()
             throws ExecutionException, InterruptedException {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).setInitialDelay(
-                Duration.ofMillis(2000)).build();
+                2000, MILLISECONDS).build();
         work.getWorkSpec().lastEnqueueTime = 1000L;
         insertWorkSpecAndTags(work);
 
@@ -1355,19 +1530,18 @@ public class WorkManagerImplTest {
 
     @Test
     @SmallTest
-    @SdkSuppress(minSdkVersion = 26)
     public void testGetWorkInfoById_nextScheduleTime_periodic_period()
             throws ExecutionException, InterruptedException {
-        Duration period = Duration.ofMinutes(15);
-        Duration initialDelay = Duration.ofMillis(2000);
-        Duration lastEnqueueTime = Duration.ofMillis(1000L);
+        long periodMillis = MINUTES.toMillis(15);
+        long initialDelayMillis = 2000L;
+        long lastEnqueueTimeMillis = 1000L;
 
         PeriodicWorkRequest work0 = new PeriodicWorkRequest.Builder(
-                TestWorker.class, period)
-                .setInitialDelay(initialDelay)
+                TestWorker.class, periodMillis, MILLISECONDS)
+                .setInitialDelay(initialDelayMillis, MILLISECONDS)
                 .build();
 
-        work0.getWorkSpec().lastEnqueueTime = lastEnqueueTime.toMillis();
+        work0.getWorkSpec().lastEnqueueTime = lastEnqueueTimeMillis;
         work0.getWorkSpec().setPeriodCount(3);
         insertWorkSpecAndTags(work0);
 
@@ -1375,8 +1549,8 @@ public class WorkManagerImplTest {
 
         assertThat(info.getState(), equalTo(ENQUEUED));
         assertThat(info.getNextScheduleTimeMillis(),
-                equalTo(lastEnqueueTime.plus(period).toMillis()));
-        assertThat(info.getInitialDelayMillis(), equalTo(initialDelay.toMillis()));
+                equalTo(lastEnqueueTimeMillis + periodMillis));
+        assertThat(info.getInitialDelayMillis(), equalTo(initialDelayMillis));
     }
 
     @Test
@@ -1731,43 +1905,8 @@ public class WorkManagerImplTest {
         OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
         insertWorkSpecAndTags(work);
 
-        CancelWorkRunnable.forAll(mWorkManagerImpl).run();
+        CancelWorkRunnable.forAll(mWorkManagerImpl);
         assertThat(preferenceUtils.getLastCancelAllTimeMillis(), is(greaterThan(0L)));
-    }
-
-    @Test
-    @LargeTest
-    @SuppressWarnings("unchecked")
-    @SdkSuppress(maxSdkVersion = 33) // b/262909049: Failing on SDK 34
-    public void testCancelAllWork_updatesLastCancelAllTimeLiveData() throws InterruptedException {
-        if (Build.VERSION.SDK_INT == 33 && !"REL".equals(Build.VERSION.CODENAME)) {
-            return; // b/262909049: Do not run this test on pre-release Android U.
-        }
-
-        PreferenceUtils preferenceUtils = new PreferenceUtils(mWorkManagerImpl.getWorkDatabase());
-        preferenceUtils.setLastCancelAllTimeMillis(0L);
-
-        TestLifecycleOwner testLifecycleOwner = new TestLifecycleOwner();
-        LiveData<Long> cancelAllTimeLiveData =
-                mWorkManagerImpl.getLastCancelAllTimeMillisLiveData();
-        Observer<Long> mockObserver = mock(Observer.class);
-        cancelAllTimeLiveData.observe(testLifecycleOwner, mockObserver);
-
-        ArgumentCaptor<Long> captor = ArgumentCaptor.forClass(Long.class);
-        verify(mockObserver).onChanged(captor.capture());
-        assertThat(captor.getValue(), is(0L));
-
-        OneTimeWorkRequest work = new OneTimeWorkRequest.Builder(TestWorker.class).build();
-        insertWorkSpecAndTags(work);
-
-        clearInvocations(mockObserver);
-        CancelWorkRunnable.forAll(mWorkManagerImpl).run();
-
-        Thread.sleep(1000L);
-        verify(mockObserver).onChanged(captor.capture());
-        assertThat(captor.getValue(), is(greaterThan(0L)));
-
-        cancelAllTimeLiveData.removeObservers(testLifecycleOwner);
     }
 
     @Test
@@ -1841,16 +1980,16 @@ public class WorkManagerImplTest {
     @MediumTest
     public void testGenerateCleanupCallback_deletesOldFinishedWork() {
         long nowMillis = TimeUnit.DAYS.toMillis(30);
-        mClock.mOverrideTimeMillis = nowMillis;
+        mClock.currentTimeMillis = nowMillis;
 
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
                 .setLastEnqueueTime(nowMillis - WorkDatabaseKt.PRUNE_THRESHOLD_MILLIS - 1L,
-                        TimeUnit.MILLISECONDS)
+                        MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setLastEnqueueTime(nowMillis - WorkDatabaseKt.PRUNE_THRESHOLD_MILLIS + 1L,
-                        TimeUnit.MILLISECONDS)
+                        MILLISECONDS)
                 .build();
 
         insertWorkSpecAndTags(work1);
@@ -1870,22 +2009,22 @@ public class WorkManagerImplTest {
     @MediumTest
     public void testGenerateCleanupCallback_doesNotDeleteOldFinishedWorkWithActiveDependents() {
         long nowMillis = TimeUnit.DAYS.toMillis(30);
-        mClock.mOverrideTimeMillis = nowMillis;
+        mClock.currentTimeMillis = nowMillis;
 
         OneTimeWorkRequest work0 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
                 .setLastEnqueueTime(nowMillis - WorkDatabaseKt.PRUNE_THRESHOLD_MILLIS - 1L,
-                        TimeUnit.MILLISECONDS)
+                        MILLISECONDS)
                 .build();
         OneTimeWorkRequest work1 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(SUCCEEDED)
                 .setLastEnqueueTime(nowMillis - WorkDatabaseKt.PRUNE_THRESHOLD_MILLIS - 1L,
-                        TimeUnit.MILLISECONDS)
+                        MILLISECONDS)
                 .build();
         OneTimeWorkRequest work2 = new OneTimeWorkRequest.Builder(TestWorker.class)
                 .setInitialState(ENQUEUED)
                 .setLastEnqueueTime(nowMillis - WorkDatabaseKt.PRUNE_THRESHOLD_MILLIS - 1L,
-                        TimeUnit.MILLISECONDS)
+                        MILLISECONDS)
                 .build();
 
         insertWorkSpecAndTags(work0);
@@ -1929,13 +2068,9 @@ public class WorkManagerImplTest {
         WorkLauncherImpl launcher = new WorkLauncherImpl(processor, workTaskExecutor);
 
         Trackers trackers = mWorkManagerImpl.getTrackers();
-        Scheduler scheduler =
-                new GreedyScheduler(
-                        mContext,
-                        mWorkManagerImpl.getConfiguration(),
-                        trackers,
-                        processor, launcher);
-        mWorkManagerImpl = createWorkManager(mContext, mConfiguration, workTaskExecutor,
+        Scheduler scheduler = new GreedyScheduler(mContext, mWorkManagerImpl.getConfiguration(),
+                        trackers, processor, launcher, workTaskExecutor);
+        mWorkManagerImpl =  createWorkManager(mContext, mConfiguration, workTaskExecutor,
                 mDatabase, trackers, processor, schedulers(scheduler));
 
         WorkManagerImpl.setDelegate(mWorkManagerImpl);
@@ -1956,6 +2091,13 @@ public class WorkManagerImplTest {
                         eq(PackageManager.DONT_KILL_APP));
 
         reset(packageManager);
+
+        // Scheduling work involved enabling RescheduleReceiver.class.
+        // Mark the component state as enabled (so we can check for disablement).
+        // This is necessary because we are using a PackageManager mock here.
+        when(packageManager.getComponentEnabledSetting(eq(componentName)))
+                .thenReturn(PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
+
         mWorkManagerImpl.cancelWorkById(stopAwareWorkRequest.getId())
                 .getResult()
                 .get();
@@ -2162,15 +2304,5 @@ public class WorkManagerImplTest {
                 Constraints.NONE, 0, null,
                 Long.MAX_VALUE // Documented error value.
         );
-    }
-
-    private class OverrideClock implements Clock {
-        long mOverrideTimeMillis = Long.MAX_VALUE;
-
-        @Override
-        public long currentTimeMillis() {
-            return mOverrideTimeMillis == Long.MAX_VALUE ? System.currentTimeMillis()
-                    : mOverrideTimeMillis;
-        }
     }
 }

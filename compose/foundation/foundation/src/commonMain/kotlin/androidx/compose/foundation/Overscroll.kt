@@ -39,6 +39,15 @@ import androidx.compose.ui.unit.Velocity
  * [androidx.compose.foundation.gestures.scrollable]. Then you can draw the effect on top of the
  * scrolling content using [Modifier.overscroll].
  *
+ * Note: this API is currently experimental and liable to change. The overall behavioral
+ * characteristics of [applyToScroll] and [applyToFling] are unlikely to change, but the
+ * relationship and layering between the stateful part of overscroll and the [effectModifier] is
+ * likely to be changed in the future. This should not have a large impact on custom overscroll
+ * implementations, but it may require you to separate parts of the implementation into different
+ * parts that implement different interfaces. Fewer changes are expected if you are not implementing
+ * a custom OverscrollEffect, but instead are just calling [applyToFling] and [applyToScroll] on
+ * an existing instance.
+ *
  * @sample androidx.compose.foundation.samples.OverscrollSample
  */
 @ExperimentalFoundationApi
@@ -129,6 +138,10 @@ interface OverscrollEffect {
  * overscroll - on its own it will not handle input events. In addition to using this modifier you
  * also need to propagate events to the [overscrollEffect], most commonly by using a
  * [androidx.compose.foundation.gestures.scrollable].
+ *
+ * Note: this API is experimental because [OverscrollEffect] is also experimental. Depending on
+ * changes to OverscrollEffect, this API may be modified / removed, but there will be a similar API
+ * to render the visual part of an OverscrollEffect as a modifier.
  *
  * @sample androidx.compose.foundation.samples.OverscrollSample
  *

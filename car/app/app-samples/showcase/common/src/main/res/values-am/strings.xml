@@ -164,14 +164,14 @@
     <string name="take_520" msgid="3804796387195842741">"520 ውሰድ"</string>
     <string name="gas_station" msgid="1203313937444666161">"ነዳጅ ማደያ"</string>
     <string name="short_route" msgid="4831864276538141265">"አጭር መስመር"</string>
-    <string name="less_busy" msgid="310625272281710983">"ያነሰ ስራ የሚበዛበት"</string>
+    <string name="less_busy" msgid="310625272281710983">"ያነሰ ሥራ የሚበዛበት"</string>
     <string name="hov_friendly" msgid="6956152104754594971">"ለባለከፍተኛ መቀመጫ ተሽከርካሪ ምቹ"</string>
     <string name="long_route" msgid="4737969235741057506">"ረጅም መንገድ"</string>
     <string name="continue_start_nav" msgid="6231797535084469163">"ወደ አሰሳ ጀምር ቀጥል"</string>
     <string name="continue_route" msgid="5172258139245088080">"ወደ አቅጣጫ ቀጥል"</string>
     <string name="routes_title" msgid="7799772149932075357">"መንገዶች"</string>
     <string name="place_list_nav_template_demo_title" msgid="8019588508812955290">"የዝርዝር አሰሳ ቅንብር ደንብ ቅንጭብ ማሳያን ይመድቡ"</string>
-    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"የመንገድ ቅድመ እይታ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
+    <string name="route_preview_template_demo_title" msgid="7878704357953167555">"የመንገድ ቅድመ ዕይታ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="notification_template_demo_title" msgid="5076051497316030274">"የማሳወቂያ ቅንብር ደንብ ቅንጭብ ማሳያ"</string>
     <string name="nav_map_template_demo_title" msgid="344985380763975398">"የአሰሳ ቅንብር ደንብ በካርታ ብቻ ማሳያ"</string>
     <string name="nav_demos_title" msgid="72781206086461004">"የአሰሳ ቅንጭብ ማሳያዎች"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"የዝርዝር ትር"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"የፍርግርግ ትር ከረጅም ትር ርዕስ ጋር"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"የፍለጋ ትር"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"የመጫኛ ትር"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"የትር ቅንብር ደንብ መጫኛ ቅንጭብ ማሳያ"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"የትር ቅንብር ደንብ ቁጥር ትሮች ቅንጭብ ማሳያ"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"ምስሎች ለማይታወቅ አስተናጋጅ ሊታዩ አይችሉም"</string>
@@ -326,7 +327,7 @@
     <string name="sectioned_item_list_demo_title" msgid="1236735461225007729">"የተከፈለ ንጥል ዝርዝር ቅንጭብ ማሳያ"</string>
     <string name="sectioned_item_list_one_title" msgid="6594204350307263338">"ዝርዝር 1"</string>
     <string name="sectioned_item_list_two_title" msgid="4941545381743022833">"ዝርዝር 2"</string>
-    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ከእያንዳንዱ ዝርዝር ስር የግርጌ ጽሑፍ"</string>
+    <string name="sectioned_item_list_subtext" msgid="2963927693547537519">"ከእያንዳንዱ ዝርዝር ስር የግርጌ ጽሁፍ"</string>
     <string name="empty_list_demo_title" msgid="5989013634820902455">"ባዶ የዝርዝር ቅንጭብ ማሳያ"</string>
     <string name="empty_list_message" msgid="5331395517560728138">"ዝርዝሩ ባዶ ነው"</string>
     <string name="misc_templates_demos_title" msgid="6077169010255928114">"የተለያዩ ቅንብር ደንቦች ቅንጭብ ማሳያዎች"</string>

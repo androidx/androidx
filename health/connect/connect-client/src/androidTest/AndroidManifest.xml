@@ -15,5 +15,107 @@
   limitations under the License.
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <activity android:name=".EmptyActivity"
+            android:label="EmptyActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW_PERMISSION_USAGE"/>
+                <category android:name="android.intent.category.HEALTH_PERMISSIONS"/>
+            </intent-filter>
+        </activity>
+    </application>
 
+    <!-- Read permissions for ACTIVITY. -->
+    <uses-permission android:name="android.permission.health.READ_ACTIVE_CALORIES_BURNED"/>
+    <uses-permission android:name="android.permission.health.READ_DISTANCE"/>
+    <uses-permission android:name="android.permission.health.READ_ELEVATION_GAINED"/>
+    <uses-permission android:name="android.permission.health.READ_EXERCISE"/>
+    <uses-permission android:name="android.permission.health.READ_FLOORS_CLIMBED"/>
+    <uses-permission android:name="android.permission.health.READ_STEPS"/>
+    <uses-permission android:name="android.permission.health.READ_TOTAL_CALORIES_BURNED"/>
+    <uses-permission android:name="android.permission.health.READ_VO2_MAX"/>
+    <uses-permission android:name="android.permission.health.READ_WHEELCHAIR_PUSHES"/>
+    <uses-permission android:name="android.permission.health.READ_POWER"/>
+    <uses-permission android:name="android.permission.health.READ_SPEED"/>
+
+    <!-- Read permissions for BODY_MEASUREMENTS. -->
+    <uses-permission android:name="android.permission.health.READ_BASAL_METABOLIC_RATE"/>
+    <uses-permission android:name="android.permission.health.READ_BODY_FAT"/>
+    <uses-permission android:name="android.permission.health.READ_BODY_WATER_MASS"/>
+    <uses-permission android:name="android.permission.health.READ_BONE_MASS"/>
+    <uses-permission android:name="android.permission.health.READ_HEIGHT"/>
+    <uses-permission android:name="android.permission.health.READ_LEAN_BODY_MASS"/>
+    <uses-permission android:name="android.permission.health.READ_WEIGHT"/>
+
+    <!-- Read permissions for CYCLE_TRACKING. -->
+    <uses-permission android:name="android.permission.health.READ_CERVICAL_MUCUS"/>
+    <uses-permission android:name="android.permission.health.READ_MENSTRUATION"/>
+    <uses-permission android:name="android.permission.health.READ_OVULATION_TEST"/>
+    <uses-permission android:name="android.permission.health.READ_SEXUAL_ACTIVITY"/>
+
+    <!-- Read permissions for NUTRITION. -->
+    <uses-permission android:name="android.permission.health.READ_HYDRATION"/>
+    <uses-permission android:name="android.permission.health.READ_NUTRITION"/>
+
+    <!-- Read permissions for SLEEP. -->
+    <uses-permission android:name="android.permission.health.READ_SLEEP"/>
+
+    <!-- Read permissions for VITALS. -->
+    <uses-permission android:name="android.permission.health.READ_BASAL_BODY_TEMPERATURE"/>
+    <uses-permission android:name="android.permission.health.READ_BLOOD_GLUCOSE"/>
+    <uses-permission android:name="android.permission.health.READ_BLOOD_PRESSURE"/>
+    <uses-permission android:name="android.permission.health.READ_BODY_TEMPERATURE"/>
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE"/>
+    <uses-permission android:name="android.permission.health.READ_HEART_RATE_VARIABILITY"/>
+    <uses-permission android:name="android.permission.health.READ_OXYGEN_SATURATION"/>
+    <uses-permission android:name="android.permission.health.READ_RESPIRATORY_RATE"/>
+    <uses-permission android:name="android.permission.health.READ_RESTING_HEART_RATE"/>
+
+    <!-- Write permissions for ACTIVITY. -->
+    <uses-permission android:name="android.permission.health.WRITE_ACTIVE_CALORIES_BURNED"/>
+    <uses-permission android:name="android.permission.health.WRITE_DISTANCE"/>
+    <uses-permission android:name="android.permission.health.WRITE_ELEVATION_GAINED"/>
+    <uses-permission android:name="android.permission.health.WRITE_EXERCISE"/>
+    <uses-permission android:name="android.permission.health.WRITE_FLOORS_CLIMBED"/>
+    <uses-permission android:name="android.permission.health.WRITE_STEPS"/>
+    <uses-permission android:name="android.permission.health.WRITE_TOTAL_CALORIES_BURNED"/>
+    <uses-permission android:name="android.permission.health.WRITE_VO2_MAX"/>
+    <uses-permission android:name="android.permission.health.WRITE_WHEELCHAIR_PUSHES"/>
+    <uses-permission android:name="android.permission.health.WRITE_POWER"/>
+    <uses-permission android:name="android.permission.health.WRITE_SPEED"/>
+
+    <!-- Write permissions for BODY_MEASUREMENTS. -->
+    <uses-permission android:name="android.permission.health.WRITE_BASAL_METABOLIC_RATE"/>
+    <uses-permission android:name="android.permission.health.WRITE_BODY_FAT"/>
+    <uses-permission android:name="android.permission.health.WRITE_BODY_WATER_MASS"/>
+    <uses-permission android:name="android.permission.health.WRITE_BONE_MASS"/>
+    <uses-permission android:name="android.permission.health.WRITE_HEIGHT"/>
+    <uses-permission android:name="android.permission.health.WRITE_LEAN_BODY_MASS"/>
+    <uses-permission android:name="android.permission.health.WRITE_WEIGHT"/>
+
+    <!-- Write permissions for CYCLE_TRACKING. -->
+    <uses-permission android:name="android.permission.health.WRITE_CERVICAL_MUCUS"/>
+    <uses-permission android:name="android.permission.health.WRITE_INTERMENSTRUAL_BLEEDING"/>
+    <uses-permission android:name="android.permission.health.WRITE_MENSTRUATION"/>
+    <uses-permission android:name="android.permission.health.WRITE_OVULATION_TEST"/>
+    <uses-permission android:name="android.permission.health.WRITE_SEXUAL_ACTIVITY"/>
+
+    <!-- Write permissions for NUTRITION. -->
+    <uses-permission android:name="android.permission.health.WRITE_HYDRATION"/>
+    <uses-permission android:name="android.permission.health.WRITE_NUTRITION"/>
+
+    <!-- Write permissions for SLEEP. -->
+    <uses-permission android:name="android.permission.health.WRITE_SLEEP"/>
+
+    <!-- Write permissions for VITALS. -->
+    <uses-permission android:name="android.permission.health.WRITE_BASAL_BODY_TEMPERATURE"/>
+    <uses-permission android:name="android.permission.health.WRITE_BLOOD_GLUCOSE"/>
+    <uses-permission android:name="android.permission.health.WRITE_BLOOD_PRESSURE"/>
+    <uses-permission android:name="android.permission.health.WRITE_BODY_TEMPERATURE"/>
+    <uses-permission android:name="android.permission.health.WRITE_HEART_RATE"/>
+    <uses-permission android:name="android.permission.health.WRITE_HEART_RATE_VARIABILITY"/>
+    <uses-permission android:name="android.permission.health.WRITE_OXYGEN_SATURATION"/>
+    <uses-permission android:name="android.permission.health.WRITE_RESPIRATORY_RATE"/>
+    <uses-permission android:name="android.permission.health.WRITE_RESTING_HEART_RATE"/>
 </manifest>

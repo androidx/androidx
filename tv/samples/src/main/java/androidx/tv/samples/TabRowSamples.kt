@@ -26,10 +26,13 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,7 +48,7 @@ import kotlinx.coroutines.delay
 /**
  * Tab row with a Pill indicator
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 @Sampled
 fun PillIndicatorTabRow() {
@@ -55,17 +58,20 @@ fun PillIndicatorTabRow() {
   TabRow(
     selectedTabIndex = selectedTabIndex,
     separator = { Spacer(modifier = Modifier.width(12.dp)) },
+    modifier = Modifier.focusRestorer()
   ) {
     tabs.forEachIndexed { index, tab ->
-      Tab(
-        selected = index == selectedTabIndex,
-        onFocus = { selectedTabIndex = index },
-      ) {
-        Text(
-          text = tab,
-          fontSize = 12.sp,
-          modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-        )
+      key(index) {
+        Tab(
+          selected = index == selectedTabIndex,
+          onFocus = { selectedTabIndex = index },
+        ) {
+          Text(
+            text = tab,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+          )
+        }
       }
     }
   }
@@ -74,7 +80,7 @@ fun PillIndicatorTabRow() {
 /**
  * Tab row with an Underlined indicator
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 @Sampled
 fun UnderlinedIndicatorTabRow() {
@@ -84,23 +90,27 @@ fun UnderlinedIndicatorTabRow() {
   TabRow(
     selectedTabIndex = selectedTabIndex,
     separator = { Spacer(modifier = Modifier.width(12.dp)) },
-    indicator = { tabPositions ->
+    indicator = { tabPositions, doesTabRowHaveFocus ->
       TabRowDefaults.UnderlinedIndicator(
-        currentTabPosition = tabPositions[selectedTabIndex]
+        currentTabPosition = tabPositions[selectedTabIndex],
+        doesTabRowHaveFocus = doesTabRowHaveFocus,
       )
-    }
+    },
+    modifier = Modifier.focusRestorer()
   ) {
     tabs.forEachIndexed { index, tab ->
-      Tab(
-        selected = index == selectedTabIndex,
-        onFocus = { selectedTabIndex = index },
-        colors = TabDefaults.underlinedIndicatorTabColors(),
-      ) {
-        Text(
-          text = tab,
-          fontSize = 12.sp,
-          modifier = Modifier.padding(bottom = 4.dp)
-        )
+      key(index) {
+        Tab(
+          selected = index == selectedTabIndex,
+          onFocus = { selectedTabIndex = index },
+          colors = TabDefaults.underlinedIndicatorTabColors(),
+        ) {
+          Text(
+            text = tab,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(bottom = 4.dp)
+          )
+        }
       }
     }
   }
@@ -109,7 +119,7 @@ fun UnderlinedIndicatorTabRow() {
 /**
  * Tab row with delay between tab changes
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 @Sampled
 fun TabRowWithDebounce() {
@@ -128,17 +138,20 @@ fun TabRowWithDebounce() {
   TabRow(
     selectedTabIndex = selectedTabIndex,
     separator = { Spacer(modifier = Modifier.width(12.dp)) },
+    modifier = Modifier.focusRestorer()
   ) {
     tabs.forEachIndexed { index, tab ->
-      Tab(
-        selected = index == selectedTabIndex,
-        onFocus = { selectedTabIndex = index },
-      ) {
-        Text(
-          text = tab,
-          fontSize = 12.sp,
-          modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-        )
+      key(index) {
+        Tab(
+          selected = index == selectedTabIndex,
+          onFocus = { selectedTabIndex = index },
+        ) {
+          Text(
+            text = tab,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+          )
+        }
       }
     }
   }
@@ -147,7 +160,7 @@ fun TabRowWithDebounce() {
 /**
  * Tab changes onClick instead of onFocus
  */
-@OptIn(ExperimentalTvMaterial3Api::class)
+@OptIn(ExperimentalTvMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 @Sampled
 fun OnClickNavigation() {
@@ -168,34 +181,39 @@ fun OnClickNavigation() {
   ) {
     TabRow(
       selectedTabIndex = focusedTabIndex,
-      indicator = { tabPositions ->
+      indicator = { tabPositions, doesTabRowHaveFocus ->
         // FocusedTab's indicator
         TabRowDefaults.PillIndicator(
           currentTabPosition = tabPositions[focusedTabIndex],
           activeColor = Color.Blue.copy(alpha = 0.4f),
           inactiveColor = Color.Transparent,
+          doesTabRowHaveFocus = doesTabRowHaveFocus,
         )
 
         // SelectedTab's indicator
         TabRowDefaults.PillIndicator(
-          currentTabPosition = tabPositions[activeTabIndex]
+          currentTabPosition = tabPositions[activeTabIndex],
+          doesTabRowHaveFocus = doesTabRowHaveFocus,
         )
-      }
+      },
+      modifier = Modifier.focusRestorer()
     ) {
       repeat(bgColors.size) {
-        Tab(
-          selected = activeTabIndex == it,
-          onFocus = { focusedTabIndex = it },
-          onClick = {
-            focusedTabIndex = it
-            activeTabIndex = it
+        key(it) {
+          Tab(
+            selected = activeTabIndex == it,
+            onFocus = { focusedTabIndex = it },
+            onClick = {
+              focusedTabIndex = it
+              activeTabIndex = it
+            }
+          ) {
+            Text(
+              text = "Tab ${it + 1}",
+              fontSize = 12.sp,
+              modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
+            )
           }
-        ) {
-          Text(
-            text = "Tab ${it + 1}",
-            fontSize = 12.sp,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp)
-          )
         }
       }
     }

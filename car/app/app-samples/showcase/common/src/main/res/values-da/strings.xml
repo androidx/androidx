@@ -67,7 +67,7 @@
     <string name="parked_toast_msg" msgid="2532422265890824446">"Handlingen Parkeret"</string>
     <string name="more_toast_msg" msgid="5938288138225509885">"Der blev klikket på Mere"</string>
     <string name="commute_toast_msg" msgid="4112684360647638688">"Der blev trykket på knappen Pendling"</string>
-    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Giv adgangstilladelse til lokation for at se den aktuelle lokation"</string>
+    <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"Giv lokationstilladelse for at se den aktuelle lokation"</string>
     <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"Log ind med Google starter her"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"Markeringen blev ændret til indeks"</string>
     <string name="yes_action_toast_msg" msgid="6216215197177241247">"Der blev trykket på knappen Ja."</string>
@@ -126,7 +126,7 @@
     <string name="permissions_granted_msg" msgid="2348556088141992714">"Alle tilladelser er tildelt. Tilbagekald tilladelser via Indstillinger."</string>
     <string name="needs_access_msg_prefix" msgid="2204136858798832382">"Appen skal have adgang til følgende tilladelser:\n"</string>
     <string name="phone_screen_permission_msg" msgid="3599815596923367256">"Giv tilladelse på telefonskærmen"</string>
-    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"Aktivér adgangstilladelse til lokation på enheden"</string>
+    <string name="enable_location_permission_on_device_msg" msgid="472752487966156897">"Aktivér lokationstilladelse på enheden"</string>
     <string name="enable_location_permission_on_phone_msg" msgid="5082615523959139121">"Aktivér lokation på telefonens skærm"</string>
     <string name="required_permissions_title" msgid="5351791879153568211">"Påkrævede tilladelser"</string>
     <string name="request_permissions_title" msgid="7456426341142412300">"Demonstration af Anmod om tilladelse"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Listefane"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Gitterfane med lang fanetitel"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Søgefane"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Indlæser fanen"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Demonstration af indlæsning af faneskabelon"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstration af faneskabelon uden faner"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Billeder kan ikke vises for en ukendt host"</string>

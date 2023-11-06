@@ -57,6 +57,7 @@ public class TransitionParser {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static void parse(@NonNull CLObject json, @NonNull Transition transition)
             throws CLParsingException {
+        transition.resetProperties();
         String pathMotionArc = json.getStringOrNull("pathMotionArc");
         TypedBundle bundle = new TypedBundle();
         boolean setBundle = false;

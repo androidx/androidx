@@ -53,14 +53,16 @@ constructor(
     override val cameraStatus: Flow<CameraStatus>
         get() = camera2CameraStatusMonitor.cameraStatus
 
-    override suspend fun getCameraIds(): List<CameraId>? = camera2DeviceCache.getCameraIds()
+    override suspend fun getCameraIds(): List<CameraId> = camera2DeviceCache.getCameraIds()
 
     override fun awaitCameraIds(): List<CameraId>? = camera2DeviceCache.awaitCameraIds()
+    override fun awaitConcurrentCameraIds(): Set<Set<CameraId>>? =
+        camera2DeviceCache.awaitConcurrentCameraIds()
 
-    override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata? =
+    override suspend fun getCameraMetadata(cameraId: CameraId): CameraMetadata =
         camera2MetadataCache.getCameraMetadata(cameraId)
 
-    override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata? =
+    override fun awaitCameraMetadata(cameraId: CameraId): CameraMetadata =
         camera2MetadataCache.awaitCameraMetadata(cameraId)
 
     override fun disconnectAllAsync(): Deferred<Unit> {

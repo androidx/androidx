@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Karta zoznamu"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Karta mriežky s dlhým názvom karty"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Karta vyhľadávania"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Načítava sa karta"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Ukážka načítavania šablóny karty"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Ukážka šablón karty bez kariet"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Obrázky nie je možné zobraziť pre neznámeho hostiteľa"</string>

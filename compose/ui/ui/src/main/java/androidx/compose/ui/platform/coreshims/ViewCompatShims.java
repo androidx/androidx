@@ -31,6 +31,9 @@ import androidx.annotation.RestrictTo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
+/**
+ * Helper for accessing features in {@link View}.
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class ViewCompatShims {
     private ViewCompatShims() {

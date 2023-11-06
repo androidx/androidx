@@ -21,6 +21,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.Spanned
 import android.text.TextUtils
+import androidx.annotation.IntRange
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -151,9 +152,9 @@ internal class AndroidParagraph(
 
         val hyphens = toLayoutHyphenationFrequency(style.paragraphStyle.hyphens)
 
-        val breakStrategy = toLayoutBreakStrategy(style.lineBreak?.strategy)
-        val lineBreakStyle = toLayoutLineBreakStyle(style.lineBreak?.strictness)
-        val lineBreakWordStyle = toLayoutLineBreakWordStyle(style.lineBreak?.wordBreak)
+        val breakStrategy = toLayoutBreakStrategy(style.lineBreak.strategy)
+        val lineBreakStyle = toLayoutLineBreakStyle(style.lineBreak.strictness)
+        val lineBreakWordStyle = toLayoutLineBreakWordStyle(style.lineBreak.wordBreak)
 
         val ellipsize = if (ellipsis) {
             TextUtils.TruncateAt.END
@@ -310,6 +311,9 @@ internal class AndroidParagraph(
      * the top, bottom, left and right of a character.
      */
     override fun getBoundingBox(offset: Int): Rect {
+        require(offset in charSequence.indices) {
+            "offset($offset) is out of bounds [0,${charSequence.length})"
+        }
         val rectF = layout.getBoundingBox(offset)
         return with(rectF) { Rect(left = left, top = top, right = right, bottom = bottom) }
     }
@@ -339,20 +343,18 @@ internal class AndroidParagraph(
      * @param arrayStart the inclusive start index in the array where the function will start
      * filling in the values from
      */
-    fun fillBoundingBoxes(
+    override fun fillBoundingBoxes(
         range: TextRange,
         array: FloatArray,
-        arrayStart: Int
+        @IntRange(from = 0) arrayStart: Int
     ) {
         layout.fillBoundingBoxes(range.min, range.max, array, arrayStart)
     }
 
     override fun getPathForRange(start: Int, end: Int): Path {
-        if (start !in 0..end || end > charSequence.length) {
-            throw AssertionError(
-                "Start($start) or End($end) is out of Range(0..${charSequence.length})," +
-                    " or start > end!"
-            )
+        require(start in 0..end && end <= charSequence.length) {
+            "start($start) or end($end) is out of range [0..${charSequence.length}]," +
+                " or start > end!"
         }
         val path = android.graphics.Path()
         layout.getSelectionPath(start, end, path)
@@ -360,8 +362,8 @@ internal class AndroidParagraph(
     }
 
     override fun getCursorRect(offset: Int): Rect {
-        if (offset !in 0..charSequence.length) {
-            throw AssertionError("offset($offset) is out of bounds (0,${charSequence.length}")
+        require(offset in 0..charSequence.length) {
+            "offset($offset) is out of bounds [0,${charSequence.length}]"
         }
         val horizontal = layout.getPrimaryHorizontal(offset)
         val line = layout.getLineForOffset(offset)
@@ -550,7 +552,7 @@ internal class AndroidParagraph(
  * Converts [TextAlign] into [TextLayout] alignment constants.
  */
 @OptIn(InternalPlatformTextApi::class)
-private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
+private fun toLayoutAlign(align: TextAlign): Int = when (align) {
     TextAlign.Left -> ALIGN_LEFT
     TextAlign.Right -> ALIGN_RIGHT
     TextAlign.Center -> ALIGN_CENTER
@@ -560,7 +562,7 @@ private fun toLayoutAlign(align: TextAlign?): Int = when (align) {
 }
 
 @OptIn(InternalPlatformTextApi::class)
-private fun toLayoutHyphenationFrequency(hyphens: Hyphens?): Int = when (hyphens) {
+private fun toLayoutHyphenationFrequency(hyphens: Hyphens): Int = when (hyphens) {
     Hyphens.Auto -> if (Build.VERSION.SDK_INT <= 32) {
         HYPHENATION_FREQUENCY_FULL
     } else {
@@ -571,7 +573,7 @@ private fun toLayoutHyphenationFrequency(hyphens: Hyphens?): Int = when (hyphens
 }
 
 @OptIn(InternalPlatformTextApi::class)
-private fun toLayoutBreakStrategy(breakStrategy: LineBreak.Strategy?): Int = when (breakStrategy) {
+private fun toLayoutBreakStrategy(breakStrategy: LineBreak.Strategy): Int = when (breakStrategy) {
     LineBreak.Strategy.Simple -> BREAK_STRATEGY_SIMPLE
     LineBreak.Strategy.HighQuality -> BREAK_STRATEGY_HIGH_QUALITY
     LineBreak.Strategy.Balanced -> BREAK_STRATEGY_BALANCED
@@ -579,7 +581,7 @@ private fun toLayoutBreakStrategy(breakStrategy: LineBreak.Strategy?): Int = whe
 }
 
 @OptIn(InternalPlatformTextApi::class)
-private fun toLayoutLineBreakStyle(lineBreakStrictness: LineBreak.Strictness?): Int =
+private fun toLayoutLineBreakStyle(lineBreakStrictness: LineBreak.Strictness): Int =
     when (lineBreakStrictness) {
         LineBreak.Strictness.Default -> LINE_BREAK_STYLE_NONE
         LineBreak.Strictness.Loose -> LINE_BREAK_STYLE_LOOSE
@@ -589,7 +591,7 @@ private fun toLayoutLineBreakStyle(lineBreakStrictness: LineBreak.Strictness?): 
     }
 
 @OptIn(InternalPlatformTextApi::class)
-private fun toLayoutLineBreakWordStyle(lineBreakWordStyle: LineBreak.WordBreak?): Int =
+private fun toLayoutLineBreakWordStyle(lineBreakWordStyle: LineBreak.WordBreak): Int =
     when (lineBreakWordStyle) {
         LineBreak.WordBreak.Default -> LINE_BREAK_WORD_STYLE_NONE
         LineBreak.WordBreak.Phrase -> LINE_BREAK_WORD_STYLE_PHRASE
@@ -607,7 +609,8 @@ private fun TextLayout.numberOfLinesThatFitMaxHeight(maxHeight: Int): Int {
 private fun shouldAttachIndentationFixSpan(textStyle: TextStyle, ellipsis: Boolean) =
     with(textStyle) {
         ellipsis && (letterSpacing != 0.sp && letterSpacing != TextUnit.Unspecified) &&
-            (textAlign != null && textAlign != TextAlign.Start && textAlign != TextAlign.Justify)
+            (textAlign != TextAlign.Unspecified && textAlign != TextAlign.Start &&
+                textAlign != TextAlign.Justify)
     }
 
 @OptIn(InternalPlatformTextApi::class)

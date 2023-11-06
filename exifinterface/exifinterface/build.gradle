@@ -20,6 +20,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2016"
     description = "Android Support ExifInterface"
+    metalavaK2UastEnabled = true
 }
 
 android {

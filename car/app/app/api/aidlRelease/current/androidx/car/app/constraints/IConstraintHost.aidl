@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.constraints;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IConstraintHost {
   int getContentLimit(int contentType) = 1;
   boolean isAppDrivenRefreshEnabled() = 2;

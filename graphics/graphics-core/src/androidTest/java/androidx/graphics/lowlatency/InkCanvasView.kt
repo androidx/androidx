@@ -28,7 +28,9 @@ import androidx.annotation.RequiresApi
 class InkCanvasView(context: Context) : SurfaceView(context) {
 
     private var mCanvasFrontBufferedRenderer: CanvasFrontBufferedRenderer<FloatArray>? = null
-    private val mLinesDrawable = LinesDrawable()
+    private val mLinesDrawable = LinesDrawable().apply {
+        strokeWidth = 15f
+    }
     private val mSceneParams = ArrayList<FloatArray>()
     private val mCallbacks = object : CanvasFrontBufferedRenderer.Callback<FloatArray> {
 
@@ -42,6 +44,7 @@ class InkCanvasView(context: Context) : SurfaceView(context) {
                 setBounds(0, 0, bufferWidth, bufferHeight)
                 setLines(param)
                 setColor(Color.CYAN)
+                alpha = 128
                 draw(canvas)
             }
         }
@@ -55,7 +58,8 @@ class InkCanvasView(context: Context) : SurfaceView(context) {
             mSceneParams.addAll(params)
             with(mLinesDrawable) {
                 setBounds(0, 0, bufferWidth, bufferHeight)
-                setColor(Color.MAGENTA)
+                setColor(Color.CYAN)
+                alpha = 128
                 for (param in mSceneParams) {
                     setLines(param)
                     draw(canvas)
@@ -70,6 +74,7 @@ class InkCanvasView(context: Context) : SurfaceView(context) {
     private var mCurrentY: Float = 0f
 
     init {
+        setZOrderOnTop(true)
         setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {

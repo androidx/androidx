@@ -64,7 +64,7 @@ import androidx.work.impl.utils.CancelWorkRunnable;
 import androidx.work.impl.utils.ForceStopRunnable;
 import androidx.work.impl.utils.LiveDataUtils;
 import androidx.work.impl.utils.PreferenceUtils;
-import androidx.work.impl.utils.PruneWorkRunnable;
+import androidx.work.impl.utils.PruneWorkRunnableKt;
 import androidx.work.impl.utils.RawQueries;
 import androidx.work.impl.utils.StatusRunnable;
 import androidx.work.impl.utils.StopWorkRunnable;
@@ -403,31 +403,23 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public @NonNull Operation cancelWorkById(@NonNull UUID id) {
-        CancelWorkRunnable runnable = CancelWorkRunnable.forId(id, this);
-        mWorkTaskExecutor.executeOnTaskThread(runnable);
-        return runnable.getOperation();
+        return CancelWorkRunnable.forId(id, this);
     }
 
     @Override
     public @NonNull Operation cancelAllWorkByTag(@NonNull final String tag) {
-        CancelWorkRunnable runnable = CancelWorkRunnable.forTag(tag, this);
-        mWorkTaskExecutor.executeOnTaskThread(runnable);
-        return runnable.getOperation();
+        return CancelWorkRunnable.forTag(tag, this);
     }
 
     @Override
     @NonNull
     public Operation cancelUniqueWork(@NonNull String uniqueWorkName) {
-        CancelWorkRunnable runnable = CancelWorkRunnable.forName(uniqueWorkName, this, true);
-        mWorkTaskExecutor.executeOnTaskThread(runnable);
-        return runnable.getOperation();
+        return CancelWorkRunnable.forName(uniqueWorkName, this);
     }
 
     @Override
     public @NonNull Operation cancelAllWork() {
-        CancelWorkRunnable runnable = CancelWorkRunnable.forAll(this);
-        mWorkTaskExecutor.executeOnTaskThread(runnable);
-        return runnable.getOperation();
+        return CancelWorkRunnable.forAll(this);
     }
 
     @NonNull
@@ -466,9 +458,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public @NonNull Operation pruneWork() {
-        PruneWorkRunnable runnable = new PruneWorkRunnable(this);
-        mWorkTaskExecutor.executeOnTaskThread(runnable);
-        return runnable.getOperation();
+        return PruneWorkRunnableKt.pruneWork(mWorkDatabase, mWorkTaskExecutor);
     }
 
     @Override
@@ -498,9 +488,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public @NonNull ListenableFuture<WorkInfo> getWorkInfoById(@NonNull UUID id) {
-        StatusRunnable<WorkInfo> runnable = StatusRunnable.forUUID(this, id);
-        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
-        return runnable.getFuture();
+        return StatusRunnable.forUUID(mWorkDatabase, mWorkTaskExecutor, id);
     }
 
     @NonNull
@@ -524,9 +512,7 @@ public class WorkManagerImpl extends WorkManager {
 
     @Override
     public @NonNull ListenableFuture<List<WorkInfo>> getWorkInfosByTag(@NonNull String tag) {
-        StatusRunnable<List<WorkInfo>> runnable = StatusRunnable.forTag(this, tag);
-        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
-        return runnable.getFuture();
+        return StatusRunnable.forTag(mWorkDatabase, mWorkTaskExecutor, tag);
     }
 
     @Override
@@ -554,10 +540,7 @@ public class WorkManagerImpl extends WorkManager {
     @NonNull
     public ListenableFuture<List<WorkInfo>> getWorkInfosForUniqueWork(
             @NonNull String uniqueWorkName) {
-        StatusRunnable<List<WorkInfo>> runnable =
-                StatusRunnable.forUniqueWork(this, uniqueWorkName);
-        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
-        return runnable.getFuture();
+        return StatusRunnable.forUniqueWork(mWorkDatabase, mWorkTaskExecutor,  uniqueWorkName);
     }
 
     @NonNull
@@ -584,12 +567,8 @@ public class WorkManagerImpl extends WorkManager {
 
     @NonNull
     @Override
-    public ListenableFuture<List<WorkInfo>> getWorkInfos(
-            @NonNull WorkQuery workQuery) {
-        StatusRunnable<List<WorkInfo>> runnable =
-                StatusRunnable.forWorkQuerySpec(this, workQuery);
-        mWorkTaskExecutor.getSerialTaskExecutor().execute(runnable);
-        return runnable.getFuture();
+    public ListenableFuture<List<WorkInfo>> getWorkInfos(@NonNull WorkQuery workQuery) {
+        return StatusRunnable.forWorkQuerySpec(mWorkDatabase, mWorkTaskExecutor, workQuery);
     }
 
     @NonNull

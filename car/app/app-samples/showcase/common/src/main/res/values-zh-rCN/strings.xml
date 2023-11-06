@@ -41,7 +41,7 @@
     <string name="ok_action_title" msgid="7128494973966098611">"确定"</string>
     <string name="throw_action_title" msgid="7163710562670220163">"抛出"</string>
     <string name="commute_action_title" msgid="2585755255290185096">"通勤"</string>
-    <string name="sign_out_action_title" msgid="1653943000866713010">"退出"</string>
+    <string name="sign_out_action_title" msgid="1653943000866713010">"退出账号"</string>
     <string name="try_anyway_action_title" msgid="7384500054249311718">"仍然尝试"</string>
     <string name="yes_action_title" msgid="5507096013762092189">"是"</string>
     <string name="no_action_title" msgid="1452124604210014010">"否"</string>
@@ -68,7 +68,7 @@
     <string name="more_toast_msg" msgid="5938288138225509885">"已点击更多"</string>
     <string name="commute_toast_msg" msgid="4112684360647638688">"已按下通勤按钮"</string>
     <string name="grant_location_permission_toast_msg" msgid="268046297444808010">"授予位置信息权限以查看当前位置"</string>
-    <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"从此处开始使用 Google 帐号登录"</string>
+    <string name="sign_in_with_google_toast_msg" msgid="5720947549233124775">"从此处开始使用 Google 账号登录"</string>
     <string name="changes_selection_to_index_toast_msg_prefix" msgid="957766225794389167">"选取内容已更改为索引"</string>
     <string name="yes_action_toast_msg" msgid="6216215197177241247">"已按下“是”按钮！"</string>
     <string name="no_action_toast_msg" msgid="6165492423831023809">"已按下“否”按钮！"</string>
@@ -252,7 +252,7 @@
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"用户名"</string>
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"在您的手机中输入此 PIN 码"</string>
     <string name="qr_code_sign_in_title" msgid="8137070561006464518">"扫描二维码登录"</string>
-    <string name="sign_in_with_google_title" msgid="8043752000786977249">"使用 Google 帐号登录"</string>
+    <string name="sign_in_with_google_title" msgid="8043752000786977249">"使用 Google 账号登录"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"使用此按钮完成 Google 登录"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"您已登录！"</string>
     <string name="sign_in_complete_title" msgid="8919868148773983428">"已完成登录"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"列表标签页"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"包含长标签页标题的网格标签页"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"搜索标签页"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"正在加载标签页"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"标签页模板加载演示"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"标签页模板无标签页演示"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"无法为未知主机显示图像"</string>

@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.sdkruntime.client
 
+import android.app.Activity
 import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SdkSandboxManager
@@ -23,6 +24,7 @@ import android.content.Context
 import android.os.Binder
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.os.OutcomeReceiver
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.RequiresExtension
@@ -169,6 +171,19 @@ class SdkSandboxManagerCompatSandboxedTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, codeName = "UpsideDownCake")
+    fun startSdkSandboxActivity_whenSandboxAvailable_delegateToPlatform() {
+        val sdkSandboxManager = mockSandboxManager(mContext)
+        val managerCompat = SdkSandboxManagerCompat.from(mContext)
+
+        val fromActivityMock = mock(Activity::class.java)
+        val tokenMock = mock(IBinder::class.java)
+        managerCompat.startSdkSandboxActivity(fromActivityMock, tokenMock)
+
+        verify(sdkSandboxManager).startSdkSandboxActivity(fromActivityMock, tokenMock)
+    }
+
+    @Test
     fun removeSdkSandboxProcessDeathCallback_whenSandboxAvailable_removeAddedCallback() {
         val sdkSandboxManager = mockSandboxManager(mContext)
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
@@ -227,7 +242,10 @@ class SdkSandboxManagerCompatSandboxedTest {
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
         val localSdk = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
         }
 
         val sandboxedSdks = managerCompat.getSandboxedSdks()
@@ -248,7 +266,10 @@ class SdkSandboxManagerCompatSandboxedTest {
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
         val localSdk = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v1", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
         }
 
         val result = managerCompat.getSandboxedSdks().map { it.getInterface() }
@@ -270,7 +291,10 @@ class SdkSandboxManagerCompatSandboxedTest {
         val managerCompat = SdkSandboxManagerCompat.from(mContext)
 
         val localSdk = runBlocking {
-            managerCompat.loadSdk("androidx.privacysandbox.sdkruntime.test.v2", Bundle())
+            managerCompat.loadSdk(
+                TestSdkConfigs.forSdkName("v2").packageName,
+                Bundle()
+            )
         }
 
         val testSdk = localSdk.asTestSdk()

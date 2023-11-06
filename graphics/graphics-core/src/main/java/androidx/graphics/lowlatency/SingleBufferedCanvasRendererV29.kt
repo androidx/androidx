@@ -16,255 +16,241 @@
 
 package androidx.graphics.lowlatency
 
+import android.graphics.Bitmap
+import android.graphics.BlendMode
 import android.graphics.Canvas
-import android.graphics.SurfaceTexture
+import android.graphics.Color
+import android.graphics.ColorSpace
 import android.hardware.HardwareBuffer
-import android.opengl.GLES20
-import android.opengl.Matrix
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
-import androidx.graphics.lowlatency.FrontBufferUtils.Companion.obtainHardwareBufferUsageFlags
-import androidx.graphics.opengl.FrameBuffer
-import androidx.graphics.opengl.FrameBufferRenderer
-import androidx.graphics.opengl.GLRenderer
-import androidx.graphics.opengl.QuadTextureRenderer
-import androidx.graphics.opengl.egl.EGLManager
-import androidx.graphics.opengl.egl.EGLSpec
+import androidx.annotation.WorkerThread
+import androidx.graphics.BufferedRendererImpl
+import androidx.graphics.MultiBufferedCanvasRenderer
+import androidx.graphics.RenderQueue
+import androidx.graphics.utils.HandlerThreadExecutor
 import androidx.hardware.SyncFenceCompat
-import java.nio.IntBuffer
 import java.util.concurrent.Executor
-import java.util.concurrent.atomic.AtomicBoolean
 
 @RequiresApi(Build.VERSION_CODES.Q)
 internal class SingleBufferedCanvasRendererV29<T>(
     private val width: Int,
     private val height: Int,
-    private val bufferTransformer: BufferTransformer,
-    private val executor: Executor,
+    bufferTransformer: BufferTransformer,
+    handlerThread: HandlerThreadExecutor,
     private val callbacks: SingleBufferedCanvasRenderer.RenderCallbacks<T>,
 ) : SingleBufferedCanvasRenderer<T> {
 
-    private val mProducer = TextureProducer<T>(
+    private val mRenderQueue = RenderQueue(
+            handlerThread,
+            object : RenderQueue.FrameProducer {
+                override fun renderFrame(
+                    executor: Executor,
+                    requestComplete: (HardwareBuffer, SyncFenceCompat?) -> Unit
+                ) {
+                    mBufferedRenderer.renderFrame(executor, requestComplete)
+                }
+            },
+            object : RenderQueue.FrameCallback {
+                override fun onFrameComplete(
+                    hardwareBuffer: HardwareBuffer,
+                    fence: SyncFenceCompat?
+                ) {
+                    mBufferedRenderer.releaseBuffer(hardwareBuffer, fence)
+                    mPreservedRenderStrategy.onRenderComplete(hardwareBuffer, fence, colorSpace)
+                    callbacks.onBufferReady(hardwareBuffer, fence)
+                }
+
+                override fun onFrameCancelled(
+                    hardwareBuffer: HardwareBuffer,
+                    fence: SyncFenceCompat?
+                ) {
+                    mBufferedRenderer.releaseBuffer(hardwareBuffer, fence)
+                    mPreservedRenderStrategy.onRenderComplete(hardwareBuffer, fence, colorSpace)
+                    callbacks.onBufferCancelled(hardwareBuffer, fence)
+                }
+            }
+        )
+
+    private val mPreservedRenderStrategy = createPreservationStrategy(bufferTransformer)
+
+    private val mBufferedRenderer = MultiBufferedCanvasRenderer(
         width,
         height,
-        object : TextureProducer.Callbacks<T> {
-            override fun onTextureAvailable(texture: SurfaceTexture) {
-                mSurfaceTexture = texture
-                mFrameBufferTarget.requestRender()
-            }
-
-            override fun render(canvas: Canvas, width: Int, height: Int, param: T) {
-                callbacks.render(canvas, width, height, param)
-            }
-        })
-
-    /**
-     * Source SurfaceTexture that the destination of content to be rendered from the provided
-     * RenderNode
-     */
-    private var mSurfaceTexture: SurfaceTexture? = null
-
-    /**
-     * HardwareBuffer flags for front buffered rendering
-     */
-    private val mHardwareBufferUsageFlags = obtainHardwareBufferUsageFlags()
-
-    // ---------- GLThread ------
-
-    /**
-     * [FrontBufferSyncStrategy] used for [FrameBufferRenderer] to conditionally decide
-     * when to create a [SyncFenceCompat] for transaction calls.
-     */
-    private val mFrontBufferSyncStrategy = FrontBufferSyncStrategy(mHardwareBufferUsageFlags)
-
-    /**
-     * Shader that handles rendering a texture as a quad into the destination
-     */
-    private var mQuadRenderer: QuadTextureRenderer? = null
-
-    /**
-     * Texture id of the SurfaceTexture that is to be rendered
-     */
-    private var mTextureId: Int = -1
-
-    /**
-     * Scratch buffer used for gen/delete texture operations
-     */
-    private val buffer = IntArray(1)
-
-    // ---------- GLThread ------
-
-    private val mFrameBufferRenderer = FrameBufferRenderer(
-        object : FrameBufferRenderer.RenderCallback {
-
-            private val mMVPMatrix = FloatArray(16)
-            private val mProjection = FloatArray(16)
-
-            private fun obtainQuadRenderer(): QuadTextureRenderer =
-                mQuadRenderer ?: QuadTextureRenderer().apply {
-                    GLES20.glGenTextures(1, buffer, 0)
-                    mTextureId = buffer[0]
-                    mSurfaceTexture?.let { texture ->
-                        texture.attachToGLContext(mTextureId)
-                        setSurfaceTexture(texture)
-                    }
-                    mQuadRenderer = this
-                }
-
-            override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer {
-                return mFrontBufferLayer ?: FrameBuffer(
-                    egl,
-                    HardwareBuffer.create(
-                        bufferTransformer.glWidth,
-                        bufferTransformer.glHeight,
-                        HardwareBuffer.RGBA_8888,
-                        1,
-                        mHardwareBufferUsageFlags
-                    )
-                ).also { mFrontBufferLayer = it }
-            }
-
-            @RequiresApi(Build.VERSION_CODES.S)
-            override fun onDraw(eglManager: EGLManager) {
-                mSurfaceTexture?.let { texture ->
-                    val bufferWidth = bufferTransformer.glWidth
-                    val bufferHeight = bufferTransformer.glHeight
-                    GLES20.glViewport(0, 0, bufferWidth, bufferHeight)
-                    Matrix.orthoM(
-                        mMVPMatrix,
-                        0,
-                        0f,
-                        bufferWidth.toFloat(),
-                        0f,
-                        bufferHeight.toFloat(),
-                        -1f,
-                        1f
-                    )
-
-                    Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, bufferTransformer.transform, 0)
-                    // texture.updateTexImage is called within QuadTextureRenderer#draw
-                    obtainQuadRenderer().draw(mProjection, width.toFloat(), height.toFloat())
-                    texture.releaseTexImage()
-                    mProducer.markTextureConsumed()
-                }
-            }
-
-            override fun onDrawComplete(
-                frameBuffer: FrameBuffer,
-                syncFenceCompat: SyncFenceCompat?
-            ) {
-                if (forceFlush.get()) {
-                    // See b/236394768. On some ANGLE versions, attempting to do a glClear + flush
-                    // does not actually flush pixels to FBOs with HardwareBuffer attachments
-                    // For testing purposes when verifying clear use cases, do a GPU readback
-                    // to actually executed any pending clear operations to verify output
-                    GLES20.glReadPixels(0, 0, 1, 1, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE,
-                        IntBuffer.wrap(IntArray(1)))
-                }
-
-                mProducer.execute {
-                    callbacks.onBufferReady(frameBuffer.hardwareBuffer, syncFenceCompat)
-                }
-            }
-        },
-        mFrontBufferSyncStrategy
+        bufferTransformer,
+        usage = FrontBufferUtils.obtainHardwareBufferUsageFlags(),
+        maxImages = mPreservedRenderStrategy.maxImages
     )
 
-    /**
-     * [GLRenderer] used to render contents of the SurfaceTexture into a HardwareBuffer
-     */
-    private val mGLRenderer = GLRenderer().apply { start() }
+    private val mPendingParams = ArrayList<T>()
 
-    private var mFrameBufferTarget: GLRenderer.RenderTarget =
-        mGLRenderer.createRenderTarget(width, height, mFrameBufferRenderer)
+    private inner class DrawParamRequest(val param: T) : RenderQueue.Request {
 
-    /**
-     * Flag to maintain visibility state on the main thread
-     */
-    private var mIsVisible = false
-
-    /**
-     * Flag to determine if the SingleBufferedCanvasRenderer instance has been released
-     */
-    private var mIsReleased = false
-
-    override var isVisible: Boolean
-        set(value) {
-            mGLRenderer.execute {
-                mFrontBufferSyncStrategy.isVisible = value
-            }
-            mIsVisible = value
+        override fun onEnqueued() {
+            mPendingParams.add(param)
         }
-        get() = mFrontBufferSyncStrategy.isVisible
 
-    private var mFrontBufferLayer: FrameBuffer? = null
+        override fun execute() {
+            mBufferedRenderer.record { canvas ->
+                mPreservedRenderStrategy.restoreContents(canvas, width, height)
+                for (pendingParam in mPendingParams) {
+                    callbacks.render(canvas, width, height, pendingParam)
+                }
+                mPendingParams.clear()
+            }
+        }
+
+        override fun onComplete() {
+            // NO-OP
+        }
+
+        override val id: Int = RENDER
+    }
+
+    private inner class ClearRequest(val clearComplete: (() -> Unit)?) : RenderQueue.Request {
+        override fun execute() {
+            mBufferedRenderer.record { canvas -> canvas.drawColor(Color.BLACK, BlendMode.CLEAR) }
+        }
+
+        override fun onComplete() {
+            clearComplete?.invoke()
+        }
+
+        override fun isMergeable(): Boolean = clearComplete == null
+
+        override val id: Int = CLEAR
+    }
+
+    private val defaultClearRequest = ClearRequest(null)
+
+    override var isVisible: Boolean = false
+        set(value) {
+            mBufferedRenderer.preserveContents = value
+            field = value
+        }
+
+    @WorkerThread // Executor thread
+    private fun tearDown() {
+        mBufferedRenderer.release()
+    }
 
     override fun render(param: T) {
-        if (!mIsReleased) {
-            mProducer.requestRender(param)
-        } else {
-            Log.w(TAG, "Attempt to render with CanvasRenderer that has already been released")
-        }
+        mRenderQueue.enqueue(DrawParamRequest(param))
     }
 
     override fun release(cancelPending: Boolean, onReleaseComplete: (() -> Unit)?) {
-        if (!mIsReleased) {
-            if (cancelPending) {
-                mProducer.cancelPending()
-            }
-            mProducer.release(cancelPending) {
-                // If the producer is torn down after all pending requests are completed
-                // then there is nothing left for the render target to consume so
-                // detach immediately
-                mFrameBufferTarget.detach(true) {
-                    // GL Thread
-                    mQuadRenderer?.release()
-                    if (mTextureId != -1) {
-                        buffer[0] = mTextureId
-                        GLES20.glDeleteTextures(1, buffer, 0)
-                        mTextureId = -1
-                    }
-                }
-                mGLRenderer.stop(true)
-                onReleaseComplete?.invoke()
-           }
-
-            mIsReleased = true
-        } else {
-            Log.w(TAG, "Attempt to release CanvasRenderer that has already been released")
+        mRenderQueue.release(cancelPending) {
+            onReleaseComplete?.invoke()
+            tearDown()
         }
     }
 
-    private val mClearRunnable = Runnable {
-        mFrameBufferRenderer.clear()
-        mFrameBufferTarget.requestRender()
+    override fun clear(clearComplete: (() -> Unit)?) {
+        val clearRequest = if (clearComplete == null) {
+            defaultClearRequest
+        } else {
+            ClearRequest(clearComplete)
+        }
+        mRenderQueue.enqueue(clearRequest)
     }
 
     override fun cancelPending() {
-        if (!mIsReleased) {
-            mProducer.cancelPending()
-        } else {
-            Log.w(TAG, "Attempt to cancel pending requests when the CanvasRender has " +
-                "already been released")
-        }
+        mRenderQueue.cancelPending()
     }
 
-    override fun clear() {
-        if (!mIsReleased) {
-            mProducer.execute(mClearRunnable)
-        } else {
-            Log.w(TAG, "Attempt to clear contents when the CanvasRenderer has already " +
-                "been released")
-        }
-    }
-
-    // See: b/236394768. Some test emulator instances have not picked up the fix so
-    // apply a workaround here for testing purposes
-    internal val forceFlush = AtomicBoolean(false)
+    override var colorSpace: ColorSpace
+        get() = mBufferedRenderer.colorSpace
+        set(value) { mBufferedRenderer.colorSpace = value }
 
     private companion object {
 
-        const val TAG = "SingleBufferedCanvasV29"
+        val TAG = "PersistedCanvas"
+
+        const val RENDER = 0
+        const val CLEAR = 1
+
+        fun createPreservationStrategy(
+            bufferTransformer: BufferTransformer
+        ): PreservedRenderStrategy {
+            val verifier = PreservedBufferContentsVerifier()
+            val supportsContentPreservation = verifier.supportsPreservedRenderedContent()
+            verifier.release()
+            return if (supportsContentPreservation) {
+                Log.v(TAG, "Device supports persisted canvas optimizations")
+                SingleBufferedStrategy()
+            } else {
+                Log.w(TAG,
+                    "Warning, device DOES NOT support persisted canvas optimizations.")
+                RedrawBufferStrategy(bufferTransformer)
+            }
+        }
+    }
+
+    internal interface PreservedRenderStrategy {
+        val maxImages: Int
+
+        fun restoreContents(canvas: Canvas, width: Int, height: Int)
+
+        fun onRenderComplete(
+            hardwareBuffer: HardwareBuffer,
+            fence: SyncFenceCompat?,
+            colorSpace: ColorSpace
+        )
+    }
+
+    internal class SingleBufferedStrategy : PreservedRenderStrategy {
+        override val maxImages = 1
+
+        override fun restoreContents(canvas: Canvas, width: Int, height: Int) {
+            // NO-OP HWUI preserves contents
+        }
+
+        override fun onRenderComplete(
+            hardwareBuffer: HardwareBuffer,
+            fence: SyncFenceCompat?,
+            colorSpace: ColorSpace
+        ) {
+            // NO-OP
+        }
+    }
+
+    internal class RedrawBufferStrategy(
+        bufferTransformer: BufferTransformer
+    ) : PreservedRenderStrategy {
+
+        private val inverseTransform = android.graphics.Matrix().apply {
+            bufferTransformer.configureMatrix(this)
+            invert(this)
+        }
+
+        override val maxImages: Int = 2
+
+        private var mHardwareBuffer: HardwareBuffer? = null
+        private var mFence: SyncFenceCompat? = null
+        private var mColorSpace: ColorSpace = BufferedRendererImpl.DefaultColorSpace
+
+        override fun restoreContents(canvas: Canvas, width: Int, height: Int) {
+            mHardwareBuffer?.let { buffer ->
+                mFence?.awaitForever()
+                val bitmap = Bitmap.wrapHardwareBuffer(buffer, mColorSpace)
+                if (bitmap != null) {
+                    canvas.save()
+                    canvas.concat(inverseTransform)
+                    canvas.drawBitmap(bitmap, 0f, 0f, null)
+                    canvas.restore()
+                }
+            }
+        }
+
+        override fun onRenderComplete(
+            hardwareBuffer: HardwareBuffer,
+            fence: SyncFenceCompat?,
+            colorSpace: ColorSpace
+        ) {
+            mHardwareBuffer = hardwareBuffer
+            mFence = fence
+            mColorSpace = colorSpace
+        }
     }
 }

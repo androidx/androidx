@@ -19,7 +19,7 @@ package androidx.camera.core.impl
 import android.os.Build
 import android.util.Size
 import androidx.camera.core.impl.quirk.ProfileResolutionQuirk
-import androidx.camera.testing.EncoderProfilesUtil
+import androidx.camera.testing.impl.EncoderProfilesUtil
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

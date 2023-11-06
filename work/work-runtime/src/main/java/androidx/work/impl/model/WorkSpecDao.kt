@@ -16,6 +16,7 @@
 package androidx.work.impl.model
 
 import android.annotation.SuppressLint
+import android.app.job.JobParameters.STOP_REASON_CANCELLED_BY_APP
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
@@ -26,8 +27,10 @@ import androidx.room.Update
 import androidx.work.CONSTRAINTS_COLUMNS
 import androidx.work.Data
 import androidx.work.WorkInfo
+import androidx.work.impl.model.WorkTypeConverters.StateIds.CANCELLED
 import androidx.work.impl.model.WorkTypeConverters.StateIds.COMPLETED_STATES
 import androidx.work.impl.model.WorkTypeConverters.StateIds.ENQUEUED
+import androidx.work.impl.model.WorkTypeConverters.StateIds.RUNNING
 import java.util.UUID
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -88,6 +91,7 @@ interface WorkSpecDao {
     @Transaction
     @Query("SELECT id FROM workspec")
     fun getAllWorkSpecIdsLiveData(): LiveData<List<String>>
+
     /**
      * Updates the state of at least one [WorkSpec] by ID.
      *
@@ -97,6 +101,17 @@ interface WorkSpecDao {
      */
     @Query("UPDATE workspec SET state=:state WHERE id=:id")
     fun setState(state: WorkInfo.State, id: String): Int
+
+    /**
+     * Sets cancelled state for workspec
+     *
+     * @param id The IDs for the [WorkSpec]s to update
+     * @return The number of rows that were updated
+     */
+    @Query("UPDATE workspec " +
+        "SET stop_reason = CASE WHEN state=$RUNNING THEN $STOP_REASON_CANCELLED_BY_APP " +
+        "ELSE ${WorkInfo.STOP_REASON_NOT_STOPPED} END, state=$CANCELLED WHERE id=:id")
+    fun setCancelledState(id: String): Int
 
     /**
      * Increment periodic counter.
@@ -139,6 +154,29 @@ interface WorkSpecDao {
      */
     @Query("UPDATE workspec SET run_attempt_count=0 WHERE id=:id")
     fun resetWorkSpecRunAttemptCount(id: String): Int
+
+    /**
+     * Updates the next schedule time of a [WorkSpec].
+     *
+     * @param id The [WorkSpec] identifier to update
+     * @param nextScheduleTimeOverrideMillis The next schedule time in millis since epoch. See
+     * [WorkSpec.nextScheduleTimeOverride]
+     */
+    @Query("UPDATE workspec SET next_schedule_time_override=:nextScheduleTimeOverrideMillis " +
+        "WHERE id=:id")
+    fun setNextScheduleTimeOverride(id: String, nextScheduleTimeOverrideMillis: Long)
+
+    /**
+     * Resets the next schedule time override of a [WorkSpec] if the override generation has not
+     * changed.
+     *
+     * @param id The identifier for the [WorkSpec]
+     */
+    @Query(
+        "UPDATE workspec SET next_schedule_time_override=${Long.MAX_VALUE} WHERE " +
+            "(id=:id AND next_schedule_time_override_generation=:overrideGeneration)"
+    )
+    fun resetWorkSpecNextScheduleTimeOverride(id: String, overrideGeneration: Int)
 
     /**
      * Retrieves the state of a [WorkSpec].
@@ -282,7 +320,7 @@ interface WorkSpecDao {
      */
     @Query(
         "SELECT id FROM workspec WHERE state NOT IN " + COMPLETED_STATES +
-        " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)"
+            " AND id IN (SELECT work_spec_id FROM worktag WHERE tag=:tag)"
     )
     fun getUnfinishedWorkWithTag(tag: String): List<String>
 
@@ -436,10 +474,14 @@ interface WorkSpecDao {
     @Update
     fun updateWorkSpec(workSpec: WorkSpec)
 
-    @Query("Select COUNT(*) FROM workspec WHERE LENGTH(content_uri_triggers)<>0" +
+    @Query(
+        "Select COUNT(*) FROM workspec WHERE LENGTH(content_uri_triggers)<>0" +
             " AND state NOT IN $COMPLETED_STATES"
     )
     fun countNonFinishedContentUriTriggerWorkers(): Int
+
+    @Query("UPDATE workspec SET stop_reason=:stopReason WHERE id=:id")
+    fun setStopReason(id: String, stopReason: Int)
 }
 
 fun WorkSpecDao.getWorkStatusPojoFlowDataForIds(id: UUID): Flow<WorkInfo?> =
@@ -464,7 +506,8 @@ internal fun Flow<List<WorkSpec.WorkInfoPojo>>.dedup(
 
 private const val WORK_INFO_COLUMNS = "id, state, output, run_attempt_count, generation" +
     ", $CONSTRAINTS_COLUMNS, initial_delay, interval_duration, flex_duration, backoff_policy" +
-    ", backoff_delay_duration, last_enqueue_time, period_count"
+    ", backoff_delay_duration, last_enqueue_time, period_count, next_schedule_time_override, " +
+    "stop_reason"
 
 @Language("sql")
 private const val WORK_INFO_BY_IDS = "SELECT $WORK_INFO_COLUMNS FROM workspec WHERE id IN (:ids)"

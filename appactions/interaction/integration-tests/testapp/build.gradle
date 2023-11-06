@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import androidx.build.Publish
 
 plugins {
@@ -32,6 +31,8 @@ android {
 
 dependencies {
     implementation(project(":appactions:interaction:interaction-service"))
+    implementation(project(":appactions:interaction:interaction-capabilities-core"))
+    implementation(project(":appactions:interaction:interaction-capabilities-productivity"))
     implementation("androidx.core:core-ktx:1.7.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.6.0")

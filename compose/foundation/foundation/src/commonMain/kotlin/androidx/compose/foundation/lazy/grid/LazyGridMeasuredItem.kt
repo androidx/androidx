@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -47,7 +46,8 @@ internal class LazyGridMeasuredItem(
      * value passed into the place() call.
      */
     private val visualOffset: IntOffset,
-    override val contentType: Any?
+    override val contentType: Any?,
+    private val animator: LazyGridItemPlacementAnimator
 ) : LazyGridItemInfo {
     /**
      * Main axis size of the item - the max main axis size of the placeables.
@@ -133,14 +133,14 @@ internal class LazyGridMeasuredItem(
             val maxOffset = maxMainAxisOffset
 
             var offset = offset
-            val animateNode = getParentData(index) as? LazyLayoutAnimateItemModifierNode
-            if (animateNode != null) {
-                val animatedOffset = offset + animateNode.placementDelta
+            val animation = animator.getAnimation(key, index)
+            if (animation != null) {
+                val animatedOffset = offset + animation.placementDelta
                 // cancel the animation if current and target offsets are both out of the bounds.
                 if ((offset.mainAxis <= minOffset && animatedOffset.mainAxis <= minOffset) ||
                     (offset.mainAxis >= maxOffset && animatedOffset.mainAxis >= maxOffset)
                 ) {
-                    animateNode.cancelAnimation()
+                    animation.cancelPlacementAnimation()
                 }
                 offset = animatedOffset
             }

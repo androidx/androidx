@@ -45,6 +45,20 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
     private var mCurrentX: Float = 0f
     private var mCurrentY: Float = 0f
 
+    private val translucentCyan = Color.valueOf(
+        Color.red(Color.CYAN) / 255f,
+        Color.green(Color.CYAN) / 255f,
+        Color.blue(Color.CYAN) / 255f,
+        0.5f
+    ).toArgb()
+
+    private val translucentMagenta = Color.valueOf(
+        Color.red(Color.MAGENTA) / 255f,
+        Color.green(Color.MAGENTA) / 255f,
+        Color.blue(Color.MAGENTA) / 255f,
+        0.5f
+    ).toArgb()
+
     @WorkerThread // GLThread
     private fun obtainRenderer(): LineRenderer =
         mLineRenderer ?: (LineRenderer()
@@ -62,6 +76,8 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
 
         override fun onDrawFrontBufferedLayer(
             eglManager: EGLManager,
+            width: Int,
+            height: Int,
             bufferInfo: BufferInfo,
             transform: FloatArray,
             param: FloatArray
@@ -86,12 +102,14 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
                 drawLines(mProjection, floatArrayOf(0f, vHeight, vWidth, vHeight), Color.CYAN)
                 drawLines(mProjection, floatArrayOf(vWidth, vHeight, vWidth, 0f), Color.BLUE)
                 drawLines(mProjection, floatArrayOf(vWidth, 0f, 0f, 0f), Color.MAGENTA)
-                drawLines(mProjection, param, Color.YELLOW, LINE_WIDTH)
+                drawLines(mProjection, param, translucentCyan, LINE_WIDTH)
             }
         }
 
         override fun onDrawMultiBufferedLayer(
             eglManager: EGLManager,
+            width: Int,
+            height: Int,
             bufferInfo: BufferInfo,
             transform: FloatArray,
             params: Collection<FloatArray>
@@ -112,7 +130,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
             Matrix.multiplyMM(mProjection, 0, mMVPMatrix, 0, transform, 0)
             mSceneParams.addAll(params)
             for (line in mSceneParams) {
-                obtainRenderer().drawLines(mProjection, line, Color.BLUE, LINE_WIDTH)
+                obtainRenderer().drawLines(mProjection, line, translucentCyan, LINE_WIDTH)
             }
         }
     }
@@ -120,6 +138,7 @@ class InkSurfaceView(context: Context) : SurfaceView(context) {
     val renderCount = AtomicInteger(0)
 
     init {
+        setZOrderOnTop(true)
         setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {

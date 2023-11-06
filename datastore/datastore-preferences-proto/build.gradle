@@ -25,17 +25,13 @@ plugins {
 
 dependencies {
     implementation(libs.protobufLite)
-    api(project(":datastore:datastore-core"))
+    compileOnly(project(":datastore:datastore-core"))
 }
 
 protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
     }
-
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
     generateProtoTasks {
         all().each { task ->
             task.builtins {
@@ -50,27 +46,11 @@ protobuf {
 afterEvaluate {
     lint {
         lintOptions {
-            // protobuf generates unannotated and synthetic accessor methods
-            disable("UnknownNullness", "SyntheticAccessor")
+            // protobuf generates unannotated methods
+            disable("UnknownNullness")
         }
     }
 }
-
-// Create export artifact for for JarJaring
-def preferencesProtoJarJarTask = tasks.register("exportJar", Jar) {
-    archiveBaseName.set("export")
-    from(sourceSets.main.output)
-    // The proto-lite dependency includes .proto files, which are not used by datastore. When apps
-    // depend on datastore as well as proto-lite directly, these files conflict since jarjar only
-    // renames the java classes. Remove them here since they are unused.
-    exclude("**/*.proto")
-
-    from(zipTree(configurations.detachedConfiguration(
-            dependencies.create(libs.protobufLite.get())).getSingleFile()))
-}
-
-def jarjarConf = configurations.register("export")
-artifacts.add(jarjarConf.name, preferencesProtoJarJarTask.flatMap { it.archiveFile })
 
 androidx {
     name = "Preferences DataStore Proto"

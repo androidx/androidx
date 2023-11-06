@@ -46,7 +46,6 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinCoroutinesCore)
                 api(libs.okio)
-                api(libs.atomicFu)
             }
         }
         jvmMain {
@@ -57,12 +56,12 @@ androidXMultiplatform {
         }
         commonTest {
             dependencies {
-                api(project(":internal-testutils-kmp"))
+                api(project(":kruth:kruth"))
                 api(libs.kotlinTestCommon)
                 api(libs.kotlinTestAnnotationsCommon)
                 api(libs.kotlinCoroutinesTest)
                 api(project(":internal-testutils-datastore"))
-                api(project(":internal-testutils-kmp"))
+                api(project(":kruth:kruth"))
             }
         }
         jvmTest {
@@ -71,7 +70,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 api(project(":internal-testutils-datastore"))
-                api(project(":internal-testutils-kmp"))
+                api(project(":kruth:kruth"))
             }
         }
 
@@ -80,12 +79,6 @@ androidXMultiplatform {
                 dependencies {
                     implementation(libs.atomicFu)
                 }
-            }
-        }
-
-        targets.withType(KotlinNativeTarget).configureEach {
-            binaries.all {
-                binaryOptions["memoryModel"] = "experimental"
             }
         }
 

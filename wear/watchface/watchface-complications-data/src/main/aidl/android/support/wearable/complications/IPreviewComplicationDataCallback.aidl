@@ -6,8 +6,8 @@ import android.support.wearable.complications.ComplicationData;
  * Callback for IProviderInfoService.requestPreviewComplicationData to fetch
  * preview {@link ComplicationData} from a provider.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IPreviewComplicationDataCallback {
     /**
      * Updates complication data for the given complication.

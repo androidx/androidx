@@ -34,9 +34,7 @@ import android.os.Parcelable;
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
-import androidx.core.os.BuildCompat;
 
 import java.util.ArrayList;
 
@@ -213,8 +211,7 @@ public final class IntentCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, the object type is checked after deserialization.
      * </ul>
      *
@@ -228,11 +225,10 @@ public final class IntentCompat {
      * @see Intent#putExtra(String, Parcelable)
      */
     @Nullable
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation", "unchecked"})
     public static <T> T getParcelableExtra(@NonNull Intent in, @Nullable String name,
             @NonNull Class<T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.getParcelableExtra(in, name, clazz);
         } else {
             T extra = in.getParcelableExtra(name);
@@ -245,8 +241,7 @@ public final class IntentCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the array elements' types.
      * </ul>
      *
@@ -260,12 +255,11 @@ public final class IntentCompat {
      * @see Intent#putExtra(String, Parcelable[])
      */
     @Nullable
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation"})
     @SuppressLint({"ArrayReturn", "NullableCollection"})
     public static Parcelable[] getParcelableArrayExtra(@NonNull Intent in, @Nullable String name,
             @NonNull Class<? extends Parcelable> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.getParcelableArrayExtra(in, name, clazz);
         } else {
             return in.getParcelableArrayExtra(name);
@@ -277,8 +271,7 @@ public final class IntentCompat {
      *
      * Compatibility behavior:
      * <ul>
-     *     <li>{@link BuildCompat#isAtLeastU() Android U and later}, this method matches platform
-     *     behavior.
+     *     <li>SDK 34 and later, this method matches platform behavior.
      *     <li>SDK 33 and below, this method will not check the array elements' types.
      * </ul>
      *
@@ -294,12 +287,11 @@ public final class IntentCompat {
      * @see Intent#putParcelableArrayListExtra(String, ArrayList)
      */
     @Nullable
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @SuppressWarnings({"deprecation", "unchecked"})
     @SuppressLint({"ConcreteCollection", "NullableCollection"})
     public static <T> ArrayList<T> getParcelableArrayListExtra(
             @NonNull Intent in, @Nullable String name, @NonNull Class<? extends T> clazz) {
-        if (BuildCompat.isAtLeastU()) {
+        if (Build.VERSION.SDK_INT >= 34) {
             return Api33Impl.getParcelableArrayListExtra(in, name, clazz);
         } else {
             return (ArrayList<T>) in.getParcelableArrayListExtra(name);

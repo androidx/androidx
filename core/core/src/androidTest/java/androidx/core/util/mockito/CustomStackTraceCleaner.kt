@@ -28,9 +28,10 @@ import org.mockito.internal.exceptions.stacktrace.DefaultStackTraceCleaner
 class CustomStackTraceCleaner : StackTraceCleaner {
 
     companion object {
-        private val CLEANER_WRAPPER = DefaultStackTraceCleaner()
-            .let { DexmakerMockMaker().getStackTraceCleaner(it) }
-            .let { DexmakerStackTraceCleaner().getStackTraceCleaner(it) }
+        private val CLEANER_WRAPPER =
+            DefaultStackTraceCleaner()
+                .let { DexmakerMockMaker().getStackTraceCleaner(it) }
+                .let { DexmakerStackTraceCleaner().getStackTraceCleaner(it) }
     }
 
     override fun isIn(candidate: StackTraceElement?) = CLEANER_WRAPPER.isIn(candidate)

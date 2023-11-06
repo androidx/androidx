@@ -18,6 +18,7 @@ package androidx.compose.ui.layout
 
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.LookaheadCapablePlaceable
+import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * The receiver scope of a layout's measure lambda. The return value of the
@@ -49,12 +50,25 @@ interface MeasureScope : IntrinsicMeasureScope {
         override val height = height
         override val alignmentLines = alignmentLines
         override fun placeChildren() {
-            Placeable.PlacementScope.executeWithRtlMirroringValues(
-                width,
-                layoutDirection,
-                this@MeasureScope as? LookaheadCapablePlaceable,
-                placementBlock
-            )
+            // This isn't called from anywhere inside the compose framework. This might
+            // be called by tests or external frameworks.
+            if (this@MeasureScope is LookaheadCapablePlaceable) {
+                placementScope.placementBlock()
+            } else {
+                SimplePlacementScope(
+                    width,
+                    layoutDirection
+                ).placementBlock()
+            }
         }
     }
 }
+
+/**
+ * This is used by the default implementation of [MeasureScope.layout] and will never be called
+ * by any implementation of [MeasureScope] in the compose framework.
+ */
+private class SimplePlacementScope(
+    override val parentWidth: Int,
+    override val parentLayoutDirection: LayoutDirection,
+) : Placeable.PlacementScope()

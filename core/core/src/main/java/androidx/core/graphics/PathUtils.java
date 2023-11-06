@@ -36,6 +36,8 @@ public final class PathUtils {
      *
      * <em>Note:</em> This method requires API 26 or newer.
      *
+     * @param path path to flatten.
+     *
      * @see #flatten(Path, float)
      */
     @RequiresApi(26)
@@ -49,6 +51,7 @@ public final class PathUtils {
      *
      * <em>Note:</em> This method requires API 26 or newer.
      *
+     * @param path path to flatten.
      * @param error The acceptable error for a line on the Path. Typically this would be
      *              0.5 so that the error is less than half a pixel.
      *

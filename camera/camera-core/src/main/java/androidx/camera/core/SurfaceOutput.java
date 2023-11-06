@@ -18,7 +18,9 @@ package androidx.camera.core;
 
 import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 
+import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
+import android.hardware.camera2.CameraCharacteristics;
 import android.util.Size;
 import android.view.Surface;
 
@@ -148,6 +150,35 @@ public interface SurfaceOutput extends Closeable {
      * @see SurfaceTexture#getTransformMatrix(float[])
      */
     void updateTransformMatrix(@NonNull float[] updated, @NonNull float[] original);
+
+    /**
+     * Returns the sensor to image buffer transform matrix.
+     *
+     * <p>The value is a mapping from sensor coordinates to buffer coordinates, which is,
+     * from the rect of {@link CameraCharacteristics#SENSOR_INFO_ACTIVE_ARRAY_SIZE} to the
+     * rect defined by {@code (0, 0, SurfaceRequest#getResolution#getWidth(),
+     * SurfaceRequest#getResolution#getHeight())}. The matrix can
+     * be used to map the coordinates from one {@link UseCase} to another. For example,
+     * detecting face with {@link ImageAnalysis}, and then highlighting the face in
+     * {@link Preview}.
+     *
+     * <p>Code sample
+     * <code><pre>
+     *  // Get the transformation from sensor to effect output.
+     *  Matrix sensorToEffect = surfaceOutput.getSensorToBufferTransform();
+     *  // Get the transformation from sensor to ImageAnalysis.
+     *  Matrix sensorToAnalysis = imageProxy.getSensorToBufferTransform();
+     *  // Concatenate the two matrices to get the transformation from ImageAnalysis to effect.
+     *  Matrix analysisToEffect = Matrix()
+     *  sensorToAnalysis.invert(analysisToEffect);
+     *  analysisToEffect.postConcat(sensorToEffect);
+     * </pre></code>
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    default Matrix getSensorToBufferTransform() {
+        return new Matrix();
+    }
 
     /**
      * Events of the {@link Surface} retrieved from

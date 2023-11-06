@@ -19,9 +19,13 @@ package androidx.media2.session;
 import androidx.media2.common.BaseResult;
 
 /**
- * Base interface for result classes in {@link MediaSession} and {@link MediaController} that may
- * be sent across the processes.
- **/
+ * Base interface for result classes in {@link MediaSession} and {@link MediaController} that may be
+ * sent across the processes.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
+ */
+@Deprecated
 interface RemoteResult extends BaseResult {
     /**
      * Result code representing that the session and controller were disconnected.

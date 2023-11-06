@@ -19,7 +19,7 @@ package androidx.car.app;
 import androidx.car.app.serialization.Bundleable;
 import androidx.car.app.IOnDoneCallback;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IAppManager {
   /** Requests for a callback to update the template. */
   void getTemplate(IOnDoneCallback callback) = 1;

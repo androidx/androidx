@@ -28,6 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
@@ -37,6 +38,7 @@ import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.StreamSpec;
+import androidx.camera.core.impl.stabilization.StabilizationMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,6 +113,21 @@ class Camera2CaptureRequestBuilder {
 
     }
 
+    @VisibleForTesting
+    static void applyVideoStabilization(@NonNull CaptureConfig captureConfig,
+            @NonNull CaptureRequest.Builder builder) {
+        if (captureConfig.getPreviewStabilizationMode() == StabilizationMode.OFF
+                || captureConfig.getVideoStabilizationMode() == StabilizationMode.OFF) {
+            builder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
+                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF);
+        } else if (captureConfig.getPreviewStabilizationMode() == StabilizationMode.ON) {
+            builder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
+                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION);
+        } else if (captureConfig.getVideoStabilizationMode() == StabilizationMode.ON) {
+            builder.set(CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
+                    CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_ON);
+        }
+    }
 
     /**
      * Builds a {@link CaptureRequest} from a {@link CaptureConfig} and a {@link CameraDevice}.
@@ -154,6 +171,8 @@ class Camera2CaptureRequestBuilder {
                 captureConfig.getImplementationOptions());
 
         applyAeFpsRange(captureConfig, builder);
+
+        applyVideoStabilization(captureConfig, builder);
 
         if (captureConfig.getImplementationOptions().containsOption(
                 CaptureConfig.OPTION_ROTATION)) {

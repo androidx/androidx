@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.constrain
+import kotlin.math.min
 
 /**
  * Performs text layout using [Paragraph].
@@ -52,26 +53,31 @@ internal class ParagraphLayoutCache(
     private var maxLines: Int = Int.MAX_VALUE,
     private var minLines: Int = DefaultMinLines,
 ) {
+
+    /**
+     * Density is an interface which makes it behave like a provider, rather than a final class.
+     * Whenever Density changes, the object itself may remain the same, making the below density
+     * variable mutate internally. This value holds the last seen density whenever Compose sends
+     * us a Density may have changed notification via layout or draw phase.
+     */
+    private var lastDensity: InlineDensity = InlineDensity.Unspecified
+
     /**
      * Density that text layout is performed in
      */
     internal var density: Density? = null
         set(value) {
             val localField = field
+            val newDensity = value?.let { InlineDensity(it) } ?: InlineDensity.Unspecified
             if (localField == null) {
                 field = value
+                lastDensity = newDensity
                 return
             }
 
-            if (value == null) {
+            if (value == null || lastDensity != newDensity) {
                 field = value
-                markDirty()
-                return
-            }
-
-            if (localField.density != value.density || localField.fontScale != value.fontScale) {
-                field = value
-                // none of our results are correct if density changed
+                lastDensity = newDensity
                 markDirty()
             }
         }
@@ -159,9 +165,10 @@ internal class ParagraphLayoutCache(
             if (finalConstraints != prevConstraints) {
                 // ensure size and overflow is still accurate
                 val localParagraph = paragraph!!
+                val layoutWidth = min(localParagraph.maxIntrinsicWidth, localParagraph.width)
                 val localSize = finalConstraints.constrain(
                     IntSize(
-                        localParagraph.width.ceilToIntPx(),
+                        layoutWidth.ceilToIntPx(),
                         localParagraph.height.ceilToIntPx()
                     )
                 )
@@ -169,6 +176,7 @@ internal class ParagraphLayoutCache(
                 didOverflow = overflow != TextOverflow.Visible &&
                     (localSize.width < localParagraph.width ||
                         localSize.height < localParagraph.height)
+                prevConstraints = finalConstraints
             }
             return false
         }
@@ -330,7 +338,7 @@ internal class ParagraphLayoutCache(
      *
      * Exposed for semantics GetTextLayoutResult
      */
-    fun slowCreateTextLayoutResultOrNull(): TextLayoutResult? {
+    fun slowCreateTextLayoutResultOrNull(style: TextStyle): TextLayoutResult? {
         // make sure we're in a valid place
         val localLayoutDirection = intrinsicsLayoutDirection ?: return null
         val localDensity = density ?: return null

@@ -1,6 +1,8 @@
 // Baseline format: 1.0
 ArrayReturn: androidx.webkit.WebMessageCompat#WebMessageCompat(String, androidx.webkit.WebMessagePortCompat[]) parameter #1:
     Method parameter should be Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
+ArrayReturn: androidx.webkit.WebMessageCompat#WebMessageCompat(byte[], androidx.webkit.WebMessagePortCompat[]) parameter #1:
+    Method parameter should be Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
 ArrayReturn: androidx.webkit.WebMessageCompat#getPorts():
     Method should return Collection<WebMessagePortCompat> (or subclass) instead of raw array; was `androidx.webkit.WebMessagePortCompat[]`
 ArrayReturn: androidx.webkit.WebViewCompat#createWebMessageChannel(android.webkit.WebView):
@@ -65,6 +67,12 @@ MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#setDoma
     androidx.webkit.WebViewAssetLoader does not declare a `getDomain()` method matching method androidx.webkit.WebViewAssetLoader.Builder.setDomain(String)
 MissingGetterMatchingBuilder: androidx.webkit.WebViewAssetLoader.Builder#setHttpAllowed(boolean):
     androidx.webkit.WebViewAssetLoader does not declare a `isHttpAllowed()` method matching method androidx.webkit.WebViewAssetLoader.Builder.setHttpAllowed(boolean)
+
+
+NotCloseable: androidx.webkit.TracingController:
+    Classes that release resources (stop()) should implement AutoCloseable and CloseGuard: class androidx.webkit.TracingController
+NotCloseable: androidx.webkit.WebMessagePortCompat:
+    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.webkit.WebMessagePortCompat
 
 
 NullableCollection: androidx.webkit.WebMessageCompat#getPorts():

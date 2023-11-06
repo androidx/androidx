@@ -43,8 +43,10 @@ import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE
 import androidx.camera.core.impl.UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER
 import androidx.camera.core.impl.UseCaseConfigFactory
+import androidx.camera.core.impl.UseCaseConfigFactory.CaptureType
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import kotlin.math.min
 
@@ -191,7 +193,10 @@ class MeteringRepeating(
                 OPTION_SESSION_CONFIG_UNPACKER,
                 CameraUseCaseAdapter.DefaultSessionOptionsUnpacker
             )
+            insertOption(OPTION_CAPTURE_TYPE, CaptureType.METERING_REPEATING)
         }
+
+        override fun getCaptureType() = UseCaseConfigFactory.CaptureType.METERING_REPEATING
 
         override fun getConfig() = config
 

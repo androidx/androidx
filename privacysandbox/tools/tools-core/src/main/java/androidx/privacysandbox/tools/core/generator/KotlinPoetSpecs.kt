@@ -148,6 +148,7 @@ object SpecNames {
     const val contextPropertyName = "context"
 
     // Kotlin coroutines
+    val resumeMethod = MemberName("kotlin.coroutines", "resume", isExtension = true)
     val resumeWithExceptionMethod =
         MemberName("kotlin.coroutines", "resumeWithException", isExtension = true)
     val cancellationExceptionClass =

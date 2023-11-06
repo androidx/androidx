@@ -16,13 +16,26 @@
 
 package androidx.benchmark.integration.baselineprofile.consumer
 
-import android.app.Activity
 import android.os.Bundle
 import android.widget.TextView
+import androidx.activity.ComponentActivity
 import androidx.profileinstaller.ProfileVerifier
-import java.util.concurrent.Executors
+import com.google.common.util.concurrent.ListenableFuture
+import dagger.hilt.android.AndroidEntryPoint
+import java.util.concurrent.ExecutorService
+import javax.inject.Inject
 
-class EmptyActivity : Activity() {
+@AndroidEntryPoint
+class EmptyActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var executor: ExecutorService
+
+    @Inject
+    lateinit var compilationStatusFuture: ListenableFuture<ProfileVerifier.CompilationStatus>
+
+    @Inject
+    lateinit var someObject: SomeObject
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,13 +44,14 @@ class EmptyActivity : Activity() {
 
     override fun onResume() {
         super.onResume()
-        Executors.newSingleThreadExecutor().submit {
-            val result = ProfileVerifier.getCompilationStatusAsync().get()
+        executor.submit {
+            val result = compilationStatusFuture.get()
             runOnUiThread {
                 findViewById<TextView>(R.id.txtNotice).text = """
                     Profile installed: ${result.profileInstallResultCode}
                     Has reference profile: ${result.isCompiledWithProfile}
                     Has current profile: ${result.hasProfileEnqueuedForCompilation()}
+                    Build type: ${someObject.buildType}
                 """.trimIndent()
             }
         }

@@ -16,69 +16,45 @@
 
 package androidx.bluetooth.integration.testapp.ui.advertiser
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.bluetooth.BluetoothManager
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
-import androidx.bluetooth.AdvertiseResult
-import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.databinding.FragmentAdvertiserBinding
 import androidx.bluetooth.integration.testapp.ui.common.getColor
 import androidx.bluetooth.integration.testapp.ui.common.setViewEditText
 import androidx.bluetooth.integration.testapp.ui.common.toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.flowWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class AdvertiserFragment : Fragment() {
 
     private companion object {
         private const val TAG = "AdvertiserFragment"
     }
 
-    private lateinit var advertiserViewModel: AdvertiserViewModel
-
-    private lateinit var bluetoothLe: BluetoothLe
-
     private var advertiseDataAdapter: AdvertiseDataAdapter? = null
 
-    private val advertiseScope = CoroutineScope(Dispatchers.Main + Job())
-    private var advertiseJob: Job? = null
-
-    private var isAdvertising: Boolean = false
-        set(value) {
-            field = value
-            if (value) {
-                _binding?.buttonAdvertise?.text = getString(R.string.stop_advertising)
-                _binding?.buttonAdvertise?.backgroundTintList = getColor(R.color.red_500)
-            } else {
-                _binding?.buttonAdvertise?.text = getString(R.string.start_advertising)
-                _binding?.buttonAdvertise?.backgroundTintList = getColor(R.color.indigo_500)
-                advertiseJob?.cancel()
-                advertiseJob = null
-            }
-            _binding?.textInputEditTextDisplayName?.isEnabled = !value
-            _binding?.checkBoxIncludeDeviceName?.isEnabled = !value
-            _binding?.checkBoxConnectable?.isEnabled = !value
-            _binding?.checkBoxDiscoverable?.isEnabled = !value
-            _binding?.buttonAddData?.isEnabled = !value
-            _binding?.viewRecyclerViewOverlay?.isVisible = value
-        }
+    private val viewModel: AdvertiserViewModel by viewModels()
 
     private var _binding: FragmentAdvertiserBinding? = null
-
-    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
     override fun onCreateView(
@@ -86,24 +62,23 @@ class AdvertiserFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        advertiserViewModel = ViewModelProvider(this)[AdvertiserViewModel::class.java]
-
-        bluetoothLe = BluetoothLe(requireContext())
-
         _binding = FragmentAdvertiserBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-        initData()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         binding.checkBoxIncludeDeviceName.setOnCheckedChangeListener { _, isChecked ->
-            advertiserViewModel.includeDeviceName = isChecked
+            viewModel.includeDeviceName = isChecked
         }
 
         binding.checkBoxConnectable.setOnCheckedChangeListener { _, isChecked ->
-            advertiserViewModel.connectable = isChecked
+            viewModel.connectable = isChecked
         }
 
         binding.checkBoxDiscoverable.setOnCheckedChangeListener { _, isChecked ->
-            advertiserViewModel.discoverable = isChecked
+            viewModel.discoverable = isChecked
         }
 
         binding.buttonAddData.setOnClickListener {
@@ -121,32 +96,70 @@ class AdvertiserFragment : Fragment() {
         }
 
         advertiseDataAdapter = AdvertiseDataAdapter(
-            advertiserViewModel.advertiseData,
+            viewModel.advertiseData,
             ::onClickRemoveAdvertiseData
         )
         binding.recyclerViewAdvertiseData.adapter = advertiseDataAdapter
 
         binding.buttonAdvertise.setOnClickListener {
-            if (advertiseJob?.isActive == true) {
-                isAdvertising = false
+            if (viewModel.advertiseJob?.isActive == true) {
+                viewModel.advertiseJob?.cancel()
             } else {
-                startAdvertise()
+                viewModel.startAdvertise()
             }
         }
 
-        return binding.root
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewModel.uiState
+                .flowWithLifecycle(viewLifecycleOwner.lifecycle)
+                .collect(::updateUi)
+        }
+
+        initData()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        isAdvertising = false
+    }
+
+    private fun updateUi(advertiserUiState: AdvertiserUiState) {
+        val isAdvertising = advertiserUiState.isAdvertising
+
+        if (isAdvertising) {
+            binding.buttonAdvertise.text = getString(R.string.stop_advertising)
+            binding.buttonAdvertise.backgroundTintList = getColor(R.color.red_500)
+        } else {
+            binding.buttonAdvertise.text = getString(R.string.start_advertising)
+            binding.buttonAdvertise.backgroundTintList = getColor(R.color.indigo_500)
+        }
+        binding.checkBoxIncludeDeviceName.isEnabled = !isAdvertising
+        binding.checkBoxConnectable.isEnabled = !isAdvertising
+        binding.checkBoxDiscoverable.isEnabled = !isAdvertising
+        binding.buttonAddData.isEnabled = !isAdvertising
+        binding.viewRecyclerViewOverlay.isVisible = isAdvertising
+
+        advertiserUiState.resultMessage?.let {
+            toast(it).show()
+            viewModel.resultMessageShown()
+        }
     }
 
     private fun initData() {
-        binding.checkBoxIncludeDeviceName.isChecked = advertiserViewModel.includeDeviceName
-        binding.checkBoxConnectable.isChecked = advertiserViewModel.connectable
-        binding.checkBoxDiscoverable.isChecked = advertiserViewModel.discoverable
+        if (ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.BLUETOOTH_CONNECT
+            )
+            == PackageManager.PERMISSION_GRANTED
+        ) {
+            binding.textInputEditTextDisplayName.setText(
+                (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
+                    .adapter.name
+            )
+        }
+        binding.checkBoxIncludeDeviceName.isChecked = viewModel.includeDeviceName
+        binding.checkBoxConnectable.isChecked = viewModel.connectable
+        binding.checkBoxDiscoverable.isChecked = viewModel.discoverable
     }
 
     private fun showDialogFor(title: String) {
@@ -167,7 +180,7 @@ class AdvertiserFragment : Fragment() {
             .setPositiveButton(getString(R.string.add)) { _, _ ->
                 val editTextInput = editText.text.toString()
 
-                advertiserViewModel.serviceUuids.add(UUID.fromString(editTextInput))
+                viewModel.serviceUuids.add(UUID.fromString(editTextInput))
                 refreshAdvertiseData()
             }
             .setNegativeButton(getString(R.string.cancel), null)
@@ -192,7 +205,7 @@ class AdvertiserFragment : Fragment() {
                     UUID.fromString(editTextUuidOrServiceNameInput),
                     editTextDataHexInput.toByteArray()
                 )
-                advertiserViewModel.serviceDatas.add(serviceData)
+                viewModel.serviceDatas.add(serviceData)
             }
             .setNegativeButton(getString(R.string.cancel), null)
             .create()
@@ -217,7 +230,7 @@ class AdvertiserFragment : Fragment() {
                     editText16BitCompanyIdentifierInput.toInt(),
                     editTextDataHexInput.toByteArray()
                 )
-                advertiserViewModel.manufacturerDatas.add(manufacturerData)
+                viewModel.manufacturerDatas.add(manufacturerData)
             }
             .setNegativeButton(getString(R.string.cancel), null)
             .create()
@@ -226,48 +239,13 @@ class AdvertiserFragment : Fragment() {
 
     @SuppressLint("NotifyDataSetChanged")
     private fun refreshAdvertiseData() {
-        advertiseDataAdapter?.advertiseData = advertiserViewModel.advertiseData
+        advertiseDataAdapter?.advertiseData = viewModel.advertiseData
         advertiseDataAdapter?.notifyDataSetChanged()
     }
 
     private fun onClickRemoveAdvertiseData(index: Int) {
-        advertiserViewModel.removeAdvertiseDataAtIndex(index)
-        advertiseDataAdapter?.advertiseData = advertiserViewModel.advertiseData
+        viewModel.removeAdvertiseDataAtIndex(index)
+        advertiseDataAdapter?.advertiseData = viewModel.advertiseData
         advertiseDataAdapter?.notifyItemRemoved(index)
-    }
-
-    // Permissions are handled by MainActivity requestBluetoothPermissions
-    @SuppressLint("MissingPermission")
-    private fun startAdvertise() {
-        advertiseJob = advertiseScope.launch {
-            isAdvertising = true
-
-            bluetoothLe.advertise(advertiserViewModel.advertiseParams)
-                .collect {
-                    Log.d(TAG, "AdvertiseResult collected: $it")
-
-                    when (it) {
-                        AdvertiseResult.ADVERTISE_STARTED -> {
-                            toast("ADVERTISE_STARTED").show()
-                        }
-                        AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE -> {
-                            isAdvertising = false
-                            toast("ADVERTISE_FAILED_DATA_TOO_LARGE").show()
-                        }
-                        AdvertiseResult.ADVERTISE_FAILED_FEATURE_UNSUPPORTED -> {
-                            isAdvertising = false
-                            toast("ADVERTISE_FAILED_FEATURE_UNSUPPORTED").show()
-                        }
-                        AdvertiseResult.ADVERTISE_FAILED_INTERNAL_ERROR -> {
-                            isAdvertising = false
-                            toast("ADVERTISE_FAILED_INTERNAL_ERROR").show()
-                        }
-                        AdvertiseResult.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS -> {
-                            isAdvertising = false
-                            toast("ADVERTISE_FAILED_TOO_MANY_ADVERTISERS").show()
-                        }
-                    }
-                }
-        }
     }
 }

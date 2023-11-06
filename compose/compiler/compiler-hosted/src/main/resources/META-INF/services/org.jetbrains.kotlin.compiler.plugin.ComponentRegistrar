@@ -1,1 +1,1 @@
-androidx.compose.compiler.plugins.kotlin.ComposeComponentRegistrar
+androidx.compose.compiler.plugins.kotlin.ComposePluginRegistrar

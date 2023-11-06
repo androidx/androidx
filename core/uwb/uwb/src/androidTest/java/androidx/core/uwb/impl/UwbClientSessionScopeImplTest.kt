@@ -52,9 +52,14 @@ class UwbClientSessionScopeImplTest {
             RANGING_CAPABILITIES.supportsDistance(),
             RANGING_CAPABILITIES.supportsAzimuthalAngle(),
             RANGING_CAPABILITIES.supportsElevationAngle(),
-            RANGING_CAPABILITIES.getMinRangingInterval(),
-            RANGING_CAPABILITIES.getSupportedChannels().toSet(),
-            RANGING_CAPABILITIES.getSupportedConfigIds().toSet()
+            RANGING_CAPABILITIES.minRangingInterval,
+            RANGING_CAPABILITIES.supportedChannels.toSet(),
+            RANGING_CAPABILITIES.supportedNtfConfigs.toSet(),
+            RANGING_CAPABILITIES.supportedConfigIds.toSet(),
+            RANGING_CAPABILITIES.supportedSlotDurations.toSet(),
+            RANGING_CAPABILITIES.supportedRangingUpdateRates.toSet(),
+            RANGING_CAPABILITIES.supportsRangingIntervalReconfigure(),
+            RANGING_CAPABILITIES.hasBackgroundRangingSupport()
         ),
         androidx.core.uwb.UwbAddress(LOCAL_ADDRESS.address)
     )

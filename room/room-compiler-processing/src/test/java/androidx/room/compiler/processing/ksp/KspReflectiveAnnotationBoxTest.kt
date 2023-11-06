@@ -16,8 +16,8 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.kruth.assertThat
 import androidx.room.compiler.processing.util.runKspTest
-import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import kotlin.reflect.KClass

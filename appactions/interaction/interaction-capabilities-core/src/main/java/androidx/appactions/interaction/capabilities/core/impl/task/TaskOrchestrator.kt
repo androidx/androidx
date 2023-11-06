@@ -38,6 +38,7 @@ import androidx.appactions.interaction.capabilities.core.impl.utils.invokeExtern
 import androidx.appactions.interaction.proto.AppActionsContext
 import androidx.appactions.interaction.proto.CurrentValue
 import androidx.appactions.interaction.proto.FulfillmentRequest
+import androidx.appactions.interaction.proto.FulfillmentRequest.Fulfillment.SyncStatus
 import androidx.appactions.interaction.proto.FulfillmentResponse
 import androidx.appactions.interaction.proto.ParamValue
 import androidx.appactions.interaction.proto.TouchEventMetadata
@@ -92,13 +93,18 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     internal var status: Status = Status.UNINITIATED
         private set
 
+    /**
+     *  Last known Sync Status of the request. Required to process Touch Event Updates
+     */
+    private var lastKnownSyncStatus = SyncStatus.UNKNOWN_SYNC_STATUS
+
+    private val inProgressLock = Any()
+
     // Set a TouchEventCallback instance. This callback is invoked when state changes from manual
     // input.
     internal fun setTouchEventCallback(touchEventCallback: TouchEventCallback?) {
         this.touchEventCallback = touchEventCallback
     }
-
-    private val inProgressLock = Any()
 
     @GuardedBy("inProgressLock")
     private var inProgress = false
@@ -148,10 +154,10 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
         try {
             if (status == Status.DESTROYED) {
                 if (updateRequest.assistantRequest != null) {
-                    FulfillmentResult(ErrorStatusInternal.SESSION_ALREADY_DESTROYED)
+                    FulfillmentResult(ErrorStatusInternal.SESSION_NOT_FOUND)
                         .applyToCallback(updateRequest.assistantRequest.callbackInternal)
                 } else if (updateRequest.touchEventRequest != null && touchEventCallback != null) {
-                    touchEventCallback!!.onError(ErrorStatusInternal.SESSION_ALREADY_DESTROYED)
+                    touchEventCallback!!.onError(ErrorStatusInternal.SESSION_NOT_FOUND)
                 }
             } else if (updateRequest.assistantRequest != null) {
                 processAssistantUpdateRequest(updateRequest.assistantRequest)
@@ -175,7 +181,6 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     }
 
     /** Processes an assistant update request. */
-    @Suppress("DEPRECATION")
     private suspend fun processAssistantUpdateRequest(
         assistantUpdateRequest: AssistantUpdateRequest,
     ) = withUiHandleRegistered {
@@ -185,8 +190,8 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
             val fulfillmentResult: FulfillmentResult = when (
                 argumentsWrapper.requestMetadata?.requestType
             ) {
-                FulfillmentRequest.Fulfillment.Type.SYNC -> handleSync(argumentsWrapper)
-                FulfillmentRequest.Fulfillment.Type.CONFIRM -> handleConfirm()
+                FulfillmentRequest.Fulfillment.Type.SYNC ->
+                    handleSyncStatus(argumentsWrapper)
                 FulfillmentRequest.Fulfillment.Type.CANCEL -> {
                     terminate()
                     FulfillmentResult(FulfillmentResponse.getDefaultInstance())
@@ -276,7 +281,8 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
         val finalArguments = getCurrentAcceptedArguments()
         if (
             anyParamsOfStatus(CurrentValue.Status.REJECTED) ||
-            !TaskCapabilityUtils.isSlotFillingComplete(finalArguments, appAction.paramsList)
+            !TaskCapabilityUtils.isSlotFillingComplete(finalArguments, appAction.paramsList) ||
+            lastKnownSyncStatus != SyncStatus.SLOTS_COMPLETE
         ) {
             return FulfillmentResponse.getDefaultInstance()
         }
@@ -298,12 +304,35 @@ internal class TaskOrchestrator<ArgumentsT, OutputT, ConfirmationT>(
     }
 
     /**
+     *  Decides if the SDK should perform execution or not based on the Sync Status of the request
+     *
+     *  SyncStatus - SLOTS_INCOMPLETE : Execution is blocked even if all validations pass
+     *  SyncStatus - SLOTS_COMPLETE : Execution is completed if all validations pass
+     *  SyncStatus - INTENT_CONFIRMED : User has confirmed the request and execution will be completed
+     */
+    private suspend fun handleSyncStatus(argumentsWrapper: ArgumentsWrapper):
+        FulfillmentResult {
+        lastKnownSyncStatus = argumentsWrapper.requestMetadata!!.syncStatus
+        return when (lastKnownSyncStatus) {
+            SyncStatus.SLOTS_INCOMPLETE,
+            SyncStatus.SLOTS_COMPLETE,
+            ->
+                handleSyncFulfillmentRequest(argumentsWrapper)
+            SyncStatus.INTENT_CONFIRMED
+            ->
+                handleConfirm()
+            else -> FulfillmentResult(ErrorStatusInternal.INVALID_REQUEST)
+        }
+    }
+
+    /**
      * Handles a SYNC request from assistant.
      *
      * Control-flow logic for a single task turn. Note, a task may start and finish in the same
      * turn, so the logic should include onEnter, arg validation, and onExit.
      */
-    private suspend fun handleSync(argumentsWrapper: ArgumentsWrapper): FulfillmentResult {
+    private suspend fun handleSyncFulfillmentRequest(argumentsWrapper: ArgumentsWrapper):
+        FulfillmentResult {
         maybeInitializeTask()
         clearMissingArgs(argumentsWrapper)
         processFulfillmentValues(argumentsWrapper.paramValues)

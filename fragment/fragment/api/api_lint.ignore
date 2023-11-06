@@ -35,10 +35,6 @@ InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#addView(
     Invalid nullability on parameter `child` in method `addView`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#dispatchApplyWindowInsets(android.view.WindowInsets) parameter #0:
     Invalid nullability on parameter `insets` in method `dispatchApplyWindowInsets`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#dispatchDraw(android.graphics.Canvas) parameter #0:
-    Invalid nullability on parameter `canvas` in method `dispatchDraw`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
-InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #0:
-    Invalid nullability on parameter `canvas` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#drawChild(android.graphics.Canvas, android.view.View, long) parameter #1:
     Invalid nullability on parameter `child` in method `drawChild`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#endViewTransition(android.view.View) parameter #0:
@@ -55,20 +51,8 @@ InvalidNullabilityOverride: androidx.fragment.app.FragmentContainerView#startVie
     Invalid nullability on parameter `view` in method `startViewTransition`. Parameters of overrides cannot be NonNull if the super parameter is unannotated.
 
 
-MissingNullability: androidx.fragment.app.Fragment#startActivity(android.content.Intent) parameter #0:
-    Missing nullability on parameter `intent` in method `startActivity`
-MissingNullability: androidx.fragment.app.Fragment#startActivity(android.content.Intent, android.os.Bundle) parameter #0:
-    Missing nullability on parameter `intent` in method `startActivity`
-MissingNullability: androidx.fragment.app.FragmentActivity#startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int) parameter #1:
-    Missing nullability on parameter `intent` in method `startActivityFromFragment`
-MissingNullability: androidx.fragment.app.FragmentActivity#startActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `intent` in method `startActivityFromFragment`
 MissingNullability: androidx.fragment.app.FragmentController#getActiveFragments(java.util.List<androidx.fragment.app.Fragment>) parameter #0:
     Missing nullability on parameter `actives` in method `getActiveFragments`
-MissingNullability: androidx.fragment.app.FragmentHostCallback#onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int) parameter #1:
-    Missing nullability on parameter `intent` in method `onStartActivityFromFragment`
-MissingNullability: androidx.fragment.app.FragmentHostCallback#onStartActivityFromFragment(androidx.fragment.app.Fragment, android.content.Intent, int, android.os.Bundle) parameter #1:
-    Missing nullability on parameter `intent` in method `onStartActivityFromFragment`
 
 
 NullableCollection: androidx.fragment.app.Fragment#getArguments():

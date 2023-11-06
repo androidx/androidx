@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+NotCloseable: androidx.core.telecom.CallControlScope:
+    Classes that release resources (disconnect()) should implement AutoCloseable and CloseGuard: class androidx.core.telecom.CallControlScope

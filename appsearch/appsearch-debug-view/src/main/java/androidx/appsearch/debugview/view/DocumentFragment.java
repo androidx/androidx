@@ -43,7 +43,7 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 /**
  * A fragment for displaying a {@link GenericDocument} object.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class DocumentFragment extends Fragment {

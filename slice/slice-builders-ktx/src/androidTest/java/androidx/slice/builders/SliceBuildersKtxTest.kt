@@ -33,6 +33,7 @@ import org.junit.Test
 
 @SdkSuppress(minSdkVersion = 19)
 @MediumTest
+@Suppress("DEPRECATION")
 class SliceBuildersKtxTest {
     private val testUri = Uri.parse("content://com.example.android.sliceuri")
     private val context = ApplicationProvider.getApplicationContext() as android.content.Context

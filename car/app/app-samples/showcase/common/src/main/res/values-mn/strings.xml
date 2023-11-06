@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Табын жагсаалт"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Табын урт нэртэй хүснэгтэн таб"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Хайлтын таб"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Табыг ачаалж байна"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Табын загварыг ачаалах демо"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Табын загварын ямар ч табуудын демо байхгүй"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Зургийг тодорхойгүй хостод үзүүлэх боломжгүй"</string>

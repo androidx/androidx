@@ -17,6 +17,8 @@
 package androidx.lifecycle.viewmodel.savedstate
 
 import android.os.Bundle
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.enableSavedStateHandles
 import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -61,6 +63,31 @@ class SavedStateHandleSupportTest {
 
         val recreated = interim.recreate(keepingViewModels = false)
         recreated.enableSavedStateHandles()
+        val restoredHandle = recreated.createSavedStateHandle("test")
+
+        assertThat(restoredHandle.get<String>("a")).isEqualTo("1")
+        assertThat(restoredHandle.get<String>("b")).isEqualTo("2")
+    }
+
+    @UiThreadTest
+    @Test
+    fun testSavedStateHandleSupportWithActivityDestroyed() {
+        val component = TestComponent()
+        component.enableSavedStateHandles()
+        val handle = component.createSavedStateHandle("test")
+        component.resume()
+        handle.set("a", "1")
+        val interim = component.recreate(keepingViewModels = true)
+        interim.enableSavedStateHandles()
+        handle.set("b", "2")
+        interim.resume()
+
+        val recreated = interim.recreate(keepingViewModels = false)
+        recreated.enableSavedStateHandles()
+        (recreated.lifecycle as LifecycleRegistry).currentState = Lifecycle.State.CREATED
+        // during activity recreation, perform save may be called during restore, ensure
+        // this performSave does not override the state that has been restored
+        recreated.performSave(Bundle())
         val restoredHandle = recreated.createSavedStateHandle("test")
 
         assertThat(restoredHandle.get<String>("a")).isEqualTo("1")

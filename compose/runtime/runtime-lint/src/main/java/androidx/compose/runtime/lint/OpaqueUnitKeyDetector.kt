@@ -217,7 +217,7 @@ class OpaqueUnitKeyDetector : Detector(), SourceCodeScanner {
     }
 
     private fun UExpression.isUnitLiteral(): Boolean {
-        val expr = skipParenthesizedExprDown() ?: this
+        val expr = skipParenthesizedExprDown()
         if (expr !is USimpleNameReferenceExpression) return false
 
         return (expr.tryResolveUDeclaration() as? UClass)?.qualifiedName == FqUnitName

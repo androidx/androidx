@@ -29,8 +29,10 @@ import okhttp3.internal.closeQuietly
 import okio.FileSystem
 import okio.Path
 import org.apache.logging.log4j.kotlin.logger
+import org.gradle.api.Project
+import org.jetbrains.kotlin.gradle.plugin.KotlinApiPlugin
+import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.gradle.utils.NativeCompilerDownloader
-import org.jetbrains.kotlin.konan.CompilerVersion.Companion.fromString
 import org.jetbrains.kotlin.konan.properties.resolvablePropertyList
 import org.jetbrains.kotlin.konan.properties.resolvablePropertyString
 import org.jetbrains.kotlin.konan.target.Architecture
@@ -56,9 +58,11 @@ class KonanPrebuiltsDownloader(
         compilerVersion: String
     ) {
         val project = ProjectService.createProject()
+        project.initializeKotlin()
+
         val compiler = NativeCompilerDownloader(
             project = project,
-            compilerVersion = fromString(compilerVersion)
+            compilerVersion = compilerVersion
         )
         // make sure we have the local compiler downloaded so we can find the konan.properties
         compiler.downloadIfNeeded()
@@ -74,6 +78,14 @@ class KonanPrebuiltsDownloader(
         // with the kotlinVersion -> sysroot zip file.
         updateSysrootFile(distribution.properties)
         downloadNativeCompiler(compilerVersion)
+    }
+
+    /**
+     * NativeCompilerDownloader expects Kotlin plugin to be applied before the download starts.
+     * As this class is simulating the same environment, apply the Kotlin plugin manually.
+     */
+    private fun Project.initializeKotlin() {
+        project.pluginManager.apply(KotlinPluginWrapper::class.java)
     }
 
     private fun downloadNativeCompiler(

@@ -243,7 +243,7 @@
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Votre hôte ne prend pas en charge le modèle de connexion"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Hôte incompatible"</string>
     <string name="email_hint" msgid="7205549445477319606">"Courriel"</string>
-    <string name="sign_in_title" msgid="4551967308262681703">"Connexion"</string>
+    <string name="sign_in_title" msgid="4551967308262681703">"Se connecter"</string>
     <string name="sign_in_instructions" msgid="9044850228284294762">"Entrez vos authentifiants"</string>
     <string name="invalid_email_error_msg" msgid="5261362663718987167">"Le nom d\'utilisateur doit être une adresse de courriel valide"</string>
     <string name="invalid_length_error_msg" msgid="8238905276326976425">"Le nom d\'utilisateur doit comporter au moins %s caractères"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Onglet Liste"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Onglet de grille avec un titre d\'onglet long"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Onglet Recherche"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Chargement de l\'onglet en cours…"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Démo du chargement du modèle d\'onglet"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Démo sans onglets du modèle d\'onglet"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Impossible d\'afficher les images pour un hôte inconnu"</string>

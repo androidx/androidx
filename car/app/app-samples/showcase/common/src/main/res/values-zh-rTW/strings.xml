@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"清單分頁"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"有長分頁標題的格線分頁"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"搜尋分頁"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"正在載入分頁"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"分頁範本載入示範"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"分頁範本無分頁示範"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"無法顯示不明主機的圖片"</string>

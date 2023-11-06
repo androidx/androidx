@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation.shape
 
+import androidx.annotation.FloatRange
+import androidx.annotation.IntRange
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
@@ -78,7 +80,7 @@ private data class PxCornerSize(private val size: Float) : CornerSize, Inspectab
  * Can't be negative or larger then 100 percents.
  */
 @Stable
-fun CornerSize(/*@IntRange(from = 0, to = 100)*/ percent: Int): CornerSize =
+fun CornerSize(@IntRange(from = 0, to = 100) percent: Int): CornerSize =
     PercentCornerSize(percent.toFloat())
 
 /**
@@ -87,7 +89,7 @@ fun CornerSize(/*@IntRange(from = 0, to = 100)*/ percent: Int): CornerSize =
  * Can't be negative or larger then 100 percents.
  */
 private data class PercentCornerSize(
-    /*@FloatRange(from = 0.0, to = 100.0)*/
+    @FloatRange(from = 0.0, to = 100.0)
     private val percent: Float
 ) : CornerSize, InspectableValue {
     init {

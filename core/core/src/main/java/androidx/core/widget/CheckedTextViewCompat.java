@@ -48,6 +48,7 @@ public final class CheckedTextViewCompat {
      * automatically mutate the drawable and apply the specified tint and tint
      * mode using {@link DrawableCompat#setTintList(Drawable, ColorStateList)}.
      *
+     * @param textView CheckedTextView for which to apply the tint.
      * @param tint the tint to apply, may be {@code null} to clear tint
      * @see #setCheckMarkTintList(CheckedTextView, ColorStateList)
      */
@@ -81,6 +82,7 @@ public final class CheckedTextViewCompat {
      * {@link #setCheckMarkTintList(CheckedTextView, ColorStateList)}} to the check mark drawable.
      * The default mode is {@link PorterDuff.Mode#SRC_IN}.
      *
+     * @param textView CheckedTextView for which to apply the tint mode.
      * @param tintMode the blending mode used to apply the tint, may be
      *                 {@code null} to clear tint
      * @see #getCheckMarkTintMode(CheckedTextView)

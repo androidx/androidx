@@ -1,22 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(5000);"
-        errorLine2="               ~~~~~">
+        id="RestrictedApiAndroidX"
+        message="WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST can only be accessed from within the same library group (referenced groupId=`androidx.webkit` from groupId=`androidx.webkit.integration-tests`)"
+        errorLine1="        if (!WebViewFeature.isFeatureSupported(WebViewFeature.REQUESTED_WITH_HEADER_ALLOW_LIST)) {"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/com/example/androidx/webkit/ProcessGlobalConfigActivityTestAppTest.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="        Thread.sleep(5000);"
-        errorLine2="               ~~~~~">
-        <location
-            file="src/androidTest/java/com/example/androidx/webkit/ProcessGlobalConfigActivityTestAppTest.java"/>
+            file="src/main/java/com/example/androidx/webkit/RequestedWithHeaderActivity.java"/>
     </issue>
 
 </issues>

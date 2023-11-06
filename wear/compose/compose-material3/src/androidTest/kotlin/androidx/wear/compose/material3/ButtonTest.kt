@@ -39,6 +39,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -225,7 +226,7 @@ class ButtonTest {
         var expectedTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedTextStyle = MaterialTheme.typography.buttonMedium
+            expectedTextStyle = MaterialTheme.typography.labelMedium
             Button(
                 onClick = {},
             ) {
@@ -244,8 +245,8 @@ class ButtonTest {
         var expectedSecondaryTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedTextStyle = MaterialTheme.typography.buttonMedium
-            expectedSecondaryTextStyle = MaterialTheme.typography.captionLarge
+            expectedTextStyle = MaterialTheme.typography.labelMedium
+            expectedSecondaryTextStyle = MaterialTheme.typography.labelSmall
             Button(
                 onClick = {},
                 label = {
@@ -306,6 +307,21 @@ class ButtonTest {
     }
 
     @Test
+    fun gives_base_button_has_adjustable_height() {
+        val minHeight = ButtonDefaults.Height + 1.dp
+
+        rule.setContentWithThemeForSizeAssertions {
+            Button(
+                onClick = {},
+            ) {
+                Text(text = "Button with multiple lines of text to exceed default" +
+                    " minimum height. This should exceed the minimum height for the button.")
+            }
+        }
+            .assertHeightIsAtLeast(minHeight)
+    }
+
+    @Test
     fun gives_three_slot_button_correct_height() {
         rule.setContentWithThemeForSizeAssertions {
             Button(
@@ -314,6 +330,22 @@ class ButtonTest {
             )
         }
             .assertHeightIsEqualTo(ButtonDefaults.Height)
+    }
+
+    @Test
+    fun gives_three_slot_button_has_adjustable_height() {
+        val minHeight = ButtonDefaults.Height + 1.dp
+
+        rule.setContentWithThemeForSizeAssertions {
+            Button(
+                onClick = {},
+                label = {
+                    Text(text = "Button with multiple lines of text to exceed default" +
+                        " minimum height. This should exceed the minimum height for the button.")
+                }
+            )
+        }
+            .assertHeightIsAtLeast(minHeight)
     }
 
     @Test
@@ -354,7 +386,7 @@ class ButtonTest {
             status = Status.Disabled,
             colors = { ButtonDefaults.filledButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledBorderAndContainerAlpha
+                alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
@@ -380,7 +412,7 @@ class ButtonTest {
             status = Status.Disabled,
             colors = { ButtonDefaults.filledTonalButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledBorderAndContainerAlpha
+                alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
@@ -429,9 +461,7 @@ class ButtonTest {
         rule.verifyButtonColors(
             status = Status.Disabled,
             colors = { ButtonDefaults.childButtonColors() },
-            expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = DisabledBorderAndContainerAlpha
-            ) },
+            expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
             ) },
@@ -531,7 +561,9 @@ class ButtonTest {
     fun gives_disabled_outlined_button_correct_border_colors() {
         val status = Status.Disabled
         rule.verifyButtonBorderColor(
-            expectedBorderColor = { MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f) },
+            expectedBorderColor = {
+                MaterialTheme.colorScheme.onSurface.copy(alpha = DisabledBorderAlpha)
+            },
             content = { modifier: Modifier ->
                 OutlinedButton(
                     onClick = {},

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-alpha11" type="baseline" client="gradle" dependencies="false" name="AGP (8.1.0-alpha11)" variant="all" version="8.1.0-alpha11">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="MissingClass"
@@ -12,56 +12,11 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 23 (current min is 14): `android.view.View#getAccessibilityClassName`"
+        message="Call requires API level 23 (current min is 19): `android.view.View#getAccessibilityClassName`"
         errorLine1="        return view.getAccessibilityClassName();"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 16): `java.lang.Character#isSurrogate`"
-        errorLine1="            Character.isSurrogate(c)"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 14): `java.lang.Character#isSurrogate`"
-        errorLine1="            Character.isSurrogate(c)"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 16): `java.lang.Character#isSurrogate`"
-        errorLine1="            Character.isSurrogate(c)"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 16): `java.lang.Character#isSurrogate`"
-        errorLine1="            Character.isSurrogate(c)"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 19 (current min is 16): `java.lang.Character#isSurrogate`"
-        errorLine1="            Character.isSurrogate(c)"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
     </issue>
 
     <issue
@@ -273,15 +228,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.AutofixUnsafeCallWithImplicitParamCast is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        style.setBuilder(builder);"
-        errorLine2="              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeCallWithImplicitParamCast.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 20; however, the containing class androidx.AutofixUnsafeCallWithImplicitParamCast is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        builder.extend(extender);"
         errorLine2="                ~~~~~~">
@@ -363,15 +309,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.AutofixUnsafeMethodWithQualifiedClass is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        return builder.setMediaSize(mediaSize);"
-        errorLine2="                       ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClass.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeReferenceWithExistingClassJava is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            view.setBackgroundTintList(new ColorStateList(null, null));"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
@@ -399,15 +336,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.AutofixUnsafeStaticMethodReferenceJava is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return View.generateViewId();"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/AutofixUnsafeStaticMethodReferenceJava.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.AutofixUnsafeVoidMethodReferenceJava is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            view.setBackgroundTintList(new ColorStateList(null, null));"
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
@@ -426,92 +354,11 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return View.generateViewId();"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 23; however, the containing class androidx.ClassVerificationFailureFromJava is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="        return view.getAccessibilityClassName();"
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            listView.scrollListBy(y);"
-        errorLine2="                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sample/core/widget/ListViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return listView.canScrollList(direction);"
-        errorLine2="                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sample/core/widget/ListViewCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            listView.scrollListBy(y)"
-        errorLine2="                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sample/core/widget/ListViewCompatKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.sample.core.widget.ListViewCompatKotlin is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            listView.canScrollList(direction)"
-        errorLine2="                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/sample/core/widget/ListViewCompatKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinNoAnnotationFails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Character.isSurrogate(c)"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinOuter16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Character.isSurrogate(c)"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Character.isSurrogate(c)"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.RequiresApiKotlinInner16Outer16Fails.MyStaticClass is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Character.isSurrogate(c)"
-        errorLine2="                      ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
     </issue>
 
     <issue
@@ -768,7 +615,142 @@
 
     <issue
         id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="    @RequiresApi(19)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeMethodWithQualifiedClass.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/AutofixUnsafeStaticMethodReferenceJava.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 17) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/ClassVerificationFailureFromJava.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/widget/ListViewCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/widget/ListViewCompat.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/widget/ListViewCompatKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        return if (Build.VERSION.SDK_INT >= 19) {"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sample/core/widget/ListViewCompatKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiJava.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="     @RequiresApi(19)"
+        errorLine2="     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="@RequiresApi(19)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
         message="Unnecessary; SDK_INT is always >= 19 from outer annotation (`@RequiresApi(19)`)"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="@RequiresApi(16)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="@RequiresApi(16)"
+        errorLine2="~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/RequiresApiKotlin.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
         errorLine1="    @RequiresApi(16)"
         errorLine2="    ~~~~~~~~~~~~~~~~">
         <location

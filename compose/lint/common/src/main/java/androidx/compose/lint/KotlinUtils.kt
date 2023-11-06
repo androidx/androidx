@@ -16,17 +16,12 @@
 
 package androidx.compose.lint
 
-import org.jetbrains.kotlin.psi.KtElement
 import org.jetbrains.kotlin.psi.KtLambdaExpression
 import org.jetbrains.kotlin.psi.KtParameter
 import org.jetbrains.kotlin.psi.KtSimpleNameExpression
 import org.jetbrains.kotlin.psi.psiUtil.collectDescendantsOfType
 import org.jetbrains.kotlin.psi.psiUtil.isAncestor
-import org.jetbrains.kotlin.resolve.calls.callUtil.getResolvedCall
 import org.jetbrains.uast.ULambdaExpression
-import org.jetbrains.uast.kotlin.KotlinUFunctionCallExpression
-import org.jetbrains.uast.kotlin.KotlinUastResolveProviderService
-import org.jetbrains.uast.sourcePsiElement
 import org.jetbrains.uast.toUElement
 
 /**
@@ -148,10 +143,3 @@ private val KtLambdaExpression.hasImplicitItParameter: Boolean
             else -> true
         }
     }
-
-fun KotlinUFunctionCallExpression.resolveCall() =
-    (sourcePsiElement as KtElement).getResolvedCall(
-        context = sourcePsi.project
-            .getService(KotlinUastResolveProviderService::class.java)
-            .getBindingContext(sourcePsi)
-    )

@@ -40,11 +40,23 @@ public abstract class JavaScriptReplyProxy {
      * Post a String message to the injected JavaScript object which sent this {@link
      * JavaScriptReplyProxy}.
      *
-     * @param message The data to send to the JavaScript context.
+     * @param message The String data to send to the JavaScript context.
      */
     @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_LISTENER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public abstract void postMessage(@NonNull String message);
+
+    /**
+     * Post a ArrayBuffer message to the injected JavaScript object which sent this
+     * {@link JavaScriptReplyProxy}. Be aware that large byte buffers can lead to out-of-memory
+     * crashes on low-end devices.
+     *
+     * @param arrayBuffer The ArrayBuffer to send to the JavaScript context. An empty ArrayBuffer
+     *                    is supported.
+     */
+    @RequiresFeature(name = WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public abstract void postMessage(@NonNull byte[] arrayBuffer);
 
     /**
      * This class cannot be created by applications.

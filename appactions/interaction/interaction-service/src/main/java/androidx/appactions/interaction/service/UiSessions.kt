@@ -64,14 +64,16 @@ internal object UiSessions {
     }
 }
 
+// TODO(b/284056880): Open up UI related APIs (remove internal)
 /** Return a UI associated with this [BaseExecutionSession]. */
-fun BaseExecutionSession<*, *>.updateUi(uiResponse: UiResponse) =
+internal fun BaseExecutionSession<*, *>.updateUi(uiResponse: UiResponse) =
     UiSessions.getOrCreateUiCache(
         UiHandleRegistry.getSessionIdFromUiHandle(this)!!
     ).updateUiInternal(uiResponse)
 
+// TODO(b/284056880): Open up UI related APIs (remove internal)
 /** Return a UI associated with this [ExecutionCallback]. */
-fun ExecutionCallback<*, *>.updateUi(uiResponse: UiResponse) =
+internal fun ExecutionCallback<*, *>.updateUi(uiResponse: UiResponse) =
     UiSessions.getOrCreateUiCache(
         UiHandleRegistry.getSessionIdFromUiHandle(this)!!
     ).updateUiInternal(uiResponse)

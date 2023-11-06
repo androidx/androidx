@@ -17,12 +17,13 @@
 package androidx.compose.compiler.plugins.kotlin.lower
 
 import androidx.compose.compiler.plugins.kotlin.ComposeFqNames
+import androidx.compose.compiler.plugins.kotlin.hasComposableAnnotation
 import androidx.compose.compiler.plugins.kotlin.lower.decoys.isDecoy
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContext
 import org.jetbrains.kotlin.backend.common.extensions.IrPluginContextImpl
 import org.jetbrains.kotlin.backend.common.peek
 import org.jetbrains.kotlin.backend.common.pop
-import org.jetbrains.kotlin.ir.ObsoleteDescriptorBasedAPI
+import org.jetbrains.kotlin.builtins.StandardNames
 import org.jetbrains.kotlin.ir.builders.declarations.addValueParameter
 import org.jetbrains.kotlin.ir.declarations.IrConstructor
 import org.jetbrains.kotlin.ir.declarations.IrDeclarationOrigin
@@ -35,6 +36,8 @@ import org.jetbrains.kotlin.ir.declarations.copyAttributes
 import org.jetbrains.kotlin.ir.expressions.IrCall
 import org.jetbrains.kotlin.ir.expressions.IrConstructorCall
 import org.jetbrains.kotlin.ir.expressions.IrMemberAccessExpression
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperator
+import org.jetbrains.kotlin.ir.expressions.IrTypeOperatorCall
 import org.jetbrains.kotlin.ir.expressions.IrWhen
 import org.jetbrains.kotlin.ir.expressions.impl.IrCallImpl
 import org.jetbrains.kotlin.ir.expressions.impl.IrConstructorCallImpl
@@ -45,11 +48,10 @@ import org.jetbrains.kotlin.ir.types.IrType
 import org.jetbrains.kotlin.ir.types.IrTypeAbbreviation
 import org.jetbrains.kotlin.ir.types.IrTypeArgument
 import org.jetbrains.kotlin.ir.types.IrTypeProjection
-import org.jetbrains.kotlin.ir.types.classifierOrNull
+import org.jetbrains.kotlin.ir.types.classOrNull
 import org.jetbrains.kotlin.ir.types.impl.IrSimpleTypeImpl
 import org.jetbrains.kotlin.ir.types.impl.IrTypeAbbreviationImpl
 import org.jetbrains.kotlin.ir.types.impl.makeTypeProjection
-import org.jetbrains.kotlin.ir.types.isClassWithFqName
 import org.jetbrains.kotlin.ir.types.typeOrNull
 import org.jetbrains.kotlin.ir.util.DeepCopySymbolRemapper
 import org.jetbrains.kotlin.ir.util.SymbolRemapper
@@ -60,16 +62,18 @@ import org.jetbrains.kotlin.ir.util.fqNameForIrSerialization
 import org.jetbrains.kotlin.ir.util.functions
 import org.jetbrains.kotlin.ir.util.hasAnnotation
 import org.jetbrains.kotlin.ir.util.isFunction
+import org.jetbrains.kotlin.ir.util.packageFqName
 import org.jetbrains.kotlin.ir.util.parentClassOrNull
 import org.jetbrains.kotlin.ir.util.patchDeclarationParents
+import org.jetbrains.kotlin.ir.util.remapTypes
 import org.jetbrains.kotlin.ir.visitors.IrElementTransformerVoid
-import org.jetbrains.kotlin.name.FqName
+import org.jetbrains.kotlin.name.Name
 import org.jetbrains.kotlin.types.Variance
 
 internal class DeepCopyIrTreeWithRemappedComposableTypes(
     private val context: IrPluginContext,
     private val symbolRemapper: DeepCopySymbolRemapper,
-    typeRemapper: TypeRemapper,
+    private val typeRemapper: TypeRemapper,
     symbolRenamer: SymbolRenamer = SymbolRenamer.DEFAULT
 ) : DeepCopyPreservingMetadata(symbolRemapper, typeRemapper, symbolRenamer) {
 
@@ -80,7 +84,17 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
         if (declaration.symbol.isBoundButNotRemapped()) {
             symbolRemapper.visitSimpleFunction(declaration)
         }
+
         return super.visitSimpleFunction(declaration).also {
+            it.overriddenSymbols.forEach {
+                if (!it.isBound) {
+                    // symbol will be rebound by deep copy on later iteration
+                    return@forEach
+                }
+                if (it.owner.needsComposableRemapping() && !it.owner.isDecoy()) {
+                    it.owner.remapTypes(typeRemapper)
+                }
+            }
             it.correspondingPropertySymbol = declaration.correspondingPropertySymbol
         }
     }
@@ -151,6 +165,44 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
         return super.visitConstructorCall(expression)
     }
 
+    override fun visitTypeOperator(expression: IrTypeOperatorCall): IrTypeOperatorCall {
+        if (expression.operator != IrTypeOperator.SAM_CONVERSION) {
+            return super.visitTypeOperator(expression)
+        }
+
+        /*
+         * SAM_CONVERSION types from IR stubs are not remapped normally, as the fun interface is
+         * technically not a function type. This part goes over types involved in SAM_CONVERSION and
+         * ensures that parameter/return types of IR stubs are remapped correctly.
+         * Classes extending fun interfaces with composable types will be processed by visitFunction
+         * above as normal.
+         */
+        val type = expression.typeOperand
+        val clsSymbol = type.classOrNull ?: return super.visitTypeOperator(expression)
+
+        // Unbound symbols indicate they are in the current module and have not been
+        // processed by copier yet.
+        if (
+            clsSymbol.isBound &&
+                clsSymbol.owner.origin == IrDeclarationOrigin.IR_EXTERNAL_DECLARATION_STUB &&
+                // Only process fun interfaces with @Composable types
+                clsSymbol.owner.isFun &&
+                clsSymbol.functions.any { it.owner.needsComposableRemapping() }
+        ) {
+            // We always assume the current subtree has not been copied yet.
+            // If the old symbol is the same as in remapper, it means we never reached it, so
+            // we have to remap it now.
+            if (clsSymbol == symbolRemapper.getReferencedClass(clsSymbol)) {
+                symbolRemapper.visitClass(clsSymbol.owner)
+                clsSymbol.owner.transform().also {
+                    it.patchDeclarationParents(clsSymbol.owner.parent)
+                }
+            }
+        }
+
+        return super.visitTypeOperator(expression)
+    }
+
     private fun IrFunction.needsComposableRemapping(): Boolean {
         if (
             needsComposableRemapping(dispatchReceiverParameter?.type) ||
@@ -183,9 +235,14 @@ internal class DeepCopyIrTreeWithRemappedComposableTypes(
         // case, we want to update those calls as well.
         if (
             containingClass != null &&
-            ownerFn.origin == IrDeclarationOrigin.FAKE_OVERRIDE &&
-            containingClass.defaultType.isFunction() &&
-            expression.dispatchReceiver?.type?.isComposable() == true
+            ownerFn.origin == IrDeclarationOrigin.FAKE_OVERRIDE && (
+                // Fake override refers to composable if container is synthetic composable (K2)
+                // or function type is composable (K1)
+                containingClass.defaultType.isSyntheticComposableFunction() || (
+                    containingClass.defaultType.isFunction() &&
+                        expression.dispatchReceiver?.type?.isComposable() == true
+                )
+            )
         ) {
             val realParams = containingClass.typeParameters.size - 1
             // with composer and changed
@@ -369,29 +426,22 @@ class ComposerTypeRemapper(
         scopeStack.pop()
     }
 
-    private fun IrType.isComposable(): Boolean {
-        return annotations.hasAnnotation(ComposeFqNames.Composable)
+    private fun IrType.isFunction(): Boolean {
+        val cls = classOrNull ?: return false
+        val name = cls.owner.name.asString()
+        if (!name.startsWith("Function")) return false
+        val packageFqName = cls.owner.packageFqName
+        return packageFqName == StandardNames.BUILT_INS_PACKAGE_FQ_NAME ||
+            packageFqName == KotlinFunctionsBuiltInsPackageFqName
     }
 
-    private val IrConstructorCall.annotationClass
-        get() = this.symbol.owner.returnType.classifierOrNull
-
-    private fun List<IrConstructorCall>.hasAnnotation(fqName: FqName): Boolean =
-        any { it.annotationClass?.isClassWithFqName(fqName.toUnsafe()) ?: false }
-
-    @OptIn(ObsoleteDescriptorBasedAPI::class)
-    private fun IrType.isFunction(): Boolean {
-        val classifier = classifierOrNull ?: return false
-        val name = classifier.descriptor.name.asString()
-        if (!name.startsWith("Function")) return false
-        classifier.descriptor.name
-        return true
+    private fun IrType.isComposableFunction(): Boolean {
+        return isSyntheticComposableFunction() || (isFunction() && hasComposableAnnotation())
     }
 
     override fun remapType(type: IrType): IrType {
         if (type !is IrSimpleType) return type
-        if (!type.isFunction()) return underlyingRemapType(type)
-        if (!type.isComposable()) return underlyingRemapType(type)
+        if (!type.isComposableFunction()) return underlyingRemapType(type)
         // do not convert types for decoys
         if (scopeStack.peek()?.isDecoy() == true) {
             return underlyingRemapType(type)
@@ -458,3 +508,7 @@ class ComposerTypeRemapper(
 
 private fun IrConstructorCall.isComposableAnnotation() =
     this.symbol.owner.parent.fqNameForIrSerialization == ComposeFqNames.Composable
+
+private val KotlinFunctionsBuiltInsPackageFqName = StandardNames.BUILT_INS_PACKAGE_FQ_NAME
+    .child(Name.identifier("jvm"))
+    .child(Name.identifier("functions"))

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.3.0-alpha02" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha02)" variant="all" version="8.3.0-alpha02">
 
     <issue
         id="MissingSuperCall"
@@ -1210,15 +1210,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setItem(PhotoItem photoItem) {"
-        errorLine2="                        ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/DetailsFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
@@ -1300,8 +1291,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setItem(PhotoItem photoItem) {"
-        errorLine2="                        ~~~~~~~~~">
+        errorLine1="    public void onSaveInstanceState(Bundle outState) {"
+        errorLine2="                                    ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/DetailsSupportFragment.java"/>
     </issue>
@@ -1330,393 +1321,6 @@
         errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
         errorLine2="                            ~~~~~~">
         <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onConfigurationChanged(Configuration newConfig) {"
-        errorLine2="                                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onSaveInstanceState(Bundle outState) {"
-        errorLine2="                                       ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onRestoreInstanceState(Bundle savedInstanceState) {"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="               ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreate(Bundle savedInstance) {"
-        errorLine2="                             ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="               ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                      ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public long onGuidedActionEditedAndProceed(GuidedAction action) {"
-        errorLine2="                                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public GuidedActionsStylist onCreateActionsStylist() {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="               ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                      ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public long onGuidedActionEditedAndProceed(GuidedAction action) {"
-        errorLine2="                                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public boolean onSubGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="               ~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                                          ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="               ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public GuidanceStylist onCreateGuidanceStylist() {"
-        errorLine2="               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                      ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="               ~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
-        <location
             file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
     </issue>
 
@@ -1741,33 +1345,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
         errorLine2="               ~~~~~~~~">
         <location
@@ -1781,357 +1358,6 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                      ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onConfigurationChanged(Configuration newConfig) {"
-        errorLine2="                                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onSaveInstanceState(Bundle outState) {"
-        errorLine2="                                       ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onRestoreInstanceState(Bundle savedInstanceState) {"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(@NonNull List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreate(Bundle savedInstance) {"
-        errorLine2="                             ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(@NonNull List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                      ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public long onGuidedActionEditedAndProceed(GuidedAction action) {"
-        errorLine2="                                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public GuidedActionsStylist onCreateActionsStylist() {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(@NonNull List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                      ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public long onGuidedActionEditedAndProceed(GuidedAction action) {"
-        errorLine2="                                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public boolean onSubGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="               ~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public View onCreateView(LayoutInflater inflater, ViewGroup container,"
-        errorLine2="                                                          ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                Bundle savedInstanceState) {"
-        errorLine2="                ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public GuidanceStylist onCreateGuidanceStylist() {"
-        errorLine2="               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(@NonNull List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                      ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(@NonNull List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportActivity.java"/>
     </issue>
 
     <issue
@@ -2147,16 +1373,7 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
+        errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"/>
     </issue>
@@ -2173,8 +1390,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateActions(@NonNull List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                         ~~~~~~">
+        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
+        errorLine2="               ~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"/>
     </issue>
@@ -2182,26 +1399,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onCreateButtonActions(List&lt;GuidedAction> actions, Bundle savedInstanceState) {"
-        errorLine2="                                                                      ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void onGuidedActionClicked(GuidedAction action) {"
-        errorLine2="                                          ~~~~~~~~~~~~">
+        errorLine1="        public Guidance onCreateGuidance(Bundle savedInstanceState) {"
+        errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/GuidedStepSupportHalfScreenActivity.java"/>
     </issue>
@@ -2587,60 +1786,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View onCreateContentView(LayoutInflater layoutInflater, ViewGroup viewGroup) {"
-        errorLine2="              ~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/OnboardingDemoFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View onCreateContentView(LayoutInflater layoutInflater, ViewGroup viewGroup) {"
-        errorLine2="                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/OnboardingDemoFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View onCreateContentView(LayoutInflater layoutInflater, ViewGroup viewGroup) {"
-        errorLine2="                                                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/OnboardingDemoFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View onCreateForegroundView(LayoutInflater layoutInflater, ViewGroup viewGroup) {"
-        errorLine2="              ~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/OnboardingDemoFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View onCreateForegroundView(LayoutInflater layoutInflater, ViewGroup viewGroup) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/OnboardingDemoFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View onCreateForegroundView(LayoutInflater layoutInflater, ViewGroup viewGroup) {"
-        errorLine2="                                                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/leanback/OnboardingDemoFragment.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    protected Animator onCreateEnterAnimation() {"
         errorLine2="              ~~~~~~~~">
         <location
@@ -2677,7 +1822,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View onCreateBackgroundView("
+        errorLine1="    protected View onCreateBackgroundView(LayoutInflater layoutInflater, ViewGroup viewGroup) {"
         errorLine2="              ~~~~">
         <location
             file="src/main/java/com/example/android/leanback/OnboardingDemoSupportFragment.java"/>
@@ -2686,8 +1831,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View onCreateContentView("
-        errorLine2="              ~~~~">
+        errorLine1="    protected View onCreateBackgroundView(LayoutInflater layoutInflater, ViewGroup viewGroup) {"
+        errorLine2="                                          ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/OnboardingDemoSupportFragment.java"/>
     </issue>
@@ -2695,8 +1840,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected View onCreateForegroundView("
-        errorLine2="              ~~~~">
+        errorLine1="    protected View onCreateBackgroundView(LayoutInflater layoutInflater, ViewGroup viewGroup) {"
+        errorLine2="                                                                         ~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/leanback/OnboardingDemoSupportFragment.java"/>
     </issue>

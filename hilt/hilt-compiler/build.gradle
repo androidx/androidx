@@ -16,7 +16,7 @@
 
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
-import androidx.build.SupportConfig
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -32,18 +32,27 @@ dependencies {
     kapt(libs.autoService)
     compileOnly(libs.gradleIncapHelper)
     kapt(libs.gradleIncapHelperProcessor)
-    implementation(libs.autoCommon)
+    implementation("androidx.room:room-compiler-processing:2.6.0-beta01")
     implementation(libs.javapoet)
+    implementation(libs.kspApi)
 
     testImplementation(project(":hilt:hilt-common"))
+    testImplementation(project(":annotation:annotation"))
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    testImplementation(libs.googleCompileTesting)
+    testImplementation(project(":room:room-compiler-processing-testing"))
     testImplementation(libs.hiltCore)
     testImplementationAarAsJar(project(":hilt:hilt-work"))
-    testImplementation(fileTree(
-            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include : "android.jar"))
+    testImplementation(SdkHelperKt.getSdkDependency(project))
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions {
+        freeCompilerArgs += [
+                "-opt-in=androidx.room.compiler.processing.ExperimentalProcessingApi",
+                "-opt-in=com.squareup.kotlinpoet.javapoet.KotlinPoetJavaPoetPreview"
+        ]
+    }
 }
 
 tasks.withType(Test).configureEach {

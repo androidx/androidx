@@ -17,6 +17,7 @@
 package androidx.benchmark
 
 import android.annotation.SuppressLint
+import java.util.Locale
 
 @SuppressLint("DefaultLocale")
 internal fun String.toSnakeCase(): String = replace(Regex("([a-z])([A-Z0-9])")) {
@@ -30,6 +31,7 @@ internal fun String.toSnakeCase(): String = replace(Regex("([a-z])([A-Z0-9])")) 
  * This functionality is a stopgap as we migrate to actually using JSON in CI.
  */
 internal fun String.toOutputMetricName() = this
+    .replaceFirstChar { it.lowercase(Locale.getDefault()) }
     .toSnakeCase()
     .replace(Regex("_ns$"), "_nanos")
     .replace(Regex("_ms$"), "_millis")

@@ -23,9 +23,9 @@ import org.gradle.api.Project
 /**
  * Plugin that allows to build documentation for a given set of prebuilt and tip of tree projects.
  *
- * The actual implementation is in AndroidXDocsImplPlugin.
- * This extracts this logic out of the classpath so that individual tasks can't access this logic
- * so Gradle can know that changes to this logic doesn't need to automatically invalidate every task
+ * The actual implementation is in AndroidXDocsImplPlugin. This extracts this logic out of the
+ * classpath so that individual tasks can't access this logic so Gradle can know that changes to
+ * this logic doesn't need to automatically invalidate every task
  */
 class AndroidXDocsPlugin : Plugin<Project> {
     override fun apply(project: Project) {

@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-/** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 package androidx.health.services.client.proto;
 
 import androidx.annotation.RestrictTo;

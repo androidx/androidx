@@ -19,7 +19,7 @@ package androidx.benchmark
 import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper
-import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_BUNDLED_SDK_VERSION
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -34,7 +34,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @LargeTest
-@SdkSuppress(minSdkVersion = 23)
+@SdkSuppress(minSdkVersion = PerfettoHelper.MIN_SDK_VERSION)
 @RunWith(AndroidJUnit4::class)
 class PerfettoHelperTest {
     @Before
@@ -53,8 +53,12 @@ class PerfettoHelperTest {
 
         // start perfetto
         val capture = PerfettoCapture(unbundled)
-        capture.start(PerfettoConfig.Benchmark(listOf(Packages.TEST)))
-
+        capture.start(
+            PerfettoConfig.Benchmark(
+                appTagPackages = listOf(Packages.TEST),
+                useStackSamplingConfig = false
+            )
+        )
         // should be at least one perfetto process
         assertNotEquals(illegal = listOf(), actual = getPerfettoPids())
         assertTrue(capture.isRunning())
@@ -67,7 +71,7 @@ class PerfettoHelperTest {
         assertFalse(capture.isRunning())
     }
 
-    @SdkSuppress(minSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED)
+    @SdkSuppress(minSdkVersion = MIN_BUNDLED_SDK_VERSION)
     @Test
     fun stopAllPerfettoProcesses_bundled() = validateStopAllPerfettoProcesses(unbundled = false)
 

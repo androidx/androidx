@@ -16,6 +16,8 @@
 
 package androidx.compose.foundation
 
+import androidx.annotation.FloatRange
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -39,6 +41,7 @@ import androidx.compose.ui.unit.LayoutDirection
  * @param color color to paint background with
  * @param shape desired shape of the background
  */
+@Stable
 fun Modifier.background(
     color: Color,
     shape: Shape = RectangleShape
@@ -69,10 +72,11 @@ fun Modifier.background(
  * @param alpha Opacity to be applied to the [brush], with `0` being completely transparent and
  * `1` being completely opaque. The value must be between `0` and `1`.
  */
+@Stable
 fun Modifier.background(
     brush: Brush,
     shape: Shape = RectangleShape,
-    /*@FloatRange(from = 0.0, to = 1.0)*/
+    @FloatRange(from = 0.0, to = 1.0)
     alpha: Float = 1.0f
 ) = this.then(
     BackgroundElement(

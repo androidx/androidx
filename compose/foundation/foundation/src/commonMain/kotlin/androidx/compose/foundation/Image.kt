@@ -254,7 +254,6 @@ fun Image(
     // Explicitly use a simple Layout implementation here as Spacer squashes any non fixed
     // constraint with zero
     Layout(
-        {},
         modifier.then(semantics).clipToBounds().paint(
             painter,
             alignment = alignment,

@@ -1,22 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.1.0-alpha07">
+<issues format="6" by="lint 8.2.0-alpha14" type="baseline" client="cli" dependencies="false" name="AGP (8.2.0-alpha14)" variant="all" version="8.2.0-alpha14">
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    companion object {"
-        errorLine2="              ~~~~~~">
+        id="NewApi"
+        message="Class requires API level 33 (current min is 26): `LargeCustomValueUserStyleSetting`"
+        errorLine1="                is UserStyleSetting.LargeCustomValueUserStyleSetting ->"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/watchface/style/CurrentUserStyleRepository.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    companion object {"
-        errorLine2="              ~~~~~~">
-        <location
-            file="src/main/java/androidx/wear/watchface/style/UserStyleFlavors.kt"/>
     </issue>
 
 </issues>

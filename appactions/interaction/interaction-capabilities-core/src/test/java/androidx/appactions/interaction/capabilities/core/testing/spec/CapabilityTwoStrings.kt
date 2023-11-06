@@ -18,11 +18,8 @@ package androidx.appactions.interaction.capabilities.core.testing.spec
 
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
-import androidx.appactions.interaction.capabilities.core.properties.Property
-import androidx.appactions.interaction.capabilities.core.properties.StringValue
 
 private const val CAPABILITY_NAME = "actions.intent.TEST"
 
@@ -55,7 +52,7 @@ class CapabilityTwoStrings {
             return result
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var stringSlotA: String? = null
             private var stringSlotB: String? = null
 
@@ -65,7 +62,7 @@ class CapabilityTwoStrings {
             fun setStringSlotB(stringSlotB: String): Builder =
                 apply { this.stringSlotB = stringSlotB }
 
-            override fun build(): Arguments = Arguments(stringSlotA, stringSlotB)
+            fun build(): Arguments = Arguments(stringSlotA, stringSlotB)
         }
     }
 
@@ -76,27 +73,20 @@ class CapabilityTwoStrings {
     interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
-        @Suppress("UNCHECKED_CAST")
         val ACTION_SPEC = ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-            .setArguments(Arguments::class.java, Arguments::Builder)
+            .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
             .setOutput(Output::class.java)
             .bindParameter(
                 "stringSlotA",
-                { properties ->
-                    properties["stringSlotA"] as? Property<StringValue>
-                },
+                Arguments::stringSlotA,
                 Arguments.Builder::setStringSlotA,
-                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER
             )
             .bindParameter(
                 "stringSlotB",
-                { properties ->
-                    properties["stringSlotB"] as? Property<StringValue>
-                },
+                Arguments::stringSlotB,
                 Arguments.Builder::setStringSlotB,
-                TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                TypeConverters.STRING_PARAM_VALUE_CONVERTER
             )
             .build()
     }

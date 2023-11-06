@@ -26,6 +26,8 @@ import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastMinByOrNull
 import androidx.compose.ui.util.lerp
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -76,8 +78,8 @@ internal class ScalingLazyColumnSnapFlingBehavior(
                 // to the original target. Note that the target may be off-screen, in that case we
                 // will land on the last visible item in that direction.
                 (state.layoutInfo.visibleItemsInfo
-                    .map { animationState.value + it.unadjustedOffset + snapOffset }
-                    .minByOrNull { abs(it - decayTarget) } ?: decayTarget)
+                    .fastMap { animationState.value + it.unadjustedOffset + snapOffset }
+                    .fastMinByOrNull { abs(it - decayTarget) } ?: decayTarget)
             }
         } else {
             // Not a fling, just snap to the current item.

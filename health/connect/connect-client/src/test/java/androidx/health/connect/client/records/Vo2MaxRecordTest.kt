@@ -25,10 +25,7 @@ import org.junit.runner.RunWith
 class Vo2MaxRecordTest {
     @Test
     fun measurementMethodEnums_existMapping() {
-        val allEnums =
-            Vo2MaxRecord.Companion::class.allIntDefEnumsWithPrefix("MEASUREMENT_METHOD").filter {
-                it != Vo2MaxRecord.MEASUREMENT_METHOD_OTHER
-            }
+        val allEnums = getAllIntDefEnums<Vo2MaxRecord>("""MEASUREMENT_METHOD.*""")
 
         Truth.assertThat(Vo2MaxRecord.MEASUREMENT_METHOD_STRING_TO_INT_MAP.values)
             .containsExactlyElementsIn(allEnums)

@@ -1,12 +1,18 @@
 // Signature format: 4.0
 package androidx.tracing.perfetto {
 
-  public final class Tracing {
+  public final class PerfettoSdkTrace {
+    method public void beginSection(String sectionName);
+    method public void endSection();
     method public boolean isEnabled();
-    method public void traceEventEnd();
-    method public void traceEventStart(int key, String traceInfo);
     property public final boolean isEnabled;
-    field public static final androidx.tracing.perfetto.Tracing INSTANCE;
+    field public static final androidx.tracing.perfetto.PerfettoSdkTrace INSTANCE;
+  }
+
+  public final class StartupTracingInitializer implements androidx.startup.Initializer<kotlin.Unit> {
+    ctor public StartupTracingInitializer();
+    method public void create(android.content.Context context);
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>> dependencies();
   }
 
 }

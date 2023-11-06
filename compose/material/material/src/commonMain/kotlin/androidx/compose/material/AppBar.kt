@@ -20,11 +20,15 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -45,6 +49,93 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.sqrt
+
+/**
+ * <a href="https://material.io/components/app-bars-top" class="external" target="_blank">Material Design top app bar</a>.
+ *
+ * The top app bar displays information and actions relating to the current screen.
+ *
+ * ![App bars: top image](https://developer.android.com/images/reference/androidx/compose/material/app-bars-top.png)
+ *
+ * This particular overload provides ability to specify [WindowInsets]. Recommended value can be
+ * found in [AppBarDefaults.topAppBarWindowInsets].
+ *
+ * This TopAppBar has slots for a title, navigation icon, and actions. Note that the [title] slot
+ * is inset from the start according to spec - for custom use cases such as horizontally
+ * centering the title, use the other TopAppBar overload for a generic TopAppBar with no
+ * restriction on content.
+ *
+ * @sample androidx.compose.material.samples.SimpleTopAppBar
+ *
+ * @param title The title to be displayed in the center of the TopAppBar
+ * @param windowInsets a window insets that app bar will respect.
+ * @param modifier The [Modifier] to be applied to this TopAppBar
+ * @param navigationIcon The navigation icon displayed at the start of the TopAppBar. This should
+ * typically be an [IconButton] or [IconToggleButton].
+ * @param actions The actions displayed at the end of the TopAppBar. This should typically be
+ * [IconButton]s. The default layout here is a [Row], so icons inside will be placed horizontally.
+ * @param backgroundColor The background color for the TopAppBar. Use [Color.Transparent] to have
+ * no color.
+ * @param contentColor The preferred content color provided by this TopAppBar to its children.
+ * Defaults to either the matching content color for [backgroundColor], or if [backgroundColor]
+ * is not a color from the theme, this will keep the same value set above this TopAppBar.
+ * @param elevation the elevation of this TopAppBar.
+ */
+@Composable
+fun TopAppBar(
+    title: @Composable () -> Unit,
+    windowInsets: WindowInsets,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
+    elevation: Dp = AppBarDefaults.TopAppBarElevation,
+) {
+    AppBar(
+        backgroundColor,
+        contentColor,
+        elevation,
+        AppBarDefaults.ContentPadding,
+        RectangleShape,
+        windowInsets,
+        modifier
+    ) {
+        if (navigationIcon == null) {
+            Spacer(TitleInsetWithoutIcon)
+        } else {
+            Row(TitleIconModifier, verticalAlignment = Alignment.CenterVertically) {
+                CompositionLocalProvider(
+                    LocalContentAlpha provides ContentAlpha.high,
+                    content = navigationIcon
+                )
+            }
+        }
+
+        Row(
+            Modifier
+                .fillMaxHeight()
+                .weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ProvideTextStyle(value = MaterialTheme.typography.h6) {
+                CompositionLocalProvider(
+                    LocalContentAlpha provides ContentAlpha.high,
+                    content = title
+                )
+            }
+        }
+
+        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
+            Row(
+                Modifier.fillMaxHeight(),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+                content = actions
+            )
+        }
+    }
+}
 
 /**
  * <a href="https://material.io/components/app-bars-top" class="external" target="_blank">Material Design top app bar</a>.
@@ -83,46 +174,68 @@ fun TopAppBar(
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = AppBarDefaults.TopAppBarElevation
 ) {
+    TopAppBar(
+        title,
+        ZeroInsets,
+        modifier,
+        navigationIcon,
+        actions,
+        backgroundColor,
+        contentColor,
+        elevation
+    )
+}
+
+/**
+ * <a href="https://material.io/components/app-bars-top" class="external" target="_blank">Material Design top app bar</a>.
+ *
+ * The top app bar displays information and actions relating to the current screen.
+ *
+ * ![App bars: top image](https://developer.android.com/images/reference/androidx/compose/material/app-bars-top.png)
+ *
+ * This particular overload provides ability to specify [WindowInsets]. Recommended value can be
+ * found in [AppBarDefaults.topAppBarWindowInsets].
+ *
+ * This TopAppBar has no pre-defined slots for content, allowing you to customize the layout of
+ * content inside. See the other TopAppBar overload for a TopAppBar that has opinionated slots
+ * for title, navigation icon, and trailing actions.
+ *
+ * The [LocalContentAlpha] inside this TopAppBar is [ContentAlpha.medium] - this is the default
+ * for trailing and overflow icons. It is recommended that any text, and leading icons at the
+ * start of the TopAppBar use [ContentAlpha.high] instead.
+ *
+ * @param windowInsets a window insets that app bar will respect.
+ * @param modifier The [Modifier] to be applied to this TopAppBar
+ * @param backgroundColor The background color for the TopAppBar. Use [Color.Transparent] to have
+ * no color.
+ * @param contentColor The preferred content color provided by this TopAppBar to its children.
+ * Defaults to either the matching content color for [backgroundColor], or if [backgroundColor] is
+ * not a color from the theme, this will keep the same value set above this TopAppBar.
+ * @param elevation the elevation of this TopAppBar.
+ * @param contentPadding the padding applied to the content of this TopAppBar
+ * @param content the content of this TopAppBar.The default layout here is a [Row],
+ * so content inside will be placed horizontally.
+ */
+@Composable
+fun TopAppBar(
+    windowInsets: WindowInsets,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
+    elevation: Dp = AppBarDefaults.TopAppBarElevation,
+    contentPadding: PaddingValues = AppBarDefaults.ContentPadding,
+    content: @Composable RowScope.() -> Unit
+) {
     AppBar(
         backgroundColor,
         contentColor,
         elevation,
-        AppBarDefaults.ContentPadding,
+        contentPadding,
         RectangleShape,
-        modifier
-    ) {
-        if (navigationIcon == null) {
-            Spacer(TitleInsetWithoutIcon)
-        } else {
-            Row(TitleIconModifier, verticalAlignment = Alignment.CenterVertically) {
-                CompositionLocalProvider(
-                    LocalContentAlpha provides ContentAlpha.high,
-                    content = navigationIcon
-                )
-            }
-        }
-
-        Row(
-            Modifier.fillMaxHeight().weight(1f),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ProvideTextStyle(value = MaterialTheme.typography.h6) {
-                CompositionLocalProvider(
-                    LocalContentAlpha provides ContentAlpha.high,
-                    content = title
-                )
-            }
-        }
-
-        CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
-            Row(
-                Modifier.fillMaxHeight(),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically,
-                content = actions
-            )
-        }
-    }
+        windowInsets,
+        modifier = modifier,
+        content = content
+    )
 }
 
 /**
@@ -166,8 +279,82 @@ fun TopAppBar(
         elevation,
         contentPadding,
         RectangleShape,
+        ZeroInsets,
         modifier = modifier,
         content = content
+    )
+}
+
+/**
+ * <a href="https://material.io/components/app-bars-bottom" class="external" target="_blank">Material Design bottom app bar</a>.
+ *
+ * A bottom app bar displays navigation and key actions at the bottom of screens.
+ *
+ * ![App bars: bottom image](https://developer.android.com/images/reference/androidx/compose/material/app-bars-bottom.png)
+ *
+ * This particular overload provides ability to specify [WindowInsets]. Recommended value can be
+ * found in [AppBarDefaults.bottomAppBarWindowInsets].
+ *
+ * It can also optionally display a [FloatingActionButton], which is either overlaid
+ * on top of the BottomAppBar, or inset, carving a cutout in the BottomAppBar.
+ *
+ * See [BottomAppBar anatomy](https://material.io/components/app-bars-bottom/#anatomy) for the
+ * recommended content depending on the [FloatingActionButton] position.
+ *
+ * Note that when you pass a non-null [cutoutShape] this makes the AppBar shape concave. The shadows
+ * for such shapes will not be drawn on Android versions less than 10.
+ *
+ * The [LocalContentAlpha] inside a BottomAppBar is [ContentAlpha.medium] - this is the default
+ * for trailing and overflow icons. It is recommended that any leading icons at the start of the
+ * BottomAppBar, such as a menu icon, use [ContentAlpha.high] instead. This is demonstrated in the
+ * sample below.
+ *
+ * Also see [BottomNavigation].
+ *
+ * @sample androidx.compose.material.samples.SimpleBottomAppBar
+ *
+ * @param windowInsets a window insets that app bar will respect.
+ * @param modifier The [Modifier] to be applied to this BottomAppBar
+ * @param backgroundColor The background color for the BottomAppBar. Use [Color.Transparent] to
+ * have no color.
+ * @param contentColor The preferred content color provided by this BottomAppBar to its children.
+ * Defaults to either the matching content color for [backgroundColor], or if [backgroundColor] is
+ * not a color from the theme, this will keep the same value set above this BottomAppBar.
+ * @param cutoutShape the shape of the cutout that will be added to the BottomAppBar - this
+ * should typically be the same shape used inside the [FloatingActionButton], when [BottomAppBar]
+ * and [FloatingActionButton] are being used together in [Scaffold]. This shape will be drawn with
+ * an offset around all sides. If null, where will be no cutout.
+ * @param elevation the elevation of this BottomAppBar.
+ * @param contentPadding the padding applied to the content of this BottomAppBar
+ * @param content the content of this BottomAppBar. The default layout here is a [Row],
+ * so content inside will be placed horizontally.
+ */
+@Composable
+fun BottomAppBar(
+    windowInsets: WindowInsets,
+    modifier: Modifier = Modifier,
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
+    cutoutShape: Shape? = null,
+    elevation: Dp = AppBarDefaults.BottomAppBarElevation,
+    contentPadding: PaddingValues = AppBarDefaults.ContentPadding,
+    content: @Composable RowScope.() -> Unit
+) {
+    val fabPlacement = LocalFabPlacement.current
+    val shape = if (cutoutShape != null && fabPlacement?.isDocked == true) {
+        BottomAppBarCutoutShape(cutoutShape, fabPlacement)
+    } else {
+        RectangleShape
+    }
+    AppBar(
+        backgroundColor,
+        contentColor,
+        elevation,
+        contentPadding,
+        shape,
+        windowInsets,
+        modifier,
+        content
     )
 }
 
@@ -233,6 +420,7 @@ fun BottomAppBar(
         elevation,
         contentPadding,
         shape,
+        ZeroInsets,
         modifier,
         content
     )
@@ -261,6 +449,24 @@ object AppBarDefaults {
         start = AppBarHorizontalPadding,
         end = AppBarHorizontalPadding
     )
+
+    /**
+     * Recommended insets to be used and consumed by the top app bars
+     */
+    val topAppBarWindowInsets: WindowInsets
+        @Composable
+        get() = WindowInsets.systemBarsForVisualComponents
+            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+
+    /**
+     * Recommended insets to be used and consumed by the bottom app bars
+     */
+    val bottomAppBarWindowInsets: WindowInsets
+        @Composable
+        get() {
+            return WindowInsets.systemBarsForVisualComponents
+                .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+        }
 }
 
 // TODO: consider exposing this in the shape package, for a generic cutout shape - might be useful
@@ -508,6 +714,7 @@ private fun AppBar(
     elevation: Dp,
     contentPadding: PaddingValues,
     shape: Shape,
+    windowInsets: WindowInsets,
     modifier: Modifier = Modifier,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -520,7 +727,9 @@ private fun AppBar(
     ) {
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.medium) {
             Row(
-                Modifier.fillMaxWidth()
+                Modifier
+                    .fillMaxWidth()
+                    .windowInsetsPadding(windowInsets)
                     .padding(contentPadding)
                     .height(AppBarHeight),
                 horizontalArrangement = Arrangement.Start,
@@ -544,3 +753,5 @@ private val TitleIconModifier = Modifier.fillMaxHeight()
 private val BottomAppBarCutoutOffset = 8.dp
 // How far from the notch the rounded edges start
 private val BottomAppBarRoundedEdgeRadius = 4.dp
+
+private val ZeroInsets = WindowInsets(0.dp)

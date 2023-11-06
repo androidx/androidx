@@ -30,7 +30,7 @@ class PerfettoNativeTest {
         init {
             PerfettoNative.loadLib()
         }
-        const val libraryVersion = "1.0.0-alpha15" // TODO: get using reflection
+        const val libraryVersion = "1.0.0-beta03" // TODO: get using reflection
     }
 
     @Test

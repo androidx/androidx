@@ -16,7 +16,6 @@
 
 package androidx.test.screenshot
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -76,7 +75,6 @@ internal enum class OutputFileType {
  *
  * @see Bitmap.assertAgainstGolden
  */
-@SuppressLint("SyntheticAccessor")
 open class ScreenshotTestRule(
     config: ScreenshotTestRuleConfig = ScreenshotTestRuleConfig()
 ) : TestRule {
@@ -119,20 +117,14 @@ open class ScreenshotTestRule(
 
     class ScreenshotTestStatement(private val base: Statement) : Statement() {
         override fun evaluate() {
-            if (Build.MODEL.contains("Cuttlefish")) {
-                // We currently support Cuttlefish with API 29 because of the storage access.
-                Assume.assumeTrue(
-                    "Requires SDK 29.",
-                    Build.VERSION.SDK_INT == 29
-                )
-            } else if (Build.MODEL.contains("gphone")) {
-                // We also support emulators with API 33 now
+            if (Build.MODEL.contains("gphone")) {
+                // We support emulators with API 33
                 Assume.assumeTrue(
                     "Requires SDK 33.",
                     Build.VERSION.SDK_INT == 33
                 )
             } else {
-                Assume.assumeTrue("Requires Cuttlefish or emulator", false)
+                Assume.assumeTrue("Requires API 33 emulator", false)
             }
             base.evaluate()
         }

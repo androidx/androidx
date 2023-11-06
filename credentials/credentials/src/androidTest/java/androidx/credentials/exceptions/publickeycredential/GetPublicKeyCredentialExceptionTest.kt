@@ -16,6 +16,11 @@
 
 package androidx.credentials.exceptions.publickeycredential
 
+import androidx.credentials.exceptions.GetCredentialCustomException
+import androidx.credentials.exceptions.domerrors.DomError
+import androidx.credentials.exceptions.domerrors.EncodingError
+import androidx.credentials.exceptions.publickeycredential.DomExceptionUtils.Companion.SEPARATOR
+import androidx.credentials.exceptions.publickeycredential.GetPublicKeyCredentialException.Companion.createFrom
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -45,8 +50,43 @@ class GetPublicKeyCredentialExceptionTest {
     fun getter_success() {
         val expectedType = "type"
         val expectedMessage = "message"
+
         val exception = GetPublicKeyCredentialException(expectedType, expectedMessage)
+
         assertThat(exception.type).isEqualTo(expectedType)
         assertThat(exception.errorMessage).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun frameworkToJetpackConversion_success() {
+        val expectedMessage = "msg"
+        val expectedDomError: DomError = EncodingError()
+        val expectedType =
+            GetPublicKeyCredentialDomException.TYPE_GET_PUBLIC_KEY_CREDENTIAL_DOM_EXCEPTION +
+                SEPARATOR + expectedDomError.type
+
+        val exception = createFrom(expectedType, expectedMessage)
+
+        assertThat(exception).isInstanceOf(
+            GetPublicKeyCredentialDomException::class.java
+        )
+        assertThat((exception as GetPublicKeyCredentialDomException).domError)
+            .isInstanceOf(EncodingError::class.java)
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.message).isEqualTo(expectedMessage)
+    }
+
+    @Test
+    fun frameworkToJetpackConversion_failure_createsCustomException() {
+        val expectedMessage = "CustomMessage"
+        val expectedType = "CustomType"
+
+        val exception = createFrom(expectedType, expectedMessage)
+
+        assertThat(exception).isInstanceOf(
+            GetCredentialCustomException::class.java
+        )
+        assertThat(exception.type).isEqualTo(expectedType)
+        assertThat(exception.message).isEqualTo(expectedMessage)
     }
 }

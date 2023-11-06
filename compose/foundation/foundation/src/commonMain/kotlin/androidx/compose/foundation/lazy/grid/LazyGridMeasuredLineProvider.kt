@@ -16,14 +16,12 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.ui.unit.Constraints
 
 /**
  * Abstracts away subcomposition and span calculation from the measuring logic of entire lines.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal abstract class LazyGridMeasuredLineProvider(
     private val isVertical: Boolean,
     private val slots: LazyGridSlots,
@@ -94,7 +92,7 @@ internal abstract class LazyGridMeasuredLineProvider(
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
-     **/
+     */
     val keyIndexMap: LazyLayoutKeyIndexMap get() = measuredItemProvider.keyIndexMap
 
     abstract fun createLine(

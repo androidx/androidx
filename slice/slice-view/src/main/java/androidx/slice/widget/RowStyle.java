@@ -28,10 +28,10 @@ import androidx.slice.view.R;
 
 /**
  * Holds style information shared between child views of a row
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class RowStyle {
     public static final int UNBOUNDED = -1;
 

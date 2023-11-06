@@ -58,12 +58,12 @@ import androidx.slice.view.R;
 /**
  * Host for the remote input.
  *
- * @hide
  */
 // TODO this should be unified with SystemUI RemoteInputView (b/67527720)
 @SuppressWarnings("AppCompatCustomView")
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(21)
+@Deprecated
 public class RemoteInputView extends LinearLayout implements View.OnClickListener, TextWatcher {
 
     private static final String TAG = "RemoteInput";
@@ -266,7 +266,6 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public void setRevealParameters(int cx, int cy, int r) {
@@ -432,7 +431,6 @@ public class RemoteInputView extends LinearLayout implements View.OnClickListene
     }
 
     /** Whether key will, by default, trigger a click on the focused view.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final boolean isConfirmKey(int keyCode) {

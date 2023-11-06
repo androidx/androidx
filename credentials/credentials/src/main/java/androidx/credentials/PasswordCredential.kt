@@ -17,7 +17,6 @@
 package androidx.credentials
 
 import android.os.Bundle
-import androidx.annotation.VisibleForTesting
 import androidx.credentials.internal.FrameworkClassParsingException
 
 /**
@@ -25,30 +24,35 @@ import androidx.credentials.internal.FrameworkClassParsingException
  *
  * @property id the user id associated with the password
  * @property password the password
- * @throws NullPointerException If [id] is null
- * @throws NullPointerException If [password] is null
- * @throws IllegalArgumentException If [password] is empty
  */
-class PasswordCredential constructor(
+class PasswordCredential private constructor(
     val id: String,
     val password: String,
-) : Credential(TYPE_PASSWORD_CREDENTIAL, toBundle(id, password)) {
+    data: Bundle,
+) : Credential(TYPE_PASSWORD_CREDENTIAL, data) {
+
+    /**
+     * Constructs a [PasswordCredential].
+     *
+     * @param id the user id associated with the password
+     * @param password the password
+     * @throws NullPointerException If [id] is null
+     * @throws NullPointerException If [password] is null
+     * @throws IllegalArgumentException If [password] is empty
+     */
+    constructor(id: String, password: String) : this(id, password, toBundle(id, password))
 
     init {
         require(password.isNotEmpty()) { "password should not be empty" }
     }
 
-    /** @hide */
+    /** Companion constants / helpers for [PasswordCredential]. */
     companion object {
-        // TODO: this type is officially defined in the framework. This definition should be
-        // removed when the framework type is available in jetpack.
-        /** @hide */
+        /** The type value for password related operations. */
         const val TYPE_PASSWORD_CREDENTIAL: String = "android.credentials.TYPE_PASSWORD_CREDENTIAL"
 
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
-        @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-        const val BUNDLE_KEY_PASSWORD = "androidx.credentials.BUNDLE_KEY_PASSWORD"
+        internal const val BUNDLE_KEY_ID = "androidx.credentials.BUNDLE_KEY_ID"
+        internal const val BUNDLE_KEY_PASSWORD = "androidx.credentials.BUNDLE_KEY_PASSWORD"
 
         @JvmStatic
         internal fun toBundle(id: String, password: String): Bundle {
@@ -63,7 +67,7 @@ class PasswordCredential constructor(
             try {
                 val id = data.getString(BUNDLE_KEY_ID)
                 val password = data.getString(BUNDLE_KEY_PASSWORD)
-                return PasswordCredential(id!!, password!!)
+                return PasswordCredential(id!!, password!!, data)
             } catch (e: Exception) {
                 throw FrameworkClassParsingException()
             }

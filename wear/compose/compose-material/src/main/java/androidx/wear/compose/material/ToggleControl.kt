@@ -15,46 +15,28 @@
  */
 package androidx.wear.compose.material
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.Transition
-import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.Indication
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import kotlin.math.PI
-import kotlin.math.cos
-import kotlin.math.min
-import kotlin.math.sin
+import androidx.wear.compose.materialcore.animateSelectionColor
 
 /**
  * [Checkbox] provides an animated checkbox for use as a toggle control in
@@ -84,37 +66,29 @@ public fun Checkbox(
     enabled: Boolean = true,
     onCheckedChange: ((Boolean) -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-) {
-    val targetState = if (checked) ToggleStage.Checked else ToggleStage.Unchecked
-    val transition = updateTransition(targetState)
-    val tickProgress = animateProgress(transition, "Checkbox")
-
-    // For Checkbox, the color and alpha animations have the same duration and easing,
-    // so we don't need to explicitly animate alpha.
-    val boxColor = colors.boxColor(enabled = enabled, checked = checked)
-    val checkColor = colors.checkmarkColor(enabled = enabled, checked = checked)
-
-    Canvas(
-        modifier = modifier.maybeToggleable(
-            onCheckedChange, enabled, checked, interactionSource, rememberRipple(),
-            Role.Checkbox
+) = androidx.wear.compose.materialcore.Checkbox(
+    checked = checked,
+    modifier = modifier,
+    boxColor = { isEnabled, isChecked ->
+        colors.boxColor(
+            enabled = isEnabled,
+            checked = isChecked
         )
-    ) {
-        drawBox(color = boxColor.value)
-
-        if (targetState == ToggleStage.Checked) {
-            drawTick(
-                tickProgress = tickProgress.value,
-                tickColor = checkColor.value,
-            )
-        } else {
-            eraseTick(
-                tickProgress = tickProgress.value,
-                tickColor = checkColor.value,
-            )
-        }
-    }
-}
+    },
+    checkmarkColor = { isEnabled, isChecked ->
+        colors.checkmarkColor(
+            enabled = isEnabled,
+            checked = isChecked
+        )
+    },
+    enabled = enabled,
+    onCheckedChange = onCheckedChange,
+    interactionSource = interactionSource,
+    drawBox = { drawScope, color, _, _ -> drawScope.drawBox(color) },
+    progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
+    width = WIDTH,
+    height = HEIGHT
+)
 
 /**
  * [Switch] provides an animated switch for use as a toggle control in
@@ -144,40 +118,45 @@ public fun Switch(
     enabled: Boolean = true,
     onCheckedChange: ((Boolean) -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-) {
-    val targetState = if (checked) ToggleStage.Checked else ToggleStage.Unchecked
-    val transition = updateTransition(targetState)
-
-    // For Switch, the color and alpha animations have the same duration and easing,
-    // so we don't need to explicitly animate alpha.
-    val thumbProgress = animateProgress(transition, "Switch")
-    val thumbColor = colors.thumbColor(enabled = enabled, checked = checked)
-    val trackColor = colors.trackColor(enabled = enabled, checked = checked)
-
-    Canvas(
-        modifier = modifier.maybeToggleable(
-            onCheckedChange, enabled, checked, interactionSource, rememberRipple(), Role.Switch
+) = androidx.wear.compose.materialcore.Switch(
+    modifier = modifier,
+    checked = checked,
+    enabled = enabled,
+    onCheckedChange = onCheckedChange,
+    interactionSource = interactionSource,
+    trackFillColor = { isEnabled, isChecked ->
+        colors.trackColor(
+            enabled = isEnabled,
+            checked = isChecked
         )
-    ) {
-        val switchTrackLengthPx = SWITCH_TRACK_LENGTH.toPx()
-        val switchTrackHeightPx = SWITCH_TRACK_HEIGHT.toPx()
-        val switchThumbRadiusPx = SWITCH_THUMB_RADIUS.toPx()
-
-        val thumbProgressPx = lerp(
-            start = switchThumbRadiusPx,
-            stop = switchTrackLengthPx - switchThumbRadiusPx,
-            fraction = thumbProgress.value
+    },
+    trackStrokeColor = { isEnabled, isChecked ->
+        colors.trackColor(
+            enabled = isEnabled,
+            checked = isChecked
         )
-        drawTrack(trackColor.value, switchTrackLengthPx, switchTrackHeightPx)
-        // Use BlendMode.Src to overwrite overlapping pixels with the thumb color
-        // (by default, the track shows through any transparency).
-        drawCircle(
-            color = thumbColor.value,
-            radius = switchThumbRadiusPx,
-            center = Offset(thumbProgressPx, center.y),
-            blendMode = BlendMode.Src)
-    }
-}
+    },
+    thumbColor = { isEnabled, isChecked ->
+        colors.thumbColor(
+            enabled = isEnabled,
+            checked = isChecked
+        )
+    },
+    thumbIconColor = { isEnabled, isChecked ->
+        colors.thumbColor(
+            enabled = isEnabled,
+            checked = isChecked
+        )
+    },
+    trackWidth = SWITCH_TRACK_LENGTH,
+    trackHeight = SWITCH_TRACK_HEIGHT,
+    drawThumb = { drawScope, color, progress, _, isRtl ->
+        drawScope.drawThumb(color = color, progress = progress, isRtl = isRtl)
+    },
+    progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
+    width = WIDTH,
+    height = HEIGHT
+)
 
 /**
  * [RadioButton] provides an animated radio button for use as a toggle control in
@@ -207,49 +186,31 @@ public fun RadioButton(
     enabled: Boolean = true,
     onClick: (() -> Unit)? = null,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-) {
-    val targetState = if (selected) ToggleStage.Checked else ToggleStage.Unchecked
-    val transition = updateTransition(targetState)
-
-    val circleColor = colors.ringColor(enabled = enabled, selected = selected)
-    val dotRadiusProgress = animateProgress(
-        transition,
-        durationMillis = if (selected) QUICK else STANDARD,
-        label = "dot-radius"
-    )
-    val dotColor = colors.dotColor(enabled = enabled, selected = selected)
-    // Animation of the dot alpha only happens when toggling On to Off.
-    val dotAlphaProgress =
-        if (targetState == ToggleStage.Unchecked)
-            animateProgress(
-                transition, durationMillis = RAPID, delayMillis = FLASH, label = "dot-alpha"
-            )
-        else
-            null
-
-    Canvas(
-        modifier = modifier.maybeSelectable(
-            onClick, enabled, selected, interactionSource, rememberRipple()
+) = androidx.wear.compose.materialcore.RadioButton(
+    modifier = modifier,
+    selected = selected,
+    enabled = enabled,
+    ringColor = { isEnabled, isSelected ->
+        colors.ringColor(
+            enabled = isEnabled,
+            selected = isSelected
         )
-    ) {
-        // Outer circle has a constant radius.
-        drawCircle(
-            radius = RADIO_CIRCLE_RADIUS.toPx(),
-            color = circleColor.value,
-            center = center,
-            style = Stroke(RADIO_CIRCLE_STROKE.toPx()),
+    },
+    dotColor = { isEnabled, isSelected ->
+        colors.dotColor(
+            enabled = isEnabled,
+            selected = isSelected
         )
-        // Inner dot radius expands/shrinks.
-        drawCircle(
-            radius = dotRadiusProgress.value * RADIO_DOT_RADIUS.toPx(),
-            color = dotColor.value.copy(
-                alpha = (dotAlphaProgress?.value ?: 1f) * dotColor.value.alpha
-            ),
-            center = center,
-            style = Fill,
-        )
-    }
-}
+    },
+    onClick = onClick,
+    interactionSource = interactionSource,
+    dotRadiusProgressDuration = { isSelected -> if (isSelected) QUICK else RAPID },
+    dotAlphaProgressDuration = RAPID,
+    dotAlphaProgressDelay = FLASH,
+    easing = STANDARD_IN,
+    width = WIDTH,
+    height = HEIGHT
+)
 
 /**
  * Represents the content colors used in [Checkbox] in different states.
@@ -359,13 +320,13 @@ public object CheckboxDefaults {
             uncheckedBoxColor = uncheckedBoxColor,
             uncheckedCheckmarkColor = uncheckedCheckmarkColor,
             disabledCheckedBoxColor =
-                checkedBoxColor.copy(alpha = ContentAlpha.disabled),
+            checkedBoxColor.toDisabledColor(),
             disabledCheckedCheckmarkColor =
-                checkedCheckmarkColor.copy(alpha = ContentAlpha.disabled),
+            checkedCheckmarkColor.toDisabledColor(),
             disabledUncheckedBoxColor =
-                uncheckedBoxColor.copy(alpha = ContentAlpha.disabled),
+            uncheckedBoxColor.toDisabledColor(),
             disabledUncheckedCheckmarkColor =
-                uncheckedCheckmarkColor.copy(alpha = ContentAlpha.disabled),
+            uncheckedCheckmarkColor.toDisabledColor(),
         )
     }
 }
@@ -395,14 +356,15 @@ public object SwitchDefaults {
             checkedTrackColor = checkedTrackColor,
             uncheckedThumbColor = uncheckedThumbColor,
             uncheckedTrackColor = uncheckedTrackColor,
-            disabledCheckedThumbColor = checkedThumbColor.copy(alpha = ContentAlpha.disabled),
-            disabledCheckedTrackColor = checkedTrackColor.copy(
-                alpha = checkedTrackColor.alpha * ContentAlpha.disabled
-            ),
+            disabledCheckedThumbColor = checkedThumbColor.toDisabledColor(),
+            disabledCheckedTrackColor = checkedTrackColor.toDisabledColor(
+                disabledContentAlpha = checkedTrackColor.alpha * ContentAlpha.disabled),
             disabledUncheckedThumbColor =
-                uncheckedThumbColor.copy(alpha = uncheckedThumbColor.alpha * ContentAlpha.disabled),
+            uncheckedThumbColor.toDisabledColor(
+                disabledContentAlpha = uncheckedThumbColor.alpha * ContentAlpha.disabled),
             disabledUncheckedTrackColor =
-                uncheckedTrackColor.copy(alpha = uncheckedTrackColor.alpha * ContentAlpha.disabled),
+            uncheckedTrackColor.toDisabledColor(
+                disabledContentAlpha = uncheckedTrackColor.alpha * ContentAlpha.disabled),
         )
     }
 }
@@ -441,86 +403,10 @@ public object RadioButtonDefaults {
             selectedDotColor = selectedDotColor,
             unselectedRingColor = unselectedRingColor,
             unselectedDotColor = unselectedDotColor,
-            disabledSelectedRingColor = selectedRingColor.copy(alpha = ContentAlpha.disabled),
-            disabledSelectedDotColor = selectedDotColor.copy(alpha = ContentAlpha.disabled),
-            disabledUnselectedRingColor =
-                unselectedRingColor.copy(alpha = ContentAlpha.disabled),
-            disabledUnselectedDotColor = unselectedDotColor.copy(alpha = ContentAlpha.disabled),
-        )
-    }
-}
-
-@Composable
-private fun animateProgress(
-    transition: Transition<ToggleStage>,
-    label: String,
-    durationMillis: Int = QUICK,
-    delayMillis: Int = 0,
-) =
-    transition.animateFloat(
-        transitionSpec = {
-            tween(durationMillis = durationMillis, delayMillis = delayMillis, easing = STANDARD_IN)
-        },
-        label = label
-    ) {
-        // Return the tick progress as a Float in Px.
-        when (it) {
-            ToggleStage.Unchecked -> 0f
-            ToggleStage.Checked -> 1f
-        }
-    }
-
-private fun Modifier.maybeToggleable(
-    onCheckedChange: ((Boolean) -> Unit)?,
-    enabled: Boolean,
-    checked: Boolean,
-    interactionSource: MutableInteractionSource,
-    indication: Indication,
-    role: Role,
-): Modifier {
-    val standardModifier = this
-        .wrapContentSize(Alignment.Center)
-        .requiredSize(24.dp)
-
-    return if (onCheckedChange == null) {
-        standardModifier
-    } else {
-        standardModifier.then(
-            Modifier.toggleable(
-                enabled = enabled,
-                value = checked,
-                onValueChange = onCheckedChange,
-                role = role,
-                indication = indication,
-                interactionSource = interactionSource
-            )
-        )
-    }
-}
-
-private fun Modifier.maybeSelectable(
-    onClick: (() -> Unit)?,
-    enabled: Boolean,
-    selected: Boolean,
-    interactionSource: MutableInteractionSource,
-    indication: Indication,
-): Modifier {
-    val standardModifier = this
-        .wrapContentSize(Alignment.Center)
-        .requiredSize(24.dp)
-
-    return if (onClick == null) {
-        standardModifier
-    } else {
-        standardModifier.then(
-            Modifier.selectable(
-                selected = selected,
-                interactionSource = interactionSource,
-                indication = indication,
-                enabled = enabled,
-                role = Role.RadioButton,
-                onClick = onClick,
-            )
+            disabledSelectedRingColor = selectedRingColor.toDisabledColor(),
+            disabledSelectedDotColor = selectedDotColor.toDisabledColor(),
+            disabledUnselectedRingColor = unselectedRingColor.toDisabledColor(),
+            disabledUnselectedDotColor = unselectedDotColor.toDisabledColor(),
         )
     }
 }
@@ -540,79 +426,27 @@ private fun DrawScope.drawBox(color: Color) {
     )
 }
 
-private fun DrawScope.drawTick(tickColor: Color, tickProgress: Float) {
-    // Using tickProgress animating from zero to TICK_TOTAL_LENGTH,
-    // rotate the tick as we draw from 15 degrees to zero.
-    val tickBaseLength = TICK_BASE_LENGTH.toPx()
-    val tickStickLength = TICK_STICK_LENGTH.toPx()
-    val tickTotalLength = tickBaseLength + tickStickLength
-    val tickProgressPx = tickProgress * tickTotalLength
-    val center = Offset(12.dp.toPx(), 12.dp.toPx())
-    val angle = TICK_ROTATION - TICK_ROTATION / tickTotalLength * tickProgressPx
-    val angleRadians = angle.toRadians()
-
-    // Animate the base of the tick.
-    val baseStart = Offset(6.7f.dp.toPx(), 12.3f.dp.toPx())
-    val tickBaseProgress = min(tickProgressPx, tickBaseLength)
-
-    val path = Path()
-    path.moveTo(baseStart.rotate(angleRadians, center))
-    path.lineTo((baseStart + Offset(tickBaseProgress, tickBaseProgress))
-        .rotate(angleRadians, center))
-
-    if (tickProgressPx > tickBaseLength) {
-        val tickStickProgress = min(tickProgressPx - tickBaseLength, tickStickLength)
-        val stickStart = Offset(9.3f.dp.toPx(), 16.3f.dp.toPx())
-        // Move back to the start of the stick (without drawing)
-        path.moveTo(stickStart.rotate(angleRadians, center))
-        path.lineTo(
-            Offset(stickStart.x + tickStickProgress, stickStart.y - tickStickProgress)
-                .rotate(angleRadians, center))
-    }
-    // Use StrokeCap.Butt because Square adds an extension on the end of each line.
-    drawPath(path, tickColor, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Butt))
-}
-
-private fun DrawScope.eraseTick(tickColor: Color, tickProgress: Float) {
-    val tickBaseLength = TICK_BASE_LENGTH.toPx()
-    val tickStickLength = TICK_STICK_LENGTH.toPx()
-    val tickTotalLength = tickBaseLength + tickStickLength
-    val tickProgressPx = tickProgress * tickTotalLength
-
-    // Animate the stick of the tick, drawing down the stick from the top.
-    val stickStartX = 17.3f.dp.toPx()
-    val stickStartY = 8.3f.dp.toPx()
-    val tickStickProgress = min(tickProgressPx, tickStickLength)
-
-    val path = Path()
-    path.moveTo(stickStartX, stickStartY)
-    path.lineTo(stickStartX - tickStickProgress, stickStartY + tickStickProgress)
-
-    if (tickStickProgress > tickStickLength) {
-        // Animate the base of the tick, drawing up the base from bottom of the stick.
-        val tickBaseProgress = min(tickProgressPx - tickStickLength, tickBaseLength)
-        val baseStartX = 10.7f.dp.toPx()
-        val baseStartY = 16.3f.dp.toPx()
-        path.moveTo(baseStartX, baseStartY)
-        path.lineTo(baseStartX - tickBaseProgress, baseStartY - tickBaseProgress)
-    }
-
-    drawPath(path, tickColor, style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Butt))
-}
-
-private fun DrawScope.drawTrack(
+private fun DrawScope.drawThumb(
     color: Color,
-    switchTrackLengthPx: Float,
-    switchTrackHeightPx: Float,
+    progress: Float,
+    isRtl: Boolean
 ) {
-    val path = Path()
-    val strokeRadius = switchTrackHeightPx / 2f
-    path.moveTo(Offset(strokeRadius, center.y))
-    path.lineTo(Offset(switchTrackLengthPx - strokeRadius, center.y))
-    drawPath(
-        path = path,
+
+    val switchThumbRadiusPx = SWITCH_THUMB_RADIUS.toPx()
+    val switchTrackLengthPx = SWITCH_TRACK_LENGTH.toPx()
+
+    val thumbProgressPx =
+        lerp(
+            start = if (isRtl) switchTrackLengthPx - switchThumbRadiusPx else switchThumbRadiusPx,
+            stop = if (isRtl) switchThumbRadiusPx else switchTrackLengthPx - switchThumbRadiusPx,
+            fraction = progress
+        )
+
+    drawCircle(
         color = color,
-        style = Stroke(width = switchTrackHeightPx, cap = StrokeCap.Round)
+        radius = switchThumbRadiusPx,
+        center = Offset(thumbProgressPx, center.y),
+        blendMode = BlendMode.Src
     )
 }
 
@@ -631,29 +465,26 @@ private class DefaultCheckboxColors(
     private val disabledUncheckedCheckmarkColor: Color,
 ) : CheckboxColors {
     @Composable
-    override fun boxColor(enabled: Boolean, checked: Boolean): State<Color> = animateColorAsState(
-        targetValue = toggleControlColor(
-            enabled,
-            checked,
-            checkedBoxColor,
-            uncheckedBoxColor,
-            disabledCheckedBoxColor,
-            disabledUncheckedBoxColor
-        ),
-        animationSpec = COLOR_ANIMATION_SPEC
-    )
+    override fun boxColor(enabled: Boolean, checked: Boolean): State<Color> =
+        animateSelectionColor(
+            enabled = enabled,
+            checked = checked,
+            checkedColor = checkedBoxColor,
+            uncheckedColor = uncheckedBoxColor,
+            disabledCheckedColor = disabledCheckedBoxColor,
+            disabledUncheckedColor = disabledUncheckedBoxColor,
+            animationSpec = COLOR_ANIMATION_SPEC
+        )
 
     @Composable
     override fun checkmarkColor(enabled: Boolean, checked: Boolean): State<Color> =
-        animateColorAsState(
-            targetValue = toggleControlColor(
-                enabled,
-                checked,
-                checkedCheckmarkColor,
-                uncheckedCheckmarkColor,
-                disabledCheckedCheckmarkColor,
-                disabledUncheckedCheckmarkColor
-            ),
+        animateSelectionColor(
+            enabled = enabled,
+            checked = checked,
+            checkedColor = checkedCheckmarkColor,
+            uncheckedColor = uncheckedCheckmarkColor,
+            disabledCheckedColor = disabledCheckedCheckmarkColor,
+            disabledUncheckedColor = disabledUncheckedCheckmarkColor,
             animationSpec = COLOR_ANIMATION_SPEC
         )
 
@@ -704,30 +535,28 @@ private class DefaultSwitchColors(
     private val disabledUncheckedTrackColor: Color,
 ) : SwitchColors {
     @Composable
-    override fun thumbColor(enabled: Boolean, checked: Boolean): State<Color> = animateColorAsState(
-        targetValue = toggleControlColor(
-            enabled,
-            checked,
-            checkedThumbColor,
-            uncheckedThumbColor,
-            disabledCheckedThumbColor,
-            disabledUncheckedThumbColor
-        ),
-        animationSpec = COLOR_ANIMATION_SPEC
-    )
+    override fun thumbColor(enabled: Boolean, checked: Boolean): State<Color> =
+        animateSelectionColor(
+            enabled = enabled,
+            checked = checked,
+            checkedColor = checkedThumbColor,
+            uncheckedColor = uncheckedThumbColor,
+            disabledCheckedColor = disabledCheckedThumbColor,
+            disabledUncheckedColor = disabledUncheckedThumbColor,
+            animationSpec = COLOR_ANIMATION_SPEC
+        )
 
     @Composable
-    override fun trackColor(enabled: Boolean, checked: Boolean): State<Color> = animateColorAsState(
-        targetValue = toggleControlColor(
-            enabled,
-            checked,
-            checkedTrackColor,
-            uncheckedTrackColor,
-            disabledCheckedTrackColor,
-            disabledUncheckedTrackColor
-        ),
-        animationSpec = COLOR_ANIMATION_SPEC
-    )
+    override fun trackColor(enabled: Boolean, checked: Boolean): State<Color> =
+        animateSelectionColor(
+            enabled = enabled,
+            checked = checked,
+            checkedColor = checkedTrackColor,
+            uncheckedColor = uncheckedTrackColor,
+            disabledCheckedColor = disabledCheckedTrackColor,
+            disabledUncheckedColor = disabledUncheckedTrackColor,
+            animationSpec = COLOR_ANIMATION_SPEC
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -777,29 +606,25 @@ private class DefaultRadioButtonColors(
 ) : RadioButtonColors {
     @Composable
     override fun ringColor(enabled: Boolean, selected: Boolean): State<Color> =
-        animateColorAsState(
-            targetValue = toggleControlColor(
-                enabled,
-                selected,
-                selectedRingColor,
-                unselectedRingColor,
-                disabledSelectedRingColor,
-                disabledUnselectedRingColor
-            ),
+        animateSelectionColor(
+            enabled = enabled,
+            checked = selected,
+            checkedColor = selectedRingColor,
+            uncheckedColor = unselectedRingColor,
+            disabledCheckedColor = disabledSelectedRingColor,
+            disabledUncheckedColor = disabledUnselectedRingColor,
             animationSpec = COLOR_ANIMATION_SPEC
         )
 
     @Composable
     override fun dotColor(enabled: Boolean, selected: Boolean): State<Color> =
-        animateColorAsState(
-            targetValue = toggleControlColor(
-                enabled,
-                selected,
-                selectedDotColor,
-                unselectedDotColor,
-                disabledSelectedDotColor,
-                disabledUnselectedDotColor
-            ),
+        animateSelectionColor(
+            enabled = enabled,
+            checked = selected,
+            checkedColor = selectedDotColor,
+            uncheckedColor = unselectedDotColor,
+            disabledCheckedColor = disabledSelectedDotColor,
+            disabledUncheckedColor = disabledUnselectedDotColor,
             animationSpec = COLOR_ANIMATION_SPEC
         )
 
@@ -835,63 +660,17 @@ private class DefaultRadioButtonColors(
     }
 }
 
-private fun Path.moveTo(offset: Offset) {
-    moveTo(offset.x, offset.y)
-}
-
-private fun Path.lineTo(offset: Offset) {
-    lineTo(offset.x, offset.y)
-}
-
-private fun Offset.rotate(angleRadians: Float): Offset {
-    val angledDirection = directionVector(angleRadians)
-    return angledDirection * x + angledDirection.rotate90() * y
-}
-
-private fun Offset.rotate(angleRadians: Float, center: Offset): Offset =
-    (this - center).rotate(angleRadians) + center
-
-private fun directionVector(angleRadians: Float) = Offset(cos(angleRadians), sin(angleRadians))
-
-private fun Offset.rotate90() = Offset(-y, x)
-
-// This is duplicated from wear.compose.foundation/geometry.kt
-// Any changes should be replicated there.
-private fun Float.toRadians() = this * PI.toFloat() / 180f
-
-private enum class ToggleStage {
-    Unchecked, Checked
-}
-
-private fun toggleControlColor(
-    enabled: Boolean,
-    checked: Boolean,
-    checkedColor: Color,
-    uncheckedColor: Color,
-    enabledCheckedColor: Color,
-    disabledCheckedColor: Color
-) =
-    if (enabled) {
-        if (checked) checkedColor else uncheckedColor
-    } else {
-        if (checked) enabledCheckedColor else disabledCheckedColor
-    }
-
 private val BOX_CORNER = 3.dp
 private val BOX_STROKE = 2.dp
 private val BOX_RADIUS = 2.dp
 private val BOX_SIZE = 18.dp
 
-private val TICK_BASE_LENGTH = 4.dp
-private val TICK_STICK_LENGTH = 8.dp
-private const val TICK_ROTATION = 15f
-
 private val SWITCH_TRACK_LENGTH = 24.dp
 private val SWITCH_TRACK_HEIGHT = 10.dp
 private val SWITCH_THUMB_RADIUS = 7.dp
 
-private val RADIO_CIRCLE_RADIUS = 9.dp
-private val RADIO_CIRCLE_STROKE = 2.dp
-private val RADIO_DOT_RADIUS = 5.dp
-
 private val COLOR_ANIMATION_SPEC: AnimationSpec<Color> = tween(QUICK, 0, STANDARD_IN)
+private val PROGRESS_ANIMATION_SPEC: TweenSpec<Float> = tween(QUICK, 0, STANDARD_IN)
+
+private val WIDTH = 24.dp
+private val HEIGHT = 24.dp

@@ -79,13 +79,13 @@ public class MultiSlotLayoutTest {
     public void testWrongTag() {
         Box box =
                 new Box.Builder()
-                    .setModifiers(
-                        new Modifiers.Builder()
-                            .setMetadata(
-                                new ElementMetadata.Builder()
-                                    .setTagData("test".getBytes(UTF_8))
-                                    .build())
-                            .build())
+                        .setModifiers(
+                                new Modifiers.Builder()
+                                        .setMetadata(
+                                                new ElementMetadata.Builder()
+                                                        .setTagData("test".getBytes(UTF_8))
+                                                        .build())
+                                        .build())
                         .build();
 
         assertThat(MultiSlotLayout.fromLayoutElement(box)).isNull();

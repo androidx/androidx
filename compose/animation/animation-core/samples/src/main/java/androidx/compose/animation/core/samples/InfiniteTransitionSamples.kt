@@ -109,7 +109,7 @@ fun InfiniteTransitionAnimateValueSample() {
             animation = keyframes {
                 durationMillis = 500
                 0.dp at 200 // ms
-                80.dp at 300 with FastOutLinearInEasing
+                80.dp at 300 using FastOutLinearInEasing
             }
             // Use the default RepeatMode.Restart to start from 0.dp after each iteration
         )

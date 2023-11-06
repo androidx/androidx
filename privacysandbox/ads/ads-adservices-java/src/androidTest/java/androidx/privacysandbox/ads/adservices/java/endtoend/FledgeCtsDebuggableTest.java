@@ -26,6 +26,7 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
+import androidx.javascriptengine.JavaScriptSandbox;
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig;
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager;
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome;
@@ -36,7 +37,7 @@ import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier;
 import androidx.privacysandbox.ads.adservices.customaudience.CustomAudience;
 import androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest;
 import androidx.privacysandbox.ads.adservices.customaudience.TrustedBiddingData;
-import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo;
+import androidx.privacysandbox.ads.adservices.java.VersionCompatUtil;
 import androidx.privacysandbox.ads.adservices.java.adselection.AdSelectionManagerFutures;
 import androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures;
 import androidx.test.core.app.ApplicationProvider;
@@ -67,7 +68,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-@SdkSuppress(minSdkVersion = 26)
+@SdkSuppress(minSdkVersion = 28) // API 28 is the lowest level supporting device_config used by this test
 public class FledgeCtsDebuggableTest {
     protected static final Context sContext = ApplicationProvider.getApplicationContext();
     private static final String TAG = "FledgeCtsDebuggableTest";
@@ -175,6 +176,10 @@ public class FledgeCtsDebuggableTest {
         testUtil.disableFledgeEnrollmentCheck(true);
         testUtil.enableAdServiceSystemService(true);
         testUtil.enforceFledgeJsIsolateMaxHeapSize(false);
+
+        if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
+            testUtil.enableBackCompat();
+        }
     }
 
     @AfterClass
@@ -196,10 +201,15 @@ public class FledgeCtsDebuggableTest {
         testUtil.disableFledgeEnrollmentCheck(false);
         testUtil.enableAdServiceSystemService(false);
         testUtil.enforceFledgeJsIsolateMaxHeapSize(true);
+
+        if (VersionCompatUtil.INSTANCE.isSWithMinExtServicesVersion(9)) {
+            testUtil.disableBackCompat();
+        }
     }
 
     @Before
     public void setup() throws Exception {
+        Assume.assumeTrue(JavaScriptSandbox.isSupported());
         mAdSelectionClient =
                 new AdSelectionClient(sContext);
         mCustomAudienceClient =
@@ -211,8 +221,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testFledgeAuctionSelectionFlow_overall_Success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -255,8 +268,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_etldViolation_failure() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -310,8 +326,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testReportImpression_etldViolation_failure() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -379,8 +398,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_skipAdsMalformedBiddingLogic_success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -432,8 +454,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_malformedScoringLogic_failure() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -485,8 +510,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_skipAdsFailedGettingBiddingLogic_success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -536,8 +564,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_errorGettingScoringLogic_failure() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -594,8 +625,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelectionFlow_skipNonActivatedCA_Success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -648,8 +682,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelectionFlow_skipExpiredCA_Success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -708,8 +745,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelectionFlow_skipCAsThatTimeoutDuringBidding_Success() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);
@@ -759,8 +799,11 @@ public class FledgeCtsDebuggableTest {
 
     @Test
     public void testAdSelection_overallTimeout_Failure() throws Exception {
-        // Skip the test if SDK extension 4 is not present.
-        Assume.assumeTrue(AdServicesInfo.INSTANCE.version() >= 4);
+        // Skip the test if the right SDK extension is not present.
+        Assume.assumeTrue(
+                VersionCompatUtil.INSTANCE.isTestableVersion(
+                        /* minAdServicesVersion=*/ 4,
+                        /* minExtServicesVersion=*/ 9));
 
         List<Double> bidsForBuyer1 = ImmutableList.of(1.1, 2.2);
         List<Double> bidsForBuyer2 = ImmutableList.of(4.5, 6.7, 10.0);

@@ -18,7 +18,11 @@
 
 package androidx.collection
 
-/** Returns an empty new [ArrayMap]. */
+/**
+ * Returns an empty new [ArrayMap].
+ * **NOTE:** Consider using [mutableScatterMapOf] instead. [MutableScatterMap] also
+ * avoids creating a new object per entry but offers better performance characteristics.
+ */
 public inline fun <K, V> arrayMapOf(): ArrayMap<K, V> = ArrayMap()
 
 /**
@@ -27,6 +31,9 @@ public inline fun <K, V> arrayMapOf(): ArrayMap<K, V> = ArrayMap()
  *
  * If multiple pairs have the same key, the resulting map will contain the value from the last of
  * those pairs.
+ *
+ * **NOTE:** Consider using [mutableScatterMapOf] instead. [MutableScatterMap] also
+ * avoids creating a new object per entry but offers better performance characteristics.
  */
 public fun <K, V> arrayMapOf(vararg pairs: Pair<K, V>): ArrayMap<K, V> {
     val map = ArrayMap<K, V>(pairs.size)

@@ -33,12 +33,11 @@ import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChild
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -129,7 +128,7 @@ class CardScreenshotTest {
 
         rule.onNodeWithTag(CardWrapperTag)
             .onChild()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
         rule.waitForIdle()
 
         assertAgainstGolden("card_focused")
@@ -216,7 +215,7 @@ class CardScreenshotTest {
 
         rule.onNodeWithTag(CardWrapperTag)
             .onChild()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
         rule.waitForIdle()
 
         assertAgainstGolden("classicCard_focused")
@@ -282,7 +281,7 @@ class CardScreenshotTest {
 
         rule.onNodeWithTag(CardWrapperTag)
             .onChild()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
         rule.waitForIdle()
 
         assertAgainstGolden("compactCard_focused")
@@ -369,7 +368,7 @@ class CardScreenshotTest {
 
         rule.onNodeWithTag(CardWrapperTag)
             .onChild()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
         rule.waitForIdle()
 
         assertAgainstGolden("wideClassicCard_focused")

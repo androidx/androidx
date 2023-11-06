@@ -24,9 +24,8 @@ import androidx.car.app.serialization.Bundleable;
 /**
  * Interface implemented by an off-process renderer to receive events affecting the
  * {@link SurfaceView} it renders content on.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ISurfaceControl {
   /** Notifies that the underlying surface changed. */
   void setSurfaceWrapper(in Bundleable surfaceWrapper) = 1;

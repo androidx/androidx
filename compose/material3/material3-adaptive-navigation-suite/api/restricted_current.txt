@@ -1,0 +1,65 @@
+// Signature format: 4.0
+package androidx.compose.material3.adaptive.navigation.suite {
+
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3-adaptive-navigation-suite API is experimental and is likely to" + "change or to be removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveNavigationSuiteApi {
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public final class NavigationSuiteColors {
+    method public long getNavigationBarContainerColor();
+    method public long getNavigationBarContentColor();
+    method public long getNavigationDrawerContainerColor();
+    method public long getNavigationDrawerContentColor();
+    method public long getNavigationRailContainerColor();
+    method public long getNavigationRailContentColor();
+    property public final long navigationBarContainerColor;
+    property public final long navigationBarContentColor;
+    property public final long navigationDrawerContainerColor;
+    property public final long navigationDrawerContentColor;
+    property public final long navigationRailContainerColor;
+    property public final long navigationRailContentColor;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public final class NavigationSuiteDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteColors colors(optional long navigationBarContainerColor, optional long navigationBarContentColor, optional long navigationRailContainerColor, optional long navigationRailContentColor, optional long navigationDrawerContainerColor, optional long navigationDrawerContentColor);
+    field public static final androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteDefaults INSTANCE;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public final class NavigationSuiteItemColors {
+    method public androidx.compose.material3.NavigationBarItemColors getNavigationBarItemColors();
+    method public androidx.compose.material3.NavigationDrawerItemColors getNavigationDrawerItemColors();
+    method public androidx.compose.material3.NavigationRailItemColors getNavigationRailItemColors();
+    property public final androidx.compose.material3.NavigationBarItemColors navigationBarItemColors;
+    property public final androidx.compose.material3.NavigationDrawerItemColors navigationDrawerItemColors;
+    property public final androidx.compose.material3.NavigationRailItemColors navigationRailItemColors;
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public final class NavigationSuiteScaffoldDefaults {
+    method public String calculateFromAdaptiveInfo(androidx.compose.material3.adaptive.WindowAdaptiveInfo adaptiveInfo);
+    field public static final androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteScaffoldDefaults INSTANCE;
+  }
+
+  public final class NavigationSuiteScaffoldKt {
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi @androidx.compose.runtime.Composable public static void NavigationSuite(optional androidx.compose.ui.Modifier modifier, optional String layoutType, optional androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteColors colors, kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteScope,kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi @androidx.compose.runtime.Composable public static void NavigationSuiteScaffold(kotlin.jvm.functions.Function1<? super androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteScope,kotlin.Unit> navigationSuiteItems, optional androidx.compose.ui.Modifier modifier, optional String layoutType, optional androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteColors navigationSuiteColors, optional long containerColor, optional long contentColor, optional kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @SuppressCompatibility @androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi @androidx.compose.runtime.Composable public static void NavigationSuiteScaffoldLayout(kotlin.jvm.functions.Function0<kotlin.Unit> navigationSuite, optional String layoutType, optional kotlin.jvm.functions.Function0<kotlin.Unit> content);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi public interface NavigationSuiteScope {
+    method public void item(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, kotlin.jvm.functions.Function0<kotlin.Unit> icon, optional androidx.compose.ui.Modifier modifier, optional boolean enabled, optional kotlin.jvm.functions.Function0<kotlin.Unit>? label, optional boolean alwaysShowLabel, optional kotlin.jvm.functions.Function0<kotlin.Unit>? badge, optional androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteItemColors? colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
+  }
+
+  @SuppressCompatibility @androidx.compose.material3.adaptive.navigation.suite.ExperimentalMaterial3AdaptiveNavigationSuiteApi @kotlin.jvm.JvmInline public final value class NavigationSuiteType {
+    field public static final androidx.compose.material3.adaptive.navigation.suite.NavigationSuiteType.Companion Companion;
+  }
+
+  public static final class NavigationSuiteType.Companion {
+    method public String getNavigationBar();
+    method public String getNavigationDrawer();
+    method public String getNavigationRail();
+    property public final String NavigationBar;
+    property public final String NavigationDrawer;
+    property public final String NavigationRail;
+  }
+
+}
+

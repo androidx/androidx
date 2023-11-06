@@ -26,9 +26,10 @@ internal fun LazyLayoutSemanticState(
     state: PagerState,
     isVertical: Boolean
 ): LazyLayoutSemanticState = object : LazyLayoutSemanticState {
-
-    override val currentPosition: Float
-        get() = state.firstVisiblePage + state.firstVisiblePageOffset / 100_000f
+    override val firstVisibleItemScrollOffset: Int
+        get() = state.firstVisiblePageOffset
+    override val firstVisibleItemIndex: Int
+        get() = state.firstVisiblePage
     override val canScrollForward: Boolean
         get() = state.canScrollForward
 
@@ -42,8 +43,8 @@ internal fun LazyLayoutSemanticState(
 
     override fun collectionInfo(): CollectionInfo =
         if (isVertical) {
-            CollectionInfo(rowCount = -1, columnCount = 1)
+            CollectionInfo(rowCount = state.pageCount, columnCount = 1)
         } else {
-            CollectionInfo(rowCount = 1, columnCount = -1)
+            CollectionInfo(rowCount = 1, columnCount = state.pageCount)
         }
 }

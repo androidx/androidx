@@ -30,15 +30,16 @@ fun ColorFilter.asSkiaColorFilter(): SkiaColorFilter = nativeColorFilter
  */
 fun org.jetbrains.skia.ColorFilter.asComposeColorFilter(): ColorFilter = ColorFilter(this)
 
-internal actual fun actualTintColorFilter(color: Color, blendMode: BlendMode): ColorFilter =
-    ColorFilter(SkiaColorFilter.makeBlend(color.toArgb(), blendMode.toSkia()))
+internal actual fun actualTintColorFilter(color: Color, blendMode: BlendMode): NativeColorFilter =
+    SkiaColorFilter.makeBlend(color.toArgb(), blendMode.toSkia())
 
-internal actual fun actualColorMatrixColorFilter(colorMatrix: ColorMatrix): ColorFilter =
-    ColorFilter(
-        SkiaColorFilter.makeMatrix(
-            org.jetbrains.skia.ColorMatrix(*colorMatrix.values)
-        )
+internal actual fun actualColorMatrixColorFilter(colorMatrix: ColorMatrix): NativeColorFilter =
+    SkiaColorFilter.makeMatrix(
+        org.jetbrains.skia.ColorMatrix(*colorMatrix.values)
     )
 
-internal actual fun actualLightingColorFilter(multiply: Color, add: Color): ColorFilter =
-    ColorFilter(SkiaColorFilter.makeLighting(multiply.toArgb(), add.toArgb()))
+internal actual fun actualLightingColorFilter(multiply: Color, add: Color): NativeColorFilter =
+    SkiaColorFilter.makeLighting(multiply.toArgb(), add.toArgb())
+
+internal actual fun actualColorMatrixFromFilter(filter: NativeColorFilter): ColorMatrix =
+    ColorMatrix()

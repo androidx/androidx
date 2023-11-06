@@ -31,7 +31,7 @@ import kotlin.reflect.KClass
  * Returns a property delegate to access [ViewModel] by **default** scoped to this [Fragment]:
  * ```
  * class MyFragment : Fragment() {
- *     val viewmodel: MyViewModel by viewmodels()
+ *     val viewmodel: MyViewModel by viewModels()
  * }
  * ```
  *
@@ -39,14 +39,14 @@ import kotlin.reflect.KClass
  * factory returned by it will be used to create [ViewModel]:
  * ```
  * class MyFragment : Fragment() {
- *     val viewmodel: MyViewModel by viewmodels { myFactory }
+ *     val viewmodel: MyViewModel by viewModels { myFactory }
  * }
  * ```
  *
  * Default scope may be overridden with parameter [ownerProducer]:
  * ```
  * class MyFragment : Fragment() {
- *     val viewmodel: MyViewModel by viewmodels ({requireParentFragment()})
+ *     val viewmodel: MyViewModel by viewModels ({requireParentFragment()})
  * }
  * ```
  *
@@ -80,7 +80,7 @@ public inline fun <reified VM : ViewModel> Fragment.viewModels(
  * Returns a property delegate to access [ViewModel] by **default** scoped to this [Fragment]:
  * ```
  * class MyFragment : Fragment() {
- *     val viewmodel: MyViewModel by viewmodels()
+ *     val viewmodel: MyViewModel by viewModels()
  * }
  * ```
  *
@@ -88,14 +88,14 @@ public inline fun <reified VM : ViewModel> Fragment.viewModels(
  * factory returned by it will be used to create [ViewModel]:
  * ```
  * class MyFragment : Fragment() {
- *     val viewmodel: MyViewModel by viewmodels { myFactory }
+ *     val viewmodel: MyViewModel by viewModels { myFactory }
  * }
  * ```
  *
  * Default scope may be overridden with parameter [ownerProducer]:
  * ```
  * class MyFragment : Fragment() {
- *     val viewmodel: MyViewModel by viewmodels ({requireParentFragment()})
+ *     val viewmodel: MyViewModel by viewModels ({requireParentFragment()})
  * }
  * ```
  *

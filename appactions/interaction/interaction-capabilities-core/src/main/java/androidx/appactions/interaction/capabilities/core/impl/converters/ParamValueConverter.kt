@@ -54,11 +54,12 @@ interface ParamValueConverter<T> {
         internal fun paramValueToValue(paramValue: ParamValue): Value {
             val builder = Value.newBuilder()
             when {
-                paramValue.hasStringValue() -> builder.setStringValue(paramValue.getStringValue())
-                paramValue.hasBoolValue() -> builder.setBoolValue(paramValue.getBoolValue())
-                paramValue.hasNumberValue() -> builder.setNumberValue(paramValue.getNumberValue())
-                paramValue.hasStructValue() -> builder.setStructValue(paramValue.getStructValue())
-                else -> throw StructConversionException("cannot convert $paramValue into Value.")
+                paramValue.hasStringValue() -> builder.stringValue = paramValue.stringValue
+                paramValue.hasBoolValue() -> builder.boolValue = paramValue.boolValue
+                paramValue.hasNumberValue() -> builder.numberValue = paramValue.numberValue
+                paramValue.hasStructValue() -> builder.structValue = paramValue.structValue
+                else -> throw StructConversionException("cannot convert ParamValue into protobuf" +
+                    " Value because it has no data types set.")
             }
             return builder.build()
         }
@@ -66,10 +67,10 @@ interface ParamValueConverter<T> {
         internal fun valueToParamValue(value: Value): ParamValue {
             val builder = ParamValue.newBuilder()
             when {
-                value.hasStringValue() -> builder.setStringValue(value.getStringValue())
-                value.hasBoolValue() -> builder.setBoolValue(value.getBoolValue())
-                value.hasNumberValue() -> builder.setNumberValue(value.getNumberValue())
-                value.hasStructValue() -> builder.setStructValue(value.getStructValue())
+                value.hasStringValue() -> builder.stringValue = value.stringValue
+                value.hasBoolValue() -> builder.boolValue = value.boolValue
+                value.hasNumberValue() -> builder.numberValue = value.numberValue
+                value.hasStructValue() -> builder.structValue = value.structValue
                 else -> throw IllegalStateException("cannot convert $value to ParamValue.")
             }
             return builder.build()

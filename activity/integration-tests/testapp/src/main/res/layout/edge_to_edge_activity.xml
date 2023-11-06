@@ -38,11 +38,24 @@
         android:layout_margin="64dp"
         android:orientation="vertical">
 
-        <Button
-            android:id="@+id/default_config"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="default" />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:id="@+id/default_config"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="default" />
+
+            <Button
+                android:id="@+id/auto_config"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="auto" />
+
+        </LinearLayout>
 
         <Button
             android:id="@+id/custom_config"

@@ -236,7 +236,7 @@ value class NestedScrollSource internal constructor(
             Fling -> "Fling"
             @OptIn(ExperimentalComposeUiApi::class)
             Relocate -> "Relocate"
-
+            Wheel -> "Wheel"
             else -> "Invalid"
         }
     }
@@ -260,6 +260,11 @@ value class NestedScrollSource internal constructor(
         @ExperimentalComposeUiApi
         @Deprecated("Do not use. Will be removed in the future.")
         val Relocate: NestedScrollSource = NestedScrollSource(3)
+
+        /**
+         * Scrolling via mouse wheel.
+         */
+        val Wheel: NestedScrollSource = NestedScrollSource(4)
     }
 }
 
@@ -271,9 +276,9 @@ value class NestedScrollSource internal constructor(
  * nested scroll chain by providing [NestedScrollConnection], which will be called when another
  * nested scrolling child below dispatches scrolling events.
  *
- * It's a mandatory to participate as a [NestedScrollConnection] in the chain, but scrolling
- * events dispatch is optional since there are cases when element wants to participate in the
- * nested scroll, but not a scrollable thing itself.
+ * It's mandatory to participate as a [NestedScrollConnection] in the chain, but dispatching
+ * scrolling events is optional since there are cases where an element wants to participate in
+ * nested scrolling without being directly scrollable.
  *
  * Here's the collapsing toolbar example that participates in a chain, but doesn't dispatch:
  * @sample androidx.compose.ui.samples.NestedScrollConnectionSample

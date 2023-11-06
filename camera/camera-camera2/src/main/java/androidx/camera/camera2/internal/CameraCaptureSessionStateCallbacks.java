@@ -38,7 +38,7 @@ public final class CameraCaptureSessionStateCallbacks {
 
     /**
      * Returns a session state callback which does nothing.
-     **/
+     */
     @NonNull
     public static CameraCaptureSession.StateCallback createNoOpCallback() {
         return new NoOpSessionStateCallback();

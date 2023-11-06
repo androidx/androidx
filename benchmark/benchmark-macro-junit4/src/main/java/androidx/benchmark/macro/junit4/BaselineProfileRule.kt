@@ -19,10 +19,8 @@ package androidx.benchmark.macro.junit4
 import android.Manifest
 import androidx.annotation.RequiresApi
 import androidx.benchmark.Arguments
-import androidx.benchmark.macro.ExperimentalStableBaselineProfilesApi
 import androidx.benchmark.macro.MacrobenchmarkScope
-import androidx.benchmark.macro.collectBaselineProfile
-import androidx.benchmark.macro.collectStableBaselineProfile
+import androidx.benchmark.macro.collect
 import androidx.test.rule.GrantPermissionRule
 import org.junit.Assume.assumeTrue
 import org.junit.rules.RuleChain
@@ -45,7 +43,7 @@ import org.junit.runners.model.Statement
  *     val baselineProfileRule = BaselineProfileRule()
  *
  *     @Test
- *     fun startup() = baselineProfileRule.collectBaselineProfile(
+ *     fun startup() = baselineProfileRule.collect(
  *         packageName = "com.example.my.application.id"
  *     ) {
  *         pressHome()
@@ -62,7 +60,7 @@ import org.junit.runners.model.Statement
  *
  * ```
  *     @Test
- *     fun generateLibraryRules() = baselineProfileRule.collectBaselineProfile(
+ *     fun generateLibraryRules() = baselineProfileRule.collect(
  *         // Target app is an integration test app which uses the library, but any
  *         // app code isn't relevant to store in library's Baseline Profile
  *         packageName = "com.example.testapp.id"
@@ -102,44 +100,6 @@ class BaselineProfileRule : TestRule {
     }
 
     /**
-     * Collects baseline profiles for a set of interactions with the application
-     * @param packageName ApplicationId / Application manifest package name of the app for
-     *   which profiles are generated.
-     * @param iterations Number of iterations to run the profile block when collecting profiles.
-     * @param outputFilePrefix An optional file name prefix used when creating the output
-     *    file with the contents of the human readable baseline profile.
-     *    For example: `outputFilePrefix-baseline-prof.txt`
-     * @param includeInStartupProfile determines whether the generated profile should be also used
-     *   as a startup profile. A startup profile is utilized during the build process in order to
-     *   determine which classes are needed in the primary dex to optimize the startup time. This
-     *   flag should be used only for startup flows, such as main application startup pre and post
-     *   login or other entry points of the app. Note that methods collected in a startup profiles
-     *   are also utilized for baseline profiles.
-     * @param filterPredicate Function used to filter individual rules / lines of the baseline
-     *   profile. By default, no filters are applied. Note that this works only when the target
-     *   application's code is not obfuscated.
-     * @param [profileBlock] defines the critical user journey.
-     */
-    @JvmOverloads
-    public fun collectBaselineProfile(
-        packageName: String,
-        iterations: Int = 3,
-        outputFilePrefix: String? = null,
-        includeInStartupProfile: Boolean = false,
-        filterPredicate: ((String) -> Boolean) = { true },
-        profileBlock: MacrobenchmarkScope.() -> Unit
-    ) {
-        collectBaselineProfile(
-            uniqueName = outputFilePrefix ?: currentDescription.toUniqueName(),
-            packageName = packageName,
-            iterations = iterations,
-            includeInStartupProfile = includeInStartupProfile,
-            filterPredicate = filterPredicate,
-            profileBlock = profileBlock
-        )
-    }
-
-    /**
      * Collects baseline profiles for a critical user journey, while ensuring that the generated
      * profiles are stable for a minimum of [stableIterations].
      *
@@ -163,10 +123,9 @@ class BaselineProfileRule : TestRule {
      * @param [profileBlock] defines the critical user journey.
      */
     @JvmOverloads
-    @ExperimentalStableBaselineProfilesApi
-    public fun collectStableBaselineProfile(
+    public fun collect(
         packageName: String,
-        maxIterations: Int,
+        maxIterations: Int = 15,
         stableIterations: Int = 3,
         outputFilePrefix: String? = null,
         includeInStartupProfile: Boolean = false,
@@ -174,7 +133,7 @@ class BaselineProfileRule : TestRule {
         filterPredicate: ((String) -> Boolean) = { true },
         profileBlock: MacrobenchmarkScope.() -> Unit
     ) {
-        collectStableBaselineProfile(
+        collect(
             uniqueName = outputFilePrefix ?: currentDescription.toUniqueName(),
             packageName = packageName,
             stableIterations = stableIterations,

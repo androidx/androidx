@@ -268,6 +268,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"فہرست ٹیب"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"طویل ٹیب کے عنوان کے ساتھ گرڈ ٹیب"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"تلاش ٹیب"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"ٹیب لوڈ ہو رہا ہے"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"ٹیب کی تمثیل ڈیمو لوڈ ہو رہا ہے"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"ٹیب کی تمثیل کوئی ٹیبز ڈیمو نہیں"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"نامعلوم میزبان کیلئے تصاویر کو ڈسپلے نہیں کیا جا سکتا"</string>

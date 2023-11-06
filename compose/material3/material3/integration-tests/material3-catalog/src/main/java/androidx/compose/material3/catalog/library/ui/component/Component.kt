@@ -18,7 +18,6 @@ package androidx.compose.material3.catalog.library.ui.component
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -48,14 +47,15 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Component(
     component: Component,
     theme: Theme,
     onThemeChange: (theme: Theme) -> Unit,
     onExampleClick: (example: Example) -> Unit,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    favorite: Boolean = false,
+    onFavoriteClick: () -> Unit,
 ) {
     val ltr = LocalLayoutDirection.current
     CatalogScaffold(
@@ -66,7 +66,9 @@ fun Component(
         docsUrl = component.docsUrl,
         sourceUrl = component.sourceUrl,
         onThemeChange = onThemeChange,
-        onBackClick = onBackClick
+        onBackClick = onBackClick,
+        favorite = favorite,
+        onFavoriteClick = onFavoriteClick
     ) { paddingValues ->
         LazyColumn(
             modifier = Modifier.consumeWindowInsets(paddingValues),

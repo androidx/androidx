@@ -17,9 +17,11 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.IBinder
 import android.util.Log
 import androidx.annotation.DoNotInline
 import androidx.annotation.GuardedBy
@@ -27,10 +29,10 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.collection.ArraySet
 import androidx.core.util.Consumer
+import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowProperties
 import androidx.window.core.BuildConfig
 import androidx.window.core.ConsumerAdapter
-import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
 import androidx.window.core.VerificationMode
@@ -135,7 +137,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
 
     @GuardedBy("globalLock")
     override fun getRules(): Set<EmbeddingRule> {
-        globalLock.withLock { return ruleTracker.splitRules }
+        globalLock.withLock { return ruleTracker.splitRules.toSet() }
     }
 
     @GuardedBy("globalLock")
@@ -335,7 +337,7 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         return embeddingExtension?.isActivityEmbedded(activity) ?: false
     }
 
-    @ExperimentalWindowApi
+    @RequiresWindowSdkExtension(2)
     override fun setSplitAttributesCalculator(
         calculator: (SplitAttributesCalculatorParams) -> SplitAttributes
     ) {
@@ -344,14 +346,49 @@ internal class ExtensionEmbeddingBackend @VisibleForTesting constructor(
         }
     }
 
+    @RequiresWindowSdkExtension(2)
     override fun clearSplitAttributesCalculator() {
         globalLock.withLock {
             embeddingExtension?.clearSplitAttributesCalculator()
         }
     }
 
-    override fun isSplitAttributesCalculatorSupported(): Boolean =
-        embeddingExtension?.isSplitAttributesCalculatorSupported() ?: false
+    override fun getActivityStack(activity: Activity): ActivityStack? {
+        globalLock.withLock {
+            val lastInfo: List<SplitInfo> = splitInfoEmbeddingCallback.lastInfo ?: return null
+            for (info in lastInfo) {
+                if (activity !in info) {
+                    continue
+                }
+                if (activity in info.primaryActivityStack) {
+                    return info.primaryActivityStack
+                }
+                if (activity in info.secondaryActivityStack) {
+                    return info.secondaryActivityStack
+                }
+            }
+            return null
+        }
+    }
+
+    @RequiresWindowSdkExtension(3)
+    override fun setLaunchingActivityStack(
+        options: ActivityOptions,
+        token: IBinder
+    ): ActivityOptions = embeddingExtension?.setLaunchingActivityStack(options, token) ?: options
+
+    @RequiresWindowSdkExtension(3)
+    override fun invalidateTopVisibleSplitAttributes() {
+        embeddingExtension?.invalidateTopVisibleSplitAttributes()
+    }
+
+    @RequiresWindowSdkExtension(3)
+    override fun updateSplitAttributes(
+        splitInfo: SplitInfo,
+        splitAttributes: SplitAttributes
+    ) {
+        embeddingExtension?.updateSplitAttributes(splitInfo, splitAttributes)
+    }
 
     @RequiresApi(31)
     private object Api31Impl {

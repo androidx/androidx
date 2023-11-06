@@ -32,7 +32,6 @@ import androidx.camera.camera2.pipe.RequestMetadata
 import kotlin.reflect.KClass
 
 /** An implementation of [FrameMetadata] that retrieves values from a [CaptureResult] object */
-@Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AndroidFrameMetadata
 constructor(private val captureResult: CaptureResult, override val camera: CameraId) :
@@ -88,7 +87,6 @@ internal class CorrectedFrameMetadata(
 }
 
 /** An implementation of [FrameInfo] that retrieves values from a [TotalCaptureResult] object. */
-@Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 internal class AndroidFrameInfo(
     private val totalCaptureResult: TotalCaptureResult,

@@ -16,13 +16,10 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-
 /**
  * Represents one measured line of the lazy list. Each item on the line can in fact consist of
  * multiple placeables if the user emit multiple layout nodes in the item callback.
  */
-@OptIn(ExperimentalFoundationApi::class)
 internal class LazyGridMeasuredLine constructor(
     val index: Int,
     val items: Array<LazyGridMeasuredItem>,

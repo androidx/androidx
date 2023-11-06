@@ -35,10 +35,10 @@ import androidx.camera.core.impl.CameraStateRegistry
 import androidx.camera.core.impl.Observable
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.testing.fakes.FakeCameraCoordinator
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.fakes.FakeCameraCoordinator
 import androidx.core.os.HandlerCompat
 import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
@@ -352,6 +352,7 @@ internal class Camera2CameraImplStateTest {
 
         // Initialize camera instance
         camera = Camera2CameraImpl(
+            ApplicationProvider.getApplicationContext(),
             cameraManagerCompat,
             cameraId,
             camera2CameraInfo,
@@ -359,7 +360,8 @@ internal class Camera2CameraImplStateTest {
             cameraStateRegistry,
             CameraXExecutors.directExecutor(),
             cameraHandler,
-            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext())
+            DisplayInfoManager.getInstance(ApplicationProvider.getApplicationContext()),
+            -1L
         )
     }
 

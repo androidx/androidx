@@ -24,6 +24,7 @@
     <string name="mr_cast_button_connected" msgid="6073720094880410356">"কাস্ট করুন। কানেক্ট করা আছে"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"এখানে কাস্ট করুন:"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"ডিভাইস খোঁজা হচ্ছে"</string>
+    <string name="mr_chooser_looking_for_devices" msgid="4257319068277776035">"ডিভাইস খোঁজা হচ্ছে…"</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"কানেকশন বিচ্ছিন্ন করুন"</string>
     <string name="mr_controller_stop_casting" msgid="804210341192624074">"কাস্ট করা বন্ধ করুন"</string>
     <string name="mr_controller_close_description" msgid="5684434439232634509">"বন্ধ করুন"</string>
@@ -41,12 +42,13 @@
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"একটি ডিভাইস যোগ করুন"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"গ্রুপে প্লে করুন"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"কোনও তথ্য নেই"</string>
-    <!-- no translation found for mr_chooser_zero_routes_found_title (5213435473397442608) -->
-    <skip />
-    <!-- no translation found for mr_chooser_zero_routes_description (5123320430013505927) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description (337903053432238985) -->
-    <skip />
-    <!-- no translation found for mr_chooser_done_button_label (7897288652928484627) -->
-    <skip />
+    <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"কোনও ডিভাইস উপলভ্য নেই"</string>
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"এই ফোনটি ও অন্য ডিভাইস একই ওয়াই-ফাই নেটওয়ার্কের সাথে কানেক্ট করা আছে কিনা তা ভালভাবে দেখে নিন"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"এই ট্যাবলেট ও অন্য ডিভাইস একই ওয়াই-ফাই নেটওয়ার্কের সাথে কানেক্ট করা আছে কিনা তা ভালভাবে দেখে নিন"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"এই টিভি ও অন্য ডিভাইস একই ওয়াই-ফাই নেটওয়ার্কের সাথে কানেক্ট করা আছে কিনা তা ভালভাবে দেখে নিন"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"এই ওয়াচ ও অন্য ডিভাইস একই ওয়াই-ফাই নেটওয়ার্কের সাথে কানেক্ট করা আছে কিনা তা ভালভাবে দেখে নিন"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"এই গাড়িটি ও অন্য ডিভাইস একই ওয়াই-ফাই নেটওয়ার্কের সাথে কানেক্ট করা আছে কিনা তা ভালভাবে দেখে নিন"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"এই ডিভাইস ও অন্য ডিভাইস একই ওয়াই-ফাই নেটওয়ার্কের সাথে কানেক্ট করা আছে কিনা তা ভালভাবে দেখে নিন"</string>
+    <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"আরও জানুন"</a></string>
+    <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"কীভাবে কাস্ট করবেন তা জানুন"</string>
 </resources>

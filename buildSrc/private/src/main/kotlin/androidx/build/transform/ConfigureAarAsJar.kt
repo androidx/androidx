@@ -27,19 +27,20 @@ import org.gradle.api.attributes.java.TargetJvmEnvironment
  * classes on the classpath.
  */
 fun configureAarAsJarForConfiguration(project: Project, configurationName: String) {
-    val testAarsAsJars = project.configurations.create("${configurationName}AarAsJar") {
-        it.isTransitive = false
-        it.isCanBeConsumed = false
-        it.isCanBeResolved = true
-        it.attributes.attribute(
-            BuildTypeAttr.ATTRIBUTE,
-            project.objects.named(BuildTypeAttr::class.java, "release")
-        )
-        it.attributes.attribute(
-            Usage.USAGE_ATTRIBUTE,
-            project.objects.named(Usage::class.java, Usage.JAVA_API)
-        )
-    }
+    val testAarsAsJars =
+        project.configurations.create("${configurationName}AarAsJar") {
+            it.isTransitive = false
+            it.isCanBeConsumed = false
+            it.isCanBeResolved = true
+            it.attributes.attribute(
+                BuildTypeAttr.ATTRIBUTE,
+                project.objects.named(BuildTypeAttr::class.java, "release")
+            )
+            it.attributes.attribute(
+                Usage.USAGE_ATTRIBUTE,
+                project.objects.named(Usage::class.java, Usage.JAVA_API)
+            )
+        }
     val artifactType = Attribute.of("artifactType", String::class.java)
     project.dependencies.registerTransform(IdentityTransform::class.java) { spec ->
         spec.from.attribute(artifactType, "jar")
@@ -51,17 +52,24 @@ fun configureAarAsJarForConfiguration(project: Project, configurationName: Strin
         spec.to.attribute(artifactType, "aarAsJar")
     }
 
-    val aarAsJar = testAarsAsJars.incoming.artifactView { viewConfiguration ->
-        viewConfiguration.attributes.attribute(artifactType, "aarAsJar")
-    }.files
-    project.configurations.getByName(configurationName).dependencies.add(
-        project.dependencies.create(aarAsJar)
-    )
+    val aarAsJar =
+        testAarsAsJars.incoming
+            .artifactView { viewConfiguration ->
+                viewConfiguration.attributes.attribute(artifactType, "aarAsJar")
+            }
+            .files
+    project.configurations
+        .getByName(configurationName)
+        .dependencies
+        .add(project.dependencies.create(aarAsJar))
 
     // Added to allow the :external:paparazzi:paparazzi build to select the correct jar (not get
     // confused by the mpp jars) when the mpp builds are enabled
-    project.configurations.getByName(testAarsAsJars.name).attributes.attribute(
-        TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
-        project.objects.named(TargetJvmEnvironment::class.java, TargetJvmEnvironment.ANDROID)
-    )
+    project.configurations
+        .getByName(testAarsAsJars.name)
+        .attributes
+        .attribute(
+            TargetJvmEnvironment.TARGET_JVM_ENVIRONMENT_ATTRIBUTE,
+            project.objects.named(TargetJvmEnvironment::class.java, TargetJvmEnvironment.ANDROID)
+        )
 }

@@ -18,6 +18,7 @@ package androidx.camera.core.impl;
 
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
+import android.hardware.camera2.CaptureRequest;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -106,6 +107,27 @@ public interface CameraInfoInternal extends CameraInfo {
     Set<DynamicRange> getSupportedDynamicRanges();
 
     /**
+     * Returns if preview stabilization is supported on the device.
+     *
+     * @return true if
+     * {@link CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION} is supported,
+     * otherwise false.
+     *
+     * @see CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE
+     */
+    boolean isPreviewStabilizationSupported();
+
+    /**
+     * Returns if video stabilization is supported on the device.
+     *
+     * @return true if {@link CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE_ON} is supported,
+     * otherwise false.
+     *
+     * @see CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE
+     */
+    boolean isVideoStabilizationSupported();
+
+    /**
      * Gets the underlying implementation instance which could be cast into an implementation
      * specific class for further use in implementation module. Returns <code>this</code> if this
      * instance is the implementation instance.
@@ -114,7 +136,6 @@ public interface CameraInfoInternal extends CameraInfo {
     default CameraInfoInternal getImplementation() {
         return this;
     }
-
 
     /** {@inheritDoc} */
     @NonNull

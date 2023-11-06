@@ -36,6 +36,7 @@ class AndroidComposeTestCaseSetup(
                 error = t
             } finally {
                 runner.disposeContent()
+                runner.close()
                 latch.countDown()
             }
         }

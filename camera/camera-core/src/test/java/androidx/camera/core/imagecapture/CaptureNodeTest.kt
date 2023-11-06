@@ -25,7 +25,7 @@ import androidx.camera.core.ImageReaderProxyProvider
 import androidx.camera.core.imagecapture.Utils.createCaptureBundle
 import androidx.camera.core.imagecapture.Utils.createFakeImage
 import androidx.camera.core.impl.utils.futures.Futures
-import androidx.camera.testing.fakes.FakeImageReaderProxy
+import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before

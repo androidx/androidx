@@ -14,39 +14,134 @@
  * limitations under the License.
  */
 
+import androidx.build.KmpPlatformsKt
+import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.kotlin.konan.target.Family
+
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
+    id("com.android.library")
 }
 
-dependencies {
-    // Atomic Group
-    constraints {
-        implementation(project(":paging:paging-runtime"))
-        // syntax is temp workaround to allow project dependency on cross-project-set
-        // i.e. COMPOSE + MAIN project sets
-        // update syntax when b/239979823 is fixed
-        implementation("androidx.paging:paging-compose:${androidx.LibraryVersions.PAGING_COMPOSE}")
+def macEnabled = KmpPlatformsKt.enableMac(project)
+def linuxEnabled = KmpPlatformsKt.enableLinux(project)
+
+androidXMultiplatform {
+    jvm()
+    mac()
+    linux()
+    ios()
+    android()
+
+    defaultPlatform(PlatformIdentifier.JVM)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinCoroutinesCore)
+                api("androidx.annotation:annotation:1.7.0")
+            }
+        }
+
+        commonJvmAndroidMain {
+            dependsOn(commonMain)
+
+            dependencies {
+                api("androidx.arch.core:core-common:2.2.0")
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonJvmAndroidMain)
+        }
+
+        androidMain {
+            dependsOn(commonJvmAndroidMain)
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
+                implementation(project(":internal-testutils-paging"))
+            }
+        }
+
+        commonJvmAndroidTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.mockitoCore)
+                implementation(libs.mockitoKotlin)
+                implementation(project(":internal-testutils-common"))
+                implementation(project(":internal-testutils-ktx"))
+            }
+        }
+
+        jvmTest {
+            dependsOn(commonJvmAndroidTest)
+        }
+
+        androidInstrumentedTest {
+            dependsOn(commonJvmAndroidTest)
+            dependencies {
+                implementation(libs.testRunner)
+                implementation(libs.mockitoAndroid)
+                implementation(libs.multidex)
+            }
+        }
+
+        if (macEnabled || linuxEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+                dependencies {
+                    implementation(libs.atomicFu)
+                }
+            }
+            nativeTest {
+                dependsOn(commonTest)
+            }
+        }
+        if (macEnabled) {
+            darwinMain {
+                dependsOn(nativeMain)
+            }
+        }
+
+        if (linuxEnabled) {
+            linuxMain {
+                dependsOn(nativeMain)
+            }
+        }
+
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["main"].defaultSourceSet {
+                    def konanTargetFamily = target.konanTarget.family
+                    if (konanTargetFamily == Family.OSX || konanTargetFamily == Family.IOS) {
+                        dependsOn(darwinMain)
+                    } else if (konanTargetFamily == Family.LINUX) {
+                        dependsOn(linuxMain)
+                    } else {
+                        throw new GradleException("unknown native target ${target}")
+                    }
+                }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
+            }
+        }
     }
+}
 
-    api("androidx.annotation:annotation:1.3.0")
-    api("androidx.arch.core:core-common:2.2.0")
-    api(libs.kotlinStdlib)
-    api(libs.kotlinCoroutinesCore)
-
-    testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.mockitoKotlin4)
-    testImplementation(project(":internal-testutils-common"))
-    testImplementation(project(":internal-testutils-ktx"))
-    testImplementation(project(":internal-testutils-paging"))
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.kotlinCoroutinesTest)
-    testImplementation(libs.truth)
-
+// top level declaration because the KGP sourceSets declaration used by androidXMultiplatform
+// does not support constraints or samples configurations yet
+dependencies {
     samples(project(":paging:paging-samples"))
 }
 
@@ -55,4 +150,12 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Paging-Common"
+}
+
+android {
+    namespace "androidx.paging.common"
+
+    defaultConfig {
+        multiDexEnabled = true
+    }
 }

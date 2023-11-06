@@ -16,6 +16,7 @@
 
 package androidx.benchmark
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
@@ -24,21 +25,13 @@ import androidx.test.platform.app.InstrumentationRegistry
 
 /**
  * This allows tests to override arguments from code
- *
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+@get:RestrictTo(RestrictTo.Scope.LIBRARY)
+@set:RestrictTo(RestrictTo.Scope.LIBRARY)
 @VisibleForTesting
 public var argumentSource: Bundle? = null
 
-/**
- * Allows tests to override profiler
- */
-@VisibleForTesting
-internal var profilerOverride: Profiler? = null
-
-/**
- * @hide
- */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object Arguments {
     // public properties are shared by micro + macro benchmarks
@@ -47,12 +40,18 @@ object Arguments {
     /**
      * Set to true to enable androidx.tracing.perfetto tracepoints (such as composition tracing)
      *
-     * Note this only affects Macrobenchmarks currently, and only when StartupMode.COLD is not used,
-     * since enabling the tracepoints wakes the target process
-     *
-     * Currently internal/experimental
+     * Note that when StartupMode.COLD is used, additional work must be performed during target app
+     * startup to initialize tracing.
      */
-    val fullTracingEnable: Boolean
+    private val _perfettoSdkTracingEnable: Boolean
+    val perfettoSdkTracingEnable: Boolean get() =
+        perfettoSdkTracingEnableOverride ?: _perfettoSdkTracingEnable
+
+    /**
+     * Allows tests to override whether full tracing is enabled
+     */
+    @VisibleForTesting
+    var perfettoSdkTracingEnableOverride: Boolean? = null
 
     val enabledRules: Set<RuleType>
 
@@ -65,19 +64,19 @@ object Arguments {
     val enableCompilation: Boolean
     val killProcessDelayMillis: Long
     val enableStartupProfiles: Boolean
-    val strictStartupProfiles: Boolean
     val dryRunMode: Boolean
 
     // internal properties are microbenchmark only
     internal val outputEnable: Boolean
     internal val startupMode: Boolean
     internal val iterations: Int?
-    private val _profiler: Profiler?
     internal val profiler: Profiler?
-        get() = if (profilerOverride != null) profilerOverride else _profiler
+    internal val profilerDefault: Boolean
     internal val profilerSampleFrequency: Int
     internal val profilerSampleDurationSeconds: Long
     internal val thermalThrottleSleepDurationSeconds: Long
+    private val cpuEventCounterEnable: Boolean
+    internal val cpuEventCounterMask: Int
 
     internal var error: String? = null
     internal val additionalTestOutputDir: String?
@@ -87,9 +86,19 @@ object Arguments {
     private fun Bundle.getBenchmarkArgument(key: String, defaultValue: String? = null) =
         getString(prefix + key, defaultValue)
 
-    private fun Bundle.getProfiler(outputIsEnabled: Boolean): Profiler? {
+    private fun Bundle.getProfiler(outputIsEnabled: Boolean): Pair<Profiler?, Boolean> {
         val argumentName = "profiling.mode"
-        val argumentValue = getBenchmarkArgument(argumentName, "")
+        val argumentValue = getBenchmarkArgument(argumentName, "DEFAULT_VAL")
+        if (argumentValue == "DEFAULT_VAL") {
+            return if (Build.VERSION.SDK_INT in 22..33) {
+                MethodTracing to true
+            } else {
+                // Method tracing can corrupt the stack on API 21, see b/300658578
+                // on API 34, it causes regressions in jit behavior, see b/303686344
+                null to true
+            }
+        }
+
         val profiler = Profiler.getByName(argumentValue)
         if (profiler == null &&
             argumentValue.isNotEmpty() &&
@@ -98,13 +107,13 @@ object Arguments {
             argumentValue.trim().lowercase() != "none"
         ) {
             error = "Could not parse $prefix$argumentName=$argumentValue"
-            return null
+            return null to false
         }
         if (profiler?.requiresLibraryOutputDir == true && !outputIsEnabled) {
             error = "Output is not enabled, so cannot profile with mode $argumentValue"
-            return null
+            return null to false
         }
-        return profiler
+        return profiler to false
     }
 
     // note: initialization may happen at any time
@@ -122,8 +131,11 @@ object Arguments {
         iterations =
             arguments.getBenchmarkArgument("iterations")?.toInt()
 
-        fullTracingEnable =
-            (arguments.getBenchmarkArgument("fullTracing.enable")?.toBoolean() ?: false)
+        _perfettoSdkTracingEnable =
+            arguments.getBenchmarkArgument("perfettoSdkTracing.enable")?.toBoolean()
+                // fullTracing.enable is the legacy/compat name
+                ?: arguments.getBenchmarkArgument("fullTracing.enable")?.toBoolean()
+                    ?: false
 
         // Transform comma-delimited list into set of suppressed errors
         // E.g. "DEBUGGABLE, UNLOCKED" -> setOf("DEBUGGABLE", "UNLOCKED")
@@ -165,7 +177,9 @@ object Arguments {
         enableCompilation =
             arguments.getBenchmarkArgument("compilation.enabled")?.toBoolean() ?: !dryRunMode
 
-        _profiler = arguments.getProfiler(outputEnable)
+        val profilerState = arguments.getProfiler(outputEnable)
+        profiler = profilerState.first
+        profilerDefault = profilerState.second
         profilerSampleFrequency =
             arguments.getBenchmarkArgument("profiling.sampleFrequency")?.ifBlank { null }
                 ?.toInt()
@@ -174,12 +188,28 @@ object Arguments {
             arguments.getBenchmarkArgument("profiling.sampleDurationSeconds")?.ifBlank { null }
                 ?.toLong()
                 ?: 5
-        if (_profiler != null) {
+        if (profiler != null) {
             Log.d(
                 BenchmarkState.TAG,
-                "Profiler ${_profiler.javaClass.simpleName}, freq " +
+                "Profiler ${profiler.javaClass.simpleName}, freq " +
                     "$profilerSampleFrequency, duration $profilerSampleDurationSeconds"
             )
+        }
+
+        cpuEventCounterEnable =
+            arguments.getBenchmarkArgument("cpuEventCounter.enable")?.toBoolean() ?: false
+        cpuEventCounterMask =
+            if (cpuEventCounterEnable) {
+                arguments.getBenchmarkArgument("cpuEventCounter.events", "Instructions,CpuCycles")
+                    .split(",").map { eventName ->
+                            CpuEventCounter.Event.valueOf(eventName)
+                    }.getFlags()
+            } else {
+                0x0
+            }
+        if (cpuEventCounterEnable && cpuEventCounterMask == 0x0) {
+            error = "Must set a cpu event counters mask to use counters." +
+                " See CpuEventCounters.Event for flag definitions."
         }
 
         thermalThrottleSleepDurationSeconds =
@@ -195,9 +225,14 @@ object Arguments {
 
         enableStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true
+    }
 
-        strictStartupProfiles =
-            arguments.getBenchmarkArgument("startupProfiles.strict")?.toBoolean() ?: false
+    fun macrobenchMethodTracingEnabled(): Boolean {
+        return when {
+            dryRunMode -> false
+            profilerDefault -> false // don't enable tracing by default in macrobench
+            else -> profiler == MethodTracing
+        }
     }
 
     fun throwIfError() {

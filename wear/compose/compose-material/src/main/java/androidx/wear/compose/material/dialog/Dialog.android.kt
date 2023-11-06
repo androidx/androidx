@@ -40,6 +40,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.wear.compose.foundation.lazy.ScalingLazyListState
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
+import androidx.wear.compose.foundation.rememberSwipeToDismissBoxState
 import androidx.wear.compose.material.CASUAL
 import androidx.wear.compose.material.MaterialTheme
 import androidx.wear.compose.material.PositionIndicator
@@ -51,7 +52,6 @@ import androidx.wear.compose.material.Scaffold
 import androidx.wear.compose.material.SwipeToDismissBox
 import androidx.wear.compose.material.Vignette
 import androidx.wear.compose.material.VignettePosition
-import androidx.wear.compose.material.rememberSwipeToDismissBoxState
 
 /**
  * [Dialog] displays a full-screen dialog, layered over any other content. It takes a single slot,
@@ -262,7 +262,7 @@ private fun animateBackgroundScrimAlpha(
                 // Outro
                 durationMillis = QUICK + RAPID
                 1f at 0
-                0.9f at RAPID with STANDARD_IN
+                0.9f at RAPID using STANDARD_IN
                 0.0f at RAPID + QUICK
             }
         }
@@ -285,7 +285,7 @@ private fun animateContentAlpha(
                 // Intro
                 durationMillis = QUICK + RAPID
                 0.0f at 0
-                0.1f at RAPID with STANDARD_IN
+                0.1f at RAPID using STANDARD_IN
                 1f at RAPID + QUICK
             }
 

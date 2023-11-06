@@ -34,42 +34,41 @@ import java.time.ZoneOffset
  *
  * @sample androidx.health.connect.client.samples.ReadExerciseSessions
  */
-public class ExerciseSessionRecord
+class ExerciseSessionRecord
 @RestrictTo(RestrictTo.Scope.LIBRARY)
-constructor(
+internal constructor(
     override val startTime: Instant,
     override val startZoneOffset: ZoneOffset?,
     override val endTime: Instant,
     override val endZoneOffset: ZoneOffset?,
     /** Type of exercise (e.g. walking, swimming). Required field. */
-    @property:ExerciseTypes public val exerciseType: Int,
+    @property:ExerciseTypes val exerciseType: Int,
     /** Title of the session. Optional field. */
-    public val title: String? = null,
+    val title: String? = null,
     /** Additional notes for the session. Optional field. */
-    public val notes: String? = null,
+    val notes: String? = null,
     override val metadata: Metadata = Metadata.EMPTY,
     /**
      * [ExerciseSegment]s of the session. Optional field. Time in segments should be within the
      * parent session, and should not overlap with each other.
      */
-    public val segments: List<ExerciseSegment> = emptyList(),
+    val segments: List<ExerciseSegment> = emptyList(),
     /**
      * [ExerciseLap]s of the session. Optional field. Time in laps should be within the parent
      * session, and should not overlap with each other.
      */
-    public val laps: List<ExerciseLap> = emptyList(),
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    /** [ExerciseRoute]s of the session. Optional field. */
-    public val route: ExerciseRoute? = null,
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    val laps: List<ExerciseLap> = emptyList(),
+
     /**
-     * Indicates whether or not the underlying [ExerciseSessionRecord] has a route, even it's not
-     * present because lack of permission.
+     * [ExerciseRouteResult] [ExerciseRouteResult] of the session. Location data points of
+     * [ExerciseRoute] should be within the parent session, and should be before the end time of the
+     * session.
      */
-    public val hasRoute: Boolean = false,
+    val exerciseRouteResult: ExerciseRouteResult = ExerciseRouteResult.NoData(),
 ) : IntervalRecord {
 
-    public constructor(
+    @JvmOverloads
+    constructor(
         startTime: Instant,
         startZoneOffset: ZoneOffset?,
         endTime: Instant,
@@ -83,6 +82,7 @@ constructor(
         metadata: Metadata = Metadata.EMPTY,
         segments: List<ExerciseSegment> = emptyList(),
         laps: List<ExerciseLap> = emptyList(),
+        exerciseRoute: ExerciseRoute? = null,
     ) : this(
         startTime,
         startZoneOffset,
@@ -94,38 +94,7 @@ constructor(
         metadata,
         segments,
         laps,
-        null
-    )
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    public constructor(
-        startTime: Instant,
-        startZoneOffset: ZoneOffset?,
-        endTime: Instant,
-        endZoneOffset: ZoneOffset?,
-        /** Type of exercise (e.g. walking, swimming). Required field. */
-        exerciseType: Int,
-        /** Title of the session. Optional field. */
-        title: String? = null,
-        /** Additional notes for the session. Optional field. */
-        notes: String? = null,
-        metadata: Metadata = Metadata.EMPTY,
-        segments: List<ExerciseSegment> = emptyList(),
-        laps: List<ExerciseLap> = emptyList(),
-        route: ExerciseRoute? = null,
-    ) : this(
-        startTime,
-        startZoneOffset,
-        endTime,
-        endZoneOffset,
-        exerciseType,
-        title,
-        notes,
-        metadata,
-        segments,
-        laps,
-        route,
-        route != null
+        exerciseRoute?.let { ExerciseRouteResult.Data(it) } ?: ExerciseRouteResult.NoData()
     )
 
     init {
@@ -165,9 +134,14 @@ constructor(
                 "laps can not be out of parent time range."
             }
         }
-        require(route == null || hasRoute) { "hasRoute must be true if the route is not null" }
-        if (route != null) {
-            require(route.isWithin(startTime, endTime)) {
+        if (
+            exerciseRouteResult is ExerciseRouteResult.Data &&
+                exerciseRouteResult.exerciseRoute.route.isNotEmpty()
+        ) {
+            val route = exerciseRouteResult.exerciseRoute.route
+            val minTime = route.minBy { it.time }.time
+            val maxTime = route.maxBy { it.time }.time
+            require(!minTime.isBefore(startTime) && maxTime.isBefore(endTime)) {
                 "route can not be out of parent time range."
             }
         }
@@ -187,21 +161,20 @@ constructor(
         if (metadata != other.metadata) return false
         if (segments != other.segments) return false
         if (laps != other.laps) return false
-        if (route != other.route) return false
-        if (hasRoute != other.hasRoute) return false
+        if (exerciseRouteResult != other.exerciseRouteResult) return false
 
         return true
     }
 
     override fun hashCode(): Int {
-        var result = 0
-        result = 31 * result + exerciseType.hashCode()
+        var result = exerciseType.hashCode()
         result = 31 * result + title.hashCode()
         result = 31 * result + notes.hashCode()
         result = 31 * result + (startZoneOffset?.hashCode() ?: 0)
         result = 31 * result + endTime.hashCode()
         result = 31 * result + (endZoneOffset?.hashCode() ?: 0)
         result = 31 * result + metadata.hashCode()
+        result = 31 * result + exerciseRouteResult.hashCode()
         return result
     }
 
@@ -388,11 +361,7 @@ constructor(
             EXERCISE_TYPE_STRING_TO_INT_MAP.entries.associateBy({ it.value }, { it.key })
     }
 
-    /**
-     * List of supported activities on Health Platform.
-     *
-     * @suppress
-     */
+    /** List of supported activities on Health Platform. */
     @Retention(AnnotationRetention.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(

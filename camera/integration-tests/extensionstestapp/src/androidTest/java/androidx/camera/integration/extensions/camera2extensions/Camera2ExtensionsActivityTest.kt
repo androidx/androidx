@@ -31,10 +31,10 @@ import androidx.camera.integration.extensions.util.waitForImageSavedIdle
 import androidx.camera.integration.extensions.util.waitForPreviewIdle
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.isCamera2ExtensionModeSupported
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
-import androidx.camera.testing.LabTestRule
-import androidx.camera.testing.StressTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
+import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.StressTestRule
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider

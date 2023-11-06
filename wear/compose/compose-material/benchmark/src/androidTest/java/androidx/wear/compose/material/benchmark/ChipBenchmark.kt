@@ -25,6 +25,7 @@ import androidx.compose.testutils.benchmark.benchmarkFirstDraw
 import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkLayoutPerf
+import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.wear.compose.material.Chip
@@ -46,6 +47,11 @@ class ChipBenchmark {
     val benchmarkRule = ComposeBenchmarkRule()
 
     private val chipCaseFactory = { ChipTestCase() }
+
+    @Test
+    fun first_pixel() {
+        benchmarkRule.benchmarkToFirstPixel(chipCaseFactory)
+    }
 
     @Test
     fun first_compose() {

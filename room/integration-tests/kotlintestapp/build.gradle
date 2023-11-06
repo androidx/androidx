@@ -27,6 +27,7 @@ plugins {
     // both ksp and kapt are applied. each run in their own variant.
     id("com.google.devtools.ksp")
     id("kotlin-kapt")
+    id("androidx.room")
 }
 android {
     buildFeatures {
@@ -34,13 +35,6 @@ android {
     }
     defaultConfig {
         multiDexEnabled true
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [
-                        "room.schemaLocation"  : "$projectDir/schemas".toString()
-                ]
-            }
-        }
     }
 
     sourceSets {
@@ -53,13 +47,6 @@ android {
     productFlavors {
         withKapt {
             dimension "processorConfiguration"
-            javaCompileOptions {
-                annotationProcessorOptions {
-                    arguments = [
-                            "room.schemaLocation"  : "$projectDir/schemas".toString(),
-                    ]
-                }
-            }
         }
         withKspGenJava {
             dimension "processorConfiguration"
@@ -103,8 +90,7 @@ dependencies {
         exclude group: "com.android.support", module: "support-annotations"
         exclude module: "hamcrest-core"
     })
-    androidTestImplementation(libs.truth) // Kruth still lacks assertWithMessage
-    androidTestImplementation(project(":internal-testutils-kmp"))
+    androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(project(":room:room-guava"))
     androidTestImplementation(project(":room:room-testing"))
@@ -127,28 +113,33 @@ dependencies {
     androidTestImplementation("androidx.collection:collection")
 }
 
-class RoomSchemaArgProvider implements CommandLineArgumentProvider {
+room {
+    schemaDirectory(
+        "withKapt",
+        provider { layout.projectDirectory.dir("schemas").getAsFile().getAbsolutePath() }
+    )
+    schemaDirectory(
+        "withKspGenJava",
+        provider { layout.projectDirectory.dir("schemas-ksp").getAsFile().getAbsolutePath() }
+    )
+    schemaDirectory(
+        "withKspGenKotlin",
+        provider { layout.projectDirectory.dir("schemas-ksp").getAsFile().getAbsolutePath() }
+    )
+}
 
-    @InputDirectory
-    @PathSensitive(PathSensitivity.RELATIVE)
-    File schemaDir
+class RoomGenKotlinArgProvider implements CommandLineArgumentProvider {
 
     @Input
     Provider<Boolean> generateKotlin;
 
-    RoomSchemaArgProvider(File schemaDir, Provider<Boolean> generateKotlin) {
-        this.schemaDir = schemaDir
+    RoomGenKotlinArgProvider(Provider<Boolean> generateKotlin) {
         this.generateKotlin = generateKotlin
     }
 
     @Override
     Iterable<String> asArguments() {
-        // Note: If you're using KSP, you should change the line below to return
-        // ["room.schemaLocation=${schemaDir.path}"]
-        return [
-            "room.schemaLocation=" + schemaDir.path,
-            "room.generateKotlin=" + generateKotlin.get()
-        ]
+        return ["room.generateKotlin=" + generateKotlin.get()]
     }
 }
 
@@ -156,8 +147,7 @@ class RoomSchemaArgProvider implements CommandLineArgumentProvider {
 // See https://github.com/google/ksp/issues/861.
 tasks.withType(KspTask).configureEach { kspTask ->
     kspTask.commandLineArgumentProviders.add(
-        new RoomSchemaArgProvider(
-            new File(projectDir, "schemas-ksp"),
+        new RoomGenKotlinArgProvider(
             provider { kspTask.name.contains("GenKotlin") }
         )
     )

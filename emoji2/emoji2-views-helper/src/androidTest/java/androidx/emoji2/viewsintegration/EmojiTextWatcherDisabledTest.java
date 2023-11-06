@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.widget.EditText;
 
 import androidx.emoji2.text.EmojiCompat;
@@ -114,6 +115,7 @@ public class EmojiTextWatcherDisabledTest {
 
         mTextWatcher.setEnabled(/* isEnabled */ true);
         mTextWatcher.onTextChanged(testString, 0, 0, 1);
+        mTextWatcher.afterTextChanged(new SpannableStringBuilder(testString));
 
         verify(mEmojiCompat, times(1)).process(
                 EmojiMatcher.sameCharSequence(testString),

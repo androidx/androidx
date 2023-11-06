@@ -22,7 +22,6 @@ import kotlin.Int
 import kotlin.Long
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -43,26 +42,26 @@ public class MyDao_Impl(
     init {
         this.__db = __db
         this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindString(2, entity.other)
             }
         }
         this.__deletionAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String = "DELETE FROM `MyEntity` WHERE `pk` = ?"
+            protected override fun createQuery(): String = "DELETE FROM `MyEntity` WHERE `pk` = ?"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
             }
         }
         this.__updateAdapterOfMyEntity = object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "UPDATE OR ABORT `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindString(2, entity.other)
                 statement.bindLong(3, entity.pk.toLong())
@@ -70,18 +69,18 @@ public class MyDao_Impl(
         }
         this.__upsertionAdapterOfMyEntity = EntityUpsertionAdapter<MyEntity>(object :
             EntityInsertionAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "INSERT INTO `MyEntity` (`pk`,`other`) VALUES (?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindString(2, entity.other)
             }
         }, object : EntityDeletionOrUpdateAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "UPDATE `MyEntity` SET `pk` = ?,`other` = ? WHERE `pk` = ?"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 statement.bindString(2, entity.other)
                 statement.bindLong(3, entity.pk.toLong())
@@ -182,7 +181,7 @@ public class MyDao_Impl(
                         _tmpOther = _cursor.getString(_cursorIndexOfOther)
                         _result = MyEntity(_tmpPk,_tmpOther)
                     } else {
-                        error("Cursor was empty, but expected a single item.")
+                        error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
                     }
                     return _result
                 } finally {

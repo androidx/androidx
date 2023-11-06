@@ -30,13 +30,11 @@ import androidx.camera.camera2.internal.HLG10_HDR10_CONSTRAINED
 import androidx.camera.camera2.internal.HLG10_SDR_CONSTRAINED
 import androidx.camera.camera2.internal.HLG10_UNCONSTRAINED
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
-import androidx.camera.core.DynamicRange
-import androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT
-import androidx.camera.core.DynamicRange.BIT_DEPTH_8_BIT
-import androidx.camera.core.DynamicRange.FORMAT_DOLBY_VISION
-import androidx.camera.core.DynamicRange.FORMAT_HDR10
-import androidx.camera.core.DynamicRange.FORMAT_HDR10_PLUS
-import androidx.camera.core.DynamicRange.FORMAT_HLG
+import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
+import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT
+import androidx.camera.core.DynamicRange.HDR10_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
+import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.DynamicRange.SDR
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertThrows
@@ -52,15 +50,6 @@ import org.robolectric.shadows.ShadowCameraCharacteristics
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class DynamicRangesCompatTest {
-
-    companion object {
-        val DYNAMIC_RANGE_HLG10 = DynamicRange(FORMAT_HLG, BIT_DEPTH_10_BIT)
-        val DYNAMIC_RANGE_HDR10 = DynamicRange(FORMAT_HDR10, BIT_DEPTH_10_BIT)
-        val DYNAMIC_RANGE_HDR10_PLUS = DynamicRange(FORMAT_HDR10_PLUS, BIT_DEPTH_10_BIT)
-        val DYNAMIC_RANGE_DOLBY_VISION_10B = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_10_BIT)
-        val DYNAMIC_RANGE_DOLBY_VISION_8B = DynamicRange(FORMAT_DOLBY_VISION, BIT_DEPTH_8_BIT)
-    }
-
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun canWrapAndUnwrapDynamicRangeProfiles() {
@@ -74,14 +63,14 @@ class DynamicRangesCompatTest {
     @Test
     fun canSupportDynamicRangeFromHlg10Profile() {
         val dynamicRangesCompat = DynamicRangesCompat.toDynamicRangesCompat(HLG10_UNCONSTRAINED)
-        assertThat(dynamicRangesCompat?.supportedDynamicRanges).contains(DYNAMIC_RANGE_HLG10)
+        assertThat(dynamicRangesCompat?.supportedDynamicRanges).contains(HLG_10_BIT)
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
     @Test
     fun canSupportDynamicRangeFromHdr10Profile() {
         val dynamicRangesCompat = DynamicRangesCompat.toDynamicRangesCompat(HDR10_UNCONSTRAINED)
-        assertThat(dynamicRangesCompat?.supportedDynamicRanges).contains(DYNAMIC_RANGE_HDR10)
+        assertThat(dynamicRangesCompat?.supportedDynamicRanges).contains(HDR10_10_BIT)
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
@@ -89,7 +78,7 @@ class DynamicRangesCompatTest {
     fun canSupportDynamicRangeFromHdr10PlusProfile() {
         val dynamicRangesCompat =
             DynamicRangesCompat.toDynamicRangesCompat(HDR10_PLUS_UNCONSTRAINED)
-        assertThat(dynamicRangesCompat?.supportedDynamicRanges).contains(DYNAMIC_RANGE_HDR10_PLUS)
+        assertThat(dynamicRangesCompat?.supportedDynamicRanges).contains(HDR10_PLUS_10_BIT)
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
@@ -97,9 +86,7 @@ class DynamicRangesCompatTest {
     fun canSupportDynamicRangeFromDolbyVision10bProfile() {
         val dynamicRangesCompat =
             DynamicRangesCompat.toDynamicRangesCompat(DOLBY_VISION_10B_UNCONSTRAINED)
-        assertThat(dynamicRangesCompat?.supportedDynamicRanges).contains(
-            DYNAMIC_RANGE_DOLBY_VISION_10B
-        )
+        assertThat(dynamicRangesCompat?.supportedDynamicRanges).contains(DOLBY_VISION_10_BIT)
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
@@ -107,9 +94,7 @@ class DynamicRangesCompatTest {
     fun canSupportDynamicRangeFromDolbyVision8bProfile() {
         val dynamicRangesCompat =
             DynamicRangesCompat.toDynamicRangesCompat(DOLBY_VISION_8B_UNCONSTRAINED)
-        assertThat(dynamicRangesCompat?.supportedDynamicRanges).contains(
-            DYNAMIC_RANGE_DOLBY_VISION_8B
-        )
+        assertThat(dynamicRangesCompat?.supportedDynamicRanges).contains(DOLBY_VISION_8_BIT)
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
@@ -121,20 +106,20 @@ class DynamicRangesCompatTest {
         ).containsExactly(SDR)
         assertThat(
             hlg10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
-                DYNAMIC_RANGE_HLG10
+                HLG_10_BIT
             )
-        ).containsExactly(DYNAMIC_RANGE_HLG10)
+        ).containsExactly(HLG_10_BIT)
 
         val hlg10SdrConstrainedWrapped =
             DynamicRangesCompat.toDynamicRangesCompat(HLG10_SDR_CONSTRAINED)
         assertThat(
             hlg10SdrConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(SDR)
-        ).containsExactly(SDR, DYNAMIC_RANGE_HLG10)
+        ).containsExactly(SDR, HLG_10_BIT)
         assertThat(
             hlg10SdrConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
-                DYNAMIC_RANGE_HLG10
+                HLG_10_BIT
             )
-        ).containsExactly(DYNAMIC_RANGE_HLG10, SDR)
+        ).containsExactly(HLG_10_BIT, SDR)
 
         val hlg10Hdr10ConstrainedWrapped =
             DynamicRangesCompat.toDynamicRangesCompat(HLG10_HDR10_CONSTRAINED)
@@ -143,14 +128,12 @@ class DynamicRangesCompatTest {
         ).containsExactly(SDR)
         assertThat(
             hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
-                DYNAMIC_RANGE_HLG10
+                HLG_10_BIT
             )
-        ).containsExactly(DYNAMIC_RANGE_HLG10, DYNAMIC_RANGE_HDR10)
+        ).containsExactly(HLG_10_BIT, HDR10_10_BIT)
         assertThat(
-            hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(
-                DYNAMIC_RANGE_HDR10
-            )
-        ).containsExactly(DYNAMIC_RANGE_HDR10, DYNAMIC_RANGE_HLG10)
+            hlg10Hdr10ConstrainedWrapped?.getDynamicRangeCaptureRequestConstraints(HDR10_10_BIT)
+        ).containsExactly(HDR10_10_BIT, HLG_10_BIT)
     }
 
     @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
@@ -160,9 +143,7 @@ class DynamicRangesCompatTest {
             DynamicRangesCompat.toDynamicRangesCompat(DOLBY_VISION_10B_UNCONSTRAINED_SLOW)
         assertThat(dynamicRangesCompat?.isExtraLatencyPresent(SDR)).isFalse()
         assertThat(
-            dynamicRangesCompat?.isExtraLatencyPresent(
-                DYNAMIC_RANGE_DOLBY_VISION_10B
-            )
+            dynamicRangesCompat?.isExtraLatencyPresent(DOLBY_VISION_10_BIT)
         ).isTrue()
     }
 
@@ -171,7 +152,7 @@ class DynamicRangesCompatTest {
     fun canProduceDynamicRangeWithoutConstraints() {
         val dynamicRangesCompat = DynamicRangesCompat.toDynamicRangesCompat(HLG10_UNCONSTRAINED)
         assertThat(
-            dynamicRangesCompat?.getDynamicRangeCaptureRequestConstraints(DYNAMIC_RANGE_HLG10)
+            dynamicRangesCompat?.getDynamicRangeCaptureRequestConstraints(HLG_10_BIT)
         ).isEmpty()
     }
 
@@ -226,20 +207,16 @@ class DynamicRangesCompatTest {
             assertThat(dynamicRangesCompat.supportedDynamicRanges).containsExactly(SDR)
         } else {
             assertThat(dynamicRangesCompat.supportedDynamicRanges).containsExactly(
-                SDR, DYNAMIC_RANGE_DOLBY_VISION_8B
+                SDR, DOLBY_VISION_8_BIT
             )
         }
 
         assertThrows(IllegalArgumentException::class.java) {
-            dynamicRangesCompat.getDynamicRangeCaptureRequestConstraints(
-                DYNAMIC_RANGE_DOLBY_VISION_10B
-            )
+            dynamicRangesCompat.getDynamicRangeCaptureRequestConstraints(DOLBY_VISION_10_BIT)
         }
 
         assertThrows(IllegalArgumentException::class.java) {
-            dynamicRangesCompat.isExtraLatencyPresent(
-                DYNAMIC_RANGE_DOLBY_VISION_10B
-            )
+            dynamicRangesCompat.isExtraLatencyPresent(DOLBY_VISION_10_BIT)
         }
     }
 

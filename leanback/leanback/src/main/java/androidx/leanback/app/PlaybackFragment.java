@@ -915,8 +915,8 @@ public class PlaybackFragment extends Fragment {
             };
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    @Nullable
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         mRootView = inflater.inflate(R.layout.lb_playback_fragment, container, false);
         mBackgroundView = mRootView.findViewById(R.id.playback_fragment_background);
         mRowsFragment = (RowsFragment) getChildFragmentManager().findFragmentById(

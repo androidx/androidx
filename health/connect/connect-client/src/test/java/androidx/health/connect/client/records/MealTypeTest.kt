@@ -26,7 +26,7 @@ class MealTypeTest {
 
     @Test
     fun enums_existInMapping() {
-        val allEnums = MealType::class.allObjectIntDefEnumsWithPrefix("MEAL_TYPE")
+        val allEnums = getAllIntDefEnums<MealType>("""MEAL_TYPE.*""")
 
         assertThat(MealType.MEAL_TYPE_STRING_TO_INT_MAP.values).containsExactlyElementsIn(allEnums)
         assertThat(MealType.MEAL_TYPE_INT_TO_STRING_MAP.keys).containsExactlyElementsIn(allEnums)

@@ -30,7 +30,7 @@ import java.util.Locale;
 /**
  * Helper class used to validate date time formats.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(LIBRARY)
 public final class DateTimeFormatValidator {

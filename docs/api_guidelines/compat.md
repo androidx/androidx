@@ -246,6 +246,20 @@ adb logcat | grep 'dex2oat'
 ... I dex2oat : Soft verification failures in
 ```
 
+#### View constructors {#compat-view-constructors}
+
+The four-arg View constructor -- `View(Context, AttributeSet, int, int)` -- was
+added in SDK 21 and allows a developer to pass in an explicit default style
+resource rather than relying on a theme attribute to resolve the default style
+resource. Because this API was added in SDK 21, care must be taken to ensure
+that it is not called through any < SDK 21 code path.
+
+Views *may* implement a four-arg constructor in one of the following ways:
+
+1.  Do not implement.
+1.  Implement and annotate with `@RequiresApi(21)`. This means the three-arg
+    constructor **must not** call into the four-arg constructor.
+
 #### Device-specific issues {#compat-oem}
 
 Library code may work around device- or manufacturer-specific issues -- issues
@@ -272,15 +286,26 @@ Libraries do not have control over the app's `targetSdkVersion` and -- in rare
 cases -- may need to handle variations in platform behavior. Refer to the
 following pages for version-specific behavior changes:
 
-*   [API level 33](https://developer.android.com/about/versions/13/behavior-changes-13)
-*   [API level 31](https://developer.android.com/about/versions/12/behavior-changes-12)
-*   [API level 30](https://developer.android.com/about/versions/11/behavior-changes-11)
-*   [API level 29](https://developer.android.com/about/versions/10/behavior-changes-10)
-*   [API level 28](https://developer.android.com/about/versions/pie/android-9.0-changes-28)
-*   [API level 26](https://developer.android.com/about/versions/oreo/android-8.0-changes)
-*   [API level 24](https://developer.android.com/about/versions/nougat/android-7.0-changes)
-*   [API level 21](https://developer.android.com/about/versions/lollipop/android-5.0-changes)
-*   [API level 19](https://developer.android.com/about/versions/kitkat/android-4.4#Behaviors)
+*   Android 14,
+    [API level 34](https://developer.android.com/about/versions/14/behavior-changes-14)
+*   Android 13,
+    [API level 33](https://developer.android.com/about/versions/13/behavior-changes-13)
+*   Android 12,
+    [API level 31](https://developer.android.com/about/versions/12/behavior-changes-12)
+*   Android 11,
+    [API level 30](https://developer.android.com/about/versions/11/behavior-changes-11)
+*   Android 10,
+    [API level 29](https://developer.android.com/about/versions/10/behavior-changes-10)
+*   Android Pie (9.0),
+    [API level 28](https://developer.android.com/about/versions/pie/android-9.0-changes-28)
+*   Android Oreo (8.0),
+    [API level 26](https://developer.android.com/about/versions/oreo/android-8.0-changes)
+*   Android Nougat(7.0),
+    [API level 24](https://developer.android.com/about/versions/nougat/android-7.0-changes)
+*   Android Lollipop (5.0),
+    [API level 21](https://developer.android.com/about/versions/lollipop/android-5.0-changes)
+*   Android KitKat (4.4),
+    [API level 19](https://developer.android.com/about/versions/kitkat/android-4.4#Behaviors)
 
 #### Working around Lint issues {#compat-lint}
 
@@ -290,6 +315,22 @@ Both of these annotations are strongly discouraged and may only be used
 temporarily. They **must never** be used in a stable release. Any usage of these
 annotation **must** be associated with an active bug, and the usage must be
 removed when the bug is resolved.
+
+#### Java 8+ APIs and core library desugaring {#compat-desugar}
+
+While the DEX compiler (D8) supports
+[API desugaring](https://developer.android.com/studio/write/java8-support-table)
+to enable usage of Java 8+ APIs on a broader range of platform API levels, there
+is currently no way for a library to express the toolchain requirements
+necessary for desugaring to work as intended.
+
+As of 2023-05-11, there is still a
+[pending feature request](https://issuetracker.google.com/203113147) to allow
+Android libraries to express these requirements.
+
+Libraries **must not** rely on `coreLibraryDesugaring` to access Java language
+APIs on earlier platform API levels. For example, `java.time.*` may only be used
+in code paths targeting API level 26 and above.
 
 ### Delegating to API-specific implementations {#delegating-to-api-specific-implementations}
 
@@ -363,43 +404,75 @@ if (BuildCompat.isAtLeastQ()) {
 ### Inter-process communication {#ipc}
 
 Protocols and data structures used for IPC must support interoperability between
-different versions of libraries and should be treated similarly to public API;
-however, AndroidX does not currently implement compatibility tracking for IPC.
-
-We recommend the following, in order of preference:
-
-1.  Stable AIDL if (1) your project lives partially in the Android platform and
-    has access to Stable AIDL build rules and (2) you need to support Android's
-    `Parcelable` data types. The AndroidX workflow **does not** provide Stable
-    AIDL compilation or compatibility checks, so these would need to happen in
-    the platform build and the resulting `.java` files would need to be copied
-    out.
-2.  Protobuf if (1) your project needs to persist data to disk or (2) you need
-    interoperability with systems already using Protobuf. Similar to Stable
-    AIDL, the AndroidX workflow **does not** provide built-in support Protobuf
-    compilation or compatibility checks. It is possible to use a Proto plug-in,
-    but you will be responsible for bundling the runtime and maintaining
-    compatibility on your own.
-3.  `Bundle` if you have a very simple data model that is unlikely to change in
-    the future. `Bundle` has the weakest type safety and compatibility
-    guarantees of any recommendation, and it has many caveats that make it a
-    poor choice.
-4.  `VersionedParcelable` if your project is already using Versioned Parcelable
-    and is aware of its compatibility constraints.
-
-We are currently evaluating Square's [Wire](https://github.com/square/wire) and
-Google's [gRPC](https://grpc.io/) libraries for recommendation. If either of
-these libraries meets your team's needs based on your own research, feel free to
-use them.
+different versions of libraries and should be treated similarly to public API.
 
 **Do not** design your own serialization mechanism or wire format for disk
 storage or inter-process communication. Preserving and verifying compatibility
 is difficult and error-prone.
 
-In all cases, **do not** expose your serialization mechanism in your API
-surface. Neither Stable AIDL nor Protobuf generate stable language APIs.
+**Do not** expose your serialization mechanism in your API surface. Neither
+Stable AIDL nor Protobuf generate stable language APIs.
 
-#### Annotating unstable IPC
+Generally, any communication prototcol, handshake, etc. must maintain
+compatibility consistent with SemVer guidelines. Consider how your protocol will
+handle addition and removal of operations or constants, compatibility-breaking
+changes, and other modifications without crashing either the host or client
+process.
+
+We recommend the following IPC mechanisms, in order of preference:
+
+#### Stable AIDL <a name="ipc-stableaidl"></a>
+
+Stable AIDL is used by the Android platform and AndroidX to provide a
+platform-native IPC mechanism with strong inter-process compatibility
+guarantees. It supports a subset of standard AIDL.
+
+Use Stable AIDL if your library:
+
+-   Needs to send and receive Android's `Parcelable` data types
+-   Communicates directly with the Android platform, System UI, or other AOSP
+    components *or* is likely to do so in the future
+
+**Do not** use Stable AIDL to persist data to disk.
+
+##### Using Stable AIDL {#ipc-stableaidl-using}
+
+To add Stable AIDL definitions to your project:
+
+1.  Add the Stable AIDL plugin to `build.gradle`:
+
+    ```
+    plugins {
+      id("androidx.stableaidl")
+    }
+    ```
+
+2.  Enable the AIDL build feature and specify an initial version for your Stable
+    AIDL interfaces in `build.gradle`:
+
+    ```
+    android {
+      buildFeatures {
+        aidl = true
+      }
+      buildTypes.all {
+        stableAidl {
+          version 1
+        }
+      }
+    }
+    ```
+
+3.  Migrate existing AIDL files or create new AIDL files under
+    `<project>/src/main/stableAidl`
+
+4.  Generate an initial set of Stable AIDL API tracking files by running
+
+    ```
+    ./gradlew :path:to:project:updateAidlApi
+    ```
+
+##### Annotating unstable AIDL {#ipc-stableaidl-unstable}
 
 Once an API that relies on an IPC contract ships to production in an app, the
 contract is locked in and must maintain compatibility to prevent crashing either
@@ -444,25 +517,29 @@ For Stable AIDL, the build system enforces per-CL compatibility guarantees. No
 annotations are required for Stable AIDL definition files under
 `src/stableAidl`.
 
-#### Parcelable {#ipc-parcelable}
+#### Protobuf <a name="ipc-protobuf"></a>
 
-**Do not** implement `Parcelable` for any class that may be used for IPC or
-otherwise exposed as public API. By default, `Parcelable` does not provide any
-compatibility guarantees and will result in crashes if fields are added or
-removed between library versions. If you are using Stable AIDL, you *may* use
-AIDL-defined parcelables for IPC but not public API.
+Protobuf is used by many Google applications and services to provide an IPC and
+disk persistence mechanism with strong inter-process compatibility guarantees.
 
-NOTE As of 2022/12/16, we are working on experimental support for compiling and
-tracking Stable AIDL definitions within the AndroidX workflow.
+Use Protobuf if your library:
 
-#### Protobuf {#ipc-protobuf}
+-   Communicates directly with other applications or services already using
+    Protobuf
+-   Your data structure is complex and likely to change over time - Needs to
+    persist data to disk
 
-Developers **should** use protocol buffers for most cases. See
-[Protobuf](#dependencies-protobuf) for more information on using protocol
-buffers in your library. **Do** use protocol buffers if your data structure is
-complex and likely to change over time. If your data includes `FileDescriptor`s,
-`Binder`s, or other platform-defined `Parcelable` data structures, they will
-need to be stored alongside the protobuf bytes in a `Bundle`.
+If your data includes `FileDescriptor`s, `Binder`s, or other platform-defined
+`Parcelable` data structures, consider using Stable AIDL instead. Protobuf
+cannot directly handle these types, and they will need to be stored alongside
+the serialized Protobuf bytes in a `Bundle`.
+
+See [Protobuf](#dependencies-protobuf) for more information on using protocol
+buffers in your library.
+
+WARNING While Protobuf is capable of maintaining inter-process compatibility,
+AndroidX does not currently provide compatibility tracking or enforcement.
+Library owners must perform their own validation.
 
 NOTE We are currently investigating the suitability of Square's
 [`wire` library](https://github.com/square/wire) for handling protocol buffers
@@ -470,12 +547,24 @@ in Android libraries. If adopted, it will replace `proto` library dependencies.
 Libraries that expose their serialization mechanism in their API surface *will
 not be able to migrate*.
 
-#### Bundle {#ipc-bundle}
+#### Bundle <a name="ipc-bundle"></a>
 
-Developers **may** use `Bundle` in simple cases that require sending `Binder`s,
-`FileDescriptor`s, or platform `Parcelable`s across IPC
-([example](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:core/core/src/main/java/androidx/core/graphics/drawable/IconCompat.java;l=820)).
-Note that `Bundle` has several caveats:
+`Bundle` is used by the Android platform and AndroidX as a lightweight IPC
+mechanism. It has the weakest type safety and compatibility guarantees of any
+recommendation, and it has many caveats that make it a poor choice.
+
+In some cases, you may need to use a `Bundle` to wrap another IPC mechanism so
+that it can be passed through Android platform APIs, e.g. a `Bundle` that wraps
+a `byte[]` representing a serialized Protobuf.
+
+Use `Bundle` if your library:
+
+-   Has a very simple data model that is unlikely to change in the future
+-   Needs to send or receive `Binder`s, `FileDescriptor`s, or platform-defined
+    `Parcelable`s
+    ([example](https://cs.android.com/androidx/platform/frameworks/support/+/androidx-main:core/core/src/main/java/androidx/core/graphics/drawable/IconCompat.java;l=820))
+
+Caveats for `Bundle` include:
 
 -   When running on Android S and below, accessing *any* entry in a `Bundle`
     will result in the platform attempting to deserialize *every* entry. This
@@ -494,9 +583,39 @@ Note that `Bundle` has several caveats:
     are responsible for providing their own system for guaranteeing wire format
     compatibility between versions.
 
-#### Communication protocols {#ipc-protocol}
+#### Versioned Parcelable <a name="ipc-versionedparcelable"></a>
 
-Any communication prototcol, handshake, etc. must maintain compatibility
-consistent with SemVer guidelines. Consider how your protocol will handle
-addition and removal of operations or constants, compatibility-breaking changes,
-and other modifications without crashing either the host or client process.
+`VersionedParcelable` is a deprecated library that was intended to provide
+compatibility guarantees around the Android platform's `Parcelable` class;
+however, the initial version contained bugs and it was not actively maintained.
+
+Use `VersionedParcelable` if your library:
+
+-   Is already using `VersionedParcelable` and you are aware of its
+    compatibility constraints
+
+**Do not** use `VersionedParcelable` in all other cases.
+
+#### Wire <a name="ipc-wire"></a>
+
+We are currently evaluating Square's [Wire](https://github.com/square/wire) as a
+front-end to Protobuf. If this library meets your team's needs based on your own
+research, feel free to use it.
+
+#### gRPC <a name="ipc-grpc"></a>
+
+Some clients have requested to use Google's [gRPC](https://grpc.io/) library to
+align with other Google products. It's okay to use gRPC for network
+communication or communication with libraries and services outside of AndroidX
+that are already using gRPC.
+
+**Do not** use gRPC to communicate between AndroidX libraries or with the
+Android platform.
+
+#### Parcelable <a name="ipc-parcelable"></a>
+
+**Do not** implement `Parcelable` for any class that may be used for IPC or
+otherwise exposed as public API. By default, `Parcelable` does not provide any
+compatibility guarantees and will result in crashes if fields are added or
+removed between library versions. If you are using Stable AIDL, you *may* use
+AIDL-defined parcelables for IPC but not public API.

@@ -52,7 +52,7 @@ class HostProperties internal constructor(val maxHostSizeDp: SizeF) {
          * Builds and returns the HostProperties instance.
          */
         fun build() = HostProperties(
-            requireNotNull(maxHostSizeDp, { "maxHostSizeDp must be set." }),
+            requireNotNull(maxHostSizeDp) { "maxHostSizeDp must be set." },
         )
     }
 }

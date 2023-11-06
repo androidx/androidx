@@ -144,7 +144,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testShortcutInfo() {
         final String shortcutId = "my-shortcut";
@@ -196,7 +195,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testContentTitle() {
         Notification n = new NotificationCompat.Builder(mContext)
@@ -205,7 +203,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals("testContentTitle", NotificationCompat.getContentTitle(n));
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testContentText() {
         Notification n = new NotificationCompat.Builder(mContext)
@@ -214,7 +211,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals("testContentText", NotificationCompat.getContentText(n));
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testContentInfo() {
         Notification n = new NotificationCompat.Builder(mContext)
@@ -223,7 +219,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals("testContentInfo", NotificationCompat.getContentInfo(n));
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testSubText() {
         Notification n = new NotificationCompat.Builder(mContext)
@@ -232,21 +227,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals("testSubText", NotificationCompat.getSubText(n));
     }
 
-    @SdkSuppress(maxSdkVersion = 15)
-    @Test
-    public void testActionsUnsupported() {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
-        Notification nWith = builder.addAction(0, "testAction", null).build();
-        // Version prior to API 16 do not support Actions.
-        assertEquals(0, NotificationCompat.getActionCount(nWith));
-        NotificationCompat.Action action = NotificationCompat.getAction(nWith, 0);
-        assertNull(action);
-
-        Notification nWithout = builder.clearActions().build();
-        assertEquals(0, NotificationCompat.getActionCount(nWithout));
-    }
-
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testActions() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext);
@@ -498,7 +478,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
      * original style.
      */
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void testStyle_recoveredCorrectly() throws Exception {
         for (Class<? extends Style> styleSubclass : getStyleSubclasses()) {
             final Style original;
@@ -550,7 +529,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         return styleSubclasses;
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testBuilderFromNotification_fromMinimalPlatform() {
         Notification original = new Notification.Builder(mContext).build();
@@ -558,7 +536,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(original.toString(), recovered.toString());
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @Test
     public void testBuilderFromNotification_fromSimpleCompat() {
         Notification original = new NotificationCompat.Builder(mContext, "channelId")
@@ -570,7 +547,41 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertNotificationEquals(original, recovered);
     }
 
-    @SdkSuppress(minSdkVersion = 19)
+    @Test
+    public void testBuilderFromNotification_withSmallResIdAndLargeBitmap() {
+        int smallIcon = R.drawable.ic_call_answer;
+        Bitmap largeIcon = BitmapFactory.decodeResource(mContext.getResources(),
+                R.drawable.notification_bg);
+        Notification original = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(smallIcon)
+                .setLargeIcon(largeIcon)
+                .build();
+
+        Notification recovered = new NotificationCompat.Builder(mContext, original).build();
+
+        assertThat(recovered.icon).isEqualTo(smallIcon);
+        assertThat(recovered.largeIcon).isEqualTo(largeIcon);
+    }
+
+    @SdkSuppress(minSdkVersion = 23)
+    @Test
+    public void testBuilderFromNotification_withSmallAndLargeIcons() {
+        IconCompat smallIcon = IconCompat.createWithResource(mContext, R.drawable.ic_call_answer);
+        Icon largeIcon = Icon.createWithResource(mContext, R.drawable.notification_bg);
+        Notification original = new NotificationCompat.Builder(mContext, "channelId")
+                .setSmallIcon(smallIcon)
+                .setLargeIcon(largeIcon)
+                .build();
+
+        Notification recovered = new NotificationCompat.Builder(mContext, original).build();
+
+        // Icon doesn't implement equals(), and instances are not identical due to conversion
+        // between Icon & IconCompat, so compare string representation instead.
+        assertThat(recovered.getSmallIcon().toString()).isEqualTo(
+                smallIcon.toIcon(mContext).toString());
+        assertThat(recovered.getLargeIcon().toString()).isEqualTo(largeIcon.toString());
+    }
+
     @Test
     public void testBuilderFromNotification_fromMessagingStyledCompat() {
         Person person1 = new Person.Builder()
@@ -958,7 +969,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(1, result.getRemoteInputs().length);
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testNotificationWearableExtenderAction_noIcon() throws Throwable {
         NotificationCompat.Action a = new NotificationCompat.Action.Builder(0, "title", null)
@@ -971,7 +981,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertNull(actualAction.getIconCompat());
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testNotificationWearableExtenderAction_drawableIcon() throws Throwable {
         NotificationCompat.Action a =
@@ -985,7 +994,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(android.R.drawable.ic_delete, actualAction.getIconCompat().getResId());
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesTrue()
             throws Throwable {
@@ -998,7 +1006,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .getAllowGeneratedReplies());
     }
 
-    @SdkSuppress(minSdkVersion = 17)
     @Test
     public void testNotificationWearableExtenderAction_setAllowGeneratedRepliesFalse()
             throws Throwable {
@@ -1023,19 +1030,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         Notification notification = builder.build();
 
         assertEquals(icon.toIcon(mContext).toString(), notification.getSmallIcon().toString());
-    }
-
-    @SdkSuppress(maxSdkVersion = 16)
-    @SmallTest
-    @Test
-    public void testNotificationWearableExtenderAction_noActions()
-            throws Throwable {
-        NotificationCompat.Action a = newActionBuilder()
-                .setAllowGeneratedReplies(true).build();
-        NotificationCompat.WearableExtender extender = new NotificationCompat.WearableExtender()
-                .addAction(a);
-        Notification notification = newNotificationBuilder().extend(extender).build();
-        assertTrue(new NotificationCompat.WearableExtender(notification).getActions().size() == 0);
     }
 
     @Test
@@ -1563,7 +1557,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(100, n.ledOffMS);
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @SuppressWarnings("deprecation")
     @Test
     public void testBigPictureStyle_withNullBigLargeIcon() {
@@ -1698,7 +1691,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertNotNull(icon);
     }
 
-    @SdkSuppress(minSdkVersion = 19)
     @SuppressWarnings("deprecation")
     @Test
     public void testBigPictureStyle_recoverStyleWithBitmap() {
@@ -1760,9 +1752,8 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(Icon.TYPE_RESOURCE, rebuiltIcon.getType());
     }
 
-    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 30)
     @Test
-    // minSdkVersion selected because extras are not populated before 19.
     // maxSdkVersion selected because EXTRA_PICTURE_ICON not set before 31.
     public void testBigPictureStyle_bigPictureWithBitmap_legacy() {
 
@@ -1881,7 +1872,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertEquals(Icon.TYPE_RESOURCE, rebuiltIcon.getType());
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_nullPerson() {
         NotificationCompat.MessagingStyle messagingStyle =
@@ -1905,7 +1895,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertNull(result.get(0).getSender());
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_message() {
         NotificationCompat.MessagingStyle messagingStyle =
@@ -1938,7 +1927,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertTrue(result.get(1).getPerson().isImportant());
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_historicMessage() {
         NotificationCompat.MessagingStyle messagingStyle =
@@ -1981,7 +1969,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation() {
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.P;
@@ -2003,7 +1990,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertTrue(result.isGroupConversation());
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation_noConversationTitle() {
         mContext.getApplicationInfo().targetSdkVersion = Build.VERSION_CODES.P;
@@ -2025,7 +2011,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertTrue(result.isGroupConversation());
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation_withConversationTitle_legacy() {
         // In legacy (version < P), isGroupConversation is controlled by conversationTitle.
@@ -2047,7 +2032,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertTrue(result.isGroupConversation());
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation_withoutConversationTitle_legacy() {
         // In legacy (version < P), isGroupConversation is controlled by conversationTitle.
@@ -2069,7 +2053,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertFalse(result.isGroupConversation());
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation_withConversationTitle_legacyWithOverride() {
         // #setGroupConversation should always take precedence over legacy behavior, so a non-null
@@ -2093,7 +2076,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertFalse(result.isGroupConversation());
     }
 
-    @SdkSuppress(minSdkVersion = 16)
     @Test
     public void testMessagingStyle_isGroupConversation_withoutTitle_legacyWithOverride() {
         // #setGroupConversation should always take precedence over legacy behavior, so a null
@@ -2191,7 +2173,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertFalse(resultMessagingStyle.isGroupConversation());
     }
 
-    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 27)
+    @SdkSuppress(maxSdkVersion = 27)
     @Test
     public void testMessagingStyle_applyConversationTitleAndNotGroup_legacy() {
         NotificationCompat.MessagingStyle messagingStyle =
@@ -2453,6 +2435,38 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         assertFalse(extras.getBoolean(NotificationCompat.EXTRA_CALL_IS_VIDEO));
     }
 
+    @Test
+    @SdkSuppress(minSdkVersion = 20)
+    public void testCallStyle_preservesCustomActions() {
+        PendingIntent hangupIntent = createIntent("hangup");
+        Person person = new Person.Builder().setName("test name").build();
+        NotificationCompat.CallStyle callStyle = NotificationCompat.CallStyle.forOngoingCall(
+                person, hangupIntent);
+        NotificationCompat.Action customAction = new NotificationCompat.Action.Builder(
+                IconCompat.createWithResource(mContext, R.drawable.notification_bg),
+                "Custom!", null).build();
+
+        Notification notification = new NotificationCompat.Builder(mContext, "test id")
+                .setSmallIcon(1)
+                .setContentTitle("test title")
+                .addAction(customAction)
+                .setStyle(callStyle)
+                .build();
+
+        Notification.Action[] resultActions = notification.actions;
+        assertThat(resultActions).hasLength(2); // Hang up + custom (fits on all Android versions).
+        // But ordering is different per version.
+        if (Build.VERSION.SDK_INT <= 30 || Build.VERSION.SDK_INT >= 34) {
+            assertThat(resultActions[0].title.toString()).isEqualTo(
+                    mContext.getString(R.string.call_notification_hang_up_action));
+            assertThat(resultActions[1].title.toString()).isEqualTo(customAction.title.toString());
+        } else {
+            assertThat(resultActions[0].title.toString()).isEqualTo(customAction.title.toString());
+            assertThat(resultActions[1].title.toString()).isEqualTo(
+                    mContext.getString(R.string.call_notification_hang_up_action));
+        }
+    }
+
     @SdkSuppress(minSdkVersion = 20)
     @Test
     public void testCallStyle_getActionsListWithSystemAndContextualActionsForIncoming() {
@@ -2619,7 +2633,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 resultActions.get(1).getIconCompat().getResId());
     }
 
-    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationExtraText() {
         PendingIntent answerIntent = createIntent("answer");
@@ -2649,7 +2663,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 extras.getCharSequence(NotificationCompat.EXTRA_TEXT));
     }
 
-    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationVerificationInfo() {
         PendingIntent answerIntent = createIntent("answer");
@@ -2699,7 +2713,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
-    @SdkSuppress(minSdkVersion = 19, maxSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationPersonInfo() {
         PendingIntent answerIntent = createIntent("answer");
@@ -2731,7 +2745,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationIncoming() {
         // Create a placeholder icon for use with the person.
@@ -2810,7 +2824,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationIncomingVideo() {
         PendingIntent answerIntent = createIntent("answer");
@@ -2855,7 +2869,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationOngoing() {
         // Create a placeholder icon for use with the person.
@@ -2925,7 +2939,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         }
     }
 
-    @SdkSuppress(minSdkVersion = 16, maxSdkVersion = 30)
+    @SdkSuppress(maxSdkVersion = 30)
     @Test
     public void testCallStyle_callStyleLegacyNotificationScreening() {
         // Create a placeholder icon for use with the person.
@@ -3186,7 +3200,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = 19)
     public void getContentTitle() {
         Notification notification = new NotificationCompat.Builder(mContext, "test channel")
                 .setContentTitle("example title")

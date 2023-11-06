@@ -17,7 +17,6 @@ package androidx.compose.ui.text.android.style
 
 import android.graphics.Paint.FontMetricsInt
 import androidx.annotation.FloatRange
-import androidx.compose.ui.text.android.InternalPlatformTextApi
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -40,10 +39,7 @@ import kotlin.math.ceil
  * @param topRatio The percentage on how to distribute the line height for a given line.
  * 0 means all space as a result of line height is applied to the bottom. Similarly, 100 means
  * all space as a result of line height is applied to the top.
- *
- * @suppress
  */
-@InternalPlatformTextApi
 internal class LineHeightStyleSpan(
     val lineHeight: Float,
     private val startIndex: Int,

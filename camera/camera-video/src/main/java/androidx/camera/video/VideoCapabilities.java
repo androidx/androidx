@@ -16,6 +16,7 @@
 
 package androidx.camera.video;
 
+import android.hardware.camera2.CaptureRequest;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -32,8 +33,19 @@ import java.util.Set;
 
 /**
  * VideoCapabilities is used to query video recording capabilities on the device.
+ *
+ * <p>Take {@link Recorder} as an example, the supported {@link DynamicRange}s can be queried with
+ * the following code:
+ * <pre>{@code
+ *   VideoCapabilities videoCapabilities = Recorder.getVideoCapabilities(cameraInfo);
+ *   Set<DynamicRange> supportedDynamicRanges = videoCapabilities.getSupportedDynamicRanges();
+ * }</pre>
+ * <p>The query result can be used to check if high dynamic range (HDR) recording is
+ * supported, and to get the supported qualities of the target {@link DynamicRange}:
+ * <pre>{@code
+ *   List<Quality> supportedQualities = videoCapabilities.getSupportedQualities(dynamicRange);
+ * }</pre>
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public interface VideoCapabilities {
 
@@ -41,10 +53,12 @@ public interface VideoCapabilities {
      * Gets all dynamic ranges supported by both the camera and video output.
      *
      * <p>Only {@link DynamicRange}s with specified values both in {@link DynamicRange.BitDepth}
-     * and {@link DynamicRange.DynamicRangeFormat} will be present in the returned set.
+     * and {@link DynamicRange.DynamicRangeEncoding} will be present in the returned set.
      * {@link DynamicRange}s such as {@link DynamicRange#HDR_UNSPECIFIED_10_BIT} will not be
      * included, but they can be used in other methods, such as checking for quality support with
      * {@link #isQualitySupported(Quality, DynamicRange)}.
+     *
+     * @return a set of supported dynamic ranges.
      */
     @NonNull
     Set<DynamicRange> getSupportedDynamicRanges();
@@ -52,9 +66,25 @@ public interface VideoCapabilities {
     /**
      * Gets all supported qualities for the input dynamic range.
      *
-     * <p>The returned list is sorted by quality size from large to small.
+     * <p>The returned list is sorted by quality size from largest to smallest. For the qualities in
+     * the returned list, with the same input dynamicRange,
+     * {@link #isQualitySupported(Quality, DynamicRange)} will return {@code true}.
      *
-     * <p>Note: Constants {@link Quality#HIGHEST} and {@link Quality#LOWEST} are not included.
+     * <p>When the {@code dynamicRange} is not fully specified, e.g.
+     * {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}, the returned list is the union of the
+     * qualities supported by the matching fully specified dynamic ranges. This does not mean
+     * that all returned qualities are available for every matching dynamic range. Therefore, it
+     * is not recommended to rely on any one particular quality to work if mixing use cases with
+     * other dynamic ranges.
+     *
+     * <p>Note: Constants {@link Quality#HIGHEST} and {@link Quality#LOWEST} are not included in
+     * the returned list, but their corresponding qualities are included. For example: when the
+     * returned list consists of {@link Quality#UHD}, {@link Quality#FHD} and {@link Quality#HD},
+     * {@link Quality#HIGHEST} corresponds to {@link Quality#UHD}, which is the highest quality,
+     * and {@link Quality#LOWEST} corresponds to {@link Quality#HD}.
+     *
+     * @param dynamicRange the dynamicRange.
+     * @return a list of supported qualities sorted by size from large to small.
      */
     @NonNull
     List<Quality> getSupportedQualities(@NonNull DynamicRange dynamicRange);
@@ -62,13 +92,49 @@ public interface VideoCapabilities {
     /**
      * Checks if the quality is supported for the input dynamic range.
      *
-     * @param quality one of the quality constants. Possible values include
-     *                {@link Quality#LOWEST}, {@link Quality#HIGHEST}, {@link Quality#SD},
-     *                {@link Quality#HD}, {@link Quality#FHD}, or {@link Quality#UHD}.
-     * @param dynamicRange the target dynamicRange.
+     * <p>Calling this method with one of the qualities contained in the returned list of
+     * {@link #getSupportedQualities(DynamicRange)} will return {@code true}.
+     *
+     * <p>Possible values for {@code quality} include {@link Quality#LOWEST},
+     * {@link Quality#HIGHEST}, {@link Quality#SD}, {@link Quality#HD}, {@link Quality#FHD}
+     * and {@link Quality#UHD}.
+     *
+     * <p>If this method is called with {@link Quality#LOWEST} or {@link Quality#HIGHEST}, it
+     * will return {@code true} except the case that none of the qualities can be supported.
+     *
+     * <p>When the {@code dynamicRange} is not fully specified, e.g.
+     * {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}, {@code true} will be returned if there is any
+     * matching fully specified dynamic range supporting the {@code quality}, otherwise {@code
+     * false} will be returned.
+     *
+     * @param quality one of the quality constants.
+     * @param dynamicRange the dynamicRange.
      * @return {@code true} if the quality is supported; {@code false} otherwise.
+     * @see #getSupportedQualities(DynamicRange)
      */
     boolean isQualitySupported(@NonNull Quality quality, @NonNull DynamicRange dynamicRange);
+
+    /**
+     * Returns if video stabilization is supported on the device. Video stabilization can be
+     * turned on via {@link VideoCapture.Builder#setVideoStabilizationEnabled(boolean)}.
+     *
+     * <p>Not all recording sizes or frame rates may be supported for
+     * stabilization by a device that reports stabilization support. It is guaranteed
+     * that an output targeting a MediaRecorder or MediaCodec will be stabilized if
+     * the recording resolution is less than or equal to 1920 x 1080 (width less than
+     * or equal to 1920, height less than or equal to 1080), and the recording
+     * frame rate is less than or equal to 30fps. At other sizes, the video stabilization will
+     * not take effect.
+     *
+     * @return true if {@link CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE_ON} is supported,
+     * otherwise false.
+     *
+     * @see VideoCapture.Builder#setVideoStabilizationEnabled(boolean)
+     * @see CaptureRequest#CONTROL_VIDEO_STABILIZATION_MODE
+     */
+    default boolean isStabilizationSupported() {
+        return false;
+    }
 
     /**
      * Gets the corresponding {@link VideoValidatedEncoderProfilesProxy} of the input quality and
@@ -99,11 +165,11 @@ public interface VideoCapabilities {
      * nearest EncoderProfilesProxy will be selected, whether that EncoderProfilesProxy's
      * resolution is above or below the given size.
      *
-     * @see #findHighestSupportedQualityFor(Size, DynamicRange)
+     * @see #findNearestHigherSupportedQualityFor(Size, DynamicRange)
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Nullable
-    default VideoValidatedEncoderProfilesProxy findHighestSupportedEncoderProfilesFor(
+    default VideoValidatedEncoderProfilesProxy findNearestHigherSupportedEncoderProfilesFor(
             @NonNull Size size, @NonNull DynamicRange dynamicRange) {
         return null;
     }
@@ -124,12 +190,14 @@ public interface VideoCapabilities {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @NonNull
-    default Quality findHighestSupportedQualityFor(@NonNull Size size,
+    default Quality findNearestHigherSupportedQualityFor(@NonNull Size size,
             @NonNull DynamicRange dynamicRange) {
         return Quality.NONE;
     }
 
     /** An empty implementation. */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @NonNull
     VideoCapabilities EMPTY = new VideoCapabilities() {
         @NonNull
         @Override
@@ -146,6 +214,11 @@ public interface VideoCapabilities {
         @Override
         public boolean isQualitySupported(@NonNull Quality quality,
                 @NonNull DynamicRange dynamicRange) {
+            return false;
+        }
+
+        @Override
+        public boolean isStabilizationSupported() {
             return false;
         }
     };

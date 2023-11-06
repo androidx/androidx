@@ -16,12 +16,14 @@
 
 package androidx.camera.extensions.impl.advanced;
 
-import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.util.Range;
 import android.util.Size;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.List;
 import java.util.Map;
@@ -33,58 +35,82 @@ import java.util.Map;
  *
  * @since 1.2
  */
-@SuppressLint("UnknownNullness")
 public class BeautyAdvancedExtenderImpl implements AdvancedExtenderImpl {
     public BeautyAdvancedExtenderImpl() {
     }
 
     @Override
-    public boolean isExtensionAvailable(String cameraId,
-            Map<String, CameraCharacteristics> characteristicsMap) {
-        return false;
+    public boolean isExtensionAvailable(@NonNull String cameraId,
+            @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
-    public void init(String cameraId,
-            Map<String, CameraCharacteristics> characteristicsMap) {
+    public void init(@NonNull String cameraId,
+            @NonNull Map<String, CameraCharacteristics> characteristicsMap) {
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
+    @Nullable
     public Range<Long> getEstimatedCaptureLatencyRange(
-            String cameraId, Size size, int imageFormat) {
-        return null;
+            @NonNull String cameraId, @Nullable Size size, int imageFormat) {
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
+    @NonNull
     public Map<Integer, List<Size>> getSupportedPreviewOutputResolutions(
-            String cameraId) {
-        return null;
+            @NonNull String cameraId) {
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
+    @NonNull
     public Map<Integer, List<Size>> getSupportedCaptureOutputResolutions(
-            String cameraId) {
-        return null;
+            @NonNull String cameraId) {
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
+    @NonNull
+    public Map<Integer, List<Size>> getSupportedPostviewResolutions(
+            @NonNull Size captureSize) {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    @Nullable
     public List<Size> getSupportedYuvAnalysisResolutions(
-            String cameraId) {
-        return null;
+            @NonNull String cameraId) {
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
+    @NonNull
     public SessionProcessorImpl createSessionProcessor() {
-        return null;
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
+    @NonNull
     public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
-        return null;
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 
     @Override
+    @NonNull
     public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
-        return null;
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public boolean isCaptureProcessProgressAvailable() {
+        throw new RuntimeException("Stub, replace with implementation.");
+    }
+
+    @Override
+    public boolean isPostviewAvailable() {
+        throw new RuntimeException("Stub, replace with implementation.");
     }
 }

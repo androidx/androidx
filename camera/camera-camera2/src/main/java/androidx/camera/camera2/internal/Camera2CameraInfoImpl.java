@@ -16,6 +16,9 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.hardware.camera2.CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES;
+import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON;
+import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION;
 import static android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING;
 import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_REALTIME;
 import static android.hardware.camera2.CameraMetadata.SENSOR_INFO_TIMESTAMP_SOURCE_UNKNOWN;
@@ -503,6 +506,36 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         } else {
             return Collections.emptySet();
         }
+    }
+
+    @Override
+    public boolean isVideoStabilizationSupported() {
+        int[] availableVideoStabilizationModes =
+                mCameraCharacteristicsCompat.get(
+                        CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES);
+        if (availableVideoStabilizationModes != null) {
+            for (int mode : availableVideoStabilizationModes) {
+                if (mode == CONTROL_VIDEO_STABILIZATION_MODE_ON) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isPreviewStabilizationSupported() {
+        int[] availableVideoStabilizationModes =
+                mCameraCharacteristicsCompat.get(
+                        CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES);
+        if (availableVideoStabilizationModes != null) {
+            for (int mode : availableVideoStabilizationModes) {
+                if (mode == CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**

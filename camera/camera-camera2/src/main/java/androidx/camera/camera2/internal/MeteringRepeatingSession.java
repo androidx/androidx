@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.internal;
 
-import android.graphics.ImageFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraDevice;
 import android.util.Size;
@@ -32,10 +31,12 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -43,6 +44,7 @@ import androidx.camera.core.impl.utils.futures.Futures;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A SessionConfig to act a Metering repeating use case.
@@ -54,34 +56,57 @@ import java.util.List;
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class MeteringRepeatingSession {
     private static final String TAG = "MeteringRepeating";
+
+    private static final int IMAGE_FORMAT =
+            ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
+
     private DeferrableSurface mDeferrableSurface;
 
     @NonNull
-    private final SessionConfig mSessionConfig;
+    private SessionConfig mSessionConfig;
 
     @NonNull
     private final MeteringRepeatingConfig mConfigWithDefaults;
 
     @NonNull
+    private final Size mMeteringRepeatingSize;
+
+    @NonNull
     private final SupportedRepeatingSurfaceSize mSupportedRepeatingSurfaceSize =
             new SupportedRepeatingSurfaceSize();
 
+    interface SurfaceResetCallback {
+        void onSurfaceReset();
+    }
+
+    @Nullable
+    private final SurfaceResetCallback mSurfaceResetCallback;
+
     /** Creates a new instance of a {@link MeteringRepeatingSession}. */
     MeteringRepeatingSession(@NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
-            @NonNull DisplayInfoManager displayInfoManager) {
+            @NonNull DisplayInfoManager displayInfoManager,
+            @Nullable SurfaceResetCallback surfaceResetCallback) {
         mConfigWithDefaults = new MeteringRepeatingConfig();
+        mSurfaceResetCallback = surfaceResetCallback;
 
+        mMeteringRepeatingSize = getProperPreviewSize(
+                cameraCharacteristicsCompat, displayInfoManager);
+        Logger.d(TAG, "MeteringSession SurfaceTexture size: " + mMeteringRepeatingSize);
+
+        mSessionConfig = createSessionConfig();
+    }
+
+    @NonNull
+    SessionConfig createSessionConfig() {
         // Create the metering DeferrableSurface
         SurfaceTexture surfaceTexture = new SurfaceTexture(0);
-        Size meteringSurfaceSize = getProperPreviewSize(
-                cameraCharacteristicsCompat, displayInfoManager);
-        Logger.d(TAG, "MeteringSession SurfaceTexture size: " + meteringSurfaceSize);
-        surfaceTexture.setDefaultBufferSize(meteringSurfaceSize.getWidth(),
-                meteringSurfaceSize.getHeight());
+
+        surfaceTexture.setDefaultBufferSize(mMeteringRepeatingSize.getWidth(),
+                mMeteringRepeatingSize.getHeight());
         Surface surface = new Surface(surfaceTexture);
 
         SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfigWithDefaults,
-                meteringSurfaceSize);
+                mMeteringRepeatingSize);
         builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
 
         mDeferrableSurface = new ImmediateSurface(surface);
@@ -102,7 +127,14 @@ class MeteringRepeatingSession {
 
         builder.addSurface(mDeferrableSurface);
 
-        mSessionConfig = builder.build();
+        builder.addErrorListener((sessionConfig, error) -> {
+            mSessionConfig = createSessionConfig();
+            if (mSurfaceResetCallback != null) {
+                mSurfaceResetCallback.onSurfaceReset();
+            }
+        });
+
+        return builder.build();
     }
 
     @NonNull
@@ -113,6 +145,11 @@ class MeteringRepeatingSession {
     @NonNull
     SessionConfig getSessionConfig() {
         return mSessionConfig;
+    }
+
+    @NonNull
+    Size getMeteringRepeatingSize() {
+        return mMeteringRepeatingSize;
     }
 
     @NonNull
@@ -144,6 +181,8 @@ class MeteringRepeatingSession {
             MutableOptionsBundle mutableOptionsBundle = MutableOptionsBundle.create();
             mutableOptionsBundle.insertOption(UseCaseConfig.OPTION_SESSION_CONFIG_UNPACKER,
                     new Camera2SessionOptionUnpacker());
+            mutableOptionsBundle.insertOption(OPTION_INPUT_FORMAT, IMAGE_FORMAT);
+            setTargetConfigs(mutableOptionsBundle);
             mConfig = mutableOptionsBundle;
         }
 
@@ -152,6 +191,20 @@ class MeteringRepeatingSession {
         public Config getConfig() {
             return mConfig;
         }
+
+        @NonNull
+        @Override
+        public UseCaseConfigFactory.CaptureType getCaptureType() {
+            return UseCaseConfigFactory.CaptureType.METERING_REPEATING;
+        }
+
+        private void setTargetConfigs(MutableOptionsBundle mutableOptionsBundle) {
+            mutableOptionsBundle.insertOption(OPTION_TARGET_CLASS, MeteringRepeatingSession.class);
+
+            String targetName =
+                    MeteringRepeatingSession.class.getCanonicalName() + "-" + UUID.randomUUID();
+            mutableOptionsBundle.insertOption(OPTION_TARGET_NAME, targetName);
+        }
     }
 
     @NonNull
@@ -159,7 +212,7 @@ class MeteringRepeatingSession {
             cameraCharacteristicsCompat, @NonNull DisplayInfoManager displayInfoManager) {
         StreamConfigurationMapCompat mapCompat =
                 cameraCharacteristicsCompat.getStreamConfigurationMapCompat();
-        Size[] outputSizes = mapCompat.getOutputSizes(ImageFormat.PRIVATE);
+        Size[] outputSizes = mapCompat.getOutputSizes(IMAGE_FORMAT);
         if (outputSizes == null) {
             Logger.e(TAG, "Can not get output size list.");
             return new Size(0, 0);
@@ -200,5 +253,3 @@ class MeteringRepeatingSession {
     }
 
 }
-
-

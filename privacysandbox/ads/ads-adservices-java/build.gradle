@@ -36,8 +36,10 @@ dependencies {
 
     androidTestImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.0'
     androidTestImplementation project(path: ':privacysandbox:ads:ads-adservices')
+    androidTestImplementation project(path: ':javascriptengine:javascriptengine')
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.kotlinTestJunit)
+    androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
@@ -46,11 +48,14 @@ dependencies {
 
     androidTestImplementation(libs.mockitoCore4, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockitoInline, excludes.bytebuddy) // DexMaker has it"s own MockMaker
+    androidTestImplementation(libs.dexmakerMockitoInlineExtended)
 }
 
 android {
-    compileSdk = 33
-    compileSdkExtension = 5
+    defaultConfig {
+        multiDexEnabled = true
+    }
+
     namespace "androidx.privacysandbox.ads.adservices.java"
 }
 
@@ -59,4 +64,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "write Java code to call PP APIs."
+    metalavaK2UastEnabled = true
 }

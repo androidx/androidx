@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor FortyFiveDegreeLinearGradient has parameter colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val colors: List&lt;Color>,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Card.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field colors with type List&lt;Color>: replace with LongList"
+        errorLine1="    private val colors: List&lt;Color>,"
+        errorLine2="                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Card.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor FortyFiveDegreeLinearGradient has parameter stops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Card.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field stops with type List&lt;Float>: replace with FloatList"
+        errorLine1="    private val stops: List&lt;Float>? = null,"
+        errorLine2="                       ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Card.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable backgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val backgroundColors: List&lt;Color>"
+        errorLine2="                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable disabledBackgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val disabledBackgroundColors: List&lt;Color>"
+        errorLine2="                                      ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Chip.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method setAnchors$lint_module has parameter &lt;set-?> with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Float, T> of getAnchors$lint_module: replace with FloatObjectMap"
+        errorLine1="    internal var anchors by mutableStateOf(emptyMap&lt;Float, T>())"
+        errorLine2="                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method ensureInit$lint_module has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    internal fun ensureInit(newAnchors: Map&lt;Float, T>) {"
+        errorLine2="                                        ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method processNewAnchors$lint_module has parameter oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        oldAnchors: Map&lt;Float, T>,"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method processNewAnchors$lint_module has parameter newAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        newAnchors: Map&lt;Float, T>"
+        errorLine2="                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable bounds with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="            val bounds = findBounds(offset.value, anchors.keys)"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method swipeable has parameter anchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="    anchors: Map&lt;Float, T>,"
+        errorLine2="             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable oldAnchors with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="        val oldAnchors = state.anchors"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method findBounds has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="    anchors: Set&lt;Float>"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Float> of findBounds: replace with FloatList"
+        errorLine1="): List&lt;Float> {"
+        errorLine2="   ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method computeTarget has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="    anchors: Set&lt;Float>,"
+        errorLine2="             ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable bounds with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="    val bounds = findBounds(offset, anchors)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method getOffset has parameter $this$getOffset with type Map&lt;Float, ? extends T>: replace with FloatObjectMap"
+        errorLine1="private fun &lt;T> Map&lt;Float, T>.getOffset(state: T): Float? {"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method resistanceConfig has parameter anchors with type Set&lt;Float>: replace with FloatSet"
+        errorLine1="        anchors: Set&lt;Float>,"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/Swipeable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable checkedBackgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val checkedBackgroundColors: List&lt;Color>"
+        errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ToggleChip.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable disabledCheckedBackgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val disabledCheckedBackgroundColors: List&lt;Color>"
+        errorLine2="                                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ToggleChip.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable uncheckedBackgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val uncheckedBackgroundColors: List&lt;Color>"
+        errorLine2="                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ToggleChip.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable disabledUncheckedBackgroundColors with type List&lt;? extends Color>: replace with LongList"
+        errorLine1="        val disabledUncheckedBackgroundColors: List&lt;Color>"
+        errorLine2="                                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/wear/compose/material/ToggleChip.kt"/>
+    </issue>
+
+</issues>

@@ -19,12 +19,15 @@ package androidx.camera.integration.core
 import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.view.SurfaceView
+import android.view.TextureView
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CoreAppTestUtil
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso
@@ -35,6 +38,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
+import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.TimeUnit
 import leakcanary.DetectLeaksAfterTestSuccess
 import org.junit.After
@@ -42,6 +46,7 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -80,8 +85,18 @@ class BasicUITest(
             Manifest.permission.RECORD_AUDIO
         )
 
+    // Skip DetectLeaksAfterTestSuccess on API 27 and 29 devices. Some objects (analyzer or taking
+    // picture related) might not be released immediately after the activity is destroyed. The same
+    // code won't cause the leak issue on other API level devices. Keep DetectLeaksAfterTestSuccess
+    // to run on non-API-27/29 devices to have a chance to catch the possible memory leak issues.
     @get:Rule
-    val detectLeaks = DetectLeaksAfterTestSuccess(TAG)
+    val detectLeaks =
+        if (Build.VERSION.SDK_INT == 27 || Build.VERSION.SDK_INT == 29) {
+            // no-op TestRule
+            TestRule { base, _ -> base }
+        } else {
+            DetectLeaksAfterTestSuccess(TAG)
+        }
 
     private val launchIntent = Intent(
         ApplicationProvider.getApplicationContext(),
@@ -116,7 +131,7 @@ class BasicUITest(
 
         val context = ApplicationProvider.getApplicationContext<Context>()
         val cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
-        cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+        cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
     }
 
     @Test
@@ -169,6 +184,23 @@ class BasicUITest(
 
                 // Assert. Verify the Preview is processing output.
                 scenario.waitForViewfinderIdle()
+            }
+        }
+    }
+
+    @Test
+    fun testDefaultViewFinderImplementation() {
+        ActivityScenario.launch<CameraXActivity>(launchIntent).use { scenario ->
+            // Arrange.
+            // Wait for the Activity to be created and Preview appears before starting the test.
+            scenario.waitForViewfinderIdle()
+
+            scenario.withActivity {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    assertThat(viewFinder).isInstanceOf(SurfaceView::class.java)
+                } else {
+                    assertThat(viewFinder).isInstanceOf(TextureView::class.java)
+                }
             }
         }
     }

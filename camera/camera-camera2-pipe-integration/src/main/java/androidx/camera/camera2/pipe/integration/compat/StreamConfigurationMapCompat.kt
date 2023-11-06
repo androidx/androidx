@@ -136,6 +136,10 @@ class StreamConfigurationMapCompat @Inject constructor(
         return outputSizes?.clone()
     }
 
+    fun getOutputMinFrameDuration(format: Int, size: Size?): Long? {
+        return impl.getOutputMinFrameDuration(format, size)
+    }
+
     /**
      * Returns the [StreamConfigurationMap] represented by this object.
      */
@@ -147,6 +151,7 @@ class StreamConfigurationMapCompat @Inject constructor(
         fun getOutputSizes(format: Int): Array<Size>?
         fun <T> getOutputSizes(klass: Class<T>): Array<Size>?
         fun getHighResolutionOutputSizes(format: Int): Array<Size>?
+        fun getOutputMinFrameDuration(format: Int, size: Size?): Long?
 
         /**
          * Returns the underlying [StreamConfigurationMap] instance.

@@ -65,7 +65,10 @@ internal fun Modifier.cursor(
                     ?: Rect(0f, 0f, 0f, 0f)
                 val cursorWidth = DefaultCursorThickness.toPx()
                 val cursorX = (cursorRect.left + cursorWidth / 2)
+                    // Do not use coerceIn because it is not guaranteed that the minimum value is
+                    // smaller than the maximum value.
                     .coerceAtMost(size.width - cursorWidth / 2)
+                    .coerceAtLeast(cursorWidth / 2)
 
                 drawLine(
                     cursorBrush,

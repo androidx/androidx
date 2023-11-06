@@ -25,8 +25,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -37,7 +37,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.tv.foundation.ExperimentalTvFoundationApi
+import androidx.tv.foundation.text.AndroidImeOptions
+import androidx.tv.foundation.text.TvKeyboardAlignment
+import androidx.tv.material3.ExperimentalTvMaterial3Api
+import androidx.tv.material3.MaterialTheme
 
 @Composable
 fun TextFieldContent() {
@@ -49,8 +56,9 @@ fun TextFieldContent() {
         }
         item {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(20.dp)) {
-                item { SampleTextField(label = "Email") }
-                item { SampleTextField(label = "Password") }
+                item { SampleTextField(label = "Name") }
+                item { SampleTextField(label = "Email", keyboardType = KeyboardType.Email) }
+                item { SampleTextField(label = "Password", keyboardType = KeyboardType.Password) }
                 item { SampleButton(text = "Submit") }
             }
         }
@@ -62,9 +70,9 @@ fun TextFieldContent() {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalTvFoundationApi::class, ExperimentalTvMaterial3Api::class)
 @Composable
-fun SampleTextField(label: String) {
+fun SampleTextField(label: String, keyboardType: KeyboardType = KeyboardType.Text) {
     var text by remember { mutableStateOf("") }
 
     OutlinedTextField(
@@ -77,10 +85,25 @@ fun SampleTextField(label: String) {
         placeholder = {
             Text("$label...")
         },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType,
+            platformImeOptions = AndroidImeOptions(TvKeyboardAlignment.Left),
+            imeAction = ImeAction.Next
+        ),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.Cyan,
-            focusedLabelColor = Color.Cyan,
-            cursorColor = Color.White
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedBorderColor = MaterialTheme.colorScheme.border,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedLabelColor = MaterialTheme.colorScheme.primary,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            unfocusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            focusedTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            errorLabelColor = MaterialTheme.colorScheme.error,
+            errorBorderColor = MaterialTheme.colorScheme.error
         )
     )
 }

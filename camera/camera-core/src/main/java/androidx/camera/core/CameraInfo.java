@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import android.graphics.ImageFormat;
+import android.media.MediaActionSound;
 import android.util.Range;
 import android.view.Surface;
 
@@ -27,6 +28,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.internal.compat.MediaActionSoundCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -90,6 +92,32 @@ public interface CameraInfo {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     String IMPLEMENTATION_TYPE_FAKE = "androidx.camera.fake";
+
+    /**
+     * Returns whether the shutter sound must be played in accordance to regional restrictions.
+     *
+     * <p>This method provides the general rule of playing shutter sounds. The exact
+     * requirements of playing shutter sounds may vary among regions.
+     *
+     * <p>For image capture, the shutter sound is recommended to be played when receiving
+     * {@link ImageCapture.OnImageCapturedCallback#onCaptureStarted()} or
+     * {@link ImageCapture.OnImageSavedCallback#onCaptureStarted()}. For video capture, it's
+     * recommended to play the start recording sound when receiving
+     * {@code VideoRecordEvent.Start} and the stop recording sound when receiving
+     * {@code VideoRecordEvent.Finalize}.
+     *
+     * <p>To play the system default sounds, it's recommended to use
+     * {@link MediaActionSound#play(int)}. For image capture, play
+     * {@link MediaActionSound#SHUTTER_CLICK}. For video capture, play
+     * {@link MediaActionSound#START_VIDEO_RECORDING} and
+     * {@link MediaActionSound#STOP_VIDEO_RECORDING}.
+     *
+     * @return {@code true} if shutter sound must be played, otherwise {@code false}.
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    static boolean mustPlayShutterSound() {
+        return MediaActionSoundCompat.mustPlayShutterSound();
+    }
 
     /**
      * Returns the sensor rotation in degrees, relative to the device's "natural" (default)
@@ -199,6 +227,9 @@ public interface CameraInfo {
      * {@link CameraSelector#LENS_FACING_BACK}, or {@link CameraSelector#LENS_FACING_EXTERNAL}.
      * If the lens facing of the camera can not be resolved, return
      * {@link CameraSelector#LENS_FACING_UNKNOWN}.
+     *
+     * @throws IllegalArgumentException If the device cannot return a valid lens facing value,
+     *                                  it will throw this exception.
      */
     @CameraSelector.LensFacing
     default int getLensFacing() {

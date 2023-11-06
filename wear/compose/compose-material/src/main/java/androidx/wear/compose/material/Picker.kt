@@ -15,6 +15,7 @@
  */
 package androidx.wear.compose.material
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.Easing
@@ -59,11 +60,12 @@ import androidx.compose.ui.semantics.scrollToIndex
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.foundation.lazy.AutoCenteringParams as AutoCenteringParams
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumn as ScalingLazyColumn
-import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults as ScalingLazyColumnDefaults
-import androidx.wear.compose.foundation.lazy.ScalingLazyListState as ScalingLazyListState
-import androidx.wear.compose.foundation.lazy.ScalingParams as ScalingParams
+import androidx.compose.ui.util.fastFirstOrNull
+import androidx.wear.compose.foundation.lazy.AutoCenteringParams
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
+import androidx.wear.compose.foundation.lazy.ScalingLazyColumnDefaults
+import androidx.wear.compose.foundation.lazy.ScalingLazyListState
+import androidx.wear.compose.foundation.lazy.ScalingParams
 import kotlinx.coroutines.launch
 
 /**
@@ -120,7 +122,7 @@ public fun Picker(
     onSelected: () -> Unit = {},
     scalingParams: ScalingParams = PickerDefaults.defaultScalingParams(),
     separation: Dp = 0.dp,
-    /* @FloatRange(from = 0.0, to = 0.5) */
+    @FloatRange(from = 0.0, to = 0.5)
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
@@ -170,7 +172,7 @@ public fun Picker(
                                 state.scalingLazyListState.layoutInfo.visibleItemsInfo
                             if (visibleItems.isNotEmpty()) {
                                 val centerItem =
-                                    visibleItems.find { info ->
+                                    visibleItems.fastFirstOrNull { info ->
                                         info.index == state.scalingLazyListState.centerItemIndex
                                     } ?: visibleItems[visibleItems.size / 2]
                                 val shimHeight =
@@ -245,7 +247,7 @@ public fun Picker(
     onSelected: () -> Unit = {},
     scalingParams: androidx.wear.compose.material.ScalingParams = PickerDefaults.scalingParams(),
     separation: Dp = 0.dp,
-    /* @FloatRange(from = 0.0, to = 0.5) */
+    @FloatRange(from = 0.0, to = 0.5)
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
@@ -322,7 +324,7 @@ public fun Picker(
     onSelected: () -> Unit = {},
     scalingParams: androidx.wear.compose.material.ScalingParams = PickerDefaults.scalingParams(),
     separation: Dp = 0.dp,
-    /* @FloatRange(from = 0.0, to = 0.5) */
+    @FloatRange(from = 0.0, to = 0.5)
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),
@@ -389,7 +391,7 @@ public fun Picker(
     readOnlyLabel: @Composable (BoxScope.() -> Unit)? = null,
     scalingParams: androidx.wear.compose.material.ScalingParams = PickerDefaults.scalingParams(),
     separation: Dp = 0.dp,
-    /* @FloatRange(from = 0.0, to = 0.5) */
+    @FloatRange(from = 0.0, to = 0.5)
     gradientRatio: Float = PickerDefaults.DefaultGradientRatio,
     gradientColor: Color = MaterialTheme.colors.background,
     flingBehavior: FlingBehavior = PickerDefaults.flingBehavior(state),

@@ -19,7 +19,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.os.IBinder
-import androidx.annotation.RestrictTo
 import androidx.privacysandbox.sdkruntime.client.config.LocalSdkConfig
 import androidx.privacysandbox.sdkruntime.client.loader.LocalSdkProvider
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
@@ -31,9 +30,7 @@ import java.lang.reflect.Method
 /**
  * Provides interface for interaction with locally loaded SDK with ApiVersion 1.
  *
- * @suppress
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 internal class SdkProviderV1 private constructor(
     sdkProvider: Any,
 
@@ -175,7 +172,11 @@ internal class SdkProviderV1 private constructor(
                 LoadSdkCompatExceptionBuilderV1.create(classLoader)
 
             val sdkProvider = sdkProviderClass.getConstructor().newInstance()
-            val sandboxedSdkContextCompat = SandboxedSdkContextCompat(appContext, classLoader)
+            val sandboxedSdkContextCompat = SandboxedSdkContextCompat(
+                appContext,
+                sdkConfig.packageName,
+                classLoader
+            )
             attachContextMethod.invoke(sdkProvider, sandboxedSdkContextCompat)
 
             return SdkProviderV1(

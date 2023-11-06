@@ -96,7 +96,8 @@ class MacrobenchmarkTest {
             className = "MacrobenchmarkTest",
             testName = "validateCallbackBehavior",
             packageName = Packages.TARGET,
-            metrics = listOf(TraceSectionMetric(TRACE_LABEL)),
+            // disable targetPackageOnly filter, since this process emits the event
+            metrics = listOf(TraceSectionMetric(TRACE_LABEL, targetPackageOnly = false)),
             compilationMode = CompilationMode.DEFAULT,
             iterations = 2,
             startupMode = startupMode,

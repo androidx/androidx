@@ -1,112 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.1.0-alpha07">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public companion object {"
-        errorLine2="                     ~~~~~~">
+        id="NewApi"
+        message="Call requires API level 21 (current min is 19): `android.os.BaseBundle#get`"
+        errorLine1="        if (!isNullable &amp;&amp; bundle.containsKey(name) &amp;&amp; bundle[name] == null) {"
+        errorLine2="                                                                    ~~">
         <location
-            file="src/main/java/androidx/navigation/NavBackStackEntry.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        public fun create("
-        errorLine2="                   ~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/NavBackStackEntry.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public open val displayName: String"
-        errorLine2="                    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/NavDestination.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        public fun getDisplayName(context: Context, id: Int): String {"
-        errorLine2="                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/NavDestination.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        public fun getDisplayName(context: Context, id: Int): String {"
-        errorLine2="                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/NavDestination.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="        public fun createRoute(route: String?): String ="
-        errorLine2="                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/NavDestination.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public fun findNode(@IdRes resId: Int, searchParents: Boolean): NavDestination? {"
-        errorLine2="               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/NavGraph.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public fun findNode(route: String, searchParents: Boolean): NavDestination? {"
-        errorLine2="               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/NavGraph.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    override val displayName: String"
-        errorLine2="                 ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/NavGraph.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public interface NavViewModelStoreProvider {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/NavViewModelStoreProvider.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="    public var isNavigating = false"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/NavigatorState.kt"/>
-    </issue>
-
-    <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class NoOpNavigator : Navigator&lt;NavDestination>() {"
-        errorLine2="             ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/NoOpNavigator.kt"/>
+            file="src/main/java/androidx/navigation/NavArgument.kt"/>
     </issue>
 
 </issues>

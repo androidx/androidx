@@ -29,7 +29,6 @@ import android.app.Instrumentation;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.Lifecycle.Event;
@@ -39,8 +38,6 @@ import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.test.rule.UiThreadTestRule;
 
-import org.junit.Assume;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,12 +54,6 @@ public class SynchronousActivityLifecycleTest {
 
     @Rule
     public UiThreadTestRule uiThreadTestRule = new UiThreadTestRule();
-
-    @Before
-    public void setup() {
-        // b/276959207
-        Assume.assumeTrue(!Build.MODEL.contains("x86") || SDK_INT != 21);
-    }
 
     @Test
     public void testOnCreateCall() throws Throwable {

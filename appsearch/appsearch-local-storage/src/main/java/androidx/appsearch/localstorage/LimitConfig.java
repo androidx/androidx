@@ -20,7 +20,7 @@ import androidx.annotation.RestrictTo;
 
 /**
  * Defines limits placed on users of AppSearch and enforced by {@link AppSearchImpl}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface LimitConfig {

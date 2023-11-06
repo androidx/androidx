@@ -29,14 +29,12 @@ object BuildPropParser {
      * Returns the sha which is the reference sha that we should use to find changed files.
      *
      * It returns null if an appropriate sha couldn't be found. (e.g. if more than 1 project changed
-     * or  frameworks/support didn't change)
+     * or frameworks/support didn't change)
      *
-     * @param appliedPropsFile The applied.props file that is usually located in the out folder.
-     * It contains information about the build specific SHAs for this build for each
-     * module
-     *
-     * @param repoPropsFile The repo.props file that is usually located in the out folder.
-     * It contains the origin versions for each repository
+     * @param appliedPropsFile The applied.props file that is usually located in the out folder. It
+     *   contains information about the build specific SHAs for this build for each module
+     * @param repoPropsFile The repo.props file that is usually located in the out folder. It
+     *   contains the origin versions for each repository
      */
     fun getShaForThisBuild(
         appliedPropsFile: File,
@@ -44,9 +42,7 @@ object BuildPropParser {
         logger: Logger? = null
     ): BuildRange? {
         if (!appliedPropsFile.canRead()) {
-            logger?.error(
-                "cannot read applied props file from ${appliedPropsFile.absolutePath}"
-            )
+            logger?.error("cannot read applied props file from ${appliedPropsFile.absolutePath}")
             return null
         }
         if (!repoPropsFile.canRead()) {
@@ -59,7 +55,8 @@ object BuildPropParser {
                 """
                     We'll run everything because seems like too many things changed or nothing is
                     changed. Changed projects: $appliedProps
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             return null
         }
@@ -69,29 +66,25 @@ object BuildPropParser {
                 """
                     Changed project is not frameworks/support. I'll run everything.
                     Changed project: $changedProject
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
             return null
         }
         val changeSha = changedProject.split(" ").last()
         // now find it in repo props
-        val androidXLineInRepo = repoPropsFile.readLines(Charsets.UTF_8).firstOrNull {
-            it.indexOf("frameworks/support") >= 0
-        }
+        val androidXLineInRepo =
+            repoPropsFile.readLines(Charsets.UTF_8).firstOrNull {
+                it.indexOf("frameworks/support") >= 0
+            }
         if (androidXLineInRepo == null) {
             logger?.info("Cannot find the androidX sha in repo props. $repoPropsFile")
             return null
         }
         val repoSha = androidXLineInRepo.split(" ").last()
         logger?.info("repo sha: $repoSha change sha: $changeSha")
-        return BuildRange(
-            buildSha = changeSha,
-            repoSha = repoSha
-        )
+        return BuildRange(buildSha = changeSha, repoSha = repoSha)
     }
 
-    data class BuildRange(
-        val repoSha: String,
-        val buildSha: String
-    )
+    data class BuildRange(val repoSha: String, val buildSha: String)
 }

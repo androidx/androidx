@@ -94,6 +94,7 @@ public class DragStartHelper {
      * The newly created helper is not initially attached to the view, {@link #attach} must be
      * called explicitly.
      * @param view A View
+     * @param listener listener for the drag events.
      */
     public DragStartHelper(@NonNull View view, @NonNull OnDragStartListener listener) {
         mView = view;
@@ -169,7 +170,12 @@ public class DragStartHelper {
      * @return true if the callback consumed the long click, false otherwise.
      */
     public boolean onLongClick(@NonNull View v) {
-        return mListener.onDragStart(v, this);
+        if (mDragging) {
+            // Ignore long click once the drag operation is in progress.
+            return true;
+        }
+        mDragging = mListener.onDragStart(v, this);
+        return mDragging;
     }
 
     /**

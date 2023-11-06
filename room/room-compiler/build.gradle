@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-
 import androidx.build.BuildOnServerKt
 import androidx.build.LibraryType
 import androidx.build.SdkHelperKt
-import androidx.build.SupportConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 import java.util.zip.ZipEntry
 import java.util.zip.ZipFile
 
@@ -28,12 +28,6 @@ plugins {
     id("AndroidXPlugin")
     id("kotlin")
     id("com.github.johnrengelman.shadow")
-}
-
-def antlrOut = "$buildDir/generated/antlr/grammar-gen/"
-sourceSets {
-    main.java.srcDirs += "src/main/grammar-gen"
-    main.java.srcDirs += antlrOut
 }
 
 configurations {
@@ -57,12 +51,6 @@ shadowJar {
     // set classifier to empty string so that it doesn't append anything to the jar.
     archiveClassifier = ""
     configurations = [project.configurations.shadowed]
-    dependencies {
-        // antlr has dependencies on unrelated projects for its gui stuff, do not include them
-        exclude(dependency("org.abego.treelayout:.*"))
-        exclude(dependency("org.glassfish:.*"))
-        exclude(dependency("com.ibm.icu:.*"))
-    }
     relocate("org.antlr", "androidx.room.jarjarred.org.antlr")
     relocate("org.stringtemplate", "androidx.room.jarjarred.org.stringtemplate")
 }
@@ -99,11 +87,17 @@ dependencies {
     implementation(libs.kotlinPoet)
     implementation(libs.kotlinPoetJavaPoet)
     implementation(libs.kspApi)
-    shadowed(libs.antlr4)
+    shadowed(libs.antlr4) {
+        // antlr has dependencies on unrelated projects for its gui stuff, do not include them
+        exclude group: "org.abego.treelayout"
+        exclude group: "com.ibm.icu"
+        exclude group: "org.glassfish"
+    }
     implementation(libs.sqliteJdbc)
     implementation(libs.apacheCommonsCodec)
     implementation(libs.intellijAnnotations)
     testImplementation(libs.truth)
+    testImplementation(project(":kruth:kruth"))
     testImplementation(libs.testParameterInjector)
     testImplementation(libs.autoValue) // to access the processor in tests
     testImplementation(libs.autoServiceAnnotations)
@@ -115,32 +109,33 @@ dependencies {
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.antlr4)
     testImplementation(libs.kotlinCompilerEmbeddable)
-    testImplementation(fileTree(
-            dir: "${SdkHelperKt.getSdkPath(project)}/platforms/$SupportConfig.COMPILE_SDK_VERSION/",
-            include : "android.jar"
-    ))
+    testImplementation(SdkHelperKt.getSdkDependency(project))
     testImplementationAarAsJar(project(":room:room-runtime"))
     testImplementationAarAsJar(project(":sqlite:sqlite"))
     testImplementation(project(":internal-testutils-common"))
 }
 
-def generateAntlrTask = task("generateAntlrGrammar", type: GenerateAntlrGrammar) {
-    sqliteFile = file("$projectDir/SQLite.g4")
-    antlrClasspath = configurations.compileClasspath
-    outputDirectory = file(antlrOut)
+def generateAntlrTask = tasks.register("generateAntlrGrammar", GenerateAntlrGrammar) { task ->
+    task.getSqliteFile().set(layout.projectDirectory.file("SQLite.g4"))
+    task.getAntlrClasspath().from(configurations.compileClasspath)
+    task.getOutputDirectory().set(layout.buildDirectory.dir("generated/antlr/grammar-gen/"))
+}
+
+sourceSets {
+    main.java.srcDirs += generateAntlrTask.map { it.outputDirectory }
 }
 
 @CacheableTask
 abstract class GenerateAntlrGrammar extends DefaultTask {
     @PathSensitive(PathSensitivity.NONE)
     @InputFile
-    File sqliteFile
+    abstract RegularFileProperty getSqliteFile()
 
     @Classpath
-    FileCollection antlrClasspath
+    abstract ConfigurableFileCollection getAntlrClasspath()
 
     @OutputDirectory
-    File outputDirectory
+    abstract DirectoryProperty getOutputDirectory()
 
     @Inject
     abstract ExecOperations getExecOperations()
@@ -155,10 +150,10 @@ abstract class GenerateAntlrGrammar extends DefaultTask {
     void generateAntlrGrammar() {
         execOperations.javaexec {
             mainClass.set("org.antlr.v4.Tool")
-            classpath = antlrClasspath
-            args "SQLite.g4",
+            classpath = getAntlrClasspath()
+            args getSqliteFile().asFile.get().absolutePath,
                  "-visitor",
-                 "-o", new File(outputDirectory, "androidx/room/parser").path,
+                 "-o", new File(getOutputDirectory().asFile.get(), "androidx/room/parser").path,
                  "-package", "androidx.room.parser"
         }
     }
@@ -168,23 +163,23 @@ abstract class GenerateAntlrGrammar extends DefaultTask {
  * Room compiler jarjars some dependencies. This task validates the published artifacts of room
  * compiler to ensure dependencies are properly jarjarred.
  */
-class CheckArtifactTask extends DefaultTask {
+abstract class CheckArtifactTask extends DefaultTask {
     @InputFiles
-    FileCollection artifactInputs = project.objects.fileCollection()
+    abstract ConfigurableFileCollection getArtifactInputs()
     @InputFile
-    File pomFile
+    abstract RegularFileProperty getPomFile()
     @OutputFile
-    File result = new File(project.buildDir, "checkArtifactOutput.txt")
+    abstract RegularFileProperty getResult()
     /**
      * Checks the publish task's artifacts to make sure the classes.jar does include jarjarred
      * antlr classes.
      */
-    def validatePublishTaskOutputs() {
-        if (artifactInputs.files.isEmpty()) {
+    void validatePublishTaskOutputs() {
+        if (getArtifactInputs().files.isEmpty()) {
             throw new GradleException("Couldn't find the classes.jar for the room-compiler " +
                     "artifact. Ensure that publish is setup properly.")
         }
-        artifactInputs.forEach {
+        getArtifactInputs().forEach {
             validateJarContents(it)
         }
     }
@@ -193,7 +188,7 @@ class CheckArtifactTask extends DefaultTask {
      * Traverses the given jar file, looks for the classes that should be jarjarred and validates
      * their location.
      */
-    def validateJarContents(File jarFile) {
+    static void validateJarContents(File jarFile) {
         Boolean found = false
         ZipFile zip = new ZipFile(jarFile)
         try {
@@ -226,12 +221,15 @@ class CheckArtifactTask extends DefaultTask {
      * Checks the generated pom file to ensure it does not depend on any jarjarred dependencies
      * but still depends on others.
      */
-    def validatePomTaskOutputs() {
-        if (!pomFile.canRead()) {
+    void validatePomTaskOutputs() {
+        File pom = getPomFile().asFile.get()
+        if (!pom.canRead()) {
             throw new GradleException("Cannot find the pom file for room-compiler")
         }
-        def pomContents = pomFile.newReader().text
-        if (pomContents.contains("antlr")) {
+        def pomContents = pom.newReader().text
+        Pattern antlrDep = Pattern.compile("<dependency>\\s.*antlr(.*\\s)*</dependency>")
+        Matcher matcher = antlrDep.matcher(pomContents)
+        if (matcher.find()) {
             throw new GradleException("Room-compiler pom file should not depend on antlr.\n" +
                     "Pom Contents:\n $pomContents")
         }
@@ -242,24 +240,29 @@ class CheckArtifactTask extends DefaultTask {
     }
 
     @TaskAction
-    def validate() {
-        result.write("fail\n")
+    void validate() {
+        getResult().asFile.get().write("fail\n")
         validatePublishTaskOutputs()
         validatePomTaskOutputs()
         // have a no-op output to make gradle happy w/ input/output checking.
-        result.write("ok\n")
+        getResult().asFile.get().write("ok\n")
     }
 }
 
-def checkArtifactContentsTask = tasks.register("checkArtifactTask", CheckArtifactTask) {
-    def pomTask = (GenerateMavenPom) project.tasks.named("generatePomFileForMavenPublication").get()
-    it.pomFile = pomTask.destination
+def checkArtifactContentsTask = tasks.register("checkArtifact", CheckArtifactTask) { task ->
+    task.getResult().set(layout.buildDirectory.file("checkArtifactOutput.txt"))
+    def pomTask = (TaskProvider<GenerateMavenPom>) project.tasks.named("generatePomFileForMavenPublication")
+    task.getPomFile().set(
+            project.objects.fileProperty().fileProvider(
+                    pomTask.map {  it.destination }
+            )
+    )
 }
 
 afterEvaluate {
     def publishTaskProvider = project.tasks.named("publishMavenPublicationToMavenRepository")
-    checkArtifactContentsTask.configure {
-        it.artifactInputs.from {
+    checkArtifactContentsTask.configure { checkArtifactTask ->
+        checkArtifactTask.getArtifactInputs().from {
             publishTaskProvider.map {
                 ((PublishToMavenRepository) it).getPublication().artifacts.matching {
                     it.classifier == null
@@ -274,11 +277,6 @@ afterEvaluate {
 // make sure we validate published artifacts on the build server.
 BuildOnServerKt.addToBuildOnServer(project, checkArtifactContentsTask)
 
-def tasksThatDependOnAntlr = ["compileKotlin", "sourceJar", "kotlinSourcesJar", "generateKmpDocs"]
-tasks.matching { tasksThatDependOnAntlr.contains(it.name) }.configureEach {
-    it.dependsOn(generateAntlrTask)
-}
-
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         freeCompilerArgs += [
@@ -291,7 +289,7 @@ tasks.withType(KotlinCompile).configureEach {
 
 tasks.withType(Test).configureEach {
     it.systemProperty("androidx.room.compiler.processing.strict", "true")
-    it.maxParallelForks(3)
+    it.maxParallelForks(5)
     if (project.providers.environmentVariable("GITHUB_ACTIONS").present) {
         // limit memory usage to avoid running out of memory in the docker container.
         it.maxHeapSize("512m")
@@ -303,4 +301,8 @@ androidx {
     type = LibraryType.ANNOTATION_PROCESSOR
     inceptionYear = "2017"
     description = "Android Room annotation processor"
+    license { // jarjared antlr library
+        name = "BSD licence"
+        url = "http://antlr.org/license.html"
+    }
 }

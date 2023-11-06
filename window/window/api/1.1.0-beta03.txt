@@ -9,6 +9,13 @@ package androidx.window {
 
 }
 
+package androidx.window.core {
+
+  @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.MustBeDocumented @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalWindowApi {
+  }
+
+}
+
 package androidx.window.embedding {
 
   public final class ActivityEmbeddingController {
@@ -125,9 +132,30 @@ package androidx.window.embedding {
     method public androidx.window.embedding.SplitAttributes.SplitType ratio(@FloatRange(from=0.0, to=1.0, fromInclusive=false, toInclusive=false) float ratio);
   }
 
+  @androidx.window.core.ExperimentalWindowApi public final class SplitAttributesCalculatorParams {
+    method public boolean getAreDefaultConstraintsSatisfied();
+    method public androidx.window.embedding.SplitAttributes getDefaultSplitAttributes();
+    method public android.content.res.Configuration getParentConfiguration();
+    method public androidx.window.layout.WindowLayoutInfo getParentWindowLayoutInfo();
+    method public androidx.window.layout.WindowMetrics getParentWindowMetrics();
+    method public String? getSplitRuleTag();
+    property public final boolean areDefaultConstraintsSatisfied;
+    property public final androidx.window.embedding.SplitAttributes defaultSplitAttributes;
+    property public final android.content.res.Configuration parentConfiguration;
+    property public final androidx.window.layout.WindowLayoutInfo parentWindowLayoutInfo;
+    property public final androidx.window.layout.WindowMetrics parentWindowMetrics;
+    property public final String? splitRuleTag;
+  }
+
   public final class SplitController {
+    method @Deprecated @androidx.window.core.ExperimentalWindowApi public void addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
+    method @androidx.window.core.ExperimentalWindowApi public void clearSplitAttributesCalculator();
     method public static androidx.window.embedding.SplitController getInstance(android.content.Context context);
     method public androidx.window.embedding.SplitController.SplitSupportStatus getSplitSupportStatus();
+    method @androidx.window.core.ExperimentalWindowApi public boolean isSplitAttributesCalculatorSupported();
+    method @Deprecated @androidx.window.core.ExperimentalWindowApi public boolean isSplitSupported();
+    method @Deprecated @androidx.window.core.ExperimentalWindowApi public void removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
+    method @androidx.window.core.ExperimentalWindowApi public void setSplitAttributesCalculator(kotlin.jvm.functions.Function1<? super androidx.window.embedding.SplitAttributesCalculatorParams,androidx.window.embedding.SplitAttributes> calculator);
     method public kotlinx.coroutines.flow.Flow<java.util.List<androidx.window.embedding.SplitInfo>> splitInfoList(android.app.Activity activity);
     property public final androidx.window.embedding.SplitController.SplitSupportStatus splitSupportStatus;
     field public static final androidx.window.embedding.SplitController.Companion Companion;
@@ -302,6 +330,7 @@ package androidx.window.layout {
 
   public interface WindowInfoTracker {
     method public default static androidx.window.layout.WindowInfoTracker getOrCreate(android.content.Context context);
+    method @androidx.window.core.ExperimentalWindowApi public default kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(@UiContext android.content.Context context);
     method public kotlinx.coroutines.flow.Flow<androidx.window.layout.WindowLayoutInfo> windowLayoutInfo(android.app.Activity activity);
     field public static final androidx.window.layout.WindowInfoTracker.Companion Companion;
   }
@@ -317,6 +346,7 @@ package androidx.window.layout {
 
   public final class WindowMetrics {
     method public android.graphics.Rect getBounds();
+    method @RequiresApi(android.os.Build.VERSION_CODES.R) @androidx.window.core.ExperimentalWindowApi public androidx.core.view.WindowInsetsCompat getWindowInsets();
     property public final android.graphics.Rect bounds;
   }
 

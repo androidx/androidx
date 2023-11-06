@@ -28,22 +28,8 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.toOffset
 
-/**
- * [LookaheadLayoutCoordinates] interface holds layout coordinates from both the lookahead
- * calculation and the post-lookahead layout pass.
- */
-@Deprecated(
-    "LookaheadLayoutCoordinates class has been removed. localLookaheadPositionOf" +
-        "can be achieved in LookaheadScope using" +
-        " LayoutCoordinates.localLookaheadPositionOf(LayoutCoordinates) function.",
-    replaceWith = ReplaceWith("LayoutCoordinates")
-)
-@ExperimentalComposeUiApi
-sealed interface LookaheadLayoutCoordinates : LayoutCoordinates
-
-@Suppress("DEPRECATION")
-internal class LookaheadLayoutCoordinatesImpl(val lookaheadDelegate: LookaheadDelegate) :
-    LookaheadLayoutCoordinates {
+internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelegate) :
+    LayoutCoordinates {
     val coordinator: NodeCoordinator
         get() = lookaheadDelegate.coordinator
 
@@ -87,7 +73,7 @@ internal class LookaheadLayoutCoordinatesImpl(val lookaheadDelegate: LookaheadDe
         sourceCoordinates: LayoutCoordinates,
         relativeToSource: Offset
     ): Offset {
-        if (sourceCoordinates is LookaheadLayoutCoordinatesImpl) {
+        if (sourceCoordinates is LookaheadLayoutCoordinates) {
             val source = sourceCoordinates.lookaheadDelegate
             source.coordinator.onCoordinatesUsed()
             val commonAncestor = coordinator.findCommonAncestor(source.coordinator)

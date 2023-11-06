@@ -22,6 +22,8 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.benchmark.DeviceInfo
 import androidx.benchmark.Outputs
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig
+import androidx.benchmark.perfetto.PerfettoCapture.PerfettoSdkConfig.InitialProcessState
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
@@ -70,7 +72,10 @@ class StartupTimingMetricTest {
         val packageName = "androidx.benchmark.integration.macrobenchmark.target"
         val intent =
             Intent("androidx.benchmark.integration.macrobenchmark.target.TRIVIAL_STARTUP_ACTIVITY")
-        val scope = MacrobenchmarkScope(packageName = packageName, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            packageName = packageName,
+            launchWithClearTask = true
+        )
         val measurements = measureStartup(packageName, StartupMode.COLD) {
             // Simulate a cold start
             scope.killProcess()
@@ -100,7 +105,10 @@ class StartupTimingMetricTest {
         }
         assumeTrue(isAbiSupported())
 
-        val scope = MacrobenchmarkScope(packageName = Packages.TEST, launchWithClearTask = true)
+        val scope = MacrobenchmarkScope(
+            packageName = Packages.TEST,
+            launchWithClearTask = true
+        )
         val launchIntent = ConfigurableActivity.createIntent(
             text = "ORIGINAL TEXT",
             reportFullyDrawnDelayMs = delayMs
@@ -302,9 +310,9 @@ internal fun measureStartup(
             } else {
                 listOf(packageName)
             },
-
+            useStackSamplingConfig = false
         ),
-        userspaceTracingPackage = packageName,
+        perfettoSdkConfig = PerfettoSdkConfig(packageName, InitialProcessState.Unknown),
         block = measureBlock
     )!!
 

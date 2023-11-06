@@ -33,8 +33,9 @@ dependencies {
     implementation(gradleApi())
     implementation(libs.androidGradlePluginz)
     implementation(libs.kotlinStdlib)
-    implementation(libs.protobufGradlePluginz)
+    implementation(libs.protobufGradlePlugin)
     implementation(libs.shadow)
+    implementation(libs.apacheAnt)
 
     testImplementation(project(":internal-testutils-gradle-plugin"))
     testImplementation(gradleTestKit())

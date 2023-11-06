@@ -39,11 +39,11 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -64,6 +64,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintSet
 import androidx.constraintlayout.compose.Dimension
 import androidx.constraintlayout.compose.ExperimentalMotionApi
+import androidx.constraintlayout.compose.InvalidationStrategy
 import androidx.constraintlayout.compose.MotionLayout
 import androidx.constraintlayout.compose.MotionLayoutScope
 import androidx.constraintlayout.compose.MotionScene
@@ -75,19 +76,26 @@ import androidx.constraintlayout.compose.integration.macrobenchmark.target.commo
 @Preview
 @Composable
 fun NewMotionMessagePreview() {
-    NewMotionMessageWithControls(useDsl = false)
+    NewMotionMessageWithControls(useDsl = false, optimize = false)
 }
 
 @Preview
 @Composable
 fun NewMotionMessagePreviewWithDsl() {
-    NewMotionMessageWithControls(useDsl = true)
+    NewMotionMessageWithControls(useDsl = true, optimize = false)
+}
+
+@Preview
+@Composable
+fun NewMotionMessagePreviewWithDslOptimized() {
+    NewMotionMessageWithControls(useDsl = true, optimize = true)
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMotionApi::class)
 @Composable
 fun NewMotionMessageWithControls(
-    useDsl: Boolean
+    useDsl: Boolean,
+    optimize: Boolean
 ) {
     val initialLayout = NewMessageLayout.Full
     val newMessageState = rememberNewMessageState(initialLayoutState = initialLayout)
@@ -111,10 +119,20 @@ fun NewMotionMessageWithControls(
                 text = "Mini"
             )
         }
+        val invalidationStrategy = remember(newMessageState, optimize) {
+            if (optimize) {
+                InvalidationStrategy {
+                    newMessageState.currentState
+                }
+            } else {
+                InvalidationStrategy.DefaultInvalidationStrategy
+            }
+        }
         NewMessageButton(
             modifier = Modifier.fillMaxSize(),
             motionScene = motionScene,
             state = newMessageState,
+            invalidationStrategy = invalidationStrategy,
         )
     }
 }
@@ -533,16 +551,18 @@ internal fun MotionLayoutScope.MotionMessageContent(
 
 @Composable
 private fun NewMessageButton(
-    modifier: Modifier = Modifier,
     motionScene: MotionScene,
-    state: NewMessageState
+    state: NewMessageState,
+    invalidationStrategy: InvalidationStrategy,
+    modifier: Modifier = Modifier,
 ) {
     val currentStateName = state.currentState.name
     MotionLayout(
         motionScene = motionScene,
         animationSpec = tween(700),
         constraintSetName = currentStateName,
-        modifier = modifier
+        modifier = modifier,
+        invalidationStrategy = invalidationStrategy
     ) {
         MotionMessageContent(state = state)
     }
@@ -615,7 +635,7 @@ internal fun MessageWidgetCol(modifier: Modifier) {
                     Text(text = "Send")
                     Spacer(modifier = Modifier.width(8.dp))
                     Icon(
-                        imageVector = Icons.Default.Send,
+                        imageVector = Icons.AutoMirrored.Default.Send,
                         contentDescription = "Send Mail",
                     )
                 }
@@ -717,7 +737,7 @@ internal fun MessageWidget(
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 CheapText(text = "Send")
                 Icon(
-                    imageVector = Icons.Default.Send,
+                    imageVector = Icons.AutoMirrored.Default.Send,
                     contentDescription = "Send Mail",
                 )
             }

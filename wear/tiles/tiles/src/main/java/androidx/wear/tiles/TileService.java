@@ -69,7 +69,13 @@ public abstract class TileService extends Service {
     private static final String TAG = "TileService";
     static final VersionInfo DEFAULT_VERSION =
             VersionInfo.newBuilder().setMajor(1).setMinor(0).build();
-    static final Resources EMPTY_RESOURCE = new Resources.Builder().build();
+
+    @SuppressWarnings("deprecation")
+    private static final ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources>
+            ON_RESOURCES_REQUEST_NOT_IMPLEMENTED =
+                    createFailedFuture(
+                            new UnsupportedOperationException(
+                                    "onResourcesRequest not implemented"));
 
     /**
      * The intent action used to send update requests to the provider. Tile provider services must
@@ -116,8 +122,7 @@ public abstract class TileService extends Service {
     @Deprecated
     protected ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources> onResourcesRequest(
             @NonNull ResourcesRequest requestParams) {
-        return createFailedFuture(
-                new UnsupportedOperationException("onResourcesRequest not implemented"));
+        return ON_RESOURCES_REQUEST_NOT_IMPLEMENTED;
     }
 
     /**
@@ -137,12 +142,31 @@ public abstract class TileService extends Service {
      */
     @MainThread
     @NonNull
-    @SuppressWarnings("AsyncSuffixFuture")
+    @SuppressWarnings({"AsyncSuffixFuture", "deprecation"}) // For backward compatibility
     protected ListenableFuture<Resources> onTileResourcesRequest(
             @NonNull ResourcesRequest requestParams) {
         // We are offering a default implementation for onTileResourcesRequest for backward
         // compatibility as older clients are overriding onResourcesRequest.
-        return createImmediateFuture(EMPTY_RESOURCE);
+        ListenableFuture<androidx.wear.tiles.ResourceBuilders.Resources>
+                legacyResourcesRequestResult = onResourcesRequest(requestParams);
+        if (legacyResourcesRequestResult == ON_RESOURCES_REQUEST_NOT_IMPLEMENTED) {
+            return createFailedFuture(
+                    new UnsupportedOperationException(
+                            "onTileResourcesRequest " + "not implemented."));
+        }
+
+        ResolvableFuture<Resources> result = ResolvableFuture.create();
+        legacyResourcesRequestResult.addListener(
+                () -> {
+                    try {
+                        result.set(
+                                Resources.fromProto(legacyResourcesRequestResult.get().toProto()));
+                    } catch (RuntimeException | InterruptedException | ExecutionException e) {
+                        result.setException(e);
+                    }
+                },
+                Runnable::run);
+        return result;
     }
 
     /**
@@ -366,44 +390,13 @@ public abstract class TileService extends Service {
                             if (resourcesFuture.isDone()) {
                                 try {
                                     Resources resources = resourcesFuture.get();
-                                    if (resources != EMPTY_RESOURCE) {
-                                        // The subclass has overridden onTileResourceRequest.
-                                        updateResources(
-                                                callback, resources.toProto().toByteArray());
-                                    } else {
-                                        // Falling back to onResourcesRequest.
-                                        ListenableFuture<
-                                                        androidx.wear.tiles.ResourceBuilders
-                                                                .Resources>
-                                                resourcesFutureDeprecated =
-                                                        tileService.onResourcesRequest(req);
-                                        resourcesFutureDeprecated.addListener(
-                                                () -> {
-                                                    try {
-                                                        updateResources(
-                                                                callback,
-                                                                resourcesFutureDeprecated
-                                                                        .get()
-                                                                        .toProto()
-                                                                        .toByteArray());
-                                                    } catch (ExecutionException
-                                                            | InterruptedException
-                                                            | CancellationException ex) {
-                                                        Log.e(
-                                                                TAG,
-                                                                "onResourcesRequest Future failed",
-                                                                ex);
-                                                    }
-                                                },
-                                                mHandler::post);
-                                    }
+                                    updateResources(callback, resources.toProto().toByteArray());
                                 } catch (ExecutionException
                                         | InterruptedException
                                         | CancellationException ex) {
                                     Log.e(TAG, "onTileResourcesRequest Future failed", ex);
                                 }
                             } else {
-                                // The subclass has overridden onTileResourceRequest.
                                 resourcesFuture.addListener(
                                         () -> {
                                             try {
@@ -547,12 +540,6 @@ public abstract class TileService extends Service {
         } catch (RemoteException ex) {
             Log.e(TAG, "RemoteException while returning resources payload", ex);
         }
-    }
-
-    private static <T> ListenableFuture<T> createImmediateFuture(@NonNull T value) {
-        ResolvableFuture<T> future = ResolvableFuture.create();
-        future.set(value);
-        return future;
     }
 
     private static <T> ListenableFuture<T> createFailedFuture(@NonNull Throwable throwable) {

@@ -20,7 +20,11 @@ import androidx.versionedparcelable.VersionedParcelable;
 
 /**
  * An interface to encapsulate rating information used as content metadata.
+ *
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public interface Rating extends VersionedParcelable {
     /**
      * Returns whether there is a rating value available.

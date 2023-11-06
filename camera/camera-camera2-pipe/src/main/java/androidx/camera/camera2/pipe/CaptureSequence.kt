@@ -16,12 +16,18 @@
 
 package androidx.camera.camera2.pipe
 
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
+
 /**
  * An ordered list of [TCaptureRequest] objects, listeners, and associated metadata that will be
  * submitted and captured together when submitted to the camera.
  *
  * A CaptureSequence should be created from a [CaptureSequenceProcessor].
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 interface CaptureSequence<out TCaptureRequest> {
     val cameraId: CameraId
     val repeating: Boolean
@@ -39,6 +45,8 @@ interface CaptureSequence<out TCaptureRequest> {
 }
 
 /** Utility functions for interacting with [CaptureSequence] callbacks and listeners. */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 object CaptureSequences {
     /**
      * Efficient, inlined utility function for invoking a call on each of the listeners defined on a

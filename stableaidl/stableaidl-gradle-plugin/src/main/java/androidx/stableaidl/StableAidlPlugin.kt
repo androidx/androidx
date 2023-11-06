@@ -48,12 +48,10 @@ abstract class StableAidlPlugin : Plugin<Project> {
             StableAidlExtensionImpl::class.java
         )
 
-        // Obtain the AIDL executable and framework AIDL file paths using private APIs. See
-        // b/268237729 for public API request, after which we can obtain them from SdkComponents.
-        val base = project.extensions.getByType(BaseExtension::class.java)
-            ?: throw GradleException("Stable AIDL plugin requires Android Gradle Plugin")
-        val aidlExecutable = androidComponents.sdkComponents.aidl(base)
-        val aidlFramework = androidComponents.sdkComponents.aidlFramework(base)
+        val aidl = androidComponents.sdkComponents.aidl.get()
+        val aidlExecutable = aidl.executable
+        val aidlFramework = aidl.framework
+        val aidlVersion = aidl.version
 
         // Extend the android sourceSet.
         androidComponents.registerSourceType(SOURCE_TYPE_STABLE_AIDL)
@@ -92,16 +90,14 @@ abstract class StableAidlPlugin : Plugin<Project> {
 
             val apiDirName = "$API_DIR/aidl${variant.name.usLocaleCapitalize()}"
             val builtApiDir = project.layout.buildDirectory.dir(apiDirName)
-            val lastReleasedApiDir =
-                project.layout.projectDirectory.dir("$apiDirName/$RELEASED_API_DIR")
-            val lastCheckedInApiDir =
-                project.layout.projectDirectory.dir("$apiDirName/$CURRENT_API_DIR")
+            val frozenApiDir = project.layout.projectDirectory.dir("$apiDirName/$CURRENT_API_DIR")
 
             val compileAidlApiTask = registerCompileAidlApi(
                 project,
                 variant,
                 aidlExecutable,
                 aidlFramework,
+                aidlVersion,
                 sourceDir,
                 packagedDir,
                 importsDir,
@@ -122,6 +118,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 variant,
                 aidlExecutable,
                 aidlFramework,
+                aidlVersion,
                 sourceDir,
                 importsDir,
                 depImports,
@@ -135,7 +132,7 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 aidlFramework,
                 importsDir,
                 depImports,
-                lastReleasedApiDir,
+                frozenApiDir,
                 generateAidlApiTask
             )
             val checkAidlApiTask = registerCheckAidlApi(
@@ -145,15 +142,16 @@ abstract class StableAidlPlugin : Plugin<Project> {
                 aidlFramework,
                 importsDir,
                 depImports,
-                lastCheckedInApiDir,
+                frozenApiDir,
                 generateAidlApiTask,
                 checkAidlApiReleaseTask
             )
             val updateAidlApiTask = registerUpdateAidlApi(
                 project,
                 variant,
-                lastCheckedInApiDir,
-                generateAidlApiTask
+                frozenApiDir,
+                generateAidlApiTask,
+                checkAidlApiReleaseTask
             )
 
             if (variant.name == DEFAULT_VARIANT_NAME) {
@@ -182,14 +180,9 @@ abstract class StableAidlPlugin : Plugin<Project> {
 internal const val API_DIR = "api"
 
 /**
- * Directory under [API_DIR] where the current (work-in-progress) API files are stored.
+ * Directory under [API_DIR] where the frozen API files are stored.
  */
 internal const val CURRENT_API_DIR = "current"
-
-/**
- * Directory under [API_DIR] where the released (frozen) API files are stored.
- */
-internal const val RELEASED_API_DIR = "released"
 
 /**
  * Source type for Stable AIDL files.

@@ -18,6 +18,16 @@ package androidx.compose.ui.graphics.drawscope
 
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+
+/**
+ * Default density value that is used as a stub to provide a non-null
+ * density parameter within CanvasDrawScope.
+ * Density is provided as a parameter as part of the draw call to
+ * issue drawing commands into a target canvas so this Density value is never consumed
+ */
+internal val DefaultDensity = Density(1.0f, 1.0f)
 
 /**
  * Object that provides the dependencies to support a [DrawScope] drawing environment.
@@ -40,10 +50,26 @@ interface DrawContext {
     /**
      * The target canvas to issue drawing commands
      */
-    val canvas: Canvas
+    var canvas: Canvas
+        get() = EmptyCanvas()
+        set(_) {}
 
     /**
      * The controller for issuing transformations to the drawing environment
      */
     val transform: DrawTransform
+
+    /**
+     * [LayoutDirection] of the layout being drawn in.
+    */
+    var layoutDirection: LayoutDirection
+        get() = LayoutDirection.Ltr
+        set(_) {}
+
+    /**
+     * [Density] used to assist in conversions of density independent pixels to raw pixels to draw
+     */
+    var density: Density
+        get() = DefaultDensity
+        set(_) {}
 }

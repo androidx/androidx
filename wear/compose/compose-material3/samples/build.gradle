@@ -24,6 +24,16 @@ plugins {
 }
 
 dependencies {
+    compileOnly(project(":annotation:annotation-sampled"))
+
+    implementation(project(":activity:activity-compose"))
+    implementation(project(":compose:material:material-icons-core"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":compose:ui:ui-tooling"))
+    implementation(project(":compose:ui:ui-tooling-preview"))
+    implementation(project(":wear:compose:compose-foundation"))
+    implementation(project(":wear:compose:compose-material3"))
+    implementation(project(":wear:compose:compose-ui-tooling"))
 }
 
 android {

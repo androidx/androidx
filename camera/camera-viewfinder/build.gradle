@@ -25,19 +25,16 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.2.0")
-    implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
+    implementation("androidx.annotation:annotation-experimental:1.3.1")
     implementation(libs.guavaListenableFuture)
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.concurrent:concurrent-futures-ktx:1.2.0-alpha01")
+    implementation("androidx.concurrent:concurrent-futures-ktx:1.1.0")
     implementation(libs.autoValueAnnotations)
     implementation("androidx.appcompat:appcompat:1.1.0")
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
-
-    // Added for annotation-experimental
-    compileOnly(libs.kotlinStdlib)
 
     annotationProcessor(libs.autoValue)
 
@@ -85,4 +82,5 @@ androidx {
     runApiTasks = new RunApiTasks.Yes("Need to track API surface before moving to publish")
     inceptionYear = "2022"
     description = "Standalone Viewfinder for Camera2 and CameraX"
+    metalavaK2UastEnabled = true
 }

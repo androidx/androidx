@@ -25,9 +25,6 @@ android {
     defaultConfig {
         minSdkVersion 21
     }
-    lintOptions {
-        disable("SyntheticAccessor")
-    }
     namespace "androidx.compose.runtime.benchmark"
 }
 
@@ -39,10 +36,11 @@ dependencies {
     androidTestImplementation(projectOrArtifact(":compose:foundation:foundation-layout"))
     androidTestImplementation(projectOrArtifact(":compose:material:material"))
     androidTestImplementation(projectOrArtifact(":compose:runtime:runtime"))
+    androidTestImplementation(projectOrArtifact(":compose:runtime:runtime-saveable"))
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-text"))
     androidTestImplementation(projectOrArtifact(":compose:ui:ui-util"))
-    androidTestImplementation(projectOrArtifact(":compose:test-utils"))
-    androidTestImplementation(projectOrArtifact(":compose:benchmark-utils"))
+    androidTestImplementation(project(":compose:test-utils"))
+    androidTestImplementation(project(":compose:benchmark-utils"))
 
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.testExtJunit)

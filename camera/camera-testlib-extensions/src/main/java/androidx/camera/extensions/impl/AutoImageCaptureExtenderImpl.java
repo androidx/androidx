@@ -15,12 +15,12 @@
  */
 package androidx.camera.extensions.impl;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Build;
@@ -49,7 +49,6 @@ import java.util.concurrent.Executor;
  * @since 1.0
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@SuppressLint("UnknownNullness")
 public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderImpl {
     private static final String TAG = "AutoICExtender";
     private static final int DEFAULT_STAGE_ID = 0;
@@ -79,6 +78,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         return CameraCharacteristicAvailability.isEffectAvailable(cameraCharacteristics, EFFECT);
     }
 
+    @NonNull
     @Override
     public List<CaptureStageImpl> getCaptureStages() {
         // Placeholder set of CaptureRequest.Key values
@@ -89,6 +89,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         return captureStages;
     }
 
+    @Nullable
     @Override
     public CaptureProcessorImpl getCaptureProcessor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -110,6 +111,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
 
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onPresetSession() {
         // The CaptureRequest parameters will be set via SessionConfiguration#setSessionParameters
@@ -126,6 +128,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         return captureStage;
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onEnableSession() {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
@@ -136,6 +139,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         return captureStage;
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onDisableSession() {
         // Set the necessary CaptureRequest parameters via CaptureStage, here we use some
@@ -151,6 +155,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         return 3;
     }
 
+    @Nullable
     @Override
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
         return null;
@@ -161,6 +166,33 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
     @Override
     public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
         return new Range<>(300L, 1000L);
+    }
+
+    @Override
+    public int onSessionType() {
+        return SessionConfiguration.SESSION_REGULAR;
+    }
+
+    @Nullable
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
+        return null;
+    }
+
+    @Override
+    public boolean isCaptureProcessProgressAvailable() {
+        return false;
+    }
+
+    @Nullable
+    @Override
+    public Pair<Long, Long> getRealtimeCaptureLatency() {
+        return null;
+    }
+
+    @Override
+    public boolean isPostviewAvailable() {
+        return false;
     }
 
     @RequiresApi(23)
@@ -174,7 +206,7 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         }
 
         @Override
-        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results) {
+        public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results) {
             Log.d(TAG, "Started auto CaptureProcessor");
 
             Pair<Image, TotalCaptureResult> result = results.get(DEFAULT_STAGE_ID);
@@ -213,9 +245,26 @@ public final class AutoImageCaptureExtenderImpl implements ImageCaptureExtenderI
         }
 
         @Override
-        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results,
-                ProcessResultImpl resultCallback, Executor executor) {
+        public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
+            process(results);
+        }
 
+        @Override
+        public void onPostviewOutputSurface(@NonNull Surface surface) {
+
+        }
+
+        @Override
+        public void onResolutionUpdate(@NonNull Size size, @NonNull Size postviewSize) {
+
+        }
+
+        @Override
+        public void processWithPostview(
+                @NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
+            throw new UnsupportedOperationException("Postview is not supported");
         }
     }
 

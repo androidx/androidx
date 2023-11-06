@@ -41,8 +41,8 @@ import androidx.camera.core.impl.RequestProcessor
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessorSurface
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraUtil.PreTestCameraIdList
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraUtil.PreTestCameraIdList
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -81,7 +81,7 @@ class Camera2RequestProcessorTest {
     private lateinit var cameraDeviceHolder: CameraUtil.CameraDeviceHolder
     private lateinit var captureSessionRepository: CaptureSessionRepository
     private lateinit var dynamicRangesCompat: DynamicRangesCompat
-    private lateinit var captureSessionOpenerBuilder: SynchronizedCaptureSessionOpener.Builder
+    private lateinit var captureSessionOpenerBuilder: SynchronizedCaptureSession.OpenerBuilder
     private lateinit var mainThreadExecutor: Executor
     private lateinit var previewSurface: SessionProcessorSurface
     private lateinit var captureSurface: SessionProcessorSurface
@@ -107,7 +107,7 @@ class Camera2RequestProcessorTest {
         captureSessionRepository = CaptureSessionRepository(mainThreadExecutor)
         val cameraCharacteristics = getCameraCharacteristic(CAMERA_ID)
         dynamicRangesCompat = DynamicRangesCompat.fromCameraCharacteristics(cameraCharacteristics)
-        captureSessionOpenerBuilder = SynchronizedCaptureSessionOpener.Builder(
+        captureSessionOpenerBuilder = SynchronizedCaptureSession.OpenerBuilder(
             mainThreadExecutor,
             mainThreadExecutor as ScheduledExecutorService,
             handler,

@@ -23,7 +23,7 @@ import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraXConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.impl.LabTestRule
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -80,7 +80,7 @@ class CameraXInitTest(private val implName: String, private val cameraXConfig: C
     @After
     fun tearDown() {
         if (::cameraProvider.isInitialized) {
-            cameraProvider.shutdown()[10, TimeUnit.SECONDS]
+            cameraProvider.shutdownAsync()[10, TimeUnit.SECONDS]
         }
     }
 

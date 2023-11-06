@@ -16,7 +16,6 @@
 package androidx.camera.core.imagecapture;
 
 import static androidx.camera.core.ImageCapture.ERROR_FILE_IO;
-import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 
 import static java.util.Objects.requireNonNull;
 
@@ -32,6 +31,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.impl.utils.Exif;
+import androidx.camera.core.internal.compat.workaround.InvalidJpegDataParser;
 import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
 
@@ -67,7 +67,7 @@ class JpegBytes2Disk implements Operation<JpegBytes2Disk.In, ImageCapture.Output
         writeBytesToFile(tempFile, packet.getData());
         updateFileExif(tempFile, requireNonNull(packet.getExif()), options,
                 packet.getRotationDegrees());
-        Uri uri = copyFileToTarget(tempFile, options);
+        Uri uri = moveFileToTarget(tempFile, options);
         return new ImageCapture.OutputFileResults(uri);
     }
 
@@ -110,7 +110,8 @@ class JpegBytes2Disk implements Operation<JpegBytes2Disk.In, ImageCapture.Output
     private static void writeBytesToFile(
             @NonNull File tempFile, @NonNull byte[] bytes) throws ImageCaptureException {
         try (FileOutputStream output = new FileOutputStream(tempFile)) {
-            output.write(bytes);
+            InvalidJpegDataParser invalidJpegDataParser = new InvalidJpegDataParser();
+            output.write(bytes, 0, invalidJpegDataParser.getValidDataLength(bytes));
         } catch (IOException e) {
             throw new ImageCaptureException(ERROR_FILE_IO, "Failed to write to temp file", e);
         }
@@ -152,29 +153,30 @@ class JpegBytes2Disk implements Operation<JpegBytes2Disk.In, ImageCapture.Output
     }
 
     /**
-     * Copies the file to target and returns the {@link Uri}.
+     * Copies the file to target, deletes the original file and returns the target's {@link Uri}.
      *
      * @return null if the target is {@link OutputStream}.
      */
     @Nullable
-    private static Uri copyFileToTarget(
-            @NonNull File file, @NonNull ImageCapture.OutputFileOptions options)
+    static Uri moveFileToTarget(
+            @NonNull File tempFile, @NonNull ImageCapture.OutputFileOptions options)
             throws ImageCaptureException {
-        if (isSaveToMediaStore(options)) {
-            return copyFileToMediaStore(file, options);
-        } else if (isSaveToOutputStream(options)) {
-            try {
-                copyFileToOutputStream(file, requireNonNull(options.getOutputStream()));
-                return null;
-            } catch (IOException e) {
-                throw new ImageCaptureException(
-                        ERROR_FILE_IO, "Failed to write to OutputStream.", null);
+        Uri uri = null;
+        try {
+            if (isSaveToMediaStore(options)) {
+                uri = copyFileToMediaStore(tempFile, options);
+            } else if (isSaveToOutputStream(options)) {
+                copyFileToOutputStream(tempFile, requireNonNull(options.getOutputStream()));
+            } else if (isSaveToFile(options)) {
+                uri = copyFileToFile(tempFile, requireNonNull(options.getFile()));
             }
-        } else if (isSaveToFile(options)) {
-            return copyFileToFile(file, requireNonNull(options.getFile()));
-        } else {
-            throw new ImageCaptureException(ERROR_UNKNOWN, "Invalid OutputFileOptions", null);
+        } catch (IOException e) {
+            throw new ImageCaptureException(
+                    ERROR_FILE_IO, "Failed to write to OutputStream.", null);
+        } finally {
+            tempFile.delete();
         }
+        return uri;
     }
 
     private static Uri copyFileToMediaStore(

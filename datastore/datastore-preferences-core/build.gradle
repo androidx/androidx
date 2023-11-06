@@ -14,13 +14,11 @@
  * limitations under the License.
  */
 
-
 import androidx.build.BundleInsideHelper
 import androidx.build.KmpPlatformsKt
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
     id("AndroidXPlugin")
@@ -36,6 +34,7 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    // NOTE, if you add android target here, make sure to add the proguard file as well.
 
     defaultPlatform(PlatformIdentifier.JVM)
 
@@ -58,7 +57,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(libs.kotlinCoroutinesTest)
                 implementation(project(":datastore:datastore-core"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
                 implementation(project(":internal-testutils-datastore"))
             }
         }
@@ -71,7 +70,7 @@ androidXMultiplatform {
                 implementation(libs.junit)
                 implementation(libs.kotlinTest)
                 implementation(project(":internal-testutils-datastore"))
-                implementation(project(":internal-testutils-kmp"))
+                implementation(project(":kruth:kruth"))
             }
         }
         if (enableNative) {
@@ -88,16 +87,11 @@ androidXMultiplatform {
                 dependencies {
                     implementation(libs.kotlinTest)
                     implementation(project(":internal-testutils-datastore"))
-                    implementation(project(":internal-testutils-kmp"))
+                    implementation(project(":kruth:kruth"))
                 }
             }
         }
 
-        targets.withType(KotlinNativeTarget).configureEach {
-            binaries.all {
-                binaryOptions["memoryModel"] = "experimental"
-            }
-        }
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
@@ -114,11 +108,14 @@ androidXMultiplatform {
 BundleInsideHelper.forInsideJarKmp(
         project,
         /* from = */ "com.google.protobuf",
-        /* to =   */ "androidx.datastore.preferences.protobuf"
+        /* to =   */ "androidx.datastore.preferences.protobuf",
+        // proto-lite dependency includes .proto files, which are not used and would clash if
+        // users also use proto library directly
+        /* dropResourcesWithSuffix = */ ".proto"
 )
 
 dependencies {
-    bundleInside(project(path: ":datastore:datastore-preferences-proto", configuration: "export"))
+    bundleInside(project(":datastore:datastore-preferences-proto"))
 }
 
 androidx {

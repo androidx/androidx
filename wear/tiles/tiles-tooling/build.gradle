@@ -11,6 +11,7 @@ dependencies {
     implementation(project(":wear:protolayout:protolayout-proto"))
     implementation(project(":wear:tiles:tiles"))
     implementation(project(":wear:tiles:tiles-renderer"))
+    implementation(project(":wear:tiles:tiles-tooling-preview"))
 
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesGuava)
@@ -47,5 +48,6 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
-    description = "A set of tools that are used to preview TilesService in Android Studio"
+    description = "A set of tools that are used to preview Tile components in Android Studio"
+    metalavaK2UastEnabled = true
 }

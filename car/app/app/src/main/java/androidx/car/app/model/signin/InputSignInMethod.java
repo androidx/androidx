@@ -50,7 +50,6 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     /**
      * The type of input represented by the {@link InputSignInMethod} instance.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(
@@ -75,7 +74,6 @@ public final class InputSignInMethod implements SignInTemplate.SignInMethod {
     /**
      * The type of keyboard to be displayed while the user is interacting with this input.
      *
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef(

@@ -22,6 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.ObjectsCompat;
 import androidx.core.util.Preconditions;
@@ -63,13 +64,13 @@ public final class SearchResult {
     @Nullable
     private List<MatchInfo> mMatchInfos;
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SearchResult(@NonNull Bundle bundle) {
         mBundle = Preconditions.checkNotNull(bundle);
     }
 
-    /** @hide */
+    /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @NonNull
     public Bundle getBundle() {
@@ -244,6 +245,7 @@ public final class SearchResult {
          * @throws AppSearchException if an error occurs converting a document class into a
          *                            {@link GenericDocument}.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setDocument(@NonNull Object document) throws AppSearchException {
             Preconditions.checkNotNull(document);
@@ -253,6 +255,7 @@ public final class SearchResult {
 // @exportToFramework:endStrip()
 
         /** Sets the document which matched. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setGenericDocument(@NonNull GenericDocument document) {
             Preconditions.checkNotNull(document);
@@ -262,6 +265,7 @@ public final class SearchResult {
         }
 
         /** Adds another match to this SearchResult. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addMatchInfo(@NonNull MatchInfo matchInfo) {
             Preconditions.checkState(
@@ -274,6 +278,7 @@ public final class SearchResult {
         }
 
         /** Sets the ranking signal of the matched document in this SearchResult. */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder setRankingSignal(double rankingSignal) {
             resetIfBuilt();
@@ -285,6 +290,7 @@ public final class SearchResult {
          * Adds a {@link SearchResult} that was joined by the {@link JoinSpec}.
          * @param joinedResult The joined SearchResult to add.
          */
+        @CanIgnoreReturnValue
         @NonNull
         public Builder addJoinedResult(@NonNull SearchResult joinedResult) {
             resetIfBuilt();
@@ -316,8 +322,8 @@ public final class SearchResult {
     }
 
     /**
-     * This class represents match objects for any Snippets that might be present in
-     * {@link SearchResults} from a query. Using this class, the user can get:
+     * This class represents match objects for any snippets that might be present in
+     * {@link SearchResults} from a query. Using this class, you can get:
      * <ul>
      *     <li>the full text - all of the text in that String property</li>
      *     <li>the exact term match - the 'term' (full word) that matched the query</li>
@@ -635,7 +641,7 @@ public final class SearchResult {
              * property in the document these snippets correspond to.
              *
              * <p>Example properties: 'body', 'sender.name', 'sender.emailaddress', etc.
-             * For class example 1 this returns "subject".
+             * For class example 1, this returns "subject".
              *
              * @param propertyPath A dot-delimited sequence of property names indicating which
              *                     property in the document these snippets correspond to.
@@ -645,6 +651,7 @@ public final class SearchResult {
             }
 
             /** Sets the exact {@link MatchRange} corresponding to the given entry. */
+            @CanIgnoreReturnValue
             @NonNull
             public Builder setExactMatchRange(@NonNull MatchRange matchRange) {
                 mExactMatchRange = Preconditions.checkNotNull(matchRange);
@@ -653,6 +660,7 @@ public final class SearchResult {
 
 
             /** Sets the submatch {@link MatchRange} corresponding to the given entry. */
+            @CanIgnoreReturnValue
             @NonNull
             public Builder setSubmatchRange(@NonNull MatchRange matchRange) {
                 mSubmatchRange = Preconditions.checkNotNull(matchRange);
@@ -660,6 +668,7 @@ public final class SearchResult {
             }
 
             /** Sets the snippet {@link MatchRange} corresponding to the given entry. */
+            @CanIgnoreReturnValue
             @NonNull
             public Builder setSnippetRange(@NonNull MatchRange matchRange) {
                 mSnippetRange = Preconditions.checkNotNull(matchRange);
@@ -697,7 +706,7 @@ public final class SearchResult {
      * <p> All ranges are finite, and the left side of the range is always {@code <=} the right
      * side of the range.
      *
-     * <p> Example: MatchRange(0, 100) represent a hundred ints from 0 to 99."
+     * <p> Example: MatchRange(0, 100) represents hundred ints from 0 to 99."
      */
     public static final class MatchRange {
         private final int mEnd;

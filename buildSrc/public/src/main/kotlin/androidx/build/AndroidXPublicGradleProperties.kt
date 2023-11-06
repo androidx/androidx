@@ -18,7 +18,5 @@
 
 package androidx.build
 
-/**
- * Specifies the type of Android Studio to use for the project's Studio task
- */
+/** Specifies the type of Android Studio to use for the project's Studio task */
 const val STUDIO_TYPE = "androidx.studio.type"

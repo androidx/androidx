@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="WrongConstant"
@@ -38,30 +38,66 @@
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IMediaController {"
-        errorLine2="^">
+        id="UnspecifiedRegisterReceiverFlag"
+        message="`mBroadcastReceiver` \&#xA;is missing `RECEIVER_EXPORTED` or `RECEIVER_NOT_EXPORTED` flag for unprotected \&#xA;broadcasts registered for android.intent.action.MEDIA_BUTTON"
+        errorLine1="                context.registerReceiver(mBroadcastReceiver, filter);"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/androidx/media2/session/IMediaController.aidl"/>
+            file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IMediaSession {"
-        errorLine2="^">
+        id="RestrictedApiAndroidX"
+        message="MediaBrowserServiceCompat.onSubscribe can only be called from within the same library (androidx.media:media)"
+        errorLine1="    public void onSubscribe(final String id, final Bundle option) {"
+        errorLine2="                ~~~~~~~~~~~">
         <location
-            file="src/main/aidl/androidx/media2/session/IMediaSession.aidl"/>
+            file="src/main/java/androidx/media2/session/MediaLibraryServiceLegacyStub.java"/>
     </issue>
 
     <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IMediaSessionService {"
-        errorLine2="^">
+        id="RestrictedApiAndroidX"
+        message="MediaBrowserServiceCompat.onUnsubscribe can only be called from within the same library (androidx.media:media)"
+        errorLine1="    public void onUnsubscribe(final String id) {"
+        errorLine2="                ~~~~~~~~~~~~~">
         <location
-            file="src/main/aidl/androidx/media2/session/IMediaSessionService.aidl"/>
+            file="src/main/java/androidx/media2/session/MediaLibraryServiceLegacyStub.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= 18) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerImplLegacy.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= 18) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    || (Build.VERSION.SDK_INT >= 19 &amp;&amp; value instanceof android.media.Rating)) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaUtils.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= 18) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/SessionToken.java"/>
     </issue>
 
     <issue

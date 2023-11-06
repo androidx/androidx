@@ -18,6 +18,7 @@ package androidx.appsearch.platformstorage.converter;
 
 import android.os.Build;
 
+import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -27,7 +28,6 @@ import androidx.appsearch.app.Migrator;
 import androidx.appsearch.app.PackageIdentifier;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
-import androidx.core.os.BuildCompat;
 import androidx.core.util.Preconditions;
 
 import java.util.Map;
@@ -36,7 +36,7 @@ import java.util.function.Function;
 
 /**
  * Translates between Platform and Jetpack versions of {@link SetSchemaRequest}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(Build.VERSION_CODES.S)
@@ -47,7 +47,6 @@ public final class SetSchemaRequestToPlatformConverter {
      * Translates a jetpack {@link SetSchemaRequest} into a platform
      * {@link android.app.appsearch.SetSchemaRequest}.
      */
-    @BuildCompat.PrereleaseSdkCheck
     @NonNull
     public static android.app.appsearch.SetSchemaRequest toPlatformSetSchemaRequest(
             @NonNull SetSchemaRequest jetpackRequest) {
@@ -74,7 +73,7 @@ public final class SetSchemaRequestToPlatformConverter {
             }
         }
         if (!jetpackRequest.getRequiredPermissionsForSchemaTypeVisibility().isEmpty()) {
-            if (Build.VERSION.SDK_INT < 33) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
                 throw new UnsupportedOperationException(
                         "Set required permissions for schema type visibility are not supported "
                                 + "with this backend/Android API level combination.");
@@ -82,7 +81,7 @@ public final class SetSchemaRequestToPlatformConverter {
             for (Map.Entry<String, Set<Set<Integer>>> entry :
                     jetpackRequest.getRequiredPermissionsForSchemaTypeVisibility().entrySet()) {
                 for (Set<Integer> permissionGroup : entry.getValue()) {
-                    platformBuilder.addRequiredPermissionsForSchemaTypeVisibility(
+                    ApiHelperForT.addRequiredPermissionsForSchemaTypeVisibility(platformBuilder,
                             entry.getKey(), permissionGroup);
                 }
             }
@@ -162,5 +161,19 @@ public final class SetSchemaRequestToPlatformConverter {
             );
         }
         return jetpackBuilder.build();
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    private static class ApiHelperForT {
+        private ApiHelperForT() {
+            // This class is not instantiable.
+        }
+
+        @DoNotInline
+        static void addRequiredPermissionsForSchemaTypeVisibility(
+                android.app.appsearch.SetSchemaRequest.Builder platformBuilder,
+                String schemaType, Set<Integer> permissions) {
+            platformBuilder.addRequiredPermissionsForSchemaTypeVisibility(schemaType, permissions);
+        }
     }
 }

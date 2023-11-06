@@ -17,6 +17,8 @@
 package androidx.window.extensions.embedding;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
+import android.os.IBinder;
 import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
@@ -124,4 +126,60 @@ public interface ActivityEmbeddingComponent {
      * Since {@link WindowExtensions#VENDOR_API_LEVEL_2}
      */
     void clearSplitAttributesCalculator();
+
+    /**
+     * Sets the launching {@link ActivityStack} to the given {@link ActivityOptions}.
+     *
+     * @param options The {@link ActivityOptions} to be updated.
+     * @param token The {@link ActivityStack#getToken()} to represent the {@link ActivityStack}
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     */
+    @NonNull
+    default ActivityOptions setLaunchingActivityStack(@NonNull ActivityOptions options,
+            @NonNull IBinder token) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Finishes a set of {@link ActivityStack}s. When an {@link ActivityStack} that was in an active
+     * split is finished, the other {@link ActivityStack} in the same {@link SplitInfo} can be
+     * expanded to fill the parent task container.
+     *
+     * @param activityStackTokens The set of tokens of {@link ActivityStack}-s that is going to be
+     *                            finished.
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     */
+    default void finishActivityStacks(@NonNull Set<IBinder> activityStackTokens) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Triggers an update of the split attributes for the top split if there is one visible by
+     * making extensions invoke the split attributes calculator callback. This method can be used
+     * when a change to the split presentation originates from the application state change rather
+     * than driven by parent window changes or new activity starts. The call will be ignored if
+     * there is no visible split.
+     * @see #setSplitAttributesCalculator(Function)
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     */
+    default void invalidateTopVisibleSplitAttributes() {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Updates the {@link SplitAttributes} of a split pair. This is an alternative to using
+     * a split attributes calculator callback, applicable when apps only need to update the
+     * splits in a few cases but rely on the default split attributes otherwise.
+     * @param splitInfoToken The identifier of the split pair to update.
+     * @param splitAttributes The {@link SplitAttributes} to apply to the split pair.
+     * Since {@link WindowExtensions#VENDOR_API_LEVEL_3}
+     */
+    default void updateSplitAttributes(@NonNull IBinder splitInfoToken,
+            @NonNull SplitAttributes splitAttributes) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
 }

@@ -26,6 +26,8 @@ import androidx.room.integration.testapp.vo.UserAndAllPets;
 import androidx.room.integration.testapp.vo.UserAndPet;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +41,9 @@ public interface RawDao {
 
     @RawQuery
     User getUser(SupportSQLiteQuery query);
+
+    @RawQuery
+    ListenableFuture<User> getUserListenableFuture(SupportSQLiteQuery query);
 
     @RawQuery
     UserAndPet getUserAndPet(SupportSQLiteQuery query);

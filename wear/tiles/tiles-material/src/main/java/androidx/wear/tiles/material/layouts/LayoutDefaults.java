@@ -17,7 +17,6 @@
 package androidx.wear.tiles.material.layouts;
 
 import androidx.annotation.NonNull;
-import androidx.wear.tiles.material.ButtonDefaults;
 
 /**
  * Contains the default values used by layout templates for Tiles.
@@ -128,17 +127,17 @@ public class LayoutDefaults {
      * MultiButtonLayout}.
      */
     static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_BUTTON_3_PLUS_SIZE =
-            ButtonDefaults.DEFAULT_SIZE;
+            androidx.wear.tiles.material.ButtonDefaults.DEFAULT_SIZE;
 
     /** The default size of button in case when there 2 buttons in the {@link MultiButtonLayout}. */
     static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_BUTTON_2_SIZE =
-            ButtonDefaults.LARGE_SIZE;
+            androidx.wear.tiles.material.ButtonDefaults.LARGE_SIZE;
 
     /**
      * The default size of button in case when there is 1 button in the {@link MultiButtonLayout}.
      */
     static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_BUTTON_1_SIZE =
-            ButtonDefaults.EXTRA_LARGE_SIZE;
+            androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_SIZE;
 
     /** The default width for vertical spacer between buttons in the {@link MultiButtonLayout}. */
     static final androidx.wear.tiles.DimensionBuilders.DpProp MULTI_BUTTON_SPACER_WIDTH =

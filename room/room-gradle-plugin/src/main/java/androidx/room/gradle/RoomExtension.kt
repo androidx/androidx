@@ -19,19 +19,22 @@ package androidx.room.gradle
 import javax.inject.Inject
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.ProviderFactory
+import org.gradle.api.tasks.TaskProvider
 
 open class RoomExtension @Inject constructor(private val providers: ProviderFactory) {
-    internal var schemaDirectory: Provider<String>? = null
-
-    // TODO(b/279748243): Consider adding overload that takes `org.gradle.api.file.Director`.
+    // TODO(b/279748243): Consider adding overloads that takes `org.gradle.api.file.Directory`.
+    // User provided variant match pattern to schema location
+    internal val schemaDirectories = mutableMapOf<VariantMatchName, Provider<String>>()
+    // Used variant match pattern to its copy task. Multiple variant compile tasks can be finalized
+    // by the same copy task.
+    internal val copyTasks =
+        mutableMapOf<VariantMatchName, TaskProvider<RoomGradlePlugin.RoomSchemaCopyTask>>()
 
     /**
      * Sets the schema location where Room will output exported schema files.
      *
-     * The location specified will be used as the base directory for schema files that will be
-     * generated per build variant. i.e. for a 'debug' build of the product flavor 'free' then a
-     * schema will be generated in
-     * `<schemaDirectory>/freeDebug/<database-package>/<database-version>.json`.
+     * The location specified will be used for all variants if per-variant schema locations are
+     * needed use the overloaded version of this function that takes in a `variantMatchName`.
      *
      * See [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
      */
@@ -42,14 +45,89 @@ open class RoomExtension @Inject constructor(private val providers: ProviderFact
     /**
      * Sets the schema location where Room will output exported schema files.
      *
-     * The location specified will be used as the base directory for schema files that will be
-     * generated per build variant. i.e. for a 'debug' build of the product flavor 'free' then a
-     * schema will be generated in
-     * `<schemaDirectory>/freeDebug/<database-package>/<database-version>.json`.
+     * The location specified will be used for all variants if per-variant schema locations are
+     * needed use the overloaded version of this function that takes in a `variantMatchName`.
      *
      * See [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
      */
     open fun schemaDirectory(path: Provider<String>) {
-        schemaDirectory = path
+        schemaDirectories[ALL_VARIANTS] = path
+    }
+
+    /**
+     * Sets the schema location for a variant, flavor or build type where Room will output exported
+     * schema files.
+     *
+     * The location specified will be used for a matching variants based on the provided
+     * [variantMatchName] where it can either be a full variant name, a product flavor name or a
+     * build type name.
+     *
+     * For example, assuming two build flavors: ‘demo’ and ‘full’ and the two default build types
+     * ‘debug’ and ‘release’, then the following are valid configurations:
+     * ```
+     * room {
+     *   // Applies 'demoDebug' only
+     *   schemaLocation("demoDebug", ("$projectDir/schemas/demoDebug")
+     *
+     *   // Applies to 'demoDebug' and 'demoRelease'
+     *   schemaLocation("demo", ("$projectDir/schemas/demo")
+     *
+     *   // Applies to 'demoDebug' and 'fullDebug'
+     *   schemaLocation("debug", ("$projectDir/schemas/debug")
+     * }
+     * ```
+     *
+     * If per-variant schema locations are not necessary due to all variants containing the same
+     * schema, then use the overloaded version of this function that does not take in a
+     * `variantMatchName`.
+     *
+     * See [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
+     */
+    open fun schemaDirectory(variantMatchName: String, path: String) {
+        schemaDirectory(variantMatchName, providers.provider { path })
+    }
+
+    /**
+     * Sets the schema location for a variant, flavor or build type where Room will output exported
+     * schema files.
+     *
+     * The location specified will be used for a matching variants based on the provided
+     * [variantMatchName] where it can either be a full variant name, a product flavor name or a
+     * build type name.
+     *
+     * For example, assuming two build flavors: ‘demo’ and ‘full’ and the two default build types
+     * ‘debug’ and ‘release’, then the following are valid configurations:
+     * ```
+     * room {
+     *   // Applies 'demoDebug' only
+     *   schemaLocation("demoDebug", ("$projectDir/schemas/demoDebug")
+     *
+     *   // Applies to 'demoDebug' and 'demoRelease'
+     *   schemaLocation("demo", ("$projectDir/schemas/demo")
+     *
+     *   // Applies to 'demoDebug' and 'fullDebug'
+     *   schemaLocation("debug", ("$projectDir/schemas/debug")
+     * }
+     * ```
+     *
+     * If per-variant schema locations are not necessary due to all variants containing the same
+     * schema, then use the overloaded version of this function that does not take in a
+     * `variantMatchName`.
+     *
+     * See [Export Schemas Documentation](https://developer.android.com/training/data-storage/room/migrating-db-versions#export-schemas)
+     */
+    open fun schemaDirectory(variantMatchName: String, path: Provider<String>) {
+        check(variantMatchName.isNotEmpty()) { "variantMatchName must not be empty." }
+        schemaDirectories[VariantMatchName(variantMatchName)] = path
+    }
+
+    /**
+     * Represent a full variant name (demoDebug), flavor name (demo) or build type name (debug).
+     */
+    @JvmInline
+    internal value class VariantMatchName(val actual: String)
+
+    companion object {
+        internal val ALL_VARIANTS = VariantMatchName("")
     }
 }

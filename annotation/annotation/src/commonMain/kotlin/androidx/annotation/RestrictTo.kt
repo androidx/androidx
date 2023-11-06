@@ -53,9 +53,7 @@ import androidx.annotation.RestrictTo.Scope
     AnnotationTarget.FILE
 )
 public expect annotation class RestrictTo(
-    /**
-     * The scope(s) to which usage should be restricted.
-     */
+    /** The scope(s) to which usage should be restricted. */
     vararg val value: Scope
 ) {
     public enum class Scope {
@@ -92,10 +90,11 @@ public expect annotation class RestrictTo(
          */
         @Deprecated(
             message = "Use @RestrictTo(LIBRARY_GROUP_PREFIX) instead",
-            replaceWith = ReplaceWith(
-                "LIBRARY_GROUP_PREFIX",
-                "androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX"
-            )
+            replaceWith =
+                ReplaceWith(
+                    "LIBRARY_GROUP_PREFIX",
+                    "androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX"
+                )
         )
         GROUP_ID,
 

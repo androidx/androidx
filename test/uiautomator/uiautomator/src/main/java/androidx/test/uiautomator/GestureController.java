@@ -16,9 +16,7 @@
 
 package androidx.test.uiautomator;
 
-import android.app.Service;
 import android.graphics.Point;
-import android.hardware.display.DisplayManager;
 import android.os.SystemClock;
 import android.util.Log;
 import android.view.Display;
@@ -26,6 +24,8 @@ import android.view.InputDevice;
 import android.view.MotionEvent;
 import android.view.MotionEvent.PointerCoords;
 import android.view.MotionEvent.PointerProperties;
+
+import androidx.annotation.NonNull;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -40,7 +40,8 @@ import java.util.PriorityQueue;
  * The {@link GestureController} provides methods for performing high-level {@link PointerGesture}s.
  */
 class GestureController {
-    private static final String TAG = "GestureController";
+
+    private static final String TAG = GestureController.class.getSimpleName();
 
     private static final long MOTION_EVENT_INJECTION_DELAY_MILLIS = 8; // 120Hz touch report rate
 
@@ -61,8 +62,6 @@ class GestureController {
 
     private final UiDevice mDevice;
 
-    private final DisplayManager mDisplayManager;
-
     /** Comparator for sorting PointerGestures by start times. */
     private static final Comparator<PointerGesture> START_TIME_COMPARATOR =
             (o1, o2) -> Long.compare(o1.delay(), o2.delay());
@@ -75,8 +74,6 @@ class GestureController {
     // Private constructor.
     private GestureController(UiDevice device) {
         mDevice = device;
-        mDisplayManager = (DisplayManager) mDevice.getInstrumentation().getContext()
-                .getSystemService(Service.DISPLAY_SERVICE);
     }
 
     /** Returns the {@link GestureController} instance for the given {@link UiDevice}. */
@@ -98,7 +95,6 @@ class GestureController {
      */
     public <U> U performGestureAndWait(EventCondition<U> condition, long timeout,
             PointerGesture ... gestures) {
-
         return getDevice().performActionAndWait(new GestureRunnable(gestures), condition, timeout);
     }
 
@@ -137,7 +133,7 @@ class GestureController {
         long injectionDelay = MOTION_EVENT_INJECTION_DELAY_MILLIS;
         try {
             int displayId = pending.peek().displayId();
-            Display display = mDisplayManager.getDisplay(displayId);
+            Display display = mDevice.getDisplayById(displayId);
             float displayRefreshRate = display.getRefreshRate();
             injectionDelay = (long) (500 / displayRefreshRate);
         } catch (Exception e) {
@@ -287,6 +283,12 @@ class GestureController {
         @Override
         public void run() {
             performGesture(mGestures);
+        }
+
+        @NonNull
+        @Override
+        public String toString() {
+            return Arrays.toString(mGestures);
         }
     }
 

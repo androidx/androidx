@@ -39,9 +39,9 @@ import androidx.annotation.RequiresApi
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.extensions.utils.Camera2ExtensionsUtil.AVAILABLE_CAMERA2_EXTENSION_MODES
 import androidx.camera.integration.extensions.utils.CameraIdExtensionModePair
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.LabTestRule
-import androidx.camera.testing.SurfaceTextureProvider
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.LabTestRule
+import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.concurrent.futures.await
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.Executors

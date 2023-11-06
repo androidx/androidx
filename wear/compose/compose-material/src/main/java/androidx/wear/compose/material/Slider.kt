@@ -19,7 +19,6 @@ package androidx.wear.compose.material
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -40,16 +39,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material.RangeDefaults.calculateCurrentStepValue
-import androidx.wear.compose.material.RangeDefaults.snapValueToStep
+import androidx.wear.compose.materialcore.InlineSliderButton
+import androidx.wear.compose.materialcore.RangeDefaults
+import androidx.wear.compose.materialcore.directedValue
+import androidx.wear.compose.materialcore.drawProgressBar
 import kotlin.math.roundToInt
 
 /**
@@ -106,12 +106,18 @@ public fun InlineSlider(
 ) {
     require(steps >= 0) { "steps should be >= 0" }
     val currentStep =
-        remember(value, valueRange, steps) { snapValueToStep(value, valueRange, steps) }
+        remember(value, valueRange, steps) {
+            RangeDefaults.snapValueToStep(
+                value,
+                valueRange,
+                steps
+            )
+        }
     Box(
         modifier = modifier
             .fillMaxWidth()
             .rangeSemantics(
-                currentStep,
+                value,
                 enabled,
                 onValueChange,
                 valueRange,
@@ -124,7 +130,8 @@ public fun InlineSlider(
         val visibleSegments = if (segmented) steps + 1 else 1
 
         val updateValue: (Int) -> Unit = { stepDiff ->
-            val newValue = calculateCurrentStepValue(currentStep + stepDiff, steps, valueRange)
+            val newValue =
+                RangeDefaults.calculateCurrentStepValue(currentStep + stepDiff, steps, valueRange)
             if (newValue != value) onValueChange(newValue)
         }
         val selectedBarColor = colors.barColor(enabled, true)
@@ -134,19 +141,25 @@ public fun InlineSlider(
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
-            modifier = Modifier.fillMaxWidth().background(backgroundColor.value)
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(backgroundColor.value)
         ) {
+            val increaseButtonEnabled = enabled && currentStep < steps + 1
+            val decreaseButtonEnabled = enabled && currentStep > 0
+
             InlineSliderButton(
-                enabled = enabled,
+                enabled = decreaseButtonEnabled,
                 onClick = { updateValue(-1) },
                 contentAlignment = Alignment.CenterStart,
-                modifier = Modifier
-                    .padding(start = InlineSliderDefaults.OuterHorizontalMargin),
-                content = decreaseIcon
+                buttonControlSize = InlineSliderDefaults.ControlSize,
+                modifier = Modifier.padding(start = InlineSliderDefaults.OuterHorizontalMargin),
+                content = { InlineSliderButtonContent(decreaseButtonEnabled, decreaseIcon) }
             )
 
             Box(
-                Modifier.width(InlineSliderDefaults.SpacersWidth)
+                Modifier
+                    .width(InlineSliderDefaults.SpacersWidth)
                     .fillMaxHeight()
                     .background(colors.spacerColor(enabled).value)
             )
@@ -162,25 +175,36 @@ public fun InlineSlider(
                     .drawProgressBar(
                         selectedBarColor = selectedBarColor,
                         unselectedBarColor = unselectedBarColor,
-                        backgroundColor = backgroundColor,
+                        barSeparatorColor = backgroundColor,
                         visibleSegments = visibleSegments,
                         valueRatio = valueRatio,
-                        direction = LocalLayoutDirection.current
+                        direction = LocalLayoutDirection.current,
+                        drawSelectedProgressBar = { color, ratio, direction, drawScope ->
+                            drawScope.drawSelectedProgressBar(color, ratio, direction)
+                        },
+                        drawUnselectedProgressBar = { color, ratio, direction, drawScope ->
+                            drawScope.drawUnselectedProgressBar(color, ratio, direction)
+                        },
+                        drawProgressBarSeparator = { color, position, drawScope ->
+                            drawScope.drawProgressBarSeparator(color, position)
+                        }
                     )
             )
 
             Box(
-                Modifier.width(InlineSliderDefaults.SpacersWidth)
+                Modifier
+                    .width(InlineSliderDefaults.SpacersWidth)
                     .fillMaxHeight()
                     .background(colors.spacerColor(enabled).value)
             )
 
             InlineSliderButton(
-                enabled = enabled,
+                enabled = increaseButtonEnabled,
                 onClick = { updateValue(1) },
                 contentAlignment = Alignment.CenterEnd,
+                buttonControlSize = InlineSliderDefaults.ControlSize,
                 modifier = Modifier.padding(end = InlineSliderDefaults.OuterHorizontalMargin),
-                content = increaseIcon
+                content = { InlineSliderButtonContent(increaseButtonEnabled, increaseIcon) }
             )
         }
     }
@@ -347,7 +371,7 @@ public object InlineSliderDefaults {
     /**
      * Decrease [ImageVector]
      */
-    public val Decrease = RangeIcons.Minus
+    public val Decrease = androidx.wear.compose.materialcore.RangeIcons.Minus
 
     /**
      * Increase [ImageVector]
@@ -417,44 +441,13 @@ private class DefaultInlineSliderColors(
     }
 }
 
-@Composable
-private fun InlineSliderButton(
-    enabled: Boolean,
-    onClick: () -> Unit,
-    contentAlignment: Alignment,
-    modifier: Modifier,
-    content: @Composable () -> Unit
-) {
-    Box(
-        modifier = Modifier
-            .width(InlineSliderDefaults.ControlSize)
-            .fillMaxHeight()
-            .clickable(
-                enabled = enabled,
-                onClick = onClick,
-                role = Role.Button
-            )
-            .then(modifier),
-        contentAlignment = contentAlignment
-    ) {
-        CompositionLocalProvider(
-            LocalContentAlpha provides
-                if (enabled) LocalContentAlpha.current else ContentAlpha.disabled,
-            content = content
-        )
-    }
-}
-
-private fun Modifier.drawProgressBar(
-    selectedBarColor: State<Color>,
-    unselectedBarColor: State<Color>,
-    backgroundColor: State<Color>,
-    visibleSegments: Int,
+private fun DrawScope.drawSelectedProgressBar(
+    color: Color,
     valueRatio: Float,
-    direction: LayoutDirection,
-): Modifier = drawWithContent {
+    direction: LayoutDirection
+) {
     drawLine(
-        selectedBarColor.value,
+        color,
         Offset(
             directedValue(direction, 0f, size.width * (1 - valueRatio)), size.height / 2
         ),
@@ -463,8 +456,15 @@ private fun Modifier.drawProgressBar(
         ),
         strokeWidth = InlineSliderDefaults.BarHeight.toPx()
     )
+}
+
+private fun DrawScope.drawUnselectedProgressBar(
+    color: Color,
+    valueRatio: Float,
+    direction: LayoutDirection,
+) {
     drawLine(
-        unselectedBarColor.value,
+        color,
         Offset(
             directedValue(direction, size.width * valueRatio, 0f), size.height / 2
         ),
@@ -473,16 +473,23 @@ private fun Modifier.drawProgressBar(
         ),
         strokeWidth = InlineSliderDefaults.BarHeight.toPx()
     )
-    for (separator in 1 until visibleSegments) {
-        val x = separator * size.width / visibleSegments
-        drawLine(
-            backgroundColor.value,
-            Offset(x, size.height / 2 - InlineSliderDefaults.BarHeight.toPx() / 2),
-            Offset(x, size.height / 2 + InlineSliderDefaults.BarHeight.toPx() / 2),
-            strokeWidth = InlineSliderDefaults.BarSeparatorWidth.toPx()
-        )
-    }
 }
 
-private fun <T> directedValue(layoutDirection: LayoutDirection, ltrValue: T, rtlValue: T): T =
-    if (layoutDirection == LayoutDirection.Ltr) ltrValue else rtlValue
+private fun DrawScope.drawProgressBarSeparator(color: Color, position: Float) {
+    drawLine(
+        color,
+        Offset(position, size.height / 2 - InlineSliderDefaults.BarHeight.toPx() / 2),
+        Offset(position, size.height / 2 + InlineSliderDefaults.BarHeight.toPx() / 2),
+        strokeWidth = InlineSliderDefaults.BarSeparatorWidth.toPx()
+    )
+}
+
+@Composable
+private fun InlineSliderButtonContent(
+    enabled: Boolean,
+    content: @Composable () -> Unit
+) = CompositionLocalProvider(
+    LocalContentAlpha provides
+        if (enabled) LocalContentAlpha.current else ContentAlpha.disabled,
+    content = content
+)

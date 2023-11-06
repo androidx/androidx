@@ -16,7 +16,7 @@
 
 package androidx.camera.video
 
-import androidx.camera.testing.asFlow
+import androidx.camera.testing.impl.asFlow
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest

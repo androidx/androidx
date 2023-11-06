@@ -18,6 +18,7 @@ package androidx.camera.camera2.internal.compat.workaround
 
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
+import androidx.annotation.RequiresApi
 import com.google.common.truth.Truth.assertThat
 import java.nio.BufferUnderflowException
 import org.junit.Assert.assertThrows
@@ -26,14 +27,15 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.ParameterizedRobolectricTestRunner
+import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.util.ReflectionHelpers
 
 private const val FAKE_OEM = "fake_oem"
 
-// @Config() is left out since there currently aren't any API level dependencies in this workaround
 @RunWith(ParameterizedRobolectricTestRunner::class)
 @DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class FlashAvailabilityCheckerTest(
     private val manufacturer: String,
     private val model: String,
@@ -80,6 +82,7 @@ class FlashAvailabilityCheckerTest(
     }
 }
 
+@RequiresApi(21)
 private class FlashAvailabilityTrueProvider : CameraCharacteristicsProvider {
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any?> get(key: CameraCharacteristics.Key<T>): T? = when (key) {
@@ -88,11 +91,13 @@ private class FlashAvailabilityTrueProvider : CameraCharacteristicsProvider {
     }
 }
 
+@RequiresApi(21)
 private class BufferUnderflowProvider : CameraCharacteristicsProvider {
     override fun <T : Any?> get(key: CameraCharacteristics.Key<T>): T =
         throw BufferUnderflowException()
 }
 
+@RequiresApi(21)
 private class FlashAvailabilityNullProvider : CameraCharacteristicsProvider {
     override fun <T : Any?> get(key: CameraCharacteristics.Key<T>): T? = null
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,38 @@
 package androidx.window.area
 
 import android.app.Activity
+import android.os.Binder
 import androidx.window.core.ExperimentalWindowApi
 import java.util.concurrent.Executor
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 /**
- * Empty Implementation for devices that do not
- * support the [WindowAreaController] functionality
+ * Empty Implementation for devices that do not support the [WindowAreaController] functionality
  */
 @ExperimentalWindowApi
 internal class EmptyWindowAreaControllerImpl : WindowAreaController {
-    override fun rearDisplayStatus(): Flow<WindowAreaStatus> {
-        return flowOf(WindowAreaStatus.UNSUPPORTED)
-    }
 
-    override fun rearDisplayMode(
+    override val windowAreaInfos: Flow<List<WindowAreaInfo>>
+        get() = flowOf(listOf())
+
+    override fun transferActivityToWindowArea(
+        token: Binder,
         activity: Activity,
         executor: Executor,
         windowAreaSessionCallback: WindowAreaSessionCallback
     ) {
-        // TODO(b/269144982): Investigate not throwing an exception
-        throw UnsupportedOperationException("Rear Display mode cannot be enabled currently")
+        windowAreaSessionCallback.onSessionEnded(
+            IllegalStateException("There are no WindowAreas"))
+    }
+
+    override fun presentContentOnWindowArea(
+        token: Binder,
+        activity: Activity,
+        executor: Executor,
+        windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback
+    ) {
+        windowAreaPresentationSessionCallback.onSessionEnded(
+            IllegalStateException("There are no WindowAreas"))
     }
 }

@@ -22,23 +22,24 @@ import androidx.core.uwb.RangingMeasurement
 import androidx.core.uwb.RangingParameters
 import androidx.core.uwb.RangingResult
 import androidx.core.uwb.UwbAddress
-import androidx.core.uwb.UwbControleeSessionScope
+import androidx.core.uwb.UwbClientSessionScope
 import androidx.core.uwb.backend.IRangingSessionCallback
 import androidx.core.uwb.backend.IUwbClient
 import androidx.core.uwb.backend.RangingPosition
 import androidx.core.uwb.backend.UwbComplexChannel
 import androidx.core.uwb.backend.UwbDevice
+import androidx.core.uwb.backend.UwbRangeDataNtfConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.launch
 
-internal class UwbClientSessionScopeAospImpl(
+internal open class UwbClientSessionScopeAospImpl(
     private val uwbClient: IUwbClient,
     override val rangingCapabilities: RangingCapabilities,
     override val localAddress: UwbAddress,
-) : UwbControleeSessionScope {
+) : UwbClientSessionScope {
     companion object {
         private const val TAG = "UwbClientSessionScope"
     }
@@ -50,14 +51,23 @@ internal class UwbClientSessionScopeAospImpl(
                 "a new ranging session, create a new client session scope.")
         }
 
-        val parametersBuilder1 = androidx.core.uwb.backend.RangingParameters()
-        parametersBuilder1.uwbConfigId = when (parameters.uwbConfigType) {
+        val aospParametersBuilder = androidx.core.uwb.backend.RangingParameters()
+        aospParametersBuilder.uwbConfigId = when (parameters.uwbConfigType) {
             RangingParameters.CONFIG_UNICAST_DS_TWR -> RangingParameters.CONFIG_UNICAST_DS_TWR
             RangingParameters.CONFIG_MULTICAST_DS_TWR -> RangingParameters.CONFIG_MULTICAST_DS_TWR
-            RangingParameters.UWB_CONFIG_ID_3 -> RangingParameters.UWB_CONFIG_ID_3
+            RangingParameters.CONFIG_UNICAST_DS_TWR_NO_AOA ->
+                RangingParameters.CONFIG_UNICAST_DS_TWR_NO_AOA
+            RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR ->
+                RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR
+            RangingParameters.CONFIG_PROVISIONED_MULTICAST_DS_TWR ->
+                RangingParameters.CONFIG_PROVISIONED_MULTICAST_DS_TWR
+            RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA ->
+                RangingParameters.CONFIG_PROVISIONED_UNICAST_DS_TWR_NO_AOA
+            RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR ->
+                RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR
             else -> throw IllegalArgumentException("The selected UWB Config Id is not a valid id.")
         }
-        parametersBuilder1.rangingUpdateRate = when (parameters.updateRateType) {
+        aospParametersBuilder.rangingUpdateRate = when (parameters.updateRateType) {
             RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC ->
                 RangingParameters.RANGING_UPDATE_RATE_AUTOMATIC
             RangingParameters.RANGING_UPDATE_RATE_FREQUENT ->
@@ -67,13 +77,18 @@ internal class UwbClientSessionScopeAospImpl(
             else -> throw IllegalArgumentException(
                 "The selected ranging update rate is not a valid update rate.")
         }
-        parametersBuilder1.sessionId = parameters.sessionId
-        parametersBuilder1.sessionKeyInfo = parameters.sessionKeyInfo
+        aospParametersBuilder.sessionId = parameters.sessionId
+        aospParametersBuilder.sessionKeyInfo = parameters.sessionKeyInfo
+        if (parameters.uwbConfigType
+            == RangingParameters.CONFIG_PROVISIONED_INDIVIDUAL_MULTICAST_DS_TWR) {
+            aospParametersBuilder.subSessionId = parameters.subSessionId
+            aospParametersBuilder.subSessionKeyInfo = parameters.subSessionKeyInfo
+        }
         if (parameters.complexChannel != null) {
             val channel = UwbComplexChannel()
             channel.channel = parameters.complexChannel.channel
             channel.preambleIndex = parameters.complexChannel.preambleIndex
-            parametersBuilder1.complexChannel = channel
+            aospParametersBuilder.complexChannel = channel
         }
 
         val peerList = ArrayList<UwbDevice>()
@@ -84,7 +99,26 @@ internal class UwbClientSessionScopeAospImpl(
             device.address = address
             peerList.add(device)
         }
-        parametersBuilder1.peerDevices = peerList
+        aospParametersBuilder.peerDevices = peerList
+        aospParametersBuilder.isAoaDisabled = parameters.isAoaDisabled
+        if (parameters.slotDurationMillis != 0L) {
+            aospParametersBuilder.slotDuration = when (parameters.slotDurationMillis) {
+                RangingParameters.RANGING_SLOT_DURATION_1_MILLIS ->
+                    RangingParameters.RANGING_SLOT_DURATION_1_MILLIS.toInt()
+                RangingParameters.RANGING_SLOT_DURATION_2_MILLIS ->
+                    RangingParameters.RANGING_SLOT_DURATION_2_MILLIS.toInt()
+                else -> throw IllegalArgumentException(
+                    "The selected slot duration is not a valid slot duration."
+                )
+            }
+        }
+        if (parameters.uwbRangeDataNtfConfig != null) {
+            val dataNtfConfig = UwbRangeDataNtfConfig()
+            dataNtfConfig.rangeDataNtfConfigType = parameters.uwbRangeDataNtfConfig.configType
+            dataNtfConfig.ntfProximityFarCm = parameters.uwbRangeDataNtfConfig.ntfProximityFarCm
+            dataNtfConfig.ntfProximityNearCm = parameters.uwbRangeDataNtfConfig.ntfProximityNearCm
+            aospParametersBuilder.uwbRangeDataNtfConfig = dataNtfConfig
+        }
         val callback =
             object : IRangingSessionCallback.Stub() {
                 override fun onRangingInitialized(device: UwbDevice) {
@@ -116,18 +150,10 @@ internal class UwbClientSessionScopeAospImpl(
                         )
                     )
                 }
-
-                override fun getInterfaceVersion(): Int {
-                    return 0
-                }
-
-                override fun getInterfaceHash(): String {
-                    return ""
-                }
             }
 
         try {
-            uwbClient.startRanging(parametersBuilder1, callback)
+            uwbClient.startRanging(aospParametersBuilder, callback)
             sessionStarted = true
         } catch (e: Exception) {
             throw(e)
@@ -141,6 +167,18 @@ internal class UwbClientSessionScopeAospImpl(
                     throw(e)
                 }
             }
+        }
+    }
+
+    override suspend fun reconfigureRangeDataNtf(
+        configType: Int,
+        proximityNear: Int,
+        proximityFar: Int
+    ) {
+        try {
+            uwbClient.reconfigureRangeDataNtf(configType, proximityNear, proximityFar)
+        } catch (e: Exception) {
+            throw(e)
         }
     }
 }

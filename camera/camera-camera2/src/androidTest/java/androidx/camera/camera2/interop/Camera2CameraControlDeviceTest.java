@@ -44,8 +44,8 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CameraXUtil;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.CameraXUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -157,6 +157,30 @@ public final class Camera2CameraControlDeviceTest {
         verifyCaptureRequestParameter(mMockCaptureCallback,
                 CaptureRequest.CONTROL_CAPTURE_INTENT,
                 CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
+    }
+
+    @Test
+    public void canSubmitMultipleCaptureRequestOptions() {
+        bindUseCase();
+        ListenableFuture<Void> future = updateCamera2Option(
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
+
+        assertFutureCompletes(future);
+
+        verifyCaptureRequestParameter(mMockCaptureCallback,
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_MANUAL);
+
+        future = updateCamera2Option(
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM);
+
+        assertFutureCompletes(future);
+
+        verifyCaptureRequestParameter(mMockCaptureCallback,
+                CaptureRequest.CONTROL_CAPTURE_INTENT,
+                CaptureRequest.CONTROL_CAPTURE_INTENT_CUSTOM);
     }
 
     @Test

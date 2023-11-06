@@ -36,8 +36,8 @@ internal class KspSyntheticReceiverParameterElement(
     XEquality,
     XAnnotated by KspAnnotated.create(
         env = env,
-        delegate = null, // does not matter, this is synthetic and has no annotations.
-        filter = KspAnnotated.UseSiteFilter.NO_USE_SITE
+        delegate = receiverType, // for @receiver use-site annotations
+        filter = KspAnnotated.UseSiteFilter.NO_USE_SITE_OR_RECEIVER
     ) {
 
     override fun isContinuationParam() = false
@@ -46,10 +46,14 @@ internal class KspSyntheticReceiverParameterElement(
 
     override fun isKotlinPropertyParam() = false
 
+    override fun isVarArgs() = false
+
     override val name: String by lazy {
         // KAPT uses `$this$<functionName>`
         "$" + "this" + "$" + enclosingElement.name
     }
+
+    override val jvmName = name
 
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(enclosingElement, receiverType)
@@ -113,6 +117,10 @@ internal class KspSyntheticReceiverParameterElement(
 
     override fun equals(other: Any?): Boolean {
         return XEquality.equals(this, other)
+    }
+
+    override fun toString(): String {
+        return name
     }
 
     override fun hashCode(): Int {

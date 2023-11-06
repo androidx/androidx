@@ -95,7 +95,7 @@ private fun createWorkerParams(
     0,
     executor,
     RxWorkerTest.InstantWorkTaskExecutor(),
-    WorkerFactory.getDefaultWorkerFactory(),
+    DefaultWorkerFactory,
     progressUpdater,
     foregroundUpdater
 )

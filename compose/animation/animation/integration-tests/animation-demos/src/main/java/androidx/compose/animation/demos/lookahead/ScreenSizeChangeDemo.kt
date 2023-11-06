@@ -41,14 +41,14 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.automirrored.outlined.List
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.runtime.Composable
@@ -419,8 +419,8 @@ fun SceneScope.NavRail(state: DisplayState) {
         }
         Spacer(modifier = Modifier.size(20.dp))
         Item(state, Icons.Outlined.Email, "Inbox", Color(0xffe8def8))
-        Item(state, Icons.Outlined.List, "Articles")
-        Item(state, Icons.Default.Send, "Direct Messages")
+        Item(state, Icons.AutoMirrored.Outlined.List, "Articles")
+        Item(state, Icons.AutoMirrored.Default.Send, "Direct Messages")
         Item(state, Icons.Filled.Notifications, "Video Chat")
     }
 }

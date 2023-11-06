@@ -27,13 +27,18 @@ android {
     namespace "androidx.wear.compose.integration.macrobenchmark"
     targetProjectPath = ":wear:compose:integration-tests:macrobenchmark-target"
     experimentalProperties["android.experimental.self-instrumenting"] = true
+
+    testOptions.animationsDisabled = false
 }
 
 // Create a release build type and make sure it's the only one enabled.
 // This is needed because we benchmark the release build type only.
-android.buildTypes { release {} }
+android.buildTypes {
+    release {
+        proguardFiles("proguard-benchmark.pro")
+    }
+}
 androidComponents { beforeVariants(selector().all()) { enabled = buildType == 'release' } }
-
 dependencies {
     implementation(project(":benchmark:benchmark-junit4"))
     implementation(project(":benchmark:benchmark-macro-junit4"))
@@ -43,4 +48,5 @@ dependencies {
     implementation(libs.testCore)
     implementation(libs.testRunner)
     implementation(libs.testUiautomator)
+    implementation project(path: ':wear:compose:compose-material')
 }

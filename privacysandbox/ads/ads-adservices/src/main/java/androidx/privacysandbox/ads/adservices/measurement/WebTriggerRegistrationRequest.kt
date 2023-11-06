@@ -17,8 +17,6 @@
 package androidx.privacysandbox.ads.adservices.measurement
 
 import android.net.Uri
-import android.os.Build
-import androidx.annotation.RequiresApi
 
 /**
  * Class to hold input to measurement trigger registration calls from web context.
@@ -26,7 +24,6 @@ import androidx.annotation.RequiresApi
  * @param webTriggerParams Registration info to fetch sources.
  * @param destination Destination [Uri].
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 class WebTriggerRegistrationRequest public constructor(
     val webTriggerParams: List<WebTriggerParams>,
     val destination: Uri

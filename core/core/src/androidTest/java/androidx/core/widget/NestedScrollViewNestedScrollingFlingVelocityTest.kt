@@ -61,22 +61,26 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
 
         val context = ApplicationProvider.getApplicationContext<Context>()
 
-        val child = View(context).apply {
-            layoutParams = ViewGroup.LayoutParams(1000, 1000)
-            isClickable = parentIntercepts
-        }
-        mNestedScrollView = NestedScrollViewUnderTest(context).apply {
-            layoutParams = ViewGroup.LayoutParams(1000, 1000)
-            addView(child)
-        }
-        mNestedScrollingParent = NestedScrollingParent(context).apply {
-            layoutParams = ViewGroup.LayoutParams(1000, 1000)
-            addView(mNestedScrollView)
-        }
+        val child =
+            View(context).apply {
+                layoutParams = ViewGroup.LayoutParams(1000, 1000)
+                isClickable = parentIntercepts
+            }
+        mNestedScrollView =
+            NestedScrollViewUnderTest(context).apply {
+                layoutParams = ViewGroup.LayoutParams(1000, 1000)
+                addView(child)
+            }
+        mNestedScrollingParent =
+            NestedScrollingParent(context).apply {
+                layoutParams = ViewGroup.LayoutParams(1000, 1000)
+                addView(mNestedScrollView)
+            }
 
-        val testContentView = mActivityRule.activity.findViewById<TestContentView>(
-            androidx.core.test.R.id.testContentView
-        )
+        val testContentView =
+            mActivityRule.activity.findViewById<TestContentView>(
+                androidx.core.test.R.id.testContentView
+            )
         testContentView.expectLayouts(1)
         mActivityRule.runOnUiThread { testContentView.addView(mNestedScrollingParent) }
         testContentView.awaitLayouts(2)
@@ -89,8 +93,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
         val elapsedTime = 20L
         val expectedVelocity = if (fingerDirectionUp) 10000 else -10000
 
-        mNestedScrollingParent.preScrollY =
-            preScrollConsumption * if (fingerDirectionUp) 1 else -1
+        mNestedScrollingParent.preScrollY = preScrollConsumption * if (fingerDirectionUp) 1 else -1
         mNestedScrollingParent.postScrollY =
             postScrollConsumption * if (fingerDirectionUp) 1 else -1
 
@@ -98,15 +101,33 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
         val halfTime = elapsedTime / 2
 
         val down = MotionEvent.obtain(0, 0, MotionEvent.ACTION_DOWN, 500f, 500f, 0)
-        val move1 = MotionEvent.obtain(
-            0, halfTime, MotionEvent.ACTION_MOVE, 500f, (500 + halfDirectionalDistance).toFloat(), 0
-        )
-        val move2 = MotionEvent.obtain(
-            0, elapsedTime, MotionEvent.ACTION_MOVE, 500f, (500 + directionalDistance).toFloat(), 0
-        )
-        val up = MotionEvent.obtain(
-            0, elapsedTime, MotionEvent.ACTION_UP, 500f, (500 + directionalDistance).toFloat(), 0
-        )
+        val move1 =
+            MotionEvent.obtain(
+                0,
+                halfTime,
+                MotionEvent.ACTION_MOVE,
+                500f,
+                (500 + halfDirectionalDistance).toFloat(),
+                0
+            )
+        val move2 =
+            MotionEvent.obtain(
+                0,
+                elapsedTime,
+                MotionEvent.ACTION_MOVE,
+                500f,
+                (500 + directionalDistance).toFloat(),
+                0
+            )
+        val up =
+            MotionEvent.obtain(
+                0,
+                elapsedTime,
+                MotionEvent.ACTION_UP,
+                500f,
+                (500 + directionalDistance).toFloat(),
+                0
+            )
 
         mActivityRule.runOnUiThread {
             mNestedScrollingParent.dispatchTouchEvent(down)
@@ -141,28 +162,16 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
     }
 
     inner class NestedScrollingParent(context: Context) :
-        FrameLayout(context),
-        NestedScrollingParent3 {
+        FrameLayout(context), NestedScrollingParent3 {
 
         var preScrollY: Int = 0
         var postScrollY: Int = 0
 
-        override fun onStartNestedScroll(
-            child: View,
-            target: View,
-            axes: Int,
-            type: Int
-        ): Boolean {
+        override fun onStartNestedScroll(child: View, target: View, axes: Int, type: Int): Boolean {
             return true
         }
 
-        override fun onNestedScrollAccepted(
-            child: View,
-            target: View,
-            axes: Int,
-            type: Int
-        ) {
-        }
+        override fun onNestedScrollAccepted(child: View, target: View, axes: Int, type: Int) {}
 
         override fun onStopNestedScroll(target: View, type: Int) {}
 
@@ -173,8 +182,7 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
             dxUnconsumed: Int,
             dyUnconsumed: Int,
             type: Int
-        ) {
-        }
+        ) {}
 
         override fun onNestedPreScroll(
             target: View,
@@ -269,16 +277,9 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
             dyConsumed: Int,
             dxUnconsumed: Int,
             dyUnconsumed: Int
-        ) {
-        }
+        ) {}
 
-        override fun onNestedPreScroll(
-            target: View,
-            dx: Int,
-            dy: Int,
-            consumed: IntArray
-        ) {
-        }
+        override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray) {}
 
         override fun onNestedFling(
             target: View,
@@ -311,10 +312,11 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
 
         @JvmStatic
         @Parameterized.Parameters(
-            name = "fingerDirectionUp:{0}, " +
-                "parentIntercepts:{1}, " +
-                "preScrollConsumption:{2}, " +
-                "postScrollConsumption:{3}"
+            name =
+                "fingerDirectionUp:{0}, " +
+                    "parentIntercepts:{1}, " +
+                    "preScrollConsumption:{2}, " +
+                    "postScrollConsumption:{3}"
         )
         fun data(): Collection<Array<Any>> {
             val configurations = ArrayList<Array<Any>>()

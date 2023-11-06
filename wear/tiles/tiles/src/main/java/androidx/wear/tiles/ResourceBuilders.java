@@ -79,16 +79,14 @@ public final class ResourceBuilders {
             return mImpl.getResourceId();
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static AndroidImageResourceByResId fromProto(
+        static AndroidImageResourceByResId fromProto(
                 @NonNull ResourceProto.AndroidImageResourceByResId proto) {
             return new AndroidImageResourceByResId(proto);
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public ResourceProto.AndroidImageResourceByResId toProto() {
+        ResourceProto.AndroidImageResourceByResId toProto() {
             return mImpl;
         }
 
@@ -165,16 +163,13 @@ public final class ResourceBuilders {
             return mImpl.getFormat().getNumber();
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static InlineImageResource fromProto(
-                @NonNull ResourceProto.InlineImageResource proto) {
+        static InlineImageResource fromProto(@NonNull ResourceProto.InlineImageResource proto) {
             return new InlineImageResource(proto);
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public ResourceProto.InlineImageResource toProto() {
+        ResourceProto.InlineImageResource toProto() {
             return mImpl;
         }
 
@@ -269,15 +264,13 @@ public final class ResourceBuilders {
             }
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static ImageResource fromProto(@NonNull ResourceProto.ImageResource proto) {
+        static ImageResource fromProto(@NonNull ResourceProto.ImageResource proto) {
             return new ImageResource(proto);
         }
 
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public ResourceProto.ImageResource toProto() {
+        ResourceProto.ImageResource toProto() {
             return mImpl;
         }
 
@@ -375,6 +368,7 @@ public final class ResourceBuilders {
             return new Resources(proto);
         }
 
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.Resources toProto() {

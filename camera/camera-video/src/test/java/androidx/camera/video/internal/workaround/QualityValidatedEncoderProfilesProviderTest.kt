@@ -25,12 +25,12 @@ import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.EncoderProfilesProxy
 import androidx.camera.core.impl.Quirks
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_1080P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_2160P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_480P
-import androidx.camera.testing.EncoderProfilesUtil.PROFILES_720P
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
-import androidx.camera.testing.fakes.FakeEncoderProfilesProvider
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_1080P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_2160P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_480P
+import androidx.camera.testing.impl.EncoderProfilesUtil.PROFILES_720P
+import androidx.camera.testing.impl.fakes.FakeEncoderProfilesProvider
 import androidx.camera.video.Quality
 import androidx.camera.video.Quality.HD
 import androidx.camera.video.Quality.UHD

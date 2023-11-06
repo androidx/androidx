@@ -18,6 +18,8 @@ package androidx.wear.watchface.complications
 
 import android.content.ComponentName
 import android.content.Context
+import android.os.Build.VERSION_CODES.P
+import android.os.Build.VERSION_CODES.Q
 import android.support.wearable.complications.IPreviewComplicationDataCallback
 import android.support.wearable.complications.IProviderInfoService
 import androidx.test.core.app.ApplicationProvider
@@ -38,6 +40,7 @@ import org.junit.runner.RunWith
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito
+import org.robolectric.annotation.Config
 
 @RunWith(SharedRobolectricTestRunner::class)
 public class ComplicationDataSourceInfoRetrieverTest {
@@ -170,6 +173,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
     }
 
     @Test
+    @Config(maxSdk = Q)
     public fun complicationDataSourceInfo_NullComponentName() {
         val complicationDataSourceInfo =
             ComplicationDataSourceInfo(
@@ -188,6 +192,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
     }
 
     @Test
+    @Config(maxSdk = Q)
     public fun createShortTextFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val shortTextPreviewData =
@@ -212,6 +217,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
     }
 
     @Test
+    @Config(maxSdk = Q)
     public fun createLongTextFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val longTextPreviewData =
@@ -236,6 +242,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
     }
 
     @Test
+    @Config(maxSdk = Q)
     public fun createSmallImageFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val smallImagePreviewData =
@@ -258,6 +265,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
     }
 
     @Test
+    @Config(maxSdk = Q)
     public fun createPhotoImageFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val photoImagePreviewData =
@@ -280,6 +288,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
     }
 
     @Test
+    @Config(maxSdk = Q)
     public fun createMonochromaticImageFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val monochromaticImagePreviewData =
@@ -302,6 +311,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
     }
 
     @Test
+    @Config(maxSdk = Q)
     public fun createRangedValueFallbackPreviewData() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val rangedValuePreviewData =
@@ -329,6 +339,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
     }
 
     @Test
+    @Config(minSdk = P, maxSdk = Q)
     public fun complicationDataSourceInfo_equals() {
         val icon = android.graphics.drawable.Icon.createWithContentUri("icon")
         val icon2 = android.graphics.drawable.Icon.createWithContentUri("icon")
@@ -358,6 +369,7 @@ public class ComplicationDataSourceInfoRetrieverTest {
             )
 
         // Test two identical ComplicationDataSourceInfo with different references.
+        // The icon's equals was added from Android P(see IconKt.kt#iconEquals), so this assertion only works from Android P.
         assertThat(a).isEqualTo(b)
 
         // Test two ComplicationDataSourceInfos with different contents.

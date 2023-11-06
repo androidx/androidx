@@ -16,16 +16,17 @@
 
 package androidx.appcompat.app;
 
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+import static android.content.pm.PackageManager.DONT_KILL_APP;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-import static androidx.appcompat.app.AppLocalesStorageHelper.persistLocales;
-import static androidx.appcompat.app.AppLocalesStorageHelper.readLocales;
-import static androidx.appcompat.app.AppLocalesStorageHelper.syncLocalesToFramework;
 
 import static java.util.Objects.requireNonNull;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.LocaleManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ServiceInfo;
@@ -57,6 +58,7 @@ import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.widget.Toolbar;
 import androidx.appcompat.widget.VectorEnabledTintResources;
 import androidx.collection.ArraySet;
+import androidx.core.app.AppLocalesStorageHelper;
 import androidx.core.os.LocaleListCompat;
 import androidx.core.view.WindowCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -64,7 +66,10 @@ import androidx.fragment.app.FragmentActivity;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
+import java.util.ArrayDeque;
 import java.util.Iterator;
+import java.util.Queue;
+import java.util.concurrent.Executor;
 
 /**
  * This class represents a delegate which you can use to extend AppCompat's support to any
@@ -110,9 +115,62 @@ public abstract class AppCompatDelegate {
     static final boolean DEBUG = false;
     static final String TAG = "AppCompatDelegate";
 
-    static AppLocalesStorageHelper.SerialExecutor sSerialExecutorForLocalesStorage = new
-            AppLocalesStorageHelper.SerialExecutor(
-                    new AppLocalesStorageHelper.ThreadPerTaskExecutor());
+    static SerialExecutor sSerialExecutorForLocalesStorage = new
+            SerialExecutor(new ThreadPerTaskExecutor());
+
+    static final String APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME = "androidx.appcompat.app"
+            + ".AppLocalesMetadataHolderService";
+
+    /**
+     * Implementation of {@link java.util.concurrent.Executor} that executes runnables serially
+     * by synchronizing the {@link Executor#execute(Runnable)} method and maintaining a tasks
+     * queue.
+     */
+    static class SerialExecutor implements Executor {
+        private final Object mLock = new Object();
+        final Queue<Runnable> mTasks = new ArrayDeque<>();
+        final Executor mExecutor;
+        Runnable mActive;
+
+        SerialExecutor(Executor executor) {
+            this.mExecutor = executor;
+        }
+
+        @Override
+        public void execute(final Runnable r) {
+            synchronized (mLock) {
+                mTasks.add(() -> {
+                    try {
+                        r.run();
+                    } finally {
+                        scheduleNext();
+                    }
+                });
+                if (mActive == null) {
+                    scheduleNext();
+                }
+            }
+        }
+
+        protected void scheduleNext() {
+            synchronized (mLock) {
+                if ((mActive = mTasks.poll()) != null) {
+                    mExecutor.execute(mActive);
+                }
+            }
+        }
+    }
+
+    /**
+     * Implementation of {@link java.util.concurrent.Executor} that executes each runnable on a
+     * new thread.
+     */
+    static class ThreadPerTaskExecutor implements Executor {
+        @Override
+        public void execute(Runnable r) {
+            new Thread(r).start();
+        }
+    }
 
     /**
      * Mode which uses the system's night mode setting to determine if it is night or not.
@@ -714,6 +772,12 @@ public abstract class AppCompatDelegate {
      *     this transition on their end.</li>
      * </ul>
      *
+     * <p><b>Note: This API work with the AppCompatActivity context, not for others context, for
+     * Android 12 (API level 32) and earlier. If there is a requirement to get the localized
+     * string which respects the per-app locale in non-AppCompatActivity context, please consider
+     * using {@link androidx.core.content.ContextCompat#getString(Context, int)} or
+     * {@link androidx.core.content.ContextCompat#getContextForLanguage(Context)}. </b></p>
+     *
      * @param locales a list of locales.
      */
     public static void setApplicationLocales(@NonNull LocaleListCompat locales) {
@@ -749,7 +813,8 @@ public abstract class AppCompatDelegate {
      * <p>Returns a {@link LocaleListCompat#getEmptyLocaleList()} if no app-specific locales are
      * set.
      *
-     * <p><b>Note: This API should always be called after Activity.onCreate().</b></p>
+     * <p><b>Note: This API only work at AppCompatDelegate and it should always be called after
+     * Activity.onCreate().</b></p>
      */
     @AnyThread
     @NonNull
@@ -913,7 +978,8 @@ public abstract class AppCompatDelegate {
                 if (sRequestedAppLocales == null) {
                     if (sStoredAppLocales == null) {
                         sStoredAppLocales =
-                                LocaleListCompat.forLanguageTags(readLocales(context));
+                                LocaleListCompat.forLanguageTags(
+                                        AppLocalesStorageHelper.readLocales(context));
                     }
                     if (sStoredAppLocales.isEmpty()) {
                         // if both requestedLocales and storedLocales not set, then the user has not
@@ -926,7 +992,8 @@ public abstract class AppCompatDelegate {
                     // if requestedLocales is set and is not equal to the storedLocales then in this
                     // case we need to store these locales in storage.
                     sStoredAppLocales = sRequestedAppLocales;
-                    persistLocales(context, sRequestedAppLocales.toLanguageTags());
+                    AppLocalesStorageHelper.persistLocales(context,
+                            sRequestedAppLocales.toLanguageTags());
                 }
             }
         }
@@ -993,6 +1060,53 @@ public abstract class AppCompatDelegate {
         synchronized (sActivityDelegatesLock) {
             // Remove any WeakRef records pointing to the delegate in the set
             removeDelegateFromActives(delegate);
+        }
+    }
+
+    /**
+     * Syncs app-specific locales from androidX to framework. This is used to maintain a smooth
+     * transition for a device that updates from pre-T API versions to T.
+     *
+     * <p><b>NOTE:</b> This should only be called when auto-storage is opted-in. This method
+     * uses the meta-data service provided during the opt-in and hence if the service is not found
+     * this method will throw an error.</p>
+     */
+    static void syncLocalesToFramework(Context context) {
+        if (Build.VERSION.SDK_INT >= 33) {
+            ComponentName app_locales_component = new ComponentName(
+                    context, APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME);
+
+            if (context.getPackageManager().getComponentEnabledSetting(app_locales_component)
+                    != COMPONENT_ENABLED_STATE_ENABLED) {
+                // ComponentEnabledSetting for the app component app_locales_component is used as a
+                // marker to represent that the locales has been synced from AndroidX to framework
+                // If this marker is found in ENABLED state then we do not need to sync again.
+                if (AppCompatDelegate.getApplicationLocales().isEmpty()) {
+                    // We check if some locales are applied by the framework or not (this is done to
+                    // ensure that we don't overwrite newer locales set by the framework). If no
+                    // app-locales are found then we need to sync the app-specific locales from
+                    // androidX to framework.
+
+                    String appLocales = AppLocalesStorageHelper.readLocales(context);
+                    // if locales are present in storage, call the setApplicationLocales() API. As
+                    // the API version is >= 33, this call will be directed to the framework API and
+                    // the locales will be persisted there.
+                    Object localeManager = context.getSystemService(Context.LOCALE_SERVICE);
+                    if (localeManager != null) {
+                        AppCompatDelegate.Api33Impl.localeManagerSetApplicationLocales(
+                                localeManager,
+                                AppCompatDelegate.Api24Impl.localeListForLanguageTags(appLocales));
+                    }
+                }
+                // setting ComponentEnabledSetting for app component using
+                // AppLocalesMetadataHolderService (used only for locales, thus minimizing
+                // the chances of conflicts). Setting it as ENABLED marks the success of app-locales
+                // sync from AndroidX to framework.
+                // Flag DONT_KILL_APP indicates that you don't want to kill the app containing the
+                // component.
+                context.getPackageManager().setComponentEnabledSetting(app_locales_component,
+                        COMPONENT_ENABLED_STATE_ENABLED, /* flags= */ DONT_KILL_APP);
+            }
         }
     }
 

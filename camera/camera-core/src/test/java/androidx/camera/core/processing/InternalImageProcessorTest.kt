@@ -23,9 +23,9 @@ import androidx.camera.core.ImageProcessor
 import androidx.camera.core.ImageProcessor.Response
 import androidx.camera.core.ProcessingException
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.directExecutor
-import androidx.camera.testing.fakes.FakeImageEffect
-import androidx.camera.testing.fakes.FakeImageInfo
-import androidx.camera.testing.fakes.FakeImageProxy
+import androidx.camera.testing.impl.fakes.FakeImageEffect
+import androidx.camera.testing.impl.fakes.FakeImageInfo
+import androidx.camera.testing.impl.fakes.FakeImageProxy
 import com.google.common.truth.Truth.assertThat
 import java.lang.Thread.currentThread
 import java.util.concurrent.Executors.newSingleThreadExecutor
@@ -67,7 +67,9 @@ class InternalImageProcessorTest {
         try {
             imageProcessor.safeProcess(
                 ImageProcessorRequest(
-                    FakeImageProxy(FakeImageInfo()),
+                    FakeImageProxy(
+                        FakeImageInfo()
+                    ),
                     PixelFormat.RGBA_8888
                 )
             )
@@ -82,8 +84,10 @@ class InternalImageProcessorTest {
     @Test
     fun process_appCallbackInvokedOnAppExecutor() {
         // Arrange.
-        val imageToEffect = FakeImageProxy(FakeImageInfo())
-        val imageFromEffect = FakeImageProxy(FakeImageInfo())
+        val imageToEffect =
+            FakeImageProxy(FakeImageInfo())
+        val imageFromEffect =
+            FakeImageProxy(FakeImageInfo())
         var calledThreadName = ""
         val processor = ImageProcessor {
             calledThreadName = currentThread().name

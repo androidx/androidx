@@ -16,55 +16,58 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeVariableType
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeParameter
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
 
+/**
+ * An [XType] representing the type var type in a function parameter, return type or class
+ * declaration.
+ *
+ * This is different than [KspMethodTypeVariableType] because the [KSType] has as reference the
+ * [KSTypeParameter] declaration.
+ */
 internal class KspTypeVariableType(
     env: KspProcessingEnv,
+    val ksTypeVariable: KSTypeParameter,
     ksType: KSType,
-    scope: KSTypeVarianceResolverScope?
-) : KspType(env, ksType, scope), XTypeVariableType {
-    private val typeVariable: KSTypeParameter by lazy {
-        // Note: This is a workaround for a bug in KSP where we may get ERROR_TYPE in the bounds
-        // (https://github.com/google/ksp/issues/1250). To work around it we get the matching
-        // KSTypeParameter from the parent declaration instead.
-        ksType.declaration.parentDeclaration!!.typeParameters
-            .filter { it.name == (ksType.declaration as KSTypeParameter).name }
-            .single()
-    }
+    originalKSAnnotations: Sequence<KSAnnotation> = ksTypeVariable.annotations,
+    scope: KSTypeVarianceResolverScope? = null,
+) : KspType(env, ksType, originalKSAnnotations, scope, null), XTypeVariableType {
 
     override fun resolveJTypeName(): JTypeName {
-        return typeVariable.asJTypeName(env.resolver)
+        return ksTypeVariable.asJTypeName(env.resolver)
     }
 
     override fun resolveKTypeName(): KTypeName {
-        return typeVariable.asKTypeName(env.resolver)
+        return ksTypeVariable.asKTypeName(env.resolver)
     }
 
-    override val upperBounds: List<XType> = typeVariable.bounds.map(env::wrap).toList()
+    override val upperBounds: List<XType> = ksTypeVariable.bounds.map(env::wrap).toList()
 
     override fun boxed(): KspTypeVariableType {
         return this
     }
 
-    override fun copyWithNullability(nullability: XNullability): KspTypeVariableType {
-        return KspTypeVariableType(
-            env = env,
-            ksType = ksType,
-            scope = scope
-        )
-    }
+    override fun copy(
+        env: KspProcessingEnv,
+        ksType: KSType,
+        originalKSAnnotations: Sequence<KSAnnotation>,
+        scope: KSTypeVarianceResolverScope?,
+        typeAlias: KSType?
+    ) = KspTypeVariableType(
+        env,
+        ksType.declaration as KSTypeParameter,
+        ksType,
+        originalKSAnnotations,
+        scope
+    )
 
-    override fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType {
-        return KspTypeVariableType(
-            env = env,
-            ksType = ksType,
-            scope = scope
-        )
+    override val equalityItems: Array<out Any?> by lazy {
+        arrayOf(ksTypeVariable)
     }
 }

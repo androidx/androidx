@@ -91,8 +91,9 @@ To deprecate an entire artifact:
     artifact as `@Deprecated` and update the API files
     ([example CL](https://android-review.googlesource.com/c/platform/frameworks/support/+/1938773))
 1.  Schedule a release of the artifact as a new minor version. When you populate
-    the release notes, explain that the entire artifact has been deprecated.
-    Include the reason for deprecation and the migration strategy.
+    the release notes, explain that the entire artifact has been deprecated and
+    will no longer receive new features or bug fixes. Include the reason for
+    deprecation and the migration strategy.
 1.  After the artifact has been released, remove the artifact from the source
     tree, versions file, and tip-of-tree docs configuration
     ([example CL](https://android-review.googlesource.com/c/platform/frameworks/support/+/2061731/))
@@ -107,3 +108,58 @@ new stable version, which will contain the `@deprecated` annotations.
 
 After an artifact has been released as fully-deprecated, it can be removed from
 the source tree.
+
+#### Long-term support
+
+Artifacts which have been fully deprecated and removed are not required to fix
+any bugs -- including security issues -- which are reported after the library
+has been removed from source control; however, library owners *may* utilize
+release branches to provide long-term support.
+
+When working on long-term support in a release branch, you may encounter the
+following issues:
+
+-   Release metadata produced by the build system is not compatible with the
+    release scheduling tool
+-   Build targets associated with the release branch do not match targets used
+    by the snapped build ID
+-   Delta between last snapped build ID and proposed snap build ID is too large
+    and cannot be processed by the release branch management tool
+
+### Discouraging usage in Play Store
+
+[Google Play SDK Console](https://play.google.com/sdk-console/) allows library
+owners to annotate specific library versions with notes, which are shown to app
+developers in the Play Store Console, or permanently mark them as outdated,
+which shows a warning in Play Store Console asking app developers to upgrade.
+
+In both cases, library owners have the option to prevent app developers from
+releasing apps to Play Store that have been built against specific library
+versions.
+
+Generally, Jetpack discourages the use of either notes or marking versions as
+outdated. There are few cases that warrant pushing notifications to app
+developers, and it is easy to abuse notes as advertising to drive adoption. As a
+rule, upgrades to Jetpack libraries should be driven by the needs of app
+developers.
+
+Cases where notes may be used include:
+
+1.  The library is used directly, rather than transitively, and contains `P0` or
+    `P1` (ship-blocking, from the app's perspective) issues
+    -   Transitively-included libraries should instead urge their dependent
+        libraries to bump their pinned dependency versions
+1.  The library contains ship-blocking security issues. In this case, we
+    recommend preventing app releases since developers may be less aware of
+    security issues.
+1.  The library was built against a pre-release SDK which has been superseded by
+    a finalized SDK. In this case, we recommend preventing app releases since
+    the library may crash or show unexpected behavior.
+
+Cases where marking a version as outdated maybe used:
+
+1.  The library has security implications and the version is no longer receiving
+    security updates, e.g. the release branch has moved to the next version.
+
+In all cases, there must be a newer stable or bugfix release of the library that
+app developers can use to replace the outdated version.

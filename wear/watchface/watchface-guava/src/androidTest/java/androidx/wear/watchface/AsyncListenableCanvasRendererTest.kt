@@ -109,11 +109,12 @@ public class AsyncListenableCanvasRendererTest : WatchFaceControlClientServiceTe
         val initFuture = SettableFuture.create<Unit>()
         val watchFaceService =
             TestAsyncCanvasRenderInitWatchFaceService(context, surfaceHolder, initFuture)
+        val controlClient = createWatchFaceControlClientService()
 
         val deferredClient =
             handlerCoroutineScope.async {
                 @Suppress("deprecation")
-                watchFaceControlClientService.getOrCreateInteractiveWatchFaceClient(
+                controlClient.getOrCreateInteractiveWatchFaceClient(
                     "testId",
                     DeviceConfig(false, false, 0, 0),
                     WatchUiState(false, 0),
@@ -122,7 +123,7 @@ public class AsyncListenableCanvasRendererTest : WatchFaceControlClientServiceTe
                 )
             }
 
-        handler.post { watchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper }
+        handler.post { watchFaceService.onCreateEngine() }
 
         val client = awaitWithTimeout(deferredClient)
 

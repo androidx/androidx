@@ -24,6 +24,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.UseCaseGroup;
+import androidx.camera.core.ViewPort;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -82,9 +84,9 @@ import java.lang.annotation.RetentionPolicy;
  * <p>When creating a ResolutionSelector instance, the
  * {@link AspectRatioStrategy#RATIO_4_3_FALLBACK_AUTO_STRATEGY} will be the default
  * {@link AspectRatioStrategy} if it is not set.
- * {@link ResolutionSelector#ALLOWED_RESOLUTIONS_NORMAL} is the default allowed resolution
- * mode. However, if neither the {@link ResolutionStrategy} nor the {@link ResolutionFilter} are
- * set, there will be no default value specified.
+ * {@link ResolutionSelector#PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION} is the default allowed
+ * resolution mode. However, if neither the {@link ResolutionStrategy} nor the
+ * {@link ResolutionFilter} are set, there will be no default value specified.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class ResolutionSelector {
@@ -97,7 +99,7 @@ public final class ResolutionSelector {
      * {@link android.hardware.camera2.CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP}
      * camera characteristics.
      */
-    public static final int ALLOWED_RESOLUTIONS_NORMAL = 0;
+    public static final int PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION = 0;
     /**
      * This mode allows CameraX to select the output sizes which might result in slower capture
      * times.
@@ -118,9 +120,10 @@ public final class ResolutionSelector {
      * {@link android.hardware.camera2.CameraCharacteristics#SCALER_STREAM_CONFIGURATION_MAP_MAXIMUM_RESOLUTION}
      * . This mode does not allow applications to select those ultra high resolutions.
      */
-    public static final int ALLOWED_RESOLUTIONS_SLOW = 1;
+    public static final int PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE = 1;
 
-    @IntDef({ALLOWED_RESOLUTIONS_NORMAL, ALLOWED_RESOLUTIONS_SLOW})
+    @IntDef({PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION,
+            PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface AllowedResolutionMode {
@@ -190,7 +193,7 @@ public final class ResolutionSelector {
         @Nullable
         private ResolutionFilter mResolutionFilter = null;
         @AllowedResolutionMode
-        private int mAllowedResolutionMode = ALLOWED_RESOLUTIONS_NORMAL;
+        private int mAllowedResolutionMode = PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION;
 
         /**
          * Creates a Builder instance.
@@ -222,6 +225,12 @@ public final class ResolutionSelector {
          *
          * <p>If the aspect ratio strategy is not specified,
          * {@link AspectRatioStrategy#RATIO_4_3_FALLBACK_AUTO_STRATEGY} will be used as the default.
+         *
+         * <p>{@link UseCase}s can be bound by a {@link UseCaseGroup} with a {@link ViewPort}
+         * setting. If a {@link ViewPort} is set, it is recommended that the {@link ViewPort} and
+         * the bound {@link UseCase}s should have matching aspect ratio settings. Otherwise, the
+         * output crop rectangles may be double-cropped from the full camera sensor field of view.
+         * See {@link ViewPort.Builder} for details.
          */
         @NonNull
         public Builder setAspectRatioStrategy(@NonNull AspectRatioStrategy aspectRatioStrategy) {
@@ -255,7 +264,7 @@ public final class ResolutionSelector {
          * Sets the allowed resolution mode.
          *
          * <p>If not specified, the default setting is
-         * {@link ResolutionSelector#ALLOWED_RESOLUTIONS_NORMAL}.
+         * {@link ResolutionSelector#PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION}.
          */
         @NonNull
         public Builder setAllowedResolutionMode(@AllowedResolutionMode int mode) {

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-alpha05" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-alpha05)" variant="all" version="8.0.0-alpha05">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="            @ExperimentalTextApi"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~">
+        id="RestrictedApiAndroidX"
+        message="FontsContractCompat.requestFont can only be called from within the same library (androidx.core:core)"
+        errorLine1="        FontsContractCompat.requestFont("
+        errorLine2="                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/ui/text/googlefonts/GoogleFont.kt"/>
     </issue>

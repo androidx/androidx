@@ -17,7 +17,7 @@
 package androidx.benchmark.macro.perfetto
 
 import androidx.benchmark.perfetto.PerfettoCapture
-import androidx.benchmark.perfetto.PerfettoHelper.Companion.LOWEST_BUNDLED_VERSION_SUPPORTED
+import androidx.benchmark.perfetto.PerfettoHelper.Companion.MIN_BUNDLED_SDK_VERSION
 import androidx.benchmark.perfetto.PerfettoHelper.Companion.isAbiSupported
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
@@ -35,7 +35,7 @@ import org.junit.runner.RunWith
 class PerfettoCaptureTest {
     @SdkSuppress(
         minSdkVersion = 23,
-        maxSdkVersion = LOWEST_BUNDLED_VERSION_SUPPORTED - 1
+        maxSdkVersion = MIN_BUNDLED_SDK_VERSION - 1
     )
     @SmallTest
     @Test

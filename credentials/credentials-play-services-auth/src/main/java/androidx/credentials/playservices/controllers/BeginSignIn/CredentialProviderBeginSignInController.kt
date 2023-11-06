@@ -16,7 +16,7 @@
 
 package androidx.credentials.playservices.controllers.BeginSignIn
 
-import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.CancellationSignal
@@ -51,17 +51,15 @@ import java.util.concurrent.Executor
 
 /**
  * A controller to handle the BeginSignIn flow with play services.
- *
- * @hide
  */
 @Suppress("deprecation")
-class CredentialProviderBeginSignInController(private val activity: Activity) :
+internal class CredentialProviderBeginSignInController(private val context: Context) :
     CredentialProviderController<
         GetCredentialRequest,
         BeginSignInRequest,
         SignInCredential,
         GetCredentialResponse,
-        GetCredentialException>(activity) {
+        GetCredentialException>(context) {
 
     /**
      * The callback object state, used in the protected handleResponse method.
@@ -119,10 +117,16 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
         }
 
         val convertedRequest: BeginSignInRequest = this.convertRequestToPlayServices(request)
-        val hiddenIntent = Intent(activity, HiddenActivity::class.java)
+        val hiddenIntent = Intent(context, HiddenActivity::class.java)
         hiddenIntent.putExtra(REQUEST_TAG, convertedRequest)
         generateHiddenActivityIntent(resultReceiver, hiddenIntent, BEGIN_SIGN_IN_TAG)
-        activity.startActivity(hiddenIntent)
+        try {
+            context.startActivity(hiddenIntent)
+        } catch (e: Exception) {
+            cancelOrCallbackExceptionOrResult(cancellationSignal) { this.executor.execute {
+                this.callback.onError(
+                    GetCredentialUnknownException(ERROR_MESSAGE_START_ACTIVITY_FAILED)) } }
+        }
     }
 
     internal fun handleResponse(uniqueRequestCode: Int, resultCode: Int, data: Intent?) {
@@ -143,7 +147,7 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
             )
         ) return
         try {
-            val signInCredential = Identity.getSignInClient(activity)
+            val signInCredential = Identity.getSignInClient(context)
                 .getSignInCredentialFromIntent(data)
             val response = convertResponseToCredentialManager(signInCredential)
             cancelOrCallbackExceptionOrResult(cancellationSignal) {
@@ -183,7 +187,7 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
     public override fun convertRequestToPlayServices(request: GetCredentialRequest):
         BeginSignInRequest {
-        return constructBeginSignInRequest(request)
+        return constructBeginSignInRequest(request, context)
     }
 
     @VisibleForTesting(otherwise = VisibleForTesting.PROTECTED)
@@ -238,22 +242,21 @@ class CredentialProviderBeginSignInController(private val activity: Activity) :
     }
 
     companion object {
-        private val TAG = CredentialProviderBeginSignInController::class.java.name
+        private const val TAG = "BeginSignIn"
         private var controller: CredentialProviderBeginSignInController? = null
-        // TODO(b/262924507) : Test multiple calls (re-instantiation validates but just in case)
 
         /**
          * This finds a past version of the [CredentialProviderBeginSignInController] if it exists,
          * otherwise it generates a new instance.
          *
-         * @param activity the calling activity for this controller
+         * @param context the calling context for this controller
          * @return a credential provider controller for a specific begin sign in credential request
          */
         @JvmStatic
-        fun getInstance(activity: Activity):
+        fun getInstance(context: Context):
             CredentialProviderBeginSignInController {
             if (controller == null) {
-                controller = CredentialProviderBeginSignInController(activity)
+                controller = CredentialProviderBeginSignInController(context)
             }
             return controller!!
         }

@@ -42,9 +42,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 16
-    }
     namespace "androidx.media2.player"
 }
 
@@ -54,4 +51,5 @@ androidx {
     inceptionYear = "2018"
     description = "Media2 Player"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

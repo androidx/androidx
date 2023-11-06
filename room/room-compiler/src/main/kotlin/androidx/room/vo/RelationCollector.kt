@@ -174,8 +174,13 @@ data class RelationCollector(
                         addStatement("%L = %L.get(%L)", tmpRelationVar, varName, tmpKeyVar)
                         if (language == CodeLanguage.KOTLIN && relation.field.nonNull) {
                             beginControlFlow("if (%L == null)", tmpRelationVar)
-                            // TODO(b/249984504): Generate / output a better message.
-                            addStatement("error(%S)", "Missing relationship item.")
+                            addStatement(
+                                "error(%S)",
+                                "Relationship item '${relation.field.name}' was expected to" +
+                                    " be NON-NULL but is NULL in @Relation involving " +
+                                "a parent column named '${relation.parentField.columnName}' and " +
+                                    "entityColumn named '${relation.entityField.columnName}'."
+                            )
                             endControlFlow()
                         }
                     }

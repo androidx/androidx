@@ -21,7 +21,7 @@ public class MyDao_Impl(
         this.__db = __db
     }
 
-    public override fun baseConcrete(): Unit {
+    public override fun baseConcrete() {
         __db.beginTransaction()
         try {
             super@MyDao_Impl.baseConcrete()
@@ -31,13 +31,13 @@ public class MyDao_Impl(
         }
     }
 
-    public override suspend fun baseSuspendConcrete(): Unit {
+    public override suspend fun baseSuspendConcrete() {
         __db.withTransaction {
             super@MyDao_Impl.baseSuspendConcrete()
         }
     }
 
-    public override fun concrete(): Unit {
+    public override fun concrete() {
         __db.beginTransaction()
         try {
             super@MyDao_Impl.concrete()
@@ -71,7 +71,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun concreteWithFunctionalParam(block: Function0<Unit>): Unit {
+    public override fun concreteWithFunctionalParam(block: Function0<Unit>) {
         __db.beginTransaction()
         try {
             super@MyDao_Impl.concreteWithFunctionalParam(block)
@@ -81,7 +81,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override suspend fun suspendConcrete(): Unit {
+    public override suspend fun suspendConcrete() {
         __db.withTransaction {
             super@MyDao_Impl.suspendConcrete()
         }
@@ -92,7 +92,7 @@ public class MyDao_Impl(
     }
 
     public override suspend
-    fun suspendConcreteWithSuspendFunctionalParam(block: SuspendFunction0<Unit>): Unit {
+    fun suspendConcreteWithSuspendFunctionalParam(block: SuspendFunction0<Unit>) {
         __db.withTransaction {
             super@MyDao_Impl.suspendConcreteWithSuspendFunctionalParam(block)
         }

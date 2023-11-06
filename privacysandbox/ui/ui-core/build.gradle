@@ -39,6 +39,9 @@ android {
     buildFeatures {
         aidl = true
     }
+    defaultConfig {
+        minSdk 21
+    }
 }
 
 androidx {
@@ -46,4 +49,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "contains core definitions for the privacysandbox ui library."
+    metalavaK2UastEnabled = true
 }

@@ -239,7 +239,7 @@
     <string name="additional_text" msgid="8410289578276941586">"Тейлөө шарттарыбызды карап чыгыңыз"</string>
     <string name="google_sign_in" msgid="6556259799319701727">"Google кирүү"</string>
     <string name="use_pin" msgid="7850893299484337431">"PIN кодду колдонуу"</string>
-    <string name="qr_code" msgid="5487041647280777397">"QR коду"</string>
+    <string name="qr_code" msgid="5487041647280777397">"QR код"</string>
     <string name="sign_in_template_not_supported_text" msgid="7184733753948837646">"Башкы түйүнүңүз Кирүү үлгүлөрүн колдоого албайт"</string>
     <string name="sign_in_template_not_supported_title" msgid="4892883228898541764">"Шайкеш келбеген башкы түйүн"</string>
     <string name="email_hint" msgid="7205549445477319606">"Кат жөнөтүү"</string>
@@ -251,7 +251,7 @@
     <string name="password_hint" msgid="2869107073860012864">"сырсөз"</string>
     <string name="password_sign_in_instruction_prefix" msgid="9105788349198243508">"Колдонуучунун аты"</string>
     <string name="pin_sign_in_instruction" msgid="2288691296234360441">"Телефонуңузда бул PIN кодду киргизиңиз"</string>
-    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Кирүү үчүн QR кодун скандаңыз"</string>
+    <string name="qr_code_sign_in_title" msgid="8137070561006464518">"Кирүү үчүн QR кодду скандаңыз"</string>
     <string name="sign_in_with_google_title" msgid="8043752000786977249">"Google аккаунту менен кирүү"</string>
     <string name="provider_sign_in_instruction" msgid="7586815688292506743">"Google\'га кирүүңүздү аягына чыгаруу үчүн бул баскычты колдонуңуз"</string>
     <string name="sign_in_complete_text" msgid="8423984266325680606">"Сиз кирдиңиз!"</string>
@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Тизме өтмөгү"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Өтмөктүн аталышы узун болгон торчо түрүндөгү өтмөк"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Издөө өтмөгү"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Өтмөк жүктөлүүдө"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Өтмөктүн үлгүсүн жүктөөнүн демо версиясы"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Өтмөктүн үлгүсү, өтмөктөр жок демо версиясы"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Сүрөттөрдү белгисиз башкы түйүн үчүн көрсөтүүгө болбойт"</string>

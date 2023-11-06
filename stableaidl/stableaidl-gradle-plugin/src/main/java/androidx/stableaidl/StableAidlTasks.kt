@@ -24,7 +24,6 @@ import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.SourceDirectories
 import com.android.build.api.variant.Variant
 import com.android.utils.usLocaleCapitalize
-import java.io.File
 import org.gradle.api.Action
 import org.gradle.api.DomainObjectCollection
 import org.gradle.api.Project
@@ -36,6 +35,7 @@ import org.gradle.api.file.Directory
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskOutputFilePropertyBuilder
 import org.gradle.api.tasks.TaskProvider
 
 // Gradle task group used to identify Stable AIDL tasks.
@@ -68,12 +68,12 @@ class ArtifactType {
     }
 }
 
-@Suppress("UnstableApiUsage") // SourceDirectories.Flat
 fun registerCompileAidlApi(
     project: Project,
     variant: Variant,
     aidlExecutable: Provider<RegularFile>,
     aidlFramework: Provider<RegularFile>,
+    aidlVersion: Provider<String>,
     sourceDir: SourceDirectories.Flat,
     packagedDir: Provider<Directory>,
     importsDir: SourceDirectories.Flat,
@@ -88,6 +88,8 @@ fun registerCompileAidlApi(
     task.variantName = variant.name
     task.aidlExecutable.set(aidlExecutable)
     task.aidlFrameworkProvider.set(aidlFramework)
+    task.aidlVersion.set(aidlVersion)
+    task.minSdkVersion.set(variant.minSdk)
     task.sourceDirs.set(sourceDir.all)
     task.sourceOutputDir.set(outputDir)
     task.packagedDir.set(packagedDir)
@@ -160,6 +162,7 @@ fun registerGenerateAidlApi(
     variant: Variant,
     aidlExecutable: Provider<RegularFile>,
     aidlFramework: Provider<RegularFile>,
+    aidlVersion: Provider<String>,
     sourceDir: SourceDirectories.Flat,
     importsDir: SourceDirectories.Flat,
     depImports: List<FileCollection>,
@@ -174,6 +177,7 @@ fun registerGenerateAidlApi(
     task.variantName = variant.name
     task.aidlExecutable.set(aidlExecutable)
     task.aidlFrameworkProvider.set(aidlFramework)
+    task.aidlVersion.set(aidlVersion)
     task.sourceDirs.set(sourceDir.all)
     task.sourceOutputDir.set(builtApiDir)
     task.importDirs.set(importsDir.all)
@@ -198,7 +202,7 @@ fun registerCheckApiAidlRelease(
     importsDir: SourceDirectories.Flat,
     depImports: List<FileCollection>,
     lastReleasedApiDir: Directory,
-    generateAidlTask: Provider<StableAidlCompile>
+    generateAidlTask: Provider<StableAidlCompile>,
 ): TaskProvider<StableAidlCheckApi> = project.tasks.register(
     computeTaskName("check", variant, "AidlApiRelease"),
     StableAidlCheckApi::class.java
@@ -229,7 +233,7 @@ fun registerCheckAidlApi(
     depImports: List<FileCollection>,
     lastCheckedInApiFile: Directory,
     generateAidlTask: Provider<StableAidlCompile>,
-    checkAidlApiReleaseTask: Provider<StableAidlCheckApi>
+    checkAidlApiReleaseTask: Provider<StableAidlCheckApi>,
 ): TaskProvider<StableAidlCheckApi> = project.tasks.register(
     computeTaskName("check", variant, "AidlApi"),
     StableAidlCheckApi::class.java
@@ -255,6 +259,7 @@ fun registerUpdateAidlApi(
     variant: Variant,
     lastCheckedInApiFile: Directory,
     generateAidlTask: Provider<StableAidlCompile>,
+    checkAidlApiReleaseTask: Provider<StableAidlCheckApi>,
 ): TaskProvider<UpdateStableAidlApiTask> = project.tasks.register(
     computeTaskName("update", variant, "AidlApi"),
     UpdateStableAidlApiTask::class.java
@@ -265,23 +270,22 @@ fun registerUpdateAidlApi(
     task.apiLocation.set(generateAidlTask.flatMap { it.sourceOutputDir })
     task.outputApiLocations.set(listOf(lastCheckedInApiFile.asFile))
     task.forceUpdate.set(project.providers.gradleProperty("force").isPresent)
+    task.dependsOn(checkAidlApiReleaseTask)
 }
 
 /**
  * Tells Gradle to skip running this task, even if this task declares no output files.
  */
-private fun Task.cacheEvenIfNoOutputs() {
-    this.outputs.file(this.getPlaceholderOutput())
-}
+private fun Task.cacheEvenIfNoOutputs(): TaskOutputFilePropertyBuilder =
+    outputs.file(getPlaceholderOutput())
 
 /**
  * Returns an unused output path that we can pass to Gradle to prevent Gradle from thinking that we
  * forgot to declare outputs of this task, and instead to skip this task if its inputs are
  * unchanged.
  */
-private fun Task.getPlaceholderOutput(): File {
-    return File(this.project.buildDir, "placeholderOutput/" + this.name.replace(":", "-"))
-}
+private fun Task.getPlaceholderOutput(): Provider<RegularFile> =
+    project.layout.buildDirectory.file("placeholderOutput/${name.replace(':', '-')}")
 
 private fun computeTaskName(prefix: String, variant: Variant, suffix: String) =
     "$prefix${variant.name.usLocaleCapitalize()}$suffix"

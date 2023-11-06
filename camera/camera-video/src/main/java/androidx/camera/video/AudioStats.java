@@ -104,7 +104,6 @@ public abstract class AudioStats {
      * Should audio recording be disabled, any attempts to retrieve the amplitude will
      * return this value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final double AUDIO_AMPLITUDE_NONE = 0;
 
     @IntDef({AUDIO_STATE_ACTIVE, AUDIO_STATE_DISABLED, AUDIO_STATE_SOURCE_SILENCED,
@@ -168,8 +167,8 @@ public abstract class AudioStats {
     public abstract Throwable getErrorCause();
 
     /**
-     * Returns the maximum absolute amplitude of the audio most recently sampled. Returns
-     * {@link #AUDIO_AMPLITUDE_NONE} if audio is disabled.
+     * Returns the maximum absolute amplitude of the audio most recently sampled in the past 2
+     * nanoseconds
      *
      * <p>The amplitude is the maximum absolute value over all channels which the audio was
      * most recently sampled from.
@@ -177,10 +176,11 @@ public abstract class AudioStats {
      * <p>Amplitude is a relative measure of the maximum sound pressure/voltage range of the device
      * microphone.
      *
+     * <p>Returns {@link #AUDIO_AMPLITUDE_NONE} if audio is disabled.
      * <p>The amplitude value returned will be a double between {@code 0} and {@code 1}.
+     *
      */
     @OptIn(markerClass = ExperimentalAudioApi.class)
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     public double getAudioAmplitude() {
         if (getAudioState() == AUDIO_STATE_DISABLED) {
             return AUDIO_AMPLITUDE_NONE;

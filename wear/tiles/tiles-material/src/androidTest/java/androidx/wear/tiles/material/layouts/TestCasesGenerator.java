@@ -21,18 +21,6 @@ import android.graphics.Color;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
-import androidx.wear.tiles.material.Button;
-import androidx.wear.tiles.material.ButtonDefaults;
-import androidx.wear.tiles.material.Chip;
-import androidx.wear.tiles.material.ChipColors;
-import androidx.wear.tiles.material.CircularProgressIndicator;
-import androidx.wear.tiles.material.Colors;
-import androidx.wear.tiles.material.CompactChip;
-import androidx.wear.tiles.material.ProgressIndicatorColors;
-import androidx.wear.tiles.material.ProgressIndicatorDefaults;
-import androidx.wear.tiles.material.Text;
-import androidx.wear.tiles.material.TitleChip;
-import androidx.wear.tiles.material.Typography;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -64,10 +52,13 @@ public class TestCasesGenerator {
         HashMap<String, androidx.wear.tiles.LayoutElementBuilders.LayoutElement> testCases =
                 new HashMap<>();
 
-        TitleChip content =
-                new TitleChip.Builder(context, "Action", clickable, deviceParameters).build();
-        CompactChip.Builder primaryChipBuilder =
-                new CompactChip.Builder(context, "Action", clickable, deviceParameters);
+        androidx.wear.tiles.material.TitleChip content =
+                new androidx.wear.tiles.material.TitleChip.Builder(
+                                context, "Action", clickable, deviceParameters)
+                        .build();
+        androidx.wear.tiles.material.CompactChip.Builder primaryChipBuilder =
+                new androidx.wear.tiles.material.CompactChip.Builder(
+                        context, "Action", clickable, deviceParameters);
 
         testCases.put(
                 "default_empty_primarychiplayout_golden" + goldenSuffix,
@@ -78,7 +69,7 @@ public class TestCasesGenerator {
                 "default_longtext_primarychiplayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
                         .setPrimaryChipContent(
-                                new CompactChip.Builder(
+                                new androidx.wear.tiles.material.CompactChip.Builder(
                                                 context,
                                                 "Too_long_textToo_long_textToo_long_text",
                                                 clickable,
@@ -114,7 +105,9 @@ public class TestCasesGenerator {
                         .setContent(content)
                         .setPrimaryChipContent(
                                 primaryChipBuilder
-                                        .setChipColors(new ChipColors(Color.YELLOW, Color.GREEN))
+                                        .setChipColors(
+                                                new androidx.wear.tiles.material.ChipColors(
+                                                        Color.YELLOW, Color.GREEN))
                                         .build())
                         .build());
         testCases.put(
@@ -124,32 +117,46 @@ public class TestCasesGenerator {
                         .setContent(buildColoredBoxPLL(Color.YELLOW))
                         .build());
         testCases.put(
-            "two_chips_content_primarychiplayout_golden" + goldenSuffix,
-            new PrimaryLayout.Builder(deviceParameters)
-                .setPrimaryChipContent(primaryChipBuilder.build())
-                .setContent(
-                    new androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
-                        .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
-                        .setHeight(androidx.wear.tiles.DimensionBuilders.wrap())
-                        .addContent(
-                            new Chip.Builder(context,clickable,deviceParameters)
-                                .setPrimaryLabelContent("First chip")
-                                .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
-                                .build())
-                        .addContent(
-                            new androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder()
-                                .setHeight(androidx.wear.tiles.DimensionBuilders.dp(4))
-                                .build())
-                        .addContent(
-                            new Chip.Builder(context,clickable,deviceParameters)
-                                .setPrimaryLabelContent("Second chip")
-                                .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
-                                .build())
-                        .build())
-                .build());
+                "two_chips_content_primarychiplayout_golden" + goldenSuffix,
+                new PrimaryLayout.Builder(deviceParameters)
+                        .setPrimaryChipContent(primaryChipBuilder.build())
+                        .setContent(
+                                new androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
+                                        .setWidth(androidx.wear.tiles.DimensionBuilders.expand())
+                                        .setHeight(androidx.wear.tiles.DimensionBuilders.wrap())
+                                        .addContent(
+                                                new androidx.wear.tiles.material.Chip.Builder(
+                                                                context,
+                                                                clickable,
+                                                                deviceParameters)
+                                                        .setPrimaryLabelContent("First chip")
+                                                        .setWidth(
+                                                                androidx.wear.tiles
+                                                                        .DimensionBuilders.expand())
+                                                        .build())
+                                        .addContent(
+                                                new androidx.wear.tiles.LayoutElementBuilders.Spacer
+                                                                .Builder()
+                                                        .setHeight(
+                                                                androidx.wear.tiles
+                                                                        .DimensionBuilders.dp(4))
+                                                        .build())
+                                        .addContent(
+                                                new androidx.wear.tiles.material.Chip.Builder(
+                                                                context,
+                                                                clickable,
+                                                                deviceParameters)
+                                                        .setPrimaryLabelContent("Second chip")
+                                                        .setWidth(
+                                                                androidx.wear.tiles
+                                                                        .DimensionBuilders.expand())
+                                                        .build())
+                                        .build())
+                        .build());
 
         primaryChipBuilder =
-                new CompactChip.Builder(context, "Action", clickable, deviceParameters);
+                new androidx.wear.tiles.material.CompactChip.Builder(
+                        context, "Action", clickable, deviceParameters);
         testCases.put(
                 "coloredbox_1_chip_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
@@ -308,31 +315,38 @@ public class TestCasesGenerator {
                         .setVerticalSpacerHeight(1)
                         .build());
 
-        CircularProgressIndicator.Builder progressIndicatorBuilder =
-                new CircularProgressIndicator.Builder().setProgress(0.3f);
-        Text textContent =
-                new Text.Builder(context, "Text")
-                        .setColor(androidx.wear.tiles.ColorBuilders.argb(Color.WHITE))
-                        .setTypography(Typography.TYPOGRAPHY_DISPLAY1)
+        androidx.wear.tiles.material.CircularProgressIndicator.Builder progressIndicatorBuilder =
+                new androidx.wear.tiles.material.CircularProgressIndicator.Builder()
+                        .setProgress(0.3f);
+        androidx.wear.tiles.material.Text textContent =
+                new androidx.wear.tiles.material.Text.Builder(context, "Text")
+                        .setColor(color(Color.WHITE))
+                        .setTypography(androidx.wear.tiles.material.Typography.TYPOGRAPHY_DISPLAY1)
                         .build();
         testCases.put(
                 "default_text_progressindicatorlayout_golden" + goldenSuffix,
                 new EdgeContentLayout.Builder(deviceParameters)
                         .setEdgeContent(progressIndicatorBuilder.build())
                         .setPrimaryLabelTextContent(
-                                new Text.Builder(context, "Primary label")
-                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                new androidx.wear.tiles.material.Text.Builder(
+                                                context, "Primary label")
+                                        .setTypography(
+                                                androidx.wear.tiles.material.Typography
+                                                        .TYPOGRAPHY_CAPTION1)
                                         .setColor(
-                                                androidx.wear.tiles.ColorBuilders.argb(
-                                                        Colors.PRIMARY))
+                                                color(androidx.wear.tiles.material.Colors.PRIMARY))
                                         .build())
                         .setContent(textContent)
                         .setSecondaryLabelTextContent(
-                                new Text.Builder(context, "Secondary label")
-                                        .setTypography(Typography.TYPOGRAPHY_CAPTION1)
+                                new androidx.wear.tiles.material.Text.Builder(
+                                                context, "Secondary label")
+                                        .setTypography(
+                                                androidx.wear.tiles.material.Typography
+                                                        .TYPOGRAPHY_CAPTION1)
                                         .setColor(
-                                                androidx.wear.tiles.ColorBuilders.argb(
-                                                        Colors.ON_SURFACE))
+                                                color(
+                                                        androidx.wear.tiles.material.Colors
+                                                                .ON_SURFACE))
                                         .build())
                         .build());
         testCases.put(
@@ -347,56 +361,81 @@ public class TestCasesGenerator {
                         .setEdgeContent(
                                 progressIndicatorBuilder
                                         .setCircularProgressIndicatorColors(
-                                                new ProgressIndicatorColors(
+                                                new androidx.wear.tiles.material
+                                                        .ProgressIndicatorColors(
                                                         Color.YELLOW, Color.GREEN))
                                         .build())
                         .build());
         testCases.put(
-            "coloredbox_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
-            new EdgeContentLayout.Builder(deviceParameters)
-                .setEdgeContent(
-                    progressIndicatorBuilder
-                        .setCircularProgressIndicatorColors(
-                            ProgressIndicatorDefaults.DEFAULT_COLORS)
-                        .build())
-                .setContent(
-                        new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
-                            .setWidth(androidx.wear.tiles.DimensionBuilders.dp(500))
-                            .setHeight(androidx.wear.tiles.DimensionBuilders.dp(500))
-                            .setModifiers(
-                                new androidx.wear.tiles.ModifiersBuilders.Modifiers.Builder()
-                                    .setBackground(
-                                        new androidx.wear.tiles.ModifiersBuilders.Background
-                                            .Builder()
-                                            .setColor(
-                                                androidx.wear.tiles.ColorBuilders.argb(
-                                                    Color.YELLOW))
-                                            .build())
-                                    .build())
-                            .build())
-                .build());
+                "coloredbox_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setEdgeContent(
+                                progressIndicatorBuilder
+                                        .setCircularProgressIndicatorColors(
+                                                androidx.wear.tiles.material
+                                                        .ProgressIndicatorDefaults.DEFAULT_COLORS)
+                                        .build())
+                        .setContent(
+                                new androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
+                                        .setWidth(androidx.wear.tiles.DimensionBuilders.dp(500))
+                                        .setHeight(androidx.wear.tiles.DimensionBuilders.dp(500))
+                                        .setModifiers(
+                                                new androidx.wear.tiles.ModifiersBuilders.Modifiers
+                                                                .Builder()
+                                                        .setBackground(
+                                                                new androidx.wear.tiles
+                                                                                .ModifiersBuilders
+                                                                                .Background
+                                                                                .Builder()
+                                                                        .setColor(
+                                                                                color(Color.YELLOW))
+                                                                        .build())
+                                                        .build())
+                                        .build())
+                        .build());
 
-        Button button1 = new Button.Builder(context, clickable).setTextContent("1").build();
-        Button button2 = new Button.Builder(context, clickable).setTextContent("2").build();
-        Button button3 = new Button.Builder(context, clickable).setTextContent("3").build();
-        Button button4 = new Button.Builder(context, clickable).setTextContent("4").build();
-        Button button5 = new Button.Builder(context, clickable).setTextContent("5").build();
-        Button button6 = new Button.Builder(context, clickable).setTextContent("6").build();
-        Button button7 = new Button.Builder(context, clickable).setTextContent("7").build();
-        Button largeButton1 =
-                new Button.Builder(context, clickable)
+        androidx.wear.tiles.material.Button button1 =
+                new androidx.wear.tiles.material.Button.Builder(context, clickable)
                         .setTextContent("1")
-                        .setSize(ButtonDefaults.LARGE_SIZE)
                         .build();
-        Button largeButton2 =
-                new Button.Builder(context, clickable)
+        androidx.wear.tiles.material.Button button2 =
+                new androidx.wear.tiles.material.Button.Builder(context, clickable)
                         .setTextContent("2")
-                        .setSize(ButtonDefaults.LARGE_SIZE)
                         .build();
-        Button extraLargeButton =
-                new Button.Builder(context, clickable)
+        androidx.wear.tiles.material.Button button3 =
+                new androidx.wear.tiles.material.Button.Builder(context, clickable)
+                        .setTextContent("3")
+                        .build();
+        androidx.wear.tiles.material.Button button4 =
+                new androidx.wear.tiles.material.Button.Builder(context, clickable)
+                        .setTextContent("4")
+                        .build();
+        androidx.wear.tiles.material.Button button5 =
+                new androidx.wear.tiles.material.Button.Builder(context, clickable)
+                        .setTextContent("5")
+                        .build();
+        androidx.wear.tiles.material.Button button6 =
+                new androidx.wear.tiles.material.Button.Builder(context, clickable)
+                        .setTextContent("6")
+                        .build();
+        androidx.wear.tiles.material.Button button7 =
+                new androidx.wear.tiles.material.Button.Builder(context, clickable)
+                        .setTextContent("7")
+                        .build();
+        androidx.wear.tiles.material.Button largeButton1 =
+                new androidx.wear.tiles.material.Button.Builder(context, clickable)
                         .setTextContent("1")
-                        .setSize(ButtonDefaults.EXTRA_LARGE_SIZE)
+                        .setSize(androidx.wear.tiles.material.ButtonDefaults.LARGE_SIZE)
+                        .build();
+        androidx.wear.tiles.material.Button largeButton2 =
+                new androidx.wear.tiles.material.Button.Builder(context, clickable)
+                        .setTextContent("2")
+                        .setSize(androidx.wear.tiles.material.ButtonDefaults.LARGE_SIZE)
+                        .build();
+        androidx.wear.tiles.material.Button extraLargeButton =
+                new androidx.wear.tiles.material.Button.Builder(context, clickable)
+                        .setTextContent("1")
+                        .setSize(androidx.wear.tiles.material.ButtonDefaults.EXTRA_LARGE_SIZE)
                         .build();
         testCases.put(
                 "multibutton_layout_1button_golden" + goldenSuffix,
@@ -597,10 +636,16 @@ public class TestCasesGenerator {
     }
 
     @NonNull
-    private static Text buildTextLabel(@NonNull Context context, @NonNull String text) {
-        return new Text.Builder(context, text)
-                .setTypography(Typography.TYPOGRAPHY_CAPTION1)
-                .setColor(androidx.wear.tiles.ColorBuilders.argb(Color.WHITE))
+    private static androidx.wear.tiles.ColorBuilders.ColorProp color(int yellow) {
+        return androidx.wear.tiles.ColorBuilders.argb(yellow);
+    }
+
+    @NonNull
+    private static androidx.wear.tiles.material.Text buildTextLabel(
+            @NonNull Context context, @NonNull String text) {
+        return new androidx.wear.tiles.material.Text.Builder(context, text)
+                .setTypography(androidx.wear.tiles.material.Typography.TYPOGRAPHY_CAPTION1)
+                .setColor(color(Color.WHITE))
                 .build();
     }
 
@@ -614,9 +659,7 @@ public class TestCasesGenerator {
                                 .setBackground(
                                         new androidx.wear.tiles.ModifiersBuilders.Background
                                                         .Builder()
-                                                .setColor(
-                                                        androidx.wear.tiles.ColorBuilders.argb(
-                                                                color))
+                                                .setColor(color(color))
                                                 .build())
                                 .build())
                 .build();
@@ -632,9 +675,7 @@ public class TestCasesGenerator {
                                 .setBackground(
                                         new androidx.wear.tiles.ModifiersBuilders.Background
                                                         .Builder()
-                                                .setColor(
-                                                        androidx.wear.tiles.ColorBuilders.argb(
-                                                                color))
+                                                .setColor(color(color))
                                                 .build())
                                 .build())
                 .build();

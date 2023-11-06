@@ -19,6 +19,7 @@ package androidx.credentials.playservices
 import androidx.credentials.playservices.TestUtils.Companion.ConnectionResultFailureCases
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
@@ -32,6 +33,7 @@ import org.mockito.Mockito
 class CredentialProviderPlayServicesImplTest {
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33)
     fun isAvailableOnDevice_apiSuccess_returnsTrue() {
         val activityScenario = ActivityScenario.launch(
             TestCredentialsActivity::class.java
@@ -53,8 +55,8 @@ class CredentialProviderPlayServicesImplTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 33)
     fun isAvailableOnDevice_apiNotSuccess_returnsFalse() {
-        // TODO("If retryables are accounted for, add a third test")
         val activityScenario = ActivityScenario.launch(
             TestCredentialsActivity::class.java
         )

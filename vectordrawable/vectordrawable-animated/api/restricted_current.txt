@@ -21,15 +21,15 @@ package androidx.vectordrawable.graphics.drawable {
     method public void draw(android.graphics.Canvas);
     method public int getOpacity();
     method public boolean isRunning();
-    method public void registerAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback?);
     method public static void registerAnimationCallback(android.graphics.drawable.Drawable?, androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback?);
+    method public void registerAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback?);
     method public void setAlpha(int);
     method public void setColorFilter(android.graphics.ColorFilter?);
     method public void setColorFilter(int, android.graphics.PorterDuff.Mode!);
     method public void start();
     method public void stop();
-    method public boolean unregisterAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback?);
     method public static boolean unregisterAnimationCallback(android.graphics.drawable.Drawable?, androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback?);
+    method public boolean unregisterAnimationCallback(androidx.vectordrawable.graphics.drawable.Animatable2Compat.AnimationCallback?);
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class AnimationUtilsCompat {
@@ -37,9 +37,9 @@ package androidx.vectordrawable.graphics.drawable {
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class AnimatorInflaterCompat {
-    method public static android.animation.Animator! loadAnimator(android.content.Context!, @AnimatorRes int) throws android.content.res.Resources.NotFoundException;
     method public static android.animation.Animator! loadAnimator(android.content.Context!, android.content.res.Resources!, android.content.res.Resources.Theme!, @AnimatorRes int) throws android.content.res.Resources.NotFoundException;
     method public static android.animation.Animator! loadAnimator(android.content.Context!, android.content.res.Resources!, android.content.res.Resources.Theme!, @AnimatorRes int, float) throws android.content.res.Resources.NotFoundException;
+    method public static android.animation.Animator! loadAnimator(android.content.Context!, @AnimatorRes int) throws android.content.res.Resources.NotFoundException;
   }
 
   @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ArgbEvaluator implements android.animation.TypeEvaluator<java.lang.Object> {

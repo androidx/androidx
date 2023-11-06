@@ -38,7 +38,7 @@ dependencies {
     implementation(projectOrArtifact(":appcompat:appcompat"))
     implementation projectOrArtifact(":annotation:annotation")
     implementation(projectOrArtifact(":interpolator:interpolator"))
-    compileOnly(projectOrArtifact(":annotation:annotation-sampled"))
+    compileOnly(project(":annotation:annotation-sampled"))
 }
 
 androidx {

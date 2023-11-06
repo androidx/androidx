@@ -27,13 +27,14 @@ import androidx.camera.core.DynamicRange
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.Timebase
 import androidx.camera.core.internal.CameraUseCaseAdapter
-import androidx.camera.testing.CameraPipeConfigTestRule
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.CameraXUtil
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.video.Quality
 import androidx.camera.video.Recorder
 import androidx.camera.video.VideoCapabilities
 import androidx.camera.video.VideoSpec
+import androidx.camera.video.internal.encoder.VideoEncoderDataSpace
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
@@ -75,9 +76,7 @@ class VideoEncoderConfigVideoProfileResolverTest(
     private val defaultVideoSpec = VideoSpec.builder().build()
     private val timebase = Timebase.UPTIME
 
-    // TODO(b/278168212): Only SDR is checked by now. Need to extend to HDR dynamic ranges.
-    private val dynamicRange = DynamicRange.SDR
-
+    private lateinit var dynamicRanges: Set<DynamicRange>
     private lateinit var cameraUseCaseAdapter: CameraUseCaseAdapter
     private lateinit var videoCapabilities: VideoCapabilities
 
@@ -92,7 +91,10 @@ class VideoEncoderConfigVideoProfileResolverTest(
 
         val cameraInfo = CameraUtil.createCameraUseCaseAdapter(context, cameraSelector).cameraInfo
         videoCapabilities = Recorder.getVideoCapabilities(cameraInfo)
-        Assume.assumeTrue(videoCapabilities.getSupportedQualities(dynamicRange).isNotEmpty())
+        dynamicRanges = videoCapabilities.supportedDynamicRanges
+        dynamicRanges.forEach {
+            Assume.assumeTrue(videoCapabilities.getSupportedQualities(it).isNotEmpty())
+        }
     }
 
     @After
@@ -108,190 +110,277 @@ class VideoEncoderConfigVideoProfileResolverTest(
 
     @Test
     fun defaultVideoSpecProducesValidSettings_forSurfaceSizeEquivalentToQuality() {
-        val supportedProfiles = videoCapabilities.getSupportedQualities(dynamicRange).map {
-            videoCapabilities.getProfiles(it, dynamicRange)!!
-        }
+        dynamicRanges.forEach { dynamicRange ->
+            val supportedProfiles = videoCapabilities.getSupportedQualities(dynamicRange).map {
+                videoCapabilities.getProfiles(it, dynamicRange)!!
+            }
 
-        supportedProfiles.forEach {
-            val videoProfile = it.defaultVideoProfile
-            val config = VideoEncoderConfigVideoProfileResolver(
-                videoProfile.mediaType,
-                timebase,
-                defaultVideoSpec,
-                Size(videoProfile.width, videoProfile.height),
-                videoProfile,
-                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
-            ).get()
+            supportedProfiles.forEach {
+                val videoProfile = it.defaultVideoProfile
+                val config = VideoEncoderConfigVideoProfileResolver(
+                    videoProfile.mediaType,
+                    timebase,
+                    defaultVideoSpec,
+                    Size(videoProfile.width, videoProfile.height),
+                    videoProfile,
+                    dynamicRange,
+                    SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
+                ).get()
 
-            assertThat(config.mimeType).isEqualTo(videoProfile.mediaType)
-            assertThat(config.bitrate).isEqualTo(videoProfile.bitrate)
-            assertThat(config.resolution).isEqualTo(Size(videoProfile.width, videoProfile.height))
-            assertThat(config.frameRate).isEqualTo(videoProfile.frameRate)
+                assertThat(config.mimeType).isEqualTo(videoProfile.mediaType)
+                assertThat(config.bitrate).isEqualTo(videoProfile.bitrate)
+                assertThat(config.resolution).isEqualTo(
+                    Size(
+                        videoProfile.width,
+                        videoProfile.height
+                    )
+                )
+                assertThat(config.frameRate).isEqualTo(videoProfile.frameRate)
+            }
         }
     }
 
     @Test
     fun bitrateIncreasesOrDecreasesWithIncreaseOrDecreaseInSurfaceSize() {
-        val profile =
-            videoCapabilities.getProfiles(Quality.HIGHEST, dynamicRange)!!.defaultVideoProfile
-        val surfaceSize = Size(profile.width, profile.height)
+        dynamicRanges.forEach { dynamicRange ->
+            val profile =
+                videoCapabilities.getProfiles(Quality.HIGHEST, dynamicRange)!!.defaultVideoProfile
+            val surfaceSize = Size(profile.width, profile.height)
 
-        val defaultBitrate = VideoEncoderConfigVideoProfileResolver(
-            profile.mediaType,
-            timebase,
-            defaultVideoSpec,
-            surfaceSize,
-            profile,
-            SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
-        ).get().bitrate
-
-        val increasedSurfaceSize = Size(surfaceSize.width + 100, surfaceSize.height + 100)
-        val decreasedSurfaceSize = Size(surfaceSize.width - 100, surfaceSize.height - 100)
-
-        assertThat(
-            VideoEncoderConfigVideoProfileResolver(
+            val defaultBitrate = VideoEncoderConfigVideoProfileResolver(
                 profile.mediaType,
                 timebase,
                 defaultVideoSpec,
-                increasedSurfaceSize,
+                surfaceSize,
                 profile,
+                dynamicRange,
                 SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
             ).get().bitrate
-        ).isGreaterThan(defaultBitrate)
 
-        assertThat(
-            VideoEncoderConfigVideoProfileResolver(
-                profile.mediaType,
-                timebase,
-                defaultVideoSpec,
-                decreasedSurfaceSize,
-                profile,
-                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
-            ).get().bitrate
-        ).isLessThan(defaultBitrate)
+            val increasedSurfaceSize = Size(surfaceSize.width + 100, surfaceSize.height + 100)
+            val decreasedSurfaceSize = Size(surfaceSize.width - 100, surfaceSize.height - 100)
+
+            assertThat(
+                VideoEncoderConfigVideoProfileResolver(
+                    profile.mediaType,
+                    timebase,
+                    defaultVideoSpec,
+                    increasedSurfaceSize,
+                    profile,
+                    dynamicRange,
+                    SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
+                ).get().bitrate
+            ).isGreaterThan(defaultBitrate)
+
+            assertThat(
+                VideoEncoderConfigVideoProfileResolver(
+                    profile.mediaType,
+                    timebase,
+                    defaultVideoSpec,
+                    decreasedSurfaceSize,
+                    profile,
+                    dynamicRange,
+                    SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
+                ).get().bitrate
+            ).isLessThan(defaultBitrate)
+        }
     }
 
     @Test
     fun bitrateRangeInVideoSpecClampsBitrate() {
-        val profile =
-            videoCapabilities.getProfiles(Quality.HIGHEST, dynamicRange)!!.defaultVideoProfile
-        val surfaceSize = Size(profile.width, profile.height)
+        dynamicRanges.forEach { dynamicRange ->
+            val profile =
+                videoCapabilities.getProfiles(Quality.HIGHEST, dynamicRange)!!.defaultVideoProfile
+            val surfaceSize = Size(profile.width, profile.height)
 
-        val defaultBitrate = VideoEncoderConfigVideoProfileResolver(
-            profile.mediaType,
-            timebase,
-            defaultVideoSpec,
-            surfaceSize,
-            profile,
-            SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
-        ).get().bitrate
-
-        // Create video spec with limit 20% higher than default.
-        val higherBitrate = (defaultBitrate * 1.2).toInt()
-        val higherVideoSpec =
-            VideoSpec.builder().setBitrate(Range(higherBitrate, Int.MAX_VALUE)).build()
-
-        // Create video spec with limit 20% lower than default.
-        val lowerBitrate = (defaultBitrate * 0.8).toInt()
-        val lowerVideoSpec = VideoSpec.builder().setBitrate(Range(0, lowerBitrate)).build()
-
-        assertThat(
-            VideoEncoderConfigVideoProfileResolver(
+            val defaultBitrate = VideoEncoderConfigVideoProfileResolver(
                 profile.mediaType,
                 timebase,
-                higherVideoSpec,
+                defaultVideoSpec,
                 surfaceSize,
                 profile,
+                dynamicRange,
                 SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
             ).get().bitrate
-        ).isEqualTo(higherBitrate)
 
-        assertThat(
-            VideoEncoderConfigVideoProfileResolver(
-                profile.mediaType,
-                timebase,
-                lowerVideoSpec,
-                surfaceSize,
-                profile,
-                SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
-            ).get().bitrate
-        ).isEqualTo(lowerBitrate)
+            // Create video spec with limit 20% higher than default.
+            val higherBitrate = (defaultBitrate * 1.2).toInt()
+            val higherVideoSpec =
+                VideoSpec.builder().setBitrate(Range(higherBitrate, Int.MAX_VALUE)).build()
+
+            // Create video spec with limit 20% lower than default.
+            val lowerBitrate = (defaultBitrate * 0.8).toInt()
+            val lowerVideoSpec = VideoSpec.builder().setBitrate(Range(0, lowerBitrate)).build()
+
+            assertThat(
+                VideoEncoderConfigVideoProfileResolver(
+                    profile.mediaType,
+                    timebase,
+                    higherVideoSpec,
+                    surfaceSize,
+                    profile,
+                    dynamicRange,
+                    SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
+                ).get().bitrate
+            ).isEqualTo(higherBitrate)
+
+            assertThat(
+                VideoEncoderConfigVideoProfileResolver(
+                    profile.mediaType,
+                    timebase,
+                    lowerVideoSpec,
+                    surfaceSize,
+                    profile,
+                    dynamicRange,
+                    SurfaceRequest.FRAME_RATE_RANGE_UNSPECIFIED
+                ).get().bitrate
+            ).isEqualTo(lowerBitrate)
+        }
     }
 
     @Test
     fun resolvedFrameRateIsClampedToOperatingRate() {
-        val profile =
-            videoCapabilities.getProfiles(Quality.HIGHEST, dynamicRange)!!.defaultVideoProfile
-        val surfaceSize = Size(profile.width, profile.height)
+        dynamicRanges.forEach { dynamicRange ->
+            val profile =
+                videoCapabilities.getProfiles(Quality.HIGHEST, dynamicRange)!!.defaultVideoProfile
+            val surfaceSize = Size(profile.width, profile.height)
 
-        // Construct operating ranges that are both lower and higher than the profile FPS
-        val lowerOperatingRange = Range(profile.frameRate / 4, profile.frameRate / 2)
-        val higherOperatingRange = Range(profile.frameRate * 2, profile.frameRate * 4)
+            // Construct operating ranges that are both lower and higher than the profile FPS
+            val lowerOperatingRange = Range(profile.frameRate / 4, profile.frameRate / 2)
+            val higherOperatingRange = Range(profile.frameRate * 2, profile.frameRate * 4)
 
-        val clampedDownFrameRate = VideoEncoderConfigVideoProfileResolver(
-            profile.mediaType,
-            timebase,
-            defaultVideoSpec,
-            surfaceSize,
-            profile,
-            lowerOperatingRange
-        ).get().frameRate
+            val clampedDownFrameRate = VideoEncoderConfigVideoProfileResolver(
+                profile.mediaType,
+                timebase,
+                defaultVideoSpec,
+                surfaceSize,
+                profile,
+                dynamicRange,
+                lowerOperatingRange
+            ).get().frameRate
 
-        val clampedUpFrameRate = VideoEncoderConfigVideoProfileResolver(
-            profile.mediaType,
-            timebase,
-            defaultVideoSpec,
-            surfaceSize,
-            profile,
-            higherOperatingRange
-        ).get().frameRate
+            val clampedUpFrameRate = VideoEncoderConfigVideoProfileResolver(
+                profile.mediaType,
+                timebase,
+                defaultVideoSpec,
+                surfaceSize,
+                profile,
+                dynamicRange,
+                higherOperatingRange
+            ).get().frameRate
 
-        assertThat(clampedDownFrameRate).isEqualTo(lowerOperatingRange.upper)
-        assertThat(clampedUpFrameRate).isEqualTo(higherOperatingRange.lower)
+            assertThat(clampedDownFrameRate).isEqualTo(lowerOperatingRange.upper)
+            assertThat(clampedUpFrameRate).isEqualTo(higherOperatingRange.lower)
+        }
     }
 
     @Test
     fun resolvedFrameRateInsideOperatingRangeIsUnchanged() {
-        val profile =
-            videoCapabilities.getProfiles(Quality.HIGHEST, dynamicRange)!!.defaultVideoProfile
-        val surfaceSize = Size(profile.width, profile.height)
+        dynamicRanges.forEach { dynamicRange ->
+            val profile =
+                videoCapabilities.getProfiles(Quality.HIGHEST, dynamicRange)!!.defaultVideoProfile
+            val surfaceSize = Size(profile.width, profile.height)
 
-        // Construct a range that includes the profile FPS
-        val operatingRange = Range(profile.frameRate / 2, profile.frameRate * 2)
+            // Construct a range that includes the profile FPS
+            val operatingRange = Range(profile.frameRate / 2, profile.frameRate * 2)
 
-        val resolvedFrameRate = VideoEncoderConfigVideoProfileResolver(
-            profile.mediaType,
-            timebase,
-            defaultVideoSpec,
-            surfaceSize,
-            profile,
-            operatingRange
-        ).get().frameRate
+            val resolvedFrameRate = VideoEncoderConfigVideoProfileResolver(
+                profile.mediaType,
+                timebase,
+                defaultVideoSpec,
+                surfaceSize,
+                profile,
+                dynamicRange,
+                operatingRange
+            ).get().frameRate
 
-        assertThat(resolvedFrameRate).isEqualTo(profile.frameRate)
+            assertThat(resolvedFrameRate).isEqualTo(profile.frameRate)
+        }
     }
 
     @Test
     fun bitrateScalesWithFrameRateOperatingRange() {
-        val profile =
-            videoCapabilities.getProfiles(Quality.HIGHEST, dynamicRange)!!.defaultVideoProfile
-        val surfaceSize = Size(profile.width, profile.height)
+        dynamicRanges.forEach { dynamicRange ->
+            val profile =
+                videoCapabilities.getProfiles(Quality.HIGHEST, dynamicRange)!!.defaultVideoProfile
+            val surfaceSize = Size(profile.width, profile.height)
 
-        // Construct a range which is constant and half the profile FPS
-        val operatingFrameRate = profile.frameRate / 2
-        val operatingRange = Range(operatingFrameRate, operatingFrameRate)
+            // Construct a range which is constant and half the profile FPS
+            val operatingFrameRate = profile.frameRate / 2
+            val operatingRange = Range(operatingFrameRate, operatingFrameRate)
 
-        val resolvedBitrate = VideoEncoderConfigVideoProfileResolver(
-            profile.mediaType,
-            timebase,
-            defaultVideoSpec,
-            surfaceSize,
-            profile,
-            operatingRange
-        ).get().bitrate
+            val resolvedBitrate = VideoEncoderConfigVideoProfileResolver(
+                profile.mediaType,
+                timebase,
+                defaultVideoSpec,
+                surfaceSize,
+                profile,
+                dynamicRange,
+                operatingRange
+            ).get().bitrate
 
-        assertThat(resolvedBitrate).isEqualTo(
-            (profile.bitrate * (operatingFrameRate.toDouble() / profile.frameRate)).toInt()
-        )
+            assertThat(resolvedBitrate).isEqualTo(
+                (profile.bitrate * (operatingFrameRate.toDouble() / profile.frameRate)).toInt()
+            )
+        }
+    }
+
+    @Test
+    fun codecProfileLevel_isResolvedFromVideoProfile() {
+        dynamicRanges.forEach { dynamicRange ->
+            val supportedProfiles = videoCapabilities.getSupportedQualities(dynamicRange).flatMap {
+                videoCapabilities.getProfiles(it, dynamicRange)!!.videoProfiles
+            }
+
+            supportedProfiles.forEach { videoProfile ->
+                val surfaceSize = Size(videoProfile.width, videoProfile.height)
+
+                val resolvedProfile = VideoEncoderConfigVideoProfileResolver(
+                    videoProfile.mediaType,
+                    timebase,
+                    defaultVideoSpec,
+                    surfaceSize,
+                    videoProfile,
+                    dynamicRange,
+                    Range(videoProfile.frameRate, videoProfile.frameRate)
+                ).get().profile
+
+                assertThat(resolvedProfile).isEqualTo(videoProfile.profile)
+            }
+        }
+    }
+
+    @Test
+    fun supportedHdrDynamicRanges_mapToSpecifiedVideoEncoderDataSpace() {
+        dynamicRanges.forEach { dynamicRange ->
+            val supportedProfiles = videoCapabilities.getSupportedQualities(dynamicRange).flatMap {
+                videoCapabilities.getProfiles(it, dynamicRange)!!.videoProfiles
+            }.toSet()
+
+            supportedProfiles.forEach { videoProfile ->
+                val surfaceSize = Size(videoProfile.width, videoProfile.height)
+
+                val resolvedDataSpace = VideoEncoderConfigVideoProfileResolver(
+                    videoProfile.mediaType,
+                    timebase,
+                    defaultVideoSpec,
+                    surfaceSize,
+                    videoProfile,
+                    dynamicRange,
+                    Range(videoProfile.frameRate, videoProfile.frameRate)
+                ).get().dataSpace
+
+                // SDR should always map to UNSPECIFIED, while others should not
+                if (dynamicRange == DynamicRange.SDR) {
+                    assertThat(resolvedDataSpace).isEqualTo(
+                        VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED
+                    )
+                } else {
+                    assertThat(resolvedDataSpace).isNotEqualTo(
+                        VideoEncoderDataSpace.ENCODER_DATA_SPACE_UNSPECIFIED
+                    )
+                }
+            }
+        }
     }
 }

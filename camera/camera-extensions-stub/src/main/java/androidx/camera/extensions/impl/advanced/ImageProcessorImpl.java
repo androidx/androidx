@@ -28,8 +28,7 @@ import android.annotation.SuppressLint;
 @SuppressLint("UnknownNullness")
 public interface ImageProcessorImpl {
     /**
-     * The reference count will be decremented when this method returns. If an extension wants
-     * to hold onto the image it should increment the reference count in this method and
+     * The reference count will not be decremented when this method returns. Extensions must
      * decrement it when the image is no longer needed.
      *
      * <p>If OEM is not closing(decrement) the image fast enough, the imageReference passed

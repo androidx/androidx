@@ -1,56 +1,65 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
-
-    <issue
-        id="NewApi"
-        message="Implicit cast from `Cursor` to `Closeable` requires API level 16 (current min is 14)"
-        errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
-        errorLine2="                                                                       ~~~">
-        <location
-            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Implicit cast from `Cursor` to `Closeable` requires API level 16 (current min is 14)"
-        errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
-        errorLine2="                                                                       ~~~">
-        <location
-            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Implicit cast from `Cursor` to `Closeable` requires API level 16 (current min is 14)"
-        errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
-        errorLine2="                                                                       ~~~">
-        <location
-            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Implicit cast from `Cursor` to `Closeable` requires API level 16 (current min is 14)"
-        errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
-        errorLine2="                                                                       ~~~">
-        <location
-            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Implicit cast from `Cursor` to `Closeable` requires API level 16 (current min is 14)"
-        errorLine1="            db.query(&quot;SELECT * FROM sqlite_master WHERE name = &apos;Foo&apos;&quot;).use {"
-        errorLine2="                                                                       ~~~">
-        <location
-            file="src/androidTest/java/androidx/sqlite/db/framework/OpenHelperRecoveryTest.kt"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
         errorLine1="                Thread.sleep(500)"
         errorLine2="                       ~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(16)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @get:RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteDatabase.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteOpenHelper.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 16"
+        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteOpenHelper.kt"/>
     </issue>

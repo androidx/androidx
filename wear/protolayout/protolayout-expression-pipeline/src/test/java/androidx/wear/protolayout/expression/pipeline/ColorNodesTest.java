@@ -25,17 +25,17 @@ import static java.lang.Integer.MAX_VALUE;
 import android.os.Looper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.AnimatableFixedColorNode;
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.DynamicAnimatedColorNode;
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.FixedColorNode;
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.StateColorSourceNode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateColorSource;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedColor;
-import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;

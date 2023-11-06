@@ -17,9 +17,13 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.os.Binder
+import android.os.IBinder
 import androidx.window.WindowTestUtils
 import androidx.window.core.ExtensionsUtil
 import androidx.window.core.PredicateAdapter
+import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_ACTIVITY_STACK_TOKEN
+import androidx.window.embedding.EmbeddingAdapter.Companion.INVALID_SPLIT_INFO_TOKEN
 import androidx.window.embedding.SplitAttributes.SplitType
 import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_HINGE
 import androidx.window.extensions.WindowExtensions
@@ -60,7 +64,8 @@ class EmbeddingAdapterTest {
             SplitAttributes.Builder()
                 .setSplitType(SplitType.SPLIT_TYPE_EQUAL)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                .build()
+                .build(),
+            INVALID_SPLIT_INFO_TOKEN,
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
@@ -82,7 +87,8 @@ class EmbeddingAdapterTest {
             SplitAttributes.Builder()
                 .setSplitType(SplitType.SPLIT_TYPE_EXPAND)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                .build()
+                .build(),
+            INVALID_SPLIT_INFO_TOKEN,
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
@@ -107,7 +113,8 @@ class EmbeddingAdapterTest {
                 .setSplitType(SplitType.ratio(expectedSplitRatio))
                 // OEMSplitInfo with Vendor API level 1 doesn't provide layoutDirection.
                 .setLayoutDirection(SplitAttributes.LayoutDirection.LOCALE)
-                .build()
+                .build(),
+            INVALID_SPLIT_INFO_TOKEN,
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
@@ -130,7 +137,34 @@ class EmbeddingAdapterTest {
             SplitAttributes.Builder()
                 .setSplitType(SPLIT_TYPE_HINGE)
                 .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
-                .build()
+                .build(),
+            INVALID_SPLIT_INFO_TOKEN,
+        )
+        assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
+    }
+
+    @Test
+    fun testTranslateSplitInfoWithApiLevel3() {
+        WindowTestUtils.assumeAtLeastVendorApiLevel(WindowExtensions.VENDOR_API_LEVEL_3)
+        val testStackToken = Binder()
+        val testSplitInfoToken = Binder()
+        val oemSplitInfo = createTestOEMSplitInfo(
+            createTestOEMActivityStack(ArrayList(), true, testStackToken),
+            createTestOEMActivityStack(ArrayList(), true, testStackToken),
+            OEMSplitAttributes.Builder()
+                .setSplitType(OEMSplitAttributes.SplitType.HingeSplitType(RatioSplitType(0.5f)))
+                .setLayoutDirection(TOP_TO_BOTTOM)
+                .build(),
+            testSplitInfoToken,
+        )
+        val expectedSplitInfo = SplitInfo(
+            ActivityStack(ArrayList(), isEmpty = true),
+            ActivityStack(ArrayList(), isEmpty = true),
+            SplitAttributes.Builder()
+                .setSplitType(SPLIT_TYPE_HINGE)
+                .setLayoutDirection(SplitAttributes.LayoutDirection.TOP_TO_BOTTOM)
+                .build(),
+            testSplitInfoToken,
         )
         assertEquals(listOf(expectedSplitInfo), adapter.translate(listOf(oemSplitInfo)))
     }
@@ -139,6 +173,7 @@ class EmbeddingAdapterTest {
         testPrimaryActivityStack: OEMActivityStack,
         testSecondaryActivityStack: OEMActivityStack,
         testSplitAttributes: OEMSplitAttributes,
+        testToken: IBinder = INVALID_SPLIT_INFO_TOKEN,
     ): OEMSplitInfo {
         return mock<OEMSplitInfo>().apply {
             whenever(primaryActivityStack).thenReturn(testPrimaryActivityStack)
@@ -146,16 +181,23 @@ class EmbeddingAdapterTest {
             if (ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_2) {
                 whenever(splitAttributes).thenReturn(testSplitAttributes)
             }
+            if (ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_3) {
+                whenever(token).thenReturn(testToken)
+            }
         }
     }
 
     private fun createTestOEMActivityStack(
         testActivities: List<Activity>,
         testIsEmpty: Boolean,
+        testToken: IBinder = INVALID_ACTIVITY_STACK_TOKEN,
     ): OEMActivityStack {
         return mock<OEMActivityStack>().apply {
             whenever(activities).thenReturn(testActivities)
             whenever(isEmpty).thenReturn(testIsEmpty)
+            if (ExtensionsUtil.safeVendorApiLevel >= WindowExtensions.VENDOR_API_LEVEL_3) {
+                whenever(token).thenReturn(testToken)
+            }
         }
     }
 }
