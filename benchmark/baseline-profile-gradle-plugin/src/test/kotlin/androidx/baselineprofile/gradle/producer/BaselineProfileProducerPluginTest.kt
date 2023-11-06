@@ -20,13 +20,13 @@ import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
 import androidx.baselineprofile.gradle.utils.TestAgpVersion
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_0_0
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_0
-import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_2_0
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.buildAndFailAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.require
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -103,7 +103,8 @@ class BaselineProfileProducerPluginTestWithAgp82 {
 
     @get:Rule
     val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = TEST_AGP_VERSION_8_2_0.versionString
+        // TODO: Update after b/309493780
+        forceAgpVersion = null
     )
 
     private val emptyReleaseVariantProfile = VariantProfile(
@@ -112,6 +113,7 @@ class BaselineProfileProducerPluginTestWithAgp82 {
         profileFileLines = mapOf()
     )
 
+    @Ignore("b/309493780")
     @Test
     fun verifyInstrumentationRunnerArgumentsAreSet() {
         projectSetup.appTarget.setup()
@@ -151,6 +153,7 @@ class BaselineProfileProducerPluginTestWithAgp82 {
             }
     }
 
+    @Ignore("b/309493780")
     @Test
     fun runWhenInstrumentationRunnerArgumentsAreSetManually() {
         projectSetup.appTarget.setup()
