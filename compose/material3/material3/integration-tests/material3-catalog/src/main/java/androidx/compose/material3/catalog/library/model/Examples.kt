@@ -108,6 +108,7 @@ import androidx.compose.material3.samples.PrimaryIconTabs
 import androidx.compose.material3.samples.PrimaryTextTabs
 import androidx.compose.material3.samples.PullToRefreshSample
 import androidx.compose.material3.samples.PullToRefreshSampleCustomState
+import androidx.compose.material3.samples.PullToRefreshScalingSample
 import androidx.compose.material3.samples.RadioButtonSample
 import androidx.compose.material3.samples.RadioGroupSample
 import androidx.compose.material3.samples.RangeSliderSample
@@ -788,6 +789,13 @@ val PullToRefreshExamples = listOf(
         sourceUrl = PullToRefreshExampleSourceUrl
     ) {
         PullToRefreshSample()
+    },
+    Example(
+        name = ::PullToRefreshScalingSample.name,
+        description = PullToRefreshExampleDescription,
+        sourceUrl = PullToRefreshExampleSourceUrl
+    ) {
+        PullToRefreshScalingSample()
     },
     Example(
         name = ::PullToRefreshSampleCustomState.name,

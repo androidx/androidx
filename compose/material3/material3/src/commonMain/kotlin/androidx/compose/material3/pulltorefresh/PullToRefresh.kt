@@ -91,6 +91,9 @@ import kotlin.math.pow
  * A custom state implementation can be initialized like this
  * @sample androidx.compose.material3.samples.PullToRefreshSampleCustomState
  *
+ * Scaling behavior can be implemented like this
+ * @sample androidx.compose.material3.samples.PullToRefreshScalingSample
+ *
  * @param state the state of this [PullToRefreshContainer]
  * @param modifier the [Modifier] to be applied to this container
  * @param indicator The indicator placed inside of the [PullToRefreshContainer]. Has access to
