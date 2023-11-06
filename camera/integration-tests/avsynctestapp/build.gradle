@@ -57,14 +57,16 @@ dependencies {
 
     compileOnly(libs.kotlinCompiler)
 
+    // Add camera-testing as 'implementation' dependency to use utils in camera-testing.
+    implementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies.
+        exclude(group:"androidx.test")
+    }
+
     // Testing framework
     testImplementation(libs.kotlinCoroutinesTest)
     testImplementation(libs.junit)
     testImplementation(libs.truth)
-    androidTestImplementation(project(":camera:camera-testing")) {
-        // Ensure camera-testing does not pull in androidx.test dependencies
-        exclude(group:"androidx.test")
-    }
     androidTestImplementation("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
     androidTestImplementation(libs.kotlinCoroutinesTest)
     androidTestImplementation(libs.testExtJunit)

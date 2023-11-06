@@ -622,4 +622,58 @@
             file="src/main/java/androidx/camera/integration/avsync/model/AudioGenerator.kt"/>
     </issue>
 
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.canDeviceWriteToMediaStore can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="            return if (canDeviceWriteToMediaStore()) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    generateVideoMediaStoreOptions(context.contentResolver, fileName)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    generateVideoMediaStoreOptions(context.contentResolver, fileName)"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoMediaStoreOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    generateVideoMediaStoreOptions(context.contentResolver, fileName)"
+        errorLine2="                                                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    generateVideoFileOutputOptions(fileName)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="FileUtil.generateVideoFileOutputOptions can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
+        errorLine1="                    generateVideoFileOutputOptions(fileName)"
+        errorLine2="                                                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/integration/avsync/model/CameraHelper.kt"/>
+    </issue>
+
 </issues>
