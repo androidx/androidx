@@ -21,7 +21,7 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.Text
 import androidx.compose.mpp.demo.Screen
 
-val SelectionContainerCrash = Screen.Example("SelectionContainerCrash") {
+val IOSSelectionContainerCrash = Screen.Example("SelectionContainerCrash") {
     //TODO: This bug is already fixed in latest androidx-main branch.
     // Related CL: https://android-review.googlesource.com/c/platform/frameworks/support/+/2616177/3/compose/foundation/foundation/src/commonMain/kotlin/androidx/compose/foundation/text/selection/SelectionAdjustment.kt
     // Check and close this bug after merging androidx-main on jb-main branch.

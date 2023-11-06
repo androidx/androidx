@@ -23,5 +23,6 @@ val BugReproducers = Screen.Selection(
     NoRecompositionInLazyGrid,
     RoundedCornerCrashOnJS,
     CodeViewerReproducer,
-    SelectionContainerCrash,
+    IOSSelectionContainerCrash,
+    IOSDynamicKeyboardType,
 )
