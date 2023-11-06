@@ -260,6 +260,16 @@ interface PageSize {
         override fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int {
             return pageSize.roundToPx()
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Fixed) return false
+            return pageSize == other.pageSize
+        }
+
+        override fun hashCode(): Int {
+            return pageSize.hashCode()
+        }
     }
 }
 
