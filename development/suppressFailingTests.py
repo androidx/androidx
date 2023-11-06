@@ -11,27 +11,41 @@ import argparse, csv, os, subprocess
 parser = argparse.ArgumentParser(
   description=__doc__
 )
-parser.add_argument("config_path", help="Path of file to process, downloaded from go/androidx-test-failures", nargs="+")
+parser.add_argument("-v", help="Verbose", action="store_true")
 
 dirOfThisScript = os.path.dirname(os.path.realpath(__file__))
 supportRoot = os.path.dirname(dirOfThisScript)
 
+logger = None
+
+class PrintLogger(object):
+  def log(self, message):
+    print(message)
+
+class DisabledLogger(object):
+  def log(self, message):
+    pass
+
+def log(message):
+  logger.log(message)
+
 class LocatedFailure(object):
-  def __init__(self, failure, location):
+  def __init__(self, failure, location, bugId):
     self.failure = failure
     self.location = location
+    self.bugId = bugId
 
 class TestFailure(object):
-  def __init__(self, qualifiedClassName, methodName, testDefinitionName, consistent, branchName, testResultId):
+  def __init__(self, qualifiedClassName, methodName, testDefinitionName, branchName, testFailureUrl, bugId):
     self.qualifiedClassName = qualifiedClassName
     self.methodName = methodName
     self.testDefinitionName = testDefinitionName
-    self.consistent = consistent
     self.branchName = branchName
-    self.testResultId = testResultId
+    self.failureUrl = testFailureUrl
+    self.bugId = bugId
 
   def getUrl(self):
-    return "https://android-build.googleplex.com/builds/tests/view?testResultId=" + self.testResultId
+    return self.testFailureUrl
 
 class FailuresDatabase(object):
   """A collection of LocatedFailure instances, organized by their locations"""
@@ -47,11 +61,6 @@ class FailuresDatabase(object):
     lineNumber = locatedFailure.location.lineNumber
     if lineNumber not in failuresAtPath:
       failuresAtPath[lineNumber] = locatedFailure
-    else:
-      # already have a failure at this location
-      if not failuresAtPath[lineNumber].failure.consistent:
-        # if the previously detected failure wasn't consistent, update with the new one
-        failuresAtPath[lineNumber] = locatedFailure
 
   # returns Map<String, LocatedFailure> with key being filePath
   def getAll(self):
@@ -65,39 +74,78 @@ class FailuresDatabase(object):
       results[path] = resultsAtPath
     return results
 
-# parses the data file containing the failing tests
-def parse():
-  arguments = parser.parse_args()
-  configPath = arguments.config_path[0]
+def parseBugLine(bugId, line):
+  components = line.split(" | ")
+  if len(components) < 3:
+    return None
+  testLink = components[1]
+  # Example test link: [compose-ui-uidebugAndroidTest.xml androidx.compose.ui.window.PopupAlignmentTest#popup_correctPosition_alignmentTopCenter_rtl](https://android-build.googleplex.com/builds/tests/view?testResultId=TR96929024659298098)
+  closeBracketIndex = testLink.rindex("]")
+  if closeBracketIndex <= 0:
+    raise Exception("Failed to parse b/" + bugId + " '" + line + "', testLink '" + testLink + "', closeBracketIndex = " + str(closeBracketIndex))
+  linkText = testLink[1:closeBracketIndex]
+  linkDest = testLink[closeBracketIndex + 1:]
+  # Example linkText: compose-ui-uidebugAndroidTest.xml androidx.compose.ui.window.PopupAlignmentTest#popup_correctPosition_alignmentTopCenter_rtl
+  # Example linkDest: (https://android-build.googleplex.com/builds/tests/view?testResultId=TR96929024659298098)
+  testResultUrl = linkDest.replace("(", "").replace(")", "")
+  # Example testResultUrl: https://android-build.googleplex.com/builds/tests/view?testResultId=TR96929024659298098
+  spaceIndex = linkText.index(" ")
+  if spaceIndex <= 0:
+    raise Exception("Failed to parse b/" + bugId + " '" + line + "', linkText = '" + linkText + ", spaceIndex = " + str(spaceIndex))
+  testDefinitionName = linkText[:spaceIndex]
+  testPath = linkText[spaceIndex+1:]
+  # Example test path: androidx.compose.ui.window.PopupAlignmentTest#popup_correctPosition_alignmentTopCenter_rtl
+  testPathSplit = testPath.split("#")
+  if len(testPathSplit) != 2:
+    raise Exception("Failed to parse b/" + bugId + " '" + line + "', testPath = '" + testPath + "', len(testPathSplit) = " + str(len(testPathSplit)))
+  testClass, testMethod = testPathSplit
+
+  branchName = components[2].strip()
+  print("  parsed test failure class=" + testClass + " method='" + testMethod + "' definition=" + testDefinitionName + " branch=" + branchName + " failureUrl=" + testResultUrl + " bugId=" + bugId)
+  return TestFailure(testClass, testMethod, testDefinitionName, branchName, testResultUrl, bugId)
+
+def parseBug(bugId):
+  bugText = shellRunner.runAndGetOutput(["bugged", "show", bugId])
+  log("bug text = '" + bugText + "'")
   failures = []
-  with open(configPath) as configFile:
-    config = csv.DictReader(configFile, delimiter="\t")
-    for item in config:
-      # Decide whether this failure appears to be happening reliably (consistent = True)
-      # or flakily (consistent = False).
-      #
-      # A flaky failure will probably occur a small number (probably 1) of times in a row
-      # and a small fraction of times (slightly more than 0%),
-      #
-      # whereas a consistent failure will probably occur a large number of times (until we address
-      # it, probably at least 3) and about 100% of the time
-      #
-      # These cutoff values are mostly arbitrary, about halfway between the expectations for these
-      # two types of failures
-      if int(item["consecutive_failures"]) >= 2 and float(item["failure_rate"]) > 0.5:
-        consistent = True
-      else:
-        consistent = False
-      failures.append(
-        TestFailure(
-          item["test_class"],
-          item["method"],
-          item["test_definition_name"],
-          consistent,
-          item["branch_name"],
-          item["test_result_id"]
-        )
-      )
+  bugLines = bugText.split("\n")
+
+  stillFailing = True
+  listingTests = False
+  for i in range(len(bugLines)):
+    line = bugLines[i]
+    #log("parsing bug line " + line)
+    if listingTests:
+      failure = parseBugLine(bugId, line)
+      if failure is not None:
+        failures.append(failure)
+    if "---|---|---|---|---" in line: # table start
+      listingTests = True
+    if " # " in line: # start of new section
+      listingTests = False
+    if "There are no more failing tests in this regression" in line or "ATN has not seen a failure for this regression recently." in line or "This regression has been identified as a duplicate of another one" in line:
+      stillFailing = False
+  if len(failures) < 1:
+    raise Exception("Failed to parse b/" + bugId + ": identified 0 failures. Rerun with -v for more information")
+  if not stillFailing:
+    print("tests no longer failing")
+    return []
+  return failures
+
+# identifies failing tests
+def getFailureData():
+  bugsQuery = ["bugged", "search", "hotlistid:5083126 status:open", "--columns", "issue"]
+  print("Searching for bugs: " + str(bugsQuery))
+  bugsOutput = shellRunner.runAndGetOutput(bugsQuery)
+  bugIds = bugsOutput.split("\n")
+  print("Checking " + str(len(bugIds)) + " bugs")
+  failures = []
+  for i in range(len(bugIds)):
+    bugId = bugIds[i].strip()
+    if bugId != "issue" and bugId != "":
+      print("")
+      print("Parsing bug " + bugId + " (" + str(i) + "/" + str(len(bugIds)) + ")")
+      failures += parseBug(bugId)
   return failures
 
 class FileLocation(object):
@@ -315,131 +363,68 @@ class SourceFile(object):
   def save(self):
     writeFile(self.path, "\n".join(self.lines))
 
-# searches for bugs matching certain criteria, using the `bugged` CLI tool
-class BugFinder(object):
-  def __init__(self):
-    self.bugsByQuery = {}
-
-  def findForFailure(self, testFailure):
-    qualifiedName = testFailure.qualifiedClassName
-    text = ["title:" + qualifiedName, "status:open", "--columns=issue"]
-    return self.query(text)
-
-  def query(self, args):
-    text = " ".join(args)
-    if text not in self.bugsByQuery:
-      response = None
-      try:
-        response = shellRunner.runAndGetOutput(["bugged", "search"] + args)
-      except FileNotFoundError as e:
-        raise FileNotFoundError("The `bugged` command-line tool is required but was not found. See go/bugged to install.")
-      lines = response.split("\n")
-      result = None
-      for line in response.split("\n"):
-        if line != "issue":
-          result = line
-          break
-      if result == "":
-        result = None
-      self.bugsByQuery[text] = result
-    return self.bugsByQuery[text]
-
-bugFinder = BugFinder()
-
 # converts from a List<TestFailure> to a FailuresDatabase containing LocatedFailure
 def locate(failures):
   db = FailuresDatabase()
   for failure in failures:
     location = classFinder.findMethod(failure.qualifiedClassName, failure.methodName)
     if location is not None:
-      db.add(LocatedFailure(failure, location))
+      db.add(LocatedFailure(failure, location, failure.bugId))
     else:
-      message = "Could not locate " + str(failure.qualifiedClassName) + "#" + str(failure.methodName)
+      message = "Could not locate " + str(failure.qualifiedClassName) + "#" + str(failure.methodName) + " for " + str(failure.bugId)
       if failure.branchName != "aosp-androidx-main":
         message += ", should be in " + failure.branchName
       print(message)
   return db
 
-# removes test result urls from the commit
-def uncommitTestResultUrls():
-  # first, remove test results urls from the files
-  shellRunner.run(["bash", "-c", "git log -1 --name-only | grep -v ' ' | xargs sed -i 's| // .*testResultId.*||g'"])
-  # commit the removal of these test result urls
-  shellRunner.run(["git", "add", "."])
-  shellRunner.run(["git", "commit", "-q", "--amend", "--no-edit"])
-  # restore the previous versions of the files
-  shellRunner.run(["git", "checkout", "-q", "HEAD@{1}", "--", "."])
-  shellRunner.run(["git", "reset", "-q"])
-
 # Given a FailureDatabase, disables all of the tests mentioned in it, by adding the appropriate
 # annotations:
-#  consistent failures get annotated with @Ignore ,
-#  flaky failures get annotated with @FlakyTest.
+#  failures get annotated with @Ignore ,
 # Annotations link to the associated bug if possible
 def disable(failuresDatabase):
-  mentionedBugs = set()
   numUpdates = 0
   failuresByPath = failuresDatabase.getAll()
   for path, failuresAtPath in failuresByPath.items():
     source = SourceFile(path)
     addedIgnore = False
-    addedFlaky = False
     for failure in failuresAtPath:
       lineNumber = failure.location.lineNumber
-      if source.hasAnnotation(lineNumber, "@FlakyTest") or source.hasAnnotation(lineNumber, "@Ignore"):
+      if source.hasAnnotation(lineNumber, "@Ignore"):
         continue
-      bug = bugFinder.findForFailure(failure.failure)
-      if bug is not None:
-        mentionedBugs.add(bug)
-      if failure.failure.consistent:
-        if bug is not None:
-          bugText = '"b/' + bug + '"'
-        else:
-          bugText = '"why"'
-        source.addAnnotation(lineNumber, "@Ignore(" + bugText + ") // " + failure.failure.getUrl())
-        addedIgnore = True
-      else:
-        if bug is not None:
-          bugText = "bugId = " + bug
-        else:
-          bugText = "bugId = num"
-        source.addAnnotation(lineNumber, "@FlakyTest(" + bugText + ") // " + failure.failure.getUrl())
-        addedFlaky = True
+      bugId = failure.bugId
+      bugText = '"b/' + bugId + '"'
+      source.addAnnotation(lineNumber, "@Ignore(" + bugText + ")")
+      addedIgnore = True
     if addedIgnore:
       source.addImport("org.junit.Ignore")
-    if addedFlaky:
-      source.addImport("androidx.test.filters.FlakyTest")
-    if addedIgnore or addedFlaky:
-      # save file
       source.save()
       numUpdates += 1
-  # make git commit
-  commitHeader = """Mostly autogenerated suppression of test failures
+  print("Made " + str(numUpdates) + " updates")
+
+def commit():
+  print("Generating git commit per OWNERS file")
+  os.chdir(supportRoot)
+  commitMessage = """Autogenerated suppression of test failures
 
 This commit was created with the help of development/suppressFailingTests.py
-
 """
+  shellRunner.run(["development/split_change_into_owners.sh", commitMessage])
 
-  bugStanzas = "\n".join(["Bug: " + bug for bug in sorted(mentionedBugs)])
-  commitMessage = commitHeader + bugStanzas
-
-  # make git commit containing the suppressions
-  os.chdir(supportRoot)
-  shellRunner.run(["git", "add", "."])
-  shellRunner.run(["git", "commit", "-q", "--no-edit", "-m", commitMessage])
-
-  # Remove test result urls from the git commit but keep them in the tree
-  uncommitTestResultUrls()
-  print("")
-  print("Committed updates to " + str(numUpdates) + " files. Inspect/fix as needed.")
-  print("")
-  print("Additional context (test failure urls) has been added but not committed.")
-  print("You can manually remove this information or you can run `git checkout -- <path>` to discard uncommitted changes under <path>")
 
 def main():
-  failures = parse()
+  global logger
+  arguments = parser.parse_args()
+  if arguments.v:
+    logger = PrintLogger()
+  else:
+    logger = DisabledLogger()
+  failures = getFailureData()
+  if len(failures) < 1:
+    print("Found 0 failures")
+    return
   locations = locate(failures)
   disable(locations)
+  commit()
 
 if __name__ == "__main__":
   main()
