@@ -130,8 +130,7 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
                         "doesn't exist"
                 )
         }
-        val result = mutableListOf<LibraryGroupAssociation>()
-        for (name in groups.keySet()) {
+        groups.keySet().sorted().map { name ->
             // get group name
             val groupDefinition = groups.getTable(name)!!
             val groupName = groupDefinition.getString("group")!!
@@ -153,10 +152,8 @@ abstract class LibraryVersionsService : BuildService<LibraryVersionsService.Para
                 }
 
             val group = LibraryGroup(finalGroupName, atomicGroupVersion)
-            val association = LibraryGroupAssociation(name, group, overrideApplyToProjects)
-            result.add(association)
+            LibraryGroupAssociation(name, group, overrideApplyToProjects)
         }
-        result
     }
 }
 
