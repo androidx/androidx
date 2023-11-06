@@ -676,7 +676,7 @@ abstract class PagerState(
      */
     fun getOffsetFractionForPage(page: Int): Float {
         require(page in 0..pageCount) {
-            "page $page is not within the range 0 to pageCount"
+            "page $page is not within the range 0 to $pageCount"
         }
         return (currentPage - page) + currentPageOffsetFraction
     }
