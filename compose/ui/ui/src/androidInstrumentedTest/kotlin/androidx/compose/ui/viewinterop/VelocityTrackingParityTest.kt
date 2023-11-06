@@ -415,8 +415,7 @@ fun TestComposeDraggable(
     onDragStopped: (velocity: Velocity) -> Unit
 ) {
     val viewConfiguration = object : ViewConfiguration by LocalViewConfiguration.current {
-        override val maximumFlingVelocity: Int
-            get() = Int.MAX_VALUE // unlimited
+        override val maximumFlingVelocity: Float get() = Float.MAX_VALUE // unlimited
     }
     CompositionLocalProvider(LocalViewConfiguration provides viewConfiguration) {
         Box(
