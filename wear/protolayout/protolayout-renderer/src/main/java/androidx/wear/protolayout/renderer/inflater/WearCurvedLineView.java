@@ -18,10 +18,10 @@ package androidx.wear.protolayout.renderer.inflater;
 
 import static java.lang.Math.min;
 
-import android.animation.ArgbEvaluator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Paint.Cap;
@@ -339,8 +339,6 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
          */
         private static final float CAP_COLOR_SHADER_OFFSET_SIZE = 0.25f;
 
-        private final ArgbEvaluator argbEvaluator = new ArgbEvaluator();
-
         @NonNull List<AngularColorStop> colorStops;
 
         SweepGradientHelper(@NonNull ColorProto.SweepGradient sweepGradProto) {
@@ -378,19 +376,41 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
             }
         }
 
+        /**
+         * Interpolates colors linearly. Color interpolation needs to be done accordingly to the
+         * underlying SweepGradient shader implementation so that all color transitions are smooth
+         * and static.
+         *
+         * <p>The ArgbEvaluator class applies gamma correction to colors which results in a
+         * different behavior compared to the shader's native implementation.
+         */
         @ColorInt
         @VisibleForTesting
         int interpolateColors(
-                int color1, float angle1, int color2, float angle2, float targetAngle) {
-            if (angle1 == angle2) {
-                return color1;
+                int startColor, float startAngle, int endColor, float endAngle, float targetAngle) {
+            if (startAngle == endAngle) {
+                return startColor;
             }
-            float fraction = (targetAngle - angle1) / (angle2 - angle1);
+            float fraction = (targetAngle - startAngle) / (endAngle - startAngle);
             if (Float.isInfinite(fraction)) {
-                return color1;
+                return startColor;
             }
-            // TODO(lucasmo): perform linear interpolation to match what's done in the shader.
-            return (int) argbEvaluator.evaluate(fraction, color1, color2);
+
+            float startA = Color.alpha(startColor);
+            float startR = Color.red(startColor);
+            float startG = Color.green(startColor);
+            float startB = Color.blue(startColor);
+
+            float endA = Color.alpha(endColor);
+            float endR = Color.red(endColor);
+            float endG = Color.green(endColor);
+            float endB = Color.blue(endColor);
+
+            int a = (int) (startA + fraction * (endA - startA));
+            int r = (int) (startR + fraction * (endR - startR));
+            int g = (int) (startG + fraction * (endG - startG));
+            int b = (int) (startB + fraction * (endB - startB));
+            return Color.argb(a, r, g, b);
         }
 
         /**
