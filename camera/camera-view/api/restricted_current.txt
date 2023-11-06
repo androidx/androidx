@@ -146,7 +146,7 @@ package androidx.camera.view {
     ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?);
     ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?, int);
     ctor @UiThread public ScreenFlashView(android.content.Context, android.util.AttributeSet?, int, int);
-    method @UiThread public androidx.camera.core.ImageCapture.ScreenFlashUiControl? getScreenFlashUiControl();
+    method @UiThread public androidx.camera.core.ImageCapture.ScreenFlash? getScreenFlash();
     method @UiThread public void setController(androidx.camera.view.CameraController?);
     method @UiThread public void setScreenFlashWindow(android.view.Window?);
   }
