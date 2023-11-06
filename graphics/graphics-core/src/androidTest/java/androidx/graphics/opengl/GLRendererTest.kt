@@ -36,7 +36,9 @@ import android.os.HandlerThread
 import android.view.PixelCopy
 import android.view.Surface
 import android.view.SurfaceHolder
+import android.view.SurfaceView
 import android.view.TextureView
+import android.view.TextureView.SurfaceTextureListener
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
 import androidx.graphics.SurfaceTextureRenderer
@@ -46,6 +48,7 @@ import androidx.graphics.lowlatency.Rectangle
 import androidx.graphics.opengl.egl.EGLManager
 import androidx.graphics.opengl.egl.EGLSpec
 import androidx.graphics.opengl.egl.supportsNativeAndroidFence
+import androidx.graphics.surface.SurfaceControlUtils
 import androidx.graphics.verifyQuadrants
 import androidx.hardware.SyncFenceCompat
 import androidx.lifecycle.Lifecycle.State
@@ -57,6 +60,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicReference
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -510,6 +514,180 @@ class GLRendererTest {
             // Assert that targets are detached when the GLRenderer is stopped
             assertFalse(target.isAttached())
         }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    fun testSurfaceViewResumeRendersContent() {
+        var surfaceView: SurfaceView? = null
+        var glRenderer: GLRenderer? = null
+        var target: GLRenderer.RenderTarget? = null
+        val renderLatch = AtomicReference<CountDownLatch>(CountDownLatch(1))
+        val scenario = ActivityScenario.launch(GLTestActivity::class.java)
+            .moveToState(State.CREATED)
+            .onActivity {
+                surfaceView = it.surfaceView
+
+                assertNotNull(surfaceView)
+
+                glRenderer = GLRenderer().apply { start() }
+                target = glRenderer!!.attach(it.surfaceView, ColorRenderCallback(Color.BLUE) {
+                    renderLatch.get().countDown()
+                })
+            }
+
+        scenario.moveToState(State.RESUMED)
+
+        assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
+
+        val createLatch = CountDownLatch(1)
+        scenario.moveToState(State.CREATED).onActivity {
+            createLatch.countDown()
+        }
+        createLatch.await(3000, TimeUnit.MILLISECONDS)
+
+        renderLatch.set(CountDownLatch(1))
+        scenario.moveToState(State.RESUMED)
+
+        assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
+        val bitmap = Bitmap.createBitmap(
+            GLTestActivity.TARGET_WIDTH,
+            GLTestActivity.TARGET_HEIGHT,
+            Bitmap.Config.ARGB_8888
+        )
+
+        blockingPixelCopy(bitmap) { surfaceView!!.holder.surface }
+
+        assertTrue(bitmap.isAllColor(Color.BLUE))
+
+        val stopLatch = CountDownLatch(1)
+        glRenderer!!.stop(true) {
+            stopLatch.countDown()
+        }
+
+        assertTrue(stopLatch.await(3000, TimeUnit.MILLISECONDS))
+        // Assert that targets are detached when the GLRenderer is stopped
+        assertFalse(target!!.isAttached())
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    fun testTextureViewRendersAfterSurfaceTextureAvailableCallback() {
+        var textureView: TextureView? = null
+        var glRenderer: GLRenderer? = null
+        var target: GLRenderer.RenderTarget? = null
+        val renderLatch = AtomicReference<CountDownLatch>(CountDownLatch(1))
+        val textureAvailableLatch = CountDownLatch(1)
+        val scenario = ActivityScenario.launch(GLTestActivity::class.java)
+            .moveToState(State.CREATED)
+            .onActivity {
+                textureView = TextureView(it).apply {
+                    it.setContentView(this)
+                }
+
+                assertFalse(textureView!!.isAvailable)
+
+                glRenderer = GLRenderer().apply { start() }
+                target = glRenderer!!.attach(textureView!!, ColorRenderCallback(Color.BLUE) {
+                    renderLatch.get().countDown()
+                })
+
+                val listener = textureView!!.surfaceTextureListener
+                textureView!!.surfaceTextureListener = object : SurfaceTextureListener {
+                    override fun onSurfaceTextureAvailable(
+                        surface: SurfaceTexture,
+                        width: Int,
+                        height: Int
+                    ) {
+                        listener?.onSurfaceTextureAvailable(surface, width, height)
+                        textureAvailableLatch.countDown()
+                    }
+
+                    override fun onSurfaceTextureSizeChanged(
+                        surface: SurfaceTexture,
+                        width: Int,
+                        height: Int
+                    ) {
+                        listener?.onSurfaceTextureSizeChanged(surface, width, height)
+                    }
+
+                    override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
+                        return listener?.onSurfaceTextureDestroyed(surface) ?: true
+                    }
+
+                    override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
+                        listener?.onSurfaceTextureUpdated(surface)
+                    }
+                }
+            }
+
+        scenario.moveToState(State.RESUMED)
+
+        assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
+
+        assertTrue(textureAvailableLatch.await(3000, TimeUnit.MILLISECONDS))
+
+        val coords = IntArray(2)
+        textureView!!.getLocationOnScreen(coords)
+        SurfaceControlUtils.validateOutput { bitmap ->
+            Color.BLUE == bitmap.getPixel(
+                coords[0] + bitmap.width / 2,
+                coords[1] + bitmap.height / 2
+            )
+        }
+
+        val stopLatch = CountDownLatch(1)
+        glRenderer!!.stop(true) {
+            stopLatch.countDown()
+        }
+
+        assertTrue(stopLatch.await(3000, TimeUnit.MILLISECONDS))
+        // Assert that targets are detached when the GLRenderer is stopped
+        assertFalse(target!!.isAttached())
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.N)
+    fun testTextureViewRendersAfterSurfaceTextureAvailable() {
+        var textureView: TextureView? = null
+        var glRenderer: GLRenderer? = null
+        var target: GLRenderer.RenderTarget? = null
+        val renderLatch = AtomicReference<CountDownLatch>(CountDownLatch(1))
+        val scenario = ActivityScenario.launch(GLTestActivity::class.java)
+            .moveToState(State.CREATED)
+            .onActivity {
+                textureView = it.textureView
+
+                assertNotNull(textureView)
+
+                glRenderer = GLRenderer().apply { start() }
+                target = glRenderer!!.attach(it.textureView, ColorRenderCallback(Color.BLUE) {
+                    renderLatch.get().countDown()
+                })
+            }
+
+        scenario.moveToState(State.RESUMED)
+
+        assertTrue(renderLatch.get().await(3000, TimeUnit.MILLISECONDS))
+
+        val bitmap = Bitmap.createBitmap(
+            GLTestActivity.TARGET_WIDTH,
+            GLTestActivity.TARGET_HEIGHT,
+            Bitmap.Config.ARGB_8888
+        )
+
+        blockingPixelCopy(bitmap) { Surface(textureView!!.surfaceTexture) }
+
+        assertTrue(bitmap.isAllColor(Color.BLUE))
+
+        val stopLatch = CountDownLatch(1)
+        glRenderer!!.stop(true) {
+            stopLatch.countDown()
+        }
+
+        assertTrue(stopLatch.await(3000, TimeUnit.MILLISECONDS))
+        // Assert that targets are detached when the GLRenderer is stopped
+        assertFalse(target!!.isAttached())
     }
 
     @Test
@@ -1305,7 +1483,8 @@ class GLRendererTest {
      * when rendering is complete
      */
     private class ColorRenderCallback(
-        val targetColor: Int
+        val targetColor: Int,
+        val drawCallback: () -> Unit = {}
     ) : GLRenderer.RenderCallback {
 
         override fun onDrawFrame(eglManager: EGLManager) {
@@ -1316,6 +1495,8 @@ class GLRendererTest {
                 Color.alpha(targetColor) / 255f,
             )
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
+            GLES20.glFinish()
+            drawCallback.invoke()
         }
     }
 
