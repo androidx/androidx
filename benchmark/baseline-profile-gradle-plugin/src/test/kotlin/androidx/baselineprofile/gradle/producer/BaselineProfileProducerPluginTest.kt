@@ -290,4 +290,59 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
                 assertThat(notFound).isEmpty()
             }
     }
+
+    @Test
+    fun whenUseOnlyConnectedDevicesShouldOverrideDsl() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget,
+            managedDevices = listOf("somePixelDevice"),
+            baselineProfileBlock = """
+                managedDevices = ["somePixelDevice"]
+                useConnectedDevices = false
+            """.trimIndent()
+        )
+
+        // Execute any task and check the expected output.
+        // Note that executing `somePixelDeviceSetup` will fail for `LicenseNotAcceptedException`.
+        projectSetup
+            .producer
+            .gradleRunner
+            .buildAndAssertThatOutput(
+                "collectNonMinifiedReleaseBaselineProfile",
+                "--dry-run",
+                "-Pandroidx.baselineprofile.forceonlyconnecteddevices"
+            ) {
+                contains("connectedNonMinifiedReleaseAndroidTest")
+                doesNotContain("somePixelDeviceNonMinifiedReleaseAndroidTest")
+            }
+    }
+
+    @Test
+    fun whenNotUseOnlyConnectedDevicesShouldOverrideDsl() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget,
+            managedDevices = listOf("somePixelDevice"),
+            baselineProfileBlock = """
+                managedDevices = ["somePixelDevice"]
+                useConnectedDevices = false
+            """.trimIndent()
+        )
+
+        // Execute any task and check the expected output.
+        // Note that executing `somePixelDeviceSetup` will fail for `LicenseNotAcceptedException`.
+        projectSetup
+            .producer
+            .gradleRunner
+            .buildAndAssertThatOutput(
+                "collectNonMinifiedReleaseBaselineProfile",
+                "--dry-run",
+            ) {
+                doesNotContain("connectedNonMinifiedReleaseAndroidTest")
+                contains("somePixelDeviceNonMinifiedReleaseAndroidTest")
+            }
+    }
 }
