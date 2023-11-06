@@ -50,6 +50,7 @@ import android.app.Application;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.graphics.Paint.Cap;
 import android.graphics.Rect;
 import android.graphics.drawable.AnimatedVectorDrawable;
@@ -114,7 +115,10 @@ import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignment;
 import androidx.wear.protolayout.proto.AlignmentProto.HorizontalAlignmentProp;
 import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignment;
 import androidx.wear.protolayout.proto.AlignmentProto.VerticalAlignmentProp;
+import androidx.wear.protolayout.proto.ColorProto.Brush;
 import androidx.wear.protolayout.proto.ColorProto.ColorProp;
+import androidx.wear.protolayout.proto.ColorProto.ColorStop;
+import androidx.wear.protolayout.proto.ColorProto.SweepGradient;
 import androidx.wear.protolayout.proto.DimensionProto;
 import androidx.wear.protolayout.proto.DimensionProto.ArcLineLength;
 import androidx.wear.protolayout.proto.DimensionProto.ArcSpacerLength;
@@ -1065,6 +1069,39 @@ public class ProtoLayoutInflaterTest {
         assertThat(line.getStrokeCap()).isEqualTo(Cap.BUTT);
         // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine:
         assertThat(line.getThickness()).isEqualTo(12);
+    }
+
+    @Test
+    public void inflate_arc_withGradient() {
+        Brush.Builder brush =
+                Brush.newBuilder()
+                        .setSweepGradient(
+                                SweepGradient.newBuilder()
+                                        .addColorStops(colorStop(Color.BLUE, 0.5f))
+                                        .addColorStops(colorStop(Color.RED, 1f)));
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setArc(
+                                Arc.newBuilder()
+                                        .setAnchorAngle(degrees(0).build())
+                                        .addContents(
+                                                ArcLayoutElement.newBuilder()
+                                                        .setLine(
+                                                                ArcLine.newBuilder()
+                                                                        .setLength(degrees(30))
+                                                                        .setStrokeCap(
+                                                                                strokeCapButt())
+                                                                        .setThickness(dp(12))
+                                                                        .setBrush(brush))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        ArcLayout arcLayout = (ArcLayout) rootLayout.getChildAt(0);
+        assertThat(arcLayout.getChildCount()).isEqualTo(1);
+        WearCurvedLineView line = (WearCurvedLineView) arcLayout.getChildAt(0);
+        assertThat(line.mSweepGradientHelper).isNotNull();
     }
 
     @Test
@@ -4734,6 +4771,21 @@ public class ProtoLayoutInflaterTest {
     @NonNull
     private static DegreesProp.Builder degrees(int value) {
         return DegreesProp.newBuilder().setValue(value);
+    }
+
+    @NonNull
+    private static ColorStop.Builder colorStop(int color, float offset) {
+        return colorStop(color).setOffset(FloatProp.newBuilder().setValue(offset));
+    }
+
+    @NonNull
+    private static ColorStop.Builder colorStop(int color) {
+        return ColorStop.newBuilder().setColor(argb(color));
+    }
+
+    @NonNull
+    private static ColorProp.Builder argb(int value) {
+        return ColorProp.newBuilder().setArgb(value);
     }
 
     @NonNull

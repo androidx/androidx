@@ -2743,7 +2743,9 @@ public final class ProtoLayoutInflater {
         layoutParams.width = LayoutParams.MATCH_PARENT;
         layoutParams.height = LayoutParams.MATCH_PARENT;
 
-        if (line.hasColor()) {
+        if (line.hasBrush()) {
+            lineView.setBrush(line.getBrush());
+        } else if (line.hasColor()) {
             handleProp(line.getColor(), lineView::setColor, posId, pipelineMaker);
         } else {
             lineView.setColor(LINE_COLOR_DEFAULT);
