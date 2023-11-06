@@ -26,6 +26,7 @@ import android.graphics.Paint.Cap;
 import android.graphics.Paint.Style;
 import android.graphics.Path;
 import android.graphics.Path.Direction;
+import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -57,6 +58,12 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     private static final int DEFAULT_LINE_STROKE_CAP = Cap.ROUND.ordinal();
     @ColorInt private static final int DEFAULT_COLOR = 0xFFFFFFFF;
 
+    /**
+     * The base angle for drawings. The zero angle in Android corresponds to the "3 o clock"
+     * position, while ProtoLayout and ArcLayout use the "12 o clock" position as zero.
+     */
+    private static final float BASE_DRAW_ANGLE_SHIFT = -90f;
+
     private int mThicknessPx;
 
     private float mMaxSweepAngleDegrees;
@@ -64,8 +71,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
 
     @ColorInt private int mColor;
 
-    @Nullable private Paint mPaint;
-    @Nullable private Path mPath;
+    @Nullable private ArcDrawable mArcDrawable;
     @NonNull private Cap mCap;
 
     public WearCurvedLineView(@NonNull Context context) {
@@ -112,50 +118,35 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
         a.recycle();
     }
 
-    private void updatePathAndPaint() {
+    private Paint makePaint() {
+        Paint paint = new Paint();
+        paint.setStyle(Style.STROKE);
+        paint.setStrokeCap(mCap);
+        paint.setColor(mColor);
+        paint.setStrokeWidth(mThicknessPx);
+        paint.setAntiAlias(true);
+        return paint;
+    }
+
+    private void updateArcDrawable() {
         float insetPx = mThicknessPx / 2f;
-
+        RectF bounds =
+                new RectF(
+                        insetPx,
+                        insetPx,
+                        getMeasuredWidth() - insetPx,
+                        getMeasuredHeight() - insetPx);
         float clampedLineLength = resolveSweepAngleDegrees();
-        // Has to be below method call, otherwise it's not guaranteed that is not null.
-        mPath = new Path();
 
-        if (clampedLineLength >= 360f) {
-            // Android internally will take the modulus of the angle with 360, so drawing a full
-            // ring can't be done using path.arcTo. In that case, just draw a circle.
-            mPath.addOval(
-                    insetPx,
-                    insetPx,
-                    this.getMeasuredWidth() - insetPx,
-                    this.getMeasuredHeight() - insetPx,
-                    Direction.CW);
-        } else if (clampedLineLength != 0) {
-            // The arc needs to be offset by -90 degrees. The ArcContainer will rotate this widget
-            // such that the "12 o clock" position on the canvas is aligned to the center of our
-            // requested angle, but 0 degrees in Android corresponds to the "3 o clock" position.
-            mPath.moveTo(0, 0); // Work-around for b/177676885
-            mPath.arcTo(
-                    insetPx,
-                    insetPx,
-                    this.getMeasuredWidth() - insetPx,
-                    this.getMeasuredHeight() - insetPx,
-                    -90 - (clampedLineLength / 2f),
-                    clampedLineLength,
-                    true);
-        }
-
-        mPaint = new Paint();
-        mPaint.setStyle(Style.STROKE);
-        mPaint.setStrokeCap(mCap);
-        mPaint.setColor(mColor);
-        mPaint.setStrokeWidth(mThicknessPx);
-        mPaint.setAntiAlias(true);
+        Paint paint = makePaint();
+        mArcDrawable = new ArcDrawableLegacy(bounds, clampedLineLength, paint);
     }
 
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
 
-        updatePathAndPaint();
+        updateArcDrawable();
     }
 
     /** Sets the thickness of this arc in pixels. */
@@ -165,7 +156,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
         }
 
         this.mThicknessPx = thickness;
-        updatePathAndPaint();
+        updateArcDrawable();
         requestLayout();
         postInvalidate();
     }
@@ -202,7 +193,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
      */
     public void setMaxSweepAngleDegrees(float maxSweepAngleDegrees) {
         this.mMaxSweepAngleDegrees = maxSweepAngleDegrees;
-        updatePathAndPaint();
+        updateArcDrawable();
         requestLayout();
         postInvalidate();
     }
@@ -223,7 +214,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     public void setLineSweepAngleDegrees(float lineLengthDegrees) {
         this.mLineSweepAngleDegrees = lineLengthDegrees;
 
-        updatePathAndPaint();
+        updateArcDrawable();
         requestLayout();
         postInvalidate();
     }
@@ -237,7 +228,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     /** Sets the color of this arc, in ARGB format. */
     public void setColor(@ColorInt int color) {
         this.mColor = color;
-        updatePathAndPaint();
+        updateArcDrawable();
         invalidate();
     }
 
@@ -247,18 +238,17 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
         return mCap;
     }
 
-    /** Sets the stockCap of this arc. */
+    /** Sets the strokeCap of this arc. */
     public void setStrokeCap(@NonNull Cap cap) {
         mCap = cap;
     }
 
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
-        if (mPath == null || mPaint == null) {
+        if (mArcDrawable == null) {
             return;
         }
-
-        canvas.drawPath(mPath, mPaint);
+        mArcDrawable.onDraw(canvas);
     }
 
     @Override
@@ -283,5 +273,40 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
         // Since we are symmetrical on the Y-axis, we can constrain the angle to the x>=0 quadrants.
         float angle = (float) Math.toDegrees(Math.atan2(Math.abs(dx), -dy));
         return angle < resolveSweepAngleDegrees() / 2;
+    }
+
+    /** Legacy LinePath, which supports drawing the line as a single Path. */
+    private static class ArcDrawableLegacy implements ArcDrawable {
+
+        @NonNull private final Paint mPaint;
+        @NonNull private final Path mPath = new Path();
+
+        ArcDrawableLegacy(@NonNull RectF bounds, float clampedLineLength, @NonNull Paint paint) {
+            this.mPaint = paint;
+
+            if (clampedLineLength >= 360f) {
+                // Android internally will take the modulus of the angle with 360, so drawing a full
+                // ring can't be done using path.arcTo. In that case, just draw a circle.
+                mPath.addOval(bounds, Direction.CW);
+            } else if (clampedLineLength != 0) {
+                mPath.moveTo(0, 0); // Work-around for b/177676885
+                mPath.arcTo(
+                        bounds,
+                        BASE_DRAW_ANGLE_SHIFT - (clampedLineLength / 2f),
+                        clampedLineLength,
+                        /* forceMoveTo= */ true);
+            }
+        }
+
+        @Override
+        public void onDraw(@NonNull Canvas canvas) {
+            canvas.drawPath(mPath, mPaint);
+        }
+    }
+
+    /** Definition of an arc that can be drawn on the canvas. */
+    private interface ArcDrawable {
+        /** Called when the arc should be drawn on the canvas. */
+        void onDraw(@NonNull Canvas canvas);
     }
 }
