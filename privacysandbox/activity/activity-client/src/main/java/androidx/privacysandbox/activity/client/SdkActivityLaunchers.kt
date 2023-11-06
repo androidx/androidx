@@ -21,7 +21,6 @@ package androidx.privacysandbox.activity.client
 import android.app.Activity
 import android.os.Bundle
 import android.os.IBinder
-import androidx.core.os.BundleCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.privacysandbox.activity.core.ISdkActivityLauncher
@@ -68,7 +67,7 @@ fun <T> T.createSdkActivityLauncher(
 fun SdkActivityLauncher.toLauncherInfo(): Bundle {
     val binderDelegate = SdkActivityLauncherBinderDelegate(this)
     return Bundle().also { bundle ->
-        BundleCompat.putBinder(bundle, SDK_ACTIVITY_LAUNCHER_BINDER_KEY, binderDelegate)
+        bundle.putBinder(SDK_ACTIVITY_LAUNCHER_BINDER_KEY, binderDelegate)
     }
 }
 
