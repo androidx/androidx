@@ -341,7 +341,7 @@ class AdSelectionManagerFuturesTest {
             }
             doAnswer(answer)
                 .`when`(adSelectionManager).selectAds(
-                    any(),
+                    any<android.adservices.adselection.AdSelectionConfig>(),
                     any(),
                     any()
                 )
