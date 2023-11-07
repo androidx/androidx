@@ -55,13 +55,10 @@ message SweepGradient {
   // The offset is the relative position of the color, beginning with 0 from the
   // start angle and ending with 1.0 at the end angle, spanning clockwise.
   //
-  // There must be at least 2 colors.
+  // There must be at least 2 colors and at most 10 colors.
   //
   // If offset values are not set, the colors are evenly distributed in the
   // gradient.
-  //
-  // If the offset values are not monotonic, the drawing may produce unexpected
-  // results.
   repeated ColorStop color_stops = 1;
 
   // The start angle of the gradient relative to the element's base angle. If
