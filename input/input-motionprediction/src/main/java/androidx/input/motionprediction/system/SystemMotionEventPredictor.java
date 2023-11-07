@@ -28,8 +28,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.input.motionprediction.MotionEventPredictor;
+import androidx.input.motionprediction.common.PredictionEstimator;
 import androidx.input.motionprediction.kalman.MultiPointerPredictor;
-import androidx.input.motionprediction.utils.PredictionEstimator;
 
 import java.util.concurrent.TimeUnit;
 
