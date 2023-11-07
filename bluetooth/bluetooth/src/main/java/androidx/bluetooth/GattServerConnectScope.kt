@@ -14,13 +14,28 @@
  * limitations under the License.
  */
 
-package androidx.bluetooth.integration.testapp.ui.connections
+package androidx.bluetooth
 
-import androidx.bluetooth.GattCharacteristic
-import androidx.bluetooth.GattClientScope
+import kotlinx.coroutines.flow.Flow
 
-data class ConnectionsUiState(
-    val lastConnectionUpdate: Long = System.currentTimeMillis(),
-    val showDialogForWrite: Pair<GattClientScope, GattCharacteristic>? = null,
-    val resultMessage: String? = null
-)
+/**
+ * A scope for handling connect requests from remote devices.
+ *
+ * @property connectRequests connect requests from remote devices.
+ *
+ * @see BluetoothLe#openGattServer
+ */
+interface GattServerConnectScope {
+
+    /**
+     * A _hot_ flow of [GattServerConnectRequest].
+     */
+    val connectRequests: Flow<GattServerConnectRequest>
+
+    /**
+     * Updates the services of the opened GATT server.
+     *
+     * @param services the new services that will be notified to the clients.
+     */
+    fun updateServices(services: List<GattService>)
+}

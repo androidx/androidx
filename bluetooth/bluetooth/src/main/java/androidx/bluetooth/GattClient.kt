@@ -62,6 +62,20 @@ import kotlinx.coroutines.withTimeout
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class GattClient(private val context: Context) {
+
+    @VisibleForTesting
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    companion object {
+        private const val TAG = "GattClient"
+
+        /**
+         * The maximum ATT size + header(3)
+         */
+        private const val GATT_MAX_MTU = MAX_ATTR_LENGTH + 3
+
+        private const val CONNECT_TIMEOUT_MS = 30_000L
+    }
+
     interface FrameworkAdapter {
         var fwkBluetoothGatt: FwkBluetoothGatt?
         fun connectGatt(
@@ -85,19 +99,6 @@ class GattClient(private val context: Context) {
             enable: Boolean
         )
         fun closeGatt()
-    }
-
-    @VisibleForTesting
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    companion object {
-        private const val TAG = "GattClient"
-
-        /**
-         * The maximum ATT size + header(3)
-         */
-        private const val GATT_MAX_MTU = MAX_ATTR_LENGTH + 3
-
-        private const val CONNECT_TIMEOUT_MS = 30_000L
     }
 
     @SuppressLint("ObsoleteSdkInt")
@@ -140,7 +141,7 @@ class GattClient(private val context: Context) {
     @SuppressLint("MissingPermission")
     suspend fun <R> connect(
         device: BluetoothDevice,
-        block: suspend BluetoothLe.GattClientScope.() -> R
+        block: suspend GattClientScope.() -> R
     ): R = coroutineScope {
         val connectResult = CompletableDeferred<Unit>(parent = coroutineContext.job)
         val callbackResultsFlow =
@@ -251,7 +252,7 @@ class GattClient(private val context: Context) {
         withTimeout(CONNECT_TIMEOUT_MS) {
             connectResult.await()
         }
-        val gattScope = object : BluetoothLe.GattClientScope {
+        val gattClientScope = object : GattClientScope {
             val taskMutex = Mutex()
             suspend fun <R> runTask(block: suspend () -> R): R {
                 taskMutex.withLock {
@@ -365,7 +366,6 @@ class GattClient(private val context: Context) {
                         fwkAdapter.setCharacteristicNotification(
                             characteristic.fwkCharacteristic, /*enable=*/false
                         )
-
                         fwkAdapter.writeDescriptor(
                             cccd,
                             FwkBluetoothGattDescriptor.DISABLE_NOTIFICATION_VALUE
@@ -398,7 +398,7 @@ class GattClient(private val context: Context) {
         coroutineContext.job.invokeOnCompletion {
             fwkAdapter.closeGatt()
         }
-        gattScope.block()
+        gattClientScope.block()
     }
 
     private suspend inline fun <reified R : CallbackResult> takeMatchingResult(

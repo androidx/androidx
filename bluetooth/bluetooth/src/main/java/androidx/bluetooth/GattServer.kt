@@ -20,9 +20,6 @@ import android.Manifest.permission.BLUETOOTH_CONNECT
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice as FwkBluetoothDevice
 import android.bluetooth.BluetoothGatt as FwkBluetoothGatt
-import android.bluetooth.BluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH
-import android.bluetooth.BluetoothGatt.GATT_SUCCESS
-import android.bluetooth.BluetoothGatt.GATT_WRITE_NOT_PERMITTED
 import android.bluetooth.BluetoothGattCharacteristic as FwkBluetoothGattCharacteristic
 import android.bluetooth.BluetoothGattDescriptor as FwkBluetoothGattDescriptor
 import android.bluetooth.BluetoothGattServer as FwkBluetoothGattServer
@@ -41,10 +38,10 @@ import androidx.annotation.VisibleForTesting
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_INDICATE
 import androidx.bluetooth.GattCharacteristic.Companion.PROPERTY_NOTIFY
 import androidx.bluetooth.GattCommon.UUID_CCCD
-import java.util.concurrent.CancellationException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.experimental.and
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.awaitClose
@@ -62,6 +59,11 @@ import kotlinx.coroutines.sync.withLock
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 class GattServer(private val context: Context) {
+
+    private companion object {
+        private const val TAG = "GattServer"
+    }
+
     interface FrameworkAdapter {
         var fwkGattServer: FwkBluetoothGattServer?
         fun openGattServer(context: Context, fwkCallback: FwkBluetoothGattServerCallback)
@@ -92,16 +94,12 @@ class GattServer(private val context: Context) {
 
         val device: BluetoothDevice
         var pendingWriteParts: MutableList<GattServerRequest.WriteCharacteristics.Part>
-        suspend fun acceptConnection(block: suspend BluetoothLe.GattServerSessionScope.() -> Unit)
+        suspend fun acceptConnection(block: suspend GattServerSessionScope.() -> Unit)
         fun rejectConnection()
 
         fun sendResponse(requestId: Int, status: Int, offset: Int, value: ByteArray?)
 
         fun writeCccd(requestId: Int, characteristic: GattCharacteristic, value: ByteArray?)
-    }
-
-    private companion object {
-        private const val TAG = "GattServer"
     }
 
     @SuppressLint("ObsoleteSdkInt")
@@ -114,13 +112,13 @@ class GattServer(private val context: Context) {
 
     suspend fun <R> open(
         services: List<GattService>,
-        block: suspend BluetoothLe.GattServerConnectScope.() -> R
+        block: suspend GattServerConnectScope.() -> R
     ): R {
         return createServerScope(services).block()
     }
 
-    private fun createServerScope(services: List<GattService>): BluetoothLe.GattServerConnectScope {
-        return object : BluetoothLe.GattServerConnectScope {
+    private fun createServerScope(services: List<GattService>): GattServerConnectScope {
+        return object : GattServerConnectScope {
             private val attributeMap = AttributeMap()
 
             // Should be accessed only from the callback thread
@@ -139,7 +137,7 @@ class GattServer(private val context: Context) {
                         when (newState) {
                             FwkBluetoothProfile.STATE_CONNECTED -> {
                                 trySend(
-                                    BluetoothLe.GattServerConnectRequest(
+                                    GattServerConnectRequest(
                                         addSession(fwkDevice)
                                     )
                                 )
@@ -213,7 +211,7 @@ class GattServer(private val context: Context) {
                         } ?: run {
                             fwkAdapter.sendResponse(
                                 fwkDevice, requestId,
-                                GATT_WRITE_NOT_PERMITTED, offset, /*value=*/null
+                                FwkBluetoothGatt.GATT_WRITE_NOT_PERMITTED, offset, /*value=*/null
                             )
                         }
                     }
@@ -283,7 +281,7 @@ class GattServer(private val context: Context) {
                         fwkDevice: FwkBluetoothDevice,
                         status: Int
                     ) {
-                        notifyJob?.complete(status == GATT_SUCCESS)
+                        notifyJob?.complete(status == FwkBluetoothGatt.GATT_SUCCESS)
                         notifyJob = null
                     }
                 }
@@ -329,7 +327,7 @@ class GattServer(private val context: Context) {
                     mutableListOf<GattServerRequest.WriteCharacteristics.Part>()
 
                 override suspend fun acceptConnection(
-                    block: suspend BluetoothLe.GattServerSessionScope.() -> Unit
+                    block: suspend GattServerSessionScope.() -> Unit
                 ) {
                     if (!state.compareAndSet(
                             GattServer.Session.STATE_CONNECTING,
@@ -339,7 +337,7 @@ class GattServer(private val context: Context) {
                         throw IllegalStateException("the request is already handled")
                     }
 
-                    val scope = object : BluetoothLe.GattServerSessionScope {
+                    val scope = object : GattServerSessionScope {
                         override val device: BluetoothDevice
                             get() = this@Session.device
                         override val requests = requestChannel.receiveAsFlow()
@@ -414,7 +412,7 @@ class GattServer(private val context: Context) {
                     if (value == null || value.isEmpty()) {
                         fwkAdapter.sendResponse(
                             device.fwkDevice, requestId,
-                            GATT_INVALID_ATTRIBUTE_LENGTH,
+                            FwkBluetoothGatt.GATT_INVALID_ATTRIBUTE_LENGTH,
                             /*offset=*/0, /*value=*/null
                         )
                         return
@@ -427,7 +425,7 @@ class GattServer(private val context: Context) {
                     ) {
                         fwkAdapter.sendResponse(
                             device.fwkDevice, requestId,
-                            GATT_WRITE_NOT_PERMITTED,
+                            FwkBluetoothGatt.GATT_WRITE_NOT_PERMITTED,
                             /*offset=*/0, /*value=*/null
                         )
                         return
