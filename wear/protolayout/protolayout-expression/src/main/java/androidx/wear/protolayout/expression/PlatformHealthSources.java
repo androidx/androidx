@@ -137,10 +137,7 @@ public class PlatformHealthSources {
     @RequiresPermission(Manifest.permission.BODY_SENSORS)
     @NonNull
     public static DynamicFloat heartRateBpm() {
-        return new PlatformInt32Source.Builder()
-                .setSourceType(PLATFORM_INT32_SOURCE_TYPE_CURRENT_HEART_RATE)
-                .build()
-                .asFloat();
+        return DynamicFloat.from(Keys.HEART_RATE_BPM);
     }
 
     /**
@@ -171,9 +168,7 @@ public class PlatformHealthSources {
     @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
     @NonNull
     public static DynamicInt32 dailySteps() {
-        return new PlatformInt32Source.Builder()
-                .setSourceType(PLATFORM_INT32_SOURCE_TYPE_DAILY_STEP_COUNT)
-                .build();
+        return DynamicInt32.from(Keys.DAILY_STEPS);
     }
 
     /**
