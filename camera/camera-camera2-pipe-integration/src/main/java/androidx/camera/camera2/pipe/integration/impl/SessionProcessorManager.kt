@@ -20,6 +20,7 @@ import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraStream
+import androidx.camera.camera2.pipe.compat.CameraPipeKeys
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.core.ImageAnalysis
@@ -139,7 +140,8 @@ class SessionProcessorManager @Inject constructor(
         val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
         val cameraGraphConfig = useCaseManager.createCameraGraphConfig(
             processorSessionConfigAdapter,
-            streamConfigMap
+            streamConfigMap,
+            mapOf(CameraPipeKeys.ignore3ARequiredParameters to true)
         )
 
         val useCaseManagerConfig = UseCaseManager.Companion.UseCaseManagerConfig(

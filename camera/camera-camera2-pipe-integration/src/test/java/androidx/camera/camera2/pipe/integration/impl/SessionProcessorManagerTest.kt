@@ -146,7 +146,7 @@ class SessionProcessorManagerTest {
     @Test
     fun testInitializeSucceedsWithPreview() = runTest {
         val useCaseManager: UseCaseManager = mock()
-        whenever(useCaseManager.createCameraGraphConfig(any(), any())).thenReturn(
+        whenever(useCaseManager.createCameraGraphConfig(any(), any(), any())).thenReturn(
             CameraGraph.Config(fakeCameraId, emptyList())
         )
         val fakePreviewUseCase = createFakeTestUseCase(
@@ -164,14 +164,14 @@ class SessionProcessorManagerTest {
             useCaseManager,
             listOf(fakePreviewUseCase, fakeImageCaptureUseCase)
         ).join()
-        verify(useCaseManager).createCameraGraphConfig(any(), any())
+        verify(useCaseManager).createCameraGraphConfig(any(), any(), any())
         verify(useCaseManager).tryResumeUseCaseManager(any())
     }
 
     @Test
     fun testInitializeSucceedsWithStreamSharing() = runTest {
         val useCaseManager: UseCaseManager = mock()
-        whenever(useCaseManager.createCameraGraphConfig(any(), any())).thenReturn(
+        whenever(useCaseManager.createCameraGraphConfig(any(), any(), any())).thenReturn(
             CameraGraph.Config(fakeCameraId, emptyList())
         )
         val fakeStreamSharingUseCase = createFakeTestUseCase(
@@ -189,7 +189,7 @@ class SessionProcessorManagerTest {
             useCaseManager,
             listOf(fakeStreamSharingUseCase, fakeImageCaptureUseCase)
         ).join()
-        verify(useCaseManager).createCameraGraphConfig(any(), any())
+        verify(useCaseManager).createCameraGraphConfig(any(), any(), any())
         verify(useCaseManager).tryResumeUseCaseManager(any())
     }
 

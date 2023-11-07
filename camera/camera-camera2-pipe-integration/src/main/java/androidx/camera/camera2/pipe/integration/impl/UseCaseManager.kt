@@ -502,6 +502,7 @@ class UseCaseManager @Inject constructor(
     internal fun createCameraGraphConfig(
         sessionConfigAdapter: SessionConfigAdapter,
         streamConfigMap: MutableMap<CameraStream.Config, DeferrableSurface>,
+        defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
     ): CameraGraph.Config {
         return Companion.createCameraGraphConfig(
             sessionConfigAdapter,
@@ -510,7 +511,8 @@ class UseCaseManager @Inject constructor(
             requestListener,
             cameraConfig,
             cameraQuirks,
-            cameraGraphFlags
+            cameraGraphFlags,
+            defaultParameters,
         )
     }
 
@@ -609,6 +611,7 @@ class UseCaseManager @Inject constructor(
             cameraConfig: CameraConfig,
             cameraQuirks: CameraQuirks,
             cameraGraphFlags: CameraGraph.Flags?,
+            defaultParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         ): CameraGraph.Config {
             var containsVideo = false
             // TODO: b/314207980 - Translate [SessionConfig.getSessionType], including highspeed
@@ -697,7 +700,7 @@ class UseCaseManager @Inject constructor(
                 camera = cameraConfig.cameraId,
                 streams = streamConfigMap.keys.toList(),
                 defaultListeners = listOf(callbackMap, requestListener),
-                defaultParameters = mapOf(
+                defaultParameters = defaultParameters + mapOf(
                     CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE to videoStabilizationMode
                 ),
                 flags = combinedFlags,

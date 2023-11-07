@@ -32,6 +32,14 @@ object CameraPipeKeys {
     )
 
     /**
+     * Key for defaultParameters and requiredParameters that allows the users to ignore the required
+     * 3A parameters stipulated by the 3A controller in CameraPipe.
+     */
+    val ignore3ARequiredParameters = Metadata.Key.create<Boolean>(
+        "androidx.camera.camera2.pipe.Ignore3ARequiredParameters"
+    )
+
+    /**
      * [CAMERA2_EXTENSION_MODE_AUTOMATIC]: Automatic selection of particular extensions such
      * as HDR or NIGHT depending on the current lighting and environment conditions. See
      * [CameraExtensionCharacteristics.EXTENSION_AUTOMATIC]
