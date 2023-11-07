@@ -20,7 +20,6 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.database.Cursor
-import android.os.Build
 import android.os.CancellationSignal
 import android.os.Looper
 import android.util.Log
@@ -33,7 +32,6 @@ import androidx.room.Room.LOG_TAG
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SimpleSQLiteQuery
-import androidx.sqlite.db.SupportSQLiteCompat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.SupportSQLiteQuery
@@ -233,13 +231,9 @@ abstract class RoomDatabase {
             invalidationTracker.setAutoCloser(it.autoCloser)
         }
 
-        val wal = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            val enabled = configuration.journalMode == JournalMode.WRITE_AHEAD_LOGGING
-            openHelper.setWriteAheadLoggingEnabled(enabled)
-            enabled
-        } else {
-            false
-        }
+        val wal = configuration.journalMode == JournalMode.WRITE_AHEAD_LOGGING
+        openHelper.setWriteAheadLoggingEnabled(wal)
+
         mCallbacks = configuration.callbacks
         internalQueryExecutor = configuration.queryExecutor
         internalTransactionExecutor = TransactionExecutor(configuration.transactionExecutor)
@@ -478,7 +472,7 @@ abstract class RoomDatabase {
     open fun query(query: SupportSQLiteQuery, signal: CancellationSignal? = null): Cursor {
         assertNotMainThread()
         assertNotSuspendingTransaction()
-        return if (signal != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        return if (signal != null) {
             openHelper.writableDatabase.query(query, signal)
         } else {
             openHelper.writableDatabase.query(query)
@@ -521,9 +515,7 @@ abstract class RoomDatabase {
         assertNotMainThread()
         val database = openHelper.writableDatabase
         invalidationTracker.syncTriggers(database)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
-            database.isWriteAheadLoggingEnabled
-        ) {
+        if (database.isWriteAheadLoggingEnabled) {
             database.beginTransactionNonExclusive()
         } else {
             database.beginTransaction()
@@ -664,22 +656,13 @@ abstract class RoomDatabase {
             if (this != AUTOMATIC) {
                 return this
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                val manager =
-                    context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-                if (manager != null && !isLowRamDevice(manager)) {
-                    return WRITE_AHEAD_LOGGING
-                }
+            val manager =
+                context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+            if (manager != null && !manager.isLowRamDevice) {
+                return WRITE_AHEAD_LOGGING
             }
             return TRUNCATE
         }
-
-        private fun isLowRamDevice(activityManager: ActivityManager) =
-            if (Build.VERSION.SDK_INT >= 19) {
-                SupportSQLiteCompat.Api19Impl.isLowRamDevice(activityManager)
-            } else {
-                false
-            }
     }
 
     /**

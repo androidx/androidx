@@ -19,10 +19,8 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.database.SQLException
 import android.database.sqlite.SQLiteTransactionListener
-import android.os.Build
 import android.os.CancellationSignal
 import android.util.Pair
-import androidx.annotation.RequiresApi
 import java.io.Closeable
 import java.util.Locale
 
@@ -314,7 +312,6 @@ interface SupportSQLiteDatabase : Closeable {
      * @return A [Cursor] object, which is positioned before the first entry. Note that
      * [Cursor]s are not synchronized, see the documentation for more details.
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     fun query(
         query: SupportSQLiteQuery,
         cancellationSignal: CancellationSignal?
@@ -494,7 +491,6 @@ interface SupportSQLiteDatabase : Closeable {
      * @throws IllegalStateException if the are transactions is in progress
      * when this method is called.
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     fun setForeignKeyConstraintsEnabled(enabled: Boolean)
 
     /**
@@ -574,13 +570,11 @@ interface SupportSQLiteDatabase : Closeable {
      * time this method is called. WAL mode can only be changed when there are no transactions in
      * progress.
      */
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     fun disableWriteAheadLogging()
 
     /**
      * Is true if write-ahead logging has been enabled for this database.
      */
-    @get:RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     val isWriteAheadLoggingEnabled: Boolean
 
     /**

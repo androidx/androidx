@@ -428,9 +428,8 @@ internal class AutoClosingRoomOpenHelper(
             SupportSQLiteCompat.Api29Impl.setNotificationUris(delegate, cr, uris)
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
         override fun getNotificationUri(): Uri {
-            return SupportSQLiteCompat.Api19Impl.getNotificationUri(delegate)
+            return delegate.notificationUri
         }
 
         @RequiresApi(api = Build.VERSION_CODES.Q)

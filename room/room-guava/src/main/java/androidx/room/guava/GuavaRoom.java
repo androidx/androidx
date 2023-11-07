@@ -16,7 +16,6 @@
 package androidx.room.guava;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.CancellationSignal;
 
 import androidx.annotation.NonNull;
@@ -26,7 +25,6 @@ import androidx.arch.core.executor.ArchTaskExecutor;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
-import androidx.sqlite.db.SupportSQLiteCompat;
 import androidx.sqlite.db.SupportSQLiteQuery;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -139,12 +137,12 @@ public class GuavaRoom {
             final @Nullable CancellationSignal cancellationSignal) {
 
         final ListenableFuture<T> future = createListenableFuture(executor, callable);
-        if (cancellationSignal != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+        if (cancellationSignal != null) {
             future.addListener(new Runnable() {
                 @Override
                 public void run() {
                     if (future.isCancelled()) {
-                        SupportSQLiteCompat.Api16Impl.cancel(cancellationSignal);
+                        cancellationSignal.cancel();
                     }
                 }
             }, sDirectExecutor);
