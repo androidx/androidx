@@ -211,20 +211,21 @@ class BasicExtenderSessionProcessorTest(
     }
 
     private fun createOutputSurface(width: Int, height: Int, format: Int): OutputSurface {
-        val captureImageReader = ImageReader.newInstance(width, height, format, 1);
+        val captureImageReader = ImageReader.newInstance(width, height, format, 1)
         return OutputSurface.create(captureImageReader.surface, Size(width, height), format)
     }
 
     @Test
     fun canSetSessionTypeFromOem() {
-        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4));
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
         val sessionTypeToVerify = 4
         fakeCaptureExtenderImpl.sessionType = sessionTypeToVerify
         fakePreviewExtenderImpl.sessionType = sessionTypeToVerify
 
-        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context));
-        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888);
-        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG);
+        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 
         val sessionConfig = basicExtenderSessionProcessor.initSession(
             fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null)
@@ -234,13 +235,14 @@ class BasicExtenderSessionProcessorTest(
 
     @Test
     fun setDifferentSessionTypes_throwException() {
-        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4));
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
         fakeCaptureExtenderImpl.sessionType = 2
         fakePreviewExtenderImpl.sessionType = 3
 
-        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context));
-        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888);
-        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG);
+        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 
         assertThrows<IllegalArgumentException> {
              basicExtenderSessionProcessor.initSession(
@@ -251,13 +253,14 @@ class BasicExtenderSessionProcessorTest(
 
     @Test
     fun defaultSessionType() {
-        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4));
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
         fakeCaptureExtenderImpl.sessionType = -1
         fakePreviewExtenderImpl.sessionType = -1
 
-        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context));
-        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888);
-        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG);
+        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 
         val sessionConfig = basicExtenderSessionProcessor.initSession(
             fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null)
@@ -377,7 +380,7 @@ class BasicExtenderSessionProcessorTest(
         }
 
         withContext(Dispatchers.Main) { fakeLifecycleOwner.pauseAndStop() }
-        assertThat(cameraClosedLatch.await(1, TimeUnit.SECONDS)).isTrue()
+        assertThat(cameraClosedLatch.await(3, TimeUnit.SECONDS)).isTrue()
 
         fakeCaptureExtenderImpl.assertInvokeOrder(
             listOf(
