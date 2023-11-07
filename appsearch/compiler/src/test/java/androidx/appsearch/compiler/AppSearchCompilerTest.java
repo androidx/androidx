@@ -1960,6 +1960,40 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testInterfaceAsNestedDocument() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "interface Thing {\n"
+                        + "  public static Thing create(String id, String namespace) {\n"
+                        + "    return new ThingImpl(id, namespace);\n"
+                        + "  }\n"
+                        + "  @Document.Namespace public String getNamespace();\n"
+                        + "  @Document.Id public String getId();\n"
+                        + "}\n"
+                        + "class ThingImpl implements Thing {\n"
+                        + "  public ThingImpl(String id, String namespace) {\n"
+                        + "    this.id = id;\n"
+                        + "    this.namespace = namespace;\n"
+                        + "  }\n"
+                        + "  private String namespace;\n"
+                        + "  private String id;\n"
+                        + "  public String getNamespace() { return namespace; }\n"
+                        + "  public String getId() { return id; }\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.DocumentProperty Thing thing;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Thing.java",
+                "Thing document = Thing.create(getIdConv, getNamespaceConv)");
+        checkResultContains("Gift.java", "thingConv = thingCopy.toDocumentClass(Thing.class)");
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
     public void testInterfaceImplementingParents() throws Exception {
         Compilation compilation = compile(
                 "@Document\n"
