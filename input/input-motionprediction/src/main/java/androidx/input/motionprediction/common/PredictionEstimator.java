@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.input.motionprediction.utils;
+package androidx.input.motionprediction.common;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
