@@ -28,7 +28,7 @@ dependencies {
 
     implementation(libs.kotlinStdlibCommon)
     implementation(project(":compose:ui:ui-tooling-preview"))
-    implementation("androidx.wear:wear-tooling-preview:1.0.0-alpha01")
+    implementation("androidx.wear:wear-tooling-preview:1.0.0-beta01")
 
     samples(project(":wear:compose:compose-material-samples"))
 }
