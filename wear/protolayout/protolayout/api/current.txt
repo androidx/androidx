@@ -124,7 +124,7 @@ package androidx.wear.protolayout {
   public static final class ColorBuilders.ColorStop {
     ctor public ColorBuilders.ColorStop(androidx.wear.protolayout.ColorBuilders.ColorProp);
     ctor public ColorBuilders.ColorStop(androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.TypeBuilders.FloatProp);
-    method public androidx.wear.protolayout.ColorBuilders.ColorProp? getColor();
+    method public androidx.wear.protolayout.ColorBuilders.ColorProp getColor();
     method public androidx.wear.protolayout.TypeBuilders.FloatProp? getOffset();
   }
 

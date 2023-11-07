@@ -214,13 +214,9 @@ public final class ColorBuilders {
          *
          * @since 1.3
          */
-        @Nullable
+        @NonNull
         public ColorProp getColor() {
-            if (mImpl.hasColor()) {
-                return ColorProp.fromProto(mImpl.getColor());
-            } else {
-                return null;
-            }
+            return ColorProp.fromProto(mImpl.getColor());
         }
 
         /**
