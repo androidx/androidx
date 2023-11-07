@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.integration.impl
 
+import android.graphics.SurfaceTexture
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_ON_ALWAYS_FLASH
@@ -25,6 +26,7 @@ import android.hardware.camera2.CaptureRequest.CONTROL_AE_MODE
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.params.MeteringRectangle
 import android.os.Build
+import android.view.Surface
 import androidx.camera.camera2.pipe.AeMode
 import androidx.camera.camera2.pipe.AfMode
 import androidx.camera.camera2.pipe.AwbMode
@@ -36,6 +38,7 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.Result3A
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.integration.adapter.CameraStateAdapter
+import androidx.camera.camera2.pipe.integration.adapter.CaptureConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.RobolectricCameraPipeTestRunner
 import androidx.camera.camera2.pipe.integration.adapter.asListenableFuture
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
@@ -47,6 +50,8 @@ import androidx.camera.camera2.pipe.integration.compat.workaround.NotUseTorchAsF
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.integration.compat.workaround.UseTorchAsFlashImpl
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
+import androidx.camera.camera2.pipe.integration.interop.CaptureRequestOptions
+import androidx.camera.camera2.pipe.integration.interop.ExperimentalCamera2Interop
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraph
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraGraphSession
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
@@ -58,6 +63,9 @@ import androidx.camera.camera2.pipe.testing.FakeFrameMetadata
 import androidx.camera.camera2.pipe.testing.FakeRequestMetadata
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.ImmediateSurface
+import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.utils.futures.Futures
 import androidx.testutils.MainDispatcherRule
 import com.google.common.truth.Truth.assertThat
@@ -90,7 +98,7 @@ import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadows.StreamConfigurationMapBuilder
 import org.robolectric.util.ReflectionHelpers
 
-@OptIn(ExperimentalCoroutinesApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, ExperimentalCamera2Interop::class)
 @RunWith(RobolectricCameraPipeTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
@@ -179,6 +187,15 @@ class CapturePipelineTest {
             return CompletableDeferred(Result3A(Result3A.Status.OK))
         }
     }
+    private val fakeStreamId = StreamId(0)
+    private val fakeSurfaceTexture = SurfaceTexture(0).apply {
+        setDefaultBufferSize(640, 480)
+    }
+    private val fakeSurface = Surface(fakeSurfaceTexture)
+    private val fakeDeferrableSurface = ImmediateSurface(fakeSurface)
+    private val singleConfig = CaptureConfig.Builder().apply {
+        addSurface(fakeDeferrableSurface)
+    }.build()
     private val singleRequest = Request(
         streams = emptyList(),
         listeners = emptyList(),
@@ -193,9 +210,11 @@ class CapturePipelineTest {
     )
     private val fakeUseCaseGraphConfig = UseCaseGraphConfig(
         graph = FakeCameraGraph(fakeCameraGraphSession = fakeCameraGraphSession),
-        surfaceToStreamMap = emptyMap(),
+        surfaceToStreamMap = mapOf(fakeDeferrableSurface to fakeStreamId),
         cameraStateAdapter = CameraStateAdapter(),
     )
+    private val fakeCaptureConfigAdapter =
+        CaptureConfigAdapter(fakeCameraProperties, fakeUseCaseGraphConfig, fakeUseCaseThreads)
     private var runningRepeatingJob: Job? = null
         set(value) {
             runningRepeatingJob?.cancel()
@@ -248,6 +267,7 @@ class CapturePipelineTest {
         )
 
         capturePipeline = CapturePipelineImpl(
+            configAdapter = fakeCaptureConfigAdapter,
             cameraProperties = fakeCameraProperties,
             requestListener = comboRequestListener,
             threads = fakeUseCaseThreads,
@@ -261,6 +281,8 @@ class CapturePipelineTest {
     @After
     fun tearDown() {
         runningRepeatingJob = null
+        fakeSurface.release()
+        fakeSurfaceTexture.release()
     }
 
     @Test
@@ -282,7 +304,9 @@ class CapturePipelineTest {
 
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = imageCaptureMode,
             flashMode = ImageCapture.FLASH_MODE_ON,
             flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
@@ -329,7 +353,9 @@ class CapturePipelineTest {
 
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = imageCaptureMode,
             flashMode = ImageCapture.FLASH_MODE_AUTO,
             flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
@@ -367,6 +393,7 @@ class CapturePipelineTest {
     private suspend fun TestScope.withTorchAsFlashQuirk_shouldOpenTorch(imageCaptureMode: Int) {
         // Arrange.
         capturePipeline = CapturePipelineImpl(
+            configAdapter = fakeCaptureConfigAdapter,
             cameraProperties = fakeCameraProperties,
             requestListener = comboRequestListener,
             threads = fakeUseCaseThreads,
@@ -383,7 +410,9 @@ class CapturePipelineTest {
 
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = imageCaptureMode,
             flashMode = ImageCapture.FLASH_MODE_ON,
             flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
@@ -429,7 +458,9 @@ class CapturePipelineTest {
 
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = imageCaptureMode,
             flashMode = ImageCapture.FLASH_MODE_ON,
             flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
@@ -473,7 +504,9 @@ class CapturePipelineTest {
 
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = imageCaptureMode,
             flashMode = ImageCapture.FLASH_MODE_ON,
             flashType = ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH,
@@ -526,7 +559,9 @@ class CapturePipelineTest {
 
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = imageCaptureMode,
             flashMode = flashMode,
             flashType = ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH,
@@ -555,7 +590,9 @@ class CapturePipelineTest {
     fun miniLatency_withFlashTypeTorch_shouldNotLock3A(): Unit = runTest {
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             flashMode = ImageCapture.FLASH_MODE_OFF,
             flashType = ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH,
@@ -578,7 +615,9 @@ class CapturePipelineTest {
 
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             flashMode = ImageCapture.FLASH_MODE_ON,
             flashType = ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH,
@@ -594,7 +633,9 @@ class CapturePipelineTest {
     fun miniLatency_shouldNotAePreCapture(): Unit = runTest {
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             flashMode = ImageCapture.FLASH_MODE_OFF,
             flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
@@ -628,7 +669,9 @@ class CapturePipelineTest {
 
         // Act.
         val resultDeferredList = capturePipeline.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             flashMode = ImageCapture.FLASH_MODE_OFF,
             flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
@@ -658,7 +701,9 @@ class CapturePipelineTest {
 
         // Act.
         val resultDeferredList = capturePipeline.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             flashMode = ImageCapture.FLASH_MODE_OFF,
             flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
@@ -691,13 +736,14 @@ class CapturePipelineTest {
 
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(
-                Request(
-                    streams = emptyList(),
-                    parameters = mapOf(CONTROL_AE_MODE to CONTROL_AE_MODE_ON_ALWAYS_FLASH),
-                    template = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE)
-                )
-            ),
+            configs = listOf(CaptureConfig.Builder().apply {
+                addSurface(fakeDeferrableSurface)
+                implementationOptions = CaptureRequestOptions.Builder().apply {
+                    setCaptureRequestOption(CONTROL_AE_MODE, CONTROL_AE_MODE_ON_ALWAYS_FLASH)
+                }.build()
+            }.build()),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             flashMode = ImageCapture.FLASH_MODE_ON,
             flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
@@ -731,13 +777,14 @@ class CapturePipelineTest {
 
         // Act.
         capturePipeline.submitStillCaptures(
-            requests = listOf(
-                Request(
-                    streams = emptyList(),
-                    parameters = mapOf(CONTROL_AE_MODE to CONTROL_AE_MODE_ON_ALWAYS_FLASH),
-                    template = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE)
-                )
-            ),
+            configs = listOf(CaptureConfig.Builder().apply {
+                addSurface(fakeDeferrableSurface)
+                implementationOptions = CaptureRequestOptions.Builder().apply {
+                    setCaptureRequestOption(CONTROL_AE_MODE, CONTROL_AE_MODE_ON_ALWAYS_FLASH)
+                }.build()
+            }.build()),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             flashMode = ImageCapture.FLASH_MODE_ON,
             flashType = ImageCapture.FLASH_TYPE_ONE_SHOT_FLASH,
@@ -783,6 +830,7 @@ class CapturePipelineTest {
             requestList.addAll(requests)
         }
         val capturePipelineTorchCorrection = CapturePipelineTorchCorrection(
+            cameraProperties = FakeCameraProperties(),
             capturePipelineImpl = capturePipeline,
             threads = fakeUseCaseThreads,
             torchControl = torchControl,
@@ -790,7 +838,9 @@ class CapturePipelineTest {
 
         // Act.
         capturePipelineTorchCorrection.submitStillCaptures(
-            requests = listOf(singleRequest),
+            configs = listOf(singleConfig),
+            requestTemplate = RequestTemplate(CameraDevice.TEMPLATE_STILL_CAPTURE),
+            sessionConfigOptions = MutableOptionsBundle.create(),
             captureMode = ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY,
             flashMode = ImageCapture.FLASH_MODE_ON,
             flashType = flashType,

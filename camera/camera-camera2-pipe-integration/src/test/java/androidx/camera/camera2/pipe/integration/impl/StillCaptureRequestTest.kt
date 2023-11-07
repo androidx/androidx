@@ -443,6 +443,7 @@ class StillCaptureRequestTest {
         )
         requestControl = UseCaseCameraRequestControlImpl(
             capturePipeline = CapturePipelineImpl(
+                configAdapter = fakeConfigAdapter,
                 cameraProperties = fakeCameraProperties,
                 requestListener = ComboRequestListener(),
                 threads = fakeUseCaseThreads,
@@ -455,7 +456,6 @@ class StillCaptureRequestTest {
                 useCaseCameraState = fakeUseCaseCameraState,
                 useTorchAsFlash = NotUseTorchAsFlash,
             ),
-            configAdapter = fakeConfigAdapter,
             state = fakeUseCaseCameraState,
             useCaseGraphConfig = fakeUseCaseGraphConfig,
         )
