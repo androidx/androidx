@@ -25,7 +25,6 @@ import android.os.Build
 import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.room.RoomDatabase
-import androidx.sqlite.db.SupportSQLiteCompat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import java.io.File
@@ -153,17 +152,13 @@ fun readVersion(databaseFile: File): Int {
 }
 
 /**
- * CancellationSignal is only available from API 16 on. This function will create a new
- * instance of the Cancellation signal only if the current API > 16.
+ * This function will create a new instance of [CancellationSignal].
  *
- * @return A new instance of CancellationSignal or null.
+ * @return A new instance of CancellationSignal.
  */
-fun createCancellationSignal(): CancellationSignal? {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-        SupportSQLiteCompat.Api16Impl.createCancellationSignal()
-    } else {
-        null
-    }
+@Deprecated("Use constructor", ReplaceWith("CancellationSignal()", "android.os.CancellationSignal"))
+fun createCancellationSignal(): CancellationSignal {
+    return CancellationSignal()
 }
 
 /**

@@ -22,7 +22,6 @@ import android.database.sqlite.SQLiteException
 import android.database.sqlite.SQLiteOpenHelper
 import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.sqlite.db.SupportSQLiteCompat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
@@ -68,12 +67,7 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
                 allowDataLossOnRecovery = allowDataLossOnRecovery
             )
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            SupportSQLiteCompat.Api16Impl.setWriteAheadLoggingEnabled(
-                openHelper,
-                writeAheadLoggingEnabled
-            )
-        }
+        openHelper.setWriteAheadLoggingEnabled(writeAheadLoggingEnabled)
         return@lazy openHelper
     }
 
@@ -91,11 +85,10 @@ internal class FrameworkSQLiteOpenHelper @JvmOverloads constructor(
     override val databaseName: String?
         get() = name
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
         if (lazyDelegate.isInitialized()) {
             // Use 'delegate', it is already initialized
-            SupportSQLiteCompat.Api16Impl.setWriteAheadLoggingEnabled(delegate, enabled)
+            delegate.setWriteAheadLoggingEnabled(enabled)
         }
         writeAheadLoggingEnabled = enabled
     }

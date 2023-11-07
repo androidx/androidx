@@ -596,7 +596,7 @@ public final class ComplexDao_Impl extends ComplexDao {
     public ListenableFuture<List<Child1>> getChild1ListListenableFuture() {
         final String _sql = "SELECT * FROM Child1";
         final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
-        final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+        final CancellationSignal _cancellationSignal = new CancellationSignal();
         return GuavaRoom.createListenableFuture(__db, false, new Callable<List<Child1>>() {
             @Override
             public List<Child1> call() throws Exception {

@@ -30,7 +30,6 @@ import android.util.Pair
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.sqlite.db.SimpleSQLiteQuery
-import androidx.sqlite.db.SupportSQLiteCompat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import androidx.sqlite.db.SupportSQLiteStatement
@@ -157,14 +156,11 @@ internal class FrameworkSQLiteDatabase(
             cursorFactory, query.sql, EMPTY_STRING_ARRAY, null)
     }
 
-    @RequiresApi(16)
     override fun query(
         query: SupportSQLiteQuery,
         cancellationSignal: CancellationSignal?
     ): Cursor {
-        return SupportSQLiteCompat.Api16Impl.rawQueryWithFactory(delegate, query.sql,
-            EMPTY_STRING_ARRAY, null, cancellationSignal!!
-        ) { _: SQLiteDatabase?,
+        return delegate.rawQueryWithFactory({ _: SQLiteDatabase?,
             masterQuery: SQLiteCursorDriver?,
             editTable: String?,
             sqLiteQuery: SQLiteQuery? ->
@@ -174,7 +170,7 @@ internal class FrameworkSQLiteDatabase(
                 )
             )
             SQLiteCursor(masterQuery, editTable, sqLiteQuery)
-        }
+        }, query.sql, EMPTY_STRING_ARRAY, null, cancellationSignal!!)
     }
 
     @Throws(SQLException::class)
@@ -272,23 +268,20 @@ internal class FrameworkSQLiteDatabase(
         delegate.setMaxSqlCacheSize(cacheSize)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     override fun setForeignKeyConstraintsEnabled(enabled: Boolean) {
-        SupportSQLiteCompat.Api16Impl.setForeignKeyConstraintsEnabled(delegate, enabled)
+        delegate.setForeignKeyConstraintsEnabled(enabled)
     }
 
     override fun enableWriteAheadLogging(): Boolean {
         return delegate.enableWriteAheadLogging()
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     override fun disableWriteAheadLogging() {
-        SupportSQLiteCompat.Api16Impl.disableWriteAheadLogging(delegate)
+        delegate.disableWriteAheadLogging()
     }
 
-    @get:RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     override val isWriteAheadLoggingEnabled: Boolean
-        get() = SupportSQLiteCompat.Api16Impl.isWriteAheadLoggingEnabled(delegate)
+        get() = delegate.isWriteAheadLoggingEnabled
 
     override val attachedDbs: List<Pair<String, String>>?
         get() = delegate.attachedDbs

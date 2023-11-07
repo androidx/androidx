@@ -24,7 +24,7 @@ package androidx.sqlite.db {
     method public void beginTransactionWithListenerNonExclusive(android.database.sqlite.SQLiteTransactionListener transactionListener);
     method public androidx.sqlite.db.SupportSQLiteStatement compileStatement(String sql);
     method public int delete(String table, String? whereClause, Object![]? whereArgs);
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public void disableWriteAheadLogging();
+    method public void disableWriteAheadLogging();
     method public boolean enableWriteAheadLogging();
     method public void endTransaction();
     method public default void execPerConnectionSQL(String sql, Object![]? bindArgs);
@@ -42,13 +42,13 @@ package androidx.sqlite.db {
     method public default boolean isExecPerConnectionSQLSupported();
     method public boolean isOpen();
     method public boolean isReadOnly();
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public boolean isWriteAheadLoggingEnabled();
+    method public boolean isWriteAheadLoggingEnabled();
     method public boolean needUpgrade(int newVersion);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query);
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, android.os.CancellationSignal? cancellationSignal);
+    method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, android.os.CancellationSignal? cancellationSignal);
     method public android.database.Cursor query(String query);
     method public android.database.Cursor query(String query, Object![] bindArgs);
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public void setForeignKeyConstraintsEnabled(boolean enabled);
+    method public void setForeignKeyConstraintsEnabled(boolean enabled);
     method public void setLocale(java.util.Locale locale);
     method public void setMaxSqlCacheSize(int cacheSize);
     method public long setMaximumSize(long numBytes);
@@ -64,7 +64,7 @@ package androidx.sqlite.db {
     property public default boolean isExecPerConnectionSQLSupported;
     property public abstract boolean isOpen;
     property public abstract boolean isReadOnly;
-    property @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public abstract boolean isWriteAheadLoggingEnabled;
+    property public abstract boolean isWriteAheadLoggingEnabled;
     property public abstract long maximumSize;
     property public abstract long pageSize;
     property public abstract String? path;
@@ -76,7 +76,7 @@ package androidx.sqlite.db {
     method public String? getDatabaseName();
     method public androidx.sqlite.db.SupportSQLiteDatabase getReadableDatabase();
     method public androidx.sqlite.db.SupportSQLiteDatabase getWritableDatabase();
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN) public void setWriteAheadLoggingEnabled(boolean enabled);
+    method public void setWriteAheadLoggingEnabled(boolean enabled);
     property public abstract String? databaseName;
     property public abstract androidx.sqlite.db.SupportSQLiteDatabase readableDatabase;
     property public abstract androidx.sqlite.db.SupportSQLiteDatabase writableDatabase;
