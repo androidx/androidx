@@ -460,7 +460,6 @@ fun FrameWindowScope.MenuBar(content: @Composable MenuBarScope.() -> Unit) {
         val menu = JMenuBar()
         val composition = menu.setContent(parentComposition, content)
         window.jMenuBar = menu
-        composition to menu
 
         onDispose {
             window.jMenuBar = null
