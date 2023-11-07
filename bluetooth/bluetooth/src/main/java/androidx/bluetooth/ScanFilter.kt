@@ -74,6 +74,7 @@ class ScanFilter(
      */
     val serviceSolicitationUuidMask: UUID? = null
 ) {
+
     companion object {
         const val MANUFACTURER_FILTER_NONE: Int = -1
     }

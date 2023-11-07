@@ -52,8 +52,8 @@ package androidx.bluetooth {
   public final class BluetoothLe {
     ctor public BluetoothLe(android.content.Context context);
     method @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE") public suspend Object? advertise(androidx.bluetooth.AdvertiseParams advertiseParams, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?>? block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method @RequiresPermission("android.permission.BLUETOOTH_CONNECT") public suspend <R> Object? connectGatt(androidx.bluetooth.BluetoothDevice device, kotlin.jvm.functions.Function2<? super androidx.bluetooth.BluetoothLe.GattClientScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
-    method public suspend <R> Object? openGattServer(java.util.List<androidx.bluetooth.GattService> services, kotlin.jvm.functions.Function2<? super androidx.bluetooth.BluetoothLe.GattServerConnectScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method @RequiresPermission("android.permission.BLUETOOTH_CONNECT") public suspend <R> Object? connectGatt(androidx.bluetooth.BluetoothDevice device, kotlin.jvm.functions.Function2<? super androidx.bluetooth.GattClientScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
+    method public suspend <R> Object? openGattServer(java.util.List<androidx.bluetooth.GattService> services, kotlin.jvm.functions.Function2<? super androidx.bluetooth.GattServerConnectScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
     method @RequiresPermission("android.permission.BLUETOOTH_SCAN") public kotlinx.coroutines.flow.Flow<androidx.bluetooth.ScanResult> scan(optional java.util.List<androidx.bluetooth.ScanFilter> filters);
     field public static final int ADVERTISE_FAILED_DATA_TOO_LARGE = 102; // 0x66
     field public static final int ADVERTISE_FAILED_FEATURE_UNSUPPORTED = 103; // 0x67
@@ -64,40 +64,6 @@ package androidx.bluetooth {
   }
 
   public static final class BluetoothLe.Companion {
-  }
-
-  public static interface BluetoothLe.GattClientScope {
-    method public androidx.bluetooth.GattService? getService(java.util.UUID uuid);
-    method public default java.util.List<androidx.bluetooth.GattService> getServices();
-    method public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.bluetooth.GattService>> getServicesFlow();
-    method public suspend Object? readCharacteristic(androidx.bluetooth.GattCharacteristic characteristic, kotlin.coroutines.Continuation<? super kotlin.Result<? extends byte[]>>);
-    method public kotlinx.coroutines.flow.Flow<byte[]> subscribeToCharacteristic(androidx.bluetooth.GattCharacteristic characteristic);
-    method public suspend Object? writeCharacteristic(androidx.bluetooth.GattCharacteristic characteristic, byte[] value, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
-    property public default java.util.List<androidx.bluetooth.GattService> services;
-    property public abstract kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.bluetooth.GattService>> servicesFlow;
-  }
-
-  public static final class BluetoothLe.GattServerConnectRequest {
-    method public suspend Object? accept(kotlin.jvm.functions.Function2<? super androidx.bluetooth.BluetoothLe.GattServerSessionScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public androidx.bluetooth.BluetoothDevice getDevice();
-    method public void reject();
-    property public final androidx.bluetooth.BluetoothDevice device;
-  }
-
-  public static interface BluetoothLe.GattServerConnectScope {
-    method public kotlinx.coroutines.flow.Flow<androidx.bluetooth.BluetoothLe.GattServerConnectRequest> getConnectRequests();
-    method public void updateServices(java.util.List<androidx.bluetooth.GattService> services);
-    property public abstract kotlinx.coroutines.flow.Flow<androidx.bluetooth.BluetoothLe.GattServerConnectRequest> connectRequests;
-  }
-
-  public static interface BluetoothLe.GattServerSessionScope {
-    method public androidx.bluetooth.BluetoothDevice getDevice();
-    method public kotlinx.coroutines.flow.Flow<androidx.bluetooth.GattServerRequest> getRequests();
-    method public kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.bluetooth.GattCharacteristic>> getSubscribedCharacteristics();
-    method public suspend Object? notify(androidx.bluetooth.GattCharacteristic characteristic, byte[] value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    property public abstract androidx.bluetooth.BluetoothDevice device;
-    property public abstract kotlinx.coroutines.flow.Flow<androidx.bluetooth.GattServerRequest> requests;
-    property public abstract kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.bluetooth.GattCharacteristic>> subscribedCharacteristics;
   }
 
   public final class GattCharacteristic {
@@ -118,6 +84,30 @@ package androidx.bluetooth {
   }
 
   public static final class GattCharacteristic.Companion {
+  }
+
+  public interface GattClientScope {
+    method public androidx.bluetooth.GattService? getService(java.util.UUID uuid);
+    method public default java.util.List<androidx.bluetooth.GattService> getServices();
+    method public kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.bluetooth.GattService>> getServicesFlow();
+    method public suspend Object? readCharacteristic(androidx.bluetooth.GattCharacteristic characteristic, kotlin.coroutines.Continuation<? super kotlin.Result<? extends byte[]>>);
+    method public kotlinx.coroutines.flow.Flow<byte[]> subscribeToCharacteristic(androidx.bluetooth.GattCharacteristic characteristic);
+    method public suspend Object? writeCharacteristic(androidx.bluetooth.GattCharacteristic characteristic, byte[] value, kotlin.coroutines.Continuation<? super kotlin.Result<? extends kotlin.Unit>>);
+    property public default java.util.List<androidx.bluetooth.GattService> services;
+    property public abstract kotlinx.coroutines.flow.StateFlow<java.util.List<androidx.bluetooth.GattService>> servicesFlow;
+  }
+
+  public final class GattServerConnectRequest {
+    method public suspend Object? accept(kotlin.jvm.functions.Function2<? super androidx.bluetooth.GattServerSessionScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public androidx.bluetooth.BluetoothDevice getDevice();
+    method public void reject();
+    property public final androidx.bluetooth.BluetoothDevice device;
+  }
+
+  public interface GattServerConnectScope {
+    method public kotlinx.coroutines.flow.Flow<androidx.bluetooth.GattServerConnectRequest> getConnectRequests();
+    method public void updateServices(java.util.List<androidx.bluetooth.GattService> services);
+    property public abstract kotlinx.coroutines.flow.Flow<androidx.bluetooth.GattServerConnectRequest> connectRequests;
   }
 
   public class GattServerRequest {
@@ -144,6 +134,16 @@ package androidx.bluetooth {
     property public final androidx.bluetooth.GattCharacteristic characteristic;
     property public final int offset;
     property public final byte[] value;
+  }
+
+  public interface GattServerSessionScope {
+    method public androidx.bluetooth.BluetoothDevice getDevice();
+    method public kotlinx.coroutines.flow.Flow<androidx.bluetooth.GattServerRequest> getRequests();
+    method public kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.bluetooth.GattCharacteristic>> getSubscribedCharacteristics();
+    method public suspend Object? notify(androidx.bluetooth.GattCharacteristic characteristic, byte[] value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    property public abstract androidx.bluetooth.BluetoothDevice device;
+    property public abstract kotlinx.coroutines.flow.Flow<androidx.bluetooth.GattServerRequest> requests;
+    property public abstract kotlinx.coroutines.flow.StateFlow<java.util.Set<androidx.bluetooth.GattCharacteristic>> subscribedCharacteristics;
   }
 
   public final class GattService {
