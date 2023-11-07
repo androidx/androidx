@@ -1989,7 +1989,8 @@ public class AppSearchCompilerTest {
         assertThat(compilation).succeededWithoutWarnings();
         checkResultContains("Thing.java",
                 "Thing document = Thing.create(getIdConv, getNamespaceConv)");
-        checkResultContains("Gift.java", "thingConv = thingCopy.toDocumentClass(Thing.class)");
+        checkResultContains("Gift.java",
+                "thingConv = thingCopy.toDocumentClass(Thing.class, documentClassMap)");
         checkEqualsGolden("Gift.java");
     }
 
@@ -2948,6 +2949,23 @@ public class AppSearchCompilerTest {
         assertThat(compilation).hadErrorContaining(
                 "@StringProperty with serializer = UrlAsStringSerializer must only be placed on a "
                         + "getter/field of type or array or collection of java.net.URL");
+    }
+
+    @Test
+    public void testPropertyNamedAsDocumentClassMap() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty int documentClassMap;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Gift.java",
+                "int documentClassMapConv = (int) genericDoc.getPropertyLong"
+                        + "(\"documentClassMap\")");
+        checkResultContains("Gift.java", "document.documentClassMap = documentClassMapConv");
+        checkEqualsGolden("Gift.java");
     }
 
     private Compilation compile(String classBody) {
