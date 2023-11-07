@@ -19,7 +19,6 @@ package androidx.baselineprofile.gradle.utils
 import com.android.build.api.AndroidPluginVersion
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.TestVariant
-import kotlin.reflect.full.memberFunctions
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 
@@ -57,35 +56,6 @@ internal enum class AgpFeature(
  */
 internal object InstrumentationTestRunnerArgumentsAgp82 {
     fun set(variant: TestVariant, arguments: List<Pair<String, String>>) {
-        arguments.forEach { (k, v) ->
-
-            // What follows here is some reflection code to achieve the following:
-            // `variant.instrumentationRunnerArguments.put(k, v)`
-            // Note that once androidx is on Agp 8.2 this reflection code can be substituted with
-            // the above line.
-
-            val instrumentationRunnerArgumentsFieldMember = variant::class
-                .members
-                .firstOrNull { it.name == "instrumentationRunnerArguments" }
-                ?: throw IllegalStateException(
-                    "`TestVariant#instrumentationRunnerArguments` not found."
-                )
-            val instrumentationRunnerArgumentsMap = instrumentationRunnerArgumentsFieldMember
-                .call(variant)
-                ?: throw IllegalStateException(
-                    "Failed to acquire `TestVariant#instrumentationRunnerArguments`."
-                )
-            val putMethod = instrumentationRunnerArgumentsMap::class
-                .memberFunctions
-                .firstOrNull {
-                    it.name == "put" &&
-                        it.parameters[1].name == "key" &&
-                        it.parameters[2].name == "value"
-                }
-                ?: throw IllegalStateException(
-                    "`instrumentationRunnerArguments` does not have a `put(key, value)` method."
-                )
-            putMethod.call(instrumentationRunnerArgumentsMap, k, v)
-        }
+        arguments.forEach { (k, v) -> variant.instrumentationRunnerArguments.put(k, v) }
     }
 }
