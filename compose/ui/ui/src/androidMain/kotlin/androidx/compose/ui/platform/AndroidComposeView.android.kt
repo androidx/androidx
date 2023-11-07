@@ -266,6 +266,11 @@ internal class AndroidComposeView(
     override val semanticsOwner: SemanticsOwner = SemanticsOwner(root)
     private val composeAccessibilityDelegate = AndroidComposeViewAccessibilityDelegateCompat(this)
 
+    /**
+     * Provide accessibility manager to the user. Use the Android version of accessibility manager.
+     */
+    override val accessibilityManager = AndroidAccessibilityManager(context)
+
     // Used by components that want to provide autofill semantic information.
     // TODO: Replace with SemanticsTree: Temporary hack until we have a semantics tree implemented.
     // TODO: Replace with SemanticsTree.
@@ -305,11 +310,6 @@ internal class AndroidComposeView(
      * Provide clipboard manager to the user. Use the Android version of clipboard manager.
      */
     override val clipboardManager = AndroidClipboardManager(context)
-
-    /**
-     * Provide accessibility manager to the user. Use the Android version of accessibility manager.
-     */
-    override val accessibilityManager = AndroidAccessibilityManager(context)
 
     override val snapshotObserver = OwnerSnapshotObserver { command ->
         if (handler?.looper === Looper.myLooper()) {
@@ -709,6 +709,22 @@ internal class AndroidComposeView(
             // Also, if this event wasn't consumed by the compose hierarchy, we need to send it back
             // to the parent view. Both these cases are handles by the default view implementation.
             super.dispatchKeyEventPreIme(event)
+    }
+
+    /**
+     * This function is used by the delegate file to enable accessibility frameworks for testing.
+     */
+    override fun forceAccessibilityForTesting() {
+        composeAccessibilityDelegate.accessibilityForceEnabledForTesting = true
+    }
+
+    /**
+     * This function is used by the delegate file to set the time interval between sending
+     * accessibility events in milliseconds.
+     */
+    override fun setAccessibilityEventBatchIntervalMillis(accessibilityInterval: Long) {
+        composeAccessibilityDelegate.SendRecurringAccessibilityEventsIntervalMillis =
+            accessibilityInterval
     }
 
     override fun onAttach(node: LayoutNode) {

@@ -31,6 +31,7 @@ dependencies {
     androidTestImplementation(project(":benchmark:benchmark-junit4"))
     androidTestImplementation(project(":compose:foundation:foundation"))
     androidTestImplementation(project(":compose:foundation:foundation-layout"))
+    androidTestImplementation(project(":compose:material:material"))
     androidTestImplementation(project(":compose:runtime:runtime"))
     androidTestImplementation(project(":compose:benchmark-utils"))
     androidTestImplementation(project(":compose:ui:ui"))
