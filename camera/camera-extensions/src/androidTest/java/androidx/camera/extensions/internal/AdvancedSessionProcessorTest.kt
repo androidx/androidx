@@ -14,22 +14,6 @@
  * limitations under the License.
  */
 
-/*
- * Copyright 2022 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package androidx.camera.extensions.internal
 
 import android.content.Context
@@ -392,26 +376,27 @@ class AdvancedSessionProcessorTest {
     }
 
     private fun createOutputSurface(width: Int, height: Int, format: Int): OutputSurface {
-        val captureImageReader = ImageReader.newInstance(width, height, format, 1);
+        val captureImageReader = ImageReader.newInstance(width, height, format, 1)
         return OutputSurface.create(captureImageReader.surface, Size(width, height), format)
     }
 
     @Test
     fun canSetSessionTypeFromOemImpl() {
-        assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
         // 1. Arrange.
-        val sessionTypeToVerify = 4;
+        val sessionTypeToVerify = 4
         val fakeSessionProcessImpl = FakeSessionProcessImpl()
-        fakeSessionProcessImpl.sessionType = sessionTypeToVerify;
+        fakeSessionProcessImpl.sessionType = sessionTypeToVerify
         val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl,
             emptyList(), context)
-        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context));
-        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888);
-        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG);
+        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 
         // 2. Act.
         val sessionConfig = advancedSessionProcessor
-            .initSession(fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null);
+            .initSession(fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null)
 
         // 3. Assert.
         assertThat(sessionConfig.sessionType).isEqualTo(sessionTypeToVerify)
@@ -421,16 +406,16 @@ class AdvancedSessionProcessorTest {
     fun defaultSessionType() {
         // 1. Arrange.
         val fakeSessionProcessImpl = FakeSessionProcessImpl()
-        fakeSessionProcessImpl.sessionType = -1;
+        fakeSessionProcessImpl.sessionType = -1
         val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl,
             emptyList(), context)
-        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context));
-        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888);
-        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG);
+        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
+        val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 
         // 2. Act.
         val sessionConfig = advancedSessionProcessor
-            .initSession(fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null);
+            .initSession(fakeCameraInfo, previewOutputSurface, imageCaptureSurface, null)
 
         // 3. Assert.
         assertThat(sessionConfig.sessionType).isEqualTo(SessionConfiguration.SESSION_REGULAR)
@@ -547,7 +532,7 @@ class FakeSessionProcessImpl(
     private var startTriggerParametersDeferred =
         CompletableDeferred<MutableMap<CaptureRequest.Key<*>, Any>>()
 
-    var sessionType: Int = -1;
+    var sessionType: Int = -1
     override fun initSession(
         cameraId: String,
         cameraCharacteristicsMap: MutableMap<String, CameraCharacteristics>,
@@ -575,7 +560,7 @@ class FakeSessionProcessImpl(
         }
 
         if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
-            sessionBuilder.setSessionType(sessionType);
+            sessionBuilder.setSessionType(sessionType)
         }
         return sessionBuilder.build()
     }
