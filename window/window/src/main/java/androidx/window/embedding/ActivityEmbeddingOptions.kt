@@ -21,7 +21,6 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
@@ -74,7 +73,6 @@ fun ActivityOptions.setLaunchingActivityStack(activity: Activity): ActivityOptio
     }
 }
 
-// TODO(295803704): Pending unhide.
 /**
  * Puts [OverlayCreateParams] to [ActivityOptions] bundle to create a singleton-per-task overlay
  * [ActivityStack].
@@ -114,7 +112,6 @@ fun ActivityOptions.setLaunchingActivityStack(activity: Activity): ActivityOptio
  * @param overlayCreateParams The parameter container to create an overlay [ActivityStack]
  * @throws UnsupportedOperationException if [WindowSdkExtensions.extensionVersion] is less than 5.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresWindowSdkExtension(5)
 fun Bundle.setOverlayCreateParams(
     activity: Activity,

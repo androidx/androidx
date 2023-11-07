@@ -17,13 +17,10 @@
 package androidx.window.embedding
 
 import android.app.Activity
-import androidx.annotation.RestrictTo
 
-// TODO(b/295804279): Un-hide after APIs are ready
 /**
  * Describes an overlay [ActivityStack] associated with [OverlayCreateParams.tag].
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class OverlayInfo internal constructor(
     /** The unique identifier associated with the overlay [ActivityStack]. */
     val overlayTag: String,

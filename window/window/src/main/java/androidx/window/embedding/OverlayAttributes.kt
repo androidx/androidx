@@ -16,9 +16,6 @@
 
 package androidx.window.embedding
 
-import androidx.annotation.RestrictTo
-
-// TODO(295803704): Pending unhide.
 /**
  * The attributes to describe how an overlay container should look like.
  *
@@ -26,7 +23,6 @@ import androidx.annotation.RestrictTo
  * [EmbeddingBounds.BOUNDS_EXPANDED] if not specified.
  * @constructor creates an overlay attributes.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class OverlayAttributes @JvmOverloads constructor(
     val bounds: EmbeddingBounds = EmbeddingBounds.BOUNDS_EXPANDED
 ) {

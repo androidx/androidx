@@ -181,6 +181,7 @@ internal class EmbeddingCompat(
         windowSdkExtensions.requireExtensionVersion(5)
         adapter.embeddingConfiguration = embeddingConfig
         setDefaultSplitAttributeCalculatorIfNeeded()
+
         embeddingExtension.invalidateTopVisibleSplitAttributes()
     }
 

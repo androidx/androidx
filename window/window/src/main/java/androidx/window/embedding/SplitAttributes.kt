@@ -19,8 +19,6 @@ package androidx.window.embedding
 import android.annotation.SuppressLint
 import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
-import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
@@ -56,34 +54,24 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
  *     [SplitAttributesCalculator.computeSplitAttributesForParams] to customize
  *     the `SplitAttributes` for a given device and window state.
  *
+ * @property splitType The split type attribute. Defaults to an equal split of the parent window for
+ * the primary and secondary containers.
+ * @property layoutDirection The layout direction of the parent window split. The default is based
+ * on locale value.
+ * @property animationBackground The animation background to use during the animation of the split
+ * involving this `SplitAttributes` object if the animation requires a background.
+ *
+ * The default is to use the current theme window background color.
+ *
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
  * @see EmbeddingAnimationBackground
+ * @see EmbeddingAnimationBackground.createColorBackground
+ * @see EmbeddingAnimationBackground.DEFAULT
  */
-class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
-
-    /**
-     * The split type attribute. Defaults to an equal split of the parent window
-     * for the primary and secondary containers.
-     */
+class SplitAttributes @JvmOverloads constructor(
     val splitType: SplitType = SPLIT_TYPE_EQUAL,
-
-    /**
-     * The layout direction attribute for the parent window split. The default
-     * is based on locale.
-     */
     val layoutDirection: LayoutDirection = LOCALE,
-
-    /**
-     * The animation background to use during the animation of the split
-     * involving this `SplitAttributes` object if the animation requires a
-     * background.
-     *
-     * The default is to use the current theme window background color.
-     *
-     * @see EmbeddingAnimationBackground.createColorBackground
-     * @see EmbeddingAnimationBackground.DEFAULT
-     */
     val animationBackground: EmbeddingAnimationBackground = EmbeddingAnimationBackground.DEFAULT,
 ) {
 

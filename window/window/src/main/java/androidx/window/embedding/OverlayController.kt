@@ -19,7 +19,6 @@ package androidx.window.embedding
 import android.app.Activity
 import android.content.Context
 import android.os.Bundle
-import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.core.util.Consumer
 import androidx.window.RequiresWindowSdkExtension
@@ -28,7 +27,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-// TODO(b/295804279): Un-hide after APIs are ready
 /**
  * The controller to manage overlay [ActivityStack], which is launched by
  * the activityOptions that [setOverlayCreateParams].
@@ -42,7 +40,6 @@ import kotlinx.coroutines.flow.callbackFlow
  *
  * @sample androidx.window.samples.embedding.launchOverlayActivityStackSample
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class OverlayController @VisibleForTesting internal constructor(
     private val backend: EmbeddingBackend
 ) {
