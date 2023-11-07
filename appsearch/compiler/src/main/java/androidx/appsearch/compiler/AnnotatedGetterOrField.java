@@ -20,6 +20,7 @@ import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATIO
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
 import static androidx.appsearch.compiler.IntrospectionHelper.getPropertyType;
 import static androidx.appsearch.compiler.IntrospectionHelper.validateIsGetter;
+
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.joining;
 
@@ -551,7 +552,7 @@ public abstract class AnnotatedGetterOrField {
         TypeMirror componentType = annotatedGetterOrField.getComponentType();
         if (componentType.getKind() == TypeKind.DECLARED) {
             Element element = env.getTypeUtils().asElement(componentType);
-            if (element.getKind() == ElementKind.CLASS && getDocumentAnnotation(element) != null) {
+            if (getDocumentAnnotation(element) != null) {
                 return;
             }
         }
