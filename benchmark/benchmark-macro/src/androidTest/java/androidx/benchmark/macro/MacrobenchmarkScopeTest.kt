@@ -227,11 +227,11 @@ class MacrobenchmarkScopeTest {
         }.toSet()
         val testOutputs = outputs - files
         val trace = testOutputs.singleOrNull { file ->
-            file.name.endsWith(".trace") && file.name.contains("-method-")
+            file.name.endsWith(".trace") && file.name.contains("-methodTracing-")
         }
         // One method trace should have been created
         assertNotNull(trace)
-        assertTrue(trace.name.startsWith("TEST-UNIQUE-NAME-method-"))
+        assertTrue(trace.name.startsWith("TEST-UNIQUE-NAME-methodTracing-"))
     }
 
     private fun validateLaunchAndFrameStats(pressHome: Boolean) {
