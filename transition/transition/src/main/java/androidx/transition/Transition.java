@@ -129,6 +129,8 @@ import java.util.StringTokenizer;
 public abstract class Transition implements Cloneable {
 
     private static final String LOG_TAG = "Transition";
+    private static final Animator[] EMPTY_ANIMATOR_ARRAY = new Animator[0];
+
     static final boolean DBG = false;
 
     /**
@@ -227,6 +229,8 @@ public abstract class Transition implements Cloneable {
     // cancel running animators
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     ArrayList<Animator> mCurrentAnimators = new ArrayList<>();
+
+    private Animator[] mAnimatorCache = EMPTY_ANIMATOR_ARRAY;
 
     // Number of per-target instances of this Transition currently running. This count is
     // determined by calls to start() and end()
@@ -1822,10 +1826,14 @@ public abstract class Transition implements Cloneable {
     public void pause(@Nullable View sceneRoot) {
         if (!mEnded) {
             int numAnimators = mCurrentAnimators.size();
+            Animator[] cache = mCurrentAnimators.toArray(mAnimatorCache);
+            mAnimatorCache = EMPTY_ANIMATOR_ARRAY;
             for (int i = numAnimators - 1; i >= 0; i--) {
-                Animator animator = mCurrentAnimators.get(i);
+                Animator animator = cache[i];
+                cache[i] = null;
                 AnimatorUtils.pause(animator);
             }
+            mAnimatorCache = cache;
             notifyListeners(TransitionNotification.ON_PAUSE, false);
             mPaused = true;
         }
@@ -1842,10 +1850,14 @@ public abstract class Transition implements Cloneable {
         if (mPaused) {
             if (!mEnded) {
                 int numAnimators = mCurrentAnimators.size();
+                Animator[] cache = mCurrentAnimators.toArray(mAnimatorCache);
+                mAnimatorCache = EMPTY_ANIMATOR_ARRAY;
                 for (int i = numAnimators - 1; i >= 0; i--) {
-                    Animator animator = mCurrentAnimators.get(i);
+                    Animator animator = cache[i];
+                    cache[i] = null;
                     AnimatorUtils.resume(animator);
                 }
+                mAnimatorCache = cache;
                 notifyListeners(TransitionNotification.ON_RESUME, false);
             }
             mPaused = false;
@@ -2105,10 +2117,14 @@ public abstract class Transition implements Cloneable {
     @RestrictTo(LIBRARY_GROUP_PREFIX)
     protected void cancel() {
         int numAnimators = mCurrentAnimators.size();
+        Animator[] cache = mCurrentAnimators.toArray(mAnimatorCache);
+        mAnimatorCache = EMPTY_ANIMATOR_ARRAY;
         for (int i = numAnimators - 1; i >= 0; i--) {
-            Animator animator = mCurrentAnimators.get(i);
+            Animator animator = cache[i];
+            cache[i] = null;
             animator.cancel();
         }
+        mAnimatorCache = cache;
         notifyListeners(TransitionNotification.ON_CANCEL, false);
     }
 
@@ -2394,12 +2410,17 @@ public abstract class Transition implements Cloneable {
             mEnded = false;
             notifyListeners(TransitionNotification.ON_START, isReversed);
         }
-        for (int i = 0; i < mCurrentAnimators.size(); i++) {
-            Animator animator = mCurrentAnimators.get(i);
+        int numAnimators = mCurrentAnimators.size();
+        Animator[] cache = mCurrentAnimators.toArray(mAnimatorCache);
+        mAnimatorCache = EMPTY_ANIMATOR_ARRAY;
+        for (int i = 0; i < numAnimators; i++) {
+            Animator animator = cache[i];
+            cache[i] = null;
             long animDuration = Impl26.getTotalDuration(animator);
             long playTime = Math.min(Math.max(0, playTimeMillis), animDuration);
             Impl26.setCurrentPlayTime(animator, playTime);
         }
+        mAnimatorCache = cache;
 
         if ((playTimeMillis > duration && lastPlayTimeMillis <= duration)
                 || (playTimeMillis < 0 && lastPlayTimeMillis >= 0)
