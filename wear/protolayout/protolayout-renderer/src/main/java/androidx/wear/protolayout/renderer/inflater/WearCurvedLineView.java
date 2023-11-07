@@ -90,6 +90,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
 
     @Nullable private ArcDrawable mArcDrawable;
     @NonNull private Cap mCapStyle;
+    @Nullable private StrokeCapShadow mCapShadow;
 
     public WearCurvedLineView(@NonNull Context context) {
         this(context, null);
@@ -157,15 +158,15 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                         getMeasuredHeight() - insetPx);
         float clampedSweepAngle = resolveSweepAngleDegrees();
 
-        if (mSweepGradientHelper != null) {
+        if (mSweepGradientHelper != null || mCapShadow != null) {
             mArcDrawable =
                     new ArcDrawableImpl(
                             bounds,
                             clampedSweepAngle,
                             mThicknessPx,
-                            mCapStyle,
                             basePaint,
-                            mSweepGradientHelper);
+                            mSweepGradientHelper,
+                            mCapShadow);
         } else {
             mArcDrawable = new ArcDrawableLegacy(bounds, clampedSweepAngle, basePaint);
         }
@@ -284,6 +285,16 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     /** Sets the strokeCap of this arc. */
     public void setStrokeCap(@NonNull Cap cap) {
         mCapStyle = cap;
+    }
+
+    /** Sets the parameters for the stroke cap shadow. */
+    public void setStrokeCapShadow(float blurRadius, int color) {
+        this.mCapShadow = new StrokeCapShadow(blurRadius, color);
+    }
+
+    /** Clears the stroke cap shadow. */
+    public void clearStrokeCapShadow() {
+        this.mCapShadow = null;
     }
 
     @Override
@@ -549,8 +560,11 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
         @NonNull private final Paint mPaint;
         @NonNull private final Path mPath;
 
-        /** A path to be clipped out when drawing, in order to exclude one of the stroke caps. */
-        @Nullable private Path mClipOutPath = null;
+        /** A region to be clipped out when drawing, in order to exclude one of the stroke caps. */
+        @Nullable private Path mExcludedCapRegion = null;
+
+        /** A region to be clipped in when drawing, in order to only include this region. */
+        @Nullable private Path mMaskRegion = null;
 
         /** Creates a line segment that forms a full circle. */
         static ArcSegment circle(@NonNull RectF bounds, @NonNull Paint paint) {
@@ -583,12 +597,28 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
             return new ArcSegment(line, paint);
         }
 
+        /** A segment that draws the shadow layer that matches the path of the given segment. */
+        static ArcSegment strokeCapShadowLayer(
+                @NonNull RectF bounds,
+                float lineThicknessPx,
+                @NonNull ArcSegment segment,
+                @NonNull Paint paint) {
+            // Use a mask to only include the region between inner and outer bounds of the arc line.
+            // The Paint's shadow layer will draw the shadow in all directions around the stroke but
+            // we only want the part in the direction of the Cap to be visible.
+            Path maskRegion = new Path();
+            RectF innerBounds = shrinkRectF(bounds, lineThicknessPx / 2f);
+            RectF outerBounds = expandRectF(bounds, lineThicknessPx / 2f);
+            maskRegion.addOval(innerBounds, Direction.CW);
+            maskRegion.addOval(outerBounds, Direction.CCW);
+            return new ArcSegment(segment.mPath, paint, maskRegion, segment.mExcludedCapRegion);
+        }
+
         ArcSegment(
                 @NonNull RectF bounds,
                 float startAngle,
                 float sweepAngle,
                 float thicknessPx,
-                @NonNull Cap capStyle,
                 @NonNull CapPosition capPosition,
                 @NonNull Paint paint) {
             if (Math.abs(sweepAngle) > 180f) {
@@ -607,48 +637,72 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
             }
 
             // If a single cap is present, we clip out the Cap that should not be included.
-            if (capPosition != CapPosition.NONE && capStyle != Cap.BUTT) {
-                float centerX = (bounds.left + bounds.right) / 2f;
-                float centerY = (bounds.top + bounds.bottom) / 2f;
-                RectF clipRectBounds =
-                        new RectF(
-                                bounds.left - thicknessPx,
-                                bounds.top - thicknessPx,
-                                bounds.right + thicknessPx,
-                                bounds.bottom + thicknessPx);
+            if (capPosition != CapPosition.NONE) {
 
-                mClipOutPath = new Path();
-                mClipOutPath.moveTo(centerX, centerY);
+                RectF clipRectBounds = expandRectF(bounds, thicknessPx);
+
+                mExcludedCapRegion = new Path();
+                mExcludedCapRegion.moveTo(clipRectBounds.centerX(), clipRectBounds.centerY());
                 float sweepDirection = Math.signum(sweepAngle);
+
                 if (capPosition == CapPosition.START) {
                     // Clip out END of segment.
-                    mClipOutPath.arcTo(
+                    mExcludedCapRegion.arcTo(
                             clipRectBounds,
                             startAngle + sweepAngle,
                             sweepDirection * CLIP_OUT_PATH_SPAN_DEGREES);
                 } else if (capPosition == CapPosition.END) {
                     // Clip out START of segment.
-                    mClipOutPath.arcTo(
+                    mExcludedCapRegion.arcTo(
                             clipRectBounds,
                             startAngle,
                             -sweepDirection * CLIP_OUT_PATH_SPAN_DEGREES);
                 }
-                mClipOutPath.close();
+                mExcludedCapRegion.close();
             }
         }
 
-        ArcSegment(@NonNull Path mainPath, @NonNull Paint paint) {
+        ArcSegment(
+                @NonNull Path mainPath,
+                @NonNull Paint paint,
+                @Nullable Path maskRegion,
+                @Nullable Path excludedCapRegion) {
             this.mPath = mainPath;
             this.mPaint = paint;
+            this.mMaskRegion = maskRegion;
+            this.mExcludedCapRegion = excludedCapRegion;
+        }
+
+        ArcSegment(@NonNull Path mainPath, @NonNull Paint paint) {
+            this(mainPath, paint, /* maskRegion= */ null, /* excludedCapRegion= */ null);
         }
 
         public void onDraw(@NonNull Canvas canvas) {
             canvas.save();
-            if (mClipOutPath != null) {
-                canvas.clipOutPath(mClipOutPath);
+            if (mExcludedCapRegion != null) {
+                canvas.clipOutPath(mExcludedCapRegion);
+            }
+            if (mMaskRegion != null) {
+                canvas.clipPath(mMaskRegion);
             }
             canvas.drawPath(mPath, mPaint);
             canvas.restore();
+        }
+
+        /**
+         * Returns a new rectangle, expanding the given bounds by {@code offset} in all directions.
+         * Use a negative offset value to shrink the original bounds.
+         */
+        static RectF expandRectF(@NonNull RectF bounds, float offset) {
+            return new RectF(
+                    bounds.left - offset,
+                    bounds.top - offset,
+                    bounds.right + offset,
+                    bounds.bottom + offset);
+        }
+
+        static RectF shrinkRectF(@NonNull RectF bounds, float offset) {
+            return expandRectF(bounds, -offset);
         }
     }
 
@@ -679,9 +733,9 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                 @NonNull RectF bounds,
                 float sweepAngle,
                 float thicknessPx,
-                @NonNull Cap capStyle,
                 @NonNull Paint basePaint,
-                @Nullable SweepGradientHelper sweepGradHelper) {
+                @Nullable SweepGradientHelper sweepGradHelper,
+                @Nullable StrokeCapShadow strokeCapShadow) {
             if (Math.abs(sweepAngle) == 0f) {
                 return;
             }
@@ -721,6 +775,17 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
 
             float segmentSweep = topLayerLength / 2f;
 
+            @Nullable Paint shadowPaint = null;
+            if (strokeCapShadow != null) {
+                shadowPaint = new Paint(basePaint);
+                shadowPaint.setColor(Color.TRANSPARENT);
+                shadowPaint.setShadowLayer(
+                        strokeCapShadow.mBlurRadius,
+                        /* dx= */ 0f,
+                        /* dy= */ 0f,
+                        strokeCapShadow.mColor);
+            }
+
             // Tail Segment.
             Paint tailPaint = new Paint(basePaint);
             if (sweepGradHelper != null) {
@@ -733,15 +798,22 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                                 tailCapPosition);
                 tailPaint.setShader(shader);
             }
-            mSegments.add(
+            ArcSegment tailSegment =
                     new ArcSegment(
                             bounds,
                             drawStartAngle,
                             segmentSweep,
                             thicknessPx,
-                            capStyle,
                             tailCapPosition,
-                            tailPaint));
+                            tailPaint);
+
+            // Add a shadow layer to the tail Cap if needed.
+            if (tailCapPosition != CapPosition.NONE && shadowPaint != null) {
+                mSegments.add(
+                        ArcSegment.strokeCapShadowLayer(
+                                bounds, thicknessPx, tailSegment, shadowPaint));
+            }
+            mSegments.add(tailSegment);
 
             // Head Segment.
             float midCursor = topLayerStartCursor + segmentSweep;
@@ -757,15 +829,22 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                                 ArcSegment.CapPosition.END);
                 headPaint.setShader(shader);
             }
-            mSegments.add(
+            ArcSegment headSegment =
                     new ArcSegment(
                             bounds,
                             drawMidAngle,
                             segmentSweep,
                             thicknessPx,
-                            capStyle,
                             ArcSegment.CapPosition.END,
-                            headPaint));
+                            headPaint);
+
+            // Add a shadow layer to the head Cap if needed.
+            if (shadowPaint != null) {
+                mSegments.add(
+                        ArcSegment.strokeCapShadowLayer(
+                                bounds, thicknessPx, headSegment, shadowPaint));
+            }
+            mSegments.add(headSegment);
 
             // Fix discontinuity caused by anti-alias layer between Tail and Head. This is an arc
             // with length equivalent to 1px.
@@ -818,5 +897,16 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     private interface ArcDrawable {
         /** Called when the arc should be drawn on the canvas. */
         void onDraw(@NonNull Canvas canvas);
+    }
+
+    /** Data holder for the stroke cap shadow. */
+    private static final class StrokeCapShadow {
+        final float mBlurRadius;
+        final int mColor;
+
+        StrokeCapShadow(float blurRadius, int color) {
+            this.mBlurRadius = blurRadius;
+            this.mColor = color;
+        }
     }
 }
