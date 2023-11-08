@@ -56,6 +56,7 @@ class SinglePointerPredictorTest {
                 val generator = MotionEventGenerator(xGenerator, yGenerator)
                 for (i in 1..INITIAL_FEED) {
                     predictor.onTouchEvent(generator.next())
+                    predictor.predict(generator.getRateMs().toInt())
                 }
                 for (i in 1..PREDICT_LENGTH) {
                     val predicted = predictor.predict(generator.getRateMs().toInt())!!
@@ -68,6 +69,26 @@ class SinglePointerPredictorTest {
                 }
             }
         }
+    }
+
+    @Test
+    fun predictionNeverGoesBackwards() {
+        val predictor = constructPredictor()
+        val accelerationGenerator = { delta: Long -> delta.toFloat() }
+        val motionGenerator = MotionEventGenerator(accelerationGenerator, accelerationGenerator)
+        var lastPredictedTime = 0L;
+        for (i in 1..INITIAL_FEED) {
+            predictor.onTouchEvent(motionGenerator.next())
+            val predicted = predictor.predict(motionGenerator.getRateMs().toInt() * 10)
+            if (predicted != null) {
+                assertThat(predicted.eventTime).isAtLeast(lastPredictedTime)
+                lastPredictedTime = predicted.eventTime
+            }
+        }
+
+        predictor.onTouchEvent(motionGenerator.next())
+        val predicted = predictor.predict(motionGenerator.getRateMs().toInt())!!
+        assertThat(predicted.eventTime).isAtLeast(lastPredictedTime)
     }
 }
 
