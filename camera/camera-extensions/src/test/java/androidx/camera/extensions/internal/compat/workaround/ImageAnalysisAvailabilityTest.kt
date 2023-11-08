@@ -22,6 +22,7 @@ import android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIM
 import android.os.Build
 import androidx.camera.extensions.ExtensionMode.BOKEH
 import androidx.camera.extensions.ExtensionMode.FACE_RETOUCH
+import androidx.camera.extensions.ExtensionMode.NIGHT
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -108,7 +109,11 @@ class ImageAnalysisAvailabilityTest(private val config: TestConfig) {
 
                 // Google Pixel doesn't support ImageAnalysis.
                 TestConfig("google", "", "redfin", "0", levelLimited, BOKEH, true, true, false),
-                TestConfig("google", "", "oriole", "0", levelLimited, BOKEH, false, false, false)
+                TestConfig("google", "", "oriole", "0", levelLimited, BOKEH, false, false, false),
+
+                // Xiaomi 13T Pro doesn't support ImageAnalysis.
+                TestConfig("xiaomi", "corot", "", "0", level3, NIGHT, false, true, false),
+                TestConfig("xiaomi", "corot", "", "1", level3, NIGHT, false, true, false),
             )
         }
     }
