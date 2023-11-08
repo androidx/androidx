@@ -96,7 +96,6 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinBasePluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithSimulatorTests
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -965,16 +964,6 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         kmpExtension.targets.all { kotlinTarget ->
             kotlinTarget.compilations.all {
                 it.compilerOptions.options.freeCompilerArgs.add("-Xexpect-actual-classes")
-            }
-        }
-
-        kmpExtension.testableTargets.all { kotlinTarget ->
-            if (kotlinTarget is KotlinNativeTargetWithSimulatorTests) {
-                kotlinTarget.binaries.all {
-                    // Use std allocator to avoid the following warning:
-                    // w: Mimalloc allocator isn't supported on target <target>. Used standard mode.
-                    it.freeCompilerArgs += "-Xallocator=std"
-                }
             }
         }
     }

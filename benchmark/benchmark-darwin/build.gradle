@@ -54,7 +54,7 @@ androidXMultiplatform {
             iosX64Main {
                 dependsOn(iosMain)
             }
-            targets.all { target ->
+            targets.configureEach { target ->
                 if (target.platformType == KotlinPlatformType.native) {
                     target.compilations["main"].defaultSourceSet {
                         dependsOn(darwinMain)
@@ -62,7 +62,18 @@ androidXMultiplatform {
                     target.compilations["test"].defaultSourceSet {
                         dependsOn(darwinTest)
                     }
+                    target.compilations.configureEach {
+                        compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
+                    }
                 }
+            }
+        }
+    }
+    kotlin.metadata {
+        // KT-63338
+        compilations.matching { it.name == "iosMain" }.configureEach {
+            it.compileTaskProvider.configure {
+                enabled = false
             }
         }
     }
