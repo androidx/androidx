@@ -17,12 +17,18 @@ package androidx.recyclerview.widget
 
 import android.view.View
 import android.widget.TextView
+import androidx.recyclerview.test.awaitScrollIdle
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
-import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.TimeUnit
 import kotlin.math.abs
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.android.awaitFrame
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.runInterruptible
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import org.junit.Assert
-import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -43,37 +49,35 @@ internal class GridLayoutManagerSnappingTest(
         return rv
     }
 
-    @Ignore // b/244324972
     @Test
     @Throws(Throwable::class)
-    fun snapOnScrollSameView() {
+    fun snapOnScrollSameView() = runBlocking(Dispatchers.Main) {
         val config = mConfig.clone() as Config
         val recyclerView = setupBasic(config)
-        waitForFirstLayout(recyclerView)
+        awaitFirstLayout(recyclerView)
         setupSnapHelper()
 
         // Record the current center view.
         val view = findCenterView()
         assertCenterAligned(view)
+
         val scrollDistance = getViewDimension(view) / 2 - 1
         val scrollDist = if (mReverseScroll) -scrollDistance else scrollDistance
-        mGlm.expectIdleState(2)
-        smoothScrollBy(scrollDist)
-        mGlm.waitForSnap(25)
+        mRecyclerView.smoothScrollByOnMainAxis(scrollDist)
+        awaitScrollAndSnapIdle(25)
 
         // Views have not changed
         val viewAfterFling = findCenterView()
-        Assert.assertSame("The view should have scrolled", view, viewAfterFling)
+        Assert.assertSame("The view should NOT have scrolled", view, viewAfterFling)
         assertCenterAligned(viewAfterFling)
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/271599012
     @Test
     @Throws(Throwable::class)
-    fun snapOnScrollNextItem() {
+    fun snapOnScrollNextItem() = runBlocking(Dispatchers.Main) {
         val config = mConfig.clone() as Config
         val recyclerView = setupBasic(config)
-        waitForFirstLayout(recyclerView)
+        awaitFirstLayout(recyclerView)
         setupSnapHelper()
 
         // Record the current center view.
@@ -82,22 +86,21 @@ internal class GridLayoutManagerSnappingTest(
         val viewText = (view as TextView?)!!.getText()
         val scrollDistance = getViewDimension(view) + 1
         val scrollDist = if (mReverseScroll) -scrollDistance else scrollDistance
-        smoothScrollBy(scrollDist)
-        waitForIdleScroll(mRecyclerView)
-        waitForIdleScroll(mRecyclerView)
+        mRecyclerView.smoothScrollByOnMainAxis(scrollDist)
+        awaitScrollAndSnapIdle(25)
+
         val viewAfterScroll = findCenterView()
         val viewAfterFlingText = (viewAfterScroll as TextView?)!!.getText()
         Assert.assertNotEquals("The view should have scrolled!", viewText, viewAfterFlingText)
         assertCenterAligned(viewAfterScroll)
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/271599012
     @Test
     @Throws(Throwable::class)
-    fun snapOnFlingSameView() {
+    fun snapOnFlingSameView() = runBlocking(Dispatchers.Main) {
         val config = mConfig.clone() as Config
         val recyclerView = setupBasic(config)
-        waitForFirstLayout(recyclerView)
+        awaitFirstLayout(recyclerView)
         setupSnapHelper()
 
         // Record the current center view.
@@ -109,21 +112,18 @@ internal class GridLayoutManagerSnappingTest(
         val velocityDir = if (mReverseScroll) -velocity else velocity
         mGlm.expectIdleState(2)
         Assert.assertTrue(fling(velocityDir, velocityDir))
-        // Wait for two settling scrolls: the initial one and the corrective one.
-        waitForIdleScroll(mRecyclerView)
-        mGlm.waitForSnap(100)
+        awaitScrollAndSnapIdle(25)
         val viewAfterFling = findCenterView()
         Assert.assertSame("The view should NOT have scrolled", view, viewAfterFling)
         assertCenterAligned(viewAfterFling)
     }
 
-    @SdkSuppress(minSdkVersion = 22) // b/271599012
     @Test
     @Throws(Throwable::class)
-    fun snapOnFlingNextView() {
+    fun snapOnFlingNextView() = runBlocking(Dispatchers.Main) {
         val config = mConfig.clone() as Config
         val recyclerView = setupBasic(config)
-        waitForFirstLayout(recyclerView)
+        awaitFirstLayout(recyclerView)
         setupSnapHelper()
 
         // Record the current center view.
@@ -136,32 +136,29 @@ internal class GridLayoutManagerSnappingTest(
         val velocityDir = if (mReverseScroll) -velocity else velocity
         mGlm.expectIdleState(1)
         Assert.assertTrue(fling(velocityDir, velocityDir))
-        mGlm.waitForSnap(100)
-        instrumentation.waitForIdleSync()
+        awaitScrollAndSnapIdle(25)
+
         val viewAfterFling = findCenterView()
         val viewAfterFlingText = (viewAfterFling as TextView?)!!.getText()
         Assert.assertNotEquals("The view should have scrolled!", viewText, viewAfterFlingText)
         assertCenterAligned(viewAfterFling)
     }
 
-    @Throws(Throwable::class)
-    private fun setupSnapHelper() {
+    private suspend fun setupSnapHelper() {
         val snapHelper: SnapHelper = LinearSnapHelper()
-        mGlm.expectIdleState(1)
         snapHelper.attachToRecyclerView(mRecyclerView)
-        mGlm.waitForSnap(25)
+        awaitScrollAndSnapIdle(25)
         mGlm.expectLayout(1)
         scrollToPosition(mConfig.mItemCount / 2)
-        mGlm.waitForLayout(2)
+        mGlm.awaitLayout(2)
         val view = findCenterView()
         val scrollDistance = distFromCenter(view) / 2
         if (scrollDistance == 0) {
             return
         }
         val scrollDist = if (mReverseScroll) -scrollDistance else scrollDistance
-        mGlm.expectIdleState(2)
-        smoothScrollBy(scrollDist)
-        mGlm.waitForSnap(25)
+        mRecyclerView.smoothScrollByOnMainAxis(scrollDist)
+        awaitScrollAndSnapIdle(25)
     }
 
     private fun findCenterView(): View? {
@@ -220,18 +217,12 @@ internal class GridLayoutManagerSnappingTest(
         }
     }
 
-    @Throws(Throwable::class)
-    private fun fling(velocityX: Int, velocityY: Int): Boolean {
-        val didStart = AtomicBoolean(false)
-        mActivityRule.runOnUiThread(Runnable {
-            val result = mRecyclerView.fling(velocityX, velocityY)
-            didStart.set(result)
-        })
-        if (!didStart.get()) {
-            return false
+    private suspend fun fling(velocityX: Int, velocityY: Int): Boolean {
+        var didStart: Boolean
+        withContext(Dispatchers.Main.immediate) {
+            didStart = mRecyclerView.fling(velocityX, velocityY)
         }
-        waitForIdleScroll(mRecyclerView)
-        return true
+        return didStart
     }
 
     companion object {
@@ -249,5 +240,48 @@ internal class GridLayoutManagerSnappingTest(
             }
             return result
         }
+    }
+
+    private suspend fun awaitFirstLayout(recyclerView: RecyclerView) {
+        mGlm.expectLayout(1)
+        setRecyclerView(recyclerView)
+        mGlm.awaitLayout(2)
+    }
+    private suspend fun WrappedGridLayoutManager.awaitLayout(seconds: Int) {
+        runInterruptible(Dispatchers.IO) {
+            mLayoutLatch.await((seconds * if (DEBUG) 1000 else 1).toLong(), TimeUnit.SECONDS)
+        }
+        awaitFrame()
+    }
+
+    private suspend fun awaitScrollAndSnapIdle(seconds: Int) {
+        val secondsToWait = seconds * (if (DEBUG) 100 else 1)
+        withTimeout(secondsToWait.seconds) {
+            withContext(Dispatchers.Main) {
+                // SnapHelper uses RecyclerView's scroll idle as a signal to start the snap
+                // This means that we get an idle signal when the scroll is not *really* idle,
+                // but instead actually about to be restarted for the recovery scroll.
+                // Trying to guess the exact number of scroll idle calls is very fragile
+                // (consider: what if you happen to land in exactly the right spot?),
+                // so we just wait for the scroll to go idle _and then stay idle_
+                // for the rest of the frame.
+                // If it doesn't stay idle, then we're not done scrolling and should wait again.
+                while (true) {
+                    mRecyclerView.awaitScrollIdle()
+                    awaitFrame()
+                    if (mRecyclerView.scrollState == RecyclerView.SCROLL_STATE_IDLE) {
+                        break
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun RecyclerView.smoothScrollByOnMainAxis(dt: Int) {
+    if (layoutManager!!.canScrollHorizontally()) {
+        smoothScrollBy(dt, 0)
+    } else {
+        smoothScrollBy(0, dt)
     }
 }
