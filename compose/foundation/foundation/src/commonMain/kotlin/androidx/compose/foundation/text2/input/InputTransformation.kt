@@ -58,54 +58,14 @@ fun interface InputTransformation {
      */
     fun transformInput(originalValue: TextFieldCharSequence, valueWithChanges: TextFieldBuffer)
 
-    companion object {
-        /**
-         * Creates an [InputTransformation] from a function that accepts both the old and proposed
-         * [TextFieldCharSequence] and returns the [TextFieldCharSequence] to use for the field.
-         *
-         * [transformation] can return either `old`, `proposed`, or a completely different value.
-         *
-         * The selection or cursor will be updated automatically. For more control of selection
-         * implement [InputTransformation] directly.
-         *
-         * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueChooseSample
-         * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueReplaceSample
-         */
-        @ExperimentalFoundationApi
-        @Stable
-        fun byValue(
-            transformation: (
-                current: CharSequence,
-                proposed: CharSequence
-            ) -> CharSequence
-        ): InputTransformation = InputTransformationByValue(transformation)
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-private data class InputTransformationByValue(
-    val transformation: (
-        old: CharSequence,
-        proposed: CharSequence
-    ) -> CharSequence
-) : InputTransformation {
-    override fun transformInput(
-        originalValue: TextFieldCharSequence,
-        valueWithChanges: TextFieldBuffer
-    ) {
-        val proposed = valueWithChanges.toTextFieldCharSequence()
-        val accepted = transformation(originalValue, proposed)
-        when {
-            // These are reference comparisons – text comparison will be done by setTextIfChanged.
-            accepted === proposed -> return
-            accepted === originalValue -> valueWithChanges.revertAllChanges()
-            else -> {
-                valueWithChanges.setTextIfChanged(accepted)
-            }
+    companion object : InputTransformation {
+        override fun transformInput(
+            originalValue: TextFieldCharSequence,
+            valueWithChanges: TextFieldBuffer
+        ) {
+            // Noop.
         }
     }
-
-    override fun toString(): String = "InputTransformation.byValue(transformation=$transformation)"
 }
 
 /**
@@ -184,4 +144,51 @@ private class FilterChain(
         result = 32 * result + keyboardOptions.hashCode()
         return result
     }
+}
+
+/**
+ * Creates an [InputTransformation] from a function that accepts both the old and proposed
+ * [TextFieldCharSequence] and returns the [TextFieldCharSequence] to use for the field.
+ *
+ * [transformation] can return either `old`, `proposed`, or a completely different value.
+ *
+ * The selection or cursor will be updated automatically. For more control of selection
+ * implement [InputTransformation] directly.
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueChooseSample
+ * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueReplaceSample
+ */
+@ExperimentalFoundationApi
+@Stable
+fun InputTransformation.byValue(
+    transformation: (
+        current: CharSequence,
+        proposed: CharSequence
+    ) -> CharSequence
+): InputTransformation = this.then(InputTransformationByValue(transformation))
+
+@OptIn(ExperimentalFoundationApi::class)
+private data class InputTransformationByValue(
+    val transformation: (
+        old: CharSequence,
+        proposed: CharSequence
+    ) -> CharSequence
+) : InputTransformation {
+    override fun transformInput(
+        originalValue: TextFieldCharSequence,
+        valueWithChanges: TextFieldBuffer
+    ) {
+        val proposed = valueWithChanges.toTextFieldCharSequence()
+        val accepted = transformation(originalValue, proposed)
+        when {
+            // These are reference comparisons – text comparison will be done by setTextIfChanged.
+            accepted === proposed -> return
+            accepted === originalValue -> valueWithChanges.revertAllChanges()
+            else -> {
+                valueWithChanges.setTextIfChanged(accepted)
+            }
+        }
+    }
+
+    override fun toString(): String = "InputTransformation.byValue(transformation=$transformation)"
 }

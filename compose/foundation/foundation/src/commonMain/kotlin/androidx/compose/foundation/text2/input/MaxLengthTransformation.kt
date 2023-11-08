@@ -27,8 +27,8 @@ import androidx.compose.runtime.Stable
  */
 @ExperimentalFoundationApi
 @Stable
-fun InputTransformation.Companion.maxLengthInChars(maxLength: Int): InputTransformation =
-    MaxLengthFilter(maxLength, inCodepoints = false)
+fun InputTransformation.maxLengthInChars(maxLength: Int): InputTransformation =
+    this.then(MaxLengthFilter(maxLength, inCodepoints = false))
 
 /**
  * Returns a [InputTransformation] that rejects input which causes the total length of the text field to
@@ -38,8 +38,8 @@ fun InputTransformation.Companion.maxLengthInChars(maxLength: Int): InputTransfo
  */
 @ExperimentalFoundationApi
 @Stable
-fun InputTransformation.Companion.maxLengthInCodepoints(maxLength: Int): InputTransformation =
-    MaxLengthFilter(maxLength, inCodepoints = true)
+fun InputTransformation.maxLengthInCodepoints(maxLength: Int): InputTransformation =
+    this.then(MaxLengthFilter(maxLength, inCodepoints = true))
 
 // This is a very naive implementation for now, not intended to be production-ready.
 @OptIn(ExperimentalFoundationApi::class)

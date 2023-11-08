@@ -36,6 +36,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.InputTransformation
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.byValue
 import androidx.compose.foundation.text2.input.delete
 import androidx.compose.foundation.text2.input.forEachChange
 import androidx.compose.foundation.text2.input.forEachChangeReversed
