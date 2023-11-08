@@ -19,6 +19,7 @@ package androidx.appsearch.compiler.annotationwrapper;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.compiler.IntrospectionHelper;
+import androidx.appsearch.compiler.ProcessingException;
 
 import com.squareup.javapoet.ClassName;
 
@@ -78,12 +79,15 @@ public abstract class DataPropertyAnnotation implements PropertyAnnotation {
      *
      * @param defaultName The name to use for the annotated property in case the annotation
      *                    params do not mention an explicit name.
+     * @throws ProcessingException If the {@link AnnotationMirror} is a valid
+     *                             {@link DataPropertyAnnotation} but its params are malformed
+     *                             e.g. point to an illegal serializer class etc.
      */
     @Nullable
     public static DataPropertyAnnotation tryParse(
             @NonNull AnnotationMirror annotation,
             @NonNull String defaultName,
-            @NonNull IntrospectionHelper helper) {
+            @NonNull IntrospectionHelper helper) throws ProcessingException {
         Map<String, Object> annotationParams = helper.getAnnotationParams(annotation);
         String qualifiedClassName = annotation.getAnnotationType().toString();
         if (qualifiedClassName.equals(BooleanPropertyAnnotation.CLASS_NAME.canonicalName())) {
