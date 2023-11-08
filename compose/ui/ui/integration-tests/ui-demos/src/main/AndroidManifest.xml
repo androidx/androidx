@@ -26,6 +26,10 @@
             android:configChanges="orientation|screenSize"
             android:label="ComposeTapInAndroidTap Activity" />
         <activity
+            android:name=".viewinterop.AndroidTapAddOrRemoveComposeDynamicallyWithWindowManager"
+            android:configChanges="orientation|screenSize"
+            android:label="AndroidTapAddOrRemoveComposeDynamicallyWithWindowManager Activity" />
+        <activity
             android:name=".viewinterop.ComposeTapInAndroidScroll"
             android:configChanges="orientation|screenSize"
             android:label="ComposeTapInAndroidScroll Activity" />
