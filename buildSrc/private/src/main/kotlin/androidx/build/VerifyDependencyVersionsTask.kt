@@ -214,6 +214,13 @@ private fun shouldVerifyConfiguration(configuration: Configuration): Boolean {
     // https://github.com/JetBrains/kotlin/blob/v1.9.10/libraries/tools/kotlin-gradle-plugin/src/common/kotlin/org/jetbrains/kotlin/gradle/plugin/mpp/resolvableMetadataConfiguration.kt#L102
     if (name.endsWith("DependenciesMetadata")) return false
 
+    // don't verify test configurations of KMP projects
+    if (name.contains("JvmTest")) return false
+    if (name.contains("commonTest")) return false
+    if (name.contains("nativeTest")) return false
+    if (name.contains("TestCompilation")) return false
+    if (name.contains("TestCompile")) return false
+
     return true
 }
 
