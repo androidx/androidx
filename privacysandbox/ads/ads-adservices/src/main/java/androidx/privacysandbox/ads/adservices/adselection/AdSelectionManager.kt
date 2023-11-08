@@ -62,12 +62,53 @@ abstract class AdSelectionManager internal constructor() {
     /**
      * Report the given impression. The [ReportImpressionRequest] is provided by the Ads SDK.
      * The receiver either returns a {@code void} for a successful run, or an [Exception]
-     * indicates the error.
+     * indicating the error.
      *
      * @param reportImpressionRequest the request for reporting impression.
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract suspend fun reportImpression(reportImpressionRequest: ReportImpressionRequest)
+
+    /**
+     * Notifies the service that there is a new ad event to report for the ad selected by the
+     * ad-selection run identified by {@code adSelectionId}. An ad event is any occurrence that
+     * happens to an ad associated with the given {@code adSelectionId}. There is no guarantee about
+     * when the ad event will be reported. The event reporting could be delayed and reports could be
+     * batched.
+     *
+     * Using [ReportEventRequest#getKey()], the service will fetch the {@code reportingUri}
+     * that was registered in {@code registerAdBeacon}. See documentation of [reportImpression] for
+     * more details regarding {@code registerAdBeacon}. Then, the service will attach
+     * [ReportEventRequest#getData()] to the request body of a POST request and send the request.
+     * The body of the POST request will have the {@code content-type} of {@code text/plain}, and
+     * the data will be transmitted in {@code charset=UTF-8}.
+     *
+     * The output is passed by the receiver, which either returns an empty [Object] for a
+     * successful run, or an [Exception] includes the type of the exception thrown and the
+     * corresponding error message.
+     *
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
+     * the API received to report the ad event.
+     *
+     * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
+     * services.", it is caused by an internal failure of the ad selection service.
+     *
+     * If the [LimitExceededException] is thrown, it is caused when the calling package
+     * exceeds the allowed rate limits and is throttled.
+     *
+     * If the [SecurityException] is thrown, it is caused when the caller is not authorized
+     * or permission is not requested.
+     *
+     * If the [UnsupportedOperationException] is thrown, it is caused when the Android API level and
+     * AdServices module versions don't support this API.
+     *
+     * Events will be reported at most once as a best-effort attempt.
+     *
+     * @param reportEventRequest the request for reporting event.
+     */
+    @ExperimentalFeatures.Ext8OptIn
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    abstract suspend fun reportEvent(reportEventRequest: ReportEventRequest)
 
     /**
      * Updates the counter histograms for an ad which was previously selected by a call to

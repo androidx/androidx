@@ -42,6 +42,7 @@ package androidx.privacysandbox.ads.adservices.adselection {
 
   public abstract class AdSelectionManager {
     method public static final androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager? obtain(android.content.Context context);
+    method @SuppressCompatibility @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public abstract suspend Object? reportEvent(androidx.privacysandbox.ads.adservices.adselection.ReportEventRequest reportEventRequest, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? reportImpression(androidx.privacysandbox.ads.adservices.adselection.ReportImpressionRequest reportImpressionRequest, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? selectAds(androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig adSelectionConfig, kotlin.coroutines.Continuation<? super androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome>);
     method @SuppressCompatibility @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public abstract suspend Object? updateAdCounterHistogram(androidx.privacysandbox.ads.adservices.adselection.UpdateAdCounterHistogramRequest updateAdCounterHistogramRequest, kotlin.coroutines.Continuation<? super kotlin.Unit>);
@@ -58,6 +59,24 @@ package androidx.privacysandbox.ads.adservices.adselection {
     method public android.net.Uri getRenderUri();
     property public final long adSelectionId;
     property public final android.net.Uri renderUri;
+  }
+
+  @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public final class ReportEventRequest {
+    ctor public ReportEventRequest(long adSelectionId, String eventKey, String eventData, int reportingDestinations);
+    method public long getAdSelectionId();
+    method public String getEventData();
+    method public String getEventKey();
+    method public int getReportingDestinations();
+    property public final long adSelectionId;
+    property public final String eventData;
+    property public final String eventKey;
+    property public final int reportingDestinations;
+    field public static final androidx.privacysandbox.ads.adservices.adselection.ReportEventRequest.Companion Companion;
+    field public static final int FLAG_REPORTING_DESTINATION_BUYER = 2; // 0x2
+    field public static final int FLAG_REPORTING_DESTINATION_SELLER = 1; // 0x1
+  }
+
+  public static final class ReportEventRequest.Companion {
   }
 
   public final class ReportImpressionRequest {

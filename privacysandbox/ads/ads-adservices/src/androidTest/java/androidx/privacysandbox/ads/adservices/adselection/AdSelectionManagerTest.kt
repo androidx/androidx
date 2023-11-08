@@ -116,6 +116,34 @@ class AdSelectionManagerTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 34, minSdkVersion = 31)
+    fun testReportEventOlderVersions() {
+        /* AdServices or ExtServices are present */
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
+                          mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersion)
+
+        /* API is not available */
+        Assume.assumeTrue("maxSdkVersion = API 33/34 ext 7",
+            AdServicesInfo.adServicesVersion() < 8)
+        Assume.assumeTrue("maxSdkVersion = API 31/32 ext 8", !mValidAdExtServicesSdkExtVersion)
+
+        val managerCompat = obtain(mContext)
+        val reportEventRequest = ReportEventRequest(
+            adSelectionId,
+            eventKey,
+            eventData,
+            reportingDestinations
+        )
+        // Verify that it throws an exception
+        assertThrows(UnsupportedOperationException::class.java) {
+            runBlocking {
+                managerCompat!!.reportEvent(reportEventRequest)
+            }
+        }.hasMessageThat().contains("API is unsupported. Min version is API 33 ext 8 or " +
+            "API 31/32 ext 9")
+    }
+
+    @Test
     fun testSelectAds() {
         Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
             mValidAdServicesSdkExtVersion || mValidAdExtServicesSdkExtVersion)
@@ -195,6 +223,36 @@ class AdSelectionManagerTest {
         verifyUpdateAdCounterHistogramRequest(captor.value)
     }
 
+    @Test
+    fun testReportEvent() {
+        Assume.assumeTrue("minSdkVersion = API 33 ext 8 or API 31/32 ext 9",
+            AdServicesInfo.adServicesVersion() >= 8 || mValidAdExtServicesSdkExtVersion)
+
+        val adSelectionManager = mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
+        setupReportEventResponse(adSelectionManager)
+
+        val managerCompat = obtain(mContext)
+        val reportEventRequest = ReportEventRequest(
+            adSelectionId,
+            eventKey,
+            eventData,
+            reportingDestinations
+        )
+
+        // Actually invoke the compat code.
+        runBlocking {
+            managerCompat!!.reportEvent(reportEventRequest)
+        }
+
+        // Verify that the compat code was invoked correctly.
+        val captor = ArgumentCaptor.forClass(
+            android.adservices.adselection.ReportEventRequest::class.java)
+        verify(adSelectionManager).reportEvent(captor.capture(), any(), any())
+
+        // Verify that the request that the compat code makes to the platform is correct.
+        verifyReportEventRequest(captor.value)
+    }
+
     @SdkSuppress(minSdkVersion = 30)
     companion object {
         private lateinit var mContext: Context
@@ -220,6 +278,10 @@ class AdSelectionManagerTest {
             perBuyerSignals,
             trustedScoringSignalsUri)
         private const val adEventType = FrequencyCapFilters.AD_EVENT_TYPE_IMPRESSION
+        private const val eventKey = "click"
+        private const val eventData = "{\"key\":\"value\"}"
+        private const val reportingDestinations =
+            ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER
 
         // Response.
         private val renderUri = Uri.parse("render-uri.com")
@@ -290,6 +352,24 @@ class AdSelectionManagerTest {
                 )
         }
 
+        private fun setupReportEventResponse(
+            adSelectionManager: android.adservices.adselection.AdSelectionManager
+        ) {
+            // Set up the response that AdSelectionManager will return when the compat code calls
+            // ReportEvent().
+            val answer = { args: InvocationOnMock ->
+                val receiver = args.getArgument<OutcomeReceiver<Any, Exception>>(2)
+                receiver.onResult(Object())
+                null
+            }
+            doAnswer(answer)
+                .`when`(adSelectionManager).reportEvent(
+                    any(),
+                    any(),
+                    any()
+                )
+        }
+
         private fun verifyRequest(request: android.adservices.adselection.AdSelectionConfig) {
             // Set up the request that we expect the compat code to invoke.
             val expectedRequest = getPlatformAdSelectionConfig()
@@ -343,6 +423,22 @@ class AdSelectionManagerTest {
                 .Builder(adSelectionId, adEventType, adTechIdentifier)
                 .build()
             Assert.assertEquals(expectedRequest, request)
+        }
+
+        private fun verifyReportEventRequest(
+            request: android.adservices.adselection.ReportEventRequest
+        ) {
+            val expectedRequest = android.adservices.adselection.ReportEventRequest.Builder(
+                adSelectionId,
+                eventKey,
+                eventData,
+                reportingDestinations
+                ).build()
+            Assert.assertEquals(expectedRequest.adSelectionId, request.adSelectionId)
+            Assert.assertEquals(expectedRequest.key, request.key)
+            Assert.assertEquals(expectedRequest.data, request.data)
+            Assert.assertEquals(expectedRequest.reportingDestinations,
+                request.reportingDestinations)
         }
     }
 }

@@ -132,6 +132,19 @@ open class AdSelectionManagerImplCommon(
 
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    override suspend fun reportEvent(reportEventRequest: ReportEventRequest) {
+        if (AdServicesInfo.adServicesVersion() >= 8 || AdServicesInfo.extServicesVersion() >= 9) {
+            return Ext8Impl.reportEvent(
+                mAdSelectionManager,
+                reportEventRequest
+            )
+        }
+        throw UnsupportedOperationException("API is unsupported. Min version is API 33 ext 8 or " +
+            "API 31/32 ext 9")
+    }
+
+    @DoNotInline
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     override suspend fun updateAdCounterHistogram(
         updateAdCounterHistogramRequest: UpdateAdCounterHistogramRequest
     ) {
@@ -160,6 +173,21 @@ open class AdSelectionManagerImplCommon(
                         updateAdCounterHistogramRequest.convertToAdServices(),
                         Runnable::run,
                         cont.asOutcomeReceiver()
+                    )
+                }
+            }
+
+            @DoNotInline
+            @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+            suspend fun reportEvent(
+                adSelectionManager: android.adservices.adselection.AdSelectionManager,
+                reportEventRequest: ReportEventRequest
+            ) {
+                suspendCancellableCoroutine<Any> { continuation ->
+                    adSelectionManager.reportEvent(
+                        reportEventRequest.convertToAdServices(),
+                        Runnable::run,
+                        continuation.asOutcomeReceiver()
                     )
                 }
             }

@@ -26,6 +26,7 @@ import androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager.Companion.obtain
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome
+import androidx.privacysandbox.ads.adservices.adselection.ReportEventRequest
 import androidx.privacysandbox.ads.adservices.adselection.ReportImpressionRequest
 import androidx.privacysandbox.ads.adservices.adselection.UpdateAdCounterHistogramRequest
 import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
@@ -83,6 +84,49 @@ abstract class AdSelectionManagerFutures internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract fun reportImpressionAsync(
         reportImpressionRequest: ReportImpressionRequest
+    ): ListenableFuture<Unit>
+
+    /**
+     * Notifies the service that there is a new ad event to report for the ad selected by the
+     * ad-selection run identified by {@code adSelectionId}. An ad event is any occurrence that
+     * happens to an ad associated with the given {@code adSelectionId}. There is no guarantee about
+     * when the ad event will be reported. The event reporting could be delayed and reports could be
+     * batched.
+     *
+     * Using [ReportEventRequest#getKey()], the service will fetch the {@code reportingUri}
+     * that was registered in {@code registerAdBeacon}. See documentation of [reportImpressionAsync]
+     * for more details regarding {@code registerAdBeacon}. Then, the service will attach
+     * [ReportEventRequest#getData()] to the request body of a POST request and send the request.
+     * The body of the POST request will have the {@code content-type} of {@code text/plain}, and
+     * the data will be transmitted in {@code charset=UTF-8}.
+     *
+     * The output is passed by the receiver, which either returns an empty [Object] for a
+     * successful run, or an [Exception] includes the type of the exception thrown and the
+     * corresponding error message.
+     *
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
+     * the API received to report the ad event.
+     *
+     * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
+     * services.", it is caused by an internal failure of the ad selection service.
+     *
+     * If the [LimitExceededException] is thrown, it is caused when the calling package
+     * exceeds the allowed rate limits and is throttled.
+     *
+     * If the [SecurityException] is thrown, it is caused when the caller is not authorized
+     * or permission is not requested.
+     *
+     * If the [UnsupportedOperationException] is thrown, it is caused when the Android API level and
+     * AdServices module versions don't support this API.
+     *
+     * Events will be reported at most once as a best-effort attempt.
+     *
+     * @param reportEventRequest the request for reporting event.
+     */
+    @ExperimentalFeatures.Ext8OptIn
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    abstract fun reportEventAsync(
+        reportEventRequest: ReportEventRequest
     ): ListenableFuture<Unit>
 
     /**
@@ -155,6 +199,17 @@ abstract class AdSelectionManagerFutures internal constructor() {
         ): ListenableFuture<Unit> {
             return CoroutineScope(Dispatchers.Default).async {
                 mAdSelectionManager!!.updateAdCounterHistogram(updateAdCounterHistogramRequest)
+            }.asListenableFuture()
+        }
+
+        @OptIn(ExperimentalFeatures.Ext8OptIn::class)
+        @DoNotInline
+        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+        override fun reportEventAsync(
+            reportEventRequest: ReportEventRequest
+        ): ListenableFuture<Unit> {
+            return CoroutineScope(Dispatchers.Default).async {
+                mAdSelectionManager!!.reportEvent(reportEventRequest)
             }.asListenableFuture()
         }
     }
