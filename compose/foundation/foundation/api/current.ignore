@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+RemovedClass: androidx.compose.foundation.text2.input.AllCapsTransformationKt:
+    Removed class androidx.compose.foundation.text2.input.AllCapsTransformationKt
+RemovedClass: androidx.compose.foundation.text2.input.MaxLengthTransformationKt:
+    Removed class androidx.compose.foundation.text2.input.MaxLengthTransformationKt
