@@ -19,12 +19,14 @@ package androidx.wear.protolayout.expression;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
+import android.os.Build;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec;
@@ -7349,6 +7351,112 @@ public final class DynamicBuilders {
         }
 
         /**
+         * Returns the year field following the ISO-8601 calendar system; As an example, the
+         * following is equal to {@code DynamicInt32.constant(1970)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .getYear(ZoneId.of("Europe/London"));
+         * </pre>
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @NonNull
+        default DynamicInt32 getYear(@NonNull ZoneId zoneId) {
+            return this.atZone(zoneId).getYear();
+        }
+
+        /**
+         * Returns the month-of-year field from 1 to 12 following the ISO-8601 calendar system; As
+         * an example, the following is equal to {@code DynamicInt32.constant(1)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .getMonth(ZoneId.of("Europe/London"));
+         * </pre>
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @NonNull
+        default DynamicInt32 getMonth(@NonNull ZoneId zoneId) {
+            return this.atZone(zoneId).getMonth();
+        }
+
+        /**
+         * Returns the day-of-month field from 1 to 31 following the ISO-8601 calendar system; As an
+         * example, the following is equal to {@code DynamicInt32.constant(1)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .getDayOfMonth(ZoneId.of("Europe/London"));
+         * </pre>
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @NonNull
+        default DynamicInt32 getDayOfMonth(@NonNull ZoneId zoneId) {
+            return this.atZone(zoneId).getDayOfMonth();
+        }
+
+        /**
+         * Returns the day-of-week field going from MONDAY (1) to SUNDAY (7) following the ISO-8601
+         * calendar system; As an example, the following is equal to {@code
+         * DynamicInt32.constant(4)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .getDayOfWeek(ZoneId.of("Europe/London"));
+         * </pre>
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @NonNull
+        default DynamicInt32 getDayOfWeek(@NonNull ZoneId zoneId) {
+            return this.atZone(zoneId).getDayOfWeek();
+        }
+
+        /**
+         * Returns the hour-of-day field from 0 to 23 following the ISO-8601 calendar system; As an
+         * example, the following is equal to {@code DynamicInt32.constant(3)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .getHour(ZoneId.of("Europe/London"));
+         * </pre>
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @NonNull
+        default DynamicInt32 getHour(@NonNull ZoneId zoneId) {
+            return this.atZone(zoneId).getHour();
+        }
+
+        /**
+         * Returns the minute-of-hour field from 0 to 59 following the ISO-8601 calendar system; As
+         * an example, the following is equal to {@code DynamicInt32.constant(20)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .getMinute(ZoneId.of("Europe/London"));
+         * </pre>
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @NonNull
+        default DynamicInt32 getMinute(@NonNull ZoneId zoneId) {
+            return this.atZone(zoneId).getMinute();
+        }
+
+        /**
+         * Returns the second-of-minute field from 0 to 59 following the ISO-8601 calendar system;
+         * As an example, the following is equal to {@code DynamicInt32.constant(10)}:
+         *
+         * <pre>
+         *   DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(8410))
+         *      .getSecond(ZoneId.of("Europe/London"));
+         * </pre>
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @NonNull
+        default DynamicInt32 getSecond(@NonNull ZoneId zoneId) {
+            return this.atZone(zoneId).getSecond();
+        }
+
+        /**
          * Returns a {@link DynamicZonedDateTime} instance representing this Instant in the
          * specified time-zone. As an example, the following expression yields a {@link
          * DynamicZonedDateTime} instance representing platform time in Europe/London time-zone:
@@ -7361,6 +7469,7 @@ public final class DynamicBuilders {
          * @return a new instance of {@link DynamicZonedDateTime} representing this {@link
          *     DynamicInstant} in the specified time-zone.
          */
+        @RestrictTo(Scope.LIBRARY)
         @NonNull
         default DynamicZonedDateTime atZone(@NonNull ZoneId zoneId) {
             return new InstantToZonedDateTimeOp.Builder()
@@ -7438,7 +7547,7 @@ public final class DynamicBuilders {
      *
      * @since 1.3
      */
-    public interface DynamicZonedDateTime extends DynamicType {
+    interface DynamicZonedDateTime extends DynamicType {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
