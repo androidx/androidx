@@ -178,10 +178,9 @@ interface PositionIndicatorState {
  * To disable this animation [snap] AnimationSpec should be passed instead.
  * @param fadeOutAnimationSpec [AnimationSpec] for fade-out animation.
  * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
- * If true, the Fade-out animation is triggered after a delay if no changes in
- * state.positionFraction or state.sizeFraction were detected,
- * hiding the [PositionIndicator] with animation.
- * To disable this animation [snap] AnimationSpec should be passed instead.
+ * [PositionIndicator] will be hidden after a specified delay if no changes
+ * in state.positionFraction or state.sizeFraction were detected.
+ * If [fadeOutAnimationSpec] is [snap], then after a delay it will be instantly hidden.
  * @param positionAnimationSpec [AnimationSpec] for position animation.
  * The Position animation is used for animating changes between state.positionFraction
  * and state.sizeFraction of [PositionIndicatorState].
@@ -257,10 +256,9 @@ public fun PositionIndicator(
  * To disable this animation [snap] AnimationSpec should be passed instead.
  * @param fadeOutAnimationSpec [AnimationSpec] for fade-out animation.
  * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
- * If true, the Fade-out animation is triggered after a delay if no changes in
- * state.positionFraction or state.sizeFraction were detected,
- * hiding the [PositionIndicator] with animation.
- * To disable this animation [snap] AnimationSpec should be passed instead.
+ * [PositionIndicator] will be hidden after a specified delay if no changes
+ * in state.positionFraction or state.sizeFraction were detected.
+ * If [fadeOutAnimationSpec] is [snap], then after a delay it will be instantly hidden.
  * @param positionAnimationSpec [AnimationSpec] for position animation.
  * The Position animation is used for animating changes between state.positionFraction
  * and state.sizeFraction of [PositionIndicatorState].
@@ -374,10 +372,9 @@ public fun PositionIndicator(
  * To disable this animation [snap] AnimationSpec should be passed instead.
  * @param fadeOutAnimationSpec [AnimationSpec] for fade-out animation.
  * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
- * If true, the Fade-out animation is triggered after a delay if no changes in
- * state.positionFraction or state.sizeFraction were detected,
- * hiding the [PositionIndicator] with animation.
- * To disable this animation [snap] AnimationSpec should be passed instead.
+ * [PositionIndicator] will be hidden after a specified delay if no changes
+ * in state.positionFraction or state.sizeFraction were detected.
+ * If [fadeOutAnimationSpec] is [snap], then after a delay it will be instantly hidden.
  * @param positionAnimationSpec [AnimationSpec] for position animation.
  * The Position animation is used for animating changes between state.positionFraction
  * and state.sizeFraction of [PositionIndicatorState].
@@ -509,10 +506,9 @@ value class PositionIndicatorAlignment internal constructor(internal val pos: In
  * To disable this animation [snap] AnimationSpec should be passed instead.
  * @param fadeOutAnimationSpec [AnimationSpec] for fade-out animation.
  * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
- * If true, the Fade-out animation is triggered after a delay if no changes in
- * state.positionFraction or state.sizeFraction were detected,
- * hiding the [PositionIndicator] with animation.
- * To disable this animation [snap] AnimationSpec should be passed instead.
+ * [PositionIndicator] will be hidden after a specified delay if no changes
+ * in state.positionFraction or state.sizeFraction were detected.
+ * If [fadeOutAnimationSpec] is [snap], then after a delay it will be instantly hidden.
  * @param positionAnimationSpec [AnimationSpec] for position animation.
  * The Position animation is used for animating changes between state.positionFraction
  * and state.sizeFraction of [PositionIndicatorState].
@@ -638,10 +634,9 @@ public fun PositionIndicator(
  * To disable this animation [snap] AnimationSpec should be passed instead.
  * @param fadeOutAnimationSpec [AnimationSpec] for fade-out animation.
  * The Fade-out animation is used for hiding the [PositionIndicator] and making it invisible.
- * If true, the Fade-out animation is triggered after a delay if no changes in
- * state.positionFraction or state.sizeFraction were detected,
- * hiding the [PositionIndicator] with animation.
- * To disable this animation [snap] AnimationSpec should be passed instead.
+ * [PositionIndicator] will be hidden after a specified delay if no changes
+ * in state.positionFraction or state.sizeFraction were detected.
+ * If [fadeOutAnimationSpec] is [snap], then after a delay it will be instantly hidden.
  * @param positionAnimationSpec [AnimationSpec] for position animation.
  * The Position animation is used for animating changes between state.positionFraction
  * and state.sizeFraction of [PositionIndicatorState].
