@@ -83,6 +83,7 @@ androidToolsNinepatch = { module = "com.android.tools:ninepatch", version.ref = 
 androidToolsRepository= { module = "com.android.tools:repository", version.ref = "androidLint" }
 androidToolsSdkCommon = { module = "com.android.tools:sdk-common", version.ref = "androidLint" }
 androidToolsAnalyticsProtos = { module = "com.android.tools.analytics-library:protos", version.ref = "androidLint" }
+androidKotlinMultiplatform = { module = "com.android.kotlin.multiplatform.library:com.android.kotlin.multiplatform.library.gradle.plugin", version.ref = "androidGradlePlugin" }
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotationVersion" }
 autoCommon = { module = "com.google.auto:auto-common", version = "0.11" }
 atomicFu = { module = "org.jetbrains.kotlinx:atomicfu", version.ref = "atomicFu" }
