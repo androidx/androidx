@@ -1342,6 +1342,7 @@ internal class LayoutNode(
         semanticsId = generateSemanticsId()
         nodes.markAsAttached()
         nodes.runAttachLifecycle()
+        rescheduleRemeasureOrRelayout(this)
     }
 
     override fun onDeactivate() {
