@@ -18,6 +18,7 @@ package androidx.bluetooth
 
 import android.bluetooth.le.ScanResult as FwkScanResult
 import android.os.ParcelUuid
+import androidx.annotation.RestrictTo
 import java.util.UUID
 
 /**
@@ -35,7 +36,9 @@ import java.util.UUID
  * bluetooth GATT services.
  *
  */
-class ScanResult internal constructor(private val fwkScanResult: FwkScanResult) {
+class ScanResult @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
+    private val fwkScanResult: FwkScanResult
+) {
 
     companion object {
         /**

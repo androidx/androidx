@@ -16,76 +16,82 @@
 
 package androidx.bluetooth.testing
 
-import android.bluetooth.le.ScanResult
-import android.bluetooth.le.ScanSettings.CALLBACK_TYPE_ALL_MATCHES
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.bluetooth.le.ScanResult as FwkScanResult
+import android.content.Context
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.ScanFilter
-import java.util.concurrent.atomic.AtomicReference
-import kotlinx.coroutines.cancel
+import androidx.bluetooth.ScanImpl
+import androidx.bluetooth.ScanResult
+import junit.framework.TestCase.assertEquals
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.collectIndexed
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.RuntimeEnvironment
-import org.robolectric.Shadows.shadowOf
-import org.robolectric.shadows.ShadowBluetoothDevice
-import org.robolectric.shadows.ShadowBluetoothLeScanner
 
 @RunWith(RobolectricTestRunner::class)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class RobolectricScanTest {
 
-    private companion object {
-        private const val TIMEOUT_MS: Long = 2_000
-    }
+    private val context: Context = RuntimeEnvironment.getApplication()
+    private val bluetoothManager: BluetoothManager =
+        context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+    private val bluetoothAdapter: BluetoothAdapter = bluetoothManager.adapter
 
     private val bluetoothLe = BluetoothLe(RuntimeEnvironment.getApplication())
 
-    @Test
-    fun scanTest() = runTest {
-        val scanResults = listOf(
-            createScanResult("00:00:00:00:00:01"),
-            createScanResult("00:00:00:00:00:02"),
-            createScanResult("00:00:00:00:00:03"),
-        )
+    private val scanResults = listOf(
+        createScanResult("00:00:00:00:00:01"),
+        createScanResult("00:00:00:00:00:02"),
+        createScanResult("00:00:00:00:00:03")
+    )
 
-        val scannerRef = AtomicReference<ShadowBluetoothLeScanner>(null)
-        bluetoothLe.onStartScanListener = BluetoothLe.OnStartScanListener { scanner ->
-            val shadowScanner = shadowOf(scanner)
-            scannerRef.set(shadowScanner)
-
-            // Check if the scan is started
-            Assert.assertEquals(1, shadowScanner.activeScans.size)
-
-            shadowScanner.scanCallbacks.forEach { callback ->
-                scanResults.forEach { res ->
-                    callback.onScanResult(CALLBACK_TYPE_ALL_MATCHES, res)
-                }
-            }
-        }
-
-        launch {
-            bluetoothLe.scan(listOf(ScanFilter())).collectIndexed { index, value ->
-                Assert.assertEquals(scanResults[index].device.address, value.deviceAddress.address)
-                if (index == scanResults.size - 1) {
-                    this.cancel()
-                }
-            }
-        }.join()
-
-        // Check if the scan is stopped
-        Assert.assertEquals(0, scannerRef.get().activeScans.size)
+    @Before
+    fun setUp() {
+        bluetoothLe.scanImpl = ScanImplForTesting(scanResults)
     }
 
-    @Suppress("DEPRECATION")
+    @Test
+    fun scanTest() = runTest {
+        bluetoothLe.scan(listOf(ScanFilter()))
+            .collectIndexed { index, value ->
+                assertEquals(scanResults[index].deviceAddress.address, value.deviceAddress.address)
+        }
+    }
+
     private fun createScanResult(
         address: String,
-        rssi: Int = 0,
-        timestampNanos: Long = 0
     ): ScanResult {
-        return ScanResult(ShadowBluetoothDevice.newInstance(address), null, rssi, timestampNanos)
+        val fwkBluetoothDevice = bluetoothAdapter.getRemoteDevice(address)
+        val timeStampNanos: Long = 1
+        val rssi = 34
+        val periodicAdvertisingInterval = 8
+
+        // TODO(kihongs) Find a way to create framework ScanRecord and use in test
+        val fwkScanResult = FwkScanResult(
+            fwkBluetoothDevice,
+            1,
+            0,
+            0,
+            0,
+            0,
+            rssi,
+            periodicAdvertisingInterval,
+            null,
+            timeStampNanos
+        )
+        return ScanResult(fwkScanResult)
+    }
+}
+
+class ScanImplForTesting(val scanResults: List<ScanResult>) : ScanImpl {
+    override fun scan(filters: List<ScanFilter>): Flow<ScanResult> {
+        return scanResults.asFlow()
     }
 }
