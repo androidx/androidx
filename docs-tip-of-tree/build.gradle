@@ -398,6 +398,7 @@ dependencies {
     docs(project(":wear:wear-input-testing"))
     docs(project(":wear:wear-ongoing"))
     docs(project(":wear:wear-phone-interactions"))
+    samples(project(":wear:wear-phone-interactions-samples"))
     docs(project(":wear:wear-remote-interactions"))
     docs(project(":webkit:webkit"))
     docs(project(":window:window"))

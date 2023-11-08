@@ -985,6 +985,7 @@ includeProject(":wear:wear-input-samples", "wear/wear-input/samples", [BuildType
 includeProject(":wear:wear-input-testing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-ongoing", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-phone-interactions", [BuildType.MAIN, BuildType.WEAR])
+includeProject(":wear:wear-phone-interactions-samples", "wear/wear-phone-interactions/samples", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-remote-interactions", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-samples-ambient", [BuildType.MAIN, BuildType.WEAR])
 includeProject(":wear:wear-tooling-preview", [BuildType.MAIN, BuildType.WEAR])

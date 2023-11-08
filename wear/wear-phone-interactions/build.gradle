@@ -28,6 +28,7 @@ dependencies {
     api("androidx.core:core:1.6.0")
     api("androidx.wear:wear:1.2.0")
     api(libs.kotlinStdlib)
+    api(libs.kotlinCoroutinesCore)
 
     // Needed for Assert.assertThrows
     testImplementation(libs.junit)
@@ -37,6 +38,13 @@ dependencies {
     testImplementation(libs.robolectric)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.truth)
+    testImplementation(libs.mockitoKotlin4)
+
+    // Includes the wear-sdk jar
+    compileOnly files("../../wear/wear_sdk/wear-sdk.jar")
+    testImplementation(files("../../wear/wear_sdk/wear-sdk.jar"))
+
+    samples(project(":wear:wear-phone-interactions-samples"))
 }
 
 android {
