@@ -142,6 +142,7 @@ package androidx.wear.watchface.client {
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public String getInstanceId() throws android.os.RemoteException;
     method @Deprecated @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public default androidx.wear.watchface.client.OverlayStyle getOverlayStyle() throws android.os.RemoteException;
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public java.time.Instant getPreviewReferenceInstant() throws android.os.RemoteException;
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public default androidx.wear.watchface.style.UserStyleFlavors getUserStyleFlavors();
     method @kotlin.jvm.Throws(exceptionClasses=RemoteException::class) public androidx.wear.watchface.style.UserStyleSchema getUserStyleSchema() throws android.os.RemoteException;
     method public default boolean isComplicationDisplayPolicySupported();
     method @AnyThread public boolean isConnectionAlive();
