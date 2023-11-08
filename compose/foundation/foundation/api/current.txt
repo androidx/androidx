@@ -1536,7 +1536,7 @@ package androidx.compose.foundation.text2 {
 package androidx.compose.foundation.text2.input {
 
   public final class AllCapsTransformationKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation allCaps(androidx.compose.foundation.text2.input.InputTransformation.Companion, androidx.compose.ui.text.intl.Locale locale);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation allCaps(androidx.compose.foundation.text2.input.InputTransformation, androidx.compose.ui.text.intl.Locale locale);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public fun interface CodepointTransformation {
@@ -1562,18 +1562,19 @@ package androidx.compose.foundation.text2.input {
     field public static final androidx.compose.foundation.text2.input.InputTransformation.Companion Companion;
   }
 
-  public static final class InputTransformation.Companion {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public androidx.compose.foundation.text2.input.InputTransformation byValue(kotlin.jvm.functions.Function2<? super java.lang.CharSequence,? super java.lang.CharSequence,? extends java.lang.CharSequence> transformation);
+  public static final class InputTransformation.Companion implements androidx.compose.foundation.text2.input.InputTransformation {
+    method public void transformInput(androidx.compose.foundation.text2.input.TextFieldCharSequence originalValue, androidx.compose.foundation.text2.input.TextFieldBuffer valueWithChanges);
   }
 
   public final class InputTransformationKt {
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation byValue(androidx.compose.foundation.text2.input.InputTransformation, kotlin.jvm.functions.Function2<? super java.lang.CharSequence,? super java.lang.CharSequence,? extends java.lang.CharSequence> transformation);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation then(androidx.compose.foundation.text2.input.InputTransformation, androidx.compose.foundation.text2.input.InputTransformation next);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation? thenOrNull(androidx.compose.foundation.text2.input.InputTransformation?, androidx.compose.foundation.text2.input.InputTransformation? next);
   }
 
   public final class MaxLengthTransformationKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation maxLengthInChars(androidx.compose.foundation.text2.input.InputTransformation.Companion, int maxLength);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation maxLengthInCodepoints(androidx.compose.foundation.text2.input.InputTransformation.Companion, int maxLength);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation maxLengthInChars(androidx.compose.foundation.text2.input.InputTransformation, int maxLength);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.foundation.text2.input.InputTransformation maxLengthInCodepoints(androidx.compose.foundation.text2.input.InputTransformation, int maxLength);
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class TextFieldBuffer implements java.lang.Appendable {

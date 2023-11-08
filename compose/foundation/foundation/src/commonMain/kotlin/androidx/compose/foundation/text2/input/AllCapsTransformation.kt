@@ -33,8 +33,8 @@ import androidx.compose.ui.text.toUpperCase
  */
 @ExperimentalFoundationApi
 @Stable
-fun InputTransformation.Companion.allCaps(locale: Locale): InputTransformation =
-    AllCapsTransformation(locale)
+fun InputTransformation.allCaps(locale: Locale): InputTransformation =
+    this.then(AllCapsTransformation(locale))
 
 // This is a very naive implementation for now, not intended to be production-ready.
 @OptIn(ExperimentalFoundationApi::class)
