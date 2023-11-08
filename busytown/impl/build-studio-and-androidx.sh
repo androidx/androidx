@@ -3,9 +3,6 @@ set -e
 
 echo "Starting $0 at $(date)"
 
-echo 'Temporarily disabled while landing NDK version changes in manifest'
-exit 0
-
 androidxArguments="$*"
 
 SCRIPTS_DIR="$(cd $(dirname $0)/.. && pwd)"
