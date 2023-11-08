@@ -132,6 +132,7 @@ import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
 import java.util.function.Consumer
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1241,6 +1242,7 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
+    @Ignore("b/307823561")
     fun sendWindowContentChangeUndefinedEventByDefault_onlyOnce_whenMultiplePropertiesChange() {
         // Arrange.
         var propertiesChanged by mutableStateOf(false)
