@@ -50,7 +50,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
     private static final float LOW_JANK = 0.02f;
     private static final float HIGH_JANK = 0.2f;
     private static final float ACCURATE_LOW_JANK = 0.1f;
-    private static final float ACCURATE_HIGH_JANK = 0.7f;
+    private static final float ACCURATE_HIGH_JANK = 0.2f;
 
     // Range of pen speed to expect (in dp / ms).
     // Low value will not use prediction, high value will use full prediction.
@@ -71,6 +71,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
 
     private final DVector2 mLastPosition = new DVector2();
     private long mPrevEventTime;
+    private long mPrevPredictedEventTime;
     private long mDownEventTime;
     private List<Float> mReportRates = new LinkedList<>();
     private int mExpectedPredictionSampleSize = -1;
@@ -102,6 +103,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
     public SinglePointerPredictor(int pointerId, int toolType) {
         mKalman.reset();
         mPrevEventTime = 0;
+        mPrevPredictedEventTime = 0;
         mDownEventTime = 0;
         mPointerId = pointerId;
         mToolType = toolType;
@@ -160,6 +162,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
         if (event.getActionMasked() == MotionEvent.ACTION_CANCEL) {
             mKalman.reset();
             mPrevEventTime = 0;
+            mPrevPredictedEventTime = 0;
             return false;
         }
         int pointerIndex = event.findPointerIndex(mPointerId);
@@ -236,15 +239,27 @@ public class SinglePointerPredictor implements KalmanPredictor {
         int predictionTargetInSamples =
                 (int) Math.ceil(predictionTargetMs / mReportRateMs * confidenceFactor);
 
-        // Normally this should always be false as confidenceFactor should be less than 1.0
-        if (mExpectedPredictionSampleSize != -1
-                && predictionTargetInSamples > mExpectedPredictionSampleSize) {
-            predictionTargetInSamples = mExpectedPredictionSampleSize;
+        // Predict at least as far in time as the previous prediction.
+        // Otherwise, it may appear that the coordinates are going backwards.
+        if (mPrevPredictedEventTime > mPrevEventTime) {
+            int minimumPredictionSampleSize = (int) Math.floor(
+                    (mPrevPredictedEventTime - mPrevEventTime) / mReportRateMs
+            );
+            if (predictionTargetInSamples < minimumPredictionSampleSize) {
+                predictionTargetInSamples = minimumPredictionSampleSize;
+            }
+        }
+        if (mExpectedPredictionSampleSize != -1) {
+            // Normally this should always be false as confidenceFactor should be less than 1.0
+            if (predictionTargetInSamples > mExpectedPredictionSampleSize) {
+                predictionTargetInSamples = mExpectedPredictionSampleSize;
+            }
         }
 
-        long nextPredictedEventTime = mPrevEventTime + Math.round(mReportRateMs);
+        long predictedEventTime = mPrevEventTime;
         int i = 0;
         for (; i < predictionTargetInSamples; i++) {
+            predictedEventTime += Math.round(mReportRateMs);
             mAcceleration.a1 += mJank.a1 * JANK_INFLUENCE;
             mAcceleration.a2 += mJank.a2 * JANK_INFLUENCE;
             mVelocity.a1 += mAcceleration.a1 * ACCELERATION_INFLUENCE;
@@ -270,7 +285,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
                 predictedEvent =
                         MotionEvent.obtain(
                                 mDownEventTime /* downTime */,
-                                nextPredictedEventTime /* eventTime */,
+                                predictedEventTime /* eventTime */,
                                 MotionEvent.ACTION_MOVE /* action */,
                                 1 /* pointerCount */,
                                 pointerProperties /* pointer properties */,
@@ -284,10 +299,10 @@ public class SinglePointerPredictor implements KalmanPredictor {
                                 0 /* source */,
                                 0 /* flags */);
             } else {
-                predictedEvent.addBatch(nextPredictedEventTime, coords, 0);
+                predictedEvent.addBatch(predictedEventTime, coords, 0);
             }
-            nextPredictedEventTime += Math.round(mReportRateMs);
         }
+        mPrevPredictedEventTime = predictedEventTime;
 
         return predictedEvent;
     }
