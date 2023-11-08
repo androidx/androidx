@@ -301,6 +301,7 @@ package androidx.appsearch.app {
   }
 
   public static class GenericDocument.Builder<BuilderType extends androidx.appsearch.app.GenericDocument.Builder> {
+    ctor public GenericDocument.Builder(androidx.appsearch.app.GenericDocument);
     ctor public GenericDocument.Builder(String, String, String);
     method public androidx.appsearch.app.GenericDocument build();
     method public BuilderType clearProperty(String);

@@ -364,9 +364,7 @@ public class GenericDocumentCtsTest {
                 () -> builder.setPropertyString("testKey", "string1", nullString));
     }
 
-// @exportToFramework:startStrip()
 
-    // TODO(b/171882200): Expose this test in Android T
     @Test
     public void testDocument_toBuilder() {
         GenericDocument document1 = new GenericDocument.Builder<>(
@@ -410,8 +408,51 @@ public class GenericDocumentCtsTest {
                 .build();
         assertThat(document2).isEqualTo(expectedDoc);
     }
+    @Test
+    public void testDocument_toBuilder_doesNotModifyOriginal() {
+        GenericDocument oldDoc = new GenericDocument.Builder<>("namespace", "id1", "schema1")
+                .setScore(42)
+                .setPropertyString("propString", "Hello")
+                .setPropertyBytes("propBytes", new byte[][]{{1, 2}})
+                .setPropertyDocument(
+                        "propDocument",
+                        new GenericDocument.Builder<>("namespace", "id2", "schema2")
+                                .setPropertyString("propString", "Goodbye")
+                                .setPropertyBytes("propBytes", new byte[][]{{3, 4}})
+                                .build())
+                .build();
 
-// @exportToFramework:endStrip()
+        GenericDocument newDoc = new GenericDocument.Builder<>(oldDoc)
+                .setPropertyBytes("propBytes", new byte[][]{{1, 2}})
+                .setPropertyDocument(
+                        "propDocument",
+                        new GenericDocument.Builder<>("namespace", "id3", "schema3")
+                                .setPropertyString("propString", "Bye")
+                                .setPropertyBytes("propBytes", new byte[][]{{5, 6}})
+                                .build())
+                .build();
+
+        // Check that the original GenericDocument is unmodified.
+        assertThat(oldDoc.getScore()).isEqualTo(42);
+        assertThat(oldDoc.getPropertyString("propString")).isEqualTo("Hello");
+        assertThat(oldDoc.getPropertyBytesArray("propBytes")).isEqualTo(new byte[][]{{1, 2}});
+        assertThat(oldDoc.getPropertyDocument("propDocument").getPropertyString("propString"))
+                .isEqualTo("Goodbye");
+        assertThat(oldDoc.getPropertyDocument("propDocument").getPropertyBytesArray("propBytes"))
+                .isEqualTo(new byte[][]{{3, 4}});
+
+        // Check that the new GenericDocument has modified the original fields correctly.
+        assertThat(newDoc.getPropertyBytesArray("propBytes")).isEqualTo(new byte[][]{{1, 2}});
+        assertThat(newDoc.getPropertyDocument("propDocument").getPropertyString("propString"))
+                .isEqualTo("Bye");
+        assertThat(newDoc.getPropertyDocument("propDocument").getPropertyBytesArray("propBytes"))
+                .isEqualTo(new byte[][]{{5, 6}});
+
+        // Check that the new GenericDocument copies fields that aren't set.
+        assertThat(oldDoc.getScore()).isEqualTo(newDoc.getScore());
+        assertThat(oldDoc.getPropertyString("propString")).isEqualTo(newDoc.getPropertyString(
+                "propString"));
+    }
 
     @Test
     public void testRetrieveTopLevelProperties() {
