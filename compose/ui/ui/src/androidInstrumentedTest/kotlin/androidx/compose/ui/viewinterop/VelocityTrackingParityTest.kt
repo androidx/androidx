@@ -72,6 +72,7 @@ import kotlin.math.absoluteValue
 import kotlin.test.assertTrue
 import kotlinx.coroutines.coroutineScope
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -272,6 +273,7 @@ class VelocityTrackingParityTest {
     }
 
     @Test
+    @Ignore("b/299092669")
     fun equalDraggable_withEqualSwipes_shouldProduceSimilarVelocity_orthogonal() {
         // Arrange
         createActivity(true)
