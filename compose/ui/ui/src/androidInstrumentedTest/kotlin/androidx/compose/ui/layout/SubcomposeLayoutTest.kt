@@ -2406,6 +2406,47 @@ class SubcomposeLayoutTest {
     }
 
     @Test
+    fun deactivatingDeeplyNestedLayoutDoesNotCauseRemeasure() {
+        var showContent by mutableStateOf(true)
+        val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
+        rule.setContent {
+            SubcomposeLayout(
+                state = state,
+                modifier = Modifier.fillMaxSize()
+            ) { constraints ->
+                val content = if (showContent) {
+                    subcompose(0) {
+                        Box {
+                            var disposed by remember { mutableStateOf(false) }
+                            DisposableEffect(Unit) {
+                                onDispose { disposed = true }
+                            }
+                            Box(
+                                Modifier.layout { measurable, constraints ->
+                                    assertThat(disposed).isFalse()
+                                    val placeable = measurable.measure(constraints)
+                                    layout(placeable.width, placeable.height) {
+                                        placeable.place(0, 0)
+                                    }
+                                }
+                            )
+                        }
+                    }
+                } else emptyList()
+
+                val placeables = measure(content, constraints)
+                layout(100, 100) {
+                    placeables.placeChildren()
+                }
+            }
+        }
+
+        rule.runOnIdle { showContent = false }
+        rule.runOnIdle { showContent = true }
+        rule.waitForIdle()
+    }
+
+    @Test
     fun reusingNestedSubcompose_nestedChildrenAreResetAndReused() {
         val slotState = mutableStateOf(0)
 

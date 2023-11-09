@@ -154,18 +154,24 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                 } else {
                     layoutNode.markLookaheadMeasurePending()
                     layoutNode.markMeasurePending()
-                    if ((layoutNode.isPlacedInLookahead == true ||
-                            layoutNode.canAffectParentInLookahead) &&
-                        layoutNode.parent?.lookaheadMeasurePending != true
-                    ) {
-                        relayoutNodes.add(layoutNode, true)
-                    } else if (
-                        (layoutNode.isPlaced || layoutNode.canAffectParent) &&
-                        layoutNode.parent?.measurePending != true
-                    ) {
-                        relayoutNodes.add(layoutNode, false)
+                    // for the deactivated nodes we want to mark them as dirty, but not to trigger
+                    // measureAndLayout() pass as they will be skipped.
+                    if (layoutNode.isDeactivated) {
+                        false
+                    } else {
+                        if ((layoutNode.isPlacedInLookahead == true ||
+                                layoutNode.canAffectParentInLookahead) &&
+                            layoutNode.parent?.lookaheadMeasurePending != true
+                        ) {
+                            relayoutNodes.add(layoutNode, true)
+                        } else if (
+                            (layoutNode.isPlaced || layoutNode.canAffectParent) &&
+                            layoutNode.parent?.measurePending != true
+                        ) {
+                            relayoutNodes.add(layoutNode, false)
+                        }
+                        !duringMeasureLayout
                     }
-                    !duringMeasureLayout
                 }
             }
         }
@@ -202,12 +208,18 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                     false
                 } else {
                     layoutNode.markMeasurePending()
-                    if (layoutNode.isPlaced || layoutNode.canAffectParent) {
-                        if (layoutNode.parent?.measurePending != true) {
-                            relayoutNodes.add(layoutNode, false)
+                    // for the deactivated nodes we want to mark them as dirty, but not to trigger
+                    // measureAndLayout() pass as they will be skipped.
+                    if (layoutNode.isDeactivated) {
+                        false
+                    } else {
+                        if (layoutNode.isPlaced || layoutNode.canAffectParent) {
+                            if (layoutNode.parent?.measurePending != true) {
+                                relayoutNodes.add(layoutNode, false)
+                            }
                         }
+                        !duringMeasureLayout
                     }
-                    !duringMeasureLayout
                 }
             }
         }
@@ -242,19 +254,24 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                     // dependency on lookahead layout.
                     layoutNode.markLookaheadLayoutPending()
                     layoutNode.markLayoutPending()
-
-                    val parent = layoutNode.parent
-                    if (layoutNode.isPlacedInLookahead == true &&
-                        parent?.lookaheadMeasurePending != true &&
-                        parent?.lookaheadLayoutPending != true
-                    ) {
-                        relayoutNodes.add(layoutNode, true)
-                    } else if (layoutNode.isPlaced &&
-                        parent?.layoutPending != true && parent?.measurePending != true
-                    ) {
-                        relayoutNodes.add(layoutNode, false)
+                    // for the deactivated nodes we want to mark them as dirty, but not to trigger
+                    // measureAndLayout() pass as they will be skipped.
+                    if (layoutNode.isDeactivated) {
+                        false
+                    } else {
+                        val parent = layoutNode.parent
+                        if (layoutNode.isPlacedInLookahead == true &&
+                            parent?.lookaheadMeasurePending != true &&
+                            parent?.lookaheadLayoutPending != true
+                        ) {
+                            relayoutNodes.add(layoutNode, true)
+                        } else if (layoutNode.isPlaced &&
+                            parent?.layoutPending != true && parent?.measurePending != true
+                        ) {
+                            relayoutNodes.add(layoutNode, false)
+                        }
+                        !duringMeasureLayout
                     }
-                    !duringMeasureLayout
                 }
             }
         }
@@ -284,13 +301,19 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
                     false
                 } else {
                     layoutNode.markLayoutPending()
-                    if (layoutNode.isPlacedByParent) {
-                        val parent = layoutNode.parent
-                        if (parent?.layoutPending != true && parent?.measurePending != true) {
-                            relayoutNodes.add(layoutNode, false)
+                    // for the deactivated nodes we want to mark them as dirty, but not to trigger
+                    // measureAndLayout() pass as they will be skipped.
+                    if (layoutNode.isDeactivated) {
+                        false
+                    } else {
+                        if (layoutNode.isPlacedByParent) {
+                            val parent = layoutNode.parent
+                            if (parent?.layoutPending != true && parent?.measurePending != true) {
+                                relayoutNodes.add(layoutNode, false)
+                            }
                         }
+                        !duringMeasureLayout
                     }
-                    !duringMeasureLayout
                 }
             }
         }
@@ -466,6 +489,10 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         relayoutNeeded: Boolean = true
     ): Boolean {
         var sizeChanged = false
+        if (layoutNode.isDeactivated) {
+            // we don't remeasure or relayout deactivated nodes.
+            return false
+        }
         if (layoutNode.isPlaced || // the root node doesn't have isPlacedByParent = true
             layoutNode.isPlacedByParent ||
             layoutNode.canAffectParent ||
