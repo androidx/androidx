@@ -16,12 +16,15 @@
 
 package androidx.sqliteMultiplatform.driver
 
-import androidx.sqliteMultiplatform.BaseConformanceTest
+import android.database.sqlite.SQLiteDatabase
+import androidx.sqliteMultiplatform.SQLiteConnection
 import androidx.sqliteMultiplatform.SQLiteDriver
 
-class NativeSQLiteDriverTest : BaseConformanceTest() {
-
-    override fun getDriver(): SQLiteDriver {
-        return NativeSQLiteDriver(":memory:")
+class AndroidSQLiteDriver(
+    val filename: String
+) : SQLiteDriver {
+    override fun open(): SQLiteConnection {
+        val database = SQLiteDatabase.openOrCreateDatabase(filename, null)
+        return AndroidSQLiteConnection(database)
     }
 }

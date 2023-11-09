@@ -49,9 +49,9 @@ import sqlite3.sqlite3_step
 
 /**
  * TODO:
- *  * step non-OK code handling
- *  * index out of bounds handling
- *  * busy / locked handling
+ *  * (b/304297717) step non-OK code handling
+ *  * (b/307917224) index out of bounds handling
+ *  * (b/304295573) busy / locked handling
  */
 internal class NativeSQLiteStatement(
     private val dbPointer: CPointer<sqlite3>,
