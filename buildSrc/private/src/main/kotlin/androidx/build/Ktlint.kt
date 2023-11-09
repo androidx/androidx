@@ -304,7 +304,7 @@ abstract class KtlintCheckFileTask : DefaultTask() {
 
                 ********************************************************************************
                 ${TERMINAL_RED}You can attempt to automatically fix these issues with:
-                ./gradlew :ktlintCheckFile --format ${kotlinFiles.joinToString { "--file $it" }}$TERMINAL_RESET
+                ./gradlew :ktlintCheckFile --format ${kotlinFiles.joinToString(separator = " "){ "--file $it" }}$TERMINAL_RESET
                 ********************************************************************************
                 """
                     .trimIndent()
