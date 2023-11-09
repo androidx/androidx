@@ -20,7 +20,7 @@ import androidx.sqliteMultiplatform.SQLiteStatement
 import cnames.structs.sqlite3
 import cnames.structs.sqlite3_stmt
 import kotlinx.cinterop.ByteVar
-import kotlinx.cinterop.ptr
+import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.readBytes
 import kotlinx.cinterop.reinterpret
 import kotlinx.cinterop.toCValues
@@ -54,74 +54,80 @@ import sqlite3.sqlite3_step
  *  * busy / locked handling
  */
 internal class NativeSQLiteStatement(
-    private val dbStruct: sqlite3,
-    private val stmtStruct: sqlite3_stmt
+    private val dbPointer: CPointer<sqlite3>,
+    private val stmtPointer: CPointer<sqlite3_stmt>
 ) : SQLiteStatement {
     override fun bindBlob(index: Int, value: ByteArray) {
-        sqlite3_bind_blob(stmtStruct.ptr, index, value.toCValues(), value.size, SQLITE_TRANSIENT)
+        sqlite3_bind_blob(
+            stmtPointer,
+            index + 1,
+            value.toCValues(),
+            value.size,
+            SQLITE_TRANSIENT
+        )
     }
 
     override fun bindLong(index: Int, value: Long) {
-        sqlite3_bind_int64(stmtStruct.ptr, index, value)
+        sqlite3_bind_int64(stmtPointer, index + 1, value)
     }
 
     override fun bindDouble(index: Int, value: Double) {
-        sqlite3_bind_double(stmtStruct.ptr, index, value)
+        sqlite3_bind_double(stmtPointer, index + 1, value)
     }
 
     override fun bindText(index: Int, value: String) {
-        sqlite3_bind_text(stmtStruct.ptr, index, value, value.length, SQLITE_TRANSIENT)
+        sqlite3_bind_text(stmtPointer, index + 1, value, value.length, SQLITE_TRANSIENT)
     }
 
     override fun bindNull(index: Int) {
-        sqlite3_bind_null(stmtStruct.ptr, index)
+        sqlite3_bind_null(stmtPointer, index + 1)
     }
 
     override fun getText(index: Int): String {
-        val value = sqlite3_column_text(stmtStruct.ptr, index)
-        if (sqlite3_errcode(dbStruct.ptr) == SQLITE_NOMEM) {
+        val value = sqlite3_column_text(stmtPointer, index)
+        if (sqlite3_errcode(dbPointer) == SQLITE_NOMEM) {
             throw OutOfMemoryError()
         }
         return value?.reinterpret<ByteVar>()?.toKString() ?: ""
     }
 
     override fun getLong(index: Int): Long {
-        return sqlite3_column_int64(stmtStruct.ptr, index)
+        return sqlite3_column_int64(stmtPointer, index)
     }
 
     override fun getBlob(index: Int): ByteArray {
-        val blob = sqlite3_column_blob(stmtStruct.ptr, index)
-        val size = sqlite3_column_bytes(stmtStruct.ptr, index)
-        if (sqlite3_errcode(dbStruct.ptr) == SQLITE_NOMEM) {
+        val blob = sqlite3_column_blob(stmtPointer, index)
+        val size = sqlite3_column_bytes(stmtPointer, index)
+        if (sqlite3_errcode(dbPointer) == SQLITE_NOMEM) {
             throw OutOfMemoryError()
         }
         return blob?.readBytes(size) ?: ByteArray(0)
     }
 
     override fun getDouble(index: Int): Double {
-        return sqlite3_column_double(stmtStruct.ptr, index)
+        return sqlite3_column_double(stmtPointer, index)
     }
 
-    override fun isNull(index: Int) = sqlite3_column_type(stmtStruct.ptr, index) == SQLITE_NULL
+    override fun isNull(index: Int) = sqlite3_column_type(stmtPointer, index) == SQLITE_NULL
 
     override fun getColumnCount(): Int {
-        return sqlite3_column_count(stmtStruct.ptr)
+        return sqlite3_column_count(stmtPointer)
     }
 
     override fun getColumnName(index: Int): String {
-        return sqlite3_column_name(stmtStruct.ptr, index)?.toKString() ?: throw OutOfMemoryError()
+        return sqlite3_column_name(stmtPointer, index)?.toKString() ?: throw OutOfMemoryError()
     }
 
     override fun step(): Boolean {
-        val resultCode = sqlite3_step(stmtStruct.ptr)
+        val resultCode = sqlite3_step(stmtPointer)
         return resultCode == SQLITE_ROW
     }
 
     override fun reset() {
-        sqlite3_reset(stmtStruct.ptr)
+        sqlite3_reset(stmtPointer)
     }
 
     override fun close() {
-        sqlite3_finalize(stmtStruct.ptr)
+        sqlite3_finalize(stmtPointer)
     }
 }

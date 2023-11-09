@@ -40,7 +40,7 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
-        all {
+        configureEach {
             languageSettings.optIn("kotlin.RequiresOptIn")
             languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
         }
