@@ -16,16 +16,19 @@
 
 package androidx.bluetooth.testing
 
-import android.content.Context
+import android.os.Build
+import androidx.bluetooth.AdvertiseImpl
 import androidx.bluetooth.AdvertiseParams
 import androidx.bluetooth.BluetoothLe
 import java.util.UUID
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
+import junit.framework.TestCase
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
-import org.junit.Assert
-import org.junit.Assert.assertTrue
+import org.junit.Assume.assumeTrue
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
@@ -34,29 +37,31 @@ import org.robolectric.RuntimeEnvironment
 @RunWith(RobolectricTestRunner::class)
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class RobolectricAdvertiseTest {
-    private val context: Context = RuntimeEnvironment.getApplication()
-    private var bluetoothLe = BluetoothLe(context)
 
-    @Test
-    fun advertiseSuccess() = runTest {
-        val params = AdvertiseParams()
-        launch {
-            bluetoothLe.advertise(params) { result ->
-                Assert.assertEquals(BluetoothLe.ADVERTISE_STARTED, result)
-                cancel()
-            }
+    private val bluetoothLe = BluetoothLe(RuntimeEnvironment.getApplication())
+
+    @Before
+    fun setUp() {
+        // TODO: Workaround for Robolectric doesn't support startAdvertisingSet.
+        //       Remove this once it's supported.
+        if (Build.VERSION.SDK_INT >= 26) {
+            bluetoothLe.advertiseImpl = AdvertiseImplForTesting()
         }
     }
 
     @Test
-    fun advertise_noBlock() = runTest {
+    fun advertiseSuccess() = runTest {
+        assumeTrue("Can only run on API Level 23 or newer because of reasons",
+            Build.VERSION.SDK_INT < 26
+        )
         val params = AdvertiseParams()
-        val advertiseJob = launch {
-            bluetoothLe.advertise(params)
+
+        launch {
+            val result = bluetoothLe.advertise(params)
+                .first()
+
+            TestCase.assertEquals(BluetoothLe.ADVERTISE_STARTED, result)
         }
-        delay(100)
-        assertTrue(advertiseJob.isActive)
-        advertiseJob.cancel()
     }
 
     /**
@@ -72,10 +77,22 @@ class RobolectricAdvertiseTest {
             serviceData = mapOf(parcelUuid to serviceData)
         )
 
+        val expected = if (Build.VERSION.SDK_INT >= 26) BluetoothLe.ADVERTISE_STARTED
+        else BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE
+
         launch {
-            bluetoothLe.advertise(advertiseParams) { result ->
-                Assert.assertEquals(BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE, result)
-            }
+            val result = bluetoothLe.advertise(advertiseParams)
+                .first()
+
+            TestCase.assertEquals(expected, result)
         }
     }
+}
+
+class AdvertiseImplForTesting : AdvertiseImpl {
+    override fun advertise(
+        advertiseParams: AdvertiseParams,
+    ): Flow<@BluetoothLe.AdvertiseResult Int> = flowOf(
+        BluetoothLe.ADVERTISE_STARTED
+    )
 }

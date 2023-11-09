@@ -18,6 +18,7 @@ package androidx.bluetooth
 
 import android.bluetooth.le.AdvertiseData as FwkAdvertiseData
 import android.bluetooth.le.AdvertiseSettings as FwkAdvertiseSettings
+import android.bluetooth.le.AdvertisingSetParameters as FwkAdvertisingSetParameters
 import android.os.Build
 import android.os.ParcelUuid
 import androidx.annotation.DoNotInline
@@ -47,7 +48,7 @@ class AdvertiseParams(
     /**
      * Advertising duration.
      *
-     * It must not exceed 655350 milliseconds. A value of 0 means advertising continues
+     * It must not exceed 180000 milliseconds. A value of 0 means advertising continues
      * until it is stopped explicitly.
      */
     val duration: Duration = Duration.ZERO,
@@ -79,6 +80,12 @@ class AdvertiseParams(
         fun setDiscoverable(builder: FwkAdvertiseSettings.Builder, isDiscoverable: Boolean) {
             builder.setDiscoverable(isDiscoverable)
         }
+
+        @JvmStatic
+        @DoNotInline
+        fun setDiscoverable(builder: FwkAdvertisingSetParameters.Builder, isDiscoverable: Boolean) {
+            builder.setDiscoverable(isDiscoverable)
+        }
     }
 
     @RequiresApi(31)
@@ -94,10 +101,19 @@ class AdvertiseParams(
         get() = FwkAdvertiseSettings.Builder().run {
             setConnectable(isConnectable)
             duration.toMillis().let {
-                if (it !in 0..655350)
-                    throw IllegalArgumentException("Advertise duration must be in [0, 655350]")
+                if (it !in 0..180000)
+                    throw IllegalArgumentException("Advertise duration must be in [0, 180000]")
                 setTimeout(it.toInt())
             }
+            if (Build.VERSION.SDK_INT >= 34) {
+                AdvertiseParamsApi34Impl.setDiscoverable(this, isDiscoverable)
+            }
+            build()
+        }
+
+    internal val fwkAdvertiseSetParams: FwkAdvertisingSetParameters
+        get() = FwkAdvertisingSetParameters.Builder().run {
+            setConnectable(isConnectable)
             if (Build.VERSION.SDK_INT >= 34) {
                 AdvertiseParamsApi34Impl.setDiscoverable(this, isDiscoverable)
             }

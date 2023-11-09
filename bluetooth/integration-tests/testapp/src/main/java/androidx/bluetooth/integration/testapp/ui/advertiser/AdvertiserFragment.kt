@@ -141,7 +141,7 @@ class AdvertiserFragment : Fragment() {
 
         advertiserUiState.resultMessage?.let {
             toast(it).show()
-            viewModel.resultMessageShown()
+            viewModel.clearResultMessage()
         }
     }
 
