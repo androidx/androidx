@@ -159,6 +159,9 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
             task.setOutput(File(project.getDistributionDirectory(), "task_outputs.txt"))
             task.removePrefix(project.getCheckoutRoot().path)
         }
+
+        project.zipComposeCompilerMetrics()
+        project.zipComposeCompilerReports()
     }
 
     private fun Project.setDependencyVersions() {
