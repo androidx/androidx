@@ -19,6 +19,7 @@ package androidx.bluetooth.integration.testapp.ui.scanner
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.bluetooth.BluetoothLe
+import androidx.bluetooth.ScanException
 import androidx.bluetooth.ScanResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -28,6 +29,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filterNot
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
@@ -59,9 +61,41 @@ class ScannerViewModel @Inject constructor(
             .onStart {
                 Log.d(TAG, "bluetoothLe.scan() onStart")
                 _uiState.update {
-                    it.copy(isScanning = true)
+                    it.copy(isScanning = true, resultMessage = "Scan started")
                 }
-            }.filterNot { scanResultsMap.containsKey(it.deviceAddress.address) }
+            }
+            .filterNot { scanResultsMap.containsKey(it.deviceAddress.address) }
+            .catch { throwable ->
+                Log.e(TAG, "bluetoothLe.scan() catch", throwable)
+
+                val message = if (throwable is ScanException) {
+                    when (throwable.errorCode) {
+                        ScanException.APPLICATION_REGISTRATION_FAILED ->
+                            "Scan failed. Application registration failed"
+
+                        ScanException.INTERNAL_ERROR ->
+                            "Scan failed. Internal error"
+
+                        ScanException.UNSUPPORTED ->
+                            "Scan failed. Feature unsupported"
+
+                        ScanException.OUT_OF_HARDWARE_RESOURCES ->
+                            "Scan failed. Out of hardware resources"
+
+                        ScanException.SCANNING_TOO_FREQUENTLY ->
+                            "Scan failed. Scanning too frequently"
+
+                        else ->
+                            "Scan failed. Error unknown"
+                    }
+                } else if (throwable is IllegalStateException) {
+                    throwable.message
+                } else null
+
+                _uiState.update {
+                    it.copy(resultMessage = message)
+                }
+            }
             .onEach { scanResult ->
                 Log.d(TAG, "bluetoothLe.scan() onEach: $scanResult")
                 scanResultsMap[scanResult.deviceAddress.address] = scanResult
@@ -70,9 +104,16 @@ class ScannerViewModel @Inject constructor(
                 }
             }.onCompletion { throwable ->
                 Log.e(TAG, "bluetoothLe.scan() onCompletion", throwable)
+
                 _uiState.update {
-                    it.copy(isScanning = false)
+                    it.copy(isScanning = false, resultMessage = "Scan completed")
                 }
             }.launchIn(viewModelScope)
+    }
+
+    fun clearResultMessage() {
+        _uiState.update {
+            it.copy(resultMessage = null)
+        }
     }
 }

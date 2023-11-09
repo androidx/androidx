@@ -22,7 +22,6 @@ import android.bluetooth.le.ScanResult as FwkScanResult
 import android.bluetooth.le.ScanSettings as FwkScanSettings
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -46,13 +45,13 @@ private open class ScanImplBase(val bluetoothLeScanner: FwkBluetoothLeScanner) :
             }
 
             override fun onScanFailed(errorCode: Int) {
-                // TODO(b/270492198): throw precise exception
-                cancel("onScanFailed() called with: errorCode = $errorCode")
+                close(ScanException(errorCode))
             }
         }
 
         val fwkFilters = filters.map { it.fwkScanFilter }
         val fwkSettings = FwkScanSettings.Builder()
+            .setLegacy(false)
             .build()
 
         bluetoothLeScanner.startScan(fwkFilters, fwkSettings, callback)

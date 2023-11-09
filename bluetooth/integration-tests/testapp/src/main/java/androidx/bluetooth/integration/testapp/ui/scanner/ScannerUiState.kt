@@ -20,5 +20,6 @@ import androidx.bluetooth.ScanResult
 
 data class ScannerUiState(
     val isScanning: Boolean = false,
-    val scanResults: List<ScanResult> = emptyList()
+    val scanResults: List<ScanResult> = emptyList(),
+    val resultMessage: String? = null
 )
