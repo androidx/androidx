@@ -2140,8 +2140,11 @@ package androidx.compose.ui.layout {
     method public androidx.compose.ui.geometry.Rect localBoundingBoxOf(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, optional boolean clipBounds);
     method public long localPositionOf(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, long relativeToSource);
     method public long localToRoot(long relativeToLocal);
+    method public default long localToScreen(long relativeToLocal);
     method public long localToWindow(long relativeToLocal);
+    method public default long screenToLocal(long relativeToScreen);
     method public default void transformFrom(androidx.compose.ui.layout.LayoutCoordinates sourceCoordinates, float[] matrix);
+    method public default void transformToScreen(float[] matrix);
     method public long windowToLocal(long relativeToWindow);
     property public abstract boolean isAttached;
     property public abstract androidx.compose.ui.layout.LayoutCoordinates? parentCoordinates;
@@ -2158,6 +2161,7 @@ package androidx.compose.ui.layout {
     method public static long positionInParent(androidx.compose.ui.layout.LayoutCoordinates);
     method public static long positionInRoot(androidx.compose.ui.layout.LayoutCoordinates);
     method public static long positionInWindow(androidx.compose.ui.layout.LayoutCoordinates);
+    method public static long positionOnScreen(androidx.compose.ui.layout.LayoutCoordinates);
   }
 
   public final class LayoutIdKt {
@@ -3275,6 +3279,7 @@ package androidx.compose.ui.semantics {
     method public androidx.compose.ui.semantics.SemanticsNode? getParent();
     method public long getPositionInRoot();
     method public long getPositionInWindow();
+    method public long getPositionOnScreen();
     method public androidx.compose.ui.node.RootForTest? getRoot();
     method public long getSize();
     method public androidx.compose.ui.geometry.Rect getTouchBoundsInRoot();
@@ -3290,6 +3295,7 @@ package androidx.compose.ui.semantics {
     property public final androidx.compose.ui.semantics.SemanticsNode? parent;
     property public final long positionInRoot;
     property public final long positionInWindow;
+    property public final long positionOnScreen;
     property public final androidx.compose.ui.node.RootForTest? root;
     property public final long size;
     property public final androidx.compose.ui.geometry.Rect touchBoundsInRoot;

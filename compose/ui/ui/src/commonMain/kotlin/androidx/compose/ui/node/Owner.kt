@@ -30,6 +30,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerIconService
+import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.PlacementScope
 import androidx.compose.ui.modifier.ModifierLocalManager
@@ -55,7 +56,7 @@ import kotlin.coroutines.CoroutineContext
  * through them.
  */
 @OptIn(InternalComposeUiApi::class)
-internal interface Owner : PlatformTextInputSessionHandler {
+internal interface Owner : PlatformTextInputSessionHandler, PositionCalculator {
 
     /**
      * The root layout node in the component tree.

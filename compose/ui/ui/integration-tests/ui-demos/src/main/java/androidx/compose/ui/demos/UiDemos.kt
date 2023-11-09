@@ -266,6 +266,7 @@ val CoreDemos = DemoCategory(
         ViewInteropDemos,
         ComposableDemo("Software Keyboard Controller") { SoftwareKeyboardControllerDemo() },
         RecyclerViewDemos,
-        AccessibilityDemos
+        AccessibilityDemos,
+        ComposableDemo("Screen coordinates") { ScreenCoordinatesDemo(it) },
     )
 )

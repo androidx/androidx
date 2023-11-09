@@ -25,6 +25,7 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.node.Nodes
@@ -160,7 +161,7 @@ class SemanticsNode internal constructor(
             ?: Offset.Zero
 
     /**
-     * The bounding box for this node relative to the screen, with clipping applied. To get the
+     * The bounding box for this node relative to the window, with clipping applied. To get the
      * bounds with no clipping applied, use PxBounds([positionInWindow], [size].toSize())
      */
     val boundsInWindow: Rect
@@ -168,10 +169,17 @@ class SemanticsNode internal constructor(
             ?: Rect.Zero
 
     /**
-     * The position of this node relative to the screen, with no clipping applied
+     * The position of this node relative to the window, with no clipping applied
      */
     val positionInWindow: Offset
         get() = findCoordinatorToGetBounds()?.takeIf { it.isAttached }?.positionInWindow()
+            ?: Offset.Zero
+
+    /**
+     * The position of this node relative to the screen, with no clipping applied
+     */
+    val positionOnScreen: Offset
+        get() = findCoordinatorToGetBounds()?.takeIf { it.isAttached }?.positionOnScreen()
             ?: Offset.Zero
 
     /**

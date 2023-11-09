@@ -55,6 +55,18 @@ interface LayoutCoordinates {
     val isAttached: Boolean
 
     /**
+     * Converts [relativeToScreen] relative to the device's screen's origin into an [Offset]
+     * relative to this layout. Returns [Offset.Unspecified] if the conversion cannot be performed.
+     */
+    fun screenToLocal(relativeToScreen: Offset): Offset = Offset.Unspecified
+
+    /**
+     * Converts [relativeToLocal] position within this layout into an [Offset] relative to the
+     * device's screen. Returns [Offset.Unspecified] if the conversion cannot be performed.
+     */
+    fun localToScreen(relativeToLocal: Offset): Offset = Offset.Unspecified
+
+    /**
      * Converts [relativeToWindow] relative to the window's origin into an [Offset] relative to
      * this layout.
      */
@@ -105,6 +117,17 @@ interface LayoutCoordinates {
     }
 
     /**
+     * Takes a [matrix] which transforms some coordinate system `C` to local coordinates, and
+     * updates the matrix to transform from `C` to screen coordinates instead.
+     */
+    @Suppress("DocumentExceptions")
+    fun transformToScreen(matrix: Matrix) {
+        throw UnsupportedOperationException(
+            "transformToScreen is not implemented on this LayoutCoordinates"
+        )
+    }
+
+    /**
      * Returns the position in pixels of an [alignment line][AlignmentLine],
      * or [AlignmentLine.Unspecified] if the line is not provided.
      */
@@ -120,6 +143,12 @@ fun LayoutCoordinates.positionInRoot(): Offset = localToRoot(Offset.Zero)
  * The position of this layout relative to the window.
  */
 fun LayoutCoordinates.positionInWindow(): Offset = localToWindow(Offset.Zero)
+
+/**
+ * The position of this layout on the device's screen.
+ * Returns [Offset.Unspecified] if the conversion cannot be performed.
+ */
+fun LayoutCoordinates.positionOnScreen(): Offset = localToScreen(Offset.Zero)
 
 /**
  * The boundaries of this layout inside the root composable.

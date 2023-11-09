@@ -60,6 +60,12 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
                 coordinator.localPositionOf(it.coordinator, Offset.Zero)
         }
 
+    override fun screenToLocal(relativeToScreen: Offset): Offset =
+        coordinator.screenToLocal(relativeToScreen) + lookaheadOffset
+
+    override fun localToScreen(relativeToLocal: Offset): Offset =
+        coordinator.localToScreen(relativeToLocal + lookaheadOffset)
+
     override fun windowToLocal(relativeToWindow: Offset): Offset =
         coordinator.windowToLocal(relativeToWindow) + lookaheadOffset
 
@@ -113,6 +119,10 @@ internal class LookaheadLayoutCoordinates(val lookaheadDelegate: LookaheadDelega
 
     override fun transformFrom(sourceCoordinates: LayoutCoordinates, matrix: Matrix) {
         coordinator.transformFrom(sourceCoordinates, matrix)
+    }
+
+    override fun transformToScreen(matrix: Matrix) {
+        coordinator.transformToScreen(matrix)
     }
 
     override fun get(alignmentLine: AlignmentLine): Int = lookaheadDelegate.get(alignmentLine)
