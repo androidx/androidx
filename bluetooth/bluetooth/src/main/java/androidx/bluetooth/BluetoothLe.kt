@@ -17,20 +17,14 @@
 package androidx.bluetooth
 
 import android.bluetooth.BluetoothManager as FwkBluetoothManager
-import android.bluetooth.le.BluetoothLeScanner as FwkBluetoothLeScanner
-import android.bluetooth.le.ScanCallback as FwkScanCallback
-import android.bluetooth.le.ScanResult as FwkScanResult
-import android.bluetooth.le.ScanSettings as FwkScanSettings
 import android.content.Context
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 
 /**
@@ -74,6 +68,16 @@ class BluetoothLe(context: Context) {
         context.getSystemService(Context.BLUETOOTH_SERVICE) as FwkBluetoothManager?
     private val bluetoothAdapter = bluetoothManager?.adapter
 
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    var advertiseImpl: AdvertiseImpl? =
+        bluetoothAdapter?.bluetoothLeAdvertiser?.let(::getAdvertiseImpl)
+
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    var scanImpl: ScanImpl? =
+        bluetoothAdapter?.bluetoothLeScanner?.let(::getScanImpl)
+
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     val client: GattClient by lazy(LazyThreadSafetyMode.PUBLICATION) {
@@ -85,16 +89,6 @@ class BluetoothLe(context: Context) {
     val server: GattServer by lazy(LazyThreadSafetyMode.PUBLICATION) {
         GattServer(context.applicationContext)
     }
-
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    var advertiseImpl: AdvertiseImpl? =
-        bluetoothAdapter?.bluetoothLeAdvertiser?.let(::getAdvertiseImpl)
-
-    @VisibleForTesting
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
-    var onStartScanListener: OnStartScanListener? = null
 
     /**
      * Returns a _cold_ [Flow] to start Bluetooth LE advertising
@@ -117,33 +111,15 @@ class BluetoothLe(context: Context) {
     /**
      * Returns a _cold_ [Flow] to start Bluetooth LE scanning.
      * Scanning is used to discover advertising devices nearby.
+     * Returns an `emptyFlow()` if bluetoothLeScanner is not available.
      *
      * @param filters [ScanFilter]s for finding exact Bluetooth LE devices
      *
      * @return a _cold_ [Flow] of [ScanResult] that matches with the given scan filter
      */
     @RequiresPermission("android.permission.BLUETOOTH_SCAN")
-    fun scan(filters: List<ScanFilter> = emptyList()): Flow<ScanResult> = callbackFlow {
-        val callback = object : FwkScanCallback() {
-            override fun onScanResult(callbackType: Int, result: FwkScanResult) {
-                trySend(ScanResult(result))
-            }
-
-            override fun onScanFailed(errorCode: Int) {
-                // TODO(b/270492198): throw precise exception
-                cancel("onScanFailed() called with: errorCode = $errorCode")
-            }
-        }
-
-        val bleScanner = bluetoothAdapter?.bluetoothLeScanner
-        val fwkFilters = filters.map { it.fwkScanFilter }
-        val scanSettings = FwkScanSettings.Builder().build()
-        bleScanner?.startScan(fwkFilters, scanSettings, callback)
-        onStartScanListener?.onStartScan(bleScanner)
-
-        awaitClose {
-            bleScanner?.stopScan(callback)
-        }
+    fun scan(filters: List<ScanFilter> = emptyList()): Flow<ScanResult> {
+        return scanImpl?.scan(filters) ?: emptyFlow()
     }
 
     /**
@@ -183,11 +159,5 @@ class BluetoothLe(context: Context) {
         block: suspend GattServerConnectScope.() -> R
     ): R {
         return server.open(services, block)
-    }
-
-    @VisibleForTesting
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    fun interface OnStartScanListener {
-        fun onStartScan(scanner: FwkBluetoothLeScanner?)
     }
 }
