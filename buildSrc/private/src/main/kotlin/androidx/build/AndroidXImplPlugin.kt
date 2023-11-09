@@ -70,6 +70,7 @@ import org.gradle.api.component.SoftwareComponentFactory
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.plugins.JavaPlugin
 import org.gradle.api.plugins.JavaPluginExtension
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
@@ -313,36 +314,55 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
     /** Configures the project to use the Kotlin version specified by `androidx.kotlinTarget`. */
     private fun Project.configureKotlinVersion() {
         val kotlinVersionStringProvider = androidXConfiguration.kotlinBomVersion
+        val kotlinTestVersionStringProvider = androidXConfiguration.kotlinTestBomVersion
 
         // Resolve unspecified Kotlin versions to the target version.
         configurations.all { configuration ->
+            val useVersionStringProvider = if (configuration.isTest()) {
+                kotlinTestVersionStringProvider
+            } else {
+                kotlinVersionStringProvider
+            }
             configuration.resolutionStrategy { strategy ->
                 strategy.eachDependency { details ->
-                    if (details.requested.group == "org.jetbrains.kotlin") {
-                        if (
-                            details.requested.group == "org.jetbrains.kotlin" &&
-                                details.requested.version == null
-                        ) {
-                            details.useVersion(kotlinVersionStringProvider.get())
-                        }
+                    if (details.requested.group == "org.jetbrains.kotlin" &&
+                        details.requested.version == null) {
+                        details.useVersion(useVersionStringProvider.get())
                     }
                 }
             }
         }
 
+        fun Provider<String>.toKotlinVersionProvider() = map { version ->
+            KotlinVersion.fromVersion(version.substringBeforeLast('.'))
+        }
+
+        fun KotlinCompilationTask<*>.isTestCompilation() =
+            multiplatformExtension?.targets?.any { target ->
+                target.compilations.findByName("test")?.compileKotlinTaskName == name
+            } ?: false
+
         // Set the Kotlin compiler's API and language version to ensure bytecode is compatible.
-        val kotlinVersionProvider =
-            kotlinVersionStringProvider.map { version ->
-                KotlinVersion.fromVersion(version.substringBeforeLast('.'))
-            }
+        val kotlinVersionProvider = kotlinVersionStringProvider.toKotlinVersionProvider()
+        val kotlinTestVersionProvider = kotlinTestVersionStringProvider.toKotlinVersionProvider()
         tasks.configureEach { task ->
-            (task as? KotlinCompilationTask<*>)?.apply {
-                compilerOptions.apiVersion.set(kotlinVersionProvider)
-                compilerOptions.languageVersion.set(kotlinVersionProvider)
+            if (task is KotlinCompilationTask<*>) {
+                // We can't directly determine if a Task is compiling test code, but we can scrape
+                // the names of all the compilation units and compare them to Task names.
+                val useVersionProvider = if (task.isTestCompilation()) {
+                    kotlinTestVersionProvider
+                } else {
+                    kotlinVersionProvider
+                }
+                task.compilerOptions.apiVersion.set(useVersionProvider)
+                task.compilerOptions.languageVersion.set(useVersionProvider)
             }
         }
 
-        // Specify coreLibrariesVersion for consumption by Kotlin Gradle Plugin.
+        // Specify coreLibrariesVersion for consumption by Kotlin Gradle Plugin. Note that KGP does
+        // not explicitly support varying the version between tasks/configurations for a given
+        // project, so this is not strictly correct. Picking the non-test (e.g. lower) value seems
+        // to work, though.
         afterEvaluate { evaluatedProject ->
             evaluatedProject.kotlinExtensionOrNull?.let { kotlinExtension ->
                 kotlinExtension.coreLibrariesVersion = kotlinVersionStringProvider.get()
