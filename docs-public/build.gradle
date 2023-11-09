@@ -48,8 +48,6 @@ dependencies {
     stubs(fileTree(dir: "../camera/camera-extensions-stub", include: ["camera-extensions-stub.jar"]))
     docs("androidx.camera:camera-lifecycle:1.4.0-alpha02")
     docs("androidx.camera:camera-mlkit-vision:1.4.0-alpha02")
-    // camera-previewview is not hosted in androidx
-    docsWithoutApiSince("androidx.camera:camera-previewview:1.1.0-beta02")
     docs("androidx.camera:camera-video:1.4.0-alpha02")
     docs("androidx.camera:camera-view:1.4.0-alpha02")
     docs("androidx.camera:camera-viewfinder:1.4.0-alpha02")
