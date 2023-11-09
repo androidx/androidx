@@ -20,23 +20,24 @@ import androidx.sqliteMultiplatform.SQLiteConnection
 import androidx.sqliteMultiplatform.SQLiteStatement
 import cnames.structs.sqlite3
 import cnames.structs.sqlite3_stmt
+import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.utf8
+import kotlinx.cinterop.value
 import sqlite3.SQLITE_OK
 import sqlite3.sqlite3_close_v2
 import sqlite3.sqlite3_prepare_v2
 
 internal class NativeSQLiteConnection(
-    private val dbStruct: sqlite3
+    private val dbPointer: CPointer<sqlite3>
 ) : SQLiteConnection {
     override fun prepare(sql: String): SQLiteStatement = memScoped {
         val stmtPointer = allocPointerTo<sqlite3_stmt>()
         val sqlUtf8 = sql.utf8
         val resultCode = sqlite3_prepare_v2(
-            db = dbStruct.ptr,
+            db = dbPointer,
             zSql = sqlUtf8,
             nByte = sqlUtf8.size,
             ppStmt = stmtPointer.ptr,
@@ -45,10 +46,10 @@ internal class NativeSQLiteConnection(
         if (resultCode != SQLITE_OK) {
             error("Error preparing statement - $resultCode")
         }
-        NativeSQLiteStatement(dbStruct, stmtPointer.pointed!!)
+        NativeSQLiteStatement(dbPointer, stmtPointer.value!!)
     }
 
     override fun close() {
-        sqlite3_close_v2(dbStruct.ptr)
+        sqlite3_close_v2(dbPointer)
     }
 }

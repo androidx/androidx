@@ -21,8 +21,8 @@ import androidx.sqliteMultiplatform.SQLiteDriver
 import cnames.structs.sqlite3
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
-import kotlinx.cinterop.pointed
 import kotlinx.cinterop.ptr
+import kotlinx.cinterop.value
 import sqlite3.SQLITE_OK
 import sqlite3.SQLITE_OPEN_CREATE
 import sqlite3.SQLITE_OPEN_READWRITE
@@ -47,6 +47,6 @@ class NativeSQLiteDriver(
         if (resultCode != SQLITE_OK) {
             error("Error opening database - $resultCode")
         }
-        NativeSQLiteConnection(dbPointer.pointed!!)
+        NativeSQLiteConnection(dbPointer.value!!)
     }
 }
