@@ -50,6 +50,7 @@ import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.StreamSpec
 import androidx.camera.core.impl.SurfaceCombination
 import androidx.camera.core.impl.SurfaceConfig
+import androidx.camera.core.impl.SurfaceConfig.ConfigSize
 import androidx.camera.core.impl.SurfaceSizeDefinition
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.AspectRatioUtil
@@ -281,6 +282,15 @@ class SupportedSurfaceCombination(
                 "May be attempting to bind too many use cases. Existing surfaces: " +
                 "$attachedSurfaces. New configs: $newUseCaseConfigs."
         }
+
+        // Calculates the target FPS range
+        val targetFpsRange =
+            getTargetFpsRange(attachedSurfaces, newUseCaseConfigs, useCasesPriorityOrder)
+        // Filters the unnecessary output sizes for performance improvement. This will
+        // significantly reduce the number of all possible size arrangements below.
+        val useCaseConfigToFilteredSupportedSizesMap = filterSupportedSizes(
+            newUseCaseConfigsSupportedSizeMap, featureSettings, targetFpsRange
+        )
         // The two maps are used to keep track of the attachedSurfaceInfo or useCaseConfigs the
         // surfaceConfigs are made from. They are populated in getSurfaceConfigListAndFpsCeiling().
         // The keys are the position of their corresponding surfaceConfigs in the list. We can
@@ -292,7 +302,7 @@ class SupportedSurfaceCombination(
         val surfaceConfigIndexUseCaseConfigMap: MutableMap<Int, UseCaseConfig<*>> = mutableMapOf()
         val allPossibleSizeArrangements = getAllPossibleSizeArrangements(
             getSupportedOutputSizesList(
-                newUseCaseConfigsSupportedSizeMap,
+                useCaseConfigToFilteredSupportedSizesMap,
                 newUseCaseConfigs,
                 useCasesPriorityOrder
             )
@@ -317,9 +327,7 @@ class SupportedSurfaceCombination(
             )
         }
 
-        val targetFpsRange =
-            getTargetFpsRange(attachedSurfaces, newUseCaseConfigs, useCasesPriorityOrder)
-        val maxSupportedFps = getMaxSupportedFps(attachedSurfaces)
+        val maxSupportedFps = getMaxSupportedFpsFromAttachedSurfaces(attachedSurfaces)
         val bestSizesAndFps = findBestSizesAndFps(
             allPossibleSizeArrangements,
             attachedSurfaces,
@@ -589,7 +597,7 @@ class SupportedSurfaceCombination(
         return targetFrameRateForConfig
     }
 
-    private fun getMaxSupportedFps(
+    private fun getMaxSupportedFpsFromAttachedSurfaces(
         attachedSurfaces: List<AttachedSurfaceInfo>,
     ): Int {
         var existingSurfaceFrameRateCeiling = Int.MAX_VALUE
@@ -601,6 +609,77 @@ class SupportedSurfaceCombination(
             )
         }
         return existingSurfaceFrameRateCeiling
+    }
+
+    /**
+     * Filters the supported sizes for each use case to keep only one item for each unique config
+     * size and frame rate combination.
+     *
+     * @return the new use case config to the supported sizes map, with the unnecessary sizes
+     * filtered out.
+     */
+    private fun filterSupportedSizes(
+        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>,
+        featureSettings: FeatureSettings,
+        targetFpsRange: Range<Int>?
+    ): Map<UseCaseConfig<*>, List<Size>> {
+        val filteredUseCaseConfigToSupportedSizesMap = mutableMapOf<UseCaseConfig<*>, List<Size>>()
+        for (useCaseConfig in newUseCaseConfigsSupportedSizeMap.keys) {
+            val reducedSizeList = mutableListOf<Size>()
+            val configSizeUniqueMaxFpsMap = mutableMapOf<ConfigSize, MutableSet<Int>>()
+            for (size in newUseCaseConfigsSupportedSizeMap[useCaseConfig]!!) {
+                val imageFormat = useCaseConfig.inputFormat
+                val configSize = SurfaceConfig.transformSurfaceConfig(
+                    featureSettings.cameraMode, imageFormat, size,
+                    getUpdatedSurfaceSizeDefinitionByFormat(imageFormat)
+                ).configSize
+                // Filters the sizes with frame rate only if there is target FPS setting
+                val maxFrameRate = if (targetFpsRange != null) {
+                    getMaxFrameRate(imageFormat, size)
+                } else {
+                    Int.MAX_VALUE
+                }
+
+                var uniqueMaxFrameRates = configSizeUniqueMaxFpsMap[configSize]
+                // Creates an empty FPS list for the config size when it doesn't exist.
+                if (uniqueMaxFrameRates == null) {
+                    uniqueMaxFrameRates = mutableSetOf()
+                    configSizeUniqueMaxFpsMap[configSize] = uniqueMaxFrameRates
+                }
+                // Adds the size to the result list when there is still no entry for the config
+                // size and frame rate combination.
+                //
+                // An example to explain the filter logic.
+                //
+                // If a UseCase's sorted supported sizes are in the following sequence, the
+                // corresponding config size type and the supported max frame rate are as the
+                // following:
+                //
+                //    4032x3024 => MAXIMUM size, 30 fps
+                //    3840x2160 => RECORD size, 30 fps
+                //    2560x1440 => RECORD size, 30 fps -> can be filtered out
+                //    1920x1080 => PREVIEW size, 60 fps
+                //    1280x720 => PREVIEW size, 60 fps -> can be filtered out
+                //
+                // If 3840x2160 can be used, then it will have higher priority than 2560x1440 to
+                // be used. Therefore, 2560x1440 can be filtered out because they belong to the
+                // same config size type and also have the same max supported frame rate. The same
+                // logic also works for 1920x1080 and 1280x720.
+                //
+                // If there are three UseCases have the same sorted supported sizes list, the
+                // number of possible arrangements can be reduced from 125 (5x5x5) to 27 (3x3x3).
+                // On real devices, more than 20 output sizes might be supported. This filtering
+                // step can possibly reduce the number of possible arrangements from 8000 to less
+                // than 100. Therefore, we can improve the bindToLifecycle function performance
+                // because we can skip a large amount of unnecessary checks.
+                if (!uniqueMaxFrameRates.contains(maxFrameRate)) {
+                    reducedSizeList.add(size)
+                    uniqueMaxFrameRates.add(maxFrameRate)
+                }
+            }
+            filteredUseCaseConfigToSupportedSizesMap[useCaseConfig] = reducedSizeList
+        }
+        return filteredUseCaseConfigToSupportedSizesMap
     }
 
     private fun findBestSizesAndFps(
