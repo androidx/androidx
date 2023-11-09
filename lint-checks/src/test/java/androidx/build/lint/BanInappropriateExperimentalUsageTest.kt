@@ -23,7 +23,6 @@ import androidx.build.lint.BanInappropriateExperimentalUsage.Companion.isAnnotat
 import androidx.build.lint.Stubs.Companion.JetpackOptIn
 import androidx.build.lint.Stubs.Companion.JetpackRequiresOptIn
 import com.android.tools.lint.checks.infrastructure.ProjectDescription
-import com.android.tools.lint.checks.infrastructure.TestMode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -131,8 +130,7 @@ No warnings.
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
-        check(provider, testModes = listOf(TestMode.DEFAULT)).expect(expected)
+        check(provider).expect(expected)
     }
 
     @Test
@@ -205,7 +203,6 @@ No warnings.
         """.trimIndent()
         /* ktlint-enable max-line-length */
 
-        // TODO: Using TestMode.DEFAULT due to b/188814760; remove testModes once bug is resolved
-        check(provider, consumer, testModes = listOf(TestMode.DEFAULT)).expect(expected)
+        check(provider, consumer).expect(expected)
     }
 }
