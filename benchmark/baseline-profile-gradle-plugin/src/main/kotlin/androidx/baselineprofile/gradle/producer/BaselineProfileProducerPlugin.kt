@@ -78,6 +78,9 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
     private val forceOnlyConnectedDevices: Boolean by lazy {
         project.properties.containsKey(PROP_FORCE_ONLY_CONNECTED_DEVICES)
     }
+    private val addEnabledRulesInstrumentationArgument by lazy {
+        !project.properties.containsKey(PROP_DONT_DISABLE_RULES)
+    }
 
     // This maps all the extended build types to the original ones. Note that release does not
     // exist by default so we need to create nonMinifiedRelease and map it manually to `release`.
@@ -235,7 +238,8 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
 
         // If this is a benchmark variant sets the instrumentation runner argument to run only
         // tests with MacroBenchmark rules.
-        if (enabledRulesNotSet &&
+        if (addEnabledRulesInstrumentationArgument &&
+            enabledRulesNotSet &&
             variant.buildType in benchmarkExtendedToOriginalTypeMap.keys
         ) {
             if (supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)) {
@@ -257,7 +261,8 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
 
             // If this is a benchmark variant sets the instrumentation runner argument to run only
             // tests with MacroBenchmark rules.
-            if (enabledRulesNotSet &&
+            if (addEnabledRulesInstrumentationArgument &&
+                enabledRulesNotSet &&
                 supportsFeature(TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS)
             ) {
                 InstrumentationTestRunnerArgumentsAgp82.set(
