@@ -17,11 +17,11 @@
 package androidx.bluetooth
 
 import android.annotation.SuppressLint
-import android.bluetooth.le.AdvertiseCallback
-import android.bluetooth.le.AdvertiseSettings
-import android.bluetooth.le.AdvertisingSet
-import android.bluetooth.le.AdvertisingSetCallback
-import android.bluetooth.le.BluetoothLeAdvertiser
+import android.bluetooth.le.AdvertiseCallback as FwkAdvertiseCallback
+import android.bluetooth.le.AdvertiseSettings as FwkAdvertiseSettings
+import android.bluetooth.le.AdvertisingSet as FwkAdvertisingSet
+import android.bluetooth.le.AdvertisingSetCallback as FwkAdvertisingSetCallback
+import android.bluetooth.le.BluetoothLeAdvertiser as FwkBluetoothLeAdvertiser
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresPermission
@@ -37,34 +37,22 @@ interface AdvertiseImpl {
 }
 
 @SuppressLint("ObsoleteSdkInt")
-internal fun getAdvertiseImpl(bleAdvertiser: BluetoothLeAdvertiser): AdvertiseImpl {
+internal fun getAdvertiseImpl(bleAdvertiser: FwkBluetoothLeAdvertiser): AdvertiseImpl {
     return if (Build.VERSION.SDK_INT >= 26) AdvertiseImplApi26(bleAdvertiser)
     else AdvertiseImplBase(bleAdvertiser)
 }
 
-private open class AdvertiseImplBase(val bleAdvertiser: BluetoothLeAdvertiser) : AdvertiseImpl {
+private open class AdvertiseImplBase(val bleAdvertiser: FwkBluetoothLeAdvertiser) : AdvertiseImpl {
 
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
     override fun advertise(advertiseParams: AdvertiseParams) = callbackFlow {
-        val callback = object : AdvertiseCallback() {
-            override fun onStartSuccess(settingsInEffect: AdvertiseSettings) {
+        val callback = object : FwkAdvertiseCallback() {
+            override fun onStartSuccess(settingsInEffect: FwkAdvertiseSettings) {
                 trySend(BluetoothLe.ADVERTISE_STARTED)
             }
 
             override fun onStartFailure(errorCode: Int) {
-                when (errorCode) {
-                    ADVERTISE_FAILED_DATA_TOO_LARGE ->
-                        trySend(BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE)
-
-                    ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
-                        trySend(BluetoothLe.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
-
-                    ADVERTISE_FAILED_INTERNAL_ERROR ->
-                        trySend(BluetoothLe.ADVERTISE_FAILED_INTERNAL_ERROR)
-
-                    ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
-                        trySend(BluetoothLe.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
-                }
+                close(AdvertiseException(errorCode))
             }
         }
 
@@ -86,41 +74,30 @@ private open class AdvertiseImplBase(val bleAdvertiser: BluetoothLeAdvertiser) :
 @SuppressLint("ObsoleteSdkInt")
 @RequiresApi(26)
 private class AdvertiseImplApi26(
-    bleAdvertiser: BluetoothLeAdvertiser
+    bleAdvertiser: FwkBluetoothLeAdvertiser
 ) : AdvertiseImplBase(bleAdvertiser) {
 
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
     override fun advertise(advertiseParams: AdvertiseParams) = callbackFlow {
-        val callback = object : AdvertisingSetCallback() {
+        val callback = object : FwkAdvertisingSetCallback() {
             override fun onAdvertisingSetStarted(
-                advertisingSet: AdvertisingSet?,
+                advertisingSet: FwkAdvertisingSet?,
                 txPower: Int,
                 status: Int
             ) {
-                when (status) {
-                    ADVERTISE_SUCCESS ->
-                        trySend(BluetoothLe.ADVERTISE_STARTED)
-
-                    ADVERTISE_FAILED_DATA_TOO_LARGE ->
-                        trySend(BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE)
-
-                    ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
-                        trySend(BluetoothLe.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
-
-                    ADVERTISE_FAILED_INTERNAL_ERROR ->
-                        trySend(BluetoothLe.ADVERTISE_FAILED_INTERNAL_ERROR)
-
-                    ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
-                        trySend(BluetoothLe.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
+                if (status == ADVERTISE_SUCCESS) {
+                    trySend(BluetoothLe.ADVERTISE_STARTED)
+                } else {
+                    close(AdvertiseException(status))
                 }
             }
 
-            override fun onAdvertisingSetStopped(advertisingSet: AdvertisingSet?) {
+            override fun onAdvertisingSetStopped(advertisingSet: FwkAdvertisingSet?) {
                 close()
             }
 
             override fun onAdvertisingEnabled(
-                advertisingSet: AdvertisingSet?,
+                advertisingSet: FwkAdvertisingSet?,
                 enable: Boolean,
                 status: Int
             ) {
