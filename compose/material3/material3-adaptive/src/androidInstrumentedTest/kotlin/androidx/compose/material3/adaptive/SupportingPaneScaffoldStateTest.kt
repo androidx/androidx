@@ -181,16 +181,20 @@ class SupportingPaneScaffoldStateTest {
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockSinglePaneScaffoldDirective = PaneScaffoldDirective(
+    contentPadding = PaddingValues(0.dp),
     maxHorizontalPartitions = 1,
-    gutterSizes = GutterSizes(PaddingValues(0.dp), 0.dp),
+    horizontalPartitionSpacerSize = 0.dp,
     maxVerticalPartitions = 1,
+    verticalPartitionSpacerSize = 0.dp,
     excludedBounds = emptyList()
 )
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockDualPaneScaffoldDirective = PaneScaffoldDirective(
+    contentPadding = PaddingValues(16.dp),
     maxHorizontalPartitions = 2,
-    gutterSizes = GutterSizes(PaddingValues(16.dp), 16.dp),
+    horizontalPartitionSpacerSize = 16.dp,
     maxVerticalPartitions = 1,
+    verticalPartitionSpacerSize = 16.dp,
     excludedBounds = emptyList()
 )

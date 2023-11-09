@@ -76,9 +76,11 @@ fun calculateStandardPaneScaffoldDirective(
     }
 
     return PaneScaffoldDirective(
+        contentPadding,
         maxHorizontalPartitions,
-        GutterSizes(contentPadding, verticalSpacerSize, horizontalSpacerSize),
+        verticalSpacerSize,
         maxVerticalPartitions,
+        horizontalSpacerSize,
         getExcludedVerticalBounds(windowAdaptiveInfo.windowPosture, verticalHingePolicy)
     )
 }
@@ -135,9 +137,11 @@ fun calculateDensePaneScaffoldDirective(
     }
 
     return PaneScaffoldDirective(
+        contentPadding,
         maxHorizontalPartitions,
-        GutterSizes(contentPadding, verticalSpacerSize, horizontalSpacerSize),
+        verticalSpacerSize,
         maxVerticalPartitions,
+        horizontalSpacerSize,
         getExcludedVerticalBounds(windowAdaptiveInfo.windowPosture, verticalHingePolicy)
     )
 }
@@ -157,72 +161,45 @@ private fun getExcludedVerticalBounds(posture: Posture, hingePolicy: HingePolicy
  * partitions the layout can be split into and what should be the gutter size.
  *
  * @constructor create an instance of [PaneScaffoldDirective]
+ * @param contentPadding Size of the paddings between the panes and the outer bounds of the layout.
  * @param maxHorizontalPartitions the max number of partitions along the horizontal axis the layout
  *        can be split into.
- * @param gutterSizes the gutter sizes between panes the layout should preserve.
+ * @param horizontalPartitionSpacerSize Size of the spacers between horizontal partitions.
+ *        It's equivalent to the left/right margins the horizontal partitions.
  * @param maxVerticalPartitions the max number of partitions along the vertical axis the layout can
  *        be split into.
+ * @param verticalPartitionSpacerSize Size of the spacers between vertical partitions.
+ *        It's equivalent to the top/bottom margins of the vertical partitions.
  * @param excludedBounds the bounds of all areas in the window that the layout needs to avoid
  *        displaying anything upon it. Usually these bounds represent where physical hinges are.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
 class PaneScaffoldDirective(
+    val contentPadding: PaddingValues,
     val maxHorizontalPartitions: Int,
-    val gutterSizes: GutterSizes,
+    val horizontalPartitionSpacerSize: Dp,
     val maxVerticalPartitions: Int,
+    val verticalPartitionSpacerSize: Dp,
     val excludedBounds: List<Rect>
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is PaneScaffoldDirective) return false
-        if (maxHorizontalPartitions != other.maxHorizontalPartitions) return false
-        if (gutterSizes != other.gutterSizes) return false
-        if (maxVerticalPartitions != other.maxVerticalPartitions) return false
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = maxHorizontalPartitions
-        result = 31 * result + gutterSizes.hashCode()
-        result = 31 * result + maxVerticalPartitions
-        return result
-    }
-}
-
-/**
- * Denotes the gutter sizes of an adaptive layout. Gutters of an adaptive layouts include spacers
- * between panes ([verticalSpacerSize] and [horizontalSpacerSize]) and paddings of the layout itself
- * ([contentPadding]). Usually we will expect larger gutter sizes to be set when the layout is
- * larger and more panes are shown in the layout.
- *
- * @constructor create an instance of [GutterSizes]
- * @param contentPadding Size of the paddings between the panes and the outer bounds of the layout.
- * @param verticalSpacerSize Size of the vertical spacers between panes. It's similar to left/right
- *        margins of the layout's children.
- * @param horizontalSpacerSize Size of the horizontal spacers between panes. It's similar to
- *        top/bottom margins of the layout's children.
- */
-@ExperimentalMaterial3AdaptiveApi
-@Immutable
-class GutterSizes(
-    val contentPadding: PaddingValues,
-    val verticalSpacerSize: Dp,
-    val horizontalSpacerSize: Dp = verticalSpacerSize
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is GutterSizes) return false
         if (contentPadding != other.contentPadding) return false
-        if (verticalSpacerSize != other.verticalSpacerSize) return false
-        if (horizontalSpacerSize != other.horizontalSpacerSize) return false
+        if (maxHorizontalPartitions != other.maxHorizontalPartitions) return false
+        if (horizontalPartitionSpacerSize != other.horizontalPartitionSpacerSize) return false
+        if (maxVerticalPartitions != other.maxVerticalPartitions) return false
+        if (verticalPartitionSpacerSize != other.verticalPartitionSpacerSize) return false
         return true
     }
 
     override fun hashCode(): Int {
         var result = contentPadding.hashCode()
-        result = 31 * result + verticalSpacerSize.hashCode()
-        result = 31 * result + horizontalSpacerSize.hashCode()
+        result = 31 * result + maxHorizontalPartitions
+        result = 31 * result + horizontalPartitionSpacerSize.hashCode()
+        result = 31 * result + maxVerticalPartitions
+        result = 31 * result + verticalPartitionSpacerSize.hashCode()
         return result
     }
 }
