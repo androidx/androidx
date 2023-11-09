@@ -18,173 +18,19 @@ package androidx.baselineprofile.gradle.producer
 
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
 import androidx.baselineprofile.gradle.utils.TestAgpVersion
-import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_0_0
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_0
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_CURRENT
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.buildAndFailAndAssertThatOutput
 import androidx.baselineprofile.gradle.utils.require
+import com.google.common.truth.StringSubject
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import org.junit.runners.Parameterized
-
-@RunWith(JUnit4::class)
-class BaselineProfileProducerPluginTestWithAgp80 {
-
-    @get:Rule
-    val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = TEST_AGP_VERSION_8_0_0.versionString
-    )
-
-    private val emptyReleaseVariantProfile = VariantProfile(
-        flavor = null,
-        buildType = "release",
-        profileFileLines = mapOf()
-    )
-
-    @Test
-    fun verifyTasksWithAndroidTestPlugin() {
-        projectSetup.appTarget.setup()
-        projectSetup.producer.setup(
-            variantProfiles = listOf(emptyReleaseVariantProfile),
-            targetProject = projectSetup.appTarget
-        )
-
-        projectSetup.producer.gradleRunner.build("tasks") {
-            val notFound = it.lines().require(
-                "connectedNonMinifiedReleaseAndroidTest - ",
-                "collectNonMinifiedReleaseBaselineProfile - "
-            )
-            assertThat(notFound).isEmpty()
-        }
-    }
-}
-
-@RunWith(JUnit4::class)
-class BaselineProfileProducerPluginTestWithAgp81 {
-
-    @get:Rule
-    val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = TEST_AGP_VERSION_8_1_0.versionString
-    )
-
-    private val emptyReleaseVariantProfile = VariantProfile(
-        flavor = null,
-        buildType = "release",
-        profileFileLines = mapOf()
-    )
-
-    @Test
-    fun verifyTasksWithAndroidTestPlugin() {
-        projectSetup.appTarget.setup()
-        projectSetup.producer.setup(
-            variantProfiles = listOf(emptyReleaseVariantProfile),
-            targetProject = projectSetup.appTarget
-        )
-
-        projectSetup.producer.gradleRunner.build("tasks") {
-            val notFound = it.lines().require(
-                "connectedNonMinifiedReleaseAndroidTest - ",
-                "connectedBenchmarkReleaseAndroidTest - ",
-                "collectNonMinifiedReleaseBaselineProfile - "
-            )
-            assertThat(notFound).isEmpty()
-        }
-    }
-}
-
-@RunWith(JUnit4::class)
-class BaselineProfileProducerPluginTestWithAgp82 {
-
-    @get:Rule
-    val projectSetup = BaselineProfileProjectSetupRule(
-        // TODO: Update after b/309493780
-        forceAgpVersion = null
-    )
-
-    private val emptyReleaseVariantProfile = VariantProfile(
-        flavor = null,
-        buildType = "release",
-        profileFileLines = mapOf()
-    )
-
-    @Ignore("b/309493780")
-    @Test
-    fun verifyInstrumentationRunnerArgumentsAreSet() {
-        projectSetup.appTarget.setup()
-        projectSetup.producer.setup(
-            variantProfiles = listOf(emptyReleaseVariantProfile),
-            targetProject = projectSetup.appTarget,
-            additionalGradleCodeBlock = """
-            abstract class PrintArgsTask extends DefaultTask {
-                @Input abstract MapProperty<String, String> getProperties()
-                @TaskAction void exec() {
-                    for (Map.Entry<String, String> e : getProperties().get().entrySet()) {
-                        println(e.key + "=" + e.value)
-                    }
-                }
-            }
-            androidComponents {
-                onVariants(selector()) { variant ->
-                    tasks.register(variant.name + "Arguments", PrintArgsTask) { t ->
-                        t.properties.set(variant.instrumentationRunnerArguments)
-                    }
-                }
-            }
-            """.trimIndent()
-        )
-
-        projectSetup
-            .producer
-            .gradleRunner
-            .buildAndAssertThatOutput("benchmarkReleaseArguments") {
-                contains("androidx.benchmark.enabledRules=macrobenchmark")
-            }
-        projectSetup
-            .producer
-            .gradleRunner
-            .buildAndAssertThatOutput("nonMinifiedReleaseArguments") {
-                contains("androidx.benchmark.enabledRules=baselineprofile")
-            }
-    }
-
-    @Ignore("b/309493780")
-    @Test
-    fun runWhenInstrumentationRunnerArgumentsAreSetManually() {
-        projectSetup.appTarget.setup()
-        projectSetup.producer.setup(
-            variantProfiles = listOf(emptyReleaseVariantProfile),
-            targetProject = projectSetup.appTarget
-        )
-
-        val enabledRuleProp =
-            "-Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules"
-        projectSetup
-            .producer
-            .gradleRunner
-            .build(
-                "connectedBenchmarkReleaseAndroidTest",
-                "$enabledRuleProp=Macrobenchmark"
-            ) {
-                // This should not fail.
-            }
-
-        projectSetup
-            .producer
-            .gradleRunner
-            .build(
-                "connectedNonMinifiedReleaseAndroidTest",
-                "$enabledRuleProp=BaselineProfile"
-            ) {
-                // This should not fail.
-            }
-    }
-}
 
 @RunWith(Parameterized::class)
 class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
@@ -203,6 +49,23 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
         buildType = "release",
         profileFileLines = mapOf()
     )
+
+    @Test
+    fun verifyTasksWithAndroidTestPlugin() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget
+        )
+
+        projectSetup.producer.gradleRunner.build("tasks") {
+            val notFound = it.lines().require(
+                "connectedNonMinifiedReleaseAndroidTest - ",
+                "collectNonMinifiedReleaseBaselineProfile - "
+            )
+            assertThat(notFound).isEmpty()
+        }
+    }
 
     @Test
     fun nonExistingManagedDeviceShouldThrowError() {
@@ -343,6 +206,155 @@ class BaselineProfileProducerPluginTest(agpVersion: TestAgpVersion) {
             ) {
                 doesNotContain("connectedNonMinifiedReleaseAndroidTest")
                 contains("somePixelDeviceNonMinifiedReleaseAndroidTest")
+            }
+    }
+}
+
+@RunWith(Parameterized::class)
+class BaselineProfileProducerPluginTestWithAgp81AndAbove(agpVersion: TestAgpVersion) {
+
+    companion object {
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = arrayOf(TEST_AGP_VERSION_8_1_0, TEST_AGP_VERSION_CURRENT)
+    }
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(
+        forceAgpVersion = agpVersion.versionString
+    )
+
+    private val emptyReleaseVariantProfile = VariantProfile(
+        flavor = null,
+        buildType = "release",
+        profileFileLines = mapOf()
+    )
+
+    @Test
+    fun verifyTasksWithAndroidTestPlugin() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget
+        )
+
+        projectSetup.producer.gradleRunner.build("tasks") {
+            val notFound = it.lines().require(
+                "connectedNonMinifiedReleaseAndroidTest - ",
+                "connectedBenchmarkReleaseAndroidTest - ",
+                "collectNonMinifiedReleaseBaselineProfile - "
+            )
+            assertThat(notFound).isEmpty()
+        }
+    }
+}
+
+@RunWith(Parameterized::class)
+class BaselineProfileProducerPluginTestWithAgp82AndAbove(agpVersion: TestAgpVersion) {
+
+    companion object {
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = arrayOf(TEST_AGP_VERSION_CURRENT)
+    }
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(
+        forceAgpVersion = agpVersion.versionString
+    )
+
+    private val emptyReleaseVariantProfile = VariantProfile(
+        flavor = null,
+        buildType = "release",
+        profileFileLines = mapOf()
+    )
+
+    @Test
+    fun verifyInstrumentationRunnerArgumentsAreSet() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget,
+            additionalGradleCodeBlock = """
+            abstract class PrintArgsTask extends DefaultTask {
+                @Input abstract MapProperty<String, String> getProperties()
+                @TaskAction void exec() {
+                    for (Map.Entry<String, String> e : getProperties().get().entrySet()) {
+                        println(e.key + "=" + e.value)
+                    }
+                }
+            }
+            androidComponents {
+                onVariants(selector()) { variant ->
+                    tasks.register(variant.name + "Arguments", PrintArgsTask) { t ->
+                        t.properties.set(variant.instrumentationRunnerArguments)
+                    }
+                }
+            }
+            """.trimIndent()
+        )
+
+        data class AssertData(
+            val taskName: String,
+            val applyProp: Boolean,
+            val assertBlock: StringSubject.() -> (Unit)
+        )
+
+        arrayOf(
+            AssertData("benchmarkReleaseArguments", false) {
+                contains("androidx.benchmark.enabledRules=macrobenchmark")
+            },
+            AssertData("nonMinifiedReleaseArguments", false) {
+                contains("androidx.benchmark.enabledRules=baselineprofile")
+            },
+            AssertData("benchmarkReleaseArguments", true) {
+                doesNotContain("androidx.benchmark.enabledRules=macrobenchmark")
+            },
+            AssertData("nonMinifiedReleaseArguments", true) {
+                doesNotContain("androidx.benchmark.enabledRules=baselineprofile")
+            },
+        ).forEach {
+            projectSetup
+                .producer
+                .gradleRunner
+                .buildAndAssertThatOutput(
+                    arguments = listOfNotNull(
+                        it.taskName,
+                        if (it.applyProp) "-Pandroidx.baselineprofile.dontdisablerules" else null
+                    ).toTypedArray(),
+                    assertBlock = it.assertBlock
+                )
+        }
+    }
+
+    @Test
+    fun runWhenInstrumentationRunnerArgumentsAreSetManually() {
+        projectSetup.appTarget.setup()
+        projectSetup.producer.setup(
+            variantProfiles = listOf(emptyReleaseVariantProfile),
+            targetProject = projectSetup.appTarget
+        )
+
+        val enabledRuleProp =
+            "-Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.enabledRules"
+        projectSetup
+            .producer
+            .gradleRunner
+            .build(
+                "connectedBenchmarkReleaseAndroidTest",
+                "$enabledRuleProp=Macrobenchmark"
+            ) {
+                // This should not fail.
+            }
+
+        projectSetup
+            .producer
+            .gradleRunner
+            .build(
+                "connectedNonMinifiedReleaseAndroidTest",
+                "$enabledRuleProp=BaselineProfile"
+            ) {
+                // This should not fail.
             }
     }
 }
