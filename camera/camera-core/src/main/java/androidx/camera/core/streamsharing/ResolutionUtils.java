@@ -16,16 +16,24 @@
 
 package androidx.camera.core.streamsharing;
 
+import static androidx.camera.core.impl.ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_CUSTOM_ORDERED_RESOLUTIONS;
+import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 
 import android.os.Build;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -45,19 +53,70 @@ class ResolutionUtils {
      * the supported PRIV resolutions, 2) the sensor size and 3) the children's configs.
      */
     static List<Size> getMergedResolutions(
-            @NonNull List<Size> supportedResolutions,
+            @NonNull List<Size> cameraSupportedResolutions,
             @NonNull Size sensorSize,
-            @NonNull Set<UseCaseConfig<?>> useCaseConfigs) {
+            @NonNull MutableConfig parentConfig,
+            @NonNull Set<UseCaseConfig<?>> childrenConfigs) {
+        List<Size> result = mergeChildrenResolutions(childrenConfigs);
+        if (result == null) {
+            // Use camera supported resolutions if there is no requirement from children config.
+            result = cameraSupportedResolutions;
+        }
+
+        // Filter out resolutions that are not supported by the parent config (e.g. Extensions
+        // may have additional limitations on resolutions).
+        List<Pair<Integer, Size[]>> parentSupportedResolutions =
+                parentConfig.retrieveOption(OPTION_SUPPORTED_RESOLUTIONS, null);
+        if (parentSupportedResolutions != null) {
+            result = filterOutUnsupportedResolutions(result, parentSupportedResolutions,
+                    INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+        }
+
+        return result;
+    }
+
+    @Nullable
+    private static List<Size> mergeChildrenResolutions(
+            @NonNull Set<UseCaseConfig<?>> childrenConfigs) {
         // TODO(b/264936115): This is a temporary placeholder solution that returns the config of
         //  VideoCapture if it exists. Later we will update it to actually merge the children's
         //  configs.
-        for (UseCaseConfig<?> useCaseConfig : useCaseConfigs) {
+        for (UseCaseConfig<?> childConfig : childrenConfigs) {
             List<Size> customOrderedResolutions =
-                    useCaseConfig.retrieveOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS, null);
+                    childConfig.retrieveOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS, null);
             if (customOrderedResolutions != null) {
                 return customOrderedResolutions;
             }
         }
-        return supportedResolutions;
+        return null;
+    }
+
+    /**
+     * Returns a list of resolution that all resolutions are supported.
+     *
+     * <p> The order of the {@code resolutionsToFilter} will be preserved in the resulting list.
+     */
+    @NonNull
+    private static List<Size> filterOutUnsupportedResolutions(
+            @NonNull List<Size> resolutionsToFilter,
+            @NonNull List<Pair<Integer, Size[]>> supportedResolutions, int format) {
+        // Get resolutions to keep.
+        Set<Size> resolutionsToKeep = new HashSet<>();
+        for (Pair<Integer, Size[]> pair : supportedResolutions) {
+            if (pair.first.equals(format)) {
+                resolutionsToKeep = new HashSet<>(Arrays.asList(pair.second));
+                break;
+            }
+        }
+
+        // Filter out unsupported resolutions.
+        List<Size> result = new ArrayList<>();
+        for (Size resolution : resolutionsToFilter) {
+            if (resolutionsToKeep.contains(resolution)) {
+                result.add(resolution);
+            }
+        }
+
+        return result;
     }
 }
