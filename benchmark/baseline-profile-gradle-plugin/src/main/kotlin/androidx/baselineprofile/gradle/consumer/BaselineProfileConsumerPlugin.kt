@@ -36,6 +36,7 @@ import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.R8Utils
 import androidx.baselineprofile.gradle.utils.RELEASE
 import androidx.baselineprofile.gradle.utils.camelCase
+import androidx.baselineprofile.gradle.utils.namedOrNull
 import com.android.build.api.dsl.ApplicationExtension
 import com.android.build.api.dsl.LibraryExtension
 import com.android.build.api.variant.ApplicationVariant
@@ -93,6 +94,13 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
     private val Variant.benchmarkVariantName: String
         get() {
             val parts = listOfNotNull(flavorName, BUILD_TYPE_BENCHMARK_PREFIX, buildType)
+                .filter { it.isNotBlank() }
+            return camelCase(*parts.toTypedArray())
+        }
+
+    private val Variant.benchmarkBuildType: String
+        get() {
+            val parts = listOfNotNull(BUILD_TYPE_BENCHMARK_PREFIX, buildType)
                 .filter { it.isNotBlank() }
             return camelCase(*parts.toTypedArray())
         }
@@ -330,11 +338,12 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                     .automaticGenerationDuringBuild
 
                 // Defines a function to apply the baseline profile source sets to a variant.
-                val applySourceSetsFunc: (String) -> (Unit) = { variantName ->
+                fun applySourceSets(variantName: String, variantBuildType: String?) {
+                    val taskName = camelCase("merge", variantName, "artProfile")
                     project
                         .tasks
-                        .named(camelCase("merge", variantName, "artProfile"))
-                        .configure { t ->
+                        .namedOrNull<Task>(taskName)
+                        ?.configure { t ->
 
                             // TODO: this causes a circular task dependency when the producer points
                             //  to a consumer that does not have the appTarget plugin. (b/272851616)
@@ -344,16 +353,31 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                                 t.mustRunAfter(copyTaskProvider)
                             }
                         }
+                        ?: throw IllegalStateException(
+                            "The task `$taskName` doesn't exist. This may be related to a " +
+                                "`beforeVariants` block filtering variants and disabling" +
+                                "`$variantName`. Please check your gradle configuration and make " +
+                                "sure variants with build type `$variantBuildType` are " +
+                                "enabled. For more information on variant filters check out the " +
+                                "docs at https://developer.android.com/build/build-variants#" +
+                                "filter-variants."
+                        )
                 }
 
                 afterVariants {
 
                     // Apply the source sets to the variant.
-                    applySourceSetsFunc(variant.name)
+                    applySourceSets(
+                        variant.name,
+                        variant.buildType
+                    )
 
                     // Apply the source sets to the benchmark variant if supported.
                     if (supportsFeature(AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES)) {
-                        applySourceSetsFunc(variant.benchmarkVariantName)
+                        applySourceSets(
+                            variant.benchmarkVariantName,
+                            variant.benchmarkBuildType
+                        )
                     }
                 }
             }
@@ -370,7 +394,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                 // on the merge or prepare art profile task.
 
                 // Defines a function to apply the baseline profile source sets to a variant.
-                val applySourceSetsFunc: (Variant) -> (Unit) = { v ->
+                fun applySourceSets(v: Variant) {
                     v.sources.baselineProfiles?.addGeneratedSourceDirectory(
                         taskProvider = mergeTaskProvider,
                         wiredWith = MergeBaselineProfileTask::baselineProfileDir
@@ -378,7 +402,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                 }
 
                 // Apply the source sets to the variant.
-                applySourceSetsFunc(variant)
+                applySourceSets(variant)
 
                 // Apply the source sets to the benchmark variant if supported and this the
                 // consumer is an app (libraries don't have benchmark type).
@@ -391,7 +415,7 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                     // because the benchmark build type is created after the baseline profile
                     // build type, its variants will also come after the ones for baseline profile.
                     onVariant(variant.benchmarkVariantName) { v: ApplicationVariant ->
-                        applySourceSetsFunc(v)
+                        applySourceSets(v)
                     }
                 }
             } else {
