@@ -1,7 +1,9 @@
 ## Dependencies {#dependencies}
 
 Artifacts may depend on other artifacts within AndroidX as well as sanctioned
-third-party libraries.
+third-party libraries. Additionally, artifacts may have toolchain dependencies
+that are not explicitly specified in their `dependencies` build configuration or
+don't appear in their Maven publications (`pom` or `module` files).
 
 ### Versioned artifacts {#dependencies-versioned}
 
@@ -346,3 +348,76 @@ Some examples of safely depending on closed-source components include:
 Note that in all cases, the developer is not *required* to use GCM or Play
 Services and may instead use another compatible service implementing the same
 publicly-defined protocols.
+
+### Toolchain dependencies
+
+Toolchain dependencies are typically specified by the AndroidX build system and
+are often limited, if any, configuration on behalf of library owners.
+
+#### Kotlin language
+
+Several projects within AndroidX depend on aspects of the Kotlin compiler that
+do not guarantee binary compatibility, which means (1) Kotlin updates within
+AndroidX may be more complicated and (2) Kotlin updates may be more complicated
+for external clients.
+
+For this reason, we try to separate (1) and (2) by pinning the Kotlin language
+and API versions until the new compiler has been in use in AndroidX for at least
+three months.
+
+Library owners *may* in limited cases update their Kotlin language version early
+by specifying the `kotlinVersion` DSL property:
+
+```
+androidx {
+    kotlinVersion KOTLIN_1_9
+}
+```
+
+Note that this propagates the version requirement to all dependencies and is not
+appropriate for low-level libraries.
+
+#### Java language
+
+The Java language level determines the minimum version of the Java runtime
+required for lint checks and other host-side libraries like compilers.
+
+To avoid causing issues for clients, we try to separate Java compiler or runtime
+updates from language level by pinning the Java language level to the second
+most-recent stable LTS version. In extreme cases, however, we may be required to
+move to a more recent version because of a dependency like AGP or Gradle.
+
+Library owners *may*, in cases where clients are unable to update their Java
+version, temporarily pin their Java language version to a lower value by
+specifying the compatibility DSL properties:
+
+```
+javaExtension.apply {
+    // TODO(b/12345678) Remove this once clients are able to update.
+    sourceCompatibility = VERSION_17
+    targetCompatibility = VERSION_17
+}
+```
+
+When doing so, library owners **must** file a bug and establish a timeline to
+un-pin and rejoin the rest of AndroidX.
+
+#### Desugaring and R8/D8
+
+Currently, the highest Java language level supported for Android libraries is
+Java 1.8 (`VERSION_1_8``) via D8/R8 desugaring. See Use Java 8 language features
+and APIs for more details.
+
+AndroidX **does not** currently support library API desugaring, so the use of
+Java 8 APIs requires increasing the library's `minSdk`.
+
+#### Android SDK
+
+The AndroidX Core & Tooling team automatically updates the `compileSdk` value
+following the first public release of a stable SDK, e.g. following SDK
+finalization during the Beta stage of platform SDK development.
+
+Library owners **must not** attempt to pin their `compileSdk` to a lower value.
+
+Libraries that are developed against extension SDKs *may* pin their `compileSdk`
+to a higher value, e.g. `34-ext5` when the rest of AndroidX is using `34`.
