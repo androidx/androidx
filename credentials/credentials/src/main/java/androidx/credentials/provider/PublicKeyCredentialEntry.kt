@@ -137,6 +137,17 @@ class PublicKeyCredentialEntry internal constructor(
         beginGetPublicKeyCredentialOption
     )
 
+    @RequiresApi(34)
+    private object Api34Impl {
+
+        @JvmStatic
+        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
+            PublicKeyCredentialEntry? {
+            val slice = credentialEntry.slice
+            return fromSlice(slice)
+        }
+    }
+
     @RequiresApi(28)
     private object Api28Impl {
         @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -297,7 +308,7 @@ class PublicKeyCredentialEntry internal constructor(
         }
     }
 
-    internal companion object {
+    companion object {
         private const val TAG = "PublicKeyCredEntry"
 
         private const val SLICE_HINT_TYPE_DISPLAY_NAME =
@@ -359,12 +370,31 @@ class PublicKeyCredentialEntry internal constructor(
          *
          * @param slice the [Slice] object constructed through [toSlice]
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @SuppressLint("WrongConstant") // custom conversion between jetpack and framework
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @JvmStatic
         fun fromSlice(slice: Slice): PublicKeyCredentialEntry? {
             if (Build.VERSION.SDK_INT >= 28) {
                 return Api28Impl.fromSlice(slice)
+            }
+            return null
+        }
+
+        /**
+         * Converts a framework [android.service.credentials.CredentialEntry] class to a Jetpack
+         * [PublicKeyCredentialEntry] class
+         *
+         * Note that this API is not needed in a general credential retrieval flow that is
+         * implemented using this jetpack library, where you are only required to construct
+         * an instance of [CredentialEntry] to populate the [BeginGetCredentialResponse].
+         *
+         * @param credentialEntry the instance of framework class to be converted
+         */
+        @JvmStatic
+        fun fromCredentialEntry(credentialEntry: android.service.credentials.CredentialEntry):
+            PublicKeyCredentialEntry? {
+            if (Build.VERSION.SDK_INT >= 34) {
+                return Api34Impl.fromCredentialEntry(credentialEntry)
             }
             return null
         }

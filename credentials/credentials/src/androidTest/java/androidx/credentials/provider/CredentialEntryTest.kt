@@ -66,7 +66,7 @@ class CredentialEntryTest {
         val slice = PasswordCredentialEntry.toSlice(entry)
         assertNotNull(slice)
 
-        val result = CredentialEntry.createFrom(slice!!)
+        val result = CredentialEntry.fromSlice(slice!!)
         assertThat(result).isNotNull()
         assertThat(result!!.type).isEqualTo(TYPE_PASSWORD_CREDENTIAL)
     }
@@ -84,7 +84,7 @@ class CredentialEntryTest {
         val slice = PublicKeyCredentialEntry.toSlice(entry)
         assertNotNull(slice)
 
-        val result = CredentialEntry.createFrom(slice!!)
+        val result = CredentialEntry.fromSlice(slice!!)
         assertNotNull(result)
         assertThat(result!!.type).isEqualTo(TYPE_PUBLIC_KEY_CREDENTIAL)
     }
@@ -100,7 +100,7 @@ class CredentialEntryTest {
         val slice = CustomCredentialEntry.toSlice(entry)
         assertNotNull(slice)
 
-        val result = CredentialEntry.createFrom(slice!!)
+        val result = CredentialEntry.fromSlice(slice!!)
         assertThat(result).isNotNull()
         assertThat(result!!.type).isEqualTo("custom")
     }
