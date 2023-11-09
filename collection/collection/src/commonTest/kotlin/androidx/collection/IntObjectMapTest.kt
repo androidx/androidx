@@ -390,7 +390,7 @@ class IntObjectMapTest {
 
         // Make sure reinserting an entry after filling the table
         // with "Deleted" markers works
-        map[7] = "Mundo"
+        map[1] = "Mundo"
 
         assertEquals(1, map.size)
         assertEquals(capacity, map.capacity)
