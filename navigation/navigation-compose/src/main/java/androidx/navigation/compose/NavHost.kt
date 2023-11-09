@@ -269,6 +269,14 @@ public fun NavHost(
             }
         }
 
+        DisposableEffect(true) {
+            onDispose {
+                visibleEntries.forEach { entry ->
+                    composeNavigator.onTransitionComplete(entry)
+                }
+            }
+        }
+
         val transition = updateTransition(backStackEntry, label = "entry")
         transition.AnimatedContent(
             modifier,
@@ -316,13 +324,6 @@ public fun NavHost(
                 zIndices
                     .filter { it.key != transition.targetState.id }
                     .forEach { zIndices.remove(it.key) }
-            }
-        }
-        DisposableEffect(true) {
-            onDispose {
-                visibleEntries.forEach { entry ->
-                    composeNavigator.onTransitionComplete(entry)
-                }
             }
         }
     }
