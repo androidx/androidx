@@ -56,7 +56,19 @@ dependencies {
     neededForGradleTestKit(libs.kotlinStdlib)
 
     neededForGradleTestKitAgp80("com.android.tools.build:gradle:8.0.0")
+    neededForGradleTestKitAgp80("com.android.tools.build:aapt2:8.0.0-9289358")
+    neededForGradleTestKitAgp80("com.android.tools.build:aapt2:8.0.0-9289358:linux")
+    neededForGradleTestKitAgp80("com.android.tools.build:aapt2:8.0.0-9289358:osx")
     neededForGradleTestKitAgp81("com.android.tools.build:gradle:8.1.0")
+    neededForGradleTestKitAgp81("com.android.tools.build:aapt2:8.1.0-10154469")
+    neededForGradleTestKitAgp81("com.android.tools.build:aapt2:8.1.0-10154469:linux")
+    neededForGradleTestKitAgp81("com.android.tools.build:aapt2:8.1.0-10154469:osx")
+}
+
+tasks.withType(Test).configureEach {
+    it.dependsOn(configurations.neededForGradleTestKit)
+    it.dependsOn(configurations.neededForGradleTestKitAgp80)
+    it.dependsOn(configurations.neededForGradleTestKitAgp81)
 }
 
 SdkResourceGenerator.generateForHostTest(project)
