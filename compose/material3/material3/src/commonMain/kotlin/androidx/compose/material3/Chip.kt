@@ -683,7 +683,7 @@ fun SuggestionChip(
     shape: Shape = SuggestionChipDefaults.shape,
     colors: ChipColors = SuggestionChipDefaults.suggestionChipColors(),
     elevation: ChipElevation? = SuggestionChipDefaults.suggestionChipElevation(),
-    border: BorderStroke = SuggestionChipDefaults.suggestionChipBorder(enabled),
+    border: BorderStroke? = SuggestionChipDefaults.suggestionChipBorder(enabled),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) = Chip(
     modifier = modifier,
