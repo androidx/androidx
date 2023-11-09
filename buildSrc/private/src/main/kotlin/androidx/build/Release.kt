@@ -121,17 +121,20 @@ open class GMavenZipTask : Zip() {
 object Release {
     @Suppress("MemberVisibilityCanBePrivate")
     const val PROJECT_ARCHIVE_ZIP_TASK_NAME = "createProjectZip"
+    const val DIFF_TASK_PREFIX = "createDiffArchive"
     const val FULL_ARCHIVE_TASK_NAME = "createArchive"
     const val ALL_ARCHIVES_TASK_NAME = "createAllArchives"
     const val DEFAULT_PUBLISH_CONFIG = "release"
+    const val GROUP_ZIPS_FOLDER = "per-group-zips"
     const val PROJECT_ZIPS_FOLDER = "per-project-zips"
+    const val GROUP_ZIP_PREFIX = "gmaven"
     const val GLOBAL_ZIP_PREFIX = "top-of-tree-m2repository"
 
     // lazily created config action params so that we don't keep re-creating them
     private var configActionParams: GMavenZipTask.ConfigAction.Params? = null
 
     /**
-     * Registers the project to be included in the global zip file.
+     * Registers the project to be included in its group's zip file as well as the global zip files.
      */
     fun register(project: Project, extension: AndroidXExtension) {
         if (!extension.shouldPublish()) {
@@ -156,11 +159,11 @@ object Release {
             return
         }
 
-        if (extension.mavenGroup?.group == null) {
-            throw IllegalArgumentException(
-                "Cannot register a project to release if it does not have a mavenGroup set up"
-            )
-        }
+        val mavenGroup =
+            extension.mavenGroup?.group
+                ?: throw IllegalArgumentException(
+                    "Cannot register a project to release if it does not have a mavenGroup set up"
+                )
         if (!extension.isVersionSet()) {
             throw IllegalArgumentException(
                 "Cannot register a project to release if it does not have a mavenVersion set up"
@@ -172,6 +175,7 @@ object Release {
         val zipTasks =
             listOf(
                 projectZipTask,
+                getGroupReleaseZipTask(project, mavenGroup),
                 getGlobalFullZipTask(project)
             )
 
@@ -288,6 +292,28 @@ object Release {
             onRegister = { taskProvider: TaskProvider<GMavenZipTask> ->
                 project.addToAnchorTask(taskProvider)
             }
+        )
+    }
+
+    /** Creates and returns the zip task that includes artifacts only in the given maven group. */
+    private fun getGroupReleaseZipTask(
+        project: Project,
+        group: String
+    ): TaskProvider<GMavenZipTask> {
+        return project.rootProject.maybeRegister(
+            name = "${DIFF_TASK_PREFIX}For${groupToTaskNameSuffix(group)}",
+            onConfigure = { task: GMavenZipTask ->
+                GMavenZipTask.ConfigAction(
+                        getParams(
+                            project = project,
+                            distDir = File(project.getDistributionDirectory(), GROUP_ZIPS_FOLDER),
+                            fileNamePrefix = GROUP_ZIP_PREFIX,
+                            group = group
+                        )
+                    )
+                    .execute(task)
+            },
+            onRegister = { taskProvider -> project.addToAnchorTask(taskProvider) }
         )
     }
 
@@ -482,6 +508,13 @@ fun Project.getProjectZipPath(): String {
         // the getProjectZipTask function
         getZipName(projectZipPrefix(), "") +
         "-${project.version}.zip"
+}
+
+fun Project.getGroupZipPath(): String {
+    return Release.GROUP_ZIPS_FOLDER +
+        "/" +
+        getZipName(Release.GROUP_ZIP_PREFIX, project.group.toString()) +
+        ".zip"
 }
 
 fun Project.getGlobalZipFile(): File {
