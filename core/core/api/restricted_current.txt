@@ -1214,7 +1214,8 @@ package androidx.core.content {
   }
 
   public final class ContentResolverCompat {
-    method public static android.database.Cursor? query(android.content.ContentResolver, android.net.Uri, String![]?, String?, String![]?, String?, androidx.core.os.CancellationSignal?);
+    method public static android.database.Cursor? query(android.content.ContentResolver, android.net.Uri, String![]?, String?, String![]?, String?, android.os.CancellationSignal?);
+    method @Deprecated public static android.database.Cursor? query(android.content.ContentResolver, android.net.Uri, String![]?, String?, String![]?, String?, androidx.core.os.CancellationSignal?);
   }
 
   public class ContextCompat {
@@ -1960,6 +1961,7 @@ package androidx.core.hardware.display {
 package androidx.core.hardware.fingerprint {
 
   @Deprecated public class FingerprintManagerCompat {
+    method @Deprecated @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT) public void authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject?, int, android.os.CancellationSignal?, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler?);
     method @Deprecated @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT) public void authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject?, int, androidx.core.os.CancellationSignal?, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler?);
     method @Deprecated public static androidx.core.hardware.fingerprint.FingerprintManagerCompat from(android.content.Context);
     method @Deprecated @RequiresPermission(android.Manifest.permission.USE_FINGERPRINT) public boolean hasEnrolledFingerprints();
@@ -2106,7 +2108,8 @@ package androidx.core.location {
   }
 
   public final class LocationManagerCompat {
-    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void getCurrentLocation(android.location.LocationManager, String, androidx.core.os.CancellationSignal?, java.util.concurrent.Executor, androidx.core.util.Consumer<android.location.Location!>);
+    method @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void getCurrentLocation(android.location.LocationManager, String, android.os.CancellationSignal?, java.util.concurrent.Executor, androidx.core.util.Consumer<android.location.Location!>);
+    method @Deprecated @RequiresPermission(anyOf={android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION}) public static void getCurrentLocation(android.location.LocationManager, String, androidx.core.os.CancellationSignal?, java.util.concurrent.Executor, androidx.core.util.Consumer<android.location.Location!>);
     method public static String? getGnssHardwareModelName(android.location.LocationManager);
     method public static int getGnssYearOfHardware(android.location.LocationManager);
     method public static boolean hasProvider(android.location.LocationManager, String);
@@ -2262,17 +2265,17 @@ package androidx.core.os {
     method public static void putBinder(android.os.Bundle, String?, android.os.IBinder?);
   }
 
-  public final class CancellationSignal {
-    ctor public CancellationSignal();
-    method public void cancel();
-    method public Object? getCancellationSignalObject();
-    method public boolean isCanceled();
-    method public void setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener?);
-    method public void throwIfCanceled();
+  @Deprecated public final class CancellationSignal {
+    ctor @Deprecated public CancellationSignal();
+    method @Deprecated public void cancel();
+    method @Deprecated public Object? getCancellationSignalObject();
+    method @Deprecated public boolean isCanceled();
+    method @Deprecated public void setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener?);
+    method @Deprecated public void throwIfCanceled();
   }
 
-  public static interface CancellationSignal.OnCancelListener {
-    method public void onCancel();
+  @Deprecated public static interface CancellationSignal.OnCancelListener {
+    method @Deprecated public void onCancel();
   }
 
   public final class ConfigurationCompat {

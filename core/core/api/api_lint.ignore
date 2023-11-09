@@ -221,7 +221,7 @@ ContextFirst: androidx.core.view.ViewConfigurationCompat#shouldShowMenuShortcuts
 
 ExecutorRegistration: androidx.core.content.res.ResourcesCompat#getFont(android.content.Context, int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler):
     Registration methods should have overload that accepts delivery Executor: `getFont`
-ExecutorRegistration: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, androidx.core.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler):
+ExecutorRegistration: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, android.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler):
     Registration methods should have overload that accepts delivery Executor: `authenticate`
 ExecutorRegistration: androidx.core.os.CancellationSignal#setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener):
     Registration methods should have overload that accepts delivery Executor: `setOnCancelListener`
@@ -325,7 +325,7 @@ ListenerInterface: androidx.core.view.OneShotPreDrawListener:
 
 ListenerLast: androidx.core.content.res.ResourcesCompat#getFont(android.content.Context, int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler) parameter #3:
     Listeners should always be at end of argument list (method `getFont`)
-ListenerLast: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, androidx.core.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler) parameter #4:
+ListenerLast: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, android.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler) parameter #4:
     Listeners should always be at end of argument list (method `authenticate`)
 ListenerLast: androidx.core.provider.FontsContractCompat#requestFont(android.content.Context, androidx.core.provider.FontRequest, androidx.core.provider.FontsContractCompat.FontRequestCallback, android.os.Handler) parameter #3:
     Listeners should always be at end of argument list (method `requestFont`)
