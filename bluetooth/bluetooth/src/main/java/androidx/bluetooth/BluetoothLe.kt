@@ -17,28 +17,21 @@
 package androidx.bluetooth
 
 import android.bluetooth.BluetoothManager as FwkBluetoothManager
-import android.bluetooth.le.AdvertiseCallback as FwkAdvertiseCallback
-import android.bluetooth.le.AdvertiseSettings as FwkAdvertiseSettings
 import android.bluetooth.le.BluetoothLeScanner as FwkBluetoothLeScanner
 import android.bluetooth.le.ScanCallback as FwkScanCallback
 import android.bluetooth.le.ScanResult as FwkScanResult
 import android.bluetooth.le.ScanSettings as FwkScanSettings
 import android.content.Context
-import android.util.Log
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import kotlin.coroutines.coroutineContext
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.job
+import kotlinx.coroutines.flow.flowOf
 
 /**
  * Entry point for BLE related operations. This class provides a way to perform Bluetooth LE
@@ -93,79 +86,32 @@ class BluetoothLe(context: Context) {
         GattServer(context.applicationContext)
     }
 
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    var advertiseImpl: AdvertiseImpl? =
+        bluetoothAdapter?.bluetoothLeAdvertiser?.let(::getAdvertiseImpl)
+
     @VisibleForTesting
     @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     var onStartScanListener: OnStartScanListener? = null
 
     /**
-     * Starts Bluetooth LE advertising
+     * Returns a _cold_ [Flow] to start Bluetooth LE advertising
      *
      * Note that this method may not complete if the duration is set to 0.
      * To stop advertising, in that case, you should cancel the coroutine.
      *
      * @param advertiseParams [AdvertiseParams] for Bluetooth LE advertising.
-     * @param block an optional block of code that is invoked when advertising is started or failed.
+     * @return a _cold_ [Flow] of [AdvertiseResult]
      *
      * @throws IllegalArgumentException if the advertise parameters are not valid.
      */
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
-    suspend fun advertise(
-        advertiseParams: AdvertiseParams,
-        block: (suspend (@AdvertiseResult Int) -> Unit)? = null
-    ) {
-        val result = CompletableDeferred<Int>()
-
-        val callback = object : FwkAdvertiseCallback() {
-            override fun onStartFailure(errorCode: Int) {
-                Log.d(TAG, "onStartFailure() called with: errorCode = $errorCode")
-
-                when (errorCode) {
-                    ADVERTISE_FAILED_DATA_TOO_LARGE ->
-                        result.complete(BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE)
-
-                    ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
-                        result.complete(BluetoothLe.ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
-
-                    ADVERTISE_FAILED_INTERNAL_ERROR ->
-                        result.complete(BluetoothLe.ADVERTISE_FAILED_INTERNAL_ERROR)
-
-                    ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
-                        result.complete(BluetoothLe.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS)
-                }
-            }
-
-            override fun onStartSuccess(settingsInEffect: FwkAdvertiseSettings) {
-                result.complete(ADVERTISE_STARTED)
-            }
-        }
-
-        val bleAdvertiser = bluetoothAdapter?.bluetoothLeAdvertiser
-
-        if (bleAdvertiser == null) {
-            result.complete(ADVERTISE_FAILED_FEATURE_UNSUPPORTED)
-        } else {
-            bleAdvertiser.startAdvertising(
-                advertiseParams.fwkAdvertiseSettings,
-                advertiseParams.fwkAdvertiseData,
-                callback
-            )
-        }
-
-        coroutineContext.job.invokeOnCompletion {
-            bleAdvertiser?.stopAdvertising(callback)
-        }
-
-        result.await().let {
-            block?.invoke(it)
-            if (it == ADVERTISE_STARTED) {
-                if (advertiseParams.duration.toMillis() > 0) {
-                    delay(advertiseParams.duration.toMillis())
-                } else {
-                    awaitCancellation()
-                }
-            }
-        }
+    fun advertise(advertiseParams: AdvertiseParams): Flow<@AdvertiseResult Int> {
+        return advertiseImpl?.advertise(advertiseParams) ?: flowOf(
+            ADVERTISE_FAILED_FEATURE_UNSUPPORTED
+        )
     }
 
     /**
