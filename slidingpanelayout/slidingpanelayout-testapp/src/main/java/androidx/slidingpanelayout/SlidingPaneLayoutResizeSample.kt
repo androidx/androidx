@@ -18,29 +18,9 @@ package androidx.slidingpanelayout
 
 import android.app.Activity
 import android.os.Bundle
-import androidx.recyclerview.widget.RecyclerView
-import androidx.slidingpanelayout.demo.R
 
-class SlidingPaneLayoutDemos : Activity() {
-
+class SlidingPaneLayoutResizeSample : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_slidingpanelayout_demos)
-        val recyclerView = findViewById<RecyclerView>(R.id.demo_recyclerview)
-
-        recyclerView.adapter = ItemAdapter(
-            listOf(
-                DemoItem(
-                    SlidingPaneLayoutSample::class.java,
-                    "SlidingPaneLayoutSample",
-                    "Basic SlidingPaneLayoutSample"
-                ),
-                DemoItem(
-                    SlidingPaneLayoutResizeSample::class.java,
-                    "SlidingPaneLayoutResizeSample",
-                    "SlidingPaneLayout with user resizing"
-                )
-            )
-        )
     }
 }

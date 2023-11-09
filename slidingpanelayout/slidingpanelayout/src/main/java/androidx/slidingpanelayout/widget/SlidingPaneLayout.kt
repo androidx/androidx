@@ -29,7 +29,7 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec
-import android.view.View.VISIBLE
+import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -339,6 +339,17 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     private var slideRange = 0
 
     private val overlappingPaneHandler = OverlappingPaneHandler()
+    private val draggableDividerHandler = DraggableDividerHandler()
+
+    private val cancelEvent = MotionEvent.obtain(0L, 0L, MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
+    private var activeTouchHandler: TouchHandler? = null
+        set(value) {
+            if (field != value) {
+                // Send a cancel event to the outgoing handler to reset it for later
+                field?.onTouchEvent(cancelEvent)
+                field = value
+            }
+        }
 
     /**
      * Stores whether or not the pane was open the last time it was slideable.
@@ -447,6 +458,33 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     }
 
     /**
+     * `true` if the user is currently dragging the [user resizing divider][isUserResizable]
+     */
+    val isDividerDragging: Boolean
+        get() = draggableDividerHandler.isDragging
+
+    private var restingDividerPositionX: Int = 0
+
+    private fun createUserResizingDividerDrawableState(viewState: IntArray): IntArray {
+        if (android.R.attr.state_pressed !in viewState && !isDividerDragging) {
+            return viewState
+        }
+
+        return if (isDividerDragging) {
+            // Add the pressed state for the divider drawable
+            viewState.copyOf(viewState.size + 1).also { stateArray ->
+                stateArray[stateArray.lastIndex] = android.R.attr.state_pressed
+            }
+        } else {
+            var foundPressed = false
+            IntArray(viewState.size - 1) { index ->
+                if (viewState[index] == android.R.attr.state_pressed) foundPressed = true
+                viewState[if (foundPressed) index + 1 else index]
+            }
+        }
+    }
+
+    /**
      * Set to `true` to enable user resizing of side by side panes through gestures or other inputs.
      * This may also be set from the `isUserResizingEnabled` XML attribute during
      * view inflation. A divider drawable must be provided; see [setUserResizingDividerDrawable]
@@ -472,6 +510,16 @@ open class SlidingPaneLayout @JvmOverloads constructor(
      */
     val isUserResizable: Boolean
         get() = !isSlideable && isUserResizingEnabled && userResizingDividerDrawable != null
+
+    private var onUserResizingDividerClickListener: OnClickListener? = null
+
+    /**
+     * Set a [View.OnClickListener] that will be invoked if the user clicks/taps on the
+     * resizing divider. The divider is only available to be clicked if [isUserResizable].
+     */
+    fun setOnUserResizingDividerClickListener(listener: OnClickListener?) {
+        onUserResizingDividerClickListener = listener
+    }
 
     init {
         setWillNotDraw(false)
@@ -549,14 +597,6 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         overlappingPaneHandler.dispatchOnPanelSlide(panel, currentSlideOffset)
     }
 
-    private fun dispatchOnPanelOpened(panel: View) {
-        overlappingPaneHandler.dispatchOnPanelOpened(panel)
-    }
-
-    private fun dispatchOnPanelClosed(panel: View) {
-        overlappingPaneHandler.dispatchOnPanelClosed(panel)
-    }
-
     private fun updateObscuredViewsVisibility(panel: View?) {
         val isLayoutRtl = isLayoutRtlSupport
         val startBound = if (isLayoutRtl) width - paddingRight else paddingLeft
@@ -607,11 +647,26 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
     }
 
+    private fun updateDividerDrawableBounds(dividerPositionX: Int) {
+        // only set the divider up if we have a width/height for the layout
+        if (width > 0 && height > 0) userResizingDividerDrawable?.apply {
+            val layoutCenterY = (height - paddingTop - paddingBottom) / 2 + paddingTop
+            val dividerLeft = dividerPositionX - intrinsicWidth / 2
+            val dividerTop = layoutCenterY - intrinsicHeight / 2
+            setBounds(
+                dividerLeft,
+                dividerTop,
+                dividerLeft + intrinsicWidth,
+                dividerTop + intrinsicHeight
+            )
+        }
+    }
+
     override fun drawableStateChanged() {
         super.drawableStateChanged()
 
         userResizingDividerDrawable?.apply {
-            if (isStateful && setState(drawableState)) {
+            if (isStateful && setState(createUserResizingDividerDrawableState(drawableState))) {
                 invalidateDrawable(this)
             }
         }
@@ -954,8 +1009,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             if (child.visibility == GONE) {
                 continue
             }
-            val lp =
-                child.layoutParams as LayoutParams
+            val lp = child.layoutParams as LayoutParams
             val childWidth = child.measuredWidth
             var offset = 0
             if (lp.slideable) {
@@ -996,6 +1050,13 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             }
             nextXStart += child.width + abs(nextXOffset)
         }
+        if (isUserResizable) {
+            // TODO: proper placement of divider;
+            // handle re-init from savedInstanceState or drag in progress during parent relayout
+            restingDividerPositionX = (getChildAt(0).right + getChildAt(1).left) / 2
+            if (!isDividerDragging) updateDividerDrawableBounds(restingDividerPositionX)
+            setWillNotDraw(isUserResizable)
+        }
         if (awaitingFirstLayout) {
             if (isSlideable) {
                 if (parallaxDistance != 0) {
@@ -1022,16 +1083,25 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
     }
 
+    private fun selectActiveTouchHandler(): TouchHandler? {
+        activeTouchHandler = if (isSlideable) {
+            overlappingPaneHandler
+        } else if (isUserResizable) {
+            draggableDividerHandler
+        } else null
+        return activeTouchHandler
+    }
+
     override fun onInterceptTouchEvent(
         @Suppress("InvalidNullabilityOverride") ev: MotionEvent
     ): Boolean {
-        return overlappingPaneHandler.onInterceptTouchEvent(ev)
+        return selectActiveTouchHandler()?.onInterceptTouchEvent(ev) ?: false
     }
 
     override fun onTouchEvent(
         @Suppress("InvalidNullabilityOverride") ev: MotionEvent
     ): Boolean {
-        return overlappingPaneHandler.onTouchEvent(ev)
+        return selectActiveTouchHandler()?.onTouchEvent(ev) ?: false
     }
 
     private fun closePane(initialVelocity: Int): Boolean {
@@ -1181,6 +1251,21 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
         return super.drawChild(canvas, child, drawingTime).also {
             canvas.restoreToCount(save)
+        }
+    }
+
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
+
+        userResizingDividerDrawable?.takeIf { isUserResizable }?.let { divider ->
+            updateDividerDrawableBounds(
+                if (isDividerDragging) {
+                    draggableDividerHandler.dragPositionX
+                } else {
+                    restingDividerPositionX
+                }
+            )
+            divider.draw(canvas)
         }
     }
 
@@ -1616,7 +1701,10 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         override fun onPanelClosed(panel: View) {}
     }
 
-    private interface TouchHandler {
+    /**
+     * Used to switch gesture handling modes
+     */
+    internal interface TouchHandler {
         fun onInterceptTouchEvent(ev: MotionEvent): Boolean
         fun onTouchEvent(ev: MotionEvent): Boolean
     }
@@ -1906,6 +1994,121 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 }
             }
             return wantTouchEvents
+        }
+    }
+
+    private inner class DraggableDividerHandler : AbsDraggableDividerHandler(
+        touchSlop = ViewConfiguration.get(context).scaledTouchSlop
+    ) {
+        override fun dividerBoundsContains(x: Int, y: Int): Boolean = userResizingDividerDrawable
+            ?.bounds
+            ?.contains(x, y) == true
+
+        override fun onUserResizeStarted() {
+            drawableStateChanged()
+        }
+
+        override fun onUserResizeProgress() {
+            updateDividerDrawableBounds(dragPositionX)
+            userResizingDividerDrawable?.let { invalidateDrawable(it) }
+        }
+
+        override fun onUserResizeComplete(wasCancelled: Boolean) {
+            // TODO: Snapping hooks
+            if (!wasCancelled) restingDividerPositionX = dragPositionX
+            updateDividerDrawableBounds(restingDividerPositionX)
+            userResizingDividerDrawable?.let { invalidateDrawable(it) }
+        }
+
+        override fun onDividerClicked() {
+            onUserResizingDividerClickListener?.onClick(this@SlidingPaneLayout)
+        }
+    }
+
+    /**
+     * The state machine for working with divider dragging user input
+     */
+    internal abstract class AbsDraggableDividerHandler(
+        private val touchSlop: Int
+    ) : TouchHandler {
+
+        private var xDown = Float.NaN
+
+        /** `true` if the user is actively dragging */
+        var isDragging: Boolean = false
+            private set
+
+        /** X position of a drag in progress or -1 if no drag in progress */
+        var dragPositionX: Int = -1
+            private set
+
+        /** returns `true` if the divider's visual bounds contain the point `(x, y)` */
+        abstract fun dividerBoundsContains(x: Int, y: Int): Boolean
+
+        open fun clampDraggingDividerPosition(proposedPositionX: Int): Int = proposedPositionX
+
+        /** Called when a user resize begins; [isDragging] has changed from false to true */
+        open fun onUserResizeStarted() {}
+
+        /** Called when [dragPositionX] has changed as a result of user resize */
+        open fun onUserResizeProgress() {}
+
+        /** Called when user resizing has ended; [dragPositionX] represents the end position */
+        open fun onUserResizeComplete(wasCancelled: Boolean) {}
+
+        /** Called when the divider is touched and released without crossing [touchSlop] */
+        open fun onDividerClicked() {}
+
+        final override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+            return false
+        }
+
+        final override fun onTouchEvent(
+            ev: MotionEvent
+        ): Boolean = when (val action = ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> if (
+                dividerBoundsContains(ev.x.roundToInt(), ev.y.roundToInt())
+            ) {
+                xDown = ev.x
+                if (touchSlop == 0) {
+                    isDragging = true
+                    dragPositionX = clampDraggingDividerPosition(ev.x.roundToInt())
+                    onUserResizeStarted()
+                }
+                true
+            } else false
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> if (!xDown.isNaN()) {
+                xDown = Float.NaN
+                if (isDragging) {
+                    isDragging = false
+                    onUserResizeComplete(wasCancelled = action == MotionEvent.ACTION_CANCEL)
+                    dragPositionX = -1
+                } else if (action == MotionEvent.ACTION_UP &&
+                    dividerBoundsContains(ev.x.roundToInt(), ev.y.roundToInt())) {
+                    onDividerClicked()
+                }
+                true
+            } else false
+            // Moves are only valid if we got the initial down event
+            MotionEvent.ACTION_MOVE -> if (!xDown.isNaN()) {
+                var startedDrag = false
+                if (!isDragging) {
+                    val dx = ev.x - xDown
+                    if (abs(dx) >= touchSlop) {
+                        isDragging = true
+                        startedDrag = true
+                    }
+                }
+                // Second if instead of else because isDragging can change above
+                if (isDragging) {
+                    val newPosition = clampDraggingDividerPosition(ev.x.roundToInt())
+                    dragPositionX = newPosition
+                    if (startedDrag) onUserResizeStarted()
+                    onUserResizeProgress()
+                }
+                true
+            } else false
+            else -> false
         }
     }
 
