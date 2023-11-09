@@ -20,7 +20,7 @@ apply from: "../../../buildSrc/kotlin-dsl-dependency.gradle"
 
 dependencies {
     implementation(findGradleKotlinDsl())
-    implementation("com.android.tools.build:gradle-api:8.0.0-alpha07")
+    implementation("com.android.tools.build:gradle-api:8.0.0")
     implementation(libs.kotlinStdlib)
     compileOnly(libs.androidGradlePluginz)
     compileOnly(libs.kspGradlePluginz)
@@ -28,7 +28,7 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(project(":internal-testutils-gradle-plugin"))
 
-    testPlugin("com.android.tools.build:gradle:8.0.0-alpha07")
+    testPlugin("com.android.tools.build:gradle:8.0.0")
     testPlugin(libs.kotlinGradlePluginz)
     testPlugin(libs.kspGradlePluginz)
 }
