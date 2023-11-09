@@ -210,6 +210,11 @@ package androidx.wear.compose.foundation {
     method public void setExpanded(boolean);
     property public final float expandProgress;
     property public final boolean expanded;
+    field public static final androidx.wear.compose.foundation.ExpandableState.Companion Companion;
+  }
+
+  public static final class ExpandableState.Companion {
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.saveable.Saver<androidx.wear.compose.foundation.ExpandableState,java.lang.Boolean> saver(androidx.compose.animation.core.AnimationSpec<java.lang.Float> expandAnimationSpec, androidx.compose.animation.core.AnimationSpec<java.lang.Float> collapseAnimationSpec);
   }
 
   @SuppressCompatibility @androidx.wear.compose.foundation.ExperimentalWearFoundationApi public final class ExpandableStateMapping<T> {
