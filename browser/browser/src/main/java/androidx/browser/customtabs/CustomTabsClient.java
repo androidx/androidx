@@ -432,6 +432,29 @@ public class CustomTabsClient {
                     }
                 });
             }
+
+            @Override
+            public void onMinimized(@NonNull Bundle extras) throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onMinimized(extras);
+                    }
+                });
+            }
+
+            @Override
+            public void onUnminimized(@NonNull Bundle extras)
+                    throws RemoteException {
+                if (callback == null) return;
+                mHandler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        callback.onUnminimized(extras);
+                    }
+                });
+            }
         };
     }
 

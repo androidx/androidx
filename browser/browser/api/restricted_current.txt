@@ -87,9 +87,11 @@ package androidx.browser.customtabs {
     method public void onActivityLayout(@Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, int, android.os.Bundle);
     method public void onActivityResized(@Dimension(unit=androidx.annotation.Dimension.PX) int, @Dimension(unit=androidx.annotation.Dimension.PX) int, android.os.Bundle);
     method public void onMessageChannelReady(android.os.Bundle?);
+    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalMinimizationCallback public void onMinimized(android.os.Bundle);
     method public void onNavigationEvent(int, android.os.Bundle?);
     method public void onPostMessage(String, android.os.Bundle?);
     method public void onRelationshipValidationResult(@androidx.browser.customtabs.CustomTabsService.Relation int, android.net.Uri, boolean, android.os.Bundle?);
+    method @SuppressCompatibility @androidx.browser.customtabs.ExperimentalMinimizationCallback public void onUnminimized(android.os.Bundle);
     method public void onWarmupCompleted(android.os.Bundle);
     field public static final int ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET = 1; // 0x1
     field public static final int ACTIVITY_LAYOUT_STATE_BOTTOM_SHEET_MAXIMIZED = 2; // 0x2
@@ -329,6 +331,9 @@ package androidx.browser.customtabs {
     method public default void onGreatestScrollPercentageIncreased(@IntRange(from=1, to=100) int, android.os.Bundle);
     method public default void onSessionEnded(boolean, android.os.Bundle);
     method public default void onVerticalScrollEvent(boolean, android.os.Bundle);
+  }
+
+  @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.WARNING) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalMinimizationCallback {
   }
 
   public class PostMessageService extends android.app.Service {
