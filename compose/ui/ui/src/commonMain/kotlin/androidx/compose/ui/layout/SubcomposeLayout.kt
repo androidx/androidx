@@ -750,6 +750,11 @@ internal class LayoutNodeSubcompositionsState(
         "intrinsic measurement."
 
     fun precompose(slotId: Any?, content: @Composable () -> Unit): PrecomposedSlotHandle {
+        if (!root.isAttached) {
+            return object : PrecomposedSlotHandle {
+                override fun dispose() {}
+            }
+        }
         makeSureStateIsConsistent()
         if (!slotIdToNode.containsKey(slotId)) {
             // Yield ownership of PrecomposedHandle from postLookahead to the caller of precompose
