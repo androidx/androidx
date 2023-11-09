@@ -35,6 +35,7 @@ import androidx.baselineprofile.gradle.utils.requireInOrder
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
+import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1329,6 +1330,52 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                 assertThat(readBaselineProfileFileContent(expected.variantName))
                     .containsExactlyElementsIn(expected.profileLines)
             }
+        }
+    }
+
+    @Test
+    fun whenBenchmarkVariantsAreDisabledShouldThrowException() {
+        // Note that this test doesn't works only on AGP > 8.0.0 because in previous versions
+        // the benchmark variant is not created.
+        assumeTrue(agpVersion != TEST_AGP_VERSION_8_0_0)
+
+        projectSetup
+            .consumer
+            .setup(
+                dependencyOnProducerProject = true,
+                androidPlugin = ANDROID_APPLICATION_PLUGIN,
+                additionalGradleCodeBlock = """
+                androidComponents {
+                    beforeVariants(selector()) { variant ->
+                        variant.enable = variant.buildType != "benchmarkRelease"
+                    }
+                }
+            """.trimIndent()
+            )
+        projectSetup.producer.setupWithoutFlavors(
+            releaseProfileLines = listOf(
+                Fixtures.CLASS_1_METHOD_1,
+                Fixtures.CLASS_1,
+                Fixtures.CLASS_2_METHOD_1,
+                Fixtures.CLASS_2
+            ),
+            releaseStartupProfileLines = listOf(
+                Fixtures.CLASS_3_METHOD_1,
+                Fixtures.CLASS_3,
+                Fixtures.CLASS_4_METHOD_1,
+                Fixtures.CLASS_4
+            )
+        )
+
+        gradleRunner.buildAndFailAndAssertThatOutput("generateBaselineProfile") {
+            contains(
+                "java.lang.IllegalStateException: The task `mergeBenchmarkReleaseArtProfile` " +
+                    "doesn't exist. This may be related to a `beforeVariants` block filtering " +
+                    "variants and disabling`benchmarkRelease`. Please check your gradle " +
+                    "configuration and make sure variants with build type `benchmarkRelease` are " +
+                    "enabled. For more information on variant filters check out the docs at " +
+                    "https://developer.android.com/build/build-variants#filter-variants."
+            )
         }
     }
 }
