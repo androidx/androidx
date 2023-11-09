@@ -294,6 +294,7 @@ public class Chip implements LayoutElement {
         public Chip build() {
             Modifiers.Builder modifiers =
                     new Modifiers.Builder()
+                            .setClickable(mClickable)
                             .setPadding(
                                     new Padding.Builder()
                                             .setStart(mHorizontalPadding)
@@ -316,13 +317,17 @@ public class Chip implements LayoutElement {
                             .addContent(getCorrectContent())
                             .setModifiers(modifiers.build());
 
-            Box tappable =
+            // Following accessibility guide, the renderer will attempt to extend the clickable's
+            // touch target size to a minimum of 48dp when inflating it. Since this touch extension
+            // is not layout affecting, thus it is not guaranteed unless there is enough space
+            // around it. This wrapper ensures that there is enough space for this extended touch
+            // target.
+            Box wrapperForTapTarget =
                     new Box.Builder()
                             .setWidth(resolveMinTappableWidth())
                             .setHeight(dp(resolveMinTappableHeight()))
                             .setModifiers(
                                     new Modifiers.Builder()
-                                            .setClickable(mClickable)
                                             .setMetadata(getCorrectMetadataTag())
                                             .setSemantics(
                                                     new Semantics.Builder()
@@ -333,7 +338,7 @@ public class Chip implements LayoutElement {
                             .addContent(visible.build())
                             .build();
 
-            return new Chip(tappable);
+            return new Chip(wrapperForTapTarget);
         }
 
         private ContainerDimension resolveMinTappableWidth() {
@@ -431,7 +436,7 @@ public class Chip implements LayoutElement {
     /** Returns click event action associated with this Chip. */
     @NonNull
     public Clickable getClickable() {
-        return checkNotNull(checkNotNull(mImpl.getModifiers()).getClickable());
+        return checkNotNull(checkNotNull(mElement.getModifiers()).getClickable());
     }
 
     /** Returns background color of this Chip. */

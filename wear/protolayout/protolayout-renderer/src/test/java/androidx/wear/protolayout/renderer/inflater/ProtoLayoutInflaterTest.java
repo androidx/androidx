@@ -31,6 +31,7 @@ import static androidx.wear.protolayout.renderer.helper.TestDsl.image;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.layout;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.row;
 import static androidx.wear.protolayout.renderer.helper.TestDsl.text;
+import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.DEFAULT_MIN_CLICKABLE_SIZE_DP;
 import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.TEXT_AUTOSIZES_LIMIT;
 import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.getFrameLayoutGravity;
 import static androidx.wear.protolayout.renderer.inflater.ProtoLayoutInflater.getRenderedMetadata;
@@ -1040,6 +1041,434 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_clickableModifier_extendsClickTargetArea() {
+        Action action = Action.newBuilder().setLoadAction(LoadAction.getDefaultInstance()).build();
+
+        int parentSize = 60;
+        int clickTargetSize = (int) DEFAULT_MIN_CLICKABLE_SIZE_DP;
+        int childSize = 30;
+
+        ContainerDimension parentBoxSize =
+                ContainerDimension.newBuilder().setLinearDimension(dp(parentSize)).build();
+        ContainerDimension childBoxSize =
+                ContainerDimension.newBuilder().setLinearDimension(dp(childSize)).build();
+
+        LayoutElement childBox =
+                LayoutElement.newBuilder().setBox(
+                        Box.newBuilder()
+                                .setWidth(childBoxSize)
+                                .setHeight(childBoxSize)
+                                .setModifiers(
+                                        Modifiers.newBuilder()
+                                                .setClickable(
+                                                        Clickable.newBuilder()
+                                                                .setId("foo")
+                                                                .setOnClick(
+                                                                        action))))
+                        .build();
+
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(parentBoxSize)
+                                        .setHeight(parentBoxSize)
+                                        .addContents(childBox))
+                                        .build();
+
+        State.Builder receivedState = State.newBuilder();
+        FrameLayout rootLayout =
+                renderer(
+                        newRendererConfigBuilder(fingerprintedLayout(root), resourceResolvers())
+                                .setLoadActionListener(receivedState::mergeFrom))
+                        .inflate();
+        shadowOf(Looper.getMainLooper()).idle();
+
+        // Should be just a parent box with a child box.
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View parent = rootLayout.getChildAt(0);
+        assertThat(parent).isInstanceOf(FrameLayout.class);
+        View child = ((FrameLayout) parent).getChildAt(0);
+        assertThat(child).isInstanceOf(FrameLayout.class);
+
+        // The clickable view must have the same tag as the corresponding layout clickable.
+        expect.that(child.getTag(clickable_id_tag)).isEqualTo("foo");
+
+        // Dispatch a click event to the child View; it should trigger the LoadAction...
+        dispatchTouchEvent(child, childSize / 2f, childSize / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo");
+
+        // -----------parent size 60------------------//
+        //     ------clickable target size 48 ----    //
+        //         ---clickable size 30 --            //
+        // Dispatch a click event to the parent View within the expanded clickable area;
+        // it should trigger the LoadAction...
+        receivedState.clearLastClickableId();
+        int loc = (int) ((parentSize - clickTargetSize) / 2f + (clickTargetSize - childSize) / 4f);
+        dispatchTouchEvent(parent, loc, loc);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo");
+
+        // Dispatch a click event to the parent View outside the expanded clickable area;
+        // it should NOT trigger the LoadAction...
+        receivedState.clearLastClickableId();
+        loc = (parentSize - clickTargetSize) / 4;
+        dispatchTouchEvent(parent, loc, loc);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("");
+    }
+
+    @Test
+    public void inflate_clickableModifier_extendMultipleClickTargetAreas() {
+        Action action = Action.newBuilder().setLoadAction(LoadAction.getDefaultInstance()).build();
+
+        int rowWidth = 80;
+        int rowHeight = 30;
+        int spacerSize = 5;
+        int childSize = 20;
+        int clickTargetSize = 30;
+        ContainerDimension parentRowWidth =
+                ContainerDimension.newBuilder().setLinearDimension(dp(rowWidth)).build();
+        ContainerDimension parentRowHeight =
+                ContainerDimension.newBuilder().setLinearDimension(dp(rowHeight)).build();
+        ContainerDimension childBoxSize =
+                ContainerDimension.newBuilder().setLinearDimension(dp(childSize)).build();
+        LayoutElement.Builder spacer =
+                LayoutElement.newBuilder()
+                        .setSpacer(
+                                Spacer.newBuilder()
+                                        .setWidth(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(dp(spacerSize))
+                                                        .build()
+                                        ));
+
+        //           |--clickable area child box 1 (5 - 35)--|
+        //                                          |---clickable area child box 2 (30-60)--|
+        // | spacer | spacer |      child box 1     | spacer|        child box 2       |
+        LayoutElement box1 =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(childBoxSize)
+                                        .setHeight(childBoxSize)
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setClickable(
+                                                                Clickable.newBuilder()
+                                                                        .setMinimumClickableWidth(
+                                                                                dp(clickTargetSize))
+                                                                        .setMinimumClickableHeight(
+                                                                                dp(clickTargetSize))
+                                                                        .setOnClick(
+                                                                                action)
+                                                                        .setId("foo1"))))
+                        .build();
+
+        LayoutElement box2 =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(childBoxSize)
+                                        .setHeight(childBoxSize)
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setClickable(
+                                                                Clickable.newBuilder()
+                                                                        .setMinimumClickableWidth(
+                                                                                dp(clickTargetSize))
+                                                                        .setMinimumClickableHeight(
+                                                                                dp(clickTargetSize))
+                                                                        .setOnClick(
+                                                                                action)
+                                                                        .setId("foo2"))))
+                        .build();
+
+        VerticalAlignmentProp verticalAlignment =
+                VerticalAlignmentProp.newBuilder()
+                        .setValue(VerticalAlignment.VERTICAL_ALIGN_CENTER)
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setRow(
+                                Row.newBuilder()
+                                        .setWidth(parentRowWidth)
+                                        .setHeight(parentRowHeight)
+                                        .setVerticalAlignment(verticalAlignment)
+                                        .addContents(spacer)
+                                        .addContents(spacer)
+                                        .addContents(box1)
+                                        .addContents(spacer)
+                                        .addContents(box2))
+                        .build();
+
+        State.Builder receivedState = State.newBuilder();
+        FrameLayout rootLayout =
+                renderer(
+                        newRendererConfigBuilder(fingerprintedLayout(root), resourceResolvers())
+                                .setLoadActionListener(receivedState::mergeFrom))
+                        .inflate();
+
+        ShadowLooper.runUiThreadTasks();
+
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View parent = rootLayout.getChildAt(0);
+        assertThat(parent).isInstanceOf(LinearLayout.class);
+        View childBox1 = ((LinearLayout) parent).getChildAt(2);
+        assertThat(childBox1).isInstanceOf(FrameLayout.class);
+        View childBox2 = ((LinearLayout) parent).getChildAt(4);
+        assertThat(childBox2).isInstanceOf(FrameLayout.class);
+
+        // The clickable view must have the same tag as the corresponding layout clickable.
+        expect.that(childBox1.getTag(clickable_id_tag)).isEqualTo("foo1");
+        expect.that(childBox2.getTag(clickable_id_tag)).isEqualTo("foo2");
+
+        // Dispatch a click event to the parent View within the expanded clickable area;
+        // it should trigger the LoadAction...
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, spacerSize + 1, rowHeight / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo1");
+
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, spacerSize * 2.5f + childSize - 1, rowHeight / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo1");
+
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, spacerSize * 2.5f + childSize + 1, rowHeight / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo2");
+
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, spacerSize * 3 + childSize * 2 + 1, rowHeight / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo2");
+
+        // Dispatch a click event to the child View; it should trigger the LoadAction...
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(childBox1, childSize / 2f, childSize / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo1");
+
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(childBox2, childSize / 2f, childSize / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo2");
+
+        // Dispatch a click event to the parent View outside the expanded clickable area;
+        // it should NOT trigger the LoadAction...
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, 1, rowHeight / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("");
+
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, rowWidth - 1, rowHeight / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("");
+    }
+
+    @Test
+    public void inflateThenMutate_withChangeToText_clickableModifier_extendClickTargetSize() {
+        Action action = Action.newBuilder().setLoadAction(LoadAction.getDefaultInstance()).build();
+        Modifiers testModifiers1 =
+                Modifiers.newBuilder()
+                        .setClickable(Clickable.newBuilder().setOnClick(action).setId("foo1"))
+                        .build();
+
+        Modifiers testModifiers2 =
+                Modifiers.newBuilder()
+                        .setClickable(Clickable.newBuilder().setOnClick(action).setId("foo2"))
+                        .build();
+
+        int parentSize = 45;
+        ContainerDimension parentBoxSize =
+                ContainerDimension.newBuilder().setLinearDimension(dp(parentSize)).build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(parentBoxSize)
+                                        .setHeight(parentBoxSize)
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setText(
+                                                                Text.newBuilder()
+                                                                        .setText(string("world"))
+                                                                        .setModifiers(
+                                                                                testModifiers1))))
+                        .build();
+
+        State.Builder receivedState = State.newBuilder();
+        Renderer renderer =
+                renderer(
+                        newRendererConfigBuilder(fingerprintedLayout(root), resourceResolvers())
+                                .setLoadActionListener(receivedState::mergeFrom));
+        FrameLayout rootLayout = renderer.inflate();
+        ViewGroup parent = (ViewGroup) rootLayout.getChildAt(0);
+        assertThat(((TextView) parent.getChildAt(0)).getText().toString()).isEqualTo("world");
+
+        // Dispatch a click event to the parent View within the expanded clickable area;
+        // it should trigger the LoadAction...
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, parentSize - 1, parentSize - 1);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo1");
+
+        // Produce a new layout with only one Text element changed.
+        LayoutElement root2 =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .setWidth(parentBoxSize)
+                                        .setHeight(parentBoxSize)
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setText(
+                                                                Text.newBuilder()
+                                                                        .setText(string("mars"))
+                                                                        .setModifiers(
+                                                                                testModifiers2))))
+                        .build();
+
+        // Compute the mutation
+        ViewGroupMutation mutation =
+                renderer.computeMutation(getRenderedMetadata(rootLayout),
+                        fingerprintedLayout(root2));
+        assertThat(mutation).isNotNull();
+        assertThat(mutation.isNoOp()).isFalse();
+
+        // Apply the mutation
+        boolean mutationResult = renderer.applyMutation(rootLayout, mutation);
+        assertThat(mutationResult).isTrue();
+        assertThat(((TextView) parent.getChildAt(0)).getText().toString()).isEqualTo("mars");
+
+        // Dispatch a click event to the parent View within the expanded clickable area;
+        // it should trigger the LoadAction...
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, parentSize - 1, parentSize - 1);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("foo2");
+    }
+
+    @Test
+    public void inflateThenMutate_withAddedText_clickableModifier_extendsMultiClickTargetAreas() {
+        Action action = Action.newBuilder().setLoadAction(LoadAction.getDefaultInstance()).build();
+        Modifiers testModifiers1 =
+                Modifiers.newBuilder()
+                        .setClickable(Clickable.newBuilder().setOnClick(action).setId("www"))
+                        .build();
+
+        Modifiers testModifiers2 =
+                Modifiers.newBuilder()
+                        .setClickable(Clickable.newBuilder().setOnClick(action).setId("mmm"))
+                        .build();
+
+        int spacerSize = 50;
+        LayoutElement.Builder spacer =
+                LayoutElement.newBuilder()
+                        .setSpacer(
+                                Spacer.newBuilder()
+                                        .setWidth(
+                                                SpacerDimension.newBuilder().setLinearDimension(
+                                                        dp(spacerSize)).build()));
+
+        int parentHeight = 45;
+        int parentWidth = 125;
+        ContainerDimension parentHeightDimension =
+                ContainerDimension.newBuilder().setLinearDimension(dp(parentHeight)).build();
+        ContainerDimension parentWidthDimension =
+                ContainerDimension.newBuilder().setLinearDimension(dp(parentWidth)).build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setRow(
+                                Row.newBuilder()
+                                        .setWidth(parentWidthDimension)
+                                        .setHeight(parentHeightDimension)
+                                        .addContents(spacer)
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setText(
+                                                                Text.newBuilder()
+                                                                        .setText(string("www"))
+                                                                        .setModifiers(
+                                                                                testModifiers1))))
+                        .build();
+
+        State.Builder receivedState = State.newBuilder();
+        Renderer renderer =
+                renderer(
+                        newRendererConfigBuilder(fingerprintedLayout(root), resourceResolvers())
+                                .setLoadActionListener(receivedState::mergeFrom));
+        FrameLayout rootLayout = renderer.inflate();
+        ViewGroup parent = (ViewGroup) rootLayout.getChildAt(0);
+        assertThat(((TextView) parent.getChildAt(1)).getText().toString()).isEqualTo("www");
+
+        // | spacer |www|
+        // Dispatch a click event to the parent View within the expanded clickable area;
+        // it should trigger the LoadAction...
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, spacerSize - 1, parentHeight / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("www");
+
+        // Produce a new layout with only one Text element changed.
+        LayoutElement root2 =
+                LayoutElement.newBuilder()
+                        .setRow(
+                                Row.newBuilder()
+                                        .setWidth(parentWidthDimension)
+                                        .setHeight(parentHeightDimension)
+                                        .addContents(spacer)
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setText(
+                                                                Text.newBuilder()
+                                                                        .setText(string("www"))
+                                                                        .setModifiers(
+                                                                                testModifiers1)))
+                                        .addContents(spacer)
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setText(
+                                                                Text.newBuilder()
+                                                                        .setText(string("mmm"))
+                                                                        .setModifiers(
+                                                                                testModifiers2))))
+                        .build();
+
+        // Compute the mutation
+        ViewGroupMutation mutation =
+                renderer.computeMutation(getRenderedMetadata(rootLayout),
+                        fingerprintedLayout(root2));
+        assertThat(mutation).isNotNull();
+        assertThat(mutation.isNoOp()).isFalse();
+
+        // Apply the mutation
+        ListenableFuture<Void> applyMutationFuture =
+                renderer.mRenderer.applyMutation(rootLayout, mutation);
+        shadowOf(getMainLooper()).idle();
+        try {
+            applyMutationFuture.get();
+        } catch (Exception e) {
+            if (e instanceof InterruptedException) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        // | spacer |www| spacer |mmm
+        parent = (ViewGroup) rootLayout.getChildAt(0);
+        TextView text1 = (TextView) parent.getChildAt(1);
+        assertThat(text1.getText().toString()).isEqualTo("www");
+        assertThat(((TextView) parent.getChildAt(3)).getText().toString()).isEqualTo("mmm");
+
+        // Dispatch a click event to the parent View within the expanded clickable area;
+        // it should trigger the LoadAction...
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, spacerSize - 1, parentHeight / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("www");
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(
+                parent, spacerSize * 2 + 5 /* approximate www text size*/, parentHeight / 2f);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("mmm");
+
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, spacerSize + 1, 1);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("www");
+        receivedState.clearLastClickableId();
+        dispatchTouchEvent(parent, parentWidth - 1, parentHeight - 1);
+        expect.that(receivedState.getLastClickableId()).isEqualTo("mmm");
+    }
+
+    @Test
     public void inflate_arc_withLineDrawnWithArcTo() {
         LayoutElement root =
                 LayoutElement.newBuilder()
@@ -1851,30 +2280,7 @@ public class ProtoLayoutInflaterTest {
         TextView tv = (TextView) rootLayout.getChildAt(0);
 
         // Dispatch a click event to the first View; it should trigger the LoadAction...
-        long startTime = SystemClock.uptimeMillis();
-        MotionEvent evt =
-                MotionEvent.obtain(
-                        /* downTime= */ startTime,
-                        /* eventTime= */ startTime,
-                        MotionEvent.ACTION_DOWN,
-                        /* x= */ 5f,
-                        /* y= */ 5f,
-                        /* metaState= */ 0);
-        tv.dispatchTouchEvent(evt);
-        evt.recycle();
-
-        evt =
-                MotionEvent.obtain(
-                        /* downTime= */ startTime,
-                        /* eventTime= */ startTime + 100,
-                        MotionEvent.ACTION_UP,
-                        /* x= */ 5f,
-                        /* y= */ 5f,
-                        /* metaState= */ 0);
-        tv.dispatchTouchEvent(evt);
-        evt.recycle();
-
-        shadowOf(Looper.getMainLooper()).idle();
+        dispatchTouchEvent(tv, 5f, 5f);
 
         assertThat(hasFiredList).hasSize(1);
     }
@@ -4818,9 +5224,36 @@ public class ProtoLayoutInflaterTest {
     @NonNull
     private static List<DimensionProto.SpProp> buildSizesList(int[] presetSizes) {
         List<DimensionProto.SpProp> sizes = new ArrayList<>(3);
-        for (int s: presetSizes) {
+        for (int s : presetSizes) {
             sizes.add(sp(s));
         }
         return sizes;
+    }
+
+    private static void dispatchTouchEvent(View view, float x, float y) {
+        long startTime = SystemClock.uptimeMillis();
+        MotionEvent evt =
+                MotionEvent.obtain(
+                        /* downTime= */ startTime,
+                        /* eventTime= */ startTime,
+                        MotionEvent.ACTION_DOWN,
+                        /* x= */ x,
+                        /* y= */ y,
+                        /* metaState= */ 0);
+        view.dispatchTouchEvent(evt);
+        evt.recycle();
+
+        evt =
+                MotionEvent.obtain(
+                        /* downTime= */ startTime,
+                        /* eventTime= */ startTime + 10,
+                        MotionEvent.ACTION_UP,
+                        /* x= */ x,
+                        /* y= */ y,
+                        /* metaState= */ 0);
+        view.dispatchTouchEvent(evt);
+        evt.recycle();
+
+        shadowOf(Looper.getMainLooper()).idle();
     }
 }
