@@ -29,6 +29,7 @@ import androidx.compose.ui.draganddrop.DragAndDropManager
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.key.KeyEvent
@@ -421,6 +422,18 @@ class ModifierLocalConsumerEntityTest {
         override suspend fun textInputSession(
             session: suspend PlatformTextInputSessionScope.() -> Nothing
         ): Nothing {
+            TODO("Not yet implemented")
+        }
+
+        override fun screenToLocal(positionOnScreen: Offset): Offset {
+            TODO("Not yet implemented")
+        }
+
+        override fun localToScreen(localPosition: Offset): Offset {
+            TODO("Not yet implemented")
+        }
+
+        override fun localToScreen(localTransform: Matrix) {
             TODO("Not yet implemented")
         }
     }

@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":compose:runtime:runtime"))
     implementation(project(":compose:runtime:runtime-livedata"))
     implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:ui:ui-util"))
     implementation(project(":compose:ui:ui-text"))
     implementation(project(":compose:ui:ui-tooling-preview"))
     implementation(project(":compose:ui:ui-viewbinding"))

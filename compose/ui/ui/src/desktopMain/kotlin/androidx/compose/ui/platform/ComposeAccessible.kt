@@ -296,12 +296,7 @@ internal class ComposeAccessible(
         override fun getLocale(): Locale = Locale.getDefault()
 
         override fun getLocationOnScreen(): Point {
-            val rootLocation = controller?.desktopComponent?.locationOnScreen ?: Point(0, 0)
-            val position = semanticsNode.positionInRoot
-            return Point(
-                (rootLocation.x + position.x / density.density).toInt(),
-                (rootLocation.y + position.y.toInt() / density.density).toInt()
-            )
+           return semanticsNode.positionOnScreen.toAwtPoint()
         }
 
         override fun getLocation(): Point {
