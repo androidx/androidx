@@ -20,7 +20,6 @@ import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.offset
 import androidx.compose.material3.DismissDirection.EndToStart
 import androidx.compose.material3.DismissDirection.StartToEnd
 import androidx.compose.material3.DismissState.Companion.Saver
@@ -33,11 +32,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.node.LayoutModifierNode
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
@@ -279,7 +284,7 @@ fun rememberDismissState(
 ): DismissState {
     val density = LocalDensity.current
     return rememberSaveable(
-        saver = DismissState.Saver(
+        saver = Saver(
             confirmValueChange = confirmValueChange,
             density = density,
             positionalThreshold = positionalThreshold
@@ -353,22 +358,8 @@ fun SwipeToDismissBox(
                 orientation = Orientation.Horizontal,
                 enabled = state.currentValue == Default,
                 reverseDirection = isRtl,
-            )
-            .onSizeChanged { layoutSize ->
-                val width = layoutSize.width.toFloat()
-                val newAnchors = DraggableAnchors {
-                    Default at 0f
-                    if (StartToEnd in directions) {
-                        DismissedToEnd at width
-                    }
-
-                    if (EndToStart in directions) {
-                        DismissedToStart at -width
-                    }
-                }
-
-                state.anchoredDraggableState.updateAnchors(newAnchors)
-            }
+            ),
+        propagateMinConstraints = true
     ) {
         Row(
             content = backgroundContent,
@@ -376,7 +367,7 @@ fun SwipeToDismissBox(
         )
         Row(
             content = content,
-            modifier = Modifier.offset { IntOffset(state.requireOffset().roundToInt(), 0) }
+            modifier = Modifier.swipeDismissAnchors(state, directions)
         )
     }
 }
@@ -392,3 +383,87 @@ object SwipeToDismissBoxDefaults {
 }
 
 private val DismissThreshold = 125.dp
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun Modifier.swipeDismissAnchors(state: DismissState, directions: Set<DismissDirection>) =
+    this then SwipeDismissAnchorsElement(state, directions)
+
+@OptIn(ExperimentalMaterial3Api::class)
+private class SwipeDismissAnchorsElement(
+    private val state: DismissState,
+    private val directions: Set<DismissDirection>,
+) : ModifierNodeElement<SwipeDismissAnchorsNode>() {
+
+    override fun create() = SwipeDismissAnchorsNode(state, directions)
+
+    override fun update(node: SwipeDismissAnchorsNode) {
+        node.state = state
+        node.directions = directions
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        other as SwipeDismissAnchorsElement
+        if (state != other.state) return false
+        if (directions != other.directions) return false
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = state.hashCode()
+        result = 31 * result + directions.hashCode()
+        return result
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        debugInspectorInfo {
+            properties["state"] = state
+            properties["directions"] = directions
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+private class SwipeDismissAnchorsNode(
+    var state: DismissState,
+    var directions: Set<DismissDirection>
+) : Modifier.Node(), LayoutModifierNode {
+    private var didLookahead: Boolean = false
+
+    override fun onDetach() {
+        didLookahead = false
+    }
+
+    override fun MeasureScope.measure(
+        measurable: Measurable,
+        constraints: Constraints
+    ): MeasureResult {
+        val placeable = measurable.measure(constraints)
+        // If we are in a lookahead pass, we only want to update the anchors here and not in
+        // post-lookahead. If there is no lookahead happening (!isLookingAhead && !didLookahead),
+        // update the anchors in the main pass.
+        if (isLookingAhead || !didLookahead) {
+            val width = placeable.width.toFloat()
+            val newAnchors = DraggableAnchors {
+                Default at 0f
+                if (StartToEnd in directions) {
+                    DismissedToEnd at width
+                }
+                if (EndToStart in directions) {
+                    DismissedToStart at -width
+                }
+            }
+            state.anchoredDraggableState.updateAnchors(newAnchors)
+        }
+        didLookahead = isLookingAhead || didLookahead
+        return layout(placeable.width, placeable.height) {
+            // In a lookahead pass, we use the position of the current target as this is where any
+            // ongoing animations would move. If SwipeToDismissBox is in a settled state, lookahead
+            // and post-lookahead will converge.
+            val xOffset = if (isLookingAhead) {
+                state.anchoredDraggableState.anchors.positionOf(state.targetValue)
+            } else state.requireOffset()
+            placeable.place(xOffset.roundToInt(), 0)
+        }
+    }
+}

@@ -16,11 +16,19 @@
 
 package androidx.compose.material3
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.LookaheadScope
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
@@ -34,6 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,7 +71,12 @@ class SwipeToDismissTest {
             SwipeToDismissBox(
                 state = rememberDismissState(DismissValue.Default),
                 backgroundContent = { }
-            ) { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) }
+            ) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(dismissContentTag)
+                    ) }
         }
 
         rule.onNodeWithTag(dismissContentTag)
@@ -73,7 +89,12 @@ class SwipeToDismissTest {
             SwipeToDismissBox(
                 state = rememberDismissState(DismissValue.DismissedToEnd),
                 backgroundContent = { }
-            ) { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) }
+            ) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(dismissContentTag)
+                    ) }
         }
 
         val width = rule.rootWidth()
@@ -87,7 +108,12 @@ class SwipeToDismissTest {
             SwipeToDismissBox(
                 state = rememberDismissState(DismissValue.DismissedToStart),
                 backgroundContent = { }
-            ) { Box(Modifier.fillMaxSize().testTag(dismissContentTag)) }
+            ) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(dismissContentTag)
+                    ) }
         }
 
         val width = rule.rootWidth()
@@ -100,7 +126,13 @@ class SwipeToDismissTest {
         rule.setContent {
             SwipeToDismissBox(
                 state = rememberDismissState(DismissValue.Default),
-                backgroundContent = { Box(Modifier.fillMaxSize().testTag(backgroundTag)) }
+                backgroundContent = {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .testTag(backgroundTag)
+                    )
+                }
             ) { Box(Modifier.size(100.dp)) }
         }
 
@@ -228,5 +260,82 @@ class SwipeToDismissTest {
         rule.runOnIdle {
             assertThat(dismissState.currentValue).isEqualTo(DismissValue.Default)
         }
+    }
+
+    /**
+     * This test verifies that SwipeToDismiss, which reports anchors derived from its layout size,
+     * works in a scenario with a LookaheadScope root, LazyColumn and AnimatedVisibility when the
+     * LazyColumn composes and layouts a new SwipeToDismiss item. This is a regression test for
+     * b/297226562.
+     */
+    @Test
+    fun swipeToDismiss_reportsAnchors_inNestedLazyAndLookahead() {
+        lateinit var lazyState: LazyListState
+        lateinit var scope: CoroutineScope
+        val amountOfItems = 100
+        val composedItems = mutableMapOf<Int, DismissState>()
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            LookaheadScope {
+                lazyState = rememberLazyListState()
+                LazyColumn(state = lazyState) {
+                    items(amountOfItems, key = { item -> item }) { index ->
+                        composedItems[index] = rememberDismissState()
+                        val isDismissed = composedItems[index]!!
+                            .isDismissed(DismissDirection.EndToStart)
+                        AnimatedVisibility(visible = !isDismissed) {
+                            SwipeToDismissBox(
+                                modifier = Modifier
+                                    .height(48.dp)
+                                    .fillMaxWidth(),
+                                state = composedItems[index]!!,
+                                backgroundContent = { },
+                                content = { }
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        // Ensure that we have less visible items than total items, so that we know a new item will
+        // be composed and measured/placed
+        val initiallyVisibleItems = lazyState.layoutInfo.visibleItemsInfo.size
+        assertWithMessage(
+            "Expected visible items to be less than total items so that there are " +
+                "items left to compose later."
+        )
+            .that(initiallyVisibleItems)
+            .isLessThan(amountOfItems)
+        assertWithMessage("Expected composed items to match amount of visible items")
+            .that(composedItems)
+            .hasSize(initiallyVisibleItems)
+        assertWithMessage(
+            "Expected that item at index $initiallyVisibleItems was not " +
+                "composed yet"
+        )
+            .that(composedItems)
+            .doesNotContainKey(initiallyVisibleItems)
+
+        // Dismiss an item so that the lazy layout is required to compose a new item
+        scope.launch {
+            composedItems[initiallyVisibleItems - 1]!!.dismiss(DismissDirection.EndToStart)
+        }
+        rule.waitForIdle()
+
+        // Assert a new item has been
+        assertWithMessage(
+            "Expected a new item to have been composed at index " +
+                "${initiallyVisibleItems + 1}"
+        )
+            .that(lazyState.layoutInfo.visibleItemsInfo)
+            .hasSize(initiallyVisibleItems + 1)
+        val newItemIndex = lazyState.layoutInfo.visibleItemsInfo.size - 1
+        val newItem = composedItems[newItemIndex]
+        assertThat(newItem).isNotNull()
+        assertWithMessage("Expected item $newItemIndex anchors to have been initialized")
+            .that(newItem!!.anchoredDraggableState.anchors.size)
+            .isAtLeast(1)
     }
 }
