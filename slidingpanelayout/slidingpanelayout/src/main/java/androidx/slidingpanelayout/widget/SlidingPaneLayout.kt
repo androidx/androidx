@@ -18,7 +18,6 @@ package androidx.slidingpanelayout.widget
 
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Build
@@ -88,25 +87,10 @@ private const val ACCESSIBILITY_CLASS_NAME =
 
 private val edgeSizeUsingSystemGestureInsets = Build.VERSION.SDK_INT >= 29
 
-@Suppress("deprecation") // Remove suppression once b/120984816 is addressed.
-private fun viewIsOpaque(v: View): Boolean {
-    if (v.isOpaque) return true
-
-    // View#isOpaque didn't take all valid opaque scrollbar modes into account
-    // before API 18 (JB-MR2). On newer devices rely solely on isOpaque above and return false
-    // here. On older devices, check the view's background drawable directly as a fallback.
-    if (Build.VERSION.SDK_INT >= 18) return false
-
-    val bg = v.background
-    return if (bg != null) {
-        bg.opacity == PixelFormat.OPAQUE
-    } else false
-}
-
 private fun getMinimumWidth(child: View): Int {
     return if (child is TouchBlocker) {
-        ViewCompat.getMinimumWidth(child.getChildAt(0))
-    } else ViewCompat.getMinimumWidth(child)
+        child.getChildAt(0).minimumWidth
+    } else child.minimumWidth
 }
 
 private fun getChildHeightMeasureSpec(
@@ -428,8 +412,8 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             return gestureInsets
         }
 
-    private val isLayoutRtlSupport: Boolean
-        get() = ViewCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL
+    private val isLayoutRtl: Boolean
+        get() = layoutDirection == LAYOUT_DIRECTION_RTL
 
     private val windowInfoTracker = WindowInfoTracker.getOrCreate(context)
 
@@ -598,7 +582,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     }
 
     private fun updateObscuredViewsVisibility(panel: View?) {
-        val isLayoutRtl = isLayoutRtlSupport
+        val isLayoutRtl = isLayoutRtl
         val startBound = if (isLayoutRtl) width - paddingRight else paddingLeft
         val endBound = if (isLayoutRtl) paddingLeft else width - paddingRight
         val topBound = paddingTop
@@ -607,7 +591,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         val right: Int
         val top: Int
         val bottom: Int
-        if (panel != null && viewIsOpaque(panel)) {
+        if (panel != null && panel.isOpaque) {
             left = panel.left
             right = panel.right
             top = panel.top
@@ -993,7 +977,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             }
         }
 
-        val isLayoutRtl = isLayoutRtlSupport
+        val isLayoutRtl = isLayoutRtl
         val width = r - l
         val paddingStart = if (isLayoutRtl) paddingRight else paddingLeft
         val paddingEnd = if (isLayoutRtl) paddingLeft else paddingRight
@@ -1202,7 +1186,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             currentSlideOffset = 0f
             return
         }
-        val isLayoutRtl = isLayoutRtlSupport
+        val isLayoutRtl = isLayoutRtl
         val lp = slideableView!!.layoutParams as LayoutParams
         val childWidth = slideableView!!.width
         val newStart = if (isLayoutRtl) width - newLeft - childWidth else newLeft
@@ -1223,7 +1207,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     ): Boolean {
         if (isSlideable) {
             val gestureInsets = systemGestureInsets
-            if (isLayoutRtlSupport xor isOpen) {
+            if (isLayoutRtl xor isOpen) {
                 overlappingPaneHandler.setEdgeTrackingEnabled(
                     ViewDragHelper.EDGE_LEFT,
                     gestureInsets?.left ?: 0
@@ -1242,7 +1226,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         if (isSlideable && !lp.slideable && slideableView != null) {
             // Clip against the slider; no sense drawing what will immediately be covered.
             canvas.getClipBounds(tmpRect)
-            if (isLayoutRtlSupport) {
+            if (isLayoutRtl) {
                 tmpRect.left = max(tmpRect.left, slideableView!!.right)
             } else {
                 tmpRect.right = min(tmpRect.right, slideableView!!.left)
@@ -1282,7 +1266,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             return false
         }
         val slideableView = slideableView ?: return false
-        val isLayoutRtl = isLayoutRtlSupport
+        val isLayoutRtl = isLayoutRtl
         val lp = slideableView.layoutParams as LayoutParams
         val x: Int = if (isLayoutRtl) {
             val startBound = paddingRight + lp.rightMargin
@@ -1294,7 +1278,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
         if (overlappingPaneHandler.smoothSlideViewTo(slideableView, x, slideableView.top)) {
             setAllChildrenVisible()
-            ViewCompat.postInvalidateOnAnimation(this)
+            postInvalidateOnAnimation()
             return true
         }
         return false
@@ -1369,7 +1353,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
 
     override fun draw(c: Canvas) {
         super.draw(c)
-        val isLayoutRtl = isLayoutRtlSupport
+        val isLayoutRtl = isLayoutRtl
         val shadowDrawable: Drawable? = if (isLayoutRtl) {
             shadowDrawableRight
         } else {
@@ -1385,7 +1369,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         val shadowWidth = shadowDrawable.intrinsicWidth
         val left: Int
         val right: Int
-        if (isLayoutRtlSupport) {
+        if (this.isLayoutRtl) {
             left = shadowView.right
             right = left + shadowWidth
         } else {
@@ -1397,7 +1381,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     }
 
     private fun parallaxOtherViews(slideOffset: Float) {
-        val isLayoutRtl = isLayoutRtlSupport
+        val isLayoutRtl = isLayoutRtl
         val childCount = childCount
         for (i in 0 until childCount) {
             val v = getChildAt(i)
@@ -1441,7 +1425,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 }
             }
         }
-        return checkV && v.canScrollHorizontally(if (isLayoutRtlSupport) dx else -dx)
+        return checkV && v.canScrollHorizontally(if (isLayoutRtl) dx else -dx)
     }
 
     private fun isDimmed(child: View?): Boolean {
@@ -1741,7 +1725,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                     dragHelper.abort()
                     return
                 }
-                ViewCompat.postInvalidateOnAnimation(this@SlidingPaneLayout)
+                postInvalidateOnAnimation()
             }
         }
 
@@ -1838,7 +1822,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
             val lp = releasedChild.layoutParams as LayoutParams
             var left: Int
-            if (isLayoutRtlSupport) {
+            if (isLayoutRtl) {
                 var startToRight = paddingRight + lp.rightMargin
                 if (xvel < 0 || xvel == 0f && currentSlideOffset > 0.5f) {
                     startToRight += slideRange
@@ -1862,7 +1846,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
             var newLeft = left
             val lp = slideableView!!.layoutParams as LayoutParams
-            newLeft = if (isLayoutRtlSupport) {
+            newLeft = if (isLayoutRtl) {
                 val startBound = (width - (paddingRight + lp.rightMargin + slideableView!!.width))
                 val endBound = startBound - slideRange
                 newLeft.coerceIn(endBound, startBound)
