@@ -2672,6 +2672,28 @@ class SubcomposeLayoutTest {
         }
     }
 
+    @Test
+    fun precomposeOnDetachedStateIsNoOp() {
+        var needSubcomposeLayout by mutableStateOf(true)
+        val state = SubcomposeLayoutState(SubcomposeSlotReusePolicy(1))
+        rule.setContent {
+            if (needSubcomposeLayout) {
+                SubcomposeLayout(state) { _ ->
+                    layout(10, 10) {}
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            needSubcomposeLayout = false
+        }
+
+        rule.runOnIdle {
+            val handle = state.precompose(Unit) { Box(Modifier) }
+            assertThat(handle.placeablesCount).isEqualTo(0)
+        }
+    }
+
     private fun SubcomposeMeasureScope.measure(
         slotId: Any,
         constraints: Constraints,
