@@ -137,13 +137,13 @@ class VirtualCamera implements CameraInternal {
         }
 
         // Merge resolution configs.
-        List<Size> supportedResolutions =
+        List<Size> cameraSupportedResolutions =
                 new ArrayList<>(mParentCamera.getCameraInfoInternal().getSupportedResolutions(
                         INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE));
         Size sensorSize = rectToSize(mParentCamera.getCameraControlInternal().getSensorRect());
-        mutableConfig.insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS,
-                getMergedResolutions(supportedResolutions, sensorSize,
-                        childrenConfigs));
+        List<Size> mergedResolutions = getMergedResolutions(cameraSupportedResolutions, sensorSize,
+                mutableConfig, childrenConfigs);
+        mutableConfig.insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS, mergedResolutions);
 
         // Merge Surface occupancy priority.
         mutableConfig.insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY,

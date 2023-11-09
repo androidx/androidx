@@ -449,23 +449,6 @@ class ExtensionsManagerTest(
     }
 
     @Test
-    fun throwIllegalArgumentException_whenBindingVideoCapture(): Unit = runBlocking {
-        val extensionCameraSelector = checkExtensionAvailabilityAndInit()
-
-        withContext(Dispatchers.Main) {
-            val fakeLifecycleOwner = FakeLifecycleOwner()
-
-            assertThrows<IllegalArgumentException> {
-                cameraProvider.bindToLifecycle(
-                    fakeLifecycleOwner,
-                    extensionCameraSelector,
-                    createVideoCapture()
-                )
-            }
-        }
-    }
-
-    @Test
     fun isImageAnalysisSupportedReturnsFalse_whenHasNoAnalysisSizes() {
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
