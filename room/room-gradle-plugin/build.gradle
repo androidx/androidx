@@ -45,6 +45,9 @@ dependencies {
     testImplementation(libs.testParameterInjector)
 
     testPlugin("com.android.tools.build:gradle:7.3.0")
+    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043")
+    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043:linux")
+    testPlugin("com.android.tools.build:aapt2:7.3.0-8691043:osx")
     testPlugin(libs.kotlinGradlePluginz)
     testPlugin(libs.kspGradlePluginz)
 }
