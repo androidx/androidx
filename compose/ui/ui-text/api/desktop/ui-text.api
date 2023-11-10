@@ -1384,6 +1384,16 @@ public final class androidx/compose/ui/text/platform/SkiaParagraph_skikoKt {
 	public static final fun toSkPlaceholderAlignment-do9X-Gg (I)Lorg/jetbrains/skia/paragraph/PlaceholderAlignment;
 }
 
+public final class androidx/compose/ui/text/platform/SystemFont : androidx/compose/ui/text/platform/PlatformFont {
+	public static final field $stable I
+	public synthetic fun <init> (Ljava/lang/String;Landroidx/compose/ui/text/font/FontWeight;IILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public synthetic fun <init> (Ljava/lang/String;Landroidx/compose/ui/text/font/FontWeight;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public fun getIdentity ()Ljava/lang/String;
+	public fun getStyle-_-LCdwA ()I
+	public fun getWeight ()Landroidx/compose/ui/text/font/FontWeight;
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class androidx/compose/ui/text/style/BaselineShift {
 	public static final field Companion Landroidx/compose/ui/text/style/BaselineShift$Companion;
 	public static final synthetic fun box-impl (F)Landroidx/compose/ui/text/style/BaselineShift;

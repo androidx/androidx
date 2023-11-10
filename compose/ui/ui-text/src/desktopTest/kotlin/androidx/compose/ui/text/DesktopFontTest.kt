@@ -21,8 +21,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.SkiaFontLoader
 import androidx.compose.ui.text.platform.Font
-import androidx.compose.ui.text.platform.GenericFontFamiliesMapping
 import androidx.compose.ui.text.platform.Typeface
+import androidx.compose.ui.text.platform.aliases
 import com.google.common.truth.Truth
 import org.jetbrains.skia.Data
 import org.jetbrains.skia.Typeface
@@ -66,10 +66,10 @@ class DesktopFontTest {
     @Test
     fun ensureRegistered() {
         Truth.assertThat(fontLoader.loadPlatformTypes(FontFamily.Cursive).aliases)
-            .isEqualTo(GenericFontFamiliesMapping[FontFamily.Cursive.name])
+            .isEqualTo(FontFamily.Cursive.aliases)
 
         Truth.assertThat(fontLoader.loadPlatformTypes(FontFamily.Default).aliases)
-            .isEqualTo(GenericFontFamiliesMapping[FontFamily.SansSerif.name])
+            .isEqualTo(FontFamily.SansSerif.aliases)
 
         Truth.assertThat(fontLoader.loadPlatformTypes(loadedFontFamily).aliases)
             .isEqualTo(listOf("Sample Font"))

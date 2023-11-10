@@ -16,12 +16,13 @@
 package androidx.compose.ui.text.platform
 
 import org.jetbrains.skia.Typeface as SkTypeface
+import org.jetbrains.skia.FontStyle as SkFontStyle
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.*
-import androidx.compose.ui.util.fastForEach
 import java.io.File
-import java.security.MessageDigest
 import org.jetbrains.skia.Data
+import org.jetbrains.skia.FontSlant
+import org.jetbrains.skia.FontWidth
 import org.jetbrains.skia.makeFromFile
 
 actual sealed class PlatformFont : Font {
@@ -163,6 +164,7 @@ internal actual fun loadTypeface(font: Font): SkTypeface {
         is ResourceFont -> typefaceResource(font.name)
         is FileFont -> SkTypeface.makeFromFile(font.file.toString())
         is LoadedFont -> SkTypeface.makeFromData(Data.makeFromBytes(font.data))
+        is SystemFont -> SkTypeface.makeFromName(font.identity, font.skFontStyle)
     }
 }
 
@@ -175,6 +177,12 @@ private fun typefaceResource(resourceName: String): SkTypeface {
     val bytes = resource.use { it.readAllBytes() }
     return SkTypeface.makeFromData(Data.makeFromBytes(bytes))
 }
+
+private val Font.skFontStyle: SkFontStyle get() = SkFontStyle(
+    weight = weight.weight,
+    width = FontWidth.NORMAL,
+    slant = if (style == FontStyle.Italic) FontSlant.ITALIC else FontSlant.UPRIGHT
+)
 
 internal actual fun currentPlatform(): Platform {
     val name = System.getProperty("os.name")
