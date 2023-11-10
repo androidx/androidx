@@ -340,20 +340,17 @@ fun DialogWindow(
     val windowExceptionHandlerFactory by rememberUpdatedState(
         LocalWindowExceptionHandlerFactory.current
     )
-    val parentScene = LocalComposeScene.current
     val layoutDirection = LocalLayoutDirection.current
     AwtWindow(
         visible = visible,
         create = {
             create().apply {
-                parentScene?.addChildScene(scene)
                 this.compositionLocalContext = compositionLocalContext
                 this.exceptionHandler = windowExceptionHandlerFactory.exceptionHandler(this)
                 setContent(onPreviewKeyEvent, onKeyEvent, content)
             }
         },
         dispose = {
-            parentScene?.removeChildScene(it.scene)
             dispose(it)
         },
         update = {

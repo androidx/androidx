@@ -28,9 +28,9 @@ import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
 import androidx.compose.ui.platform.LocalWindowInfo
-import androidx.compose.ui.platform.SkiaRootForTest
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.test.junit4.ComposeRootRegistry
 import androidx.compose.ui.test.junit4.MainTestClockImpl
 import androidx.compose.ui.test.junit4.UncaughtExceptionHandler
 import androidx.compose.ui.test.junit4.isOnUiThread
@@ -136,6 +136,8 @@ class SkikoComposeUiTest(
         override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) = Unit
     }
 
+    private val composeRootRegistry = ComposeRootRegistry()
+
     private val coroutineDispatcher = UnconfinedTestDispatcher()
     private val testScope = TestScope(coroutineDispatcher)
     override val mainClock: MainTestClock = MainTestClockImpl(
@@ -165,8 +167,16 @@ class SkikoComposeUiTest(
     private val idlingResources = mutableSetOf<IdlingResource>()
 
     fun <R> runTest(block: SkikoComposeUiTest.() -> R): R {
-        scene = runOnUiThread(::createUi)
+        return composeRootRegistry.withRegistry {
+            withScene {
+                block()
+            }
+        }
+    }
+
+    private fun <R> withScene(block: () -> R): R {
         try {
+            scene = runOnUiThread(::createUi)
             return block()
         } finally {
             // call runTest instead of deprecated cleanupTestCoroutines()
@@ -215,8 +225,8 @@ class SkikoComposeUiTest(
             ++i
         }
 
-        val hasPendingMeasureOrLayout = testOwner.roots.any {
-            (it as SkiaRootForTest).hasPendingMeasureOrLayout
+        val hasPendingMeasureOrLayout = composeRootRegistry.getComposeRoots().any {
+            it.hasPendingMeasureOrLayout
         }
 
         return !shouldPumpTime() && !hasPendingMeasureOrLayout && areAllResourcesIdle()
@@ -350,16 +360,13 @@ class SkikoComposeUiTest(
 
     @OptIn(InternalComposeUiApi::class)
     private inner class DesktopTestOwner : TestOwner, SkikoTestOwner {
-        val roots: Set<RootForTest>
-            get() = this@SkikoComposeUiTest.scene.roots
-
         override fun <T> runOnUiThread(action: () -> T): T {
             return this@SkikoComposeUiTest.runOnUiThread(action)
         }
 
         override fun getRoots(atLeastOneRootExpected: Boolean): Set<RootForTest> {
             waitForIdle()
-            return this@SkikoComposeUiTest.scene.roots
+            return composeRootRegistry.getComposeRoots()
         }
 
         override val mainClock get() =

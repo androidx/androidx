@@ -149,7 +149,8 @@ internal class SkiaBasedOwner(
 
     override val coroutineContext: CoroutineContext = coroutineContext
 
-    override val rootForTest = this
+    override val rootForTest
+        get() = this
 
     override val snapshotObserver = OwnerSnapshotObserver { command ->
         dispatchSnapshotChanges?.invoke(command)
@@ -194,15 +195,22 @@ internal class SkiaBasedOwner(
 
     override val viewConfiguration = platform.viewConfiguration
 
+    override val containerSize: IntSize
+        // TODO: properly initialize Platform/WindowInfo in tests
+        // get() = platform.windowInfo.containerSize
+        get() = constraints.maxSize
+
     override val hasPendingMeasureOrLayout: Boolean
         get() = measureAndLayoutDelegate.hasPendingMeasureOrLayout
 
     init {
         snapshotObserver.startObserving()
         root.attach(this)
+        SkiaRootForTest.onRootCreatedCallback?.invoke(this)
     }
 
     fun dispose() {
+        SkiaRootForTest.onRootDisposedCallback?.invoke(this)
         snapshotObserver.stopObserving()
         // we don't need to call root.detach() because root will be garbage collected
     }
@@ -422,3 +430,6 @@ internal class SkiaBasedOwner(
         }
     }
 }
+
+internal val Constraints.maxSize get() =
+    IntSize(maxWidth, maxHeight)

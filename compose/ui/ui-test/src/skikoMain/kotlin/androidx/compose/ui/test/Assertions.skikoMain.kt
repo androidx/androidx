@@ -55,8 +55,7 @@ internal actual fun SemanticsNode.clippedNodeBoundsInWindow(): Rect {
 
 @OptIn(InternalComposeUiApi::class)
 internal actual fun SemanticsNode.isInScreenBounds(): Boolean {
-    // TODO: Replace _content_ size to view bounds.
-    val composeView = (root as SkiaRootForTest).scene
+    val containerSize = (root as SkiaRootForTest).containerSize
 
     // Window relative bounds of our node
     val nodeBoundsInWindow = clippedNodeBoundsInWindow()
@@ -67,8 +66,8 @@ internal actual fun SemanticsNode.isInScreenBounds(): Boolean {
     // Window relative bounds of our compose root view that are visible on the screen
     return nodeBoundsInWindow.top >= 0 &&
         nodeBoundsInWindow.left >= 0 &&
-        nodeBoundsInWindow.right <= composeView.contentSize.width &&
-        nodeBoundsInWindow.bottom <= composeView.contentSize.height
+        nodeBoundsInWindow.right <= containerSize.width &&
+        nodeBoundsInWindow.bottom <= containerSize.height
 }
 
 /**

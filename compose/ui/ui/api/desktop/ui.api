@@ -3150,8 +3150,17 @@ public final class androidx/compose/ui/platform/PlatformLocalization_desktopKt {
 }
 
 public abstract interface class androidx/compose/ui/platform/SkiaRootForTest : androidx/compose/ui/node/RootForTest {
+	public static final field Companion Landroidx/compose/ui/platform/SkiaRootForTest$Companion;
+	public abstract fun getContainerSize-YbymL2g ()J
 	public abstract fun getHasPendingMeasureOrLayout ()Z
 	public fun getScene ()Landroidx/compose/ui/ComposeScene;
+}
+
+public final class androidx/compose/ui/platform/SkiaRootForTest$Companion {
+	public final fun getOnRootCreatedCallback ()Lkotlin/jvm/functions/Function1;
+	public final fun getOnRootDisposedCallback ()Lkotlin/jvm/functions/Function1;
+	public final fun setOnRootCreatedCallback (Lkotlin/jvm/functions/Function1;)V
+	public final fun setOnRootDisposedCallback (Lkotlin/jvm/functions/Function1;)V
 }
 
 public abstract interface class androidx/compose/ui/platform/SoftwareKeyboardController {

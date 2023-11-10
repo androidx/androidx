@@ -18,9 +18,8 @@ package androidx.compose.ui.platform
 
 import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.input.pointer.TestPointerInputEventData
-import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.unit.IntSize
 
 /**
  * The marker interface to be implemented by the desktop root backing the composition.
@@ -29,9 +28,15 @@ import androidx.compose.ui.node.RootForTest
 @InternalComposeUiApi
 interface SkiaRootForTest : RootForTest {
     /**
-     * The [ComposeScene] which contains this root
+     * See [WindowInfo.containerSize]
+     */
+    val containerSize: IntSize
+
+    /**
+     * The [ComposeScene] which contains this root.
+     * Required only for dispatching input events.
      *
-     * TODO: Remove this reference.
+     * TODO: Extract separate interface only for pointer input.
      */
     val scene: ComposeScene get() = throw UnsupportedOperationException("SkiaRootForTest.scene is not implemented")
 
@@ -39,4 +44,19 @@ interface SkiaRootForTest : RootForTest {
      * Whether the Owner has pending layout work.
      */
     val hasPendingMeasureOrLayout: Boolean
+
+    companion object {
+        /**
+         * Called after an owner implementing [SkiaRootForTest] is created. Used by
+         * SkikoComposeUiTest to keep track of all attached roots. Not to be
+         * set or used by any other component.
+         */
+        // TODO: Move to "Shared Context" (aka Platform now)
+        @InternalComposeUiApi
+        var onRootCreatedCallback: ((SkiaRootForTest) -> Unit)? = null
+
+        // TODO: Move to "Shared Context" (aka Platform now)
+        @InternalComposeUiApi
+        var onRootDisposedCallback: ((SkiaRootForTest) -> Unit)? = null
+    }
 }
