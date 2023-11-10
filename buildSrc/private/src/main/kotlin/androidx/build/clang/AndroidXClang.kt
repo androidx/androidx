@@ -16,11 +16,12 @@
 
 package androidx.build.clang
 
-import com.google.common.annotations.VisibleForTesting
 import org.gradle.api.Action
 import org.gradle.api.Project
 
-@VisibleForTesting // need to access it from buildSrc-test
+/**
+ * Not internal to be able to use in buildSrc-tests
+ */
 class AndroidXClang(
     val project: Project
 ) {
