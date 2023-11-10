@@ -19,6 +19,10 @@ package androidx.compose.foundation.text2.input
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.substring
+import androidx.compose.ui.text.toUpperCase
 
 /**
  * A function that is ran after every change made to a [TextFieldState] by user input and can change
@@ -68,6 +72,8 @@ fun interface InputTransformation {
     }
 }
 
+// region Pre-built transformations
+
 /**
  * Creates a filter chain that will run [next] after this. Filters are applied sequentially, so any
  * changes made by this filter will be visible to [next].
@@ -103,6 +109,64 @@ fun InputTransformation?.then(next: InputTransformation?): InputTransformation? 
 @Stable
 fun InputTransformation.then(next: InputTransformation): InputTransformation =
     FilterChain(this, next)
+
+/**
+ * Creates an [InputTransformation] from a function that accepts both the old and proposed
+ * [TextFieldCharSequence] and returns the [TextFieldCharSequence] to use for the field.
+ *
+ * [transformation] can return either `old`, `proposed`, or a completely different value.
+ *
+ * The selection or cursor will be updated automatically. For more control of selection
+ * implement [InputTransformation] directly.
+ *
+ * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueChooseSample
+ * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueReplaceSample
+ */
+@ExperimentalFoundationApi
+@Stable
+fun InputTransformation.byValue(
+    transformation: (
+        current: CharSequence,
+        proposed: CharSequence
+    ) -> CharSequence
+): InputTransformation = this.then(InputTransformationByValue(transformation))
+
+/**
+ * Returns a [InputTransformation] that forces all text to be uppercase.
+ *
+ * This transformation automatically configures the keyboard to capitalize all characters.
+ *
+ * @param locale The [Locale] in which to perform the case conversion.
+ */
+@ExperimentalFoundationApi
+@Stable
+fun InputTransformation.allCaps(locale: Locale): InputTransformation =
+    this.then(AllCapsTransformation(locale))
+
+/**
+ * Returns [InputTransformation] that rejects input which causes the total length of the text field to be
+ * more than [maxLength] characters.
+ *
+ * @see maxLengthInCodepoints
+ */
+@ExperimentalFoundationApi
+@Stable
+fun InputTransformation.maxLengthInChars(maxLength: Int): InputTransformation =
+    this.then(MaxLengthFilter(maxLength, inCodepoints = false))
+
+/**
+ * Returns a [InputTransformation] that rejects input which causes the total length of the text field to
+ * be more than [maxLength] codepoints.
+ *
+ * @see maxLengthInChars
+ */
+@ExperimentalFoundationApi
+@Stable
+fun InputTransformation.maxLengthInCodepoints(maxLength: Int): InputTransformation =
+    this.then(MaxLengthFilter(maxLength, inCodepoints = true))
+
+// endregion
+// region Transformation implementations
 
 @OptIn(ExperimentalFoundationApi::class)
 private class FilterChain(
@@ -146,27 +210,6 @@ private class FilterChain(
     }
 }
 
-/**
- * Creates an [InputTransformation] from a function that accepts both the old and proposed
- * [TextFieldCharSequence] and returns the [TextFieldCharSequence] to use for the field.
- *
- * [transformation] can return either `old`, `proposed`, or a completely different value.
- *
- * The selection or cursor will be updated automatically. For more control of selection
- * implement [InputTransformation] directly.
- *
- * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueChooseSample
- * @sample androidx.compose.foundation.samples.BasicTextField2InputTransformationByValueReplaceSample
- */
-@ExperimentalFoundationApi
-@Stable
-fun InputTransformation.byValue(
-    transformation: (
-        current: CharSequence,
-        proposed: CharSequence
-    ) -> CharSequence
-): InputTransformation = this.then(InputTransformationByValue(transformation))
-
 @OptIn(ExperimentalFoundationApi::class)
 private data class InputTransformationByValue(
     val transformation: (
@@ -191,4 +234,58 @@ private data class InputTransformationByValue(
     }
 
     override fun toString(): String = "InputTransformation.byValue(transformation=$transformation)"
+}
+
+// This is a very naive implementation for now, not intended to be production-ready.
+@OptIn(ExperimentalFoundationApi::class)
+private data class AllCapsTransformation(private val locale: Locale) : InputTransformation {
+    override val keyboardOptions = KeyboardOptions(
+        capitalization = KeyboardCapitalization.Characters
+    )
+
+    override fun transformInput(
+        originalValue: TextFieldCharSequence,
+        valueWithChanges: TextFieldBuffer
+    ) {
+        // only update inserted content
+        valueWithChanges.changes.forEachChange { range, _ ->
+            if (!range.collapsed) {
+                valueWithChanges.replace(
+                    range.min,
+                    range.max,
+                    valueWithChanges.asCharSequence().substring(range).toUpperCase(locale)
+                )
+            }
+        }
+    }
+
+    override fun toString(): String = "InputTransformation.allCaps(locale=$locale)"
+}
+
+// This is a very naive implementation for now, not intended to be production-ready.
+@OptIn(ExperimentalFoundationApi::class)
+private data class MaxLengthFilter(
+    private val maxLength: Int,
+    private val inCodepoints: Boolean
+) : InputTransformation {
+
+    init {
+        require(maxLength >= 0) { "maxLength must be at least zero, was $maxLength" }
+    }
+
+    override fun transformInput(
+        originalValue: TextFieldCharSequence,
+        valueWithChanges: TextFieldBuffer
+    ) {
+        val newLength =
+            if (inCodepoints) valueWithChanges.codepointLength else valueWithChanges.length
+        if (newLength > maxLength) {
+            valueWithChanges.revertAllChanges()
+        }
+    }
+
+    override fun toString(): String {
+        val name = if (inCodepoints) "maxLengthInCodepoints" else "maxLengthInChars"
+        return "InputTransformation.$name(maxLength=$maxLength)"
+    }
 }
