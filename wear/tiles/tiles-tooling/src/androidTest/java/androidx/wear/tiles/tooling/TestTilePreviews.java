@@ -29,7 +29,7 @@ import androidx.wear.protolayout.ResourceBuilders.Resources;
 import androidx.wear.protolayout.TimelineBuilders.Timeline;
 import androidx.wear.protolayout.TimelineBuilders.TimelineEntry;
 import androidx.wear.tiles.TileBuilders.Tile;
-import androidx.wear.tiles.tooling.preview.TilePreview;
+import androidx.wear.tiles.tooling.preview.Preview;
 import androidx.wear.tiles.tooling.preview.TilePreviewData;
 
 public class TestTilePreviews {
@@ -64,23 +64,23 @@ public class TestTilePreviews {
     }
 
     /** Declaration of a static tile preview method */
-    @TilePreview
+    @Preview
     public static TilePreviewData tilePreview() {
         return new TilePreviewData((request) -> RESOURCES, (request) -> tile());
     }
 
-    @TilePreview
+    @Preview
     static TilePreviewData tileLayoutPreview() {
         return new TilePreviewData((request) -> singleTimelineEntryTileBuilder(layout()).build());
     }
 
-    @TilePreview
+    @Preview
     static TilePreviewData tileLayoutElementPreview() {
         return new TilePreviewData((request) ->
                 singleTimelineEntryTileBuilder(layoutElement()).build());
     }
 
-    @TilePreview
+    @Preview
     private static TilePreviewData tilePreviewWithPrivateVisibility() {
         return new TilePreviewData((request) -> tile());
     }
@@ -89,26 +89,26 @@ public class TestTilePreviews {
         return x;
     }
 
-    @TilePreview
+    @Preview
     static TilePreviewData duplicateFunctionName() {
         return new TilePreviewData((request) -> tile());
     }
 
-    @TilePreview
+    @Preview
     static TilePreviewData tilePreviewWithContextParameter(Context context) {
         return new TilePreviewData((request) -> tile());
     }
 
-    @TilePreview
+    @Preview
     static void tilePreviewWithWrongReturnType() {
     }
 
-    @TilePreview
+    @Preview
     static TilePreviewData tilePreviewWithNonContextParameter(int i) {
         return new TilePreviewData((request) -> tile());
     }
 
-    @TilePreview
+    @Preview
     TilePreviewData nonStaticMethod() {
         return new TilePreviewData((request) -> tile());
     }

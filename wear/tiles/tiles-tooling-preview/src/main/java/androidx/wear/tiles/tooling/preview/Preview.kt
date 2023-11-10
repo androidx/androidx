@@ -24,19 +24,19 @@ import androidx.wear.tooling.preview.devices.WearDevices
 /**
  * The annotation that marks Tile preview components that should have a visual preview in the
  * Android Studio preview panel. Tile preview components are methods that take an optional [Context]
- * parameter and return a [TilePreviewData]. Methods annotated with [TilePreview] must be top level
+ * parameter and return a [TilePreviewData]. Methods annotated with [Preview] must be top level
  * declarations or in a top level class with a default constructor.
  *
  * For example:
  * ```kotlin
- * @TilePreview
+ * @Preview
  * fun myTilePreview(): TilePreviewData {
  *     return TilePreviewData { request -> myTile(request) }
  * }
  * ```
  * or:
  * ```kotlin
- * @TilePreview
+ * @Preview
  * fun myTilePreview(context: Context): TilePreviewData {
  *     return TilePreviewData { request -> myTile(request, context) }
  * }
@@ -58,7 +58,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
  * preview.
  *
  * @param name Display name of this preview allowing to identify it in the panel.
- * @param group Group name for this @[TilePreview]. This allows grouping them in the UI and
+ * @param group Group name for this @[Preview]. This allows grouping them in the UI and
  * displaying only one or more of them.
  * @param locale Current user preference for the locale, corresponding to
  * [locale](https://d.android.com/guide/topics/resources/providing-resources.html#LocaleQualifier)
@@ -75,7 +75,7 @@ import androidx.wear.tooling.preview.devices.WearDevices
 )
 @Repeatable
 @MustBeDocumented
-annotation class TilePreview(
+annotation class Preview(
     val name: String = "",
     val group: String = "",
     val locale: String = "",

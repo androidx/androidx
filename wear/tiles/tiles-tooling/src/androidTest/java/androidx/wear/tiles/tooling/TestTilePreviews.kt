@@ -22,7 +22,7 @@ import androidx.wear.protolayout.LayoutElementBuilders
 import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.TimelineBuilders
 import androidx.wear.tiles.TileBuilders
-import androidx.wear.tiles.tooling.preview.TilePreview
+import androidx.wear.tiles.tooling.preview.Preview
 import androidx.wear.tiles.tooling.preview.TilePreviewData
 import androidx.wear.tiles.tooling.preview.TilePreviewHelper.singleTimelineEntryTileBuilder
 
@@ -51,42 +51,42 @@ private fun tile() = TileBuilders.Tile.Builder()
         ).build()
     ).build()
 
-@TilePreview
+@Preview
 fun tilePreview() = TilePreviewData(
     onTileResourceRequest = { resources },
     onTileRequest = { tile() },
 )
 
-@TilePreview
+@Preview
 fun tileLayoutPreview() = TilePreviewData {
     singleTimelineEntryTileBuilder(layout()).build()
 }
 
-@TilePreview
+@Preview
 fun tileLayoutElementPreview() = TilePreviewData {
     singleTimelineEntryTileBuilder(layoutElement()).build()
 }
 
-@TilePreview
+@Preview
 private fun tilePreviewWithPrivateVisibility() = TilePreviewData { tile() }
 
 fun duplicateFunctionName(x: Int) = x
 
-@TilePreview
+@Preview
 fun duplicateFunctionName() = TilePreviewData { tile() }
 
-@TilePreview
+@Preview
 fun tilePreviewWithContextParameter(@Suppress("UNUSED_PARAMETER") context: Context) =
     TilePreviewData { tile() }
 
-@TilePreview
+@Preview
 fun tilePreviewWithWrongReturnType() = Unit
 
-@TilePreview
+@Preview
 fun tilePreviewWithNonContextParameter(@Suppress("UNUSED_PARAMETER") i: Int) =
     TilePreviewData { tile() }
 
 class SomeClass {
-    @TilePreview
+    @Preview
     fun nonStaticMethod() = TilePreviewData { tile() }
 }
