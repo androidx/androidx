@@ -80,6 +80,12 @@ fun Project.getBuildInfoDirectory(): File = File(getDistributionDirectory(), "bu
 fun Project.getTestConfigDirectory(): Provider<Directory> =
     rootProject.layout.buildDirectory.dir("test-xml-configs")
 
+/**
+ * Directory for PrivacySandbox related APKs (SDKs, compat splits) used in device tests.
+ */
+fun Project.getPrivacySandboxApksDirectory(): Provider<Directory> =
+    rootProject.layout.buildDirectory.dir("privacysandbox-apks")
+
 /** A file within [getTestConfigDirectory] */
 fun Project.getFileInTestConfigDirectory(name: String): Provider<RegularFile> =
     getTestConfigDirectory().map { it.file(name) }

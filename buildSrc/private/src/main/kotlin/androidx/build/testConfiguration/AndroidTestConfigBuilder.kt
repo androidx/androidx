@@ -32,6 +32,7 @@ class ConfigBuilder {
     lateinit var testApkSha256: String
     lateinit var testRunner: String
     val additionalApkKeys = mutableListOf<String>()
+    val initialSetupApks = mutableListOf<String>()
 
     fun configName(configName: String) = apply { this.configName = configName }
 
@@ -56,6 +57,8 @@ class ConfigBuilder {
     fun tag(tag: String) = apply { this.tags.add(tag) }
 
     fun additionalApkKeys(keys: List<String>) = apply { additionalApkKeys.addAll(keys) }
+
+    fun initialSetupApks(apks: List<String>) = apply { initialSetupApks.addAll(apks) }
 
     fun testApkName(testApkName: String) = apply { this.testApkName = testApkName }
 
@@ -110,7 +113,10 @@ class ConfigBuilder {
         }
         sb.append(SETUP_INCLUDE)
             .append(TARGET_PREPARER_OPEN.replace("CLEANUP_APKS", "true"))
-            .append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
+        initialSetupApks.forEach { apk ->
+            sb.append(APK_INSTALL_OPTION.replace("APK_NAME", apk))
+        }
+        sb.append(APK_INSTALL_OPTION.replace("APK_NAME", testApkName))
         if (!appApkName.isNullOrEmpty())
             sb.append(APK_INSTALL_OPTION.replace("APK_NAME", appApkName!!))
         sb.append(TARGET_PREPARER_CLOSE)
