@@ -291,6 +291,7 @@ package androidx.camera.core {
     method public static androidx.camera.core.ImageCaptureCapabilities getImageCaptureCapabilities(androidx.camera.core.CameraInfo);
     method @IntRange(from=1, to=100) public int getJpegQuality();
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getPostviewResolutionSelector();
+    method public androidx.camera.core.ImageCaptureLatencyEstimate getRealtimeCaptureLatencyEstimate();
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getResolutionSelector();
     method public androidx.camera.core.ImageCapture.ScreenFlash? getScreenFlash();
@@ -393,6 +394,15 @@ package androidx.camera.core {
   @RequiresApi(21) public class ImageCaptureException extends java.lang.Exception {
     ctor public ImageCaptureException(int, String, Throwable?);
     method public int getImageCaptureError();
+  }
+
+  @RequiresApi(21) public class ImageCaptureLatencyEstimate {
+    method public long getCaptureLatencyMillis();
+    method public long getProcessingLatencyMillis();
+    method public long getTotalCaptureLatencyMillis();
+    field public static final long UNDEFINED_CAPTURE_LATENCY = -1L; // 0xffffffffffffffffL
+    field public static final androidx.camera.core.ImageCaptureLatencyEstimate UNDEFINED_IMAGE_CAPTURE_LATENCY;
+    field public static final long UNDEFINED_PROCESSING_LATENCY = -1L; // 0xffffffffffffffffL
   }
 
   @RequiresApi(21) public interface ImageInfo {
