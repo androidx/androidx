@@ -361,7 +361,7 @@
     <string name="loading_screen" msgid="4771507490730308794">"로딩 화면"</string>
     <string name="vector_toggle_details" msgid="1301305340033556819">"전환하여 색상 추가/삭제"</string>
     <string name="map_template_toggle_demo_title" msgid="6510798293640092611">"전환 스위치가 포함된 지도 템플릿"</string>
-    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"유료도로 제외"</string>
+    <string name="avoid_tolls_row_title" msgid="5194057244144831024">"유료 도로 제외"</string>
     <string name="route_options_demo_title" msgid="4599699012716426514">"경로 옵션"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"고속도로 제외"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"페리 제외"</string>
