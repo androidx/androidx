@@ -53,7 +53,7 @@ class SinglePointerPredictorTest {
                     continue
                 }
                 val predictor = constructPredictor()
-                val generator = MotionEventGenerator(xGenerator, yGenerator)
+                val generator = MotionEventGenerator(xGenerator, yGenerator, null)
                 for (i in 1..INITIAL_FEED) {
                     predictor.onTouchEvent(generator.next())
                     predictor.predict(generator.getRateMs().toInt())
@@ -74,8 +74,8 @@ class SinglePointerPredictorTest {
     @Test
     fun predictionNeverGoesBackwards() {
         val predictor = constructPredictor()
-        val accelerationGenerator = { delta: Long -> delta.toFloat() }
-        val motionGenerator = MotionEventGenerator(accelerationGenerator, accelerationGenerator)
+        val coordGenerator = { delta: Long -> delta.toFloat() }
+        val motionGenerator = MotionEventGenerator(coordGenerator, coordGenerator, null)
         var lastPredictedTime = 0L;
         for (i in 1..INITIAL_FEED) {
             predictor.onTouchEvent(motionGenerator.next())
@@ -89,6 +89,37 @@ class SinglePointerPredictorTest {
         predictor.onTouchEvent(motionGenerator.next())
         val predicted = predictor.predict(motionGenerator.getRateMs().toInt())!!
         assertThat(predicted.eventTime).isAtLeast(lastPredictedTime)
+    }
+
+    @Test
+    fun predictionNeverGoesBackwardsEvenWhenLifting() {
+        val predictor = constructPredictor()
+        val coordGenerator = { delta: Long -> delta.toFloat() }
+        // Pressure will be 1 at the beginning and trend to zero while never getting there
+        val pressureGenerator = fun(delta: Long): Float {
+                if (delta > 500) {
+                    return ((700 - delta) / 500).toFloat()
+                }
+                return 1f
+            }
+        val motionGenerator =
+                MotionEventGenerator(coordGenerator, coordGenerator, pressureGenerator)
+        var lastPredictedTime = 0L
+        var lastPredictedEvent: MotionEvent? = null
+        var predicted: MotionEvent?
+        var iteration = 0
+        do {
+            predictor.onTouchEvent(motionGenerator.next())
+            predicted = predictor.predict(motionGenerator.getRateMs().toInt() * 10)
+            if (predicted != null) {
+                assertThat(predicted.eventTime).isAtLeast(lastPredictedTime)
+                lastPredictedTime = predicted.eventTime
+            } else if (lastPredictedEvent != null) {
+                assertThat(lastPredictedEvent.getHistorySize()).isEqualTo(0);
+            }
+            lastPredictedEvent = predicted
+            iteration++
+        } while (predicted != null || iteration < INITIAL_FEED)
     }
 }
 
