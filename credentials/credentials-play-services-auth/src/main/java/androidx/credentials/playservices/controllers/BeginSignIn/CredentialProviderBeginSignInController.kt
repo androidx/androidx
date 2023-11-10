@@ -243,11 +243,9 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
 
     companion object {
         private const val TAG = "BeginSignIn"
-        private var controller: CredentialProviderBeginSignInController? = null
 
         /**
-         * This finds a past version of the [CredentialProviderBeginSignInController] if it exists,
-         * otherwise it generates a new instance.
+         * Factory method for [CredentialProviderBeginSignInController].
          *
          * @param context the calling context for this controller
          * @return a credential provider controller for a specific begin sign in credential request
@@ -255,10 +253,7 @@ internal class CredentialProviderBeginSignInController(private val context: Cont
         @JvmStatic
         fun getInstance(context: Context):
             CredentialProviderBeginSignInController {
-            if (controller == null) {
-                controller = CredentialProviderBeginSignInController(context)
-            }
-            return controller!!
+                return CredentialProviderBeginSignInController(context)
         }
     }
 }
