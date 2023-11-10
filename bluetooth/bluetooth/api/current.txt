@@ -49,6 +49,19 @@ package androidx.bluetooth {
     property @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public final String? name;
   }
 
+  public final class BluetoothException extends java.util.concurrent.CancellationException {
+    ctor public BluetoothException(int errorCode, String? message, Throwable? cause);
+    method public int getErrorCode();
+    property public final int errorCode;
+    field public static final int BLUETOOTH_NOT_ALLOWED = 2; // 0x2
+    field public static final int BLUETOOTH_NOT_ENABLED = 1; // 0x1
+    field public static final int DEVICE_NOT_BONDED = 3; // 0x3
+    field public static final int DEVICE_NOT_CONNECTED = 4; // 0x4
+    field public static final int ERROR_UNKNOWN = 2147483647; // 0x7fffffff
+    field public static final int FEATURE_NOT_CONFIGURED = 30; // 0x1e
+    field public static final int FEATURE_NOT_SUPPORTED = 11; // 0xb
+  }
+
   public final class BluetoothLe {
     ctor public BluetoothLe(android.content.Context context);
     method @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE") public kotlinx.coroutines.flow.Flow<java.lang.Integer> advertise(androidx.bluetooth.AdvertiseParams advertiseParams);
