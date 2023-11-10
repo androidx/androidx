@@ -56,6 +56,7 @@ internal class AppOwnedSdkProvider private constructor(
         private val controller: SdkSandboxController
     ) : ProviderImpl {
         @DoNotInline
+        @SuppressLint("ClassVerificationFailure") // flaky lint
         override fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat> {
             val apiResult = controller.getAppOwnedSdkSandboxInterfaces()
             return apiResult.map { AppOwnedSdkSandboxInterfaceCompat(it) }
