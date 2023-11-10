@@ -163,6 +163,9 @@ package androidx.privacysandbox.ads.adservices.common {
   public sealed interface ExperimentalFeatures {
   }
 
+  @SuppressCompatibility @kotlin.RequiresOptIn(message="The Ext10 API is experimental.", level=kotlin.RequiresOptIn.Level.WARNING) public static @interface ExperimentalFeatures.Ext10OptIn {
+  }
+
   @SuppressCompatibility @kotlin.RequiresOptIn(message="The Ext8 API is experimental.", level=kotlin.RequiresOptIn.Level.WARNING) public static @interface ExperimentalFeatures.Ext8OptIn {
   }
 
@@ -244,6 +247,7 @@ package androidx.privacysandbox.ads.adservices.customaudience {
   }
 
   public abstract class CustomAudienceManager {
+    method @SuppressCompatibility @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext10OptIn public abstract suspend Object? fetchAndJoinCustomAudience(androidx.privacysandbox.ads.adservices.customaudience.FetchAndJoinCustomAudienceRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? joinCustomAudience(androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract suspend Object? leaveCustomAudience(androidx.privacysandbox.ads.adservices.customaudience.LeaveCustomAudienceRequest request, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public static final androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager? obtain(android.content.Context context);
@@ -252,6 +256,20 @@ package androidx.privacysandbox.ads.adservices.customaudience {
 
   public static final class CustomAudienceManager.Companion {
     method public androidx.privacysandbox.ads.adservices.customaudience.CustomAudienceManager? obtain(android.content.Context context);
+  }
+
+  @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext10OptIn public final class FetchAndJoinCustomAudienceRequest {
+    ctor public FetchAndJoinCustomAudienceRequest(android.net.Uri fetchUri, optional String? name, optional java.time.Instant? activationTime, optional java.time.Instant? expirationTime, optional androidx.privacysandbox.ads.adservices.common.AdSelectionSignals? userBiddingSignals);
+    method public java.time.Instant? getActivationTime();
+    method public java.time.Instant? getExpirationTime();
+    method public android.net.Uri getFetchUri();
+    method public String? getName();
+    method public androidx.privacysandbox.ads.adservices.common.AdSelectionSignals? getUserBiddingSignals();
+    property public final java.time.Instant? activationTime;
+    property public final java.time.Instant? expirationTime;
+    property public final android.net.Uri fetchUri;
+    property public final String? name;
+    property public final androidx.privacysandbox.ads.adservices.common.AdSelectionSignals? userBiddingSignals;
   }
 
   public final class JoinCustomAudienceRequest {

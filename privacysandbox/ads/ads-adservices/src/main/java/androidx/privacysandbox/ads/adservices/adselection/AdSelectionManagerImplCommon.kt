@@ -62,20 +62,14 @@ open class AdSelectionManagerImplCommon(
         request: AdSelectionConfig
     ): android.adservices.adselection.AdSelectionConfig {
         return android.adservices.adselection.AdSelectionConfig.Builder()
-            .setAdSelectionSignals(convertAdSelectionSignals(request.adSelectionSignals))
+            .setAdSelectionSignals(request.adSelectionSignals.convertToAdServices())
             .setCustomAudienceBuyers(convertBuyers(request.customAudienceBuyers))
             .setDecisionLogicUri(request.decisionLogicUri)
             .setSeller(request.seller.convertToAdServices())
             .setPerBuyerSignals(convertPerBuyerSignals(request.perBuyerSignals))
-            .setSellerSignals(convertAdSelectionSignals(request.sellerSignals))
+            .setSellerSignals(request.sellerSignals.convertToAdServices())
             .setTrustedScoringSignalsUri(request.trustedScoringSignalsUri)
             .build()
-    }
-
-    private fun convertAdSelectionSignals(
-        request: AdSelectionSignals
-    ): android.adservices.common.AdSelectionSignals {
-        return android.adservices.common.AdSelectionSignals.fromString(request.signals)
     }
 
     private fun convertBuyers(
@@ -96,8 +90,7 @@ open class AdSelectionManagerImplCommon(
             android.adservices.common.AdSelectionSignals?>()
         for (key in request.keys) {
             val id = key.convertToAdServices()
-            val value = if (request[key] != null) convertAdSelectionSignals(request[key]!!)
-            else null
+            val value = request[key]?.convertToAdServices()
             map[id] = value
         }
         return map

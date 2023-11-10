@@ -26,9 +26,11 @@ import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.ads.adservices.common.AdData
-import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
+import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import kotlinx.coroutines.suspendCancellableCoroutine
 
+@OptIn(ExperimentalFeatures.Ext10OptIn::class)
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SuppressLint("NewApi", "ClassVerificationFailure")
 @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
@@ -46,6 +48,15 @@ open class CustomAudienceManagerImplCommon(
                 continuation.asOutcomeReceiver()
             )
         }
+    }
+
+    @DoNotInline
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    override suspend fun fetchAndJoinCustomAudience(request: FetchAndJoinCustomAudienceRequest) {
+        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+            return Ext10Impl.fetchAndJoinCustomAudience(customAudienceManager, request)
+        }
+        throw UnsupportedOperationException("API is not available. Min version is API 31 ext 10")
     }
 
     @DoNotInline
@@ -89,7 +100,7 @@ open class CustomAudienceManagerImplCommon(
             .setExpirationTime(request.expirationTime)
             .setName(request.name)
             .setTrustedBiddingData(convertTrustedSignals(request.trustedBiddingSignals))
-            .setUserBiddingSignals(convertBiddingSignals(request.userBiddingSignals))
+            .setUserBiddingSignals(request.userBiddingSignals?.convertToAdServices())
             .build()
     }
 
@@ -113,10 +124,24 @@ open class CustomAudienceManagerImplCommon(
             .build()
     }
 
-    private fun convertBiddingSignals(
-        input: AdSelectionSignals?
-    ): android.adservices.common.AdSelectionSignals? {
-        if (input == null) return null
-        return android.adservices.common.AdSelectionSignals.fromString(input.signals)
+    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 10)
+    @RequiresExtension(extension = Build.VERSION_CODES.S, version = 10)
+    private class Ext10Impl private constructor() {
+        companion object {
+            @DoNotInline
+            @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+            suspend fun fetchAndJoinCustomAudience(
+                customAudienceManager: android.adservices.customaudience.CustomAudienceManager,
+                fetchAndJoinCustomAudienceRequest: FetchAndJoinCustomAudienceRequest
+            ) {
+                suspendCancellableCoroutine { continuation ->
+                    customAudienceManager.fetchAndJoinCustomAudience(
+                        fetchAndJoinCustomAudienceRequest.convertToAdServices(),
+                        Runnable::run,
+                        continuation.asOutcomeReceiver()
+                    )
+                }
+            }
+        }
     }
 }

@@ -47,6 +47,7 @@ package androidx.privacysandbox.ads.adservices.java.appsetid {
 package androidx.privacysandbox.ads.adservices.java.customaudience {
 
   public abstract class CustomAudienceManagerFutures {
+    method @SuppressCompatibility @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext10OptIn public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> fetchAndJoinCustomAudienceAsync(androidx.privacysandbox.ads.adservices.customaudience.FetchAndJoinCustomAudienceRequest request);
     method public static final androidx.privacysandbox.ads.adservices.java.customaudience.CustomAudienceManagerFutures? from(android.content.Context context);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> joinCustomAudienceAsync(androidx.privacysandbox.ads.adservices.customaudience.JoinCustomAudienceRequest request);
     method @RequiresPermission(android.adservices.common.AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE) public abstract com.google.common.util.concurrent.ListenableFuture<kotlin.Unit> leaveCustomAudienceAsync(androidx.privacysandbox.ads.adservices.customaudience.LeaveCustomAudienceRequest request);

@@ -28,4 +28,7 @@ sealed interface ExperimentalFeatures {
 
     @RequiresOptIn("The Ext8 API is experimental.", RequiresOptIn.Level.WARNING)
     annotation class Ext8OptIn
+
+    @RequiresOptIn("The Ext10 API is experimental.", RequiresOptIn.Level.WARNING)
+    annotation class Ext10OptIn
 }
