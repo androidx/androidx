@@ -51,7 +51,6 @@ public object MultiProcessDataStoreFactory {
      *
      * @return a new DataStore instance with the provided configuration
      */
-    @ExperimentalMultiProcessDataStore
     @JvmOverloads // Generate constructors for default params for java users.
     public fun <T> create(
         storage: Storage<T>,
@@ -93,7 +92,6 @@ public object MultiProcessDataStoreFactory {
      *
      * @return a new DataStore instance with the provided configuration
      */
-    @ExperimentalMultiProcessDataStore
     @JvmOverloads // Generate constructors for default params for java users.
     public fun <T> create(
         serializer: Serializer<T>,
