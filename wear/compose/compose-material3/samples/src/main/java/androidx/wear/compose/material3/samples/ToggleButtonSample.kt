@@ -42,7 +42,7 @@ fun ToggleButtonWithCheckbox() {
     var checked by remember { mutableStateOf(true) }
     ToggleButton(
         label = {
-            Text("SwitchIcon", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("Checkbox", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         secondaryLabel = {
             Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -75,7 +75,7 @@ fun ToggleButtonWithSwitch() {
     var checked by remember { mutableStateOf(true) }
     ToggleButton(
         label = {
-            Text("SwitchIcon", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("Switch", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         secondaryLabel = {
             Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -108,7 +108,7 @@ fun ToggleButtonWithRadioButton() {
     var selected by remember { mutableStateOf(true) }
     ToggleButton(
         label = {
-            Text("RadioIcon", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("Radio button", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
         secondaryLabel = {
             Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
