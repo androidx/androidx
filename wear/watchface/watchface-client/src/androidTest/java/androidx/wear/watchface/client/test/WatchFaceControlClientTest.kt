@@ -90,6 +90,8 @@ import androidx.wear.watchface.samples.ExampleOpenGLBackgroundInitWatchFaceServi
 import androidx.wear.watchface.samples.R
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
+import androidx.wear.watchface.style.UserStyleFlavor
+import androidx.wear.watchface.style.UserStyleSetting
 import androidx.wear.watchface.style.UserStyleSetting.BooleanUserStyleSetting.BooleanOption
 import androidx.wear.watchface.style.UserStyleSetting.DoubleRangeUserStyleSetting.DoubleRangeOption
 import androidx.wear.watchface.style.WatchFaceLayer
@@ -1513,6 +1515,43 @@ class WatchFaceControlClientScreenshotTest : WatchFaceControlClientTestBase() {
         headlessBitmap.assertAgainstGolden(screenshotRule, "opengl_headless")
 
         headlessInstance.close()
+        interactiveInstance.close()
+    }
+
+    @Test
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    fun userStyleFlavors() {
+        val interactiveInstance = getOrCreateTestSubject()
+
+        assertThat(interactiveInstance.getUserStyleFlavors().flavors).contains(
+            UserStyleFlavor(
+                "exampleFlavor",
+                UserStyleData(
+                    mapOf(
+                        "color_style_setting" to UserStyleSetting.Option.Id("blue_style").value,
+                        "watch_hand_length_style_setting" to DoubleRangeOption(1.0).id.value
+                    )
+                ),
+                mapOf(
+                    EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID to
+                        DefaultComplicationDataSourcePolicy(
+                            SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+                            ComplicationType.SHORT_TEXT
+                        ),
+                    EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID to
+                        DefaultComplicationDataSourcePolicy(
+                            ComponentName(
+                                "androidx.wear.watchface.complications.datasource.samples",
+                                "androidx.wear.watchface.complications.datasource.samples" +
+                                    ".ConfigurableDataSourceService"
+                            ),
+                            ComplicationType.SHORT_TEXT,
+                            SystemDataSources.DATA_SOURCE_SUNRISE_SUNSET,
+                            ComplicationType.SHORT_TEXT
+                        )
+                )
+            )
+        )
         interactiveInstance.close()
     }
 }
