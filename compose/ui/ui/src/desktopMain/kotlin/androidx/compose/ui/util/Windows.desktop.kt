@@ -171,10 +171,8 @@ internal fun Dialog.setUndecoratedSafely(value: Boolean) {
     }
 }
 
-// In fact, this size doesn't affect anything on Windows/Linux, and isn't used by macOS (macOS
-// doesn't have separate Window icons). We specify it to support Painter's with
-// Unspecified intrinsicSize
-private val iconSize = Size(32f, 32f)
+// We specify this to support Painter's with unspecified intrinsicSize
+private val iconSize = Size(192f, 192f)
 
 internal fun Window.setIcon(painter: Painter?) {
     setIconImage(painter?.toAwtImage(density, layoutDirectionFor(this), iconSize))
