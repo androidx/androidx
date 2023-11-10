@@ -16,47 +16,21 @@
 
 package androidx.build.clang
 
-import androidx.build.KonanPrebuiltsSetup
 import androidx.testutils.assertThrows
-import androidx.testutils.gradle.ProjectSetupRule
 import com.google.common.truth.Truth.assertThat
 import java.io.ByteArrayOutputStream
 import java.io.File
 import org.gradle.api.GradleException
-import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.plugins.ExtraPropertiesExtension
-import org.gradle.testfixtures.ProjectBuilder
-import org.jetbrains.kotlin.gradle.plugin.KotlinMultiplatformPluginWrapper
-import org.jetbrains.kotlin.gradle.plugin.KotlinPluginWrapper
 import org.jetbrains.kotlin.konan.target.KonanTarget
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TemporaryFolder
 
-class KonanBuildServiceTest {
-    @get:Rule
-    val projectSetup = ProjectSetupRule()
-    @get:Rule
-    val tmpFolder = TemporaryFolder()
-    private lateinit var project: Project
+class KonanBuildServiceTest : BaseClangTest() {
     private lateinit var buildService: KonanBuildService
 
     @Before
-    fun init() {
-        project = ProjectBuilder.builder()
-            .withProjectDir(projectSetup.rootDir)
-            .build()
-        val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
-        // build service needs prebuilts location to "download" clang and targets.
-        extension.set(
-            "prebuiltsRoot",
-            File(projectSetup.props.rootProjectPath).resolve("../../prebuilts")
-        )
-        // register components required by NativeCompilerDownloader
-        project.pluginManager.apply(KotlinMultiplatformPluginWrapper::class.java)
-        KonanPrebuiltsSetup.configureKonanDirectory(project)
+    fun initBuildService() {
         buildService = KonanBuildService.obtain(project).get()
     }
 

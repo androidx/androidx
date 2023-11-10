@@ -75,7 +75,7 @@ class MultiTargetNativeCompilation(
      * Returns a [RegularFile] provider that points to the shared library output for the given
      * [konanTarget].
      */
-    internal fun sharedObjectOutputFor(
+    fun sharedObjectOutputFor(
         konanTarget: KonanTarget
     ): Provider<RegularFile> {
         return nativeTargets.named(konanTarget.name).flatMap { nativeTargetCompilation ->
@@ -113,7 +113,26 @@ class MultiTargetNativeCompilation(
      * Returns a provider for the given konan target and throws an exception if it is not
      * registered.
      */
-    fun targetProvider(konanTarget: KonanTarget) = nativeTargets.named(konanTarget.name)
+    fun targetProvider(
+        konanTarget: KonanTarget
+    ): Provider<NativeTargetCompilation> = nativeTargets.named(konanTarget.name)
+
+    /**
+     * Returns a provider that contains the list of [NativeTargetCompilation]s that matches the
+     * given [predicate].
+     *
+     * You can use this provider to obtain the compilation for targets needed without forcing
+     * the creation of all other targets.
+     */
+    internal fun targetsProvider(
+        predicate: (KonanTarget) -> Boolean
+    ): Provider<List<NativeTargetCompilation>> = project.provider {
+        nativeTargets.names.filter {
+            predicate(SerializableKonanTarget(it).asKonanTarget)
+        }.map {
+            nativeTargets.getByName(it)
+        }
+    }
 
     /**
      * Returns true if the given [konanTarget] is configured as a compilation target.

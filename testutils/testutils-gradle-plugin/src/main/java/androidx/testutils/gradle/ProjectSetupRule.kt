@@ -227,7 +227,8 @@ data class ProjectProps(
     val tipOfTreeMavenRepoPath: String,
     val agpDependency: String,
     val repositoryUrls: List<String>,
-    val buildSrcOutPath: String
+    val buildSrcOutPath: String,
+    val prebuiltsPath: String,
 ) {
     companion object {
         private fun Properties.getCanonicalPath(key: String): String {
@@ -268,7 +269,8 @@ data class ProjectProps(
                     properties.getProperty("kgpVersion"),
                 kspVersion = properties.getProperty("kspVersion"),
                 agpDependency = properties.getProperty("agpDependency"),
-                buildSrcOutPath = properties.getCanonicalPath("buildSrcOutRelativePath")
+                buildSrcOutPath = properties.getCanonicalPath("buildSrcOutRelativePath"),
+                prebuiltsPath = properties.getCanonicalPath("prebuiltsRelativePath"),
             )
         }
     }
