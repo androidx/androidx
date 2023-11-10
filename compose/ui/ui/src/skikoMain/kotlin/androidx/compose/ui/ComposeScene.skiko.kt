@@ -28,6 +28,8 @@ import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.*
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.util.fastAny
@@ -254,6 +256,14 @@ class ComposeScene internal constructor(
     )
     val roots: Set<RootForTest>
         get() = throw NotImplementedError()
+
+    /**
+     * Semantics owner that owns [SemanticsNode] objects and notifies listeners of changes to the
+     * semantics tree.
+     */
+    @ExperimentalComposeUiApi
+    val semanticsOwner: SemanticsOwner
+        get() = requireNotNull(mainOwner).semanticsOwner
 
     private val defaultPointerStateTracker = DefaultPointerStateTracker()
 

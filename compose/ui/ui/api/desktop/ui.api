@@ -139,6 +139,7 @@ public final class androidx/compose/ui/ComposeScene {
 	public final fun getDensity ()Landroidx/compose/ui/unit/Density;
 	public final fun getLayoutDirection ()Landroidx/compose/ui/unit/LayoutDirection;
 	public final fun getRoots ()Ljava/util/Set;
+	public final fun getSemanticsOwner ()Landroidx/compose/ui/semantics/SemanticsOwner;
 	public final fun hasInvalidations ()Z
 	public final fun moveFocus-3ESFkO8 (I)Z
 	public final fun releaseFocus ()V
