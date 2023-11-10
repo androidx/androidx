@@ -289,7 +289,7 @@ internal class ChangeList : OperationsDebugStringFormattable {
 
     override fun toDebugString(linePrefix: String): String {
         return buildString {
-            append("ChangeList instance containing")
+            append("ChangeList instance containing ")
             append(size)
             append(" operations")
             if (isNotEmpty()) {
