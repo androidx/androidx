@@ -52,6 +52,7 @@ import androidx.wear.watchface.data.WatchFaceColorsWireFormat
 import androidx.wear.watchface.data.WatchUiState
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleData
+import androidx.wear.watchface.style.UserStyleFlavors
 import androidx.wear.watchface.style.UserStyleSchema
 import androidx.wear.watchface.style.UserStyleSetting.ComplicationSlotsUserStyleSetting
 import androidx.wear.watchface.toApiFormat
@@ -401,6 +402,15 @@ public interface InteractiveWatchFaceClient : AutoCloseable {
      * becomes unlocked for affected complications.
      */
     public fun isComplicationDisplayPolicySupported() = false
+
+    /**
+     * Returns the watch face's [UserStyleFlavors].
+     *
+     * @throws [RuntimeException] if the watch face threw an exception while trying to service the
+     *   request or there was a communication problem with watch face process.
+     */
+    @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    public fun getUserStyleFlavors(): UserStyleFlavors = UserStyleFlavors()
 }
 
 /** Controls a stateful remote interactive watch face. */
@@ -783,6 +793,14 @@ internal constructor(
                     ?.key
             }
         }
+
+    override fun getUserStyleFlavors(): UserStyleFlavors = callRemote {
+        if (iInteractiveWatchFace.apiVersion >= 10) {
+            UserStyleFlavors(iInteractiveWatchFace.userStyleFlavors)
+        } else {
+            UserStyleFlavors()
+        }
+    }
 
     override fun isComplicationDisplayPolicySupported() = iInteractiveWatchFace.apiVersion >= 8
 
