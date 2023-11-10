@@ -31,6 +31,7 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
+import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -57,6 +58,15 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
     abstract val appFileCollection: ConfigurableFileCollection
 
     @get:Internal abstract val appLoader: Property<BuiltArtifactsLoader>
+
+    /**
+     * Extracted APKs for PrivacySandbox SDKs dependencies.
+     * Produced by AGP.
+     */
+    @get:InputFiles
+    @get:Optional
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val privacySandboxSdkApks: ConfigurableFileCollection
 
     @get:InputFiles
     @get:PathSensitive(PathSensitivity.RELATIVE)
@@ -86,6 +96,20 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
 
     @get:[OutputFile Optional]
     abstract val outputAppApk: RegularFileProperty
+
+    /**
+     * Filename prefix for all PrivacySandbox related output files.
+     * Required for producing unique filenames over all projects,
+     */
+    @get:Input
+    @get:Optional
+    abstract val outputPrivacySandboxFilenamesPrefix: Property<String>
+
+    /**
+     * Output directory for PrivacySandbox SDKs APKs.
+     */
+    @get:[OutputDirectory Optional]
+    abstract val outputPrivacySandboxSdkApks: DirectoryProperty
 
     @TaskAction
     fun generateAndroidTestZip() {
@@ -166,6 +190,7 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
             .minSdk(minSdk.get().toString())
             .testRunner(testRunner.get())
             .testApkSha256(sha256(File(testApkBuiltArtifact.outputFile)))
+        configurePrivacySandbox(configBuilder)
         createOrFail(outputXml).writeText(configBuilder.buildXml())
         if (!outputJson.asFile.get().name.startsWith("_")) {
             // Prefixing json file names with _ allows us to collocate these files
@@ -175,7 +200,44 @@ constructor(private val objects: ObjectFactory) : DefaultTask() {
                     "currently set to ${outputJson.asFile.get().name}"
             )
         }
-        createOrFail(outputJson).writeText(configBuilder.buildJson())
+        if (privacySandboxSdkApks.isEmpty) {
+            // Privacy sandbox not yet supported in JSON configs
+            createOrFail(outputJson).writeText(configBuilder.buildJson())
+        }
+    }
+
+    /**
+     * Configure installation of PrivacySandbox SDKs before main and test APKs.
+     * Do nothing if project doesn't have dependencies on PrivacySandbox SDKs.
+     */
+    private fun configurePrivacySandbox(configBuilder: ConfigBuilder) {
+        if (privacySandboxSdkApks.isEmpty) {
+            return
+        }
+
+        val prefix = outputPrivacySandboxFilenamesPrefix.get()
+        val sdkApkFileNames = privacySandboxSdkApks.asFileTree.map { sdkApk ->
+            // TODO (b/309610890): Remove after supporting unique filenames on bundletool side.
+            val sdkProjectName = sdkApk.parentFile?.name
+            val outputFileName = "$prefix-$sdkProjectName-${sdkApk.name}"
+            val outputFile = outputPrivacySandboxSdkApks.get().file(outputFileName)
+            sdkApk.copyTo(outputFile.asFile, overwrite = true)
+            outputFileName
+        }
+
+        configBuilder.initialSetupApks(sdkApkFileNames)
+
+        if (minSdk.get() < PRIVACY_SANDBOX_MIN_API_LEVEL) {
+            /*
+            Privacy Sandbox SDKs could be installed starting from PRIVACY_SANDBOX_MIN_API_LEVEL.
+            Separate compat config will be generated for lower api levels.
+            */
+            configBuilder.minSdk(PRIVACY_SANDBOX_MIN_API_LEVEL.toString())
+        }
+    }
+
+    companion object {
+        private const val PRIVACY_SANDBOX_MIN_API_LEVEL = 34
     }
 }
 
