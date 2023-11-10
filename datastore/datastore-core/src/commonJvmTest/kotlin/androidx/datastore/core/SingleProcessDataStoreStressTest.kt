@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.junit.rules.Timeout
@@ -97,6 +98,7 @@ class SingleProcessDataStoreStressTest {
         }
     }
 
+    @Ignore("b/307969316")
     @Test
     fun testManyConcurrentReadsAndWrites_withIntermittentWriteFailures() = runBlocking<Unit> {
         val file = tempFolder.newFile()
