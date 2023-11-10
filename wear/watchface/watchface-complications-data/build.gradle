@@ -28,7 +28,7 @@ plugins {
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.versionedparcelable:versionedparcelable:1.1.0")
-    api("androidx.wear.protolayout:protolayout-expression:1.0.0-beta01")
+    api("androidx.wear.protolayout:protolayout-expression:1.0.0")
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesAndroid)
 
