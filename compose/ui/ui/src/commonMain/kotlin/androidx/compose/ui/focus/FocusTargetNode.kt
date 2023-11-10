@@ -35,6 +35,7 @@ import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.node.requireOwner
 import androidx.compose.ui.node.visitAncestors
 import androidx.compose.ui.node.visitSelfAndAncestors
+import androidx.compose.ui.node.visitSubtreeIf
 import androidx.compose.ui.platform.InspectorInfo
 
 internal class FocusTargetNode :
@@ -49,11 +50,13 @@ internal class FocusTargetNode :
 
     // During a transaction, changes to the state are stored as uncommitted focus state. At the
     // end of the transaction, this state is stored as committed focus state.
-    private var committedFocusState: FocusStateImpl = Inactive
+    private var committedFocusState: FocusStateImpl? = null
 
     @OptIn(ExperimentalComposeUiApi::class)
     override var focusState: FocusStateImpl
-        get() = focusTransactionManager?.run { uncommittedFocusState } ?: committedFocusState
+        get() = focusTransactionManager?.run { uncommittedFocusState }
+            ?: committedFocusState
+            ?: Inactive
         set(value) {
             with(requireTransactionManager()) {
                 uncommittedFocusState = value
@@ -80,13 +83,10 @@ internal class FocusTargetNode :
             // This currently clears focus from the entire hierarchy, but we can change the
             // implementation so that focus is sent to the immediate focus parent.
             Active, Captured -> requireOwner().focusOwner.clearFocus(force = true)
-            ActiveParent -> {
-                scheduleInvalidationForFocusEvents()
-                // This node might be reused, so reset the state to Inactive.
-                requireTransactionManager().withNewTransaction { focusState = Inactive }
-            }
-            Inactive -> scheduleInvalidationForFocusEvents()
+            ActiveParent, Inactive -> scheduleInvalidationForFocusEvents()
         }
+        // This node might be reused, so we reset its state.
+        committedFocusState = null
     }
 
     /**
@@ -165,6 +165,7 @@ internal class FocusTargetNode :
     }
 
     internal fun invalidateFocus() {
+        if (committedFocusState == null) initializeFocusState()
         when (focusState) {
             // Clear focus from the current FocusTarget.
             // This currently clears focus from the entire hierarchy, but we can change the
@@ -215,6 +216,43 @@ internal class FocusTargetNode :
 
         override fun hashCode() = "focusTarget".hashCode()
         override fun equals(other: Any?) = other === this
+    }
+
+    private fun initializeFocusState() {
+
+        fun FocusTargetNode.isInitialized(): Boolean = committedFocusState != null
+
+        fun isInActiveSubTree(): Boolean {
+            visitAncestors(Nodes.FocusTarget) {
+                if (!it.isInitialized()) return@visitAncestors
+
+                return when (it.focusState) {
+                    ActiveParent -> true
+                    Active, Captured, Inactive -> false
+                }
+            }
+            return false
+        }
+
+        fun hasActiveChild(): Boolean {
+            visitSubtreeIf(Nodes.FocusTarget) {
+                if (!it.isInitialized()) return@visitSubtreeIf true
+
+                return when (it.focusState) {
+                    Active, ActiveParent, Captured -> true
+                    Inactive -> false
+                }
+            }
+            return false
+        }
+
+        check(!isInitialized()) { "Re-initializing focus target node." }
+
+        requireTransactionManager().withNewTransaction {
+            // Note: hasActiveChild() is expensive since it searches the entire subtree. So we only
+            // do this if we are part of the active subtree.
+            focusState = if (isInActiveSubTree() && hasActiveChild()) ActiveParent else Inactive
+        }
     }
 }
 
