@@ -63,8 +63,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation("androidx.core:core-ktx:1.10.0-rc01")
-                implementation("androidx.core:core-ktx:1.8.0")
+                implementation("androidx.core:core-ktx:1.10.0")
             }
         }
 

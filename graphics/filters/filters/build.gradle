@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    def media3Version = '1.0.0-beta03'
+    def media3Version = '1.0.0'
 
     api(libs.kotlinStdlib)
 
