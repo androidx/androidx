@@ -18,8 +18,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -38,7 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="4dp"
             android:textColor="@color/black"
-            tools:text="0x1800" />
+            tools:text="9a313924-8093-11ee-b962-0242ac120002" />
 
     </LinearLayout>
 
@@ -63,7 +64,7 @@
 
     </LinearLayout>
 
-    <!-- TODO(ofy) Add Descriptor -->
+    <!-- TODO(b/310336806) Add Descriptor to Testapp -->
 
     <!--    <Button-->
     <!--        android:id="@+id/button_add_descriptor"-->
