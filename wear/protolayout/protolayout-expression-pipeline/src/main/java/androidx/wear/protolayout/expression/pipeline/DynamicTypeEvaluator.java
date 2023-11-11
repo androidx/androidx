@@ -41,6 +41,7 @@ import androidx.wear.protolayout.expression.pipeline.ColorNodes.FixedColorNode;
 import androidx.wear.protolayout.expression.pipeline.ColorNodes.StateColorSourceNode;
 import androidx.wear.protolayout.expression.pipeline.DurationNodes.BetweenInstancesNode;
 import androidx.wear.protolayout.expression.pipeline.DurationNodes.FixedDurationNode;
+import androidx.wear.protolayout.expression.pipeline.DurationNodes.StateDurationSourceNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.AnimatableFixedFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.ArithmeticFloatNode;
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.DynamicAnimatedFloatNode;
@@ -49,6 +50,7 @@ import androidx.wear.protolayout.expression.pipeline.FloatNodes.Int32ToFloatNode
 import androidx.wear.protolayout.expression.pipeline.FloatNodes.StateFloatSourceNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.FixedInstantNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.PlatformTimeSourceNode;
+import androidx.wear.protolayout.expression.pipeline.InstantNodes.StateInstantSourceNode;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.ArithmeticInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
@@ -836,6 +838,18 @@ public class DynamicTypeEvaluator {
 
                 node = conditionalNode;
                 break;
+            case STATE_SOURCE:
+                {
+                    DynamicProto.StateDurationSource stateSource = durationSource.getStateSource();
+                    node =
+                            new StateDurationSourceNode(
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
+                    break;
+                }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicDuration has no inner source set");
             default:
@@ -915,6 +929,18 @@ public class DynamicTypeEvaluator {
                 node = conditionalNode;
                 break;
 
+            case STATE_SOURCE:
+                {
+                    DynamicProto.StateInstantSource stateSource = instantSource.getStateSource();
+                    node =
+                            new StateInstantSourceNode(
+                                    stateSource.getSourceNamespace().isEmpty()
+                                            ? mStateStore
+                                            : mPlatformDataStore,
+                                    stateSource,
+                                    consumer);
+                    break;
+                }
             case INNER_NOT_SET:
                 throw new IllegalArgumentException("DynamicInstant has no inner source set");
             default:
