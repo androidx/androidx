@@ -24,13 +24,16 @@ import androidx.bluetooth.GattCharacteristic
 import androidx.bluetooth.integration.testapp.R
 import androidx.recyclerview.widget.RecyclerView
 
-class GattServerCharacteristicsAdapter(
+class GattServerServiceCharacteristicDescriptorsAdapter(
+    // TODO Wait for (b/310337673)
+    // private val characteristics: List<GattDescriptor>
+    // TODO Remove below after (b/310337673)
     private val characteristics: List<GattCharacteristic>
-) : RecyclerView.Adapter<GattServerCharacteristicsAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<GattServerServiceCharacteristicDescriptorsAdapter.ViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_gatt_server_characteristic, parent, false)
+            .inflate(R.layout.item_gatt_server_characteristic_descriptor, parent, false)
         return ViewHolder(view)
     }
 
@@ -45,37 +48,9 @@ class GattServerCharacteristicsAdapter(
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
-        private val textViewProperties: TextView = itemView.findViewById(R.id.text_view_properties)
 
         fun bind(characteristic: GattCharacteristic) {
             textViewUuid.text = characteristic.uuid.toString()
-
-            val properties = characteristic.properties
-            val context = itemView.context
-            val propertiesList = mutableListOf<String>()
-
-            if (properties.and(GattCharacteristic.PROPERTY_BROADCAST) != 0) {
-                propertiesList.add(context.getString(R.string.broadcast))
-            }
-            if (properties.and(GattCharacteristic.PROPERTY_INDICATE) != 0) {
-                propertiesList.add(context.getString(R.string.indicate))
-            }
-            if (properties.and(GattCharacteristic.PROPERTY_NOTIFY) != 0) {
-                propertiesList.add(context.getString(R.string.notify))
-            }
-            if (properties.and(GattCharacteristic.PROPERTY_READ) != 0) {
-                propertiesList.add(context.getString(R.string.read))
-            }
-            if (properties.and(GattCharacteristic.PROPERTY_SIGNED_WRITE) != 0) {
-                propertiesList.add(context.getString(R.string.signed_write))
-            }
-            if (properties.and(GattCharacteristic.PROPERTY_WRITE) != 0) {
-                propertiesList.add(context.getString(R.string.write))
-            }
-            if (properties.and(GattCharacteristic.PROPERTY_WRITE_NO_RESPONSE) != 0) {
-                propertiesList.add(context.getString(R.string.write_no_response))
-            }
-            textViewProperties.text = propertiesList.joinToString()
         }
     }
 }
