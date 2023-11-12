@@ -93,7 +93,7 @@ class GattClient(private val context: Context) {
             value: ByteArray,
             writeType: Int
         )
-        fun writeDescriptor(fwkSescriptor: FwkBluetoothGattDescriptor, value: ByteArray)
+        fun writeDescriptor(fwkDescriptor: FwkBluetoothGattDescriptor, value: ByteArray)
         fun setCharacteristicNotification(
             fwkCharacteristic: FwkBluetoothGattCharacteristic,
             enable: Boolean
@@ -457,9 +457,9 @@ class GattClient(private val context: Context) {
 
         @Suppress("DEPRECATION")
         @SuppressLint("MissingPermission")
-        override fun writeDescriptor(fwkSescriptor: FwkBluetoothGattDescriptor, value: ByteArray) {
-            fwkSescriptor.value = value
-            fwkBluetoothGatt?.writeDescriptor(fwkSescriptor)
+        override fun writeDescriptor(fwkDescriptor: FwkBluetoothGattDescriptor, value: ByteArray) {
+            fwkDescriptor.value = value
+            fwkBluetoothGatt?.writeDescriptor(fwkDescriptor)
         }
 
         @SuppressLint("MissingPermission")
@@ -513,8 +513,8 @@ class GattClient(private val context: Context) {
         }
 
         @RequiresPermission(BLUETOOTH_CONNECT)
-        override fun writeDescriptor(fwkSescriptor: FwkBluetoothGattDescriptor, value: ByteArray) {
-            return super.writeDescriptor(fwkSescriptor, value)
+        override fun writeDescriptor(fwkDescriptor: FwkBluetoothGattDescriptor, value: ByteArray) {
+            return super.writeDescriptor(fwkDescriptor, value)
         }
 
         @RequiresPermission(BLUETOOTH_CONNECT)
@@ -544,10 +544,10 @@ class GattClient(private val context: Context) {
 
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun writeDescriptor(
-            fwkSescriptor: FwkBluetoothGattDescriptor,
+            fwkDescriptor: FwkBluetoothGattDescriptor,
             value: ByteArray
         ) {
-            fwkBluetoothGatt?.writeDescriptor(fwkSescriptor, value)
+            fwkBluetoothGatt?.writeDescriptor(fwkDescriptor, value)
         }
     }
 }
