@@ -25,7 +25,7 @@ import java.time.Duration
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFeatures.Ext8OptIn::class)
+@OptIn(ExperimentalFeatures.Ext8OptIn::class, ExperimentalFeatures.Ext10OptIn::class)
 @SmallTest
 @SuppressWarnings("NewApi")
 @RunWith(AndroidJUnit4::class)
@@ -41,18 +41,19 @@ class AdDataTest {
         listOf(KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
             KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
             KeyedFrequencyCap(6, 4, Duration.ofSeconds(6)))))
+    private val adRenderId: String = "ad-render-id"
 
     @Test
     fun testToString() {
         val result = "AdData: renderUri=$uri, metadata='$metadata', " +
-            "adCounterKeys=$adCounterKeys, adFilters=$adFilters"
-        val request = AdData(uri, metadata, adCounterKeys, adFilters)
+            "adCounterKeys=$adCounterKeys, adFilters=$adFilters, adRenderId=$adRenderId"
+        val request = AdData(uri, metadata, adCounterKeys, adFilters, adRenderId)
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
 
     @Test
     fun testEquals() {
-        val adData1 = AdData(uri, metadata, adCounterKeys, adFilters)
+        val adData1 = AdData(uri, metadata, adCounterKeys, adFilters, adRenderId)
         var adData2 = AdData(Uri.parse("abc.com"), "metadata", setOf<Int>(1, 2, 3),
             AdFilters(FrequencyCapFilters(
                 listOf(KeyedFrequencyCap(1, 3, Duration.ofSeconds(1))),
@@ -60,7 +61,8 @@ class AdDataTest {
                 listOf(KeyedFrequencyCap(3, 3, Duration.ofSeconds(3))),
                 listOf(KeyedFrequencyCap(4, 4, Duration.ofSeconds(4)),
                     KeyedFrequencyCap(5, 3, Duration.ofSeconds(5)),
-                    KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))))))
+                    KeyedFrequencyCap(6, 4, Duration.ofSeconds(6))))),
+            "ad-render-id")
         Truth.assertThat(adData1 == adData2).isTrue()
     }
 }

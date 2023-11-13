@@ -71,7 +71,7 @@ class CustomAudienceTest {
             "keyedFrequencyCapsForImpressionEvents=[], " +
             "keyedFrequencyCapsForViewEvents=" +
             "[KeyedFrequencyCap: adCounterKey=1, maxCount=3, interval=$interval], " +
-            "keyedFrequencyCapsForClickEvents=[]]"
+            "keyedFrequencyCapsForClickEvents=[], adRenderId=null]"
 
         val customAudience = CustomAudience(
             buyer,

@@ -11,3 +11,5 @@ AddedMethod: androidx.privacysandbox.ads.adservices.common.AdData#getAdCounterKe
     Added method androidx.privacysandbox.ads.adservices.common.AdData.getAdCounterKeys()
 AddedMethod: androidx.privacysandbox.ads.adservices.common.AdData#getAdFilters():
     Added method androidx.privacysandbox.ads.adservices.common.AdData.getAdFilters()
+AddedMethod: androidx.privacysandbox.ads.adservices.common.AdData#getAdRenderId():
+    Added method androidx.privacysandbox.ads.adservices.common.AdData.getAdRenderId()
