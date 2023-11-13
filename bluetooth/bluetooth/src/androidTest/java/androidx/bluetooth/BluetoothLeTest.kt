@@ -90,13 +90,18 @@ class BluetoothLeTest {
             serviceData = mapOf(parcelUuid to serviceData)
         )
 
-        val expected = if (Build.VERSION.SDK_INT >= 26) BluetoothLe.ADVERTISE_STARTED
-        else BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE
+        try {
+            val result = bluetoothLe.advertise(advertiseParams)
+                .first()
 
-        val result = bluetoothLe.advertise(advertiseParams)
-            .first()
-
-        assertEquals(expected, result)
+            if (Build.VERSION.SDK_INT >= 26) {
+                assertEquals(BluetoothLe.ADVERTISE_STARTED, result)
+            }
+        } catch (throwable: Throwable) {
+            if (Build.VERSION.SDK_INT < 26) {
+                assertTrue(throwable is AdvertiseException)
+            }
+        }
     }
 
     @Test

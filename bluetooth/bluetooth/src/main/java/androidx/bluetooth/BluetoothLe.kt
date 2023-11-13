@@ -24,8 +24,8 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.flowOf
 
 /**
  * Entry point for BLE related operations. This class provides a way to perform Bluetooth LE
@@ -34,33 +34,20 @@ import kotlinx.coroutines.flow.flowOf
 class BluetoothLe(context: Context) {
 
     companion object {
-        private const val TAG = "BluetoothLe"
-
         /** Advertise started successfully. */
-        const val ADVERTISE_STARTED: Int = 101
-
-        /** Advertise failed to start because the data is too large. */
-        const val ADVERTISE_FAILED_DATA_TOO_LARGE: Int = 102
-
-        /** Advertise failed to start because the advertise feature is not supported. */
-        const val ADVERTISE_FAILED_FEATURE_UNSUPPORTED: Int = 103
-
-        /** Advertise failed to start because of an internal error. */
-        const val ADVERTISE_FAILED_INTERNAL_ERROR: Int = 104
-
-        /** Advertise failed to start because of too many advertisers. */
-        const val ADVERTISE_FAILED_TOO_MANY_ADVERTISERS: Int = 105
+        const val ADVERTISE_STARTED: Int = 10100
     }
 
-    @Target(AnnotationTarget.TYPE)
+    @Target(
+        AnnotationTarget.PROPERTY,
+        AnnotationTarget.LOCAL_VARIABLE,
+        AnnotationTarget.VALUE_PARAMETER,
+        AnnotationTarget.TYPE
+    )
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(AnnotationRetention.SOURCE)
     @IntDef(
         ADVERTISE_STARTED,
-        ADVERTISE_FAILED_DATA_TOO_LARGE,
-        ADVERTISE_FAILED_FEATURE_UNSUPPORTED,
-        ADVERTISE_FAILED_INTERNAL_ERROR,
-        ADVERTISE_FAILED_TOO_MANY_ADVERTISERS
     )
     annotation class AdvertiseResult
 
@@ -99,13 +86,14 @@ class BluetoothLe(context: Context) {
      * @param advertiseParams [AdvertiseParams] for Bluetooth LE advertising.
      * @return a _cold_ [Flow] of [AdvertiseResult]
      *
+     * @throws AdvertiseException if the advertise fails.
      * @throws IllegalArgumentException if the advertise parameters are not valid.
      */
     @RequiresPermission("android.permission.BLUETOOTH_ADVERTISE")
     fun advertise(advertiseParams: AdvertiseParams): Flow<@AdvertiseResult Int> {
-        return advertiseImpl?.advertise(advertiseParams) ?: flowOf(
-            ADVERTISE_FAILED_FEATURE_UNSUPPORTED
-        )
+        return advertiseImpl?.advertise(advertiseParams) ?: callbackFlow {
+            close(AdvertiseException(AdvertiseException.UNSUPPORTED))
+        }
     }
 
     /**
