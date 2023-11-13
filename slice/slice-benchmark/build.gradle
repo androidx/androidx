@@ -23,7 +23,7 @@ plugins {
 }
 
 dependencies {
-    androidTestImplementation("androidx.core:core:1.3.0-beta01")
+    androidTestImplementation("androidx.core:core:1.3.0")
     androidTestImplementation(project(":slice:slice-view"))
     androidTestImplementation(project(":slice:slice-core"))
     androidTestImplementation(project(":slice:slice-builders"))
