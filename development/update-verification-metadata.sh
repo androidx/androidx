@@ -25,7 +25,19 @@ while [ "$1" != "" ]; do
     continue
   fi
   task="$arg"
+  break
 done
+
+function usage() {
+  usageError="$1"
+  echo "$usageError"
+  echo "Usage: $0 [--no-dry-run] [<task>]"
+  exit 1
+}
+
+if [ "$1" != "" ]; then
+  usage "Unrecognized argument $1"
+fi
 
 function runGradle() {
   echo running ./gradlew "$@"
@@ -70,4 +82,4 @@ regenerateVerificationMetadata
 
 echo
 echo 'Done. Please check that these changes look correct (`git diff`)'
-echo "If Gradle did not make all expected updates to verification-metadata.xml, you can try '--no-dry-run'. This is slow so you may also want to specify a task. Example: $0 --dry-run exportSboms"
+echo "If Gradle did not make all expected updates to verification-metadata.xml, you can try '--no-dry-run'. This is slow so you may also want to specify a task. Example: $0 --no-dry-run exportSboms"
