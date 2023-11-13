@@ -30,6 +30,7 @@ See the profiling report at: file://\$GRADLE_USER_HOME/daemon/.*/reports/profile
 Configuration cache entry reused\.
 [0-9]+ actionable tasks: [0-9]+ executed, [0-9]+ from cache
 Configuration cache entry stored\.
+Calculating task graph as no cached configuration is available for tasks.*
 See the profiling report at\: file\:\/\/\$OUT_DIR\/androidx\/build\/reports\/profile\/profile\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\-[0-9]+\.html
 # > Task :lifecycle:lifecycle-common:compileJava
 Note: \$[^ ]+ uses or overrides a deprecated API\.
