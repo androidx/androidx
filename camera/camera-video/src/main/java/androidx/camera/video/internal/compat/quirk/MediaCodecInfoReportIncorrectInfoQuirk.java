@@ -140,7 +140,8 @@ public class MediaCodecInfoReportIncorrectInfoQuirk implements Quirk {
             "moto g(20)",
             "sm-a035m",
             "v2204",
-            "23078pnd5g"
+            "23078pnd5g",
+            "pht110"
     );
 
     /** Check if problematic MediaFormat info for these candidate devices. */
