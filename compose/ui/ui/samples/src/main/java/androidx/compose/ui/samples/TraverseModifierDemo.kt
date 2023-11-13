@@ -80,6 +80,156 @@ const val ANCESTORS_LABEL = "Ancestors"
 const val DESCENDANTS_LABEL = "Descendants"
 
 /**
+ * TraversableNode example that does not actually do anything but shows the most simplified example.
+ *
+ * The traversable functions are separated below (for example, traverseAncestorsWithKeyDemo), so
+ * they can be referenced in sample javadocs.
+ *
+ * For a full featured sample, look below at [TraverseModifierDemo].
+ */
+class CustomTraversableModifierNode : Modifier.Node(), TraversableNode {
+    override val traverseKey = TRAVERSAL_NODE_KEY
+
+    fun doSomethingWithAncestor() { }
+    fun doSomethingWithChild() { }
+    fun doSomethingWithDescendant() { }
+}
+
+/**
+ * Simplified example of traverseAncestors with a key. For a full featured sample, look below at
+ * [TraverseModifierDemo].
+ */
+@Sampled
+fun traverseAncestorsWithKeyDemo() {
+    val customTraversableModifierNode = CustomTraversableModifierNode()
+
+    with(customTraversableModifierNode) {
+        traverseAncestors(traverseKey) {
+            if (it is CustomTraversableModifierNode) {
+                it.doSomethingWithAncestor()
+            }
+            // Return true to continue searching the tree after a match. If you were looking to
+            // match only some of the nodes, you could return false and stop executing the search.
+            true
+        }
+    }
+}
+
+/**
+ * Simplified example of traverseAncestors. For a full featured sample, look below at
+ * [TraverseModifierDemo].
+ */
+@Sampled
+fun traverseAncestorsDemo() {
+    val customTraversableModifierNode = CustomTraversableModifierNode()
+
+    with(customTraversableModifierNode) {
+        traverseAncestors {
+            // Because I use the existing key of the class, I can guarantee 'it' will be of the same
+            // type as the class, so I can call my functions directly.
+            it.doSomethingWithAncestor()
+
+            // Return true to continue searching the tree after a match. If you were looking to
+            // match only some of the nodes, you could return false and stop executing the search.
+            true
+        }
+    }
+}
+
+/**
+ * Simplified example of traverseChildren with a key. For a full featured sample, look below at
+ * [TraverseModifierDemo].
+ */
+@Sampled
+fun traverseChildrenWithKeyDemo() {
+    val customTraversableModifierNode = CustomTraversableModifierNode()
+
+    with(customTraversableModifierNode) {
+        traverseChildren(traverseKey) {
+            if (it is CustomTraversableModifierNode) {
+                it.doSomethingWithChild()
+            }
+            // Return true to continue searching the tree after a match. If you were looking to
+            // match only some of the nodes, you could return false and stop executing the search.
+            true
+        }
+    }
+}
+
+/**
+ * Simplified example of traverseChildren. For a full featured sample, look below at
+ * [TraverseModifierDemo].
+ */
+@Sampled
+fun traverseChildrenDemo() {
+    val customTraversableModifierNode = CustomTraversableModifierNode()
+
+    with(customTraversableModifierNode) {
+        traverseChildren {
+            // Because I use the existing key of the class, I can guarantee 'it' will be of the same
+            // type as the class, so I can call my functions directly.
+            it.doSomethingWithChild()
+
+            // Return true to continue searching the tree after a match. If you were looking to
+            // match only some of the nodes, you could return false and stop executing the search.
+            true
+        }
+    }
+}
+
+/**
+ * Simplified example of traverseDescendants with a key. For a full featured sample, look below at
+ * [TraverseModifierDemo].
+ */
+@Sampled
+fun traverseDescendantsWithKeyDemo() {
+    val customTraversableModifierNode = CustomTraversableModifierNode()
+
+    with(customTraversableModifierNode) {
+        traverseDescendants(traverseKey) {
+            if (it is CustomTraversableModifierNode) {
+                it.doSomethingWithDescendant()
+            }
+
+            // [traverseDescendants()] actually has three options:
+            // - ContinueTraversal
+            // - SkipSubtreeAndContinueTraversal - rarely used
+            // - CancelTraversal
+            // They are pretty self explanatory. Usually, you just want to continue or cancel the
+            // search. In some rare cases, you might want to skip the subtree but continue searching
+            // the tree.
+            TraverseDescendantsAction.ContinueTraversal
+        }
+    }
+}
+
+/**
+ * Simplified example of traverseDescendants. For a full featured sample, look below at
+ * [TraverseModifierDemo].
+ */
+@Sampled
+fun traverseDescendantsDemo() {
+    val customTraversableModifierNode = CustomTraversableModifierNode()
+
+    with(customTraversableModifierNode) {
+        traverseDescendants {
+            // Because I use the existing key of the class, I can guarantee 'it' will be of the same
+            // type as the class, so I can call my functions directly.
+            it.doSomethingWithDescendant()
+
+            // [traverseDescendants()] actually has three options:
+            // - ContinueTraversal
+            // - SkipSubtreeAndContinueTraversal - rarely used
+            // - CancelTraversal
+            // They are pretty self explanatory. Usually, you just want to continue or cancel the
+            // search. In some rare cases, you might want to skip the subtree but continue searching
+            // the tree.
+            TraverseDescendantsAction.ContinueTraversal
+        }
+    }
+}
+
+/**
  * Demonstrates how to use TraversableNode to traverse Modifier.Node ancestors, children, and
  * descendants of the same key. This is done in 5 main steps:
  *
@@ -120,7 +270,6 @@ const val DESCENDANTS_LABEL = "Descendants"
  *        ⤷ Box F (NON-TRAVERSABLE Box)
  */
 @OptIn(ExperimentalMaterialApi::class)
-@Sampled
 @Composable
 fun TraverseModifierDemo() {
 
