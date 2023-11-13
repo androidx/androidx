@@ -30,6 +30,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraProvider;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
@@ -435,6 +436,9 @@ public final class ExtensionsManager {
     /**
      * Returns true if the particular extension mode is available for the specified
      * {@link CameraSelector}.
+     *
+     * <p> Note that Extensions are not supported for use with 10-bit capture output (e.g.
+     * setting a dynamic range other than {@link DynamicRange#SDR}).
      *
      * @param baseCameraSelector The base {@link CameraSelector} to find a camera to use.
      * @param mode               The target extension mode to support.
