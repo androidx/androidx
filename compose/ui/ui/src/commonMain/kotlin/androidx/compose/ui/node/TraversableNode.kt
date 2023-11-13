@@ -24,9 +24,6 @@ import androidx.compose.ui.node.TraversableNode.Companion.TraverseDescendantsAct
  * for a particular key (traverseKey).
  *
  * Note: The actual traversals are done in extension functions (see bottom of file).
- *
- *  @sample androidx.compose.ui.samples.TraverseModifierDemo
- *
  */
 interface TraversableNode : DelegatableNode {
     val traverseKey: Any
@@ -85,6 +82,8 @@ fun <T> T.findNearestAncestor(): T? where T : TraversableNode {
  *
  * Note: The parameter [block]'s return boolean value will determine if the traversal will
  * continue (true = continue, false = cancel).
+ *
+ *  @sample androidx.compose.ui.samples.traverseAncestorsWithKeyDemo
  */
 fun DelegatableNode.traverseAncestors(
     key: Any?,
@@ -106,7 +105,7 @@ fun DelegatableNode.traverseAncestors(
  * Note: The parameter [block]'s return boolean value will determine if the traversal will
  * continue (true = continue, false = cancel).
  *
- *  @sample androidx.compose.ui.samples.TraverseModifierDemo
+ *  @sample androidx.compose.ui.samples.traverseAncestorsDemo
  */
 fun <T> T.traverseAncestors(block: (T) -> Boolean) where T : TraversableNode {
     visitAncestors(Nodes.Traversable) {
@@ -129,6 +128,8 @@ fun <T> T.traverseAncestors(block: (T) -> Boolean) where T : TraversableNode {
  *
  * Note 2: The parameter [block]'s return boolean value will determine if the traversal will
  * continue (true = continue, false = cancel).
+ *
+ *  @sample androidx.compose.ui.samples.traverseChildrenWithKeyDemo
  */
 fun DelegatableNode.traverseChildren(
     key: Any?,
@@ -152,7 +153,7 @@ fun DelegatableNode.traverseChildren(
  * Note 2: The parameter [block]'s return boolean value will determine if the traversal will
  * continue (true = continue, false = cancel).
  *
- *  @sample androidx.compose.ui.samples.TraverseModifierDemo
+ *  @sample androidx.compose.ui.samples.traverseChildrenDemo
  */
 fun <T> T.traverseChildren(block: (T) -> Boolean) where T : TraversableNode {
     visitChildren(Nodes.Traversable) {
@@ -176,6 +177,8 @@ fun <T> T.traverseChildren(block: (T) -> Boolean) where T : TraversableNode {
  *
  * Note 2: The parameter [block]'s return value [TraverseDescendantsAction] will determine the next
  * step in the traversal.
+ *
+ *  @sample androidx.compose.ui.samples.traverseDescendantsWithKeyDemo
  */
 fun DelegatableNode.traverseDescendants(
     key: Any?,
@@ -205,7 +208,7 @@ fun DelegatableNode.traverseDescendants(
  * Note 2: The parameter [block]'s return value [TraverseDescendantsAction] will determine the
  * next step in the traversal.
  *
- *  @sample androidx.compose.ui.samples.TraverseModifierDemo
+ *  @sample androidx.compose.ui.samples.traverseDescendantsDemo
  */
 fun <T> T.traverseDescendants(block: (T) -> TraverseDescendantsAction) where T : TraversableNode {
     visitSubtreeIf(Nodes.Traversable) {
