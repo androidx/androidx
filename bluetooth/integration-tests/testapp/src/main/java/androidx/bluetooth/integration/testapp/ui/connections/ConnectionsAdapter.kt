@@ -44,17 +44,15 @@ class ConnectionsAdapter(
         return ViewHolder(view)
     }
 
-    override fun getItemCount(): Int {
-        return deviceConnections.size
-    }
-
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(deviceConnections.elementAt(position))
     }
 
-    inner class ViewHolder(
-        itemView: View
-    ) : RecyclerView.ViewHolder(itemView) {
+    override fun getItemCount(): Int {
+        return deviceConnections.size
+    }
+
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val textViewDeviceConnectionStatus: TextView =
             itemView.findViewById(R.id.text_view_device_connection_status)
