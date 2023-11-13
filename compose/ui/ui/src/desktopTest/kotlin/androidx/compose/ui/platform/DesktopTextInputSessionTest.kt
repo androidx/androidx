@@ -40,7 +40,7 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class DesktopTextInputSessionTest {
 
-    @Ignore // b/308619798
+    @Ignore("b/308619798")
     @Test
     fun startInputMethod_setsAndClearsRequestsAndListeners() = runTest {
         val inputComponent = TestInputComponent()

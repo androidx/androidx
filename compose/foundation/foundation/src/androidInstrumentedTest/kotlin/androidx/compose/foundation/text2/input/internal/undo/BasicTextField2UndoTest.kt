@@ -41,6 +41,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -277,6 +278,7 @@ internal class BasicTextField2UndoTest {
         assertThat(state.undoState.canRedo).isFalse()
     }
 
+    @Ignore("b/308623690")
     @Test
     fun paste_neverMerges() {
         val state = TextFieldState()
