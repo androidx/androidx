@@ -24,12 +24,12 @@ import kotlin.coroutines.cancellation.CancellationException
  *
  * @property errorCode the error code for indicating the reason why the exception is thrown
  */
-class BluetoothException(
-    val errorCode: Int,
+open class BluetoothException(
+    open val errorCode: Int,
     message: String?,
     cause: Throwable?
 ) : CancellationException(message) {
-    private companion object {
+    companion object {
         /**
          * Error code indicating that Bluetooth is not enabled.
          */

@@ -1,6 +1,19 @@
 // Signature format: 4.0
 package androidx.bluetooth {
 
+  public final class AdvertiseException extends androidx.bluetooth.BluetoothException {
+    ctor public AdvertiseException(int errorCode);
+    property public int errorCode;
+    field public static final androidx.bluetooth.AdvertiseException.Companion Companion;
+    field public static final int DATA_TOO_LARGE = 10101; // 0x2775
+    field public static final int INTERNAL_ERROR = 10103; // 0x2777
+    field public static final int TOO_MANY_ADVERTISERS = 10102; // 0x2776
+    field public static final int UNSUPPORTED = 10104; // 0x2778
+  }
+
+  public static final class AdvertiseException.Companion {
+  }
+
   public final class AdvertiseParams {
     ctor public AdvertiseParams(optional boolean shouldIncludeDeviceAddress, optional boolean shouldIncludeDeviceName, optional boolean isConnectable, optional boolean isDiscoverable, optional java.time.Duration duration, optional java.util.Map<java.lang.Integer,byte[]> manufacturerData, optional java.util.Map<java.util.UUID,byte[]> serviceData, optional java.util.List<java.util.UUID> serviceUuids, optional java.util.List<java.util.UUID> serviceSolicitationUuids);
     method public java.time.Duration getDuration();
@@ -49,17 +62,21 @@ package androidx.bluetooth {
     property @RequiresPermission(anyOf={"android.permission.BLUETOOTH", "android.permission.BLUETOOTH_CONNECT"}) public final String? name;
   }
 
-  public final class BluetoothException extends java.util.concurrent.CancellationException {
+  public class BluetoothException extends java.util.concurrent.CancellationException {
     ctor public BluetoothException(int errorCode, String? message, Throwable? cause);
     method public int getErrorCode();
-    property public final int errorCode;
+    property public int errorCode;
     field public static final int BLUETOOTH_NOT_ALLOWED = 2; // 0x2
     field public static final int BLUETOOTH_NOT_ENABLED = 1; // 0x1
+    field public static final androidx.bluetooth.BluetoothException.Companion Companion;
     field public static final int DEVICE_NOT_BONDED = 3; // 0x3
     field public static final int DEVICE_NOT_CONNECTED = 4; // 0x4
     field public static final int ERROR_UNKNOWN = 2147483647; // 0x7fffffff
     field public static final int FEATURE_NOT_CONFIGURED = 30; // 0x1e
     field public static final int FEATURE_NOT_SUPPORTED = 11; // 0xb
+  }
+
+  public static final class BluetoothException.Companion {
   }
 
   public final class BluetoothLe {
@@ -68,11 +85,7 @@ package androidx.bluetooth {
     method @RequiresPermission("android.permission.BLUETOOTH_CONNECT") public suspend <R> Object? connectGatt(androidx.bluetooth.BluetoothDevice device, kotlin.jvm.functions.Function2<? super androidx.bluetooth.GattClientScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
     method public suspend <R> Object? openGattServer(java.util.List<androidx.bluetooth.GattService> services, kotlin.jvm.functions.Function2<? super androidx.bluetooth.GattServerConnectScope,? super kotlin.coroutines.Continuation<? super R>,?> block, kotlin.coroutines.Continuation<? super R>);
     method @RequiresPermission("android.permission.BLUETOOTH_SCAN") public kotlinx.coroutines.flow.Flow<androidx.bluetooth.ScanResult> scan(optional java.util.List<androidx.bluetooth.ScanFilter> filters);
-    field public static final int ADVERTISE_FAILED_DATA_TOO_LARGE = 102; // 0x66
-    field public static final int ADVERTISE_FAILED_FEATURE_UNSUPPORTED = 103; // 0x67
-    field public static final int ADVERTISE_FAILED_INTERNAL_ERROR = 104; // 0x68
-    field public static final int ADVERTISE_FAILED_TOO_MANY_ADVERTISERS = 105; // 0x69
-    field public static final int ADVERTISE_STARTED = 101; // 0x65
+    field public static final int ADVERTISE_STARTED = 10100; // 0x2774
     field public static final androidx.bluetooth.BluetoothLe.Companion Companion;
   }
 

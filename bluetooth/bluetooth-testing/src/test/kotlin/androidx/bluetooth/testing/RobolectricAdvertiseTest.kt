@@ -17,11 +17,13 @@
 package androidx.bluetooth.testing
 
 import android.os.Build
+import androidx.bluetooth.AdvertiseException
 import androidx.bluetooth.AdvertiseImpl
 import androidx.bluetooth.AdvertiseParams
 import androidx.bluetooth.BluetoothLe
 import java.util.UUID
-import junit.framework.TestCase
+import junit.framework.TestCase.assertEquals
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
@@ -60,7 +62,7 @@ class RobolectricAdvertiseTest {
             val result = bluetoothLe.advertise(params)
                 .first()
 
-            TestCase.assertEquals(BluetoothLe.ADVERTISE_STARTED, result)
+            assertEquals(BluetoothLe.ADVERTISE_STARTED, result)
         }
     }
 
@@ -77,14 +79,19 @@ class RobolectricAdvertiseTest {
             serviceData = mapOf(parcelUuid to serviceData)
         )
 
-        val expected = if (Build.VERSION.SDK_INT >= 26) BluetoothLe.ADVERTISE_STARTED
-        else BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE
-
         launch {
-            val result = bluetoothLe.advertise(advertiseParams)
-                .first()
+            try {
+                val result = bluetoothLe.advertise(advertiseParams)
+                    .first()
 
-            TestCase.assertEquals(expected, result)
+                if (Build.VERSION.SDK_INT >= 26) {
+                    assertEquals(BluetoothLe.ADVERTISE_STARTED, result)
+                }
+            } catch (throwable: Throwable) {
+                if (Build.VERSION.SDK_INT < 26) {
+                    assertTrue(throwable is AdvertiseException)
+                }
+            }
         }
     }
 }

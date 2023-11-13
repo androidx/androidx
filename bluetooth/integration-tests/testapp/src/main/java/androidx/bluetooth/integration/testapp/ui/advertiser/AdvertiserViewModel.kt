@@ -18,6 +18,7 @@ package androidx.bluetooth.integration.testapp.ui.advertiser
 
 import android.annotation.SuppressLint
 import android.util.Log
+import androidx.bluetooth.AdvertiseException
 import androidx.bluetooth.AdvertiseParams
 import androidx.bluetooth.BluetoothLe
 import androidx.lifecycle.ViewModel
@@ -30,6 +31,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
@@ -112,39 +114,45 @@ class AdvertiserViewModel @Inject constructor(
         Log.d(TAG, "startAdvertise() called")
 
         advertiseJob = bluetoothLe.advertise(advertiseParams)
+            .catch { throwable ->
+                Log.e(TAG, "bluetoothLe.advertise catch", throwable)
+
+                val message = if (throwable is AdvertiseException) {
+                    when (throwable.errorCode) {
+                        AdvertiseException.DATA_TOO_LARGE ->
+                            "Advertise failed. Data too large"
+
+                        AdvertiseException.TOO_MANY_ADVERTISERS ->
+                            "Advertise failed. Too many advertisers"
+
+                        AdvertiseException.INTERNAL_ERROR ->
+                            "Advertise failed. Internal error"
+
+                        AdvertiseException.UNSUPPORTED ->
+                            "Advertise failed. Feature unsupported"
+
+                        else ->
+                            "Advertise failed. Error unknown"
+                    }
+                } else null
+
+                _uiState.update {
+                    it.copy(resultMessage = message)
+                }
+            }
             .onEach { advertiseResult ->
                 Log.d(TAG, "bluetoothLe.advertise onEach: $advertiseResult")
 
-                val message = when (advertiseResult) {
-                    BluetoothLe.ADVERTISE_STARTED -> {
-                        _uiState.update {
-                            it.copy(isAdvertising = true)
-                        }
-                        "ADVERTISE_STARTED"
+                if (advertiseResult == BluetoothLe.ADVERTISE_STARTED) {
+                    _uiState.update {
+                        it.copy(isAdvertising = true, resultMessage = "Advertise started")
                     }
-
-                    BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE ->
-                        "ADVERTISE_FAILED_DATA_TOO_LARGE"
-
-                    BluetoothLe.ADVERTISE_FAILED_FEATURE_UNSUPPORTED ->
-                        "ADVERTISE_FAILED_FEATURE_UNSUPPORTED"
-
-                    BluetoothLe.ADVERTISE_FAILED_INTERNAL_ERROR ->
-                        "ADVERTISE_FAILED_INTERNAL_ERROR"
-
-                    BluetoothLe.ADVERTISE_FAILED_TOO_MANY_ADVERTISERS ->
-                        "ADVERTISE_FAILED_TOO_MANY_ADVERTISERS"
-
-                    else -> null
-                }
-                _uiState.update { state ->
-                    state.copy(resultMessage = message)
                 }
             }
             .onCompletion {
                 Log.d(TAG, "bluetoothLe.advertise onCompletion")
                 _uiState.update {
-                    it.copy(isAdvertising = false, resultMessage = "ADVERTISE_COMPLETED")
+                    it.copy(isAdvertising = false, resultMessage = "Advertise completed")
                 }
             }
             .launchIn(viewModelScope)
