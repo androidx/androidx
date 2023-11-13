@@ -22,6 +22,7 @@ import android.os.Build
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.OutputId
+import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.UnsafeWrapper
 
 /**
@@ -68,6 +69,6 @@ interface ImageReaderWrapper : UnsafeWrapper, AutoCloseable {
          * [ImageWrapper.timestamp] is not guaranteed to be in order when used with a multi-sensor
          * camera system, but should *usually* be in order
          */
-        fun onImage(outputId: OutputId, image: ImageWrapper)
+        fun onImage(streamId: StreamId, outputId: OutputId, image: ImageWrapper)
     }
 }

@@ -32,14 +32,14 @@ interface OutputImage : ImageWrapper {
     val outputId: OutputId
 
     companion object {
-        fun from(image: ImageWrapper, streamId: StreamId, outputId: OutputId): OutputImage {
-            return OutputImageImpl(image, streamId, outputId)
+        fun from(streamId: StreamId, outputId: OutputId, image: ImageWrapper): OutputImage {
+            return OutputImageImpl(streamId, outputId, image)
         }
 
         private class OutputImageImpl(
-            private val image: ImageWrapper,
             override val streamId: StreamId,
-            override val outputId: OutputId
+            override val outputId: OutputId,
+            private val image: ImageWrapper,
         ) : ImageWrapper by image, OutputImage {
             @Suppress("UNCHECKED_CAST")
             override fun <T : Any> unwrapAs(type: KClass<T>): T? =
