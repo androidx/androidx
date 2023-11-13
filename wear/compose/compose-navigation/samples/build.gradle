@@ -28,7 +28,7 @@ dependencies {
     implementation(libs.kotlinStdlib)
 
     compileOnly(project(":annotation:annotation-sampled"))
-    implementation(project(":activity:activity-compose"))
+    implementation("androidx.activity:activity-compose:1.8.0")
     implementation(project(":compose:animation:animation-graphics"))
     implementation(project(":compose:foundation:foundation"))
     implementation(project(":compose:foundation:foundation-layout"))
