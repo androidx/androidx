@@ -265,6 +265,31 @@ fun <T : Activity> hasStartActivityClickAction(
 }
 
 /**
+ * Returns a matcher that matches if a given node has a clickable set with action that starts an
+ * activity.
+ *
+ * This can be passed in [GlanceNodeAssertionsProvider.onNode] and
+ * [GlanceNodeAssertionsProvider.onAllNodes] functions on assertion providers to filter out
+ * matching node(s) or in assertions to validate that node(s) satisfy the condition.
+ *
+ * @param T class of the activity that is expected to have been passed in the
+ *          `actionStartActivity` method call
+ * @param parameters the parameters associated with the action that are expected to have been passed
+ *                      in the `actionStartActivity` method call
+ * @param activityOptions Additional options built from an [android.app.ActivityOptions] that are
+ *                        expected to have been passed in the `actionStartActivity` method call
+ */
+inline fun <reified T : Activity> hasStartActivityClickAction(
+    parameters: ActionParameters = actionParametersOf(),
+    activityOptions: Bundle? = null
+): GlanceNodeMatcher<MappedNode> =
+    hasStartActivityClickAction(
+        activityClass = T::class.java,
+        parameters = parameters,
+        activityOptions = activityOptions
+    )
+
+/**
  * Returns a matcher that matches if a given node has a descendant node somewhere in its
  * sub-hierarchy that the matches the provided matcher.
  *
