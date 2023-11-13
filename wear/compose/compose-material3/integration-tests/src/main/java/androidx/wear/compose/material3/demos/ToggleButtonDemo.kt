@@ -109,10 +109,12 @@ private fun ToggleButtonDemos() {
     ) {
         item {
             val buttonState = if (enabledState) "Enabled" else "Disabled"
-            ListHeader { Text(text = "State: $buttonState") }
-        }
-        item {
-            Switch(checked = enabledState, onCheckedChange = { enabledState = it })
+            ToggleButton(
+                label = { Text(buttonState, maxLines = 1) },
+                checked = enabledState,
+                selectionControl = { Switch(checked = enabledState) },
+                onCheckedChange = { enabledState = it },
+            )
         }
         item {
             ListHeader { Text(text = "State:") }
@@ -155,10 +157,12 @@ private fun SplitToggleButtonDemos() {
     ) {
         item {
             val buttonState = if (enabledState) "Enabled" else "Disabled"
-            ListHeader { Text(text = "State: $buttonState") }
-        }
-        item {
-            Switch(checked = enabledState, onCheckedChange = { enabledState = it })
+            ToggleButton(
+                label = { Text(buttonState, maxLines = 1) },
+                checked = enabledState,
+                selectionControl = { Switch(checked = enabledState) },
+                onCheckedChange = { enabledState = it },
+            )
         }
         item {
             ListHeader { Text(text = "State:") }

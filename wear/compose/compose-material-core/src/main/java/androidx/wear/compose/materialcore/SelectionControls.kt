@@ -85,7 +85,7 @@ fun Checkbox(
     checkmarkColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     enabled: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     progressAnimationSpec: TweenSpec<Float>,
     drawBox: FunctionDrawBox,
     width: Dp,
@@ -172,7 +172,7 @@ fun Switch(
     checked: Boolean,
     enabled: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     trackFillColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     trackStrokeColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     thumbColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
@@ -266,7 +266,7 @@ fun RadioButton(
     ringColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     dotColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
     onClick: (() -> Unit)?,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     dotRadiusProgressDuration: FunctionDotRadiusProgressDuration,
     dotAlphaProgressDuration: Int,
     dotAlphaProgressDelay: Int,
@@ -411,7 +411,7 @@ private fun Modifier.maybeToggleable(
     onCheckedChange: ((Boolean) -> Unit)?,
     enabled: Boolean,
     checked: Boolean,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     indication: Indication,
     role: Role,
     canvasWidth: Dp,
@@ -421,7 +421,7 @@ private fun Modifier.maybeToggleable(
         .wrapContentSize(Alignment.CenterEnd)
         .requiredSize(canvasWidth, canvasHeight)
 
-    return if (onCheckedChange == null) {
+    return if (onCheckedChange == null || interactionSource == null) {
         standardModifier
     } else {
         standardModifier.then(
@@ -441,7 +441,7 @@ private fun Modifier.maybeSelectable(
     onClick: (() -> Unit)?,
     enabled: Boolean,
     selected: Boolean,
-    interactionSource: MutableInteractionSource,
+    interactionSource: MutableInteractionSource?,
     indication: Indication,
     canvasWidth: Dp,
     canvasHeight: Dp
@@ -450,7 +450,7 @@ private fun Modifier.maybeSelectable(
         .wrapContentSize(Alignment.Center)
         .requiredSize(canvasWidth, canvasHeight)
 
-    return if (onClick == null) {
+    return if (onClick == null || interactionSource == null) {
         standardModifier
     } else {
         standardModifier.then(
