@@ -114,6 +114,7 @@ package androidx.wear.protolayout.expression {
   }
 
   public static interface DynamicBuilders.DynamicDuration extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration from(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration!>);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration fromByteArray(byte[]);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration fromByteArray(byte[], int, int);
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getHoursPart();
@@ -197,6 +198,7 @@ package androidx.wear.protolayout.expression {
   public static interface DynamicBuilders.DynamicInstant extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicZonedDateTime atZone(java.time.ZoneId);
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration durationUntil(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant);
+    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant from(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant!>);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant fromByteArray(byte[]);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant fromByteArray(byte[], int, int);
     method public static androidx.wear.protolayout.expression.ConditionScopes.ConditionScope<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant!,java.time.Instant!> onCondition(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
@@ -309,17 +311,23 @@ package androidx.wear.protolayout.expression {
     method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?> fromByteArray(byte[]);
     method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<?> fromByteArray(byte[], int, int);
     method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor!> fromColor(@ColorInt int);
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration!> fromDuration(java.time.Duration);
     method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat!> fromFloat(float);
+    method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant!> fromInstant(java.time.Instant);
     method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32!> fromInt(int);
     method public static androidx.wear.protolayout.expression.DynamicDataBuilders.DynamicDataValue<androidx.wear.protolayout.expression.DynamicBuilders.DynamicString!> fromString(String);
     method public default boolean getBoolValue();
     method @ColorInt public default int getColorValue();
+    method public default java.time.Duration getDurationValue();
     method public default float getFloatValue();
+    method public default java.time.Instant getInstantValue();
     method public default int getIntValue();
     method public default String getStringValue();
     method public default boolean hasBoolValue();
     method public default boolean hasColorValue();
+    method public default boolean hasDurationValue();
     method public default boolean hasFloatValue();
+    method public default boolean hasInstantValue();
     method public default boolean hasIntValue();
     method public default boolean hasStringValue();
     method public default byte[] toDynamicDataValueByteArray();

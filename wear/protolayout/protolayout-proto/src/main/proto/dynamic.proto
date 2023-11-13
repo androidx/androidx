@@ -577,6 +577,7 @@ message DynamicInstant {
     FixedInstant fixed = 1;
     PlatformTimeSource platform_source = 2;
     ConditionalInstantOp conditional_op = 3;
+    StateInstantSource state_source = 4;
   }
 }
 
@@ -656,6 +657,7 @@ message DynamicDuration {
     BetweenDuration between = 1;
     FixedDuration fixed = 2;
     ConditionalDurationOp conditional_op = 3;
+    StateDurationSource state_source = 4;
   }
 }
 
@@ -712,4 +714,23 @@ message GetDurationPartOp {
 
   // The duration part to retrieve.
   DurationPartType duration_part = 2;
+}
+
+
+// A dynamic Instant which sources its data from the a state entry.
+message StateInstantSource {
+  // The key in the state to bind to.
+  string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
+}
+
+// A dynamic Duration which sources its data from the a state entry.
+message StateDurationSource {
+  // The key in the state to bind to.
+  string source_key = 1;
+
+  // The namespace for the state key.
+  string source_namespace = 2;
 }

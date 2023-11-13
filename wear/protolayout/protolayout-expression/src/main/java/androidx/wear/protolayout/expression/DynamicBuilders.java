@@ -7309,6 +7309,20 @@ public final class DynamicBuilders {
         }
 
         /**
+         * Creates a {@link DynamicInstant} that is bound to the value of an item of the State.
+         *
+         * @param dynamicDataKey The source key to a {@link DynamicDataValue} with an {@link
+         *     Instant} value.
+         */
+        @NonNull
+        static DynamicInstant from(@NonNull DynamicDataKey<DynamicInstant> dynamicDataKey) {
+            return new StateInstantSource.Builder()
+                    .setSourceKey(dynamicDataKey.getKey())
+                    .setSourceNamespace(dynamicDataKey.getNamespace())
+                    .build();
+        }
+
+        /**
          * Creates a constant-valued {@link DynamicInstant} from an {@link Instant}. If {@link
          * Instant} precision is greater than seconds, then any excess precision information will be
          * dropped.
@@ -7415,6 +7429,9 @@ public final class DynamicBuilders {
         }
         if (proto.hasConditionalOp()) {
             return ConditionalInstantOp.fromProto(proto.getConditionalOp(), fingerprint);
+        }
+        if (proto.hasStateSource()) {
+            return StateInstantSource.fromProto(proto.getStateSource(), fingerprint);
         }
         throw new IllegalStateException("Proto was not a recognised instance of DynamicInstant");
     }
@@ -8315,6 +8332,20 @@ public final class DynamicBuilders {
         }
 
         /**
+         * Creates a {@link DynamicDuration} that is bound to the value of an item of the State.
+         *
+         * @param dynamicDataKey The source key to a {@link DynamicDataValue} with an {@link
+         *     Duration} value.
+         */
+        @NonNull
+        static DynamicDuration from(@NonNull DynamicDataKey<DynamicDuration> dynamicDataKey) {
+            return new StateDurationSource.Builder()
+                    .setSourceKey(dynamicDataKey.getKey())
+                    .setSourceNamespace(dynamicDataKey.getNamespace())
+                    .build();
+        }
+
+        /**
          * Creates a constant-valued {@link DynamicDuration} from a {@link Duration}. If {@link
          * Duration} precision is greater than seconds, then any excess precision information will
          * be dropped.
@@ -8555,6 +8586,9 @@ public final class DynamicBuilders {
         if (proto.hasConditionalOp()) {
             return ConditionalDurationOp.fromProto(proto.getConditionalOp(), fingerprint);
         }
+        if (proto.hasStateSource()) {
+            return StateDurationSource.fromProto(proto.getStateSource(), fingerprint);
+        }
         throw new IllegalStateException("Proto was not a recognised instance of DynamicDuration");
     }
 
@@ -8689,6 +8723,249 @@ public final class DynamicBuilders {
             @NonNull
             public GetDurationPartOp build() {
                 return new GetDurationPartOp(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * A dynamic Instant which sources its data from the a state entry.
+     *
+     * @since 1.3
+     */
+    static final class StateInstantSource implements DynamicInstant {
+        private final DynamicProto.StateInstantSource mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        StateInstantSource(
+                DynamicProto.StateInstantSource impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the key in the state to bind to.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public String getSourceKey() {
+            return mImpl.getSourceKey();
+        }
+
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static StateInstantSource fromProto(
+                @NonNull DynamicProto.StateInstantSource proto, @Nullable Fingerprint fingerprint) {
+            return new StateInstantSource(proto, fingerprint);
+        }
+
+        @NonNull
+        static StateInstantSource fromProto(@NonNull DynamicProto.StateInstantSource proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @NonNull
+        DynamicProto.StateInstantSource toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicInstant toDynamicInstantProto() {
+            return DynamicProto.DynamicInstant.newBuilder().setStateSource(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "StateInstantSource{"
+                    + "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
+        }
+
+        /** Builder for {@link StateInstantSource}. */
+        public static final class Builder implements DynamicInstant.Builder {
+            private final DynamicProto.StateInstantSource.Builder mImpl =
+                    DynamicProto.StateInstantSource.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-694732886);
+
+            /** Creates an instance of {@link Builder}. */
+            public Builder() {}
+
+            /**
+             * Sets the key in the state to bind to.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setSourceKey(@NonNull String sourceKey) {
+                mImpl.setSourceKey(sourceKey);
+                mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the namespace for the state key.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @Override
+            @NonNull
+            public StateInstantSource build() {
+                return new StateInstantSource(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /**
+     * A dynamic Duration which sources its data from the a state entry.
+     *
+     * @since 1.3
+     */
+    static final class StateDurationSource implements DynamicDuration {
+        private final DynamicProto.StateDurationSource mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        StateDurationSource(
+                DynamicProto.StateDurationSource impl, @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /**
+         * Gets the key in the state to bind to.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public String getSourceKey() {
+            return mImpl.getSourceKey();
+        }
+
+        /**
+         * Gets the namespace for the state key.
+         *
+         * @since 1.3
+         */
+        @NonNull
+        public String getSourceNamespace() {
+            return mImpl.getSourceNamespace();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static StateDurationSource fromProto(
+                @NonNull DynamicProto.StateDurationSource proto,
+                @Nullable Fingerprint fingerprint) {
+            return new StateDurationSource(proto, fingerprint);
+        }
+
+        @NonNull
+        static StateDurationSource fromProto(@NonNull DynamicProto.StateDurationSource proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @NonNull
+        DynamicProto.StateDurationSource toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicProto.DynamicDuration toDynamicDurationProto() {
+            return DynamicProto.DynamicDuration.newBuilder().setStateSource(mImpl).build();
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "StateDurationSource{"
+                    + "sourceKey="
+                    + getSourceKey()
+                    + ", sourceNamespace="
+                    + getSourceNamespace()
+                    + "}";
+        }
+
+        /** Builder for {@link StateDurationSource}. */
+        public static final class Builder implements DynamicDuration.Builder {
+            private final DynamicProto.StateDurationSource.Builder mImpl =
+                    DynamicProto.StateDurationSource.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(1860268194);
+
+            /** Creates an instance of {@link Builder}. */
+            public Builder() {}
+
+            /**
+             * Sets the key in the state to bind to.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setSourceKey(@NonNull String sourceKey) {
+                mImpl.setSourceKey(sourceKey);
+                mFingerprint.recordPropertyUpdate(1, sourceKey.hashCode());
+                return this;
+            }
+
+            /**
+             * Sets the namespace for the state key.
+             *
+             * @since 1.3
+             */
+            @NonNull
+            public Builder setSourceNamespace(@NonNull String sourceNamespace) {
+                mImpl.setSourceNamespace(sourceNamespace);
+                mFingerprint.recordPropertyUpdate(2, sourceNamespace.hashCode());
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @Override
+            @NonNull
+            public StateDurationSource build() {
+                return new StateDurationSource(mImpl.build(), mFingerprint);
             }
         }
     }

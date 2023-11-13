@@ -27,6 +27,9 @@ import androidx.wear.protolayout.expression.proto.DynamicDataProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.FixedProto;
 
+import java.time.Duration;
+import java.time.Instant;
+
 /**
  * Builders for fixed value primitive types that can be used in dynamic expressions and in for state
  * state values.
@@ -107,11 +110,11 @@ final class FixedValueBuilders {
         }
 
         /**
-         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains an int
-         * value. Otherwise returns false.
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains an int value.
+         * Otherwise returns false.
          */
         @Override
-        public boolean hasIntValue(){
+        public boolean hasIntValue() {
             return true;
         }
 
@@ -229,11 +232,11 @@ final class FixedValueBuilders {
         }
 
         /**
-         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a String
-         * value. Otherwise returns false.
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a String value.
+         * Otherwise returns false.
          */
         @Override
-        public boolean hasStringValue(){
+        public boolean hasStringValue() {
             return true;
         }
 
@@ -354,11 +357,11 @@ final class FixedValueBuilders {
         }
 
         /**
-         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a float
-         * value. Otherwise returns false.
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a float value.
+         * Otherwise returns false.
          */
         @Override
-        public boolean hasFloatValue(){
+        public boolean hasFloatValue() {
             return true;
         }
 
@@ -481,7 +484,7 @@ final class FixedValueBuilders {
          * value. Otherwise returns false.
          */
         @Override
-        public boolean hasBoolValue(){
+        public boolean hasBoolValue() {
             return true;
         }
 
@@ -600,11 +603,11 @@ final class FixedValueBuilders {
         }
 
         /**
-         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a color
-         * value. Otherwise returns false.
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a color value.
+         * Otherwise returns false.
          */
         @Override
-        public  boolean hasColorValue(){
+        public boolean hasColorValue() {
             return true;
         }
 
@@ -653,7 +656,9 @@ final class FixedValueBuilders {
      *
      * @since 1.2
      */
-    static final class FixedInstant implements DynamicBuilders.DynamicInstant {
+    static final class FixedInstant
+            implements DynamicBuilders.DynamicInstant,
+                    DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicInstant> {
         private final FixedProto.FixedInstant mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
@@ -669,6 +674,28 @@ final class FixedValueBuilders {
          */
         public long getEpochSeconds() {
             return mImpl.getEpochSeconds();
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains an {@link
+         * Instant} value. Otherwise returns false.
+         */
+        @Override
+        public boolean hasInstantValue() {
+            return true;
+        }
+
+        /**
+         * Returns the {@link Instant} value stored in this {@link
+         * DynamicDataBuilders.DynamicDataValue }.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataBuilders.DynamicDataValue }
+         *     doesn't contain an {@link Instant} value.
+         */
+        @Override
+        @NonNull
+        public Instant getInstantValue() {
+            return Instant.ofEpochSecond(mImpl.getEpochSeconds());
         }
 
         @Override
@@ -703,6 +730,13 @@ final class FixedValueBuilders {
         @NonNull
         public DynamicProto.DynamicInstant toDynamicInstantProto() {
             return DynamicProto.DynamicInstant.newBuilder().setFixed(mImpl).build();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+            return DynamicDataProto.DynamicDataValue.newBuilder().setInstantVal(mImpl).build();
         }
 
         @Override
@@ -744,7 +778,9 @@ final class FixedValueBuilders {
      *
      * @since 1.2
      */
-    static final class FixedDuration implements DynamicBuilders.DynamicDuration {
+    static final class FixedDuration
+            implements DynamicBuilders.DynamicDuration,
+                    DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicDuration> {
         private final FixedProto.FixedDuration mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
@@ -760,6 +796,28 @@ final class FixedValueBuilders {
          */
         public long getSeconds() {
             return mImpl.getSeconds();
+        }
+
+        /**
+         * Returns true if the {@link DynamicDataBuilders.DynamicDataValue} contains a {@link
+         * Duration} value. Otherwise returns false.
+         */
+        @Override
+        public boolean hasDurationValue() {
+            return true;
+        }
+
+        /**
+         * Returns the {@link Duration} value stored in this {@link
+         * DynamicDataBuilders.DynamicDataValue }.
+         *
+         * @throws IllegalStateException if the {@link DynamicDataBuilders.DynamicDataValue }
+         *     doesn't contain a {@link Duration} value.
+         */
+        @Override
+        @NonNull
+        public Duration getDurationValue() {
+            return Duration.ofSeconds(mImpl.getSeconds());
         }
 
         @Override
@@ -794,6 +852,13 @@ final class FixedValueBuilders {
         @NonNull
         public DynamicProto.DynamicDuration toDynamicDurationProto() {
             return DynamicProto.DynamicDuration.newBuilder().setFixed(mImpl).build();
+        }
+
+        @Override
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public DynamicDataProto.DynamicDataValue toDynamicDataValueProto() {
+            return DynamicDataProto.DynamicDataValue.newBuilder().setDurationVal(mImpl).build();
         }
 
         @Override
