@@ -87,11 +87,6 @@ class ConnectionsFragment : Fragment() {
                 .flowWithLifecycle(viewLifecycleOwner.lifecycle)
                 .collect(::updateUi)
         }
-
-        mainViewModel.selectedBluetoothDevice?.let { selectedBluetoothDevice ->
-            onClickConnect(selectedBluetoothDevice)
-            mainViewModel.selectedBluetoothDevice = null
-        }
     }
 
     override fun onDestroyView() {
@@ -120,6 +115,11 @@ class ConnectionsFragment : Fragment() {
     private fun updateUi(connectionsUiState: ConnectionsUiState) {
         binding.viewPager.adapter?.notifyDataSetChanged()
 
+        mainViewModel.selectedBluetoothDevice?.let { selectedBluetoothDevice ->
+            mainViewModel.selectedBluetoothDevice = null
+            onClickConnect(selectedBluetoothDevice)
+        }
+
         connectionsUiState.showDialogForWrite?.let {
             showDialogForWrite(it)
             viewModel.writeDialogShown()
@@ -131,21 +131,20 @@ class ConnectionsFragment : Fragment() {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun onClickConnect(bluetoothDevice: BluetoothDevice) {
         val index = viewModel.addDeviceConnectionIfNew(bluetoothDevice)
-        updateUi(viewModel.uiState.value)
+        binding.viewPager.adapter?.notifyDataSetChanged()
 
-        val deviceTab = if (index == ConnectionsViewModel.NEW_DEVICE) {
-            val tabCount = binding.tabLayout.tabCount
-            binding.tabLayout.getTabAt(tabCount - 1)
+        val deviceTabIndex = if (index == ConnectionsViewModel.NEW_DEVICE) {
+            binding.tabLayout.tabCount - 1
         } else {
-            binding.tabLayout.getTabAt(index)
+            index
         }
 
-        binding.tabLayout.selectTab(deviceTab)
+        binding.viewPager.setCurrentItem(deviceTabIndex, false)
 
-        val selectedTabPosition = binding.tabLayout.selectedTabPosition
-        viewModel.connect(viewModel.deviceConnections.elementAt(selectedTabPosition))
+        viewModel.connect(viewModel.deviceConnections.elementAt(deviceTabIndex))
     }
 
     private fun onClickReconnect(deviceConnection: DeviceConnection) {
