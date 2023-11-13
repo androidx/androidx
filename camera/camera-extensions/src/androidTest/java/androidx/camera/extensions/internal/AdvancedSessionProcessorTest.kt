@@ -198,7 +198,8 @@ class AdvancedSessionProcessorTest {
         assumeTrue(ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_3))
         val fakeSessionProcessImpl = FakeSessionProcessImpl()
         val advancedSessionProcessor = AdvancedSessionProcessor(
-            fakeSessionProcessImpl, emptyList(), context)
+            fakeSessionProcessImpl, emptyList(),
+            object : VendorExtender {}, context)
 
         val parametersMap: MutableMap<CaptureRequest.Key<*>, Any> = mutableMapOf(
             CaptureRequest.CONTROL_AF_MODE to CaptureRequest.CONTROL_AF_MODE_AUTO,
@@ -227,7 +228,7 @@ class AdvancedSessionProcessorTest {
                 override fun getRealtimeCaptureLatency(): Pair<Long, Long> = Pair(1000L, 10L)
             }
             val advancedSessionProcessor = AdvancedSessionProcessor(
-                fakeSessionProcessImpl, emptyList(), context
+                fakeSessionProcessImpl, emptyList(), object : VendorExtender {}, context
             )
 
             val realtimeCaptureLatencyEstimate = advancedSessionProcessor.realtimeCaptureLatency
@@ -390,7 +391,7 @@ class AdvancedSessionProcessorTest {
         val fakeSessionProcessImpl = FakeSessionProcessImpl()
         fakeSessionProcessImpl.sessionType = sessionTypeToVerify
         val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl,
-            emptyList(), context)
+            emptyList(), object : VendorExtender {}, context)
         val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
         val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
         val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
@@ -411,7 +412,7 @@ class AdvancedSessionProcessorTest {
         val fakeSessionProcessImpl = FakeSessionProcessImpl()
         fakeSessionProcessImpl.sessionType = -1
         val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl,
-            emptyList(), context)
+            emptyList(), object : VendorExtender {}, context)
         val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
         val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
         val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
@@ -424,6 +425,24 @@ class AdvancedSessionProcessorTest {
 
         // 3. Assert.
         assertThat(sessionConfig.sessionType).isEqualTo(SessionConfiguration.SESSION_REGULAR)
+    }
+
+    @Test
+    fun getSupportedPostviewSizeIsCorrect() {
+        // 1. Arrange
+        val postviewSizes = mutableMapOf(
+            ImageFormat.JPEG to listOf(Size(1920, 1080), Size(640, 480))
+        )
+        val vendorExtender = object : VendorExtender {
+            override fun getSupportedPostviewResolutions(captureSize: Size) = postviewSizes
+        }
+        val advancedSessionProcessor = AdvancedSessionProcessor(FakeSessionProcessImpl(),
+            emptyList(), vendorExtender, context
+        )
+
+        // 2. Act and Assert
+        assertThat(advancedSessionProcessor.getSupportedPostviewSize(Size(1920, 1080))
+            .get(ImageFormat.JPEG)).containsExactly(Size(1920, 1080), Size(640, 480))
     }
 
     /**
@@ -439,7 +458,7 @@ class AdvancedSessionProcessorTest {
         imageAnalysis: ImageAnalysis? = null
     ) {
         val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl,
-            emptyList(), context)
+            emptyList(), object : VendorExtender {}, context)
         val latchPreviewFrame = CountDownLatch(1)
         val latchAnalysis = CountDownLatch(1)
         val deferCapturedImage = CompletableDeferred<ImageProxy>()

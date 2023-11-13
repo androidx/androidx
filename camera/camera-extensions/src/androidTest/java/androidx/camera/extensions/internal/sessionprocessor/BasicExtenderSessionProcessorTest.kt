@@ -73,6 +73,7 @@ import androidx.camera.extensions.impl.PreviewExtenderImpl.ProcessorType.PROCESS
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl
 import androidx.camera.extensions.impl.ProcessResultImpl
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl
+import androidx.camera.extensions.internal.BasicVendorExtender
 import androidx.camera.extensions.internal.ClientVersion
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
@@ -162,8 +163,11 @@ class BasicExtenderSessionProcessorTest(
 
         fakePreviewExtenderImpl = FakePreviewExtenderImpl(previewProcessorType)
         fakeCaptureExtenderImpl = FakeImageCaptureExtenderImpl(hasCaptureProcessor)
+        val basicVendorExtender =
+            BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl)
         basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
-            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(), context
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(),
+            basicVendorExtender, context
         )
     }
 
@@ -281,7 +285,9 @@ class BasicExtenderSessionProcessorTest(
             hasCaptureProcessor, throwErrorOnProcess = true
         )
         basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
-            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(), context
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(),
+            BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl),
+            context
         )
         val preview = Preview.Builder().build()
         val imageCapture = ImageCapture.Builder().build()
@@ -419,7 +425,9 @@ class BasicExtenderSessionProcessorTest(
         }
 
         basicExtenderSessionProcessor = BasicExtenderSessionProcessor(
-            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(), context
+            fakePreviewExtenderImpl, fakeCaptureExtenderImpl, emptyList(), emptyList(),
+            BasicVendorExtender(fakeCaptureExtenderImpl, fakePreviewExtenderImpl),
+            context
         )
 
         assertThat(basicExtenderSessionProcessor.realtimeCaptureLatency).isEqualTo(Pair(1000L, 10L))
@@ -640,6 +648,24 @@ class BasicExtenderSessionProcessorTest(
                 Pair(CaptureRequest.CONTROL_AE_MODE, CaptureRequest.CONTROL_AE_MODE_OFF),
             )
         }
+    }
+
+    @Test
+    fun getSupportedPostviewSizeIsCorrect() {
+        assumeTrue(ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
+            ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4))
+        // 1. Arrange
+        val postviewSizes = listOf(
+            Pair(ImageFormat.YUV_420_888,
+                arrayOf(Size(1920, 1080), Size(640, 480)))
+        )
+        fakeCaptureExtenderImpl.postviewSupportedSizes = postviewSizes
+
+        // 2. Act and Assert
+        // BasiccVendorExtender is supposed to convert the YUV supported sizes into JPEG supported
+        // size.s
+        assertThat(basicExtenderSessionProcessor.getSupportedPostviewSize(Size(1920, 1080))
+            .get(ImageFormat.JPEG)).containsExactly(Size(1920, 1080), Size(640, 480))
     }
 
     private suspend fun initBasicExtenderSessionProcessor(): AutoCloseable {
@@ -942,6 +968,7 @@ class BasicExtenderSessionProcessorTest(
             }
         }
         var sessionType = -1
+        var postviewSupportedSizes: List<Pair<Int, Array<Size>>> = emptyList()
 
         override fun isExtensionAvailable(
             cameraId: String,
@@ -986,8 +1013,8 @@ class BasicExtenderSessionProcessorTest(
         }
 
         override fun getSupportedPostviewResolutions(captureSize: Size):
-            MutableList<Pair<Int, Array<Size>>>? {
-            return null
+            List<Pair<Int, Array<Size>>>? {
+            return postviewSupportedSizes
         }
 
         override fun isCaptureProcessProgressAvailable(): Boolean {

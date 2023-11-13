@@ -19,6 +19,7 @@ package androidx.camera.core.impl;
 import android.hardware.camera2.CaptureResult;
 import android.media.ImageReader;
 import android.util.Pair;
+import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +27,7 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraInfo;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -122,6 +124,15 @@ public interface SessionProcessor {
      */
     default int startTrigger(@NonNull Config config, @NonNull CaptureCallback callback) {
         return -1;
+    }
+
+    /**
+     * Returns supported output format/size map for postview image. The API is provided
+     * for camera-core to query the supported postview sizes from SessionProcessor.
+     */
+    @NonNull
+    default Map<Integer, List<Size>> getSupportedPostviewSize(@NonNull Size captureSize) {
+        return Collections.emptyMap();
     }
 
     /**

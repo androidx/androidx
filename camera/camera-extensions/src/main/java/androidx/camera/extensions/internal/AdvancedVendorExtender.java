@@ -210,6 +210,7 @@ public class AdvancedVendorExtender implements VendorExtender {
         return new AdvancedSessionProcessor(
                 mAdvancedExtenderImpl.createSessionProcessor(),
                 getSupportedParameterKeys(),
+                this,
                 context);
     }
 }

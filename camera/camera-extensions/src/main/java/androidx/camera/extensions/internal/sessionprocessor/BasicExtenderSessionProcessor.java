@@ -28,6 +28,7 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.SessionConfiguration;
 import android.util.Pair;
+import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -53,6 +54,7 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 import androidx.camera.extensions.internal.ClientVersion;
 import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.compat.workaround.OnEnableDisableSessionDurationCheck;
 import androidx.core.util.Preconditions;
@@ -99,17 +101,22 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     private final List<CaptureResult.Key> mSupportedResultKeys;
     private OnEnableDisableSessionDurationCheck mOnEnableDisableSessionDurationCheck =
             new OnEnableDisableSessionDurationCheck();
+    @Nullable
+    private OutputSurface mPostviewOutputSurface;
+    private final VendorExtender mVendorExtender;
 
     public BasicExtenderSessionProcessor(@NonNull PreviewExtenderImpl previewExtenderImpl,
             @NonNull ImageCaptureExtenderImpl imageCaptureExtenderImpl,
             @NonNull List<CaptureRequest.Key> supportedRequestKeys,
             @NonNull List<CaptureResult.Key> supportedResultKeys,
+            @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
         super(supportedRequestKeys);
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
         mSupportedResultKeys = supportedResultKeys;
         mContext = context;
+        mVendorExtender = vendorExtender;
     }
 
     @NonNull
@@ -126,6 +133,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
 
         mPreviewOutputSurface = outputSurfaceConfiguration.getPreviewOutputSurface();
         mCaptureOutputSurface = outputSurfaceConfiguration.getImageCaptureOutputSurface();
+        mPostviewOutputSurface = outputSurfaceConfiguration.getPostviewOutputSurface();
 
         // Preview
         PreviewExtenderImpl.ProcessorType processorType =
@@ -166,7 +174,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                     mImageCaptureExtenderImpl.getMaxCaptureStage());
             mStillCaptureProcessor = new StillCaptureProcessor(
                     captureProcessor, mCaptureOutputSurface.getSurface(),
-                    mCaptureOutputSurface.getSize());
+                    mCaptureOutputSurface.getSize(),
+                    mPostviewOutputSurface);
         } else {
             mCaptureOutputConfig = SurfaceOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
@@ -575,7 +584,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
 
         Logger.d(TAG, "startCapture");
         if (mStillCaptureProcessor != null) {
-            mStillCaptureProcessor.startCapture(captureIdList,
+            mStillCaptureProcessor.startCapture(postviewEnabled, captureIdList,
                     new StillCaptureProcessor.OnCaptureResultCallback() {
                         @Override
                         public void onCompleted() {
@@ -677,5 +686,11 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
             return mImageCaptureExtenderImpl.getRealtimeCaptureLatency();
         }
         return null;
+    }
+
+    @NonNull
+    @Override
+    public Map<Integer, List<Size>> getSupportedPostviewSize(@NonNull Size captureSize) {
+        return mVendorExtender.getSupportedPostviewResolutions(captureSize);
     }
 }

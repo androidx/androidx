@@ -131,8 +131,8 @@ public class BasicVendorExtender implements VendorExtender {
     }
 
     @VisibleForTesting
-    BasicVendorExtender(ImageCaptureExtenderImpl imageCaptureExtenderImpl,
-            PreviewExtenderImpl previewExtenderImpl) {
+    public BasicVendorExtender(@Nullable ImageCaptureExtenderImpl imageCaptureExtenderImpl,
+            @Nullable PreviewExtenderImpl previewExtenderImpl) {
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
@@ -379,11 +379,18 @@ public class BasicVendorExtender implements VendorExtender {
     public Map<Integer, List<Size>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
         if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            // For OEMs implementing basic extender, the supported format of the postview
+            // can only be YUV.
             List<Pair<Integer, Size[]>> list =
                     mImageCaptureExtenderImpl.getSupportedPostviewResolutions(captureSize);
             Map<Integer, List<Size>> result = new HashMap<>();
             for (Pair<Integer, Size[]> pair : list) {
-                result.put(pair.first, Arrays.asList(pair.second));
+                int format = pair.first;
+                Size[] sizes = pair.second;
+                if (format == ImageFormat.YUV_420_888) {
+                    // Basic Extender convert the YUV format into JPEG format.
+                    result.put(ImageFormat.JPEG, Arrays.asList(sizes));
+                }
             }
             return Collections.unmodifiableMap(result);
         }
@@ -419,6 +426,7 @@ public class BasicVendorExtender implements VendorExtender {
                 mPreviewExtenderImpl, mImageCaptureExtenderImpl,
                 getSupportedParameterKeys(context),
                 getSupportedCaptureResultKeys(),
+                this,
                 context);
     }
 }
