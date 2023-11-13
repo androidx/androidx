@@ -19,10 +19,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="16dp"
-    android:layout_marginTop="8dp"
-    android:layout_marginEnd="16dp"
-    android:layout_marginBottom="8dp"
+    android:layout_margin="8dp"
+    app:cardBackgroundColor="@color/grey_200"
     app:contentPadding="8dp">
 
     <LinearLayout
@@ -57,22 +55,12 @@
 
         </LinearLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="4dp"
-            android:text="@string/characteristics"
-            android:textColor="@color/black"
-            android:textStyle="bold" />
-
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_service_characteristic"
+            android:id="@+id/recycler_view_service_characteristics"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
             app:layoutManager="LinearLayoutManager"
-            tools:itemCount="3"
+            tools:itemCount="2"
             tools:listitem="@layout/item_gatt_server_characteristic" />
 
         <Button
@@ -80,7 +68,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
-            android:layout_marginStart="16dp"
             android:layout_marginTop="4dp"
             android:text="@string/add_characteristic" />
 
