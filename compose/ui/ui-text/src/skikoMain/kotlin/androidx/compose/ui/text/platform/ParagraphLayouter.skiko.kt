@@ -26,11 +26,13 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Density
 import kotlin.math.abs
 import org.jetbrains.skia.Paint
+import org.jetbrains.skia.paragraph.LineMetrics
 import org.jetbrains.skia.paragraph.Paragraph
 
 /**
@@ -74,7 +76,10 @@ internal class ParagraphLayouter(
     private var width: Float = Float.NaN
 
     val defaultFont get() = builder.defaultFont
-    val paragraphStyle get() = builder.paragraphStyle
+    val textStyle get() = builder.textStyle
+
+    internal fun emptyLineMetrics(paragraph: Paragraph): Array<LineMetrics> =
+        builder.emptyLineMetrics(paragraph)
 
     fun setParagraphStyle(
         maxLines: Int,
