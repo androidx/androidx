@@ -33,6 +33,9 @@ class FakeTakePictureCallback : TakePictureCallback {
     private var onDiskResult: OutputFileResults? = null
     private var onDiskResultCont: Continuation<OutputFileResults>? = null
 
+    override fun onPostviewImageAvailable(imageProxy: ImageProxy) {
+    }
+
     override fun onCaptureProcessProgressed(progress: Int) {
     }
 

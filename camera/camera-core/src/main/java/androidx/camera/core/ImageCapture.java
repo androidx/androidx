@@ -111,6 +111,7 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
+import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
@@ -130,8 +131,10 @@ import java.io.File;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -1085,6 +1088,12 @@ public final class ImageCapture extends UseCase {
         }
     }
 
+    @Nullable
+    private SessionProcessor getSessionProcessor() {
+        CameraConfig cameraConfig = getCamera().getExtendedConfig();
+        return cameraConfig.getSessionProcessor(null);
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -1160,7 +1169,31 @@ public final class ImageCapture extends UseCase {
             // SessionConfig error callback and recreate children pipeline.
             mImagePipeline.close();
         }
-        mImagePipeline = new ImagePipeline(config, resolution, getEffect(), isVirtualCamera);
+
+        boolean isPostviewEnabled =
+                getCurrentConfig().retrieveOption(OPTION_POSTVIEW_ENABLED, false);
+        Size postViewSize = null;
+
+        if (isPostviewEnabled) {
+            SessionProcessor sessionProcessor = getSessionProcessor();
+            if (sessionProcessor != null) {
+                ResolutionSelector postviewSizeSelector =
+                        getCurrentConfig().retrieveOption(OPTION_POSTVIEW_RESOLUTION_SELECTOR,
+                                null);
+                Map<Integer, List<Size>> map =
+                        sessionProcessor.getSupportedPostviewSize(resolution);
+                List<Size> sizes = map.get(ImageFormat.JPEG);
+
+                Preconditions.checkNotNull(sizes,
+                        "getSupportedPostviewResolutions doesn't contain valid JPEG sizes.");
+
+                // TODO: select the size by ResolutionSelector
+                postViewSize = Collections.max(sizes, new CompareSizesByArea());
+            }
+        }
+
+        mImagePipeline = new ImagePipeline(config, resolution, getEffect(), isVirtualCamera,
+                postViewSize);
 
         if (mTakePictureManager == null) {
             // mTakePictureManager is reused when the Surface is reset.
@@ -1444,9 +1477,9 @@ public final class ImageCapture extends UseCase {
         void onError(@NonNull ImageCaptureException exception);
 
         /**
-         * Called to notify the progress in the processing stage of the capture.
+         * Callback to report the progress of the capture's processing.
          *
-         * <p>To know in advanced if this callback will be called or not, check the
+         * <p>To know in advanced if this callback will be invoked or not, check the
          * capabilities by {@link #getImageCaptureCapabilities(CameraInfo)} and
          * {@link ImageCaptureCapabilities#isCaptureProcessProgressSupported()}.
          *
@@ -1454,6 +1487,40 @@ public final class ImageCapture extends UseCase {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         default void onCaptureProcessProgressed(int progress) {
+        }
+
+        /**
+         * Callback to notify that the postview image is available. The postview is intended to be
+         * shown on UI before the long-processing capture is completed in order to provide a
+         * better UX. The image format is {@link ImageFormat#JPEG}.
+         *
+         * <p>The postview is only available when the
+         * {@link ImageCaptureCapabilities#isPostviewSupported()} returns true for the specified
+         * {@link CameraInfo} and applications must explicitly enable the postview using the
+         * {@link Builder#setPostviewEnabled(boolean)}. Please note that if something goes wrong
+         * when processing the postview, this callback method won't be invoked.
+         *
+         * <p>Please close the {@link ImageProxy} once you no longer need it. The default
+         * implementation of this method will close it in case apps don't implement the method.
+         *
+         * <p>The image is provided as captured by the underlying {@link ImageReader} without
+         * rotation applied. The value in {@code image.getImageInfo().getRotationDegrees()}
+         * describes the magnitude of clockwise rotation, which if applied to the image will make
+         * it match the currently configured target rotation.
+         *
+         * <p>For example, if the current target rotation is set to the display rotation,
+         * rotationDegrees is the rotation to apply to the image to match the display orientation.
+         * A rotation of 90 degrees would mean rotating the image 90 degrees clockwise produces an
+         * image that will match the display orientation.
+         *
+         * <p>See also {@link ImageCapture.Builder#setTargetRotation(int)} and
+         * {@link #setTargetRotation(int)}.
+         *
+         * @param image the postview {@link ImageProxy}
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        default void onPostviewImageAvailable(@NonNull ImageProxy image) {
+            image.close();
         }
     }
 
@@ -1517,9 +1584,9 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * Called to notify the progress in the processing stage of the capture.
+         * Callback to report the progress of the capture's processing.
          *
-         * <p>To know in advanced if this callback will be called or not, check the
+         * <p>To know in advanced if this callback will be invoked or not, check the
          * capabilities by {@link #getImageCaptureCapabilities(CameraInfo)} and
          * {@link ImageCaptureCapabilities#isCaptureProcessProgressSupported()}.
          *
@@ -1527,6 +1594,40 @@ public final class ImageCapture extends UseCase {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         public void onCaptureProcessProgressed(int progress) {
+        }
+
+        /**
+         * Callback to notify that the postview image is available. The postview is intended to be
+         * shown on UI before the long-processing capture is completed in order to provide a
+         * better UX. The image format is {@link ImageFormat#JPEG}.
+         *
+         * <p>The postview is only available when the
+         * {@link ImageCaptureCapabilities#isPostviewSupported()} returns true for the specified
+         * {@link CameraInfo} and applications must explicitly enable the postview using the
+         * {@link Builder#setPostviewEnabled(boolean)}. Please note that if something goes wrong
+         * when processing the postview, this callback method won't be invoked.
+         *
+         * <p>Please close the {@link ImageProxy} once you no longer need it. The default
+         * implementation of this method will close it in case apps don't implement the method.
+         *
+         * <p>The image is provided as captured by the underlying {@link ImageReader} without
+         * rotation applied. The value in {@code image.getImageInfo().getRotationDegrees()}
+         * describes the magnitude of clockwise rotation, which if applied to the image will make
+         * it match the currently configured target rotation.
+         *
+         * <p>For example, if the current target rotation is set to the display rotation,
+         * rotationDegrees is the rotation to apply to the image to match the display orientation.
+         * A rotation of 90 degrees would mean rotating the image 90 degrees clockwise produces an
+         * image that will match the display orientation.
+         *
+         * <p>See also {@link ImageCapture.Builder#setTargetRotation(int)} and
+         * {@link #setTargetRotation(int)}.
+         *
+         * @param image the postview {@link ImageProxy}
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public void onPostviewImageAvailable(@NonNull ImageProxy image) {
+            image.close();
         }
     }
 

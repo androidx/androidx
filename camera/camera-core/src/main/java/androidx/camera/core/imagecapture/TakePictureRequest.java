@@ -212,6 +212,19 @@ public abstract class TakePictureRequest {
     }
 
     /**
+     * Delivers postview image result to the app.
+     */
+    void onPostviewImageAvailable(@NonNull ImageProxy imageProxy) {
+        getAppExecutor().execute(() -> {
+            if (getOnDiskCallback() != null) {
+                getOnDiskCallback().onPostviewImageAvailable(imageProxy);
+            } else if (getInMemoryCallback() != null) {
+                getInMemoryCallback().onPostviewImageAvailable(imageProxy);
+            }
+        });
+    }
+
+    /**
      * Creates a {@link TakePictureRequest} instance.
      */
     @NonNull

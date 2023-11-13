@@ -149,6 +149,10 @@ class ProcessingRequest {
         mCallback.onFinalResult(outputFileResults);
     }
 
+    void onPostviewImageAvailable(@NonNull ImageProxy imageProxy) {
+        mCallback.onPostviewImageAvailable(imageProxy);
+    }
+
     /**
      * @see TakePictureCallback#onFinalResult
      */

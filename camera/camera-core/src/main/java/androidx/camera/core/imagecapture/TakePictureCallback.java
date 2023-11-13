@@ -70,6 +70,11 @@ interface TakePictureCallback {
     void onFinalResult(@NonNull ImageProxy imageProxy);
 
     /**
+     * Invoked when the postview image is available.
+     */
+    void onPostviewImageAvailable(@NonNull ImageProxy imageProxy);
+
+    /**
      * Invoked when camera fails to return the image.
      *
      * <p>After invoked, the {@link TakePictureCallback} will never be invoked again.
