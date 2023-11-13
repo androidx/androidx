@@ -20,7 +20,7 @@ import android.bluetooth.le.AdvertiseCallback as FwkAdvertiseCallback
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
-class AdvertiseException(errorCode: Int) : BluetoothException(errorCode, null, null) {
+class AdvertiseException(errorCode: Int) : BluetoothException(errorCode) {
 
     companion object {
         /** Advertise failed to start because the data is too large. */
