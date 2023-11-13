@@ -79,20 +79,16 @@ class ConnectionsAdapter(
             }
         }
 
-        private var currentDeviceConnection: DeviceConnection? = null
-
         init {
             buttonReconnect.setOnClickListener {
-                currentDeviceConnection?.let(onClickReconnect)
+                deviceConnections.elementAt(bindingAdapterPosition).let(onClickReconnect)
             }
             buttonDisconnect.setOnClickListener {
-                currentDeviceConnection?.let(onClickDisconnect)
+                deviceConnections.elementAt(bindingAdapterPosition).let(onClickDisconnect)
             }
         }
 
         fun bind(deviceConnection: DeviceConnection) {
-            currentDeviceConnection = deviceConnection
-
             recyclerViewDeviceServices.adapter =
                 DeviceServicesAdapter(deviceConnection, onCharacteristicActionClick)
             val context = itemView.context
