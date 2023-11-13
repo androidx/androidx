@@ -16,10 +16,12 @@
 package androidx.compose.ui.text.platform
 
 import org.jetbrains.skia.Typeface as SkTypeface
+import org.jetbrains.skia.FontStyle as SkFontStyle
 import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontListFontFamily
+import androidx.compose.ui.text.font.FontStyle
 import org.jetbrains.skia.Data
+import org.jetbrains.skia.FontSlant
+import org.jetbrains.skia.FontWidth
 import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.hostOs
 
@@ -29,8 +31,16 @@ internal actual fun loadTypeface(font: Font): SkTypeface {
     }
     return when (font) {
         is LoadedFont -> SkTypeface.makeFromData(Data.makeFromBytes(font.data))
+        is SystemFont -> SkTypeface.makeFromName(font.identity, font.skFontStyle)
     }
 }
+
+private val Font.skFontStyle: SkFontStyle
+    get() = SkFontStyle(
+        weight = weight.weight,
+        width = FontWidth.NORMAL,
+        slant = if (style == FontStyle.Italic) FontSlant.ITALIC else FontSlant.UPRIGHT
+    )
 
 internal actual fun currentPlatform(): Platform = when (hostOs) {
     OS.Android -> Platform.Android
