@@ -19,6 +19,9 @@ package androidx.camera.core.internal;
 import static androidx.camera.core.CameraEffect.IMAGE_CAPTURE;
 import static androidx.camera.core.CameraEffect.PREVIEW;
 import static androidx.camera.core.CameraEffect.VIDEO_CAPTURE;
+import static androidx.camera.core.DynamicRange.BIT_DEPTH_10_BIT;
+import static androidx.camera.core.DynamicRange.ENCODING_SDR;
+import static androidx.camera.core.DynamicRange.ENCODING_UNSPECIFIED;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAPTURE_TYPE;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
 import static androidx.camera.core.processing.TargetUtils.getNumberOfTargets;
@@ -49,6 +52,7 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraEffect;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.DynamicRange;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
@@ -287,6 +291,8 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     void updateUseCases(@NonNull Collection<UseCase> appUseCases, boolean applyStreamSharing) {
         synchronized (mLock) {
+            checkUnsupportedFeatureCombinationAndThrow(appUseCases);
+
             // Force enable StreamSharing for Extensions to support VideoCapture. This means that
             // applyStreamSharing is set to true when the use case combination contains
             // VideoCapture and Extensions is enabled.
@@ -879,6 +885,39 @@ public final class CameraUseCaseAdapter implements Camera {
         return streamSharing.getUseCaseConfigBuilder(mutableConfig).getUseCaseConfig();
     }
 
+    /**
+     * Checks for any unsupported feature combinations and throws an exception if found.
+     *
+     * @throws IllegalArgumentException if any feature combination is not supported.
+     */
+    private void checkUnsupportedFeatureCombinationAndThrow(@NonNull Collection<UseCase> useCases)
+            throws IllegalArgumentException {
+        // TODO(b/309900490): since there are other places (e.g. SupportedSurfaceCombination in
+        //  camera2) that feature combination constraints are enforced, it would be nice if they
+        //  followed a similar pattern for checking constraints.
+        if (hasExtension() && hasNonSdrConfig(useCases)) {
+            throw new IllegalArgumentException("Extensions are only supported for use with "
+                    + "standard dynamic range.");
+        }
+    }
+
+    private static boolean hasNonSdrConfig(@NonNull Collection<UseCase> useCases) {
+        for (UseCase useCase : useCases) {
+            DynamicRange dynamicRange = useCase.getCurrentConfig().getDynamicRange();
+            if (isNotSdr(dynamicRange)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isNotSdr(@NonNull DynamicRange dynamicRange) {
+        boolean is10Bit = dynamicRange.getBitDepth() == BIT_DEPTH_10_BIT;
+        boolean isHdr = dynamicRange.getEncoding() != ENCODING_SDR
+                && dynamicRange.getEncoding() != ENCODING_UNSPECIFIED;
+
+        return is10Bit || isHdr;
+    }
 
     /**
      * An identifier for a {@link CameraUseCaseAdapter}.

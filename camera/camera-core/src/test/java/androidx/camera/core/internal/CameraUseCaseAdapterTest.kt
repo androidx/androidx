@@ -28,6 +28,7 @@ import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraEffect
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
+import androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.FocusMeteringAction.FLAG_AE
 import androidx.camera.core.FocusMeteringAction.FLAG_AF
@@ -197,6 +198,29 @@ class CameraUseCaseAdapterTest {
         adapter.detachUseCases()
         // Assert: use cases are detached.
         assertThat(fakeCamera.attachedUseCases).isEmpty()
+    }
+
+    @RequiresApi(33) // 10-bit HDR only supported on API 33+
+    @Test
+    fun canUseHdrWithoutExtensions() {
+        // Act: add UseCase that uses HDR.
+        val hdrUseCase = FakeUseCaseConfig.Builder().setDynamicRange(HDR_UNSPECIFIED_10_BIT).build()
+        adapter.addUseCases(setOf(hdrUseCase))
+        // Assert: UseCase is added.
+        adapter.cameraUseCases.hasExactTypes(
+            FakeUseCase::class.java,
+        )
+    }
+
+    @RequiresApi(33) // 10-bit HDR only supported on API 33+
+    @Test(expected = CameraException::class)
+    fun useHDRWithExtensions_throwsException() {
+        // Arrange: enable extensions.
+        val extensionsConfig = createCoexistingRequiredRuleCameraConfig(FakeSessionProcessor())
+        adapter.setExtendedConfig(extensionsConfig)
+        // Act: add UseCase that uses HDR.
+        val hdrUseCase = FakeUseCaseConfig.Builder().setDynamicRange(HDR_UNSPECIFIED_10_BIT).build()
+        adapter.addUseCases(setOf(hdrUseCase))
     }
 
     @Test(expected = CameraException::class)
