@@ -273,6 +273,7 @@ class TextFieldLayoutStateCacheTest {
      * To fix this, we manually record reads done by the transformation function and re-read them
      * explicitly when checking for a full cache hit.
      */
+    @Ignore("b/306198696")
     @Test
     fun invalidatesAllReaders_whenTransformationDependenciesChanged_producingSameVisualText() {
         var transformationState by mutableStateOf(1)

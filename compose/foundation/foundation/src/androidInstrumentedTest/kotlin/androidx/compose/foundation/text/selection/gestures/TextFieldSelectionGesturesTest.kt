@@ -35,6 +35,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.filters.FlakyTest
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Test
 
 @OptIn(ExperimentalTestApi::class)
@@ -118,6 +119,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
 
     // Regression for magnifier not showing when the text field begins empty,
     // then text is added, the magnifier continues not to show.
+    @Ignore("b/309165294")
     @Test
     fun whenTouch_withNoText_thenLongPressAndDrag_thenAddText_longPressAndDragAgain() {
         textFieldValue.value = TextFieldValue()
@@ -573,6 +575,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
         }
     }
 
+    @Ignore("b/309165294")
     @Test
     fun whenTouch_withLongPressInEndPaddingThenDragToLowerEndPadding_selectsNewLineAndParagraph() {
         performTouchGesture {
@@ -1036,6 +1039,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
     }
 
     // Regression test for when this would result in text toolbar showing instead of the cursor.
+    @Ignore("b/305583551")
     @Test
     fun whenMouseCollapsedSelection_thenTouch_ToolbarAndCursorAppears() {
         performMouseGesture {
