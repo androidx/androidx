@@ -34,22 +34,18 @@ class DeviceServicesAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_device_service, parent, false)
-        return ViewHolder(view, onCharacteristicActionClick)
+        return ViewHolder(view)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.bind(deviceConnection, deviceConnection.services[position])
     }
 
     override fun getItemCount(): Int {
         return deviceConnection.services.size
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val service = deviceConnection.services[position]
-        holder.bind(deviceConnection, service)
-    }
-
-    inner class ViewHolder(
-        itemView: View,
-        private val onCharacteristicActionClick: OnCharacteristicActionClick,
-    ) : RecyclerView.ViewHolder(itemView) {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
 
