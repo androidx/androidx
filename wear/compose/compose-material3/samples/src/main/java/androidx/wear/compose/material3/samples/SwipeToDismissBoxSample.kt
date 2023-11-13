@@ -39,6 +39,8 @@ import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.SwipeToDismissValue
 import androidx.wear.compose.foundation.edgeSwipeToDismiss
@@ -47,6 +49,7 @@ import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.MaterialTheme
 import androidx.wear.compose.material3.SwipeToDismissBox
 import androidx.wear.compose.material3.Text
+import androidx.wear.compose.material3.ToggleButton
 
 @Sampled
 @Composable
@@ -137,9 +140,19 @@ fun StatefulSwipeToDismissBox() {
                             ) {
                                 Text("Item details")
                             }
-                            Checkbox(
+                            ToggleButton(
+                                label = { Text("Checkbox", maxLines = 1) },
                                 checked = checked.value,
-                                onCheckedChange = { checked.value = it }
+                                selectionControl = {
+                                    Checkbox(
+                                        checked = checked.value,
+                                        modifier = Modifier.semantics {
+                                            this.contentDescription =
+                                                if (checked.value) "On" else "Off"
+                                        }
+                                    )
+                                },
+                                onCheckedChange = { checked.value = it },
                             )
                         }
                     }

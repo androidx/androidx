@@ -19,12 +19,9 @@ package androidx.wear.compose.material3
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.interaction.Interaction
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -35,6 +32,12 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.materialcore.animateSelectionColor
@@ -46,7 +49,7 @@ import androidx.wear.compose.materialcore.toRadians
  * [ToggleButton] or [SplitToggleButton].
  *
  * Checkbox sample:
- * @sample androidx.wear.compose.material3.samples.CheckboxSample
+ * @sample androidx.wear.compose.material3.samples.ToggleButtonWithCheckbox
  *
  * @param checked Boolean flag indicating whether this checkbox is currently checked.
  * @param modifier Modifier to be applied to the checkbox. This can be used to provide a
@@ -54,12 +57,6 @@ import androidx.wear.compose.materialcore.toRadians
  * @param colors [CheckboxColors] from which the box and checkmark colors will be obtained.
  * @param enabled Boolean flag indicating the enabled state of the [Checkbox] (affects
  * the color).
- * @param onCheckedChange Callback to be invoked when Checkbox is clicked. If null, then this is
- * passive and relies entirely on a higher-level component to control the state
- * (such as [ToggleButton] or [SplitToggleButton]).
- * @param interactionSource When also providing [onCheckedChange], the [MutableInteractionSource]
- * representing the stream of [Interaction]s for the "toggleable" tap area -
- * can be used to customise the appearance / behavior of the Checkbox.
  */
 @Composable
 fun Checkbox(
@@ -67,11 +64,12 @@ fun Checkbox(
     modifier: Modifier = Modifier,
     colors: CheckboxColors = CheckboxDefaults.colors(),
     enabled: Boolean = true,
-    onCheckedChange: ((Boolean) -> Unit)? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) = androidx.wear.compose.materialcore.Checkbox(
     checked = checked,
-    modifier = modifier,
+    modifier = modifier.semantics {
+        this.toggleableState = if (checked) ToggleableState.On else ToggleableState.Off
+        this.role = Role.Checkbox
+    },
     boxColor = { isEnabled, isChecked ->
         colors.boxColor(
             enabled = isEnabled,
@@ -85,8 +83,8 @@ fun Checkbox(
         )
     },
     enabled = enabled,
-    onCheckedChange = onCheckedChange,
-    interactionSource = interactionSource,
+    onCheckedChange = null,
+    interactionSource = null,
     drawBox = { drawScope, color, progress, isRtl ->
         drawScope.drawBox(
             color = color,
@@ -104,9 +102,7 @@ fun Checkbox(
  * [ToggleButton] or [SplitToggleButton].
  *
  * Switch samples:
- * @sample androidx.wear.compose.material3.samples.SwitchSample
- * Example of a switch in an RTL locale
- * @sample androidx.wear.compose.material3.samples.RtlSwitchSample
+ * @sample androidx.wear.compose.material3.samples.ToggleButtonWithSwitch
  *
  * @param checked Boolean flag indicating whether this switch is currently toggled on.
  * @param modifier Modifier to be applied to the switch. This can be used to provide a
@@ -114,12 +110,6 @@ fun Checkbox(
  * @param colors [SwitchColors] from which the colors of the thumb and track will be obtained.
  * @param enabled Boolean flag indicating the enabled state of the [Switch] (affects
  * the color).
- * @param onCheckedChange Callback to be invoked when Switch is clicked. If null, then this is
- * passive and relies entirely on a higher-level component to control the state
- * (such as [ToggleButton] or [SplitToggleButton]).
- * @param interactionSource When also providing [onCheckedChange], the [MutableInteractionSource]
- * representing the stream of [Interaction]s for the "toggleable" tap area -
- * can be used to customise the appearance / behavior of the Switch.
  */
 @Composable
 fun Switch(
@@ -127,14 +117,15 @@ fun Switch(
     modifier: Modifier = Modifier,
     colors: SwitchColors = SwitchDefaults.colors(),
     enabled: Boolean = true,
-    onCheckedChange: ((Boolean) -> Unit)? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) = androidx.wear.compose.materialcore.Switch(
-    modifier = modifier,
+    modifier = modifier.semantics {
+        this.toggleableState = if (checked) ToggleableState.On else ToggleableState.Off
+        this.role = Role.Switch
+    },
     checked = checked,
     enabled = enabled,
-    onCheckedChange = onCheckedChange,
-    interactionSource = interactionSource,
+    onCheckedChange = null,
+    interactionSource = null,
     trackFillColor = { isEnabled, isChecked ->
         colors.trackColor(
             enabled = isEnabled,
@@ -179,7 +170,7 @@ fun Switch(
  * [ToggleButton] or [SplitToggleButton].
  *
  * RadioButton sample:
- * @sample androidx.wear.compose.material3.samples.RadioButtonSample
+ * @sample androidx.wear.compose.material3.samples.ToggleButtonWithRadioButton
  *
  * @param selected Boolean flag indicating whether this radio button is currently toggled on.
  * @param modifier Modifier to be applied to the radio button. This can be used to provide a
@@ -187,12 +178,6 @@ fun Switch(
  * @param colors [RadioButtonColors] from which the RadioButton colors will be obtained.
  * @param enabled Boolean flag indicating the enabled state of the [RadioButton] (affects
  * the color).
- * @param onClick Callback to be invoked when RadioButton is clicked. If null, then this is
- * passive and relies entirely on a higher-level component to control the state
- * (such as [ToggleButton] or [SplitToggleButton]).
- * @param interactionSource When also providing [onClick], the [MutableInteractionSource]
- * representing the stream of [Interaction]s for the "toggleable" tap area -
- * can be used to customise the appearance / behavior of the RadioButton.
  */
 @Composable
 fun RadioButton(
@@ -200,10 +185,11 @@ fun RadioButton(
     modifier: Modifier = Modifier,
     colors: RadioButtonColors = RadioButtonDefaults.colors(),
     enabled: Boolean = true,
-    onClick: (() -> Unit)? = null,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
 ) = androidx.wear.compose.materialcore.RadioButton(
-    modifier = modifier,
+    modifier = modifier.semantics {
+        this.selected = selected
+        this.role = Role.RadioButton
+    },
     selected = selected,
     enabled = enabled,
     ringColor = { isEnabled, isSelected ->
@@ -218,8 +204,8 @@ fun RadioButton(
             selected = isSelected
         )
     },
-    onClick = onClick,
-    interactionSource = interactionSource,
+    onClick = null,
+    interactionSource = null,
     dotRadiusProgressDuration = { isSelected -> if (isSelected) MEDIUM_1 else SHORT_3 },
     dotAlphaProgressDuration = SHORT_3,
     dotAlphaProgressDelay = SHORT_2,
