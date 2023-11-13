@@ -380,30 +380,35 @@ internal class Node(val modifierNode: Modifier.Node) : NodeParent() {
             val change = changes.valueAt(j)
 
             if (pointerIds.contains(keyValue)) {
-                // And translate their position relative to the parent coordinates, to give us a
-                // change local to the PointerInputFilter's coordinates
-                val historical = ArrayList<HistoricalChange>(change.historical.size)
-                change.historical.fastForEach {
-                    historical.add(
-                        HistoricalChange(
-                            it.uptimeMillis,
-                            coordinates!!.localPositionOf(parentCoordinates, it.position),
-                            it.originalEventPosition
-                        )
-                    )
-                }
+                val prevPosition = change.previousPosition
+                val currentPosition = change.position
 
-                relevantChanges.put(keyValue, change.copy(
-                    previousPosition = coordinates!!.localPositionOf(
-                        parentCoordinates,
-                        change.previousPosition
-                    ),
-                    currentPosition = coordinates!!.localPositionOf(
-                        parentCoordinates,
-                        change.position
-                    ),
-                    historical = historical
-                ))
+                if (prevPosition.isValid() && currentPosition.isValid()) {
+                    // And translate their position relative to the parent coordinates, to give us a
+                    // change local to the PointerInputFilter's coordinates
+                    val historical = ArrayList<HistoricalChange>(change.historical.size)
+                    change.historical.fastForEach {
+                        historical.add(
+                            HistoricalChange(
+                                it.uptimeMillis,
+                                coordinates!!.localPositionOf(parentCoordinates, it.position),
+                                it.originalEventPosition
+                            )
+                        )
+                    }
+
+                    relevantChanges.put(keyValue, change.copy(
+                        previousPosition = coordinates!!.localPositionOf(
+                            parentCoordinates,
+                            prevPosition
+                        ),
+                        currentPosition = coordinates!!.localPositionOf(
+                            parentCoordinates,
+                            currentPosition
+                        ),
+                        historical = historical
+                    ))
+                }
             }
         }
 
