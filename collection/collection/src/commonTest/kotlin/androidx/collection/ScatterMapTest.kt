@@ -394,7 +394,7 @@ class ScatterMapTest {
         map["Ciao"] = "Mondo"
         map["Annyeong"] = "Sesang"
 
-        // Removing all the entries will mark the medata as deleted
+        // Removing all the entries will mark the metadata as deleted
         map.remove("Hello")
         map.remove("Bonjour")
         map.remove("Hallo")
@@ -408,7 +408,7 @@ class ScatterMapTest {
 
         // Make sure reinserting an entry after filling the table
         // with "Deleted" markers works
-        map["Hola"] = "Mundo"
+        map["Hello"] = "World"
 
         assertEquals(1, map.size)
         assertEquals(capacity, map.capacity)
@@ -1093,7 +1093,7 @@ class ScatterMapTest {
         assertEquals(size, map.size)
 
         assertTrue(iterator.hasNext())
-        assertEquals("World", iterator.next())
+        assertEquals("Monde", iterator.next())
         iterator.remove()
         assertEquals(2, map.size)
 
@@ -1196,7 +1196,7 @@ class ScatterMapTest {
         assertEquals(size, map.size)
 
         assertTrue(iterator.hasNext())
-        assertEquals("Hello", iterator.next())
+        assertEquals("Bonjour", iterator.next())
         iterator.remove()
         assertEquals(2, map.size)
 
@@ -1370,8 +1370,8 @@ class ScatterMapTest {
 
         assertTrue(iterator.hasNext())
         val next = iterator.next()
-        assertEquals("Hello", next.key)
-        assertEquals("World", next.value)
+        assertEquals("Bonjour", next.key)
+        assertEquals("Monde", next.value)
         iterator.remove()
         assertEquals(2, map.size)
 

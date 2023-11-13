@@ -367,7 +367,7 @@ class ObjectLongTest {
 
         // Make sure reinserting an entry after filling the table
         // with "Deleted" markers works
-        map["Hola"] = 7L
+        map["Hello"] = 7L
 
         assertEquals(1, map.size)
         assertEquals(capacity, map.capacity)
