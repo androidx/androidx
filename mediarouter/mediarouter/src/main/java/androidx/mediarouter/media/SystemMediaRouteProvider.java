@@ -17,13 +17,10 @@
 package androidx.mediarouter.media;
 
 import android.annotation.SuppressLint;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
-import android.media.AudioManager;
 import android.os.Build;
 import android.view.Display;
 
@@ -62,10 +59,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         if (Build.VERSION.SDK_INT >= 17) {
             return new JellybeanMr1Impl(context, syncCallback);
         }
-        if (Build.VERSION.SDK_INT >= 16) {
-            return new JellybeanImpl(context, syncCallback);
-        }
-        return new LegacyImpl(context);
+        return new JellybeanImpl(context, syncCallback);
     }
 
     /**
@@ -101,113 +95,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
      */
     public interface SyncCallback {
         void onSystemRouteSelectedByDescriptorId(@NonNull String id);
-    }
-
-    /**
-     * Legacy implementation for platform versions prior to Jellybean.
-     */
-    static class LegacyImpl extends SystemMediaRouteProvider {
-        static final int PLAYBACK_STREAM = AudioManager.STREAM_MUSIC;
-
-        private static final ArrayList<IntentFilter> CONTROL_FILTERS;
-
-        static {
-            IntentFilter f = new IntentFilter();
-            f.addCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO);
-            f.addCategory(MediaControlIntent.CATEGORY_LIVE_VIDEO);
-
-            CONTROL_FILTERS = new ArrayList<IntentFilter>();
-            CONTROL_FILTERS.add(f);
-        }
-
-        final AudioManager mAudioManager;
-        private final VolumeChangeReceiver mVolumeChangeReceiver;
-        int mLastReportedVolume = -1;
-
-        public LegacyImpl(Context context) {
-            super(context);
-            mAudioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-            mVolumeChangeReceiver = new VolumeChangeReceiver();
-
-            // There's no need to specify RECEIVER_EXPORTED or RECEIVER_NOT_EXPORTED here, since
-            // LegacyImpl is not used on versions of Android new enough to allow this.
-            context.registerReceiver(mVolumeChangeReceiver,
-                    new IntentFilter(VolumeChangeReceiver.VOLUME_CHANGED_ACTION));
-            publishRoutes();
-        }
-
-        void publishRoutes() {
-            Resources r = getContext().getResources();
-            int maxVolume = mAudioManager.getStreamMaxVolume(PLAYBACK_STREAM);
-            mLastReportedVolume = mAudioManager.getStreamVolume(PLAYBACK_STREAM);
-            MediaRouteDescriptor defaultRoute =
-                    new MediaRouteDescriptor.Builder(
-                                    DEFAULT_ROUTE_ID, r.getString(R.string.mr_system_route_name))
-                            .addControlFilters(CONTROL_FILTERS)
-                            .setPlaybackStream(PLAYBACK_STREAM)
-                            .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL)
-                            .setVolumeHandling(MediaRouter.RouteInfo.PLAYBACK_VOLUME_VARIABLE)
-                            .setVolumeMax(maxVolume)
-                            .setVolume(mLastReportedVolume)
-                            .setIsSystemRoute(true)
-                            .build();
-
-            MediaRouteProviderDescriptor providerDescriptor =
-                    new MediaRouteProviderDescriptor.Builder()
-                            .addRoute(defaultRoute)
-                            .build();
-            setDescriptor(providerDescriptor);
-        }
-
-        @Override
-        public RouteController onCreateRouteController(@NonNull String routeId) {
-            if (routeId.equals(DEFAULT_ROUTE_ID)) {
-                return new DefaultRouteController();
-            }
-            return null;
-        }
-
-        final class DefaultRouteController extends RouteController {
-            @Override
-            public void onSetVolume(int volume) {
-                mAudioManager.setStreamVolume(PLAYBACK_STREAM, volume, 0);
-                publishRoutes();
-            }
-
-            @Override
-            public void onUpdateVolume(int delta) {
-                int volume = mAudioManager.getStreamVolume(PLAYBACK_STREAM);
-                int maxVolume = mAudioManager.getStreamMaxVolume(PLAYBACK_STREAM);
-                int newVolume = Math.min(maxVolume, Math.max(0, volume + delta));
-                if (newVolume != volume) {
-                    mAudioManager.setStreamVolume(PLAYBACK_STREAM, volume, 0);
-                }
-                publishRoutes();
-            }
-        }
-
-        final class VolumeChangeReceiver extends BroadcastReceiver {
-            // These constants come from AudioManager.
-            public static final String VOLUME_CHANGED_ACTION =
-                    "android.media.VOLUME_CHANGED_ACTION";
-            public static final String EXTRA_VOLUME_STREAM_TYPE =
-                    "android.media.EXTRA_VOLUME_STREAM_TYPE";
-            public static final String EXTRA_VOLUME_STREAM_VALUE =
-                    "android.media.EXTRA_VOLUME_STREAM_VALUE";
-
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                if (intent.getAction().equals(VOLUME_CHANGED_ACTION)) {
-                    final int streamType = intent.getIntExtra(EXTRA_VOLUME_STREAM_TYPE, -1);
-                    if (streamType == PLAYBACK_STREAM) {
-                        final int volume = intent.getIntExtra(EXTRA_VOLUME_STREAM_VALUE, -1);
-                        if (volume >= 0 && volume != mLastReportedVolume) {
-                            publishRoutes();
-                        }
-                    }
-                }
-            }
-        }
     }
 
     /** Jellybean implementation. */
