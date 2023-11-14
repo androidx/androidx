@@ -175,7 +175,7 @@ int Conic::splitIntoQuadratics(Point dstPoints[], int count) const noexcept {
 
     subdivide(*this, dstPoints + 1, count);
 
-    commonFinitePointCheck:
+commonFinitePointCheck:
     const int quadCount = 1 << count;
     const int pointCount = 2 * quadCount + 1;
 

@@ -94,6 +94,7 @@ class PathParserTest {
      * Path that implements the Path interface with stubs to allow for simple implementations
      * to override individual methods for testing
      */
+    @Suppress("OVERRIDE_DEPRECATION")
     open class TestPath : Path {
         override var fillType: PathFillType = PathFillType.EvenOdd
         override val isConvex: Boolean = false
@@ -120,7 +121,15 @@ class PathParserTest {
             // NO-OP
         }
 
+        override fun quadraticTo(x1: Float, y1: Float, x2: Float, y2: Float) {
+            // NO-OP
+        }
+
         override fun relativeQuadraticBezierTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float) {
+            // NO-OP
+        }
+
+        override fun relativeQuadraticTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float) {
             // NO-OP
         }
 
@@ -152,7 +161,23 @@ class PathParserTest {
             // NO-OP
         }
 
+        override fun addRect(rect: Rect, direction: Path.Direction) {
+            // NO-OP
+        }
+
         override fun addOval(oval: Rect) {
+            // NO-OP
+        }
+
+        override fun addOval(oval: Rect, direction: Path.Direction) {
+            // NO-OP
+        }
+
+        override fun addRoundRect(roundRect: RoundRect) {
+            // NO-OP
+        }
+
+        override fun addRoundRect(roundRect: RoundRect, direction: Path.Direction) {
             // NO-OP
         }
 
@@ -161,10 +186,6 @@ class PathParserTest {
         }
 
         override fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float) {
-            // NO-OP
-        }
-
-        override fun addRoundRect(roundRect: RoundRect) {
             // NO-OP
         }
 
