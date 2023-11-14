@@ -92,7 +92,9 @@ fun PullToRefreshScalingSample() {
             state.endRefresh()
         }
     }
-    val scaleFraction = LinearOutSlowInEasing.transform(state.progress).coerceIn(0f, 1f)
+    val scaleFraction = if (state.isRefreshing) 1f else
+        LinearOutSlowInEasing.transform(state.progress).coerceIn(0f, 1f)
+
     Box(Modifier.nestedScroll(state.nestedScrollConnection)) {
         LazyColumn(Modifier.fillMaxSize()) {
             if (!state.isRefreshing) {
