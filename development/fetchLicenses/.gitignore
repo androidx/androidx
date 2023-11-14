@@ -11,3 +11,6 @@ npm-debug.log
 node_modules/
 tmp/
 built/
+
+# Puppeteer
+.cache/
