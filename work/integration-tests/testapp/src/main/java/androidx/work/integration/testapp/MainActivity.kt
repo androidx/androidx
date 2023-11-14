@@ -256,6 +256,25 @@ class MainActivity : AppCompatActivity() {
             lastForegroundWorkRequest = request
             workManager.enqueue(request)
         }
+        findViewById<View>(R.id.run_foreground_worker_network_request).setOnClickListener {
+            lastNotificationId += 1
+            val inputData = workDataOf(ForegroundWorker.InputNotificationId to lastNotificationId)
+            val networkRequest = NetworkRequest.Builder()
+                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+                .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                .build()
+            val constraints = Constraints.Builder().setRequiredNetworkRequest(
+                networkRequest, NetworkType.CONNECTED
+            ).build()
+
+            val request =
+                OneTimeWorkRequest.Builder(ForegroundWorker::class.java).setInputData(inputData)
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .setConstraints(constraints)
+                    .build()
+            lastForegroundWorkRequest = request
+            workManager.enqueue(request)
+        }
         findViewById<View>(R.id.cancel_foreground_worker).setOnClickListener {
             if (lastForegroundWorkRequest != null) {
                 workManager.cancelWorkById(lastForegroundWorkRequest!!.id)
