@@ -348,7 +348,7 @@ public class CameraExtensionsActivity extends AppCompatActivity
         if (mExtensionsManager.isImageAnalysisSupported(cameraSelector,
                 mCurrentExtensionMode)) {
             ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-            imageAnalysis.setAnalyzer(CameraXExecutors.ioExecutor(),  img -> {
+            imageAnalysis.setAnalyzer(CameraXExecutors.ioExecutor(), img -> {
                 img.close();
             });
             useCaseGroupBuilder.addUseCase(imageAnalysis);

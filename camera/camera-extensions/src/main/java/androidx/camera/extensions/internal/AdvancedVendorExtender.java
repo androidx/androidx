@@ -171,6 +171,38 @@ public class AdvancedVendorExtender implements VendorExtender {
         return keys;
     }
 
+    @NonNull
+    @Override
+    public Map<Integer, List<Size>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            return Collections.unmodifiableMap(
+                    mAdvancedExtenderImpl.getSupportedPostviewResolutions(captureSize));
+        } else {
+            return Collections.emptyMap();
+        }
+    }
+
+    @Override
+    public boolean isPostviewAvailable() {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            return mAdvancedExtenderImpl.isPostviewAvailable();
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isCaptureProcessProgressAvailable() {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            return mAdvancedExtenderImpl.isCaptureProcessProgressAvailable();
+        } else {
+            return false;
+        }
+    }
+
     @Nullable
     @Override
     public SessionProcessor createSessionProcessor(@NonNull Context context) {

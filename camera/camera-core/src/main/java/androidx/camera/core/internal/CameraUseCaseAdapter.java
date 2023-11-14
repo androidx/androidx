@@ -163,9 +163,9 @@ public final class CameraUseCaseAdapter implements Camera {
     private StreamSharing mStreamSharing;
 
     @NonNull
-    private final RestrictedCameraControl mRestrictedCameraControl;
+    private final RestrictedCameraControl mAdapterCameraControl;
     @NonNull
-    private final RestrictedCameraInfo mRestrictedCameraInfo;
+    private final RestrictedCameraInfo mAdapterCameraInfo;
 
 
     /**
@@ -193,11 +193,11 @@ public final class CameraUseCaseAdapter implements Camera {
         mCameraDeviceSurfaceManager = cameraDeviceSurfaceManager;
         mUseCaseConfigFactory = useCaseConfigFactory;
         // TODO(b/279996499): bind the same restricted CameraControl and CameraInfo to use cases.
-        mRestrictedCameraControl =
+        mAdapterCameraControl =
                 new RestrictedCameraControl(mCameraInternal.getCameraControlInternal());
-        mRestrictedCameraInfo =
+        mAdapterCameraInfo =
                 new RestrictedCameraInfo(mCameraInternal.getCameraInfoInternal(),
-                        mRestrictedCameraControl);
+                        mAdapterCameraControl);
     }
 
     /**
@@ -973,13 +973,13 @@ public final class CameraUseCaseAdapter implements Camera {
     @NonNull
     @Override
     public CameraControl getCameraControl() {
-        return mRestrictedCameraControl;
+        return mAdapterCameraControl;
     }
 
     @NonNull
     @Override
     public CameraInfo getCameraInfo() {
-        return mRestrictedCameraInfo;
+        return mAdapterCameraInfo;
     }
 
     @NonNull
@@ -1014,11 +1014,14 @@ public final class CameraUseCaseAdapter implements Camera {
             if (sessionProcessor != null) {
                 @CameraOperation Set<Integer> supportedOps =
                         sessionProcessor.getSupportedCameraOperations();
-                mRestrictedCameraControl.enableRestrictedOperations(true, supportedOps);
+                mAdapterCameraControl.enableRestrictedOperations(true, supportedOps);
             } else {
-                mRestrictedCameraControl.enableRestrictedOperations(false, null);
+                mAdapterCameraControl.enableRestrictedOperations(false, null);
             }
-
+            mAdapterCameraInfo.setPostviewSupported(
+                    mCameraConfig.isPostviewSupported());
+            mAdapterCameraInfo.setCaptureProcessProgressSupported(
+                    mCameraConfig.isCaptureProcessProgressSupported());
             //Configure the CameraInternal as well so that it can get SessionProcessor.
             mCameraInternal.setExtendedConfig(mCameraConfig);
         }

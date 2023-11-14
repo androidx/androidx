@@ -242,6 +242,9 @@ final class ExtensionsInfo {
                         .setUseCaseConfigFactory(factory)
                         .setCompatibilityId(id)
                         .setZslDisabled(true)
+                        .setPostviewSupported(vendorExtender.isPostviewAvailable())
+                        .setCaptureProcessProgressSupported(
+                                vendorExtender.isCaptureProcessProgressAvailable())
                         .setUseCaseCombinationRequiredRule(
                                 CameraConfig.REQUIRED_RULE_COEXISTING_PREVIEW_AND_IMAGE_CAPTURE);
 

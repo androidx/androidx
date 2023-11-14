@@ -28,6 +28,8 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IMAGE_READER_P
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_IO_EXECUTOR;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_JPEG_COMPRESSION_QUALITY;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_MAX_RESOLUTION;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_POSTVIEW_ENABLED;
+import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_POSTVIEW_RESOLUTION_SELECTOR;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SCREEN_FLASH_UI_CONTROL;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_CONFIG_UNPACKER;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SUPPORTED_RESOLUTIONS;
@@ -855,6 +857,64 @@ public final class ImageCapture extends UseCase {
         }
         takePictureInternal(executor, /*inMemoryCallback=*/null, imageSavedCallback,
                 outputFileOptions);
+    }
+
+    /**
+     * Returns {@link ImageCaptureCapabilities} to query ImageCapture capability of the given
+     * {@link CameraInfo}.
+     *
+     * <p>Some capabilities are only exposed on Extensions-enabled cameras. To get the correct
+     * capabilities when Extensions are enabled, you need to pass the {@link CameraInfo} from the
+     * Extensions-enabled {@link Camera} instance. To do this, use the {@link CameraSelector}
+     * instance retrieved from
+     * {@link androidx.camera.extensions.ExtensionsManager#getExtensionEnabledCameraSelector(CameraSelector, int)}
+     * to invoke {@link androidx.camera.lifecycle.ProcessCameraProvider#bindToLifecycle} where
+     * you can skip use cases arguments if you'd like to query it before opening the camera. Then,
+     * use the returned {@link Camera} to get the {@link CameraInfo} instance.
+     *
+     * <p>>The following code snippet demonstrates how to enable postview:
+     *
+     * <pre>{@code
+     * CameraSelector extensionCameraSelector =
+     *     extensionsManager.getExtensionEnabledCameraSelector(cameraSelector, ExtensionMode.NIGHT);
+     * Camera camera = cameraProvider.bindToLifecycle(activity, extensionCameraSelector);
+     * ImageCaptureCapabilities capabilities =
+     *     ImageCapture.getImageCaptureCapabilities(camera.getCameraInfo());
+     * ImageCapture imageCapture = new ImageCapture.Builder()
+     *     .setPostviewEnabled(capabilities.isPostviewSupported())
+     *     .build();
+     * }}</pre>
+     *
+     * @return {@link ImageCaptureCapabilities}
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public static ImageCaptureCapabilities getImageCaptureCapabilities(
+            @NonNull CameraInfo cameraInfo) {
+        return new ImageCaptureCapabilitiesImpl(cameraInfo);
+    }
+
+    private static class ImageCaptureCapabilitiesImpl implements ImageCaptureCapabilities {
+        private final CameraInfo mCameraInfo;
+        ImageCaptureCapabilitiesImpl(@NonNull CameraInfo cameraInfo) {
+            mCameraInfo = cameraInfo;
+        }
+
+        @Override
+        public boolean isPostviewSupported() {
+            if (mCameraInfo instanceof CameraInfoInternal) {
+                return ((CameraInfoInternal) mCameraInfo).isPostviewSupported();
+            }
+            return false;
+        }
+
+        @Override
+        public boolean isCaptureProcessProgressSupported() {
+            if (mCameraInfo instanceof CameraInfoInternal) {
+                return ((CameraInfoInternal) mCameraInfo).isCaptureProcessProgressSupported();
+            }
+            return false;
+        }
     }
 
     @NonNull
@@ -2471,6 +2531,49 @@ public final class ImageCapture extends UseCase {
         @NonNull
         public Builder setResolutionSelector(@NonNull ResolutionSelector resolutionSelector) {
             getMutableConfig().insertOption(OPTION_RESOLUTION_SELECTOR, resolutionSelector);
+            return this;
+        }
+
+        /**
+         * Enables the postview which allows you to get the unprocessed image before the processing
+          * is done during the <code>takePicture</code> call.
+         *
+         * <p>By default the largest available postview size that are smaller or equal to the
+         * ImagaeCapture size will be used to configure the postview. The {@link ResolutionSelector}
+         * can also be used to select a specific size via
+         * {@link #setPostviewResolutionSelector(ResolutionSelector)}.
+         *
+         * <p>It is recommended to query the capture capability via
+         * {@link #getImageCaptureCapabilities(CameraInfo)} before enabling this feature to avoid
+         * unnecessary initializations.
+         *
+         * @param postviewEnabled whether postview is enabled or not
+         * @return the current Builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setPostviewEnabled(boolean postviewEnabled) {
+            getMutableConfig().insertOption(OPTION_POSTVIEW_ENABLED,
+                    postviewEnabled);
+            return this;
+        }
+
+        /**
+         * Set the {@link ResolutionSelector} to select the postview size from the available
+         * postview sizes. Please note the selected size will be smaller or equal to the
+         * ImageCapture size.
+         *
+         * <p>If no sizes can be selected using the given {@link ResolutionSelector}, it will throw
+         * an {@link IllegalArgumentException} when {@code bindToLifecycle()} is invoked.
+         *
+         * @return the current Builder.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public Builder setPostviewResolutionSelector(
+                @NonNull ResolutionSelector resolutionSelector) {
+            getMutableConfig().insertOption(OPTION_POSTVIEW_RESOLUTION_SELECTOR,
+                    resolutionSelector);
             return this;
         }
 

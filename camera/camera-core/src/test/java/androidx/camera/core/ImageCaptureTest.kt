@@ -36,6 +36,7 @@ import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.Identifier
+import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.MutableOptionsBundle
 import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.SessionConfig
@@ -518,6 +519,26 @@ class ImageCaptureTest {
             )
             cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(imageCapture))
         }
+    }
+
+    @Test
+    fun canSetPostviewEnabled() {
+        val imageCapture = ImageCapture.Builder()
+            .setPostviewEnabled(true)
+            .build()
+
+        assertThat((imageCapture.currentConfig as ImageCaptureConfig).isPostviewEnabled).isTrue()
+    }
+
+    @Test
+    fun canSetPostviewResolutionSelector() {
+        val resolutionSelector = ResolutionSelector.Builder().build();
+        val imageCapture = ImageCapture.Builder()
+            .setPostviewResolutionSelector(resolutionSelector)
+            .build()
+
+        assertThat((imageCapture.currentConfig as ImageCaptureConfig).postviewResolutionSelector)
+            .isSameInstanceAs(resolutionSelector)
     }
 
     private fun bindImageCapture(

@@ -28,6 +28,7 @@ import androidx.camera.core.ImageCapture.CaptureMode;
 import androidx.camera.core.ImageCapture.ScreenFlashUiControl;
 import androidx.camera.core.ImageReaderProxyProvider;
 import androidx.camera.core.internal.IoConfig;
+import androidx.camera.core.resolutionselector.ResolutionSelector;
 
 import java.util.concurrent.Executor;
 
@@ -64,6 +65,14 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     public static final Option<ScreenFlashUiControl> OPTION_SCREEN_FLASH_UI_CONTROL =
             Option.create("camerax.core.imageCapture.screenFlashUiControl",
                     ScreenFlashUiControl.class);
+    public static final Option<ResolutionSelector> OPTION_POSTVIEW_RESOLUTION_SELECTOR =
+            Option.create("camerax.core.useCase.postviewResolutionSelector",
+                    ResolutionSelector.class);
+
+    public static final Option<Boolean> OPTION_POSTVIEW_ENABLED =
+            Option.create("camerax.core.useCase.isPostviewEnabled",
+                    Boolean.class);
+
     // *********************************************************************************************
 
     private final OptionsBundle mConfig;
@@ -270,6 +279,21 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     @Nullable
     public ScreenFlashUiControl getScreenFlashUiControl() {
         return retrieveOption(OPTION_SCREEN_FLASH_UI_CONTROL, null);
+    }
+
+    /**
+     * @return the {@link ResolutionSelector} used to determine the size of the postview.
+     */
+    @Nullable
+    public ResolutionSelector getPostviewResolutionSelector() {
+        return retrieveOption(OPTION_POSTVIEW_RESOLUTION_SELECTOR, null);
+    }
+
+    /**
+     * @return if postview is enabled.
+     */
+    public boolean isPostviewEnabled() {
+        return retrieveOption(OPTION_POSTVIEW_ENABLED, false);
     }
 
     // Implementations of IO default methods

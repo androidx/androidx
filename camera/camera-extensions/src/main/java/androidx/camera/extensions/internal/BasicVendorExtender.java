@@ -57,6 +57,7 @@ import androidx.core.util.Preconditions;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -371,6 +372,43 @@ public class BasicVendorExtender implements VendorExtender {
             }
         }
         return Collections.emptyList();
+    }
+
+    @NonNull
+    @Override
+    public Map<Integer, List<Size>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            List<Pair<Integer, Size[]>> list =
+                    mImageCaptureExtenderImpl.getSupportedPostviewResolutions(captureSize);
+            Map<Integer, List<Size>> result = new HashMap<>();
+            for (Pair<Integer, Size[]> pair : list) {
+                result.put(pair.first, Arrays.asList(pair.second));
+            }
+            return Collections.unmodifiableMap(result);
+        }
+
+        return Collections.emptyMap();
+    }
+
+    @Override
+    public boolean isPostviewAvailable() {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            return mImageCaptureExtenderImpl.isPostviewAvailable();
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public boolean isCaptureProcessProgressAvailable() {
+        if (ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
+            return mImageCaptureExtenderImpl.isCaptureProcessProgressAvailable();
+        } else {
+            return false;
+        }
     }
 
     @Nullable
