@@ -457,7 +457,8 @@ class GattServer(private val context: Context) {
         override fun openGattServer(context: Context, fwkCallback: FwkBluetoothGattServerCallback) {
             if (!isOpen.compareAndSet(false, true))
                 throw IllegalStateException("GATT server is already opened")
-            val bluetoothManager = context.getSystemService(FwkBluetoothManager::class.java)
+            val bluetoothManager =
+                context.getSystemService(Context.BLUETOOTH_SERVICE) as FwkBluetoothManager?
             fwkGattServer = bluetoothManager?.openGattServer(context, fwkCallback)
         }
 
