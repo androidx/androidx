@@ -25,7 +25,6 @@ import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.emptyFlow
 
 /**
  * Entry point for BLE related operations. This class provides a way to perform Bluetooth LE
@@ -84,7 +83,7 @@ class BluetoothLe(context: Context) {
      * To stop advertising, in that case, you should cancel the coroutine.
      *
      * @param advertiseParams [AdvertiseParams] for Bluetooth LE advertising.
-     * @return a _cold_ [Flow] of [AdvertiseResult]
+     * @return a _cold_ [Flow] of [ADVERTISE_STARTED] if advertising is started.
      *
      * @throws AdvertiseException if the advertise fails.
      * @throws IllegalArgumentException if the advertise parameters are not valid.
@@ -99,15 +98,18 @@ class BluetoothLe(context: Context) {
     /**
      * Returns a _cold_ [Flow] to start Bluetooth LE scanning.
      * Scanning is used to discover advertising devices nearby.
-     * Returns an `emptyFlow()` if bluetoothLeScanner is not available.
      *
-     * @param filters [ScanFilter]s for finding exact Bluetooth LE devices
+     * @param filters [ScanFilter]s for finding exact Bluetooth LE devices.
      *
-     * @return a _cold_ [Flow] of [ScanResult] that matches with the given scan filter
+     * @return a _cold_ [Flow] of [ScanResult] that matches with the given scan filter.
+     *
+     * @throws ScanException if the scan fails.
      */
     @RequiresPermission("android.permission.BLUETOOTH_SCAN")
     fun scan(filters: List<ScanFilter> = emptyList()): Flow<ScanResult> {
-        return scanImpl?.scan(filters) ?: emptyFlow()
+        return scanImpl?.scan(filters) ?: callbackFlow {
+            close(ScanException(ScanException.UNSUPPORTED))
+        }
     }
 
     /**
