@@ -41,7 +41,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.flowWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dagger.hilt.android.AndroidEntryPoint
-import java.time.Duration
 import java.util.UUID
 import kotlinx.coroutines.launch
 
@@ -90,7 +89,7 @@ class AdvertiserFragment : Fragment() {
                 binding.textInputEditTextDuration.setText(maxDuration.toString())
                 duration = maxDuration
             }
-            viewModel.duration = Duration.ofMillis(duration)
+            viewModel.durationMillis = duration
         }
 
         binding.buttonAddData.setOnClickListener {
@@ -174,7 +173,7 @@ class AdvertiserFragment : Fragment() {
         binding.checkBoxIncludeDeviceName.isChecked = viewModel.includeDeviceName
         binding.checkBoxConnectable.isChecked = viewModel.connectable
         binding.checkBoxDiscoverable.isChecked = viewModel.discoverable
-        binding.textInputEditTextDuration.setText(viewModel.duration.toMillis().toString())
+        binding.textInputEditTextDuration.setText(viewModel.durationMillis.toString())
     }
 
     private fun showDialogFor(title: String) {

@@ -60,8 +60,8 @@ private open class AdvertiseImplBase(val bleAdvertiser: FwkBluetoothLeAdvertiser
             advertiseParams.fwkAdvertiseSettings, advertiseParams.fwkAdvertiseData, callback
         )
 
-        if (advertiseParams.duration.toMillis() > 0) {
-            delay(advertiseParams.duration.toMillis())
+        if (advertiseParams.durationMillis > 0) {
+            delay(advertiseParams.durationMillis)
             close()
         }
 
@@ -112,13 +112,13 @@ private class AdvertiseImplApi26(
             /*periodicParameters=*/null,
             /*periodicData=*/null,
             // round up
-            (advertiseParams.duration.toMillis().toInt() + 9) / 10,
+            (advertiseParams.durationMillis.toInt() + 9) / 10,
             /*maxExtendedAdvertisingEvents=*/0,
             callback
         )
 
-        if (advertiseParams.duration.toMillis() > 0) {
-            delay(advertiseParams.duration.toMillis())
+        if (advertiseParams.durationMillis > 0) {
+            delay(advertiseParams.durationMillis)
             close()
         }
 
