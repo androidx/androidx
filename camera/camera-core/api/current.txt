@@ -340,11 +340,13 @@ package androidx.camera.core {
 
   public abstract static class ImageCapture.OnImageCapturedCallback {
     ctor public ImageCapture.OnImageCapturedCallback();
+    method public void onCaptureStarted();
     method public void onCaptureSuccess(androidx.camera.core.ImageProxy);
     method public void onError(androidx.camera.core.ImageCaptureException);
   }
 
   public static interface ImageCapture.OnImageSavedCallback {
+    method public default void onCaptureStarted();
     method public void onError(androidx.camera.core.ImageCaptureException);
     method public void onImageSaved(androidx.camera.core.ImageCapture.OutputFileResults);
   }

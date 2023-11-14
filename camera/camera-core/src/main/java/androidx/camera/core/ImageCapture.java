@@ -1437,8 +1437,6 @@ public final class ImageCapture extends UseCase {
          * <p>It's recommended to play shutter sound or trigger UI indicators of
          * capture when receiving this callback.
          */
-        // TODO(b/307277146): Promote this to a public API once it's ready.
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         default void onCaptureStarted() {
         }
 
@@ -1468,8 +1466,6 @@ public final class ImageCapture extends UseCase {
          * <p>It's recommended to play shutter sound or trigger UI indicators of
          * capture when receiving this callback.
          */
-        // TODO(b/307277146): Promote this to a public API once it's ready.
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public void onCaptureStarted() {
         }
 
