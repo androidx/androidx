@@ -106,6 +106,7 @@ package androidx.privacysandbox.ads.adservices.adselection {
   }
 
   public final class ReportImpressionRequest {
+    ctor @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public ReportImpressionRequest(long adSelectionId);
     ctor public ReportImpressionRequest(long adSelectionId, androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig adSelectionConfig);
     method public androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig getAdSelectionConfig();
     method public long getAdSelectionId();

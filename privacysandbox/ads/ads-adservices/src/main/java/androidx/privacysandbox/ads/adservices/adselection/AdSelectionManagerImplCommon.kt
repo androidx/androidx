@@ -25,8 +25,6 @@ import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.core.os.asOutcomeReceiver
-import androidx.privacysandbox.ads.adservices.common.AdSelectionSignals
-import androidx.privacysandbox.ads.adservices.common.AdTechIdentifier
 import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -43,7 +41,11 @@ open class AdSelectionManagerImplCommon(
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     override suspend fun selectAds(adSelectionConfig: AdSelectionConfig): AdSelectionOutcome {
-        return AdSelectionOutcome(selectAdsInternal(convertAdSelectionConfig(adSelectionConfig)))
+        return AdSelectionOutcome(
+            selectAdsInternal(
+                adSelectionConfig.convertToAdServices()
+            )
+        )
     }
 
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
@@ -58,63 +60,16 @@ open class AdSelectionManagerImplCommon(
         )
     }
 
-    private fun convertAdSelectionConfig(
-        request: AdSelectionConfig
-    ): android.adservices.adselection.AdSelectionConfig {
-        return android.adservices.adselection.AdSelectionConfig.Builder()
-            .setAdSelectionSignals(request.adSelectionSignals.convertToAdServices())
-            .setCustomAudienceBuyers(convertBuyers(request.customAudienceBuyers))
-            .setDecisionLogicUri(request.decisionLogicUri)
-            .setSeller(request.seller.convertToAdServices())
-            .setPerBuyerSignals(convertPerBuyerSignals(request.perBuyerSignals))
-            .setSellerSignals(request.sellerSignals.convertToAdServices())
-            .setTrustedScoringSignalsUri(request.trustedScoringSignalsUri)
-            .build()
-    }
-
-    private fun convertBuyers(
-        buyers: List<AdTechIdentifier>
-    ): MutableList<android.adservices.common.AdTechIdentifier> {
-        val ids = mutableListOf<android.adservices.common.AdTechIdentifier>()
-        for (buyer in buyers) {
-            ids.add(buyer.convertToAdServices())
-        }
-        return ids
-    }
-
-    private fun convertPerBuyerSignals(
-        request: Map<AdTechIdentifier, AdSelectionSignals>
-    ): Map<android.adservices.common.AdTechIdentifier,
-        android.adservices.common.AdSelectionSignals?> {
-        val map = HashMap<android.adservices.common.AdTechIdentifier,
-            android.adservices.common.AdSelectionSignals?>()
-        for (key in request.keys) {
-            val id = key.convertToAdServices()
-            val value = request[key]?.convertToAdServices()
-            map[id] = value
-        }
-        return map
-    }
-
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     override suspend fun reportImpression(reportImpressionRequest: ReportImpressionRequest) {
         suspendCancellableCoroutine<Any> { continuation ->
             mAdSelectionManager.reportImpression(
-                convertReportImpressionRequest(reportImpressionRequest),
+                reportImpressionRequest.convertToAdServices(),
                 Runnable::run,
                 continuation.asOutcomeReceiver()
             )
         }
-    }
-
-    private fun convertReportImpressionRequest(
-        request: ReportImpressionRequest
-    ): android.adservices.adselection.ReportImpressionRequest {
-        return android.adservices.adselection.ReportImpressionRequest(
-            request.adSelectionId,
-            convertAdSelectionConfig(request.adSelectionConfig)
-        )
     }
 
     @DoNotInline

@@ -64,6 +64,22 @@ abstract class AdSelectionManager internal constructor() {
      * The receiver either returns a {@code void} for a successful run, or an [Exception]
      * indicating the error.
      *
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
+     * the API received to report the impression.
+     *
+     * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
+     * services.", it is caused by an internal failure of the ad selection service.
+     *
+     * If the [LimitExceededException] is thrown, it is caused when the calling package
+     * exceeds the allowed rate limits and is throttled.
+     *
+     * If the [SecurityException] is thrown, it is caused when the caller is not authorized
+     * or permission is not requested.
+     *
+     * If the [UnsupportedOperationException] is thrown, it is caused when the Android API level and
+     * AdServices module versions don't support [ReportImpressionRequest] with null
+     * {@code AdSelectionConfig}
+     *
      * @param reportImpressionRequest the request for reporting impression.
      */
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)

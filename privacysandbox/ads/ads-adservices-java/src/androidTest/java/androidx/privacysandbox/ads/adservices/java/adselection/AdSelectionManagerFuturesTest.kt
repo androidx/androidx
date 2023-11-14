@@ -220,6 +220,34 @@ class AdSelectionManagerFuturesTest {
     }
 
     @Test
+    @SdkSuppress(maxSdkVersion = 34, minSdkVersion = 31)
+    fun testReportImpressionOlderVersions() {
+        /* AdServices or ExtServices are present */
+        Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
+                          VersionCompatUtil.isTestableVersion(
+                              /* minAdServicesVersion= */ 4,
+                              /* minExtServicesVersion=*/ 9))
+
+        /* API is not available */
+        Assume.assumeFalse("maxSdkVersion = API 31-34 ext 9",
+            VersionCompatUtil.isTestableVersion(
+                /* minAdServicesVersion=*/ 10,
+                /* minExtServicesVersion=*/ 10))
+
+        mockAdSelectionManager(mContext, mValidAdExtServicesSdkExtVersion)
+        val managerCompat = from(mContext)
+        val reportImpressionRequest = ReportImpressionRequest(adSelectionId)
+
+        // Verify that it throws an exception
+        val exception = assertThrows(ExecutionException::class.java) {
+            managerCompat!!.reportImpressionAsync(reportImpressionRequest).get()
+        }.hasCauseThat()
+        exception.isInstanceOf(UnsupportedOperationException::class.java)
+        exception.hasMessageThat().contains("adSelectionConfig is mandatory for" +
+            "API versions lower than ext 10")
+    }
+
+    @Test
     fun testSelectAds() {
         Assume.assumeTrue("minSdkVersion = API 33 ext 4 or API 31/32 ext 9",
             VersionCompatUtil.isTestableVersion(
