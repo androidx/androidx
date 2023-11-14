@@ -134,6 +134,8 @@ class AdvertiserViewModel @Inject constructor(
                         else ->
                             "Advertise failed. Error unknown"
                     }
+                } else if (throwable is IllegalStateException) {
+                    throwable.message
                 } else null
 
                 _uiState.update {

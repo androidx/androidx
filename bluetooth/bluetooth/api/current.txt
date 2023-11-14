@@ -181,6 +181,20 @@ package androidx.bluetooth {
     property public final java.util.UUID uuid;
   }
 
+  public final class ScanException extends androidx.bluetooth.BluetoothException {
+    ctor public ScanException(int errorCode);
+    property public int errorCode;
+    field public static final int APPLICATION_REGISTRATION_FAILED = 10201; // 0x27d9
+    field public static final androidx.bluetooth.ScanException.Companion Companion;
+    field public static final int INTERNAL_ERROR = 10202; // 0x27da
+    field public static final int OUT_OF_HARDWARE_RESOURCES = 10204; // 0x27dc
+    field public static final int SCANNING_TOO_FREQUENTLY = 10205; // 0x27dd
+    field public static final int UNSUPPORTED = 10203; // 0x27db
+  }
+
+  public static final class ScanException.Companion {
+  }
+
   public final class ScanFilter {
     ctor public ScanFilter(optional androidx.bluetooth.BluetoothAddress? deviceAddress, optional String? deviceName, optional int manufacturerId, optional byte[]? manufacturerData, optional byte[]? manufacturerDataMask, optional java.util.UUID? serviceDataUuid, optional byte[]? serviceData, optional byte[]? serviceDataMask, optional java.util.UUID? serviceUuid, optional java.util.UUID? serviceUuidMask, optional java.util.UUID? serviceSolicitationUuid, optional java.util.UUID? serviceSolicitationUuidMask);
     method public androidx.bluetooth.BluetoothAddress? getDeviceAddress();
