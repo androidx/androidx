@@ -25,6 +25,7 @@ import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_ST
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNKNOWN
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNSUPPORTED
+import androidx.window.area.adapter.WindowAreaAdapter
 import androidx.window.area.utils.DeviceMetricsCompatUtils
 import androidx.window.core.BuildConfig
 import androidx.window.core.ExperimentalWindowApi
@@ -69,6 +70,9 @@ internal class WindowAreaControllerImpl(
         WINDOW_AREA_STATUS_UNKNOWN
     private var currentRearDisplayPresentationStatus: WindowAreaCapability.Status =
         WINDOW_AREA_STATUS_UNKNOWN
+
+    private var activeWindowAreaSession: Boolean = false
+    private var presentationSessionActive: Boolean = false
 
     private val currentWindowAreaInfoMap = HashMap<String, WindowAreaInfo>()
 
@@ -131,7 +135,7 @@ internal class WindowAreaControllerImpl(
             }
         }
 
-        currentRearDisplayModeStatus = WindowAreaAdapter.translate(status)
+        currentRearDisplayModeStatus = WindowAreaAdapter.translate(status, activeWindowAreaSession)
         updateRearDisplayWindowArea(
             WindowAreaCapability.Operation.OPERATION_TRANSFER_ACTIVITY_TO_AREA,
             currentRearDisplayModeStatus,
@@ -142,8 +146,10 @@ internal class WindowAreaControllerImpl(
     private fun updateRearDisplayPresentationAvailability(
         extensionWindowAreaStatus: ExtensionWindowAreaStatus
     ) {
-        currentRearDisplayPresentationStatus =
-            WindowAreaAdapter.translate(extensionWindowAreaStatus.windowAreaStatus)
+        currentRearDisplayPresentationStatus = WindowAreaAdapter.translate(
+            extensionWindowAreaStatus.windowAreaStatus,
+            presentationSessionActive
+        )
         val windowMetrics = WindowMetricsCalculator.fromDisplayMetrics(
             displayMetrics = extensionWindowAreaStatus.windowAreaDisplayMetrics
         )
@@ -303,6 +309,7 @@ internal class WindowAreaControllerImpl(
             return
         }
 
+        activeWindowAreaSession = true
         rearDisplaySessionConsumer =
             RearDisplaySessionConsumer(executor, windowAreaSessionCallback, windowAreaComponent)
         windowAreaComponent.startRearDisplaySession(activity, rearDisplaySessionConsumer)
@@ -322,6 +329,7 @@ internal class WindowAreaControllerImpl(
             return
         }
 
+        presentationSessionActive = true
         windowAreaComponent.startRearDisplayPresentationSession(
             activity,
             RearDisplayPresentationSessionConsumer(
@@ -332,7 +340,7 @@ internal class WindowAreaControllerImpl(
         )
     }
 
-    internal class RearDisplaySessionConsumer(
+    internal inner class RearDisplaySessionConsumer(
         private val executor: Executor,
         private val appCallback: WindowAreaSessionCallback,
         private val extensionsComponent: WindowAreaComponent
@@ -359,12 +367,13 @@ internal class WindowAreaControllerImpl(
         }
 
         private fun onSessionFinished() {
+            activeWindowAreaSession = false
             session = null
             executor.execute { appCallback.onSessionEnded(null) }
         }
     }
 
-    internal class RearDisplayPresentationSessionConsumer(
+    internal inner class RearDisplayPresentationSessionConsumer(
         private val executor: Executor,
         private val windowAreaPresentationSessionCallback: WindowAreaPresentationSessionCallback,
         private val windowAreaComponent: WindowAreaComponent
@@ -399,8 +408,10 @@ internal class WindowAreaControllerImpl(
                     SESSION_STATE_CONTENT_VISIBLE ->
                         windowAreaPresentationSessionCallback.onContainerVisibilityChanged(true)
 
-                    SESSION_STATE_INACTIVE ->
+                    SESSION_STATE_INACTIVE -> {
+                        presentationSessionActive = false
                         windowAreaPresentationSessionCallback.onSessionEnded(null)
+                    }
 
                     else -> {
                         Log.e(TAG, "Invalid session state value received: $t")
