@@ -147,6 +147,7 @@ abstract class WorkDatabase : RoomDatabase() {
                         FrameworkSQLiteOpenHelperFactory().create(configBuilder.build())
                     }
             }
+            @Suppress("DEPRECATION") // b/310884421 for fallbackToDestructiveMigration()
             return builder.setQueryExecutor(queryExecutor)
                 .addCallback(CleanupCallback(clock))
                 .addMigrations(Migration_1_2)

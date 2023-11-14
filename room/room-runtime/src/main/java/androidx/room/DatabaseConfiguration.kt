@@ -30,7 +30,8 @@ import java.util.concurrent.Executor
  * Configuration class for a [RoomDatabase].
  */
 @Suppress("UNUSED_PARAMETER")
-open class DatabaseConfiguration @SuppressLint("LambdaLast")
+open class DatabaseConfiguration
+@SuppressLint("LambdaLast")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 constructor(
     /**
@@ -100,6 +101,7 @@ constructor(
     val allowDestructiveMigrationOnDowngrade: Boolean,
 
     private val migrationNotRequiredFrom: Set<Int>?,
+
     @JvmField
     val copyFromAssetPath: String?,
 
@@ -116,7 +118,10 @@ constructor(
     val typeConverters: List<Any>,
 
     @JvmField
-    val autoMigrationSpecs: List<AutoMigrationSpec>
+    val autoMigrationSpecs: List<AutoMigrationSpec>,
+
+    @JvmField
+    val allowDestructiveMigrationForAllTables: Boolean,
 ) {
     /**
      * If true, table invalidation in an instance of [RoomDatabase] is broadcast and
@@ -144,14 +149,7 @@ constructor(
      *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @Deprecated(
-        "This constructor is deprecated.",
-        ReplaceWith("DatabaseConfiguration(Context, String, " +
-            "SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, " +
-            "List, boolean, RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, " +
-            "boolean, Set, String, File, Callable, RoomDatabase.PrepackagedDatabaseCallback, " +
-            "List, List)")
-    )
+    @Deprecated("This constructor is deprecated.")
     constructor(
         context: Context,
         name: String?,
@@ -182,7 +180,8 @@ constructor(
         prepackagedDatabaseCallback = null,
         copyFromInputStream = null,
         typeConverters = emptyList(),
-        autoMigrationSpecs = emptyList()
+        autoMigrationSpecs = emptyList(),
+        allowDestructiveMigrationForAllTables = false,
     )
 
     /**
@@ -206,14 +205,7 @@ constructor(
      *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @Deprecated(
-        "This constructor is deprecated.",
-        ReplaceWith("DatabaseConfiguration(Context, String, " +
-            "SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, " +
-            "List, boolean, RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, " +
-            "boolean, Set, String, File, Callable, RoomDatabase.PrepackagedDatabaseCallback, " +
-            "List, List)")
-    )
+    @Deprecated("This constructor is deprecated.")
     constructor(
         context: Context,
         name: String?,
@@ -250,7 +242,8 @@ constructor(
         prepackagedDatabaseCallback = null,
         copyFromInputStream = null,
         typeConverters = emptyList(),
-        autoMigrationSpecs = emptyList()
+        autoMigrationSpecs = emptyList(),
+        allowDestructiveMigrationForAllTables = false,
     )
 
     /**
@@ -276,14 +269,7 @@ constructor(
      *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @Deprecated(
-        "This constructor is deprecated.",
-        ReplaceWith("DatabaseConfiguration(Context, String, " +
-            "SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, " +
-            "List, boolean, RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, " +
-            "boolean, Set, String, File, Callable, RoomDatabase.PrepackagedDatabaseCallback, " +
-            "List, List)")
-    )
+    @Deprecated("This constructor is deprecated.")
     constructor(
         context: Context,
         name: String?,
@@ -322,7 +308,8 @@ constructor(
         prepackagedDatabaseCallback = null,
         copyFromInputStream = null,
         typeConverters = emptyList(),
-        autoMigrationSpecs = emptyList()
+        autoMigrationSpecs = emptyList(),
+        allowDestructiveMigrationForAllTables = false,
     )
 
     /**
@@ -350,14 +337,7 @@ constructor(
      *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @Deprecated(
-        "This constructor is deprecated.",
-        ReplaceWith("DatabaseConfiguration(Context, String, " +
-            "SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, " +
-            "List, boolean, RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, " +
-            "boolean, Set, String, File, Callable, RoomDatabase.PrepackagedDatabaseCallback, " +
-            "List, List)")
-    )
+    @Deprecated("This constructor is deprecated.")
     constructor(
         context: Context,
         name: String?,
@@ -397,7 +377,8 @@ constructor(
         prepackagedDatabaseCallback = null,
         copyFromInputStream = copyFromInputStream,
         typeConverters = emptyList(),
-        autoMigrationSpecs = emptyList()
+        autoMigrationSpecs = emptyList(),
+        allowDestructiveMigrationForAllTables = false,
     )
 
     /**
@@ -427,14 +408,7 @@ constructor(
      */
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @Deprecated(
-        "This constructor is deprecated.",
-        ReplaceWith("DatabaseConfiguration(Context, String, " +
-            "SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, " +
-            "List, boolean, RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, " +
-            "boolean, Set, String, File, Callable, RoomDatabase.PrepackagedDatabaseCallback, " +
-            "List, List)")
-    )
+    @Deprecated("This constructor is deprecated.")
     constructor(
         context: Context,
         name: String?,
@@ -475,7 +449,8 @@ constructor(
         prepackagedDatabaseCallback = prepackagedDatabaseCallback,
         copyFromInputStream = copyFromInputStream,
         typeConverters = emptyList(),
-        autoMigrationSpecs = emptyList()
+        autoMigrationSpecs = emptyList(),
+        allowDestructiveMigrationForAllTables = false,
     )
 
     /**
@@ -506,14 +481,7 @@ constructor(
      */
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @Deprecated(
-        "This constructor is deprecated.",
-        ReplaceWith("DatabaseConfiguration(Context, String, " +
-            "SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, " +
-            "List, boolean, RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, " +
-            "boolean, Set, String, File, Callable, RoomDatabase.PrepackagedDatabaseCallback, " +
-            "List, List)")
-    )
+    @Deprecated("This constructor is deprecated.")
     constructor(
         context: Context,
         name: String?,
@@ -555,7 +523,8 @@ constructor(
         prepackagedDatabaseCallback = prepackagedDatabaseCallback,
         copyFromInputStream = copyFromInputStream,
         typeConverters = typeConverters,
-        autoMigrationSpecs = emptyList()
+        autoMigrationSpecs = emptyList(),
+        allowDestructiveMigrationForAllTables = false,
     )
 
     /**
@@ -587,14 +556,7 @@ constructor(
      */
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-    @Deprecated(
-        "This constructor is deprecated.",
-        ReplaceWith("DatabaseConfiguration(Context, String, " +
-            "SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, " +
-            "List, boolean, RoomDatabase.JournalMode, Executor, Executor, Intent, boolean, " +
-            "boolean, Set, String, File, Callable, RoomDatabase.PrepackagedDatabaseCallback, " +
-            "List, List)")
-    )
+    @Deprecated("This constructor is deprecated.")
     constructor(
         context: Context,
         name: String?,
@@ -637,7 +599,82 @@ constructor(
         prepackagedDatabaseCallback = null,
         copyFromInputStream = copyFromInputStream,
         typeConverters = typeConverters,
-        autoMigrationSpecs = autoMigrationSpecs
+        autoMigrationSpecs = autoMigrationSpecs,
+        allowDestructiveMigrationForAllTables = false,
+    )
+
+    /**
+     * Creates a database configuration with the given values.
+     *
+     * @param context The application context.
+     * @param name Name of the database, can be null if it is in memory.
+     * @param sqliteOpenHelperFactory The open helper factory to use.
+     * @param migrationContainer The migration container for migrations.
+     * @param callbacks The list of callbacks for database events.
+     * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
+     * @param journalMode The journal mode. This has to be either TRUNCATE or WRITE_AHEAD_LOGGING.
+     * @param queryExecutor The Executor used to execute asynchronous queries.
+     * @param transactionExecutor The Executor used to execute asynchronous transactions.
+     * @param multiInstanceInvalidationServiceIntent Intent that should be bound to acquire the
+     * invalidation service or `null` if not used.
+     * @param requireMigration True if Room should require a valid migration if version changes,
+     * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
+     * migration is supplied during a downgrade.
+     * @param migrationNotRequiredFrom The collection of schema versions from which migrations
+     * aren't required.
+     * @param copyFromAssetPath The assets path to the pre-packaged database.
+     * @param copyFromFile The pre-packaged database file.
+     * @param copyFromInputStream The callable to get the input stream from which a
+     * pre-package database file will be copied from.
+     * @param prepackagedDatabaseCallback The pre-packaged callback.
+     * @param typeConverters The type converters.
+     * @param autoMigrationSpecs The auto migration specs.
+     *
+     */
+    @SuppressLint("LambdaLast")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @Deprecated("This constructor is deprecated.")
+    constructor(
+        context: Context,
+        name: String?,
+        sqliteOpenHelperFactory: SupportSQLiteOpenHelper.Factory,
+        migrationContainer: RoomDatabase.MigrationContainer,
+        callbacks: List<RoomDatabase.Callback>?,
+        allowMainThreadQueries: Boolean,
+        journalMode: RoomDatabase.JournalMode,
+        queryExecutor: Executor,
+        transactionExecutor: Executor,
+        multiInstanceInvalidationServiceIntent: Intent?,
+        requireMigration: Boolean,
+        allowDestructiveMigrationOnDowngrade: Boolean,
+        migrationNotRequiredFrom: Set<Int>?,
+        copyFromAssetPath: String?,
+        copyFromFile: File?,
+        copyFromInputStream: Callable<InputStream>?,
+        prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback?,
+        typeConverters: List<Any>,
+        autoMigrationSpecs: List<AutoMigrationSpec>
+    ) : this(
+        context = context,
+        name = name,
+        sqliteOpenHelperFactory = sqliteOpenHelperFactory,
+        migrationContainer = migrationContainer,
+        callbacks = callbacks,
+        allowMainThreadQueries = allowMainThreadQueries,
+        journalMode = journalMode,
+        queryExecutor = queryExecutor,
+        transactionExecutor = transactionExecutor,
+        multiInstanceInvalidationServiceIntent = multiInstanceInvalidationServiceIntent,
+        allowDestructiveMigrationOnDowngrade = allowDestructiveMigrationOnDowngrade,
+        requireMigration = requireMigration,
+        migrationNotRequiredFrom = migrationNotRequiredFrom,
+        copyFromAssetPath = copyFromAssetPath,
+        copyFromFile = copyFromFile,
+        prepackagedDatabaseCallback = null,
+        copyFromInputStream = copyFromInputStream,
+        typeConverters = typeConverters,
+        autoMigrationSpecs = autoMigrationSpecs,
+        allowDestructiveMigrationForAllTables = false,
     )
 
     /**

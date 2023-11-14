@@ -30,7 +30,7 @@ abstract class RoomDb : RoomDatabase() {
     companion object {
         fun create(context: Context): RoomDb {
             return Room.databaseBuilder(context, RoomDb::class.java, "user.db")
-                .fallbackToDestructiveMigration()
+                .fallbackToDestructiveMigration(true)
                 .build()
         }
     }
