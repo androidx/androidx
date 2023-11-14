@@ -109,7 +109,6 @@ class GattServer(private val context: Context) {
         fun writeCccd(requestId: Int, characteristic: GattCharacteristic, value: ByteArray?)
     }
 
-    @SuppressLint("ObsoleteSdkInt")
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     var fwkAdapter: FrameworkAdapter =

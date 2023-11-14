@@ -101,7 +101,6 @@ class GattClient(private val context: Context) {
         fun closeGatt()
     }
 
-    @SuppressLint("ObsoleteSdkInt")
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     var fwkAdapter: FrameworkAdapter =
@@ -245,6 +244,7 @@ class GattClient(private val context: Context) {
                 }
             }
         }
+
         if (!fwkAdapter.connectGatt(context, device.fwkDevice, fwkCallback)) {
             throw CancellationException("failed to connect")
         }
