@@ -196,11 +196,17 @@ package androidx.wear.protolayout.expression {
   }
 
   public static interface DynamicBuilders.DynamicInstant extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
-    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicZonedDateTime atZone(java.time.ZoneId);
     method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration durationUntil(androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant from(androidx.wear.protolayout.expression.DynamicDataKey<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant!>);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant fromByteArray(byte[]);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant fromByteArray(byte[], int, int);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getDayOfMonth(java.time.ZoneId);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getDayOfWeek(java.time.ZoneId);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getHour(java.time.ZoneId);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getMinute(java.time.ZoneId);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getMonth(java.time.ZoneId);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getSecond(java.time.ZoneId);
+    method @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getYear(java.time.ZoneId);
     method public static androidx.wear.protolayout.expression.ConditionScopes.ConditionScope<androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant!,java.time.Instant!> onCondition(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant platformTimeWithSecondsPrecision();
     method public default byte[] toDynamicInstantByteArray();
@@ -286,21 +292,6 @@ package androidx.wear.protolayout.expression {
   }
 
   public static interface DynamicBuilders.DynamicType {
-  }
-
-  public static interface DynamicBuilders.DynamicZonedDateTime extends androidx.wear.protolayout.expression.DynamicBuilders.DynamicType {
-    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicZonedDateTime fromByteArray(byte[]);
-    method public static androidx.wear.protolayout.expression.DynamicBuilders.DynamicZonedDateTime fromByteArray(byte[], int, int);
-    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getDayOfMonth();
-    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getDayOfWeek();
-    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getHour();
-    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getMinute();
-    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getMonth();
-    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getSecond();
-    method public default androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32 getYear();
-    method public default byte[] toDynamicZonedDateTimeByteArray();
-    method public default int toDynamicZonedDateTimeByteArray(byte[]);
-    method public default int toDynamicZonedDateTimeByteArray(byte[], int, int);
   }
 
   public final class DynamicDataBuilders {
