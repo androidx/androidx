@@ -158,6 +158,7 @@ import androidx.wear.protolayout.proto.LayoutElementProto.StrokeCapProp;
 import androidx.wear.protolayout.proto.LayoutElementProto.Text;
 import androidx.wear.protolayout.proto.LayoutElementProto.TextOverflow;
 import androidx.wear.protolayout.proto.LayoutElementProto.TextOverflowProp;
+import androidx.wear.protolayout.proto.ModifiersProto;
 import androidx.wear.protolayout.proto.ModifiersProto.AnimatedVisibility;
 import androidx.wear.protolayout.proto.ModifiersProto.Border;
 import androidx.wear.protolayout.proto.ModifiersProto.Clickable;
@@ -232,6 +233,7 @@ public class ProtoLayoutInflaterTest {
 
     private static final int SCREEN_WIDTH = 400;
     private static final int SCREEN_HEIGHT = 400;
+    private static final int DEFAULT_WEIGHT = 1;
 
     @Rule public final Expect expect = Expect.create();
 
@@ -622,6 +624,11 @@ public class ProtoLayoutInflaterTest {
         // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
         expect.that(tv.getMeasuredWidth()).isEqualTo(width);
         expect.that(tv.getMeasuredHeight()).isEqualTo(height);
+
+        // This tests that layoutParams weren't null in the case when there's no modifiers so that
+        // minimum dimension is correctly set.
+        expect.that(tv.getMinimumWidth()).isEqualTo(width);
+        expect.that(tv.getMeasuredHeight()).isEqualTo(height);
     }
 
     @Test
@@ -655,6 +662,337 @@ public class ProtoLayoutInflaterTest {
         // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
         expect.that(tv.getMeasuredWidth()).isEqualTo(width);
         expect.that(tv.getMeasuredHeight()).isEqualTo(height);
+    }
+
+    @Test
+    public void inflate_spacerWithDynamicDimension_andModifiers() {
+        int width = 100;
+        int widthForLayout = 112;
+        int height = 200;
+        int heightForLayout = 212;
+        DynamicFloat dynamicWidth =
+                DynamicFloat.newBuilder()
+                        .setFixed(FixedFloat.newBuilder().setValue(width).build())
+                        .build();
+        DynamicFloat dynamicHeight =
+                DynamicFloat.newBuilder()
+                        .setFixed(FixedFloat.newBuilder().setValue(height).build())
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpacer(
+                                Spacer.newBuilder()
+                                        .setHeight(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                dynamicDp(
+                                                                        dynamicHeight,
+                                                                        heightForLayout)))
+                                        .setWidth(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                dynamicDp(
+                                                                        dynamicWidth,
+                                                                        widthForLayout)))
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setBackground(
+                                                                ModifiersProto.Background
+                                                                        .getDefaultInstance())))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        // Wait for evaluation to finish.
+        shadowOf(Looper.getMainLooper()).idle();
+
+        // Check that there's a single element in the layout...
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        ViewGroup wrapper = (ViewGroup) rootLayout.getChildAt(0);
+
+        // Check the spacer wrapper.
+        expect.that(wrapper.getMeasuredWidth()).isEqualTo(widthForLayout);
+        expect.that(wrapper.getMeasuredHeight()).isEqualTo(heightForLayout);
+
+        // Wait for evaluation to finish.
+        shadowOf(Looper.getMainLooper()).idle();
+
+        View spacer = wrapper.getChildAt(0);
+        // Check the actual spacer.
+        // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
+        expect.that(spacer.getMeasuredWidth()).isEqualTo(width);
+        expect.that(spacer.getMeasuredHeight()).isEqualTo(height);
+    }
+
+    @Test
+    public void inflate_spacerWithDynamicDimension() {
+        int width = 100;
+        int widthForLayout = 112;
+        int height = 200;
+        int heightForLayout = 212;
+        DynamicFloat dynamicWidth =
+                DynamicFloat.newBuilder()
+                        .setFixed(FixedFloat.newBuilder().setValue(width).build())
+                        .build();
+        DynamicFloat dynamicHeight =
+                DynamicFloat.newBuilder()
+                        .setFixed(FixedFloat.newBuilder().setValue(height).build())
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpacer(
+                                Spacer.newBuilder()
+                                        .setHeight(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                dynamicDp(
+                                                                        dynamicHeight,
+                                                                        heightForLayout)))
+                                        .setWidth(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                dynamicDp(
+                                                                        dynamicWidth,
+                                                                        widthForLayout))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        // Wait for evaluation to finish.
+        shadowOf(Looper.getMainLooper()).idle();
+
+        // Check that there's a single element in the layout...
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        ViewGroup wrapper = (ViewGroup) rootLayout.getChildAt(0);
+
+        // Check the spacer wrapper.
+        expect.that(wrapper.getMeasuredWidth()).isEqualTo(widthForLayout);
+        expect.that(wrapper.getMeasuredHeight()).isEqualTo(heightForLayout);
+
+        // Wait for evaluation to finish.
+        shadowOf(Looper.getMainLooper()).idle();
+
+        View spacer = wrapper.getChildAt(0);
+        // Check the actual spacer.
+        // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
+        expect.that(spacer.getMeasuredWidth()).isEqualTo(width);
+        expect.that(spacer.getMeasuredHeight()).isEqualTo(height);
+    }
+
+    @Test
+    public void inflate_spacerWithExpand() {
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpacer(
+                                Spacer.newBuilder()
+                                        .setHeight(
+                                                SpacerDimension.newBuilder()
+                                                        .setExpandedDimension(
+                                                                ExpandedDimensionProp
+                                                                        .getDefaultInstance()))
+                                        .setWidth(
+                                                SpacerDimension.newBuilder()
+                                                        .setExpandedDimension(
+                                                                ExpandedDimensionProp
+                                                                        .getDefaultInstance())))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        // Check that there's a single element in the layout...
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View tv = rootLayout.getChildAt(0);
+
+        expect.that(tv.getMeasuredWidth()).isEqualTo(SCREEN_WIDTH);
+        expect.that(tv.getMeasuredHeight()).isEqualTo(SCREEN_HEIGHT);
+    }
+
+    @Test
+    public void inflate_spacersWithWeightExpanded() {
+        int widthWeight1 = 1;
+        int widthWeight2 = 3;
+        int heightWeight1 = 2;
+        int heightWeight2 = 4;
+
+        // SCREEN_WIDTH * widthWeight1 / (widthWeight1 + widthWeight2)
+        int expectedWidth1 = 100;
+        // SCREEN_WIDTH - expectedWidth1
+        int expectedWidth2 = 300;
+        // SCREEN_HEIGHT * heightWeight1 / (heightWeight1 + heightWeight2)
+        int expectedHeight1 = 133;
+        // SCREEN_HEIGHT - heightWeight1
+        int expectedHeight2 = 267;
+
+        // A column with a row (Spacer + Spacer) and Spacer, everything has weighted expand
+        // dimension.
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setColumn(
+                                Column.newBuilder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setRow(
+                                                                Row.newBuilder()
+                                                                        .setWidth(expand())
+                                                                        .setHeight(
+                                                                                ContainerDimension.newBuilder()
+                                                                                        .setExpandedDimension(expandWithWeight(heightWeight1))
+                                                                                        .build())
+                                                                        .addContents(
+                                                                                LayoutElement.newBuilder()
+                                                                                        .setSpacer(
+                                                                                                buildExpandedSpacer(widthWeight1, DEFAULT_WEIGHT)))
+                                                                        .addContents(
+                                                                                LayoutElement.newBuilder()
+                                                                                        .setSpacer(
+                                                                                                buildExpandedSpacer(
+                                                                                                        widthWeight2, DEFAULT_WEIGHT)))))
+                                        .addContents(
+                                                LayoutElement.newBuilder()
+                                                        .setSpacer(buildExpandedSpacer(DEFAULT_WEIGHT, heightWeight2)))
+                                        .build())
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        // Check that there's a single element in the layout...
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        ViewGroup column = (ViewGroup) rootLayout.getChildAt(0);
+        ViewGroup row = (ViewGroup) column.getChildAt(0);
+        View spacer1 = row.getChildAt(0);
+        View spacer2 = row.getChildAt(1);
+        View spacer = column.getChildAt(1);
+
+        expect.that(spacer1.getMeasuredWidth()).isEqualTo(expectedWidth1);
+        expect.that(spacer2.getMeasuredWidth()).isEqualTo(expectedWidth2);
+        expect.that(row.getMeasuredHeight()).isEqualTo(expectedHeight1);
+        expect.that(spacer.getMeasuredHeight()).isEqualTo(expectedHeight2);
+    }
+
+    @Test
+    public void inflate_spacerWithMixExpandAndFixed() {
+        int width = 100;
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpacer(
+                                Spacer.newBuilder()
+                                        .setHeight(
+                                                SpacerDimension.newBuilder()
+                                                        .setExpandedDimension(
+                                                                ExpandedDimensionProp
+                                                                        .getDefaultInstance()))
+                                        .setWidth(SpacerDimension
+                                                .newBuilder()
+                                                .setLinearDimension(dp(width))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        // Check that there's a single element in the layout...
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View tv = rootLayout.getChildAt(0);
+
+        // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
+        expect.that(tv.getMeasuredWidth()).isEqualTo(width);
+        expect.that(tv.getMeasuredHeight()).isEqualTo(SCREEN_HEIGHT);
+    }
+
+    @Test
+    public void inflate_spacerWithExpandHeightAndDynamicWidth() {
+        int width = 100;
+        int widthForLayout = 112;
+        DynamicFloat dynamicWidth =
+                DynamicFloat.newBuilder()
+                        .setFixed(FixedFloat.newBuilder().setValue(width).build())
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpacer(
+                                Spacer.newBuilder()
+                                        .setHeight(
+                                                SpacerDimension.newBuilder()
+                                                        .setExpandedDimension(
+                                                                ExpandedDimensionProp
+                                                                        .getDefaultInstance()))
+                                        .setWidth(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                dynamicDp(
+                                                                        dynamicWidth,
+                                                                        widthForLayout))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        // Wait for evaluation to finish.
+        shadowOf(Looper.getMainLooper()).idle();
+
+        // Check that there's a single element in the layout...
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        ViewGroup wrapper = (ViewGroup) rootLayout.getChildAt(0);
+
+        // Check the spacer wrapper.
+        expect.that(wrapper.getMeasuredWidth()).isEqualTo(widthForLayout);
+        expect.that(wrapper.getMeasuredHeight()).isEqualTo(SCREEN_HEIGHT);
+
+        // Wait for evaluation to finish.
+        shadowOf(Looper.getMainLooper()).idle();
+
+        View spacer = wrapper.getChildAt(0);
+        // Check the actual spacer.
+        // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
+        expect.that(spacer.getMeasuredWidth()).isEqualTo(width);
+        expect.that(spacer.getMeasuredHeight()).isEqualTo(SCREEN_HEIGHT);
+    }
+
+    @Test
+    public void inflate_spacerWithExpandWidthAndDynamicHeight() {
+        int height = 100;
+        int heightForLayout = 112;
+        DynamicFloat dynamicHeight =
+                DynamicFloat.newBuilder()
+                        .setFixed(FixedFloat.newBuilder().setValue(height).build())
+                        .build();
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpacer(
+                                Spacer.newBuilder()
+                                        .setWidth(
+                                                SpacerDimension.newBuilder()
+                                                        .setExpandedDimension(
+                                                                ExpandedDimensionProp
+                                                                        .getDefaultInstance()))
+                                        .setHeight(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(
+                                                                dynamicDp(
+                                                                        dynamicHeight,
+                                                                        heightForLayout))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        // Wait for evaluation to finish.
+        shadowOf(Looper.getMainLooper()).idle();
+
+        // Check that there's a single element in the layout...
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        ViewGroup wrapper = (ViewGroup) rootLayout.getChildAt(0);
+
+        // Check the spacer wrapper.
+        expect.that(wrapper.getMeasuredWidth()).isEqualTo(SCREEN_WIDTH);
+        expect.that(wrapper.getMeasuredHeight()).isEqualTo(heightForLayout);
+
+        // Wait for evaluation to finish.
+        shadowOf(Looper.getMainLooper()).idle();
+
+        View spacer = wrapper.getChildAt(0);
+        // Check the actual spacer.
+        // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
+        expect.that(spacer.getMeasuredWidth()).isEqualTo(SCREEN_WIDTH);
+        expect.that(spacer.getMeasuredHeight()).isEqualTo(height);
     }
 
     @Test
@@ -5159,6 +5497,11 @@ public class ProtoLayoutInflaterTest {
     }
 
     @NonNull
+    private static DpProp.Builder dynamicDp(DynamicFloat value, float valueForLayout) {
+        return DpProp.newBuilder().setDynamicValue(value).setValueForLayout(valueForLayout);
+    }
+
+    @NonNull
     private static DimensionProto.SpProp sp(float value) {
         return DimensionProto.SpProp.newBuilder().setValue(value).build();
     }
@@ -5255,5 +5598,18 @@ public class ProtoLayoutInflaterTest {
         evt.recycle();
 
         shadowOf(Looper.getMainLooper()).idle();
+    }
+
+    private static Spacer.Builder buildExpandedSpacer(int widthWeight, int heightWeight) {
+        return Spacer.newBuilder()
+                .setWidth(SpacerDimension.newBuilder().setExpandedDimension(expandWithWeight(widthWeight)))
+                .setHeight(
+                        SpacerDimension.newBuilder().setExpandedDimension(expandWithWeight(heightWeight)));
+    }
+
+    private static ExpandedDimensionProp expandWithWeight(int weight) {
+        return ExpandedDimensionProp.newBuilder()
+                .setLayoutWeight(FloatProp.newBuilder().setValue(weight).build())
+                .build();
     }
 }
