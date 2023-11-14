@@ -56,9 +56,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         if (Build.VERSION.SDK_INT >= 18) {
             return new JellybeanMr2Impl(context, syncCallback);
         }
-        if (Build.VERSION.SDK_INT >= 17) {
-            return new JellybeanMr1Impl(context, syncCallback);
-        }
         return new JellybeanImpl(context, syncCallback);
     }
 
@@ -606,15 +603,40 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
     }
 
-    /** Jellybean MR1 implementation. */
-    @RequiresApi(17)
-    private static class JellybeanMr1Impl extends JellybeanImpl
+    /**
+     * Jellybean MR2 implementation.
+     */
+    @RequiresApi(18)
+    private static class JellybeanMr2Impl extends JellybeanImpl
             implements MediaRouterApi17Impl.Callback {
-        private MediaRouterApi17Impl.ActiveScanWorkaround mActiveScanWorkaround;
-        private MediaRouterApi17Impl.IsConnectingWorkaround mIsConnectingWorkaround;
-
-        public JellybeanMr1Impl(Context context, SyncCallback syncCallback) {
+        /* package */ JellybeanMr2Impl(Context context, SyncCallback syncCallback) {
             super(context, syncCallback);
+        }
+
+        @DoNotInline
+        @Override
+        protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
+                MediaRouteDescriptor.Builder builder) {
+            super.onBuildSystemRouteDescriptor(record, builder);
+
+            if (!MediaRouterApi17Impl.RouteInfo.isEnabled(record.mRoute)) {
+                builder.setEnabled(false);
+            }
+
+            if (isConnecting(record)) {
+                builder.setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTING);
+            }
+
+            Display presentationDisplay =
+                    MediaRouterApi17Impl.RouteInfo.getPresentationDisplay(record.mRoute);
+            if (presentationDisplay != null) {
+                builder.setPresentationDisplayId(presentationDisplay.getDisplayId());
+            }
+
+            CharSequence description = record.mRoute.getDescription();
+            if (description != null) {
+                builder.setDescription(description.toString());
+            }
         }
 
         @Override
@@ -638,71 +660,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             }
         }
 
-        @Override
-        protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
-                MediaRouteDescriptor.Builder builder) {
-            super.onBuildSystemRouteDescriptor(record, builder);
-
-            if (!MediaRouterApi17Impl.RouteInfo.isEnabled(record.mRoute)) {
-                builder.setEnabled(false);
-            }
-
-            if (isConnecting(record)) {
-                builder.setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTING);
-            }
-
-            Display presentationDisplay =
-                    MediaRouterApi17Impl.RouteInfo.getPresentationDisplay(record.mRoute);
-            if (presentationDisplay != null) {
-                builder.setPresentationDisplayId(presentationDisplay.getDisplayId());
-            }
-        }
-
-        @Override
-        protected void updateCallback() {
-            super.updateCallback();
-
-            if (mActiveScanWorkaround == null) {
-                mActiveScanWorkaround =
-                        new MediaRouterApi17Impl.ActiveScanWorkaround(getContext(), getHandler());
-            }
-            mActiveScanWorkaround.setActiveScanRouteTypes(mActiveScan ? mRouteTypes : 0);
-        }
-
-        @Override
-        protected android.media.MediaRouter.Callback createCallback() {
-            return MediaRouterApi17Impl.createCallback(this);
-        }
-
-        protected boolean isConnecting(SystemRouteRecord record) {
-            if (mIsConnectingWorkaround == null) {
-                mIsConnectingWorkaround = new MediaRouterApi17Impl.IsConnectingWorkaround();
-            }
-            return mIsConnectingWorkaround.isConnecting(record.mRoute);
-        }
-    }
-
-    /**
-     * Jellybean MR2 implementation.
-     */
-    @RequiresApi(18)
-    private static class JellybeanMr2Impl extends JellybeanMr1Impl {
-        public JellybeanMr2Impl(Context context, SyncCallback syncCallback) {
-            super(context, syncCallback);
-        }
-
-        @DoNotInline
-        @Override
-        protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
-                MediaRouteDescriptor.Builder builder) {
-            super.onBuildSystemRouteDescriptor(record, builder);
-
-            CharSequence description = record.mRoute.getDescription();
-            if (description != null) {
-                builder.setDescription(description.toString());
-            }
-        }
-
         @DoNotInline
         @Override
         protected void selectRoute(android.media.MediaRouter.RouteInfo route) {
@@ -722,6 +679,11 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             record.mUserRoute.setDescription(record.mRoute.getDescription());
         }
 
+        @Override
+        protected android.media.MediaRouter.Callback createCallback() {
+            return MediaRouterApi17Impl.createCallback(this);
+        }
+
         @DoNotInline
         @Override
         protected void updateCallback() {
@@ -736,7 +698,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         @DoNotInline
-        @Override
         protected boolean isConnecting(SystemRouteRecord record) {
             return record.mRoute.isConnecting();
         }
