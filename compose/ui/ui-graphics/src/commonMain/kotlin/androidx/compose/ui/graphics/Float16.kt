@@ -15,6 +15,8 @@
  */
 package androidx.compose.ui.graphics
 
+import androidx.compose.ui.util.floatFromBits
+
 /**
  * The `Float16` class is a wrapper and a utility class to manipulate half-precision 16-bit
  * [IEEE 754](https://en.wikipedia.org/wiki/Half-precision_floating-point_format)
@@ -169,7 +171,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
         if (e == 0) { // Denormal or 0
             if (m != 0) {
                 // Convert denorm fp16 into normalized fp32
-                var o = Float.fromBits(FP32_DENORMAL_MAGIC + m)
+                var o = floatFromBits(FP32_DENORMAL_MAGIC + m)
                 o -= FP32_DENORMAL_FLOAT
                 return if (s == 0) o else -o
             }
@@ -186,7 +188,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
         }
 
         val out = s shl 16 or (outE shl FP32_EXPONENT_SHIFT) or outM
-        return Float.fromBits(out)
+        return floatFromBits(out)
     }
 
     /**
@@ -646,7 +648,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
         private const val FP32_QNAN_MASK = 0x400000
 
         private const val FP32_DENORMAL_MAGIC = 126 shl 23
-        private val FP32_DENORMAL_FLOAT = Float.fromBits(FP32_DENORMAL_MAGIC)
+        private val FP32_DENORMAL_FLOAT = floatFromBits(FP32_DENORMAL_MAGIC)
 
         private fun toCompareValue(value: Short): Int {
             return if (value.toInt() and FP16_SIGN_MASK != 0) {
