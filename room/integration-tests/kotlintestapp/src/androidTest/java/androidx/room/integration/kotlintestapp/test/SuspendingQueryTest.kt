@@ -805,7 +805,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 TestUtil.PUBLISHER.name
             )
 
-            @OptIn(DelicateCoroutinesApi::class)
+            @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
             async(newSingleThreadContext("asyncThread1")) {
                 database.withTransaction {
                     delay(100)
@@ -813,7 +813,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
                 }
             }
 
-            @OptIn(DelicateCoroutinesApi::class)
+            @OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
             async(newSingleThreadContext("asyncThread2")) {
                 database.withTransaction {
                     delay(100)
@@ -1346,7 +1346,6 @@ class SuspendingQueryTest : TestDatabaseTest() {
     }
 
     @Test
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun withTransaction_runTest() {
         runTest {
             database.withTransaction {
