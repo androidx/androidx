@@ -34,8 +34,10 @@ class MultiPointerPredictorTest {
         val generator = MotionEventGenerator(
                 { delta: Long -> delta.toFloat() },
                 { delta: Long -> delta.toFloat() },
+                null,
                 { delta: Long -> delta.toFloat() },
                 { delta: Long -> delta.toFloat() },
+                null,
         )
         for (i in 1..INITIAL_FEED) {
             predictor.onTouchEvent(generator.next())
