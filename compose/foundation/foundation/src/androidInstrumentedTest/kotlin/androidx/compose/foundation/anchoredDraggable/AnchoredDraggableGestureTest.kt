@@ -759,6 +759,42 @@ class AnchoredDraggableGestureTest {
         }
 
     @Test
+    fun anchoredDraggable_dragAndSwipeBackWithVelocity_velocityHigherThanThreshold() =
+        runBlocking(AutoTestFrameClock()) {
+            val velocity = 100.dp
+            val velocityPx = with(rule.density) { velocity.toPx() }
+            val state = AnchoredDraggableState(
+                initialValue = B,
+                velocityThreshold = { velocityPx },
+                positionalThreshold = { 0f },
+                animationSpec = tween()
+            )
+            state.updateAnchors(
+                DraggableAnchors {
+                    A at 0f
+                    B at 200f
+                }
+            )
+
+            // starting from anchor B, drag the component to the left and settle with a
+            // positive velocity (higher than threshold). Result should be settling back to anchor B
+            state.dispatchRawDelta(-60f)
+            assertThat(state.requireOffset()).isEqualTo(140)
+            state.settle(velocityPx)
+            assertThat(state.currentValue).isEqualTo(B)
+
+            state.animateTo(A)
+            assertThat(state.currentValue).isEqualTo(A)
+
+            // starting from anchor A, drag the component to the right and with a negative velocity
+            // (higher than threshold). Result should be settling back to anchor A
+            state.dispatchRawDelta(60f)
+            assertThat(state.requireOffset()).isEqualTo(60)
+            state.settle(-velocityPx)
+            assertThat(state.currentValue).isEqualTo(A)
+        }
+
+    @Test
     fun anchoredDraggable_velocityThreshold_swipe_velocityHigherThanThreshold_advances() {
         val velocityThreshold = 100.dp
         val state = AnchoredDraggableState(
