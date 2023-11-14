@@ -58,11 +58,15 @@ object NavigationDrawerItemDefaults {
     val ExpandedDrawerItemWidth = 256.dp
 
     /**
-     * The default content padding [PaddingValues] used by [NavigationDrawerItem] when the drawer
-     * is expanded
+     * The default content padding [PaddingValues] used by [NavigationDrawerItem] with 1 line when
+     * the drawer is expanded
      */
-
     val ContainerHeightOneLine = 56.dp
+
+    /**
+     * The default content padding [PaddingValues] used by [NavigationDrawerItem] with 2 lines when
+     * the drawer is expanded
+     */
     val ContainerHeightTwoLine = 64.dp
 
     /**
