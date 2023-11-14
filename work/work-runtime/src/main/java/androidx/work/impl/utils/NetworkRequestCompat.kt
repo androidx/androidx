@@ -94,6 +94,7 @@ object NetworkRequest28 {
     internal fun hasTransport(request: NetworkRequest, transport: Int) =
         request.hasTransport(transport)
 
+    @JvmStatic
     @DoNotInline
     fun createNetworkRequest(capabilities: IntArray, transports: IntArray): NetworkRequest {
         val networkRequest = NetworkRequest.Builder()
@@ -118,4 +119,10 @@ private object NetworkRequest31 {
 
     @DoNotInline
     fun transportTypes(request: NetworkRequest) = request.transportTypes
+}
+
+@RequiresApi(30)
+internal object NetworkRequest30 {
+    @DoNotInline
+    fun getNetworkSpecifier(request: NetworkRequest) = request.networkSpecifier
 }

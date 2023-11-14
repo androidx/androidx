@@ -23,6 +23,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.room.ColumnInfo
 import androidx.room.Ignore
+import androidx.work.impl.utils.NetworkRequest30
 import androidx.work.impl.utils.NetworkRequestCompat
 import androidx.work.impl.utils.toMillisCompat
 import java.time.Duration
@@ -121,12 +122,12 @@ class Constraints {
         requiresBatteryNotLow: Boolean = false,
         requiresStorageNotLow: Boolean = false,
     ) : this(
-            requiredNetworkType = requiredNetworkType,
-            requiresCharging = requiresCharging,
-            requiresStorageNotLow = requiresStorageNotLow,
-            requiresBatteryNotLow = requiresBatteryNotLow,
-            requiresDeviceIdle = false
-        )
+        requiredNetworkType = requiredNetworkType,
+        requiresCharging = requiresCharging,
+        requiresStorageNotLow = requiresStorageNotLow,
+        requiresBatteryNotLow = requiresBatteryNotLow,
+        requiresDeviceIdle = false
+    )
 
     /**
      * Constructs [Constraints].
@@ -344,6 +345,7 @@ class Constraints {
         private var requiredNetworkType = NetworkType.NOT_REQUIRED
         private var requiresBatteryNotLow = false
         private var requiresStorageNotLow = false
+
         // Same defaults as JobInfo
         private var triggerContentUpdateDelay: Long = -1
         private var triggerContentMaxDelay: Long = -1
@@ -427,6 +429,13 @@ class Constraints {
             networkType: NetworkType
         ): Builder {
             if (Build.VERSION.SDK_INT >= 28) {
+                if (Build.VERSION.SDK_INT >= 31 &&
+                    NetworkRequest30.getNetworkSpecifier(networkRequest) != null
+                ) {
+                    throw IllegalArgumentException(
+                        "NetworkRequests with NetworkSpecifiers set aren't supported."
+                    )
+                }
                 requiredNetworkRequest = NetworkRequestCompat(networkRequest)
                 requiredNetworkType = NetworkType.NOT_REQUIRED
             } else {
@@ -616,5 +625,5 @@ class Constraints {
 
 internal const val CONSTRAINTS_COLUMNS =
     "required_network_type, required_network_request, requires_charging, " +
-    "requires_device_idle, requires_battery_not_low, requires_storage_not_low, " +
-    "trigger_content_update_delay, trigger_max_content_delay, content_uri_triggers"
+        "requires_device_idle, requires_battery_not_low, requires_storage_not_low, " +
+        "trigger_content_update_delay, trigger_max_content_delay, content_uri_triggers"

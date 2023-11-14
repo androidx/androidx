@@ -168,10 +168,6 @@ public class GreedyScheduler implements Scheduler, OnConstraintsStateChangedList
                         // Ignore requests that have content uri triggers.
                         Logger.get().debug(TAG,
                                 "Ignoring " + workSpec + ". Requires ContentUri triggers.");
-                    } else if (SDK_INT >= 28 && constraints.getRequiredNetworkRequest() != null) {
-                        // TODO: support these
-                        Logger.get().debug(TAG, "Ignoring " + workSpec
-                                + ". Requires networkRequest. Will be supported in short future.");
                     } else {
                         constrainedWorkSpecs.add(workSpec);
                         constrainedWorkSpecIds.add(workSpec.id);
