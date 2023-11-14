@@ -53,10 +53,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         if (Build.VERSION.SDK_INT >= 24) {
             return new Api24Impl(context, syncCallback);
         }
-        if (Build.VERSION.SDK_INT >= 18) {
-            return new JellybeanMr2Impl(context, syncCallback);
-        }
-        return new JellybeanImpl(context, syncCallback);
+        return new JellybeanMr2Impl(context, syncCallback);
     }
 
     /**
@@ -94,10 +91,12 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         void onSystemRouteSelectedByDescriptorId(@NonNull String id);
     }
 
-    /** Jellybean implementation. */
-    @RequiresApi(16)
-    static class JellybeanImpl extends SystemMediaRouteProvider
-            implements MediaRouterApi16Impl.Callback, MediaRouterApi16Impl.VolumeCallback {
+    /**
+     * Jellybean MR2 implementation.
+     */
+    private static class JellybeanMr2Impl extends SystemMediaRouteProvider
+            implements MediaRouterApi17Impl.Callback, MediaRouterApi16Impl.VolumeCallback {
+
         private static final ArrayList<IntentFilter> LIVE_AUDIO_CONTROL_FILTERS;
 
         static {
@@ -119,7 +118,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         }
 
         private final SyncCallback mSyncCallback;
-
         protected final android.media.MediaRouter mRouter;
         protected final android.media.MediaRouter.Callback mCallback;
         protected final android.media.MediaRouter.VolumeCallback mVolumeCallback;
@@ -139,10 +137,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         protected final ArrayList<UserRouteRecord> mUserRouteRecords =
                 new ArrayList<>();
 
-        private MediaRouterApi16Impl.SelectRouteWorkaround mSelectRouteWorkaround;
-        private MediaRouterApi16Impl.GetDefaultRouteWorkaround mGetDefaultRouteWorkaround;
-
-        public JellybeanImpl(Context context, SyncCallback syncCallback) {
+        /* package */ JellybeanMr2Impl(Context context, SyncCallback syncCallback) {
             super(context);
             mSyncCallback = syncCallback;
             mRouter = MediaRouterApi16Impl.getMediaRouter(context);
@@ -289,7 +284,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                 @NonNull android.media.MediaRouter.RouteInfo route) {
             if (route
                     != MediaRouterApi16Impl.getSelectedRoute(
-                            mRouter, MediaRouterApi16Impl.ALL_ROUTE_TYPES)) {
+                    mRouter, MediaRouterApi16Impl.ALL_ROUTE_TYPES)) {
                 // The currently selected route has already changed so this callback
                 // is stale.  Drop it to prevent getting into sync loops.
                 return;
@@ -485,6 +480,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             return name != null ? name.toString() : "";
         }
 
+        @DoNotInline
         protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
                 MediaRouteDescriptor.Builder builder) {
             int supportedTypes = MediaRouterApi16Impl.RouteInfo.getSupportedTypes(record.mRoute);
@@ -503,8 +499,59 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             builder.setVolumeHandling(
                     MediaRouterApi16Impl.RouteInfo.getVolumeHandling(record.mRoute));
             builder.setIsSystemRoute(true);
+
+            if (!MediaRouterApi17Impl.RouteInfo.isEnabled(record.mRoute)) {
+                builder.setEnabled(false);
+            }
+
+            if (isConnecting(record)) {
+                builder.setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTING);
+            }
+
+            Display presentationDisplay =
+                    MediaRouterApi17Impl.RouteInfo.getPresentationDisplay(record.mRoute);
+            if (presentationDisplay != null) {
+                builder.setPresentationDisplayId(presentationDisplay.getDisplayId());
+            }
+
+            CharSequence description = record.mRoute.getDescription();
+            if (description != null) {
+                builder.setDescription(description.toString());
+            }
         }
 
+        @Override
+        public void onRoutePresentationDisplayChanged(
+                @NonNull android.media.MediaRouter.RouteInfo route) {
+            int index = findSystemRouteRecord(route);
+            if (index >= 0) {
+                SystemRouteRecord record = mSystemRouteRecords.get(index);
+                Display newPresentationDisplay =
+                        MediaRouterApi17Impl.RouteInfo.getPresentationDisplay(route);
+                int newPresentationDisplayId = (newPresentationDisplay != null
+                        ? newPresentationDisplay.getDisplayId() : -1);
+                if (newPresentationDisplayId
+                        != record.mRouteDescriptor.getPresentationDisplayId()) {
+                    record.mRouteDescriptor =
+                            new MediaRouteDescriptor.Builder(record.mRouteDescriptor)
+                                    .setPresentationDisplayId(newPresentationDisplayId)
+                                    .build();
+                    publishRoutes();
+                }
+            }
+        }
+
+        @DoNotInline
+        protected void selectRoute(android.media.MediaRouter.RouteInfo route) {
+            MediaRouterApi16Impl.selectRoute(mRouter, MediaRouterApi16Impl.ALL_ROUTE_TYPES, route);
+        }
+
+        @DoNotInline
+        protected android.media.MediaRouter.RouteInfo getDefaultRoute() {
+            return mRouter.getDefaultRoute();
+        }
+
+        @DoNotInline
         protected void updateUserRouteProperties(UserRouteRecord record) {
             MediaRouterApi16Impl.UserRouteInfo.setName(record.mUserRoute, record.mRoute.getName());
             MediaRouterApi16Impl.UserRouteInfo.setPlaybackType(
@@ -517,41 +564,32 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                     record.mUserRoute, record.mRoute.getVolumeMax());
             MediaRouterApi16Impl.UserRouteInfo.setVolumeHandling(
                     record.mUserRoute, record.mRoute.getVolumeHandling());
-        }
-
-        protected void updateCallback() {
-            if (mCallbackRegistered) {
-                mCallbackRegistered = false;
-                MediaRouterApi16Impl.removeCallback(mRouter, mCallback);
-            }
-
-            if (mRouteTypes != 0) {
-                mCallbackRegistered = true;
-                MediaRouterApi16Impl.addCallback(mRouter, mRouteTypes, mCallback);
-            }
+            record.mUserRoute.setDescription(record.mRoute.getDescription());
         }
 
         protected android.media.MediaRouter.Callback createCallback() {
-            return MediaRouterApi16Impl.createCallback(this);
+            return MediaRouterApi17Impl.createCallback(this);
         }
 
         protected android.media.MediaRouter.VolumeCallback createVolumeCallback() {
             return MediaRouterApi16Impl.createVolumeCallback(this);
         }
 
-        protected void selectRoute(android.media.MediaRouter.RouteInfo route) {
-            if (mSelectRouteWorkaround == null) {
-                mSelectRouteWorkaround = new MediaRouterApi16Impl.SelectRouteWorkaround();
+        @DoNotInline
+        protected void updateCallback() {
+            if (mCallbackRegistered) {
+                MediaRouterApi16Impl.removeCallback(mRouter, mCallback);
             }
-            mSelectRouteWorkaround.selectRoute(
-                    mRouter, MediaRouterApi16Impl.ALL_ROUTE_TYPES, route);
+
+            mCallbackRegistered = true;
+            int flags = MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS
+                    | (mActiveScan ? MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN : 0);
+            mRouter.addCallback(mRouteTypes, mCallback, flags);
         }
 
-        protected Object getDefaultRoute() {
-            if (mGetDefaultRouteWorkaround == null) {
-                mGetDefaultRouteWorkaround = new MediaRouterApi16Impl.GetDefaultRouteWorkaround();
-            }
-            return mGetDefaultRouteWorkaround.getDefaultRoute(mRouter);
+        @DoNotInline
+        protected boolean isConnecting(SystemRouteRecord record) {
+            return record.mRoute.isConnecting();
         }
 
         /**
@@ -600,106 +638,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             public void onUpdateVolume(int delta) {
                 MediaRouterApi16Impl.RouteInfo.requestUpdateVolume(mRoute, delta);
             }
-        }
-    }
-
-    /**
-     * Jellybean MR2 implementation.
-     */
-    @RequiresApi(18)
-    private static class JellybeanMr2Impl extends JellybeanImpl
-            implements MediaRouterApi17Impl.Callback {
-        /* package */ JellybeanMr2Impl(Context context, SyncCallback syncCallback) {
-            super(context, syncCallback);
-        }
-
-        @DoNotInline
-        @Override
-        protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
-                MediaRouteDescriptor.Builder builder) {
-            super.onBuildSystemRouteDescriptor(record, builder);
-
-            if (!MediaRouterApi17Impl.RouteInfo.isEnabled(record.mRoute)) {
-                builder.setEnabled(false);
-            }
-
-            if (isConnecting(record)) {
-                builder.setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTING);
-            }
-
-            Display presentationDisplay =
-                    MediaRouterApi17Impl.RouteInfo.getPresentationDisplay(record.mRoute);
-            if (presentationDisplay != null) {
-                builder.setPresentationDisplayId(presentationDisplay.getDisplayId());
-            }
-
-            CharSequence description = record.mRoute.getDescription();
-            if (description != null) {
-                builder.setDescription(description.toString());
-            }
-        }
-
-        @Override
-        public void onRoutePresentationDisplayChanged(
-                @NonNull android.media.MediaRouter.RouteInfo route) {
-            int index = findSystemRouteRecord(route);
-            if (index >= 0) {
-                SystemRouteRecord record = mSystemRouteRecords.get(index);
-                Display newPresentationDisplay =
-                        MediaRouterApi17Impl.RouteInfo.getPresentationDisplay(route);
-                int newPresentationDisplayId = (newPresentationDisplay != null
-                        ? newPresentationDisplay.getDisplayId() : -1);
-                if (newPresentationDisplayId
-                        != record.mRouteDescriptor.getPresentationDisplayId()) {
-                    record.mRouteDescriptor =
-                            new MediaRouteDescriptor.Builder(record.mRouteDescriptor)
-                                    .setPresentationDisplayId(newPresentationDisplayId)
-                                    .build();
-                    publishRoutes();
-                }
-            }
-        }
-
-        @DoNotInline
-        @Override
-        protected void selectRoute(android.media.MediaRouter.RouteInfo route) {
-            MediaRouterApi16Impl.selectRoute(mRouter, MediaRouterApi16Impl.ALL_ROUTE_TYPES, route);
-        }
-
-        @DoNotInline
-        @Override
-        protected android.media.MediaRouter.RouteInfo getDefaultRoute() {
-            return mRouter.getDefaultRoute();
-        }
-
-        @DoNotInline
-        @Override
-        protected void updateUserRouteProperties(UserRouteRecord record) {
-            super.updateUserRouteProperties(record);
-            record.mUserRoute.setDescription(record.mRoute.getDescription());
-        }
-
-        @Override
-        protected android.media.MediaRouter.Callback createCallback() {
-            return MediaRouterApi17Impl.createCallback(this);
-        }
-
-        @DoNotInline
-        @Override
-        protected void updateCallback() {
-            if (mCallbackRegistered) {
-                MediaRouterApi16Impl.removeCallback(mRouter, mCallback);
-            }
-
-            mCallbackRegistered = true;
-            int flags = MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS
-                    | (mActiveScan ? MediaRouter.CALLBACK_FLAG_PERFORM_ACTIVE_SCAN : 0);
-            mRouter.addCallback(mRouteTypes, mCallback, flags);
-        }
-
-        @DoNotInline
-        protected boolean isConnecting(SystemRouteRecord record) {
-            return record.mRoute.isConnecting();
         }
     }
 
