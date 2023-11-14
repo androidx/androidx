@@ -21,8 +21,8 @@ plugins {
 
 dependencies {
     implementation(project(":shared"))
-    implementation("com.gradle:gradle-enterprise-gradle-plugin:3.14.1")
-    implementation("com.gradle:common-custom-user-data-gradle-plugin:1.11.1")
+    implementation("com.gradle:gradle-enterprise-gradle-plugin:3.15.1")
+    implementation("com.gradle:common-custom-user-data-gradle-plugin:1.12")
     implementation("supportBuildSrc:private")
     implementation("supportBuildSrc:public")
     implementation("supportBuildSrc:plugins")

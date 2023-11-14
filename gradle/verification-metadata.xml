@@ -120,7 +120,6 @@
          <trusted-key id="2e5b73c6efd2eb453104c2eae6ec76b4c6d3ae8e" group="com.google.protobuf"/>
          <trusted-key id="2e92113263fc31c74ccbaab20e91c2de43b72bb1" group="org.ec4j.core"/>
          <trusted-key id="3051d45031e13516a6e8faff280d66a55f5316c5" group="org.bitbucket.b_c"/>
-         <trusted-key id="314fe82e5a4c5377bca2edec5208812e1e4a6db0" group="com.gradle"/>
          <trusted-key id="31bae2e51d95e0f8ad9b7bcc40a3c4432bd7308c" group="com.googlecode.juniversalchardet"/>
          <trusted-key id="31fae244a81d64507b47182e1b2718089ce964b8" group="com.thoughtworks.qdox"/>
          <trusted-key id="3288b8be8512d6c0ca185268c51e6cbc7ff46f0b">
@@ -258,6 +257,7 @@
          <trusted-key id="78df98ef7f95578fd545b9a159a7c2a1bd98c013" group="org.jdom"/>
          <trusted-key id="79156e0351af8604de9b186b09a79e1e15a04694" group="org.vafer"/>
          <trusted-key id="7b121b76a7ed6ce6e60ad51784e913a8e3a748c0" group="org.bouncycastle"/>
+         <trusted-key id="7b79add11f8a779fe90fd3d0893a028475557671" group="com.gradle"/>
          <trusted-key id="7c669810892cbd3148fa92995b05ccde140c2876" group="org.eclipse.jgit"/>
          <trusted-key id="7cb548acfe3d47e92afa566dc29b11246382a4d7" group="com.charleskorn.kaml"/>
          <trusted-key id="7cd52b5a8295137c88fb5748dddafa7674e54418" group="org.testng"/>
