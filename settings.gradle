@@ -116,6 +116,10 @@ includeProject(":benchmark:benchmark-macro")
 includeProject(":benchmark:benchmark-macro-junit4")
 includeProject(":benchmark:integration-tests:macrobenchmark-target")
 
+// TODO: Include only when working on a Accessibility Library
+includeProject(":compose:accessibility")
+includeProject(":compose:accessibility:accessibility")
+
 includeProject(":compose:animation")
 includeProject(":compose:animation:animation")
 includeProject(":compose:animation:animation-lint")
