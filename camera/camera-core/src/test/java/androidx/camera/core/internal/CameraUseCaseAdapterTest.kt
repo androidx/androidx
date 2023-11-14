@@ -42,6 +42,7 @@ import androidx.camera.core.UseCase
 import androidx.camera.core.ViewPort
 import androidx.camera.core.concurrent.CameraCoordinator
 import androidx.camera.core.impl.CameraConfig
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.CameraInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.Identifier
@@ -1370,6 +1371,45 @@ class CameraUseCaseAdapterTest {
             .isEqualTo(fakeCameraInfo.hasFlashUnit())
     }
 
+    @Test
+    fun cameraInfo_postviewSupported(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+            fakeCameraSet,
+            cameraCoordinator,
+            fakeCameraDeviceSurfaceManager,
+            useCaseConfigFactory
+        )
+        val cameraInfoInternal = cameraUseCaseAdapter.cameraInfo as CameraInfoInternal
+        assertThat(cameraInfoInternal.isPostviewSupported).isFalse()
+        // 2. Act
+        val cameraConfig: CameraConfig = FakeCameraConfig(postviewSupported = true)
+        cameraUseCaseAdapter.setExtendedConfig(cameraConfig)
+
+        // 3. Assert
+        assertThat(cameraInfoInternal.isPostviewSupported).isTrue()
+    }
+
+    @Test
+    fun cameraInfo_captureProcessProgressSupported(): Unit = runBlocking {
+        // 1. Arrange
+        val cameraUseCaseAdapter = CameraUseCaseAdapter(
+            fakeCameraSet,
+            cameraCoordinator,
+            fakeCameraDeviceSurfaceManager,
+            useCaseConfigFactory
+        )
+        val cameraInfoInternal = cameraUseCaseAdapter.cameraInfo as CameraInfoInternal
+        assertThat(cameraInfoInternal.isCaptureProcessProgressSupported).isFalse()
+
+        // 2. Act
+        val cameraConfig: CameraConfig = FakeCameraConfig(captureProcessProgressSupported = true)
+        cameraUseCaseAdapter.setExtendedConfig(cameraConfig)
+
+        // 3. Assert
+        assertThat(cameraInfoInternal.isCaptureProcessProgressSupported).isTrue()
+    }
+
     private fun createFakeVideoCaptureUseCase(): FakeUseCase {
         return FakeUseCaseConfig.Builder()
             .setCaptureType(CaptureType.VIDEO_CAPTURE)
@@ -1430,13 +1470,24 @@ class CameraUseCaseAdapterTest {
     }
 
     private class FakeCameraConfig(
-        val sessionProcessor: FakeSessionProcessor? = null
+        val sessionProcessor: FakeSessionProcessor? = null,
+        val postviewSupported: Boolean = false,
+        val captureProcessProgressSupported: Boolean = false
     ) : CameraConfig {
         private val mUseCaseConfigFactory =
             UseCaseConfigFactory { _, _ -> null }
         private val mIdentifier = Identifier.create(Any())
+
         override fun getUseCaseConfigFactory(): UseCaseConfigFactory {
             return mUseCaseConfigFactory
+        }
+
+        override fun isPostviewSupported(): Boolean {
+            return postviewSupported
+        }
+
+        override fun isCaptureProcessProgressSupported(): Boolean {
+            return captureProcessProgressSupported
         }
 
         override fun getCompatibilityId(): Identifier {
