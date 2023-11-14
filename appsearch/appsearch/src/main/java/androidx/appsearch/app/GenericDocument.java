@@ -1113,7 +1113,6 @@ public class GenericDocument {
                 builder.append("\n");
                 builder.decreaseIndentLevel();
             }
-            builder.append("]");
         } else {
             int propertyArrLength = Array.getLength(property);
             for (int i = 0; i < propertyArrLength; i++) {
@@ -1127,11 +1126,10 @@ public class GenericDocument {
                 }
                 if (i != propertyArrLength - 1) {
                     builder.append(", ");
-                } else {
-                    builder.append("]");
                 }
             }
         }
+        builder.append("]");
     }
 
     /**
