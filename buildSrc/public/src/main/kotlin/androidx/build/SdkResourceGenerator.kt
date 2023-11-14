@@ -30,6 +30,7 @@ import org.gradle.api.plugins.JavaPluginExtension
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
@@ -75,8 +76,13 @@ abstract class SdkResourceGenerator : DefaultTask() {
         project.rootProject.rootDir.toRelativeString(project.projectDir)
 
     @get:Input
-    val prebuiltsRelativePath: String =
-        project.getPrebuiltsRoot().toRelativeString(project.projectDir)
+    @get:Optional
+    val prebuiltsRelativePath: String? =
+        if (ProjectLayoutType.isPlayground(project)) {
+            null
+        } else {
+            project.getPrebuiltsRoot().toRelativeString(project.projectDir)
+        }
 
     private val projectDir: File = project.projectDir
 
@@ -106,7 +112,9 @@ abstract class SdkResourceGenerator : DefaultTask() {
             writer.write("minSdkVersion=${minSdkVersion.get()}\n")
             writer.write("kgpVersion=${kgpVersion.get()}\n")
             writer.write("kspVersion=$kspVersion\n")
-            writer.write("prebuiltsRelativePath=$prebuiltsRelativePath\n")
+            if (prebuiltsRelativePath != null) {
+                writer.write("prebuiltsRelativePath=$prebuiltsRelativePath\n")
+            }
             writer.write("buildSrcOutRelativePath=$buildSrcOutRelativePath\n")
         }
     }
