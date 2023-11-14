@@ -26,8 +26,8 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 open class BluetoothException(
     open val errorCode: Int,
-    message: String?,
-    cause: Throwable?
+    message: String? = null,
+    cause: Throwable? = null
 ) : CancellationException(message) {
     companion object {
         /**

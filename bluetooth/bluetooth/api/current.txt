@@ -63,7 +63,7 @@ package androidx.bluetooth {
   }
 
   public class BluetoothException extends java.util.concurrent.CancellationException {
-    ctor public BluetoothException(int errorCode, String? message, Throwable? cause);
+    ctor public BluetoothException(int errorCode, optional String? message, optional Throwable? cause);
     method public int getErrorCode();
     property public int errorCode;
     field public static final int BLUETOOTH_NOT_ALLOWED = 2; // 0x2
