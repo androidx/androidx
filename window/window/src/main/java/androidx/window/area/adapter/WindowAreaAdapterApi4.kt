@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 The Android Open Source Project
+ * Copyright 2024 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.window.area
+package androidx.window.area.adapter
 
+import androidx.window.area.WindowAreaCapability
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_ACTIVE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_AVAILABLE
 import androidx.window.area.WindowAreaCapability.Status.Companion.WINDOW_AREA_STATUS_UNAVAILABLE
@@ -27,14 +28,9 @@ import androidx.window.extensions.area.WindowAreaComponent.STATUS_AVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNAVAILABLE
 import androidx.window.extensions.area.WindowAreaComponent.STATUS_UNSUPPORTED
 
-/**
- * Adapter object to assist in translating values received from [WindowAreaComponent]
- * to developer friendly values in [WindowAreaController]
- */
 @ExperimentalWindowApi
-internal object WindowAreaAdapter {
-
-    internal fun translate(
+internal object WindowAreaAdapterApi4 {
+    fun translate(
         status: @WindowAreaComponent.WindowAreaStatus Int
     ): WindowAreaCapability.Status {
         return when (status) {
