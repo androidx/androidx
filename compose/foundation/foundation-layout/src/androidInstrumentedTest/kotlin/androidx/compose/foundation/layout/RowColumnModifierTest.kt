@@ -16,17 +16,22 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Measured
 import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth
@@ -195,30 +200,30 @@ class RowColumnModifierTest() {
                         repeat(5) { index ->
                             Box(
                                 Modifier
-                                .size(
-                                    20.toDp(), if (index == 4) {
-                                        10.toDp()
-                                    } else {
-                                        20.toDp()
+                                    .size(
+                                        20.toDp(), if (index == 4) {
+                                            10.toDp()
+                                        } else {
+                                            20.toDp()
+                                        }
+                                    )
+                                    .weight(1f, fill)
+                                    .onSizeChanged {
+                                        if (index > 0) {
+                                            Truth
+                                                .assertThat(it.width)
+                                                .isEqualTo(width)
+                                        } else {
+                                            width = it.width
+                                        }
                                     }
-                                )
-                                .weight(1f, fill)
-                                .onSizeChanged {
-                                    if (index > 0) {
-                                        Truth
-                                            .assertThat(it.width)
-                                            .isEqualTo(width)
-                                    } else {
-                                        width = it.width
-                                    }
-                                }
-                                .align(alignment)
-                                .onPlaced {
-                                    if (index == 4) {
-                                        val positionInParent = it.positionInParent()
-                                        positionInParentY = positionInParent.y
-                                    }
-                                })
+                                    .align(alignment)
+                                    .onPlaced {
+                                        if (index == 4) {
+                                            val positionInParent = it.positionInParent()
+                                            positionInParentY = positionInParent.y
+                                        }
+                                    })
                         }
                     }
                 }
@@ -338,6 +343,24 @@ class RowColumnModifierTest() {
     }
 
     @Test
+    fun testColumn_doesNotCrashOnInfinity() {
+        rule.setContent {
+            Column(
+                Modifier
+                    .width(IntrinsicSize.Min)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Box(Modifier.height(20.dp)) {}
+                Layout(
+                    content = {},
+                ) { _, _ ->
+                    layout(200, Constraints.Infinity) {}
+                }
+            }
+        }
+    }
+
+    @Test
     fun testColumn_updatesOnWeightChange() {
         var height = 0
         var fill by mutableStateOf(false)
@@ -396,31 +419,31 @@ class RowColumnModifierTest() {
                         repeat(5) { index ->
                             Box(
                                 Modifier
-                                .size(
-                                    if (index == 4) {
-                                        10.toDp()
-                                    } else {
-                                        20.toDp()
-                                    },
-                                    20.toDp(),
-                                )
-                                .weight(1f, fill)
-                                .onSizeChanged {
-                                    if (index > 0) {
-                                        Truth
-                                            .assertThat(it.height)
-                                            .isEqualTo(height)
-                                    } else {
-                                        height = it.height
+                                    .size(
+                                        if (index == 4) {
+                                            10.toDp()
+                                        } else {
+                                            20.toDp()
+                                        },
+                                        20.toDp(),
+                                    )
+                                    .weight(1f, fill)
+                                    .onSizeChanged {
+                                        if (index > 0) {
+                                            Truth
+                                                .assertThat(it.height)
+                                                .isEqualTo(height)
+                                        } else {
+                                            height = it.height
+                                        }
                                     }
-                                }
-                                .align(alignment)
-                                .onPlaced {
-                                    if (index == 4) {
-                                        val positionInParent = it.positionInParent()
-                                        positionInParentX = positionInParent.x
-                                    }
-                                })
+                                    .align(alignment)
+                                    .onPlaced {
+                                        if (index == 4) {
+                                            val positionInParent = it.positionInParent()
+                                            positionInParentX = positionInParent.x
+                                        }
+                                    })
                         }
                     }
                 }
