@@ -20,7 +20,7 @@ import android.bluetooth.le.ScanCallback as FwkScanCallback
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
-class ScanException(errorCode: Int) : BluetoothException(errorCode, null, null) {
+class ScanException(errorCode: Int) : BluetoothException(errorCode) {
 
     companion object {
         /** Fails to start scan as app cannot be registered. */
