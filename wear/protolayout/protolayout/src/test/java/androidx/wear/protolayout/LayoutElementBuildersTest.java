@@ -66,6 +66,8 @@ public class LayoutElementBuildersTest {
             new DimensionBuilders.VerticalLayoutConstraint.Builder(20)
                     .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_BOTTOM)
                     .build();
+    private static final TypeBuilders.StringProp STATIC_STRING_PROP =
+            new TypeBuilders.StringProp.Builder("string").build();
     private static final TypeBuilders.StringProp STRING_PROP =
             new TypeBuilders.StringProp.Builder("string")
                     .setDynamicValue(
@@ -253,6 +255,21 @@ public class LayoutElementBuildersTest {
                 .isEqualTo(STRING_LAYOUT_CONSTRAINT.getPatternForLayout());
         assertThat(textProto.getTextAlignmentForLayoutValue())
                 .isEqualTo(STRING_LAYOUT_CONSTRAINT.getAlignment());
+    }
+
+    @Test
+    public void testTextSetOverflow_ellipsize() {
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText(STATIC_STRING_PROP)
+                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
+                        .build();
+
+        LayoutElementProto.Text textProto = text.toProto();
+
+        assertThat(textProto.getText().getValue()).isEqualTo(STATIC_STRING_PROP.getValue());
+        assertThat(textProto.getOverflow().getValue().getNumber())
+                .isEqualTo(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE);
     }
 
     @Test

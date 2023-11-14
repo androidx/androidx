@@ -144,8 +144,9 @@ enum TextOverflow {
   // Overflow behavior is undefined.
   TEXT_OVERFLOW_UNDEFINED = 0;
 
-  // Truncate the text to fit inside of the Text element's bounds. If text is
-  // truncated, it will be truncated on a word boundary.
+  // Truncate the text at the last line defined by {@code setMaxLines} in Text to fit in the Text
+  // element's bounds, but add an ellipsis (i.e. ...) to the end of the text if it has been
+  // truncated.
   TEXT_OVERFLOW_TRUNCATE = 1;
 
   // Truncate the text to fit in the Text element's bounds, but add an ellipsis
@@ -158,6 +159,15 @@ enum TextOverflow {
   //
 
   TEXT_OVERFLOW_MARQUEE = 3;
+
+  // Truncate the text to fit in the Text element's parent bounds, but add an
+  // ellipsis (i.e. ...) to the end of the text if it has been truncated.
+  // This will truncate the text even before {@code setMaxLines} in Text is
+  // reached if there's not enough space in the parent container.
+  // Note that, when this is used, the parent of the Text element this
+  // corresponds to shouldn't have its width and height set to wrapped, as it
+  // can lead to unexpected results.
+  TEXT_OVERFLOW_ELLIPSIZE = 4;
 }
 
 // An extensible TextOverflow property.

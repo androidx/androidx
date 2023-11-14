@@ -208,7 +208,8 @@ public final class LayoutElementBuilders {
         TEXT_OVERFLOW_UNDEFINED,
         TEXT_OVERFLOW_TRUNCATE,
         TEXT_OVERFLOW_ELLIPSIZE_END,
-        TEXT_OVERFLOW_MARQUEE
+        TEXT_OVERFLOW_MARQUEE,
+        TEXT_OVERFLOW_ELLIPSIZE
     })
     @Retention(RetentionPolicy.SOURCE)
     @OptIn(markerClass = ProtoLayoutExperimental.class)
@@ -230,8 +231,9 @@ public final class LayoutElementBuilders {
     public static final int TEXT_OVERFLOW_TRUNCATE = 1;
 
     /**
-     * Truncate the text to fit in the {@link Text} element's bounds, but add an ellipsis (i.e. ...)
-     * to the end of the text if it has been truncated.
+     * Truncate the text at the last line defined by {@code setMaxLines} in {@link Text} to fit in
+     * the {@link Text} element's bounds, but add an ellipsis (i.e. ...) to the end of the text if
+     * it has been truncated.
      *
      * @since 1.0
      */
@@ -245,6 +247,18 @@ public final class LayoutElementBuilders {
      * @since 1.2
      */
     @ProtoLayoutExperimental public static final int TEXT_OVERFLOW_MARQUEE = 3;
+
+    /**
+     * Truncate the text to fit in the {@link Text} element's parent bounds, but add an ellipsis
+     * (i.e. ...) to the end of the text if it has been truncated. This will truncate the text
+     * even before {@code setMaxLines} in {@link Text} is reached if there's not enough space in
+     * the parent container. Note that, when this is used, the parent of the {@link Text} element
+     * this corresponds to shouldn't have its width and height set to wrapped, as it can lead to
+     * unexpected results.
+     *
+     * @since 1.3
+     */
+    public static final int TEXT_OVERFLOW_ELLIPSIZE = 4;
 
     /**
      * How content which does not match the dimensions of its bounds (e.g. an image resource being
