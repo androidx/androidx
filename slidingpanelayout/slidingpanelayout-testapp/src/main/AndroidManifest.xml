@@ -31,5 +31,7 @@
 
         <activity android:name="androidx.slidingpanelayout.SlidingPaneLayoutSample"
             android:exported="true" />
+        <activity android:name="androidx.slidingpanelayout.SlidingPaneLayoutResizeSample"
+            android:exported="true"/>
     </application>
 </manifest>
