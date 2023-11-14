@@ -17,12 +17,8 @@
 package androidx.mediarouter.media;
 
 import android.media.MediaRouter;
-import android.util.Log;
-import android.view.Display;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 /**
@@ -33,36 +29,10 @@ import androidx.annotation.RequiresApi;
  */
 @RequiresApi(17)
 /* package */ final class MediaRouterApi17Impl {
-    private static final String TAG = "MediaRouterJellybeanMr1";
-
     private MediaRouterApi17Impl() {}
 
     public static android.media.MediaRouter.Callback createCallback(Callback callback) {
         return new CallbackProxy<>(callback);
-    }
-
-    public static final class RouteInfo {
-
-        private RouteInfo() {}
-
-        @DoNotInline
-        public static boolean isEnabled(@NonNull android.media.MediaRouter.RouteInfo route) {
-            return route.isEnabled();
-        }
-
-        @DoNotInline
-        @Nullable
-        public static Display getPresentationDisplay(
-                @NonNull android.media.MediaRouter.RouteInfo route) {
-            // android.media.MediaRouter.RouteInfo.getPresentationDisplay() was
-            // added in API 17. However, some factory releases of JB MR1 missed it.
-            try {
-                return route.getPresentationDisplay();
-            } catch (NoSuchMethodError ex) {
-                Log.w(TAG, "Cannot get presentation display for the route.", ex);
-            }
-            return null;
-        }
     }
 
     public interface Callback extends MediaRouterApi16Impl.Callback {

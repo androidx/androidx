@@ -15,6 +15,7 @@
  */
 package androidx.mediarouter.media;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.media.AudioManager;
 import android.os.Build;
@@ -135,25 +136,28 @@ abstract class RemoteControlClientCompat {
         JellybeanImpl(Context context, android.media.RemoteControlClient rcc) {
             super(context, rcc);
 
-            mRouter = MediaRouterApi16Impl.getMediaRouter(context);
-            mUserRouteCategory = MediaRouterApi16Impl.createRouteCategory(mRouter, "", false);
-            mUserRoute = MediaRouterApi16Impl.createUserRoute(mRouter, mUserRouteCategory);
+            mRouter =
+                    (android.media.MediaRouter)
+                            context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
+            mUserRouteCategory =
+                    mRouter.createRouteCategory(/* name= */ "", /* isGroupable= */ false);
+            mUserRoute = mRouter.createUserRoute(mUserRouteCategory);
         }
 
+        @SuppressLint("WrongConstant") // False positive. See b/310913043.
         @Override
         public void setPlaybackInfo(PlaybackInfo info) {
-            MediaRouterApi16Impl.UserRouteInfo.setVolume(mUserRoute, info.volume);
-            MediaRouterApi16Impl.UserRouteInfo.setVolumeMax(mUserRoute, info.volumeMax);
-            MediaRouterApi16Impl.UserRouteInfo.setVolumeHandling(mUserRoute, info.volumeHandling);
-            MediaRouterApi16Impl.UserRouteInfo.setPlaybackStream(mUserRoute, info.playbackStream);
-            MediaRouterApi16Impl.UserRouteInfo.setPlaybackType(mUserRoute, info.playbackType);
+            mUserRoute.setVolume(info.volume);
+            mUserRoute.setVolumeMax(info.volumeMax);
+            mUserRoute.setVolumeHandling(info.volumeHandling);
+            mUserRoute.setPlaybackStream(info.playbackStream);
+            mUserRoute.setPlaybackType(info.playbackType);
 
             if (!mRegistered) {
                 mRegistered = true;
-                MediaRouterApi16Impl.UserRouteInfo.setVolumeCallback(
-                        mUserRoute,
+                mUserRoute.setVolumeCallback(
                         MediaRouterApi16Impl.createVolumeCallback(new VolumeCallbackWrapper(this)));
-                MediaRouterApi16Impl.UserRouteInfo.setRemoteControlClient(mUserRoute, mRcc);
+                mUserRoute.setRemoteControlClient(mRcc);
             }
         }
 
