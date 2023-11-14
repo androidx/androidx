@@ -294,7 +294,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
             }
 
             is RelativeQuadTo -> {
-                target.relativeQuadraticBezierTo(node.dx1, node.dy1, node.dx2, node.dy2)
+                target.relativeQuadraticTo(node.dx1, node.dy1, node.dx2, node.dy2)
                 ctrlX = currentX + node.dx1
                 ctrlY = currentY + node.dy1
                 currentX += node.dx2
@@ -302,7 +302,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
             }
 
             is QuadTo -> {
-                target.quadraticBezierTo(node.x1, node.y1, node.x2, node.y2)
+                target.quadraticTo(node.x1, node.y1, node.x2, node.y2)
                 ctrlX = node.x1
                 ctrlY = node.y1
                 currentX = node.x2
@@ -317,7 +317,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     reflectiveCtrlX = 0.0f
                     reflectiveCtrlY = 0.0f
                 }
-                target.relativeQuadraticBezierTo(
+                target.relativeQuadraticTo(
                     reflectiveCtrlX,
                     reflectiveCtrlY, node.dx, node.dy
                 )
@@ -335,7 +335,7 @@ fun List<PathNode>.toPath(target: Path = Path()): Path {
                     reflectiveCtrlX = currentX
                     reflectiveCtrlY = currentY
                 }
-                target.quadraticBezierTo(
+                target.quadraticTo(
                     reflectiveCtrlX,
                     reflectiveCtrlY, node.x, node.y
                 )

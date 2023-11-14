@@ -25,6 +25,20 @@ expect fun Path(): Path
 
 @JvmDefaultWithCompatibility
 /* expect class */ interface Path {
+    /**
+     * Specifies how closed shapes (e.g. rectangles, ovals) are wound (oriented)
+     * when they are added to a path.
+     */
+    enum class Direction {
+        /**
+         * The shape is wound in counter-clockwise order.
+         */
+        CounterClockWise,
+        /**
+         * The shape is wound in clockwise order.
+         */
+        ClockWise
+    }
 
     /**
      * Determines how the interior of this path is calculated.
@@ -77,7 +91,22 @@ expect fun Path(): Path
      * point to the given point ([x2], [y2]), using the control point
      * ([x1], [y1]).
      */
+    @Deprecated(
+        "Use quadraticTo() for consistency with cubicTo()",
+        replaceWith = ReplaceWith("quadraticTo(x1, y1, x2, y2)"),
+        level = DeprecationLevel.WARNING
+    )
     fun quadraticBezierTo(x1: Float, y1: Float, x2: Float, y2: Float)
+
+    /**
+     * Adds a quadratic bezier segment that curves from the current
+     * point to the given point ([x2], [y2]), using the control point
+     * ([x1], [y1]).
+     */
+    fun quadraticTo(x1: Float, y1: Float, x2: Float, y2: Float) {
+        @Suppress("DEPRECATION")
+        quadraticBezierTo(x1, y1, x2, y2)
+    }
 
     /**
      * Adds a quadratic bezier segment that curves from the current
@@ -85,7 +114,23 @@ expect fun Path(): Path
      * using the control point at the offset ([dx1], [dy1]) from the current
      * point.
      */
+    @Deprecated(
+        "Use relativeQuadraticTo() for consistency with relativeCubicTo()",
+        replaceWith = ReplaceWith("relativeQuadraticTo(dx1, dy1, dx2, dy2)"),
+        level = DeprecationLevel.WARNING
+    )
     fun relativeQuadraticBezierTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float)
+
+    /**
+     * Adds a quadratic bezier segment that curves from the current
+     * point to the point at the offset ([dx2], [dy2]) from the current point,
+     * using the control point at the offset ([dx1], [dy1]) from the current
+     * point.
+     */
+    fun relativeQuadraticTo(dx1: Float, dy1: Float, dx2: Float, dy2: Float) {
+        @Suppress("DEPRECATION")
+        relativeQuadraticBezierTo(dx1, dy1, dx2, dy2)
+    }
 
     /**
      * Adds a cubic bezier segment that curves from the current point
@@ -156,9 +201,21 @@ expect fun Path(): Path
 
     /**
      * Adds a new subpath that consists of four lines that outline the
-     * given rectangle.
+     * given rectangle. The rectangle is wound counter-clockwise.
      */
+    @Deprecated(
+        "Prefer usage of addRect() with a winding direction",
+        replaceWith = ReplaceWith("addRect(rect)"),
+        level = DeprecationLevel.HIDDEN
+    )
     fun addRect(rect: Rect)
+
+    /**
+     * Adds a new subpath that consists of four lines that outline the
+     * given rectangle. The direction to wind the rectangle's contour
+     * is specified by [direction].
+     */
+    fun addRect(rect: Rect, direction: Direction = Direction.CounterClockWise)
 
     /**
      * Adds a new subpath that consists of a curve that forms the
@@ -166,8 +223,43 @@ expect fun Path(): Path
      *
      * To add a circle, pass an appropriate rectangle as `oval`. [Rect]
      * can be used to easily describe the circle's center [Offset] and radius.
+     *
+     * The oval is wound counter-clockwise.
      */
+    @Deprecated(
+        "Prefer usage of addOval() with a winding direction",
+        replaceWith = ReplaceWith("addOval(oval)"),
+        level = DeprecationLevel.HIDDEN
+    )
     fun addOval(oval: Rect)
+
+    /**
+     * Adds a new subpath that consists of a curve that forms the
+     * ellipse that fills the given rectangle.
+     *
+     * To add a circle, pass an appropriate rectangle as `oval`. [Rect]
+     * can be used to easily describe the circle's center [Offset] and radius.
+     *
+     * The direction to wind the rectangle's contour is specified by [direction].
+     */
+    fun addOval(oval: Rect, direction: Direction = Direction.CounterClockWise)
+
+    /**
+     * Add a round rectangle shape to the path from the given [RoundRect].
+     * The round rectangle is wound counter-clockwise.
+     */
+    @Deprecated(
+        "Prefer usage of addRoundRect() with a winding direction",
+        replaceWith = ReplaceWith("addRoundRect(roundRect)"),
+        level = DeprecationLevel.HIDDEN
+    )
+    fun addRoundRect(roundRect: RoundRect)
+
+    /**
+     * Add a round rectangle shape to the path from the given [RoundRect].
+     * The direction to wind the rectangle's contour is specified by [direction].
+     */
+    fun addRoundRect(roundRect: RoundRect, direction: Direction = Direction.CounterClockWise)
 
     /**
      * Adds a new subpath with one arc segment that consists of the arc
@@ -192,11 +284,6 @@ expect fun Path(): Path
      * oval.
      */
     fun addArc(oval: Rect, startAngleDegrees: Float, sweepAngleDegrees: Float)
-
-    /**
-     * Add a round rectangle shape to the path from the given [RoundRect]
-     */
-    fun addRoundRect(roundRect: RoundRect)
 
     /**
      * Adds a new subpath that consists of the given `path` offset by the given
@@ -247,6 +334,22 @@ expect fun Path(): Path
     fun getBounds(): Rect
 
     /**
+     * Creates a new [PathIterator] for this [Path] that evaluates conics as quadratics.
+     * To preserve conics, use the [Path.iterator] function that takes a
+     * [PathIterator.ConicEvaluation] parameter.
+     */
+    operator fun iterator() = PathIterator(this)
+
+    /**
+     * Creates a new [PathIterator] for this [Path]. To preserve conics as conics (not
+     * convert them to quadratics), set [conicEvaluation] to [PathIterator.ConicEvaluation.AsConic].
+     */
+    fun iterator(
+        conicEvaluation: PathIterator.ConicEvaluation,
+        tolerance: Float = 0.25f
+    ) = PathIterator(this, conicEvaluation, tolerance)
+
+    /**
      * Set this path to the result of applying the Op to the two specified paths.
      * The resulting path will be constructed from non-overlapping contours.
      * The curve order is reduced where possible so that cubics may be turned
@@ -263,6 +366,40 @@ expect fun Path(): Path
         operation: PathOperation
     ): Boolean
 
+    /**
+     * Returns the union of two paths as a new [Path].
+     */
+    operator fun plus(path: Path) = Path().apply {
+        op(this@Path, path, PathOperation.Union)
+    }
+
+    /**
+     * Returns the difference of two paths as a new [Path].
+     */
+    operator fun minus(path: Path) = Path().apply {
+        op(this@Path, path, PathOperation.Difference)
+    }
+
+    /**
+     * Returns the union of two paths as a new [Path].
+     */
+    infix fun or(path: Path): Path = this + path
+
+    /**
+     * Returns the intersection of two paths as a new [Path].
+     * If the paths do not intersect, returns an empty path.
+     */
+    infix fun and(path: Path) = Path().apply {
+        op(this@Path, path, PathOperation.Intersect)
+    }
+
+    /**
+     * Returns the union minus the intersection of two paths as a new [Path].
+     */
+    infix fun xor(path: Path) = Path().apply {
+        op(this@Path, path, PathOperation.Xor)
+    }
+
     companion object {
         /**
          * Combines the two paths according to the manner specified by the given
@@ -272,7 +409,7 @@ expect fun Path(): Path
          * curve order is reduced where possible so that cubics may be turned into
          * quadratics, and quadratics maybe turned into lines.
          *
-         * Throws [IllegalArgumentException] as Android framework does not support this API
+         * Throws [IllegalArgumentException] if the combining operation fails.
          */
         fun combine(
             operation: PathOperation,
@@ -280,10 +417,10 @@ expect fun Path(): Path
             path2: Path
         ): Path {
             val path = Path()
-
             if (path.op(path1, path2, operation)) {
                 return path
             }
+
             throw IllegalArgumentException(
                 "Path.combine() failed.  This may be due an invalid " +
                     "path; in particular, check for NaN values."

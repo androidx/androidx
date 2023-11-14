@@ -48,7 +48,7 @@ class PathEasingTest {
     fun pathEasing_CheckIncreasingXOverTime() {
         val path = Path()
         path.moveTo(0f, 0f)
-        path.quadraticBezierTo(0f, 1.65f, 1f, -0.6f)
+        path.quadraticTo(0f, 1.65f, 1f, -0.6f)
 
         val easing = PathEasing(path)
         assertThat(easing.transform(0f)).isZero()

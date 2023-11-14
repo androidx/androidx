@@ -65,6 +65,7 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
+                implementation("androidx.graphics:graphics-path:1.0.0-alpha02")
                 api(libs.androidx.annotation)
             }
         }

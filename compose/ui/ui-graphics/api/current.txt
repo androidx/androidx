@@ -85,9 +85,12 @@ package androidx.compose.ui.graphics {
     method public void addArc(androidx.compose.ui.geometry.Rect oval, float startAngleDegrees, float sweepAngleDegrees);
     method public void addArcRad(androidx.compose.ui.geometry.Rect oval, float startAngleRadians, float sweepAngleRadians);
     method public void addOval(androidx.compose.ui.geometry.Rect oval);
+    method public void addOval(androidx.compose.ui.geometry.Rect oval, androidx.compose.ui.graphics.Path.Direction direction);
     method public void addPath(androidx.compose.ui.graphics.Path path, long offset);
     method public void addRect(androidx.compose.ui.geometry.Rect rect);
+    method public void addRect(androidx.compose.ui.geometry.Rect rect, androidx.compose.ui.graphics.Path.Direction direction);
     method public void addRoundRect(androidx.compose.ui.geometry.RoundRect roundRect);
+    method public void addRoundRect(androidx.compose.ui.geometry.RoundRect roundRect, androidx.compose.ui.graphics.Path.Direction direction);
     method public void arcTo(androidx.compose.ui.geometry.Rect rect, float startAngleDegrees, float sweepAngleDegrees, boolean forceMoveTo);
     method public void close();
     method public void cubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
@@ -116,6 +119,24 @@ package androidx.compose.ui.graphics {
   public final class AndroidPathEffect_androidKt {
     method public static android.graphics.PathEffect asAndroidPathEffect(androidx.compose.ui.graphics.PathEffect);
     method public static androidx.compose.ui.graphics.PathEffect toComposePathEffect(android.graphics.PathEffect);
+  }
+
+  public final class AndroidPathIterator implements androidx.compose.ui.graphics.PathIterator {
+    ctor public AndroidPathIterator(androidx.compose.ui.graphics.Path path, androidx.compose.ui.graphics.PathIterator.ConicEvaluation conicEvaluation, float tolerance);
+    method public int calculateSize(boolean includeConvertedConics);
+    method public androidx.compose.ui.graphics.PathIterator.ConicEvaluation getConicEvaluation();
+    method public androidx.compose.ui.graphics.Path getPath();
+    method public float getTolerance();
+    method public boolean hasNext();
+    method public androidx.compose.ui.graphics.PathSegment next();
+    method public androidx.compose.ui.graphics.PathSegment.Type next(float[] points, int offset);
+    property public androidx.compose.ui.graphics.PathIterator.ConicEvaluation conicEvaluation;
+    property public androidx.compose.ui.graphics.Path path;
+    property public float tolerance;
+  }
+
+  public final class AndroidPathIterator_androidKt {
+    method public static androidx.compose.ui.graphics.PathIterator PathIterator(androidx.compose.ui.graphics.Path path, optional androidx.compose.ui.graphics.PathIterator.ConicEvaluation conicEvaluation, optional float tolerance);
   }
 
   public final class AndroidPathMeasure implements androidx.compose.ui.graphics.PathMeasure {
@@ -635,10 +656,14 @@ package androidx.compose.ui.graphics {
   @kotlin.jvm.JvmDefaultWithCompatibility public interface Path {
     method public void addArc(androidx.compose.ui.geometry.Rect oval, float startAngleDegrees, float sweepAngleDegrees);
     method public void addArcRad(androidx.compose.ui.geometry.Rect oval, float startAngleRadians, float sweepAngleRadians);
-    method public void addOval(androidx.compose.ui.geometry.Rect oval);
+    method @Deprecated public void addOval(androidx.compose.ui.geometry.Rect oval);
+    method public void addOval(androidx.compose.ui.geometry.Rect oval, optional androidx.compose.ui.graphics.Path.Direction direction);
     method public void addPath(androidx.compose.ui.graphics.Path path, optional long offset);
-    method public void addRect(androidx.compose.ui.geometry.Rect rect);
-    method public void addRoundRect(androidx.compose.ui.geometry.RoundRect roundRect);
+    method @Deprecated public void addRect(androidx.compose.ui.geometry.Rect rect);
+    method public void addRect(androidx.compose.ui.geometry.Rect rect, optional androidx.compose.ui.graphics.Path.Direction direction);
+    method @Deprecated public void addRoundRect(androidx.compose.ui.geometry.RoundRect roundRect);
+    method public void addRoundRect(androidx.compose.ui.geometry.RoundRect roundRect, optional androidx.compose.ui.graphics.Path.Direction direction);
+    method public default infix androidx.compose.ui.graphics.Path and(androidx.compose.ui.graphics.Path path);
     method public void arcTo(androidx.compose.ui.geometry.Rect rect, float startAngleDegrees, float sweepAngleDegrees, boolean forceMoveTo);
     method public default void arcToRad(androidx.compose.ui.geometry.Rect rect, float startAngleRadians, float sweepAngleRadians, boolean forceMoveTo);
     method public void close();
@@ -647,19 +672,27 @@ package androidx.compose.ui.graphics {
     method public int getFillType();
     method public boolean isConvex();
     method public boolean isEmpty();
+    method public default operator androidx.compose.ui.graphics.PathIterator iterator();
+    method public default androidx.compose.ui.graphics.PathIterator iterator(androidx.compose.ui.graphics.PathIterator.ConicEvaluation conicEvaluation, optional float tolerance);
     method public void lineTo(float x, float y);
+    method public default operator androidx.compose.ui.graphics.Path minus(androidx.compose.ui.graphics.Path path);
     method public void moveTo(float x, float y);
     method public boolean op(androidx.compose.ui.graphics.Path path1, androidx.compose.ui.graphics.Path path2, int operation);
-    method public void quadraticBezierTo(float x1, float y1, float x2, float y2);
+    method public default infix androidx.compose.ui.graphics.Path or(androidx.compose.ui.graphics.Path path);
+    method public default operator androidx.compose.ui.graphics.Path plus(androidx.compose.ui.graphics.Path path);
+    method @Deprecated public void quadraticBezierTo(float x1, float y1, float x2, float y2);
+    method public default void quadraticTo(float x1, float y1, float x2, float y2);
     method public void relativeCubicTo(float dx1, float dy1, float dx2, float dy2, float dx3, float dy3);
     method public void relativeLineTo(float dx, float dy);
     method public void relativeMoveTo(float dx, float dy);
-    method public void relativeQuadraticBezierTo(float dx1, float dy1, float dx2, float dy2);
+    method @Deprecated public void relativeQuadraticBezierTo(float dx1, float dy1, float dx2, float dy2);
+    method public default void relativeQuadraticTo(float dx1, float dy1, float dx2, float dy2);
     method public void reset();
     method public default void rewind();
     method public void setFillType(int);
     method public default void transform(float[] matrix);
     method public void translate(long offset);
+    method public default infix androidx.compose.ui.graphics.Path xor(androidx.compose.ui.graphics.Path path);
     property public abstract int fillType;
     property public abstract boolean isConvex;
     property public abstract boolean isEmpty;
@@ -668,6 +701,13 @@ package androidx.compose.ui.graphics {
 
   public static final class Path.Companion {
     method public androidx.compose.ui.graphics.Path combine(int operation, androidx.compose.ui.graphics.Path path1, androidx.compose.ui.graphics.Path path2);
+  }
+
+  public enum Path.Direction {
+    method public static androidx.compose.ui.graphics.Path.Direction valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.ui.graphics.Path.Direction[] values();
+    enum_constant public static final androidx.compose.ui.graphics.Path.Direction ClockWise;
+    enum_constant public static final androidx.compose.ui.graphics.Path.Direction CounterClockWise;
   }
 
   public interface PathEffect {
@@ -690,6 +730,25 @@ package androidx.compose.ui.graphics {
     method public int getNonZero();
     property public final int EvenOdd;
     property public final int NonZero;
+  }
+
+  public interface PathIterator extends java.util.Iterator<androidx.compose.ui.graphics.PathSegment> kotlin.jvm.internal.markers.KMappedMarker {
+    method public int calculateSize(optional boolean includeConvertedConics);
+    method public androidx.compose.ui.graphics.PathIterator.ConicEvaluation getConicEvaluation();
+    method public androidx.compose.ui.graphics.Path getPath();
+    method public float getTolerance();
+    method public androidx.compose.ui.graphics.PathSegment next();
+    method public androidx.compose.ui.graphics.PathSegment.Type next(float[] points, optional int offset);
+    property public abstract androidx.compose.ui.graphics.PathIterator.ConicEvaluation conicEvaluation;
+    property public abstract androidx.compose.ui.graphics.Path path;
+    property public abstract float tolerance;
+  }
+
+  public enum PathIterator.ConicEvaluation {
+    method public static androidx.compose.ui.graphics.PathIterator.ConicEvaluation valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.ui.graphics.PathIterator.ConicEvaluation[] values();
+    enum_constant public static final androidx.compose.ui.graphics.PathIterator.ConicEvaluation AsConic;
+    enum_constant public static final androidx.compose.ui.graphics.PathIterator.ConicEvaluation AsQuadratics;
   }
 
   @kotlin.jvm.JvmDefaultWithCompatibility public interface PathMeasure {
@@ -724,6 +783,34 @@ package androidx.compose.ui.graphics {
     method @Deprecated public static int getReverseDifference(androidx.compose.ui.graphics.PathOperation.Companion);
     method @Deprecated public static int getUnion(androidx.compose.ui.graphics.PathOperation.Companion);
     method @Deprecated public static int getXor(androidx.compose.ui.graphics.PathOperation.Companion);
+  }
+
+  public final class PathSegment {
+    method public float[] getPoints();
+    method public androidx.compose.ui.graphics.PathSegment.Type getType();
+    method public float getWeight();
+    property public final float[] points;
+    property public final androidx.compose.ui.graphics.PathSegment.Type type;
+    property public final float weight;
+  }
+
+  public enum PathSegment.Type {
+    method public static androidx.compose.ui.graphics.PathSegment.Type valueOf(String value) throws java.lang.IllegalArgumentException, java.lang.NullPointerException;
+    method public static androidx.compose.ui.graphics.PathSegment.Type[] values();
+    enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Close;
+    enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Conic;
+    enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Cubic;
+    enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Done;
+    enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Line;
+    enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Move;
+    enum_constant public static final androidx.compose.ui.graphics.PathSegment.Type Quadratic;
+  }
+
+  public final class PathSegmentKt {
+    method public static androidx.compose.ui.graphics.PathSegment getCloseSegment();
+    method public static androidx.compose.ui.graphics.PathSegment getDoneSegment();
+    property public static final androidx.compose.ui.graphics.PathSegment CloseSegment;
+    property public static final androidx.compose.ui.graphics.PathSegment DoneSegment;
   }
 
   public final class PixelMap {
