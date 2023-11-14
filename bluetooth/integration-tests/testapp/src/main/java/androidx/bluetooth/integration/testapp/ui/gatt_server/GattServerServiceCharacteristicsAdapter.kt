@@ -19,7 +19,6 @@ package androidx.bluetooth.integration.testapp.ui.gatt_server
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
 import androidx.bluetooth.GattCharacteristic
 import androidx.bluetooth.integration.testapp.R
@@ -47,18 +46,6 @@ class GattServerServiceCharacteristicsAdapter(
 
         private val textViewUuid: TextView = itemView.findViewById(R.id.text_view_uuid)
         private val textViewProperties: TextView = itemView.findViewById(R.id.text_view_properties)
-
-        private val buttonAddDescriptor: Button =
-            itemView.findViewById(R.id.button_add_descriptor)
-
-        private val recyclerViewServiceCharacteristicDescriptors: RecyclerView =
-            itemView.findViewById(R.id.recycler_view_service_characteristic_descriptor)
-
-        init {
-            buttonAddDescriptor.setOnClickListener {
-                // TODO Wait for (b/310337673)
-            }
-        }
 
         fun bind(characteristic: GattCharacteristic) {
             textViewUuid.text = characteristic.uuid.toString()
@@ -89,10 +76,6 @@ class GattServerServiceCharacteristicsAdapter(
                 propertiesList.add(context.getString(R.string.write_no_response))
             }
             textViewProperties.text = propertiesList.joinToString()
-
-            // TODO Wait for (b/310337673)
-//            recyclerViewServiceCharacteristicDescriptors.adapter
-//                = GattServerServiceCharacteristicDescriptorsAdapter()
         }
     }
 }
