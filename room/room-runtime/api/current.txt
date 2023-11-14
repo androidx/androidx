@@ -4,6 +4,7 @@ package androidx.room {
   public class DatabaseConfiguration {
     method public boolean isMigrationRequired(int fromVersion, int toVersion);
     method @Deprecated public boolean isMigrationRequiredFrom(int version);
+    field public final boolean allowDestructiveMigrationForAllTables;
     field public final boolean allowDestructiveMigrationOnDowngrade;
     field public final boolean allowMainThreadQueries;
     field public final java.util.List<androidx.room.migration.AutoMigrationSpec> autoMigrationSpecs;
@@ -102,9 +103,12 @@ package androidx.room {
     method public androidx.room.RoomDatabase.Builder<T> createFromInputStream(java.util.concurrent.Callable<java.io.InputStream> inputStreamCallable);
     method public androidx.room.RoomDatabase.Builder<T> createFromInputStream(java.util.concurrent.Callable<java.io.InputStream> inputStreamCallable, androidx.room.RoomDatabase.PrepackagedDatabaseCallback callback);
     method public androidx.room.RoomDatabase.Builder<T> enableMultiInstanceInvalidation();
-    method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigration();
-    method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationFrom(int... startVersions);
-    method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationOnDowngrade();
+    method @Deprecated public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigration();
+    method public final androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigration(boolean dropAllTables);
+    method public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationFrom(boolean dropAllTables, int... startVersions);
+    method @Deprecated public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationFrom(int... startVersions);
+    method @Deprecated public androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationOnDowngrade();
+    method public final androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationOnDowngrade(boolean dropAllTables);
     method public androidx.room.RoomDatabase.Builder<T> openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory? factory);
     method @SuppressCompatibility @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T> setAutoCloseTimeout(@IntRange(from=0L) long autoCloseTimeout, java.util.concurrent.TimeUnit autoCloseTimeUnit);
     method public androidx.room.RoomDatabase.Builder<T> setJournalMode(androidx.room.RoomDatabase.JournalMode journalMode);

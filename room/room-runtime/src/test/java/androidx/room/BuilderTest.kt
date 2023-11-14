@@ -172,7 +172,7 @@ class BuilderTest {
     fun skipMigration() {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java)
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(false)
             .build()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
         assertThat(config.requireMigration).isFalse()
@@ -182,7 +182,7 @@ class BuilderTest {
     fun fallbackToDestructiveMigrationFrom_calledOnce_migrationsNotRequiredForValues() {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java)
-            .fallbackToDestructiveMigrationFrom(1, 2).build()
+            .fallbackToDestructiveMigrationFrom(true, 1, 2).build()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
         assertThat(config.isMigrationRequired(1, 2)).isFalse()
         assertThat(config.isMigrationRequired(2, 3)).isFalse()
@@ -192,8 +192,8 @@ class BuilderTest {
     fun fallbackToDestructiveMigrationFrom_calledTwice_migrationsNotRequiredForValues() {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java)
-            .fallbackToDestructiveMigrationFrom(1, 2)
-            .fallbackToDestructiveMigrationFrom(3, 4)
+            .fallbackToDestructiveMigrationFrom(true, 1, 2)
+            .fallbackToDestructiveMigrationFrom(true, 3, 4)
             .build()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
         assertThat(config.isMigrationRequired(1, 2)).isFalse()
@@ -206,7 +206,7 @@ class BuilderTest {
     fun isMigrationRequiredFrom_fallBackToDestructiveCalled_alwaysReturnsFalse() {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java)
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(false)
             .build()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
 
@@ -228,7 +228,7 @@ class BuilderTest {
     fun isMigrationRequired_destructiveMigrationOnDowngrade_returnTrueWhenUpgrading() {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java)
-            .fallbackToDestructiveMigrationOnDowngrade()
+            .fallbackToDestructiveMigrationOnDowngrade(false)
             .build()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
 
@@ -245,7 +245,7 @@ class BuilderTest {
     fun isMigrationRequired_destructiveMigrationOnDowngrade_returnFalseWhenDowngrading() {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java)
-            .fallbackToDestructiveMigrationOnDowngrade()
+            .fallbackToDestructiveMigrationOnDowngrade(false)
             .build()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
 
@@ -281,7 +281,7 @@ class BuilderTest {
     fun isMigrationRequiredFrom_fallBackToDestFromCalled_falseForProvidedValues() {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java)
-            .fallbackToDestructiveMigrationFrom(1, 4, 81)
+            .fallbackToDestructiveMigrationFrom(true, 1, 4, 81)
             .build()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
         assertThat(config.isMigrationRequired(1, 2)).isFalse()
@@ -293,7 +293,7 @@ class BuilderTest {
     fun isMigrationRequiredFrom_fallBackToDestFromCalled_trueForNonProvidedValues() {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java)
-            .fallbackToDestructiveMigrationFrom(1, 4, 81)
+            .fallbackToDestructiveMigrationFrom(true, 1, 4, 81)
             .build()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
         assertThat(config.isMigrationRequired(2, 3)).isTrue()
@@ -320,8 +320,8 @@ class BuilderTest {
     fun fallbackToDestructiveMigrationOnDowngrade_withProvidedValues_falseForDowngrades() {
         val context: Context = mock()
         val db = inMemoryDatabaseBuilder(context, TestDatabase::class.java)
-            .fallbackToDestructiveMigrationOnDowngrade()
-            .fallbackToDestructiveMigrationFrom(2, 4).build()
+            .fallbackToDestructiveMigrationOnDowngrade(false)
+            .fallbackToDestructiveMigrationFrom(true, 2, 4).build()
         val config: DatabaseConfiguration = (db as BuilderTest_TestDatabase_Impl).mConfig
         assertThat(config.isMigrationRequired(1, 2)).isTrue()
         assertThat(config.isMigrationRequired(2, 3)).isFalse()

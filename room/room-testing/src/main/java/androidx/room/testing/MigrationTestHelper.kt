@@ -214,7 +214,8 @@ open class MigrationTestHelper : TestWatcher {
             copyFromInputStream = null,
             prepackagedDatabaseCallback = null,
             typeConverters = emptyList(),
-            autoMigrationSpecs = emptyList()
+            autoMigrationSpecs = emptyList(),
+            allowDestructiveMigrationForAllTables = false
         )
         val roomOpenHelper = RoomOpenHelper(
             configuration = configuration,
@@ -293,7 +294,8 @@ open class MigrationTestHelper : TestWatcher {
             copyFromInputStream = null,
             prepackagedDatabaseCallback = null,
             typeConverters = emptyList(),
-            autoMigrationSpecs = emptyList()
+            autoMigrationSpecs = emptyList(),
+            allowDestructiveMigrationForAllTables = false
         )
         val roomOpenHelper = RoomOpenHelper(
             configuration = databaseConfiguration,
