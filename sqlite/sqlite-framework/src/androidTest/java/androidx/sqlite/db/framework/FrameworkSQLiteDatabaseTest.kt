@@ -22,6 +22,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
+import kotlin.concurrent.thread
 import org.junit.Before
 import org.junit.Test
 
@@ -158,5 +159,49 @@ class FrameworkSQLiteDatabaseTest {
             useNoBackupDirectory = false,
             allowDataLossOnRecovery = false
         ).writableDatabase.close()
+    }
+
+    @Test
+    fun testFrameWorkSQLiteDatabase_beginTransactionReadOnly() {
+        openHelper.setWriteAheadLoggingEnabled(true)
+
+        val database = openHelper.writableDatabase
+        assertThat(database.isWriteAheadLoggingEnabled).isTrue()
+
+        database.execSQL("CREATE TABLE t1 (i int);");
+        database.execSQL("INSERT INTO t1 (i) VALUES (2)");
+        database.execSQL("INSERT INTO t1 (i) VALUES (3)");
+
+        // Begin read only transaction in test thread, should not block secondary thread from
+        // performing a query.
+        database.beginTransactionReadOnly()
+
+        var threadThrowable: Throwable? = null
+        val secondaryThread = thread {
+            try {
+                database.query("SELECT count(*) from t1").use { c ->
+                    assertThat(c.moveToNext()).isTrue()
+                    assertThat(c.getInt(0)).isEqualTo(2)
+                }
+            } catch (t: Throwable) {
+                threadThrowable = t
+            }
+        }
+
+        // Wait a bit for secondary thread to finish, it should complete without errors indicating
+        // the transaction is not blocking.
+        secondaryThread.join(200)
+        assertThat(secondaryThread.isAlive).isFalse()
+        assertThat(threadThrowable).isNull()
+
+        database.query("SELECT count(*) from t1").use { c ->
+            assertThat(c.moveToNext()).isTrue()
+            assertThat(c.getInt(0)).isEqualTo(2)
+        }
+
+        database.setTransactionSuccessful()
+        database.endTransaction()
+
+        database.close()
     }
 }

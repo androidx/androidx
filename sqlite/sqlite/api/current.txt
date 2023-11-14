@@ -20,8 +20,10 @@ package androidx.sqlite.db {
   public interface SupportSQLiteDatabase extends java.io.Closeable {
     method public void beginTransaction();
     method public void beginTransactionNonExclusive();
+    method public default void beginTransactionReadOnly();
     method public void beginTransactionWithListener(android.database.sqlite.SQLiteTransactionListener transactionListener);
     method public void beginTransactionWithListenerNonExclusive(android.database.sqlite.SQLiteTransactionListener transactionListener);
+    method public default void beginTransactionWithListenerReadOnly(android.database.sqlite.SQLiteTransactionListener transactionListener);
     method public androidx.sqlite.db.SupportSQLiteStatement compileStatement(String sql);
     method public int delete(String table, String? whereClause, Object![]? whereArgs);
     method public void disableWriteAheadLogging();

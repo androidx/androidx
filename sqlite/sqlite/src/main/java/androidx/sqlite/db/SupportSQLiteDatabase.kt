@@ -83,6 +83,36 @@ interface SupportSQLiteDatabase : Closeable {
     fun beginTransactionNonExclusive()
 
     /**
+     * Begins a transaction in DEFERRED mode, with the android-specific constraint that the
+     * transaction is read-only. The database may not be modified inside a read-only transaction
+     * otherwise a [android.database.sqlite.SQLiteDatabaseLockedException] might be thrown.
+     *
+     * Read-only transactions may run concurrently with other read-only transactions, and if they
+     * database is in WAL mode, they may also run concurrently with IMMEDIATE or EXCLUSIVE
+     * transactions.
+     *
+     * Transactions can be nested. However, the behavior of the transaction is not altered by
+     * nested transactions. A nested transaction may be any of the three transaction types but if
+     * the outermost type is read-only then nested transactions remain read-only, regardless of how
+     * they are started.
+     *
+     * Here is the standard idiom for read-only transactions:
+     * ```
+     *   db.beginTransactionReadOnly();
+     *   try {
+     *     ...
+     *   } finally {
+     *     db.endTransaction();
+     *   }
+     * ```
+     * If the implementation does not support read-only transactions then the default implementation
+     * delegates to [beginTransaction].
+     */
+    fun beginTransactionReadOnly() {
+        beginTransaction()
+    }
+
+    /**
      * Begins a transaction in EXCLUSIVE mode.
      *
      * Transactions can be nested.
@@ -136,6 +166,35 @@ interface SupportSQLiteDatabase : Closeable {
     fun beginTransactionWithListenerNonExclusive(
         transactionListener: SQLiteTransactionListener
     )
+
+    /**
+     * Begins a transaction in read-only mode with a {@link SQLiteTransactionListener} listener.
+     * The database may not be modified inside a read-only transaction otherwise a
+     * [android.database.sqlite.SQLiteDatabaseLockedException] might be thrown.
+     *
+     * Transactions can be nested. However, the behavior of the transaction is not altered by
+     * nested transactions. A nested transaction may be any of the three transaction types but if
+     * the outermost type is read-only then nested transactions remain read-only, regardless of how
+     * they are started.
+     *
+     * Here is the standard idiom for read-only transactions:
+     * ```
+     *   db.beginTransactionWightListenerReadOnly(listener);
+     *   try {
+     *     ...
+     *   } finally {
+     *     db.endTransaction();
+     *   }
+     * ```
+     * If the implementation does not support read-only transactions then the default implementation
+     * delegates to [beginTransactionWithListener].
+     */
+    @Suppress("ExecutorRegistration")
+    fun beginTransactionWithListenerReadOnly(
+        transactionListener: SQLiteTransactionListener
+    ) {
+        beginTransactionWithListener(transactionListener)
+    }
 
     /**
      * End a transaction. See beginTransaction for notes about how to use this and when transactions

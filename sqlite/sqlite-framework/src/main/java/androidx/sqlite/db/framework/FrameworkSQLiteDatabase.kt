@@ -15,6 +15,7 @@
  */
 package androidx.sqlite.db.framework
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.database.Cursor
 import android.database.SQLException
@@ -58,6 +59,10 @@ internal class FrameworkSQLiteDatabase(
         delegate.beginTransactionNonExclusive()
     }
 
+    override fun beginTransactionReadOnly() {
+        internalBeginTransactionWithListenerReadOnly(null)
+    }
+
     override fun beginTransactionWithListener(
         transactionListener: SQLiteTransactionListener
     ) {
@@ -68,6 +73,32 @@ internal class FrameworkSQLiteDatabase(
         transactionListener: SQLiteTransactionListener
     ) {
         delegate.beginTransactionWithListenerNonExclusive(transactionListener)
+    }
+
+    override fun beginTransactionWithListenerReadOnly(
+        transactionListener: SQLiteTransactionListener
+    ) {
+        internalBeginTransactionWithListenerReadOnly(transactionListener)
+    }
+
+    // TODO(b/288918056): Use Android V API once it is available and SDK check the reflection call.
+    @SuppressLint("BanUncheckedReflection")
+    private fun internalBeginTransactionWithListenerReadOnly(
+        transactionListener: SQLiteTransactionListener?
+    ) {
+        if (beginTransactionMethod != null && getThreadSessionMethod != null) {
+            beginTransactionMethod!!.invoke(
+                checkNotNull(getThreadSessionMethod!!.invoke(delegate)),
+                0 /* SQLiteSession.TRANSACTION_MODE_DEFERRED */,
+                transactionListener,
+                0 /* connectionFlags */,
+                null /* cancellationSignal */
+            )
+        } else if (transactionListener != null) {
+            beginTransactionWithListener(transactionListener)
+        } else {
+            beginTransaction()
+        }
     }
 
     override fun endTransaction() {
@@ -324,5 +355,28 @@ internal class FrameworkSQLiteDatabase(
                 " OR REPLACE "
             )
         private val EMPTY_STRING_ARRAY = arrayOfNulls<String>(0)
+
+        private val getThreadSessionMethod by lazy(LazyThreadSafetyMode.NONE) {
+            try {
+                SQLiteDatabase::class.java.getDeclaredMethod("getThreadSession")
+                    .apply { isAccessible = true }
+            } catch (t: Throwable) {
+                null
+            }
+        }
+
+        private val beginTransactionMethod by lazy(LazyThreadSafetyMode.NONE) {
+            try {
+                getThreadSessionMethod?.returnType?.getDeclaredMethod(
+                    "beginTransaction",
+                    Int::class.java,
+                    SQLiteTransactionListener::class.java,
+                    Int::class.java,
+                    CancellationSignal::class.java
+                )
+            } catch (t: Throwable) {
+                null
+            }
+        }
     }
 }
