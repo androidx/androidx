@@ -81,8 +81,6 @@
     <string name="service">Service</string>
     <string name="add_characteristic">Add Characteristic</string>
     <string name="characteristic">Characteristic</string>
-    <string name="add_descriptor">Add Descriptor</string>
-    <string name="descriptor">Descriptor</string>
     <string name="open_gatt_server">Open Gatt Server</string>
     <string name="stop_gatt_server">Stop Gatt Server</string>
     <string name="invalid_uuid">Invalid UUID</string>

@@ -77,22 +77,6 @@
 
         </LinearLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_service_characteristic_descriptor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:layoutManager="LinearLayoutManager"
-            tools:itemCount="3"
-            tools:listitem="@layout/item_gatt_server_characteristic_descriptor" />
-
-        <Button
-            android:id="@+id/button_add_descriptor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="end"
-            android:layout_marginTop="4dp"
-            android:text="@string/add_descriptor" />
-
     </LinearLayout>
 
 </com.google.android.material.card.MaterialCardView>
