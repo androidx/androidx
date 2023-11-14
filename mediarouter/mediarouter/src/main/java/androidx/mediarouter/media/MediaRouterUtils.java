@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,17 @@
 
 package androidx.mediarouter.media;
 
-import android.media.MediaRouter;
-
 import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
-/**
- * Provides methods for {@link MediaRouter} for API 16 and above. This class is used for API
- * Compatibility.
- *
- * @see <a href="http://go/androidx/api_guidelines/compat.md">Implementing compatibility</a>
- */
-@RequiresApi(16)
-/* package */ final class MediaRouterApi16Impl {
+/** Utils for usage with platform {@link android.media.MediaRouter} */
+class MediaRouterUtils {
 
-    public static final int ROUTE_TYPE_LIVE_AUDIO = 0x1;
-    public static final int ROUTE_TYPE_LIVE_VIDEO = 0x2;
-    public static final int ROUTE_TYPE_USER = 0x00800000;
+    private MediaRouterUtils() {}
 
-    public static final int ALL_ROUTE_TYPES =
-            MediaRouterApi16Impl.ROUTE_TYPE_LIVE_AUDIO
-                    | MediaRouterApi16Impl.ROUTE_TYPE_LIVE_VIDEO
-                    | MediaRouterApi16Impl.ROUTE_TYPE_USER;
-
-    private MediaRouterApi16Impl() {}
+    public static android.media.MediaRouter.Callback createCallback(Callback callback) {
+        return new CallbackProxy<>(callback);
+    }
 
     @DoNotInline
     public static android.media.MediaRouter.VolumeCallback createVolumeCallback(
@@ -66,6 +52,8 @@ import androidx.annotation.RequiresApi;
                 @NonNull android.media.MediaRouter.RouteGroup group);
 
         void onRouteVolumeChanged(@NonNull android.media.MediaRouter.RouteInfo route);
+
+        void onRoutePresentationDisplayChanged(@NonNull android.media.MediaRouter.RouteInfo route);
     }
 
     public interface VolumeCallback {
@@ -75,8 +63,18 @@ import androidx.annotation.RequiresApi;
                 int direction);
     }
 
-    static class CallbackProxy<T extends Callback>
-            extends android.media.MediaRouter.Callback {
+    /**
+     * This proxy callback class provides a mechanism for {@link
+     * SystemMediaRouteProvider.JellybeanMr2Impl} to circumvent the fact that it cannot extend
+     * {@link android.media.MediaRouter.Callback}. This is because {@link
+     * android.media.MediaRouter.Callback} is an abstract class (rather than an interface), and a
+     * class cannot extend more than one class. Instead, {@link
+     * SystemMediaRouteProvider.JellybeanMr2Impl} implements the {@link Callback} interface and
+     * references an instance of this proxy class that wraps the {@link
+     * SystemMediaRouteProvider.JellybeanMr2Impl} instance, to use where {@link MediaRouter} expects
+     * an instance of {@link android.media.MediaRouter.Callback}.
+     */
+    static class CallbackProxy<T extends Callback> extends android.media.MediaRouter.Callback {
         protected final T mCallback;
 
         CallbackProxy(T callback) {
@@ -132,8 +130,25 @@ import androidx.annotation.RequiresApi;
                 android.media.MediaRouter.RouteInfo route) {
             mCallback.onRouteVolumeChanged(route);
         }
+
+        @Override
+        public void onRoutePresentationDisplayChanged(
+                android.media.MediaRouter router, android.media.MediaRouter.RouteInfo route) {
+            mCallback.onRoutePresentationDisplayChanged(route);
+        }
     }
 
+    /**
+     * This proxy callback class provides a mechanism for {@link
+     * SystemMediaRouteProvider.JellybeanMr2Impl} to circumvent the fact that it cannot extend
+     * {@link android.media.MediaRouter.VolumeCallback}. This is because {@link
+     * android.media.MediaRouter.VolumeCallback} is an abstract class (rather than an interface),
+     * and a class cannot extend more than one class. Instead, {@link
+     * SystemMediaRouteProvider.JellybeanMr2Impl} implements the {@link VolumeCallback} interface
+     * and references an instance of this proxy class that wraps the {@link
+     * SystemMediaRouteProvider.JellybeanMr2Impl} instance, to use where {@link MediaRouter} expects
+     * an instance of {@link android.media.MediaRouter.VolumeCallback}.
+     */
     static class VolumeCallbackProxy<T extends VolumeCallback>
             extends android.media.MediaRouter.VolumeCallback {
         protected final T mCallback;
