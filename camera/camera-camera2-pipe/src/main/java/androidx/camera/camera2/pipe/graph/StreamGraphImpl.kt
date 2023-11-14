@@ -32,6 +32,7 @@ import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.InputStream
+import androidx.camera.camera2.pipe.InputStreamId
 import androidx.camera.camera2.pipe.OutputId
 import androidx.camera.camera2.pipe.OutputStream
 import androidx.camera.camera2.pipe.StreamFormat
@@ -59,7 +60,7 @@ constructor(
     internal val outputConfigs: List<OutputConfig>
 
     // TODO: Build InputStream(s)
-    override val input: InputStream? = null
+    override val inputs: List<InputStream>
     override val streams: List<CameraStream>
     override val streamIds: Set<StreamId>
     override val outputs: List<OutputStream>
@@ -156,6 +157,14 @@ constructor(
             }
         }
 
+        inputs = graphConfig.input?.map {
+            InputStreamImpl(
+                nextInputId(),
+                it.format,
+                it.maxImages
+            )
+        } ?: emptyList()
+
         val streamSortedByPreview = sortOutputsByPreviewStream(streamListBuilder)
         val streamSortedByVideo = sortOutputsByVideoStream(streamSortedByPreview)
 
@@ -207,6 +216,12 @@ constructor(
         override lateinit var stream: CameraStream
         override fun toString(): String = id.toString()
     }
+
+    private class InputStreamImpl(
+        override val id: InputStreamId,
+        override val format: Int,
+        override val maxImages: Int
+    ) : InputStream
 
     interface SurfaceListener {
         fun onSurfaceMapUpdated(surfaces: Map<StreamId, Surface>)
@@ -364,6 +379,10 @@ constructor(
         private val outputIds = atomic(0)
 
         internal fun nextOutputId(): OutputId = OutputId(outputIds.incrementAndGet())
+
+        private val inputIds = atomic(0)
+
+        internal fun nextInputId(): InputStreamId = InputStreamId(inputIds.incrementAndGet())
 
         private val configIds = atomic(0)
 

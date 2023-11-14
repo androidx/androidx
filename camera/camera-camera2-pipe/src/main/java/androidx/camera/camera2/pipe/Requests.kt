@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.media.ImageWrapper
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
@@ -59,7 +60,8 @@ class Request(
     val parameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
     val extras: Map<Metadata.Key<*>, Any> = emptyMap(),
     val listeners: List<Listener> = emptyList(),
-    val template: RequestTemplate? = null
+    val template: RequestTemplate? = null,
+    val inputRequest: InputRequest? = null
 ) {
     operator fun <T> get(key: CaptureRequest.Key<T>): T? = getUnchecked(key)
     operator fun <T> get(key: Metadata.Key<T>): T? = getUnchecked(key)
@@ -291,6 +293,18 @@ value class RequestTemplate(val value: Int) {
             }
         }
 }
+
+/**
+ * The intended use for this class is to submit the input needed for a reprocessing request, the
+ * [InputStream], [ImageWrapper] and [FrameMetadata]. Both values are non-nullable because
+ * both values are needed for reprocessing.
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+data class InputRequest(
+    val inputStreamId: InputStreamId,
+    val image: ImageWrapper,
+    val metadata: FrameMetadata
+)
 
 /**
  * RequestMetadata wraps together all of the information about a specific CaptureRequest that was
