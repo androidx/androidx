@@ -19,7 +19,6 @@ package androidx.fragment.app
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
-import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import androidx.fragment.app.test.EmptyFragmentTestActivity
@@ -112,11 +111,6 @@ class DialogFragmentDismissTest(
 
     @Test
     fun testDialogFragmentDismiss() {
-        // Due to b/157955883, we need to early return if API == 30.
-        // Otherwise, this test flakes.
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.R) {
-            return
-        }
         val fragment = TestDialogFragment()
         activityTestRule.runOnUiThread {
             fragment.showNow(activityTestRule.activity.supportFragmentManager, null)
