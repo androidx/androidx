@@ -35,6 +35,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import kotlin.math.abs
+import kotlin.math.sign
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
@@ -454,7 +455,7 @@ class AnchoredDraggableState<T>(
             if (abs(velocity) >= abs(velocityThresholdPx)) {
                 currentAnchors.closestAnchor(
                     offset,
-                    offset - currentAnchorPosition > 0
+                    sign(velocity) > 0
                 )!!
             } else {
                 val neighborAnchor =
