@@ -18,6 +18,7 @@ package androidx.compose.material3
 
 import android.os.Build
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -26,6 +27,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -1786,6 +1788,22 @@ class OutlinedTextFieldTest {
 
         rule.runOnIdle {
             assertThat(callbackCounter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun testTextFields_noCrashConstraintsInfinity() {
+
+        rule.setMaterialContent(lightColorScheme()) {
+            Column(modifier = Modifier.height(IntrinsicSize.Min).horizontalScroll(
+                rememberScrollState()
+            )) {
+                OutlinedTextField(
+                    value = "Cat",
+                    onValueChange = {},
+                    leadingIcon = { Text("Icon") }
+                )
+            }
         }
     }
 

@@ -21,6 +21,7 @@ import android.os.Build
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -36,6 +37,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -1644,6 +1646,21 @@ class TextFieldTest {
 
         rule.runOnIdle {
             assertThat(callbackCounter).isEqualTo(1)
+        }
+    }
+    @Test
+    fun testTextFields_noCrashConstraintsInfinity() {
+
+        rule.setMaterialContent {
+            Column(modifier = Modifier.height(IntrinsicSize.Min).horizontalScroll(
+                rememberScrollState()
+            )) {
+                TextField(
+                    value = "Cat",
+                    onValueChange = {},
+                    leadingIcon = { Text("Icon") }
+                )
+            }
         }
     }
 }
