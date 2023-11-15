@@ -1047,6 +1047,16 @@ class ComplicationData : Parcelable, Serializable {
             return fields.getInt(FIELD_ELEMENT_BACKGROUND_COLOR)
         }
 
+    /**
+     * Returns true if the ComplicationData contains a placeholder. I.e. if [placeholder] can
+     * succeed.
+     */
+    fun hasPlaceholder(): Boolean =
+        isFieldValidForType(FIELD_PLACEHOLDER_FIELDS, type) &&
+            isFieldValidForType(FIELD_PLACEHOLDER_TYPE, type) &&
+            hasParcelableField(FIELD_PLACEHOLDER_FIELDS) &&
+            hasParcelableField(FIELD_PLACEHOLDER_TYPE)
+
     /** Returns the placeholder ComplicationData if there is one or `null`. */
     val placeholder: ComplicationData?
         get() {
@@ -1159,7 +1169,7 @@ class ComplicationData : Parcelable, Serializable {
             (hasShortText() && shortText?.dynamicValue != null) ||
             (hasShortTitle() && shortTitle?.dynamicValue != null) ||
             (hasContentDescription() && contentDescription?.dynamicValue != null) ||
-            (placeholder?.hasDynamicValues() ?: false) ||
+            (hasPlaceholder() && placeholder?.hasDynamicValues() ?: false) ||
             (hasInvalidatedData() && invalidatedData?.hasDynamicValues() ?: false) ||
             (timelineEntries?.any { it.hasDynamicValues() } ?: false) ||
             (listEntries?.any { it.hasDynamicValues() } ?: false)
