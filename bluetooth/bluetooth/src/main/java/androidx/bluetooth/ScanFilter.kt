@@ -16,7 +16,6 @@
 
 package androidx.bluetooth
 
-import android.annotation.SuppressLint
 import android.bluetooth.le.ScanFilter as FwkScanFilter
 import android.os.Build
 import android.os.ParcelUuid
@@ -151,7 +150,6 @@ class ScanFilter(
         }
     }
 
-    @delegate:SuppressLint("ObsoleteSdkInt")
     internal val fwkScanFilter: FwkScanFilter by lazy(LazyThreadSafetyMode.PUBLICATION) {
         FwkScanFilter.Builder().run {
             deviceAddress?.let { setDeviceAddress(it.address) }

@@ -58,8 +58,8 @@ class MainActivity : AppCompatActivity() {
 
     private val requestBluetoothPermissions =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { perms ->
-            perms.entries.forEach { permission ->
-                Log.d(TAG, "${permission.key} = ${permission.value}")
+            perms.entries.forEach { (key, value) ->
+                Log.d(TAG, "$key = $value")
             }
         }
 
@@ -98,9 +98,10 @@ class MainActivity : AppCompatActivity() {
         isBluetoothEnabled = bluetoothManager?.adapter?.isEnabled ?: false
 
         binding.buttonEnable.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.BLUETOOTH_CONNECT
-                ) == PackageManager.PERMISSION_GRANTED
+            if (Build.VERSION.SDK_INT < 31 || (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.BLUETOOTH_CONNECT
+                ) == PackageManager.PERMISSION_GRANTED)
             ) {
                 startActivity(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
             }
