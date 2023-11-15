@@ -1,4 +1,55 @@
 // Signature format: 4.0
+package androidx.graphics {
+
+  @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class CanvasBufferedRenderer implements java.lang.AutoCloseable {
+    method public void close();
+    method public int getBufferFormat();
+    method public int getMaxBuffers();
+    method public long getUsageFlags();
+    method public boolean isClosed();
+    method public androidx.graphics.CanvasBufferedRenderer.RenderRequest obtainRenderRequest();
+    method public void releaseBuffer(android.hardware.HardwareBuffer hardwareBuffer, androidx.hardware.SyncFenceCompat? fence);
+    method public void setContentRoot(android.graphics.RenderNode renderNode);
+    method public void setLightSourceAlpha(float ambientShadowAlpha, float spotShadowAlpha);
+    method public void setLightSourceGeometry(float lightX, float lightY, float lightZ, float lightRadius);
+    property public final int bufferFormat;
+    property public final int maxBuffers;
+    property public final long usageFlags;
+  }
+
+  public static final class CanvasBufferedRenderer.Builder {
+    ctor public CanvasBufferedRenderer.Builder(int width, int height);
+    method public androidx.graphics.CanvasBufferedRenderer build();
+    method public androidx.graphics.CanvasBufferedRenderer.Builder setBufferFormat(int format);
+    method public androidx.graphics.CanvasBufferedRenderer.Builder setMaxBuffers(@IntRange(from=1L, to=64L) int numBuffers);
+    method public androidx.graphics.CanvasBufferedRenderer.Builder setUsageFlags(long usageFlags);
+  }
+
+  public final class CanvasBufferedRenderer.RenderRequest {
+    method public void draw(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.graphics.CanvasBufferedRenderer.RenderResult> callback);
+    method public androidx.graphics.CanvasBufferedRenderer.RenderRequest preserveContents(boolean preserve);
+    method public androidx.graphics.CanvasBufferedRenderer.RenderRequest setBufferTransform(int bufferTransform);
+    method public androidx.graphics.CanvasBufferedRenderer.RenderRequest setColorSpace(android.graphics.ColorSpace? colorSpace);
+  }
+
+  public static final class CanvasBufferedRenderer.RenderResult {
+    ctor public CanvasBufferedRenderer.RenderResult(android.hardware.HardwareBuffer buffer, androidx.hardware.SyncFenceCompat? mFence, int mStatus);
+    method public androidx.hardware.SyncFenceCompat? getFence();
+    method public android.hardware.HardwareBuffer getHardwareBuffer();
+    method public int getStatus();
+    property public final androidx.hardware.SyncFenceCompat? fence;
+    property public final android.hardware.HardwareBuffer hardwareBuffer;
+    property public final int status;
+    field public static final androidx.graphics.CanvasBufferedRenderer.RenderResult.Companion Companion;
+    field public static final int ERROR_UNKNOWN = 1; // 0x1
+    field public static final int SUCCESS = 0; // 0x0
+  }
+
+  public static final class CanvasBufferedRenderer.RenderResult.Companion {
+  }
+
+}
+
 package androidx.graphics.lowlatency {
 
   public final class BufferInfo {
