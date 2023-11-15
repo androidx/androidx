@@ -64,7 +64,7 @@ import org.robolectric.shadows.ShadowBluetoothGattServer
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class RobolectricGattServerTest {
     private val context: Context = RuntimeEnvironment.getApplication()
-       private val bluetoothManager: BluetoothManager =
+    private val bluetoothManager: BluetoothManager =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
 
@@ -127,11 +127,9 @@ class RobolectricGattServerTest {
                 closed.complete(Unit)
             }
 
-        bluetoothLe.openGattServer(listOf()) {
-            connectRequests.first().let {
-                assertEquals(deviceName, it.device.name)
-                it.accept {}
-            }
+        bluetoothLe.openGattServer(listOf()).first().let {
+            assertEquals(deviceName, it.device.name)
+            it.accept {}
         }
 
         assertTrue(opened.isCompleted)
@@ -156,15 +154,12 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.reject()
-                    assertThrows(IllegalStateException::class.java) {
-                        runBlocking {
-                            it.accept {}
-                        }
+            bluetoothLe.openGattServer(services).first().let {
+                it.reject()
+                assertThrows(IllegalStateException::class.java) {
+                    runBlocking {
+                        it.accept {}
                     }
-                    this@launch.cancel()
                 }
             }
         }.join()
@@ -173,7 +168,7 @@ class RobolectricGattServerTest {
         assertEquals(0, serverAdapter.shadowGattServer.responses.size)
     }
 
-       @Test
+    @Test
     fun openGattServer_acceptAndReject_throwsException() = runTest {
         val services = listOf(service1, service2)
         val device = createDevice("00:11:22:33:44:55")
@@ -191,13 +186,10 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.accept {}
-                    assertThrows(IllegalStateException::class.java) {
-                        it.reject()
-                    }
-                    this@launch.cancel()
+            bluetoothLe.openGattServer(services).first().let {
+                it.accept {}
+                assertThrows(IllegalStateException::class.java) {
+                    it.reject()
                 }
             }
         }.join()
@@ -225,18 +217,16 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.accept {
-                        when (val request = requests.first()) {
-                            is GattServerRequest.ReadCharacteristic -> {
-                                request.sendResponse(valueToRead.toByteArray())
-                            }
-                            else -> fail("unexpected request")
+            bluetoothLe.openGattServer(services).collect {
+                it.accept {
+                    when (val request = requests.first()) {
+                        is GattServerRequest.ReadCharacteristic -> {
+                            request.sendResponse(valueToRead.toByteArray())
                         }
-                        // Close the server
-                        this@launch.cancel()
+                        else -> fail("unexpected request")
                     }
+                    // Close the server
+                    this@launch.cancel()
                 }
             }
         }.join()
@@ -273,18 +263,16 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.accept {
-                        when (val request = requests.first()) {
-                            is GattServerRequest.ReadCharacteristic -> {
-                                request.sendFailure()
-                            }
-                            else -> fail("unexpected request")
+            bluetoothLe.openGattServer(services).collect {
+                it.accept {
+                    when (val request = requests.first()) {
+                        is GattServerRequest.ReadCharacteristic -> {
+                            request.sendFailure()
                         }
-                        // Close the server
-                        this@launch.cancel()
+                        else -> fail("unexpected request")
                     }
+                    // Close the server
+                    this@launch.cancel()
                 }
             }
         }.join()
@@ -315,20 +303,18 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.accept {
-                        when (val request = requests.first()) {
-                            is GattServerRequest.ReadCharacteristic -> {
-                                assertEquals(readCharacteristic, request.characteristic)
-                                request.sendResponse(valueToRead.toByteArray())
-                            }
-
-                            else -> fail("unexpected request")
+            bluetoothLe.openGattServer(services).collect {
+                it.accept {
+                    when (val request = requests.first()) {
+                        is GattServerRequest.ReadCharacteristic -> {
+                            assertEquals(readCharacteristic, request.characteristic)
+                            request.sendResponse(valueToRead.toByteArray())
                         }
-                        // Close the server
-                        this@launch.cancel()
+
+                        else -> fail("unexpected request")
                     }
+                    // Close the server
+                    this@launch.cancel()
                 }
             }
         }.join()
@@ -356,20 +342,18 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.accept {
-                        when (val request = requests.first()) {
-                            is GattServerRequest.WriteCharacteristics -> {
-                                assertEquals(valueToWrite, request.parts[0].value.toInt())
-                                request.sendResponse()
-                            }
-
-                            else -> fail("unexpected request")
+            bluetoothLe.openGattServer(services).collect {
+                it.accept {
+                    when (val request = requests.first()) {
+                        is GattServerRequest.WriteCharacteristics -> {
+                            assertEquals(valueToWrite, request.parts[0].value.toInt())
+                            request.sendResponse()
                         }
-                        // Close the server
-                        this@launch.cancel()
+
+                        else -> fail("unexpected request")
                     }
+                    // Close the server
+                    this@launch.cancel()
                 }
             }
         }.join()
@@ -407,20 +391,18 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.accept {
-                        when (val request = requests.first()) {
-                            is GattServerRequest.WriteCharacteristics -> {
-                                assertEquals(valueToWrite, request.parts[0].value.toInt())
-                                request.sendFailure()
-                            }
-
-                            else -> fail("unexpected request")
+            bluetoothLe.openGattServer(services).collect {
+                it.accept {
+                    when (val request = requests.first()) {
+                        is GattServerRequest.WriteCharacteristics -> {
+                            assertEquals(valueToWrite, request.parts[0].value.toInt())
+                            request.sendFailure()
                         }
-                        // Close the server
-                        this@launch.cancel()
+
+                        else -> fail("unexpected request")
                     }
+                    // Close the server
+                    this@launch.cancel()
                 }
             }
         }.join()
@@ -454,13 +436,11 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.accept {
-                        notify(notifyCharacteristic, valueToNotify.toByteArray())
-                        // Close the server
-                        this@launch.cancel()
-                    }
+            bluetoothLe.openGattServer(services).collect {
+                it.accept {
+                    notify(notifyCharacteristic, valueToNotify.toByteArray())
+                    // Close the server
+                    this@launch.cancel()
                 }
             }
         }.join()
@@ -494,15 +474,13 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.accept {
-                        assertFailsWith<IllegalArgumentException> {
-                            notify(notifyCharacteristic, tooLongValue)
-                        }
-                        // Close the server
-                        this@launch.cancel()
+            bluetoothLe.openGattServer(services).collect {
+                it.accept {
+                    assertFailsWith<IllegalArgumentException> {
+                        notify(notifyCharacteristic, tooLongValue)
                     }
+                    // Close the server
+                    this@launch.cancel()
                 }
             }
         }.join()
@@ -540,16 +518,14 @@ class RobolectricGattServerTest {
         }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.accept {
-                        val characteristics = subscribedCharacteristics
-                            .takeWhile { chars -> chars.size == 2 }.first()
-                        assertTrue(characteristics.contains(notifyCharacteristic))
-                        assertTrue(characteristics.contains(indicateCharacteristic))
-                        // Close the server
-                        this@launch.cancel()
-                    }
+            bluetoothLe.openGattServer(services).collect {
+                it.accept {
+                    val characteristics = subscribedCharacteristics
+                        .takeWhile { chars -> chars.size == 2 }.first()
+                    assertTrue(characteristics.contains(notifyCharacteristic))
+                    assertTrue(characteristics.contains(indicateCharacteristic))
+                    // Close the server
+                    this@launch.cancel()
                 }
             }
         }.join()
@@ -584,14 +560,12 @@ class RobolectricGattServerTest {
         }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.accept {
-                        runBlocking {
-                            withTimeout(1_000) {
-                                subscribedCharacteristics.collect { chars ->
-                                    assertTrue(chars.isEmpty())
-                                }
+            bluetoothLe.openGattServer(services).collect {
+                it.accept {
+                    runBlocking {
+                        withTimeout(1_000) {
+                            subscribedCharacteristics.collect { chars ->
+                                assertTrue(chars.isEmpty())
                             }
                         }
                     }
@@ -616,10 +590,9 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(listOf(service1)) {
-                updateServices(listOf(service2))
-                connectRequests.first().accept {}
-            }
+            val serverFlow = bluetoothLe.openGattServer(listOf(service1))
+            serverFlow.updateServices(listOf(service2))
+            serverFlow.first().accept {}
         }.join()
 
         assertTrue(opened.isCompleted)
@@ -653,23 +626,21 @@ class RobolectricGattServerTest {
             }
 
         launch {
-            bluetoothLe.openGattServer(services) {
-                connectRequests.collect {
-                    it.accept {
-                        when (val request = requests.first()) {
-                            is GattServerRequest.WriteCharacteristics -> {
-                                assertEquals(values.size, request.parts.size)
-                                values.forEachIndexed { index, value ->
-                                    assertEquals(value, request.parts[index].value)
-                                }
-                                request.sendResponse()
+            bluetoothLe.openGattServer(services).collect {
+                it.accept {
+                    when (val request = requests.first()) {
+                        is GattServerRequest.WriteCharacteristics -> {
+                            assertEquals(values.size, request.parts.size)
+                            values.forEachIndexed { index, value ->
+                                assertEquals(value, request.parts[index].value)
                             }
-
-                            else -> fail("unexpected request")
+                            request.sendResponse()
                         }
-                        // Close the server
-                        this@launch.cancel()
+
+                        else -> fail("unexpected request")
                     }
+                    // Close the server
+                    this@launch.cancel()
                 }
             }
         }.join()
