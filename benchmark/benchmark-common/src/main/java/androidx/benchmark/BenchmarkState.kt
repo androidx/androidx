@@ -131,6 +131,10 @@ class BenchmarkState internal constructor(
     @PublishedApi
     internal var iterationsRemaining: Int = -1
 
+    @Suppress("NOTHING_TO_INLINE")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    inline fun getIterationsRemaining() = iterationsRemaining
+
     /**
      * Number of iterations in a repeat.
      *
