@@ -190,6 +190,7 @@ package androidx.wear.protolayout {
     method public static androidx.wear.protolayout.DimensionBuilders.EmProp em(int);
     method public static androidx.wear.protolayout.DimensionBuilders.ExpandedDimensionProp expand();
     method public static androidx.wear.protolayout.DimensionBuilders.SpProp sp(@Dimension(unit=androidx.annotation.Dimension.SP) float);
+    method public static androidx.wear.protolayout.DimensionBuilders.ExpandedDimensionProp weight(@FloatRange(from=0.0) float);
     method public static androidx.wear.protolayout.DimensionBuilders.WrappedDimensionProp wrap();
   }
 

@@ -21,6 +21,7 @@ import static androidx.annotation.Dimension.SP;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import androidx.annotation.Dimension;
+import androidx.annotation.FloatRange;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -100,6 +101,28 @@ public final class DimensionBuilders {
     @NonNull
     public static ExpandedDimensionProp expand() {
         return EXPAND;
+    }
+
+    /**
+     * Shortcut for building an {@link ExpandedDimensionProp} with weight (a dimensionless scalar
+     * value).
+     *
+     * <p>This will only affect the width of children of a
+     * {@link androidx.wear.protolayout.LayoutElementBuilders.Row} or the height of children of a
+     * {@link androidx.wear.protolayout.LayoutElementBuilders.Column}, otherwise it will expand to
+     * the size of its parent. Where applicable, the remaining space in the width or height left
+     * from the children with fixed or wrapped dimension will be proportionally split across
+     * children with expand dimension, meaning that the width or height of the element is
+     * proportional to the sum of the weights of its weighted siblings. For the siblings that
+     * don't have weight set, but they are expanded, defaults to 1.
+     *
+     * @since 1.3
+     */
+    @NonNull
+    public static ExpandedDimensionProp weight(@FloatRange(from = 0.0) float weight) {
+        return new ExpandedDimensionProp.Builder()
+                .setLayoutWeight(new FloatProp.Builder(weight).build())
+                .build();
     }
 
     /**
