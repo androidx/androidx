@@ -26,8 +26,10 @@ import androidx.appsearch.compiler.annotationwrapper.DataPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.MetadataPropertyAnnotation;
 import androidx.appsearch.compiler.annotationwrapper.PropertyAnnotation;
 
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.CodeBlock;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
@@ -71,11 +73,16 @@ class FromGenericDocumentCodeGenerator {
     private MethodSpec createFromGenericDocumentMethod() {
         // Method header
         TypeName documentClass = TypeName.get(mModel.getClassElement().asType());
+        // The type of documentClassMap is Map<String, List<String>>.
+        TypeName documentClassMapType = ParameterizedTypeName.get(ClassName.get(Map.class),
+                ClassName.get(String.class),
+                ParameterizedTypeName.get(ClassName.get(List.class), ClassName.get(String.class)));
         MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("fromGenericDocument")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(documentClass)
                 .addAnnotation(Override.class)
                 .addParameter(GENERIC_DOCUMENT_CLASS, "genericDoc")
+                .addParameter(documentClassMapType, "documentClassMap")
                 .addException(APPSEARCH_EXCEPTION_CLASS);
 
         // Unpack properties from the GenericDocument into the format desired by the document class.
@@ -417,7 +424,7 @@ class FromGenericDocumentCodeGenerator {
                         getterOrField.getJvmName(), ArrayList.class, getterOrField.getJvmName())
                 .beginControlFlow("for (int i = 0; i < $NCopy.length; i++)",
                         getterOrField.getJvmName())
-                .addStatement("$NConv.add($NCopy[i].toDocumentClass($T.class))",
+                .addStatement("$NConv.add($NCopy[i].toDocumentClass($T.class, documentClassMap))",
                         getterOrField.getJvmName(),
                         getterOrField.getJvmName(),
                         getterOrField.getComponentType())
@@ -499,7 +506,7 @@ class FromGenericDocumentCodeGenerator {
                         getterOrField.getJvmName())
                 .beginControlFlow("for (int i = 0; i < $NCopy.length; i++)",
                         getterOrField.getJvmName())
-                .addStatement("$NConv[i] = $NCopy[i].toDocumentClass($T.class)",
+                .addStatement("$NConv[i] = $NCopy[i].toDocumentClass($T.class, documentClassMap)",
                         getterOrField.getJvmName(),
                         getterOrField.getJvmName(),
                         getterOrField.getComponentType())
@@ -570,7 +577,7 @@ class FromGenericDocumentCodeGenerator {
                 .addStatement("$T $NConv = null",
                         getterOrField.getJvmType(), getterOrField.getJvmName())
                 .beginControlFlow("if ($NCopy != null)", getterOrField.getJvmName())
-                .addStatement("$NConv = $NCopy.toDocumentClass($T.class)",
+                .addStatement("$NConv = $NCopy.toDocumentClass($T.class, documentClassMap)",
                         getterOrField.getJvmName(),
                         getterOrField.getJvmName(),
                         getterOrField.getJvmType())

@@ -16,10 +16,15 @@
 // @exportToFramework:skipFile()
 package androidx.appsearch.app;
 
+import android.util.Log;
+
 import androidx.annotation.AnyThread;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.WorkerThread;
+import androidx.appsearch.annotation.Document;
 import androidx.collection.ArrayMap;
 
 import java.util.ArrayList;
@@ -32,36 +37,79 @@ import java.util.ServiceLoader;
 /**
  * A class that maintains the map from schema type names to the fully qualified names of the
  * corresponding document classes.
- *
- * <p>This class is part of AppSearch's internal infrastructure, and only public so that it is
- * available to the generated code by AppSearch's annotation processor. Application code does not
- * need to reference this class.
  */
 @AnyThread
 public abstract class AppSearchDocumentClassMap {
 
-    /**
-     * The cached value of {@link #getMergedMap()}.
-     */
-    private static volatile Map<String, List<String>> sMergedMap = null;
+    private static final String TAG = "AppSearchDocumentClassM";
+    private static final Object sLock = new Object();
 
     /**
-     * Collects all of the instances of the generated {@link AppSearchDocumentClassMap} classes
-     * available in the current JVM environment, and calls the {@link #getMap()} method from them to
-     * build, cache and return the merged map. The keys are schema type names, and the values are
-     * the lists of the corresponding document classes.
+     * The cached value of {@link #getGlobalMap()}.
+     */
+    private static volatile Map<String, List<String>> sGlobalMap = null;
+
+    /**
+     * The cached value of {@code Class.forName(className)} for AppSearch document classes.
+     */
+    private static volatile Map<String, Class<?>> sCachedAppSearchClasses = new ArrayMap<>();
+
+    /**
+     * Returns the global map that includes all AppSearch document classes annotated with
+     * {@link Document} that are available in the current runtime. It maps from AppSearch's type
+     * name specified by {@link Document#name()} to the list of the fully qualified names of the
+     * corresponding document classes. The values are lists because it is possible that two
+     * document classes are associated with the same AppSearch type name.
+     *
+     * <p>Note that although this method, under normal circumstances, executes quickly, it
+     * performs a synchronous disk read operation in order to build the map, which means it can
+     * potentially introduce I/O blocking if executed on the main thread.
+     *
+     * <p>Since every call to this method should return the same map, the value of this map will
+     * be internally cached, so that only the first call will perform disk I/O.
      */
     @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static Map<String, List<String>> getMergedMap() {
-        if (sMergedMap == null) {
-            synchronized (AppSearchDocumentClassMap.class) {
-                if (sMergedMap == null) {
-                    sMergedMap = buildMergedMapLocked();
+    @WorkerThread
+    public static Map<String, List<String>> getGlobalMap() {
+        if (sGlobalMap == null) {
+            synchronized (sLock) {
+                if (sGlobalMap == null) {
+                    sGlobalMap = buildGlobalMapLocked();
                 }
             }
         }
-        return sMergedMap;
+        return sGlobalMap;
+    }
+
+    /**
+     * Looks up the provided map to find a class for {@code schemaName} that is assignable to
+     * {@code documentClass}. Returns null if such class is not found.
+     */
+    @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static <T> Class<? extends T> getAssignableClassBySchemaName(
+            @NonNull Map<String, List<String>> map, @NonNull String schemaName,
+            @NonNull Class<T> documentClass) {
+        List<String> classNames = map.get(schemaName);
+        if (classNames == null) {
+            return null;
+        }
+        // If there are multiple classes that correspond to the schema name, then we will:
+        // 1. skip any classes that are not assignable to documentClass.
+        // 2. if there are still multiple candidates, return the first one in the global map.
+        for (int i = 0; i < classNames.size(); ++i) {
+            String className = classNames.get(i);
+            try {
+                Class<?> clazz = getAppSearchDocumentClass(className);
+                if (documentClass.isAssignableFrom(clazz)) {
+                    return clazz.asSubclass(documentClass);
+                }
+            } catch (ClassNotFoundException e) {
+                Log.w(TAG, "Failed to load document class \"" + className + "\". Perhaps the "
+                        + "class was proguarded out?");
+            }
+        }
+        return null;
     }
 
     /**
@@ -72,8 +120,30 @@ public abstract class AppSearchDocumentClassMap {
     protected abstract Map<String, List<String>> getMap();
 
     @NonNull
-    @GuardedBy("AppSearchDocumentClassMap.class")
-    private static Map<String, List<String>> buildMergedMapLocked() {
+    private static Class<?> getAppSearchDocumentClass(@NonNull String className)
+            throws ClassNotFoundException {
+        Class<?> result;
+        synchronized (sLock) {
+            result = sCachedAppSearchClasses.get(className);
+        }
+        if (result == null) {
+            result = Class.forName(className);
+            synchronized (sLock) {
+                sCachedAppSearchClasses.put(className, result);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Collects all of the instances of the generated {@link AppSearchDocumentClassMap} classes
+     * available in the current JVM environment, and calls the {@link #getMap()} method from them to
+     * build and return the merged map. The keys are schema type names, and the values are the
+     * lists of the corresponding document classes.
+     */
+    @NonNull
+    @GuardedBy("AppSearchDocumentClassMap.sLock")
+    private static Map<String, List<String>> buildGlobalMapLocked() {
         ServiceLoader<AppSearchDocumentClassMap> loader = ServiceLoader.load(
                 AppSearchDocumentClassMap.class, AppSearchDocumentClassMap.class.getClassLoader());
         Map<String, List<String>> result = new ArrayMap<>();
