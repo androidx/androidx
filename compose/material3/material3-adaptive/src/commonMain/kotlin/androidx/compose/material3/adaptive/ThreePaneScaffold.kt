@@ -810,8 +810,9 @@ internal object ThreePaneScaffoldDefaults {
      */
     val TertiaryPanePreferredWidth = 412.dp
 
-    // TODO(conradchen): maybe remove this after addressing unspecified preferred width issue
-    val PrimaryPanePreferredWidth = 600.dp
+    // Make it the same as the secondary and tertiary panes, so we can have a semi-50-50-split on
+    // narrower windows by default.
+    val PrimaryPanePreferredWidth = 412.dp
 
     // TODO(conradchen): consider declaring a value class for priority
     const val PrimaryPanePriority = 10
