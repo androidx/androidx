@@ -41,6 +41,9 @@ import androidx.work.impl.utils.WorkForegroundUpdater
 import androidx.work.impl.utils.WorkProgressUpdater
 import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.taskexecutor.TaskExecutor
+import androidx.work.logd
+import androidx.work.loge
+import androidx.work.logi
 import com.google.common.util.concurrent.ListenableFuture
 import java.util.UUID
 import java.util.concurrent.Callable
@@ -102,10 +105,9 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
             // running, finished, or is blocked.
             if (workSpec.state !== WorkInfo.State.ENQUEUED) {
                 resolveIncorrectStatus()
-                Logger.get().debug(
-                    TAG,
+                logd(TAG) {
                     "${workSpec.workerClassName} is not in ENQUEUED state. Nothing more to do"
-                )
+                }
                 return@Callable true
             }
 
@@ -150,10 +152,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
             val inputMerger =
                 inputMergerFactory.createInputMergerWithDefaultFallback(inputMergerClassName)
             if (inputMerger == null) {
-                Logger.get().error(
-                    TAG,
-                    "Could not create Input Merger ${workSpec.inputMergerClassName}"
-                )
+                loge(TAG) { "Could not create Input Merger ${workSpec.inputMergerClassName}" }
                 setFailedAndResolve()
                 return
             }
@@ -185,19 +184,15 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         }
         val worker = worker
         if (worker == null) {
-            Logger.get().error(
-                TAG,
-                "Could not create Worker ${workSpec.workerClassName}"
-            )
+            loge(TAG) { "Could not create Worker ${workSpec.workerClassName}" }
             setFailedAndResolve()
             return
         }
         if (worker.isUsed) {
-            Logger.get().error(
-                TAG,
+            loge(TAG) {
                 "Received an already-used Worker ${workSpec.workerClassName}; " +
                     "Worker Factory should return new instances"
-            )
+            }
             setFailedAndResolve()
             return
         }
@@ -233,10 +228,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                 }
                 try {
                     runExpedited.get()
-                    Logger.get().debug(
-                        TAG,
-                        "Starting work for ${workSpec.workerClassName}"
-                    )
+                    logd(TAG) { "Starting work for ${workSpec.workerClassName}" }
                     // Call mWorker.startWork() on the main thread.
                     workerResultFuture.setFuture(worker.startWork())
                 } catch (e: Throwable) {
@@ -251,33 +243,26 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                     // If the ListenableWorker returns a null result treat it as a failure.
                     val result = workerResultFuture.get()
                     if (result == null) {
-                        Logger.get().error(
-                            TAG, workSpec.workerClassName +
+                        loge(TAG) {
+                            workSpec.workerClassName +
                                 " returned a null result. Treating it as a failure."
-                        )
+                        }
                     } else {
-                        Logger.get().debug(
-                            TAG,
-                            "${workSpec.workerClassName} returned a $result."
-                        )
+                        logd(TAG) { "${workSpec.workerClassName} returned a $result." }
                         this.result = result
                     }
                 } catch (exception: CancellationException) {
                     // Cancellations need to be treated with care here because innerFuture
                     // cancellations will bubble up, and we need to gracefully handle that.
-                    Logger.get().info(TAG, "$workDescription was cancelled", exception)
+                    logi(TAG, exception) { "$workDescription was cancelled" }
                 } catch (exception: InterruptedException) {
-                    Logger.get().error(
-                        TAG,
-                        "$workDescription failed because it threw an exception/error",
-                        exception
-                    )
+                    loge(TAG, exception) {
+                        "$workDescription failed because it threw an exception/error"
+                    }
                 } catch (exception: ExecutionException) {
-                    Logger.get().error(
-                        TAG,
-                        "$workDescription failed because it threw an exception/error",
-                        exception
-                    )
+                    loge(TAG, exception) {
+                        "$workDescription failed because it threw an exception/error"
+                    }
                 } finally {
                     onWorkFinished()
                 }
@@ -324,25 +309,20 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         if (worker != null && workerResultFuture.isCancelled()) {
             worker.stop(stopReason)
         } else {
-            val message = "WorkSpec $workSpec is already done. Not interrupting."
-            Logger.get().debug(TAG, message)
+            logd(TAG) { "WorkSpec $workSpec is already done. Not interrupting." }
         }
     }
 
     private fun resolveIncorrectStatus() {
         val status = workSpecDao.getState(workSpecId)
         if (status === WorkInfo.State.RUNNING) {
-            Logger.get().debug(
-                TAG,
+            logd(TAG) {
                 "Status for $workSpecId is RUNNING; not doing any work and " +
                     "rescheduling for later execution"
-            )
+            }
             resolve(true)
         } else {
-            Logger.get().debug(
-                TAG,
-                "Status for $workSpecId is $status ; not doing any work"
-            )
+            logd(TAG) { "Status for $workSpecId is $status ; not doing any work" }
             resolve(false)
         }
     }
@@ -354,7 +334,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
         // Worker exceeding a 10 min execution window.
         // One scheduler completing a Worker, and telling other Schedulers to cleanup.
         if (interrupted != WorkInfo.STOP_REASON_NOT_STOPPED) {
-            Logger.get().debug(TAG, "Work interrupted for $workDescription")
+            logd(TAG) { "Work interrupted for $workDescription" }
             val currentState = workSpecDao.getState(workSpecId)
             if (currentState == null) {
                 // This can happen because of a beginUniqueWork(..., REPLACE, ...).  Notify the
@@ -397,26 +377,17 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
 
     private fun handleResult(result: ListenableWorker.Result) {
         if (result is ListenableWorker.Result.Success) {
-            Logger.get().info(
-                TAG,
-                "Worker result SUCCESS for $workDescription"
-            )
+            logi(TAG) { "Worker result SUCCESS for $workDescription" }
             if (workSpec.isPeriodic) {
                 resetPeriodicAndResolve()
             } else {
                 setSucceededAndResolve()
             }
         } else if (result is ListenableWorker.Result.Retry) {
-            Logger.get().info(
-                TAG,
-                "Worker result RETRY for $workDescription"
-            )
+            logi(TAG) { "Worker result RETRY for $workDescription" }
             rescheduleAndResolve()
         } else {
-            Logger.get().info(
-                TAG,
-                "Worker result FAILURE for $workDescription"
-            )
+            logi(TAG) { "Worker result FAILURE for $workDescription" }
             if (workSpec.isPeriodic) {
                 resetPeriodicAndResolve()
             } else {
@@ -509,10 +480,7 @@ class WorkerWrapper internal constructor(builder: Builder) : Runnable {
                 if (workSpecDao.getState(dependentWorkId) === WorkInfo.State.BLOCKED &&
                     dependencyDao.hasCompletedAllPrerequisites(dependentWorkId)
                 ) {
-                    Logger.get().info(
-                        TAG,
-                        "Setting status to enqueued for $dependentWorkId"
-                    )
+                    logi(TAG) { "Setting status to enqueued for $dependentWorkId" }
                     workSpecDao.setState(WorkInfo.State.ENQUEUED, dependentWorkId)
                     workSpecDao.setLastEnqueueTime(dependentWorkId, currentTimeMillis)
                 }
