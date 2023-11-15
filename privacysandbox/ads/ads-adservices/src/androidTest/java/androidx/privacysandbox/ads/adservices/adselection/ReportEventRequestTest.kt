@@ -16,6 +16,8 @@
 
 package androidx.privacysandbox.ads.adservices.adselection
 
+import android.view.InputEvent
+import android.view.KeyEvent
 import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -32,16 +34,19 @@ class ReportEventRequestTest {
     private val eventKey: String = "click"
     private val eventData: String = "{\"key\":\"value\"}"
     private val reportingDestinations: Int = ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER
+    private val inputEvent: InputEvent = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_1)
 
     @Test
     fun testToString() {
         val result = "ReportEventRequest: adSelectionId=$adSelectionId, eventKey=$eventKey, " +
-            "eventData=$eventData, reportingDestinations=$reportingDestinations"
+            "eventData=$eventData, reportingDestinations=$reportingDestinations" +
+            "inputEvent=$inputEvent"
         val request = ReportEventRequest(
             adSelectionId,
             eventKey,
             eventData,
-            reportingDestinations
+            reportingDestinations,
+            inputEvent
         )
         Truth.assertThat(request.toString()).isEqualTo(result)
     }
@@ -52,13 +57,15 @@ class ReportEventRequestTest {
             adSelectionId,
             eventKey,
             eventData,
-            reportingDestinations
+            reportingDestinations,
+            inputEvent
         )
         var reportEventRequest2 = ReportEventRequest(
             1234L,
             "click",
             "{\"key\":\"value\"}",
-            ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER
+            ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER,
+            inputEvent
         )
 
         Truth.assertThat(reportEventRequest == reportEventRequest2).isTrue()

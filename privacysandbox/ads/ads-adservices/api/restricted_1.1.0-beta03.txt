@@ -88,14 +88,16 @@ package androidx.privacysandbox.ads.adservices.adselection {
   }
 
   @SuppressCompatibility @androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures.Ext8OptIn public final class ReportEventRequest {
-    ctor public ReportEventRequest(long adSelectionId, String eventKey, String eventData, int reportingDestinations);
+    ctor public ReportEventRequest(long adSelectionId, String eventKey, String eventData, int reportingDestinations, optional android.view.InputEvent? inputEvent);
     method public long getAdSelectionId();
     method public String getEventData();
     method public String getEventKey();
+    method public android.view.InputEvent? getInputEvent();
     method public int getReportingDestinations();
     property public final long adSelectionId;
     property public final String eventData;
     property public final String eventKey;
+    property public final android.view.InputEvent? inputEvent;
     property public final int reportingDestinations;
     field public static final androidx.privacysandbox.ads.adservices.adselection.ReportEventRequest.Companion Companion;
     field public static final int FLAG_REPORTING_DESTINATION_BUYER = 2; // 0x2

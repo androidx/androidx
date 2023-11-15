@@ -19,6 +19,8 @@ package androidx.privacysandbox.ads.adservices.java.adselection
 import android.content.Context
 import android.net.Uri
 import android.os.OutcomeReceiver
+import android.view.InputEvent
+import android.view.KeyEvent
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome
 import androidx.privacysandbox.ads.adservices.adselection.GetAdSelectionDataRequest
@@ -343,7 +345,8 @@ class AdSelectionManagerFuturesTest {
             adSelectionId,
             eventKey,
             eventData,
-            reportingDestinations
+            reportingDestinations,
+            inputEvent
         )
 
         // Actually invoke the compat code.
@@ -424,6 +427,7 @@ class AdSelectionManagerFuturesTest {
         private const val reportingDestinations =
             ReportEventRequest.FLAG_REPORTING_DESTINATION_BUYER
         private val adSelectionData = byteArrayOf(0x01, 0x02, 0x03, 0x04)
+        private val inputEvent: InputEvent = KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_1)
 
         // Response.
         private val renderUri = Uri.parse("render-uri.com")
@@ -589,17 +593,25 @@ class AdSelectionManagerFuturesTest {
         private fun verifyReportEventRequest(
             request: android.adservices.adselection.ReportEventRequest
         ) {
-            val expectedRequest = android.adservices.adselection.ReportEventRequest.Builder(
+            val checkInputEvent = VersionCompatUtil.isTestableVersion(10, 10)
+            val expectedRequestBuilder = android.adservices.adselection.ReportEventRequest.Builder(
                 adSelectionId,
                 eventKey,
                 eventData,
-                reportingDestinations
-            ).build()
+                reportingDestinations)
+
+            if (checkInputEvent)
+                expectedRequestBuilder.setInputEvent(inputEvent)
+
+            val expectedRequest = expectedRequestBuilder.build()
             Assert.assertEquals(expectedRequest.adSelectionId, request.adSelectionId)
             Assert.assertEquals(expectedRequest.key, request.key)
             Assert.assertEquals(expectedRequest.data, request.data)
             Assert.assertEquals(expectedRequest.reportingDestinations,
                 request.reportingDestinations)
+            if (checkInputEvent)
+                Assert.assertEquals(expectedRequest.inputEvent,
+                    request.inputEvent)
         }
 
         private fun verifyPersistAdSelectionResultRequest(
