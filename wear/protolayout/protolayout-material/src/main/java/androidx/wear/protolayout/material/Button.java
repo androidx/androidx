@@ -106,8 +106,9 @@ public class Button implements LayoutElement {
 
         /**
          * Creates a builder for the {@link Button} from the given content. Custom content should be
-         * later set with one of the following ({@link #setIconContent}, {@link #setTextContent},
-         * {@link #setImageContent}.
+         * later set with one of the following {@link #setIconContent(String)},
+         * {@link #setIconContent(String, DpProp)}, {@link #setTextContent(String)},
+         * {@link #setTextContent(String, int)} or {@link #setImageContent(String)}.
          *
          * @param context The application's context.
          * @param clickable Associated {@link Clickable} for click events. When the Button is
