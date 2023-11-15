@@ -1440,6 +1440,7 @@ private fun Modifier.rangeSliderEndThumbSemantics(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Stable
 private fun Modifier.sliderTapModifier(
     state: SliderState,
     interactionSource: MutableInteractionSource,
@@ -1459,6 +1460,7 @@ private fun Modifier.sliderTapModifier(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Stable
 private fun Modifier.rangeSliderPressDragModifier(
     state: RangeSliderState,
     startInteractionSource: MutableInteractionSource,
@@ -1600,9 +1602,11 @@ class SliderColors(
     val disabledInactiveTrackColor: Color,
     val disabledInactiveTickColor: Color
 ) {
+    @Stable
     internal fun thumbColor(enabled: Boolean): Color =
         if (enabled) thumbColor else disabledThumbColor
 
+    @Stable
     internal fun trackColor(enabled: Boolean, active: Boolean): Color =
         if (enabled) {
             if (active) activeTrackColor else inactiveTrackColor
@@ -1610,6 +1614,7 @@ class SliderColors(
             if (active) disabledActiveTrackColor else disabledInactiveTrackColor
         }
 
+    @Stable
     internal fun tickColor(enabled: Boolean, active: Boolean): Color =
         if (enabled) {
             if (active) activeTickColor else inactiveTickColor
