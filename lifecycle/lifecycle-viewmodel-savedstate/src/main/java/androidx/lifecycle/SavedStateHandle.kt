@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo
 import androidx.core.os.bundleOf
 import androidx.savedstate.SavedStateRegistry
 import java.io.Serializable
-import java.lang.ClassCastException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -136,6 +135,21 @@ class SavedStateHandle {
      * }`
      *```
      *
+     * Note: If [T] is an [Array] of [Parcelable] classes, note that you should always use
+     * `Array<Parcelable>` and create a typed array from the result as going through process
+     * death and recreation (or using the `Don't keep activities` developer option) will result
+     * in the type information being lost, thus resulting in a `ClassCastException` if you
+     * directly try to observe the result as an `Array<CustomParcelable>`.
+     *
+     * ```
+     * val typedArrayLiveData = savedStateHandle.getLiveData<Array<Parcelable>>(
+     *   "KEY"
+     * ).map { array ->
+     *   // Convert the Array<Parcelable> to an Array<CustomParcelable>
+     *   array.map { it as CustomParcelable }.toTypedArray()
+     * }
+     * ```
+     *
      * @param key          The identifier for the value
      * @param initialValue If no value exists with the given `key`, a new one is created
      * with the given `initialValue`. Note that passing `null` will
@@ -186,6 +200,21 @@ class SavedStateHandle {
      *
      * If there is already a value associated with the given key, the initial value will be ignored.
      *
+     * Note: If [T] is an [Array] of [Parcelable] classes, note that you should always use
+     * `Array<Parcelable>` and create a typed array from the result as going through process
+     * death and recreation (or using the `Don't keep activities` developer option) will result
+     * in the type information being lost, thus resulting in a `ClassCastException` if you
+     * directly try to collect the result as an `Array<CustomParcelable>`.
+     *
+     * ```
+     * val typedArrayFlow = savedStateHandle.getStateFlow<Array<Parcelable>>(
+     *   "KEY"
+     * ).map { array ->
+     *   // Convert the Array<Parcelable> to an Array<CustomParcelable>
+     *   array.map { it as CustomParcelable }.toTypedArray()
+     * }
+     * ```
+     *
      * @param key The identifier for the flow
      * @param initialValue If no value exists with the given `key`, a new one is created
      * with the given `initialValue`.
@@ -216,6 +245,18 @@ class SavedStateHandle {
 
     /**
      * Returns a value associated with the given key.
+     *
+     * Note: If [T] is an [Array] of [Parcelable] classes, note that you should always use
+     * `Array<Parcelable>` and create a typed array from the result as going through process
+     * death and recreation (or using the `Don't keep activities` developer option) will result
+     * in the type information being lost, thus resulting in a `ClassCastException` if you
+     * directly try to assign the result to an `Array<CustomParcelable>` value.
+     *
+     * ```
+     * val typedArray = savedStateHandle.get<Array<Parcelable>>("KEY").map {
+     *   it as CustomParcelable
+     * }.toTypedArray()
+     * ```
      *
      * @param key a key used to retrieve a value.
      */
@@ -378,6 +419,7 @@ class SavedStateHandle {
             // When restoring state, we use the restored state as the source of truth
             // and ignore any default state, thus ensuring we are exactly the same
             // state that was saved.
+            restoredState.classLoader = SavedStateHandle::class.java.classLoader!!
             val keys: ArrayList<*>? = restoredState.getParcelableArrayList<Parcelable>(KEYS)
             val values: ArrayList<*>? = restoredState.getParcelableArrayList<Parcelable>(VALUES)
             check(!(keys == null || values == null || keys.size != values.size)) {
