@@ -94,6 +94,7 @@ package androidx.appsearch.app {
 
   @AnyThread public abstract class AppSearchDocumentClassMap {
     ctor public AppSearchDocumentClassMap();
+    method @WorkerThread public static java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getGlobalMap();
     method protected abstract java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getMap();
   }
 
@@ -238,7 +239,7 @@ package androidx.appsearch.app {
   }
 
   public interface DocumentClassFactory<T> {
-    method public T fromGenericDocument(androidx.appsearch.app.GenericDocument) throws androidx.appsearch.exceptions.AppSearchException;
+    method public T fromGenericDocument(androidx.appsearch.app.GenericDocument, java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!>?) throws androidx.appsearch.exceptions.AppSearchException;
     method public java.util.List<java.lang.Class<?>!> getDependencyDocumentClasses() throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.AppSearchSchema getSchema() throws androidx.appsearch.exceptions.AppSearchException;
     method public String getSchemaName();
@@ -294,6 +295,7 @@ package androidx.appsearch.app {
     method public long getTtlMillis();
     method @Deprecated public androidx.appsearch.app.GenericDocument.Builder<androidx.appsearch.app.GenericDocument.Builder<?>!> toBuilder();
     method public <T> T toDocumentClass(Class<T!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public <T> T toDocumentClass(Class<T!>, java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!>?) throws androidx.appsearch.exceptions.AppSearchException;
   }
 
   public static class GenericDocument.Builder<BuilderType extends androidx.appsearch.app.GenericDocument.Builder> {
@@ -471,6 +473,7 @@ package androidx.appsearch.app {
   public final class SearchResult {
     method public String getDatabaseName();
     method public <T> T getDocument(Class<T!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public <T> T getDocument(Class<T!>, java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!>?) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.GenericDocument getGenericDocument();
     method public java.util.List<androidx.appsearch.app.SearchResult!> getJoinedResults();
     method public java.util.List<androidx.appsearch.app.SearchResult.MatchInfo!> getMatchInfos();

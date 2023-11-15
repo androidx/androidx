@@ -971,6 +971,13 @@ public abstract class AnnotationProcessorTestBase {
         }
     }
 
+    @Document(name = "DocumentCollection")
+    static class DocumentCollection {
+        @Document.Id String mId;
+        @Document.Namespace String mNamespace;
+        @Document.DocumentProperty InterfaceRoot[] mCollection;
+    }
+
     @Document(name = "Place", parent = InterfaceRoot.class)
     interface Place extends InterfaceRoot {
         @Document.StringProperty
@@ -1538,12 +1545,500 @@ public abstract class AnnotationProcessorTestBase {
         expectedDocumentMap.put("SampleAutoValue", Arrays.asList(
                 "androidx.appsearch.app.AnnotationProcessorTestBase$SampleAutoValue"));
 
-        Map<String, List<String>> actualDocumentMap = AppSearchDocumentClassMap.getMergedMap();
+        Map<String, List<String>> actualDocumentMap = AppSearchDocumentClassMap.getGlobalMap();
         assertThat(actualDocumentMap.keySet()).containsAtLeastElementsIn(
                 expectedDocumentMap.keySet());
         for (String key : expectedDocumentMap.keySet()) {
             assertThat(actualDocumentMap.get(key)).containsAtLeastElementsIn(
                     expectedDocumentMap.get(key));
         }
+    }
+
+    @Test
+    public void testGetAssignableClassBySchemaName() throws Exception {
+        // Assignable to InterfaceRoot
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "InterfaceRoot", InterfaceRoot.class))
+                .isEqualTo(InterfaceRoot.class);
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Place", InterfaceRoot.class))
+                .isEqualTo(Place.class);
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Organization", InterfaceRoot.class))
+                .isEqualTo(Organization.class);
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Business", InterfaceRoot.class))
+                .isEqualTo(Business.class);
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "BusinessImpl", InterfaceRoot.class))
+                .isEqualTo(BusinessImpl.class);
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Person", InterfaceRoot.class))
+                .isEqualTo(Person.class);
+
+        // Assignable to Place
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "InterfaceRoot", Place.class))
+                .isNull();
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Place", Place.class))
+                .isEqualTo(Place.class);
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Organization", Place.class))
+                .isNull();
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Business", Place.class))
+                .isEqualTo(Business.class);
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "BusinessImpl", Place.class))
+                .isEqualTo(BusinessImpl.class);
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Person", Place.class))
+                .isNull();
+
+        // Assignable to Business
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "InterfaceRoot", Business.class))
+                .isNull();
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Place", Business.class))
+                .isNull();
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Organization", Business.class))
+                .isNull();
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Business", Business.class))
+                .isEqualTo(Business.class);
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "BusinessImpl", Business.class))
+                .isEqualTo(BusinessImpl.class);
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Person", Business.class))
+                .isNull();
+
+        // Assignable to Person
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "InterfaceRoot", Person.class))
+                .isNull();
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Place", Person.class))
+                .isNull();
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Organization", Person.class))
+                .isNull();
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Business", Person.class))
+                .isNull();
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "BusinessImpl", Person.class))
+                .isNull();
+        assertThat(AppSearchDocumentClassMap.getAssignableClassBySchemaName(
+                AppSearchDocumentClassMap.getGlobalMap(),
+                "Person", Person.class))
+                .isEqualTo(Person.class);
+    }
+
+    @Test
+    public void testPolymorphicDeserialization_ToOriginalType() throws Exception {
+        // Create Person document
+        Person.Builder personBuilder = new Person.Builder("id", "namespace")
+                .setCreationTimestamp(3000)
+                .setFirstName("first");
+        personBuilder.setLastName("last");
+        Person person = personBuilder.build();
+
+        // Convert person to GenericDocument
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(person);
+
+        // Test that even when deserializing genericDocument to InterfaceRoot, we will get a
+        // Person instance, instead of just an InterfaceRoot.
+        InterfaceRoot interfaceRoot = genericDocument.toDocumentClass(InterfaceRoot.class,
+                AppSearchDocumentClassMap.getGlobalMap());
+        assertThat(interfaceRoot).isInstanceOf(Person.class);
+        Person newPerson = (Person) interfaceRoot;
+        assertThat(newPerson.getId()).isEqualTo("id");
+        assertThat(newPerson.getNamespace()).isEqualTo("namespace");
+        assertThat(newPerson.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(newPerson.getFirstName()).isEqualTo("first");
+        assertThat(newPerson.getLastName()).isEqualTo("last");
+
+        // Test that without the document class map provided, the same deserialization will
+        // just return an InterfaceRoot instance, instead of a Person.
+        interfaceRoot = genericDocument.toDocumentClass(InterfaceRoot.class);
+        assertThat(interfaceRoot).isInstanceOf(InterfaceRoot.class);
+        assertThat(interfaceRoot).isNotInstanceOf(Person.class);
+        assertThat(interfaceRoot.getId()).isEqualTo("id");
+        assertThat(interfaceRoot.getNamespace()).isEqualTo("namespace");
+        assertThat(interfaceRoot.getCreationTimestamp()).isEqualTo(3000);
+    }
+
+    @Test
+    public void testPolymorphicDeserialization_ToBestCompatibleType() throws Exception {
+        // Create a GenericDocument of unknown type.
+        GenericDocument genericDocument =
+                new GenericDocument.Builder<>("namespace", "id", "UnknownType")
+                        .setCreationTimestampMillis(3000)
+                        .setPropertyString("firstName", "first")
+                        .setPropertyString("lastName", "last")
+                        .build();
+
+        // Without parent information, toDocumentClass() will try to deserialize unknown type to
+        // the type that is specified in the parameter.
+        InterfaceRoot interfaceRoot = genericDocument.toDocumentClass(InterfaceRoot.class,
+                AppSearchDocumentClassMap.getGlobalMap());
+        assertThat(interfaceRoot).isNotInstanceOf(Person.class);
+        assertThat(interfaceRoot).isInstanceOf(InterfaceRoot.class);
+        assertThat(interfaceRoot.getId()).isEqualTo("id");
+        assertThat(interfaceRoot.getNamespace()).isEqualTo("namespace");
+        assertThat(interfaceRoot.getCreationTimestamp()).isEqualTo(3000);
+
+        // With parent information, toDocumentClass() will try to deserialize unknown type to the
+        // nearest known parent type.
+        genericDocument = new GenericDocument.Builder<>(genericDocument)
+                .setParentTypes(new ArrayList<>(Arrays.asList("Person", "InterfaceRoot")))
+                .build();
+        interfaceRoot = genericDocument.toDocumentClass(InterfaceRoot.class,
+                AppSearchDocumentClassMap.getGlobalMap());
+        assertThat(interfaceRoot).isInstanceOf(Person.class);
+        Person newPerson = (Person) interfaceRoot;
+        assertThat(newPerson.getId()).isEqualTo("id");
+        assertThat(newPerson.getNamespace()).isEqualTo("namespace");
+        assertThat(newPerson.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(newPerson.getFirstName()).isEqualTo("first");
+        assertThat(newPerson.getLastName()).isEqualTo("last");
+    }
+
+    @Test
+    public void testPolymorphicDeserialization_nestedType() throws Exception {
+        // Create a Person document
+        Person.Builder personBuilder = new Person.Builder("id_person", "namespace")
+                .setCreationTimestamp(3000)
+                .setFirstName("first");
+        personBuilder.setLastName("last");
+        Person person = personBuilder.build();
+        // Create a Place document
+        Place place = Place.createPlace("id_place", "namespace", /* creationTimestamp= */3000,
+                "place_loc");
+
+        // Create a DocumentCollection that includes the person and the place
+        DocumentCollection documentCollection = new DocumentCollection();
+        documentCollection.mId = "id_collection";
+        documentCollection.mNamespace = "namespace";
+        documentCollection.mCollection = new InterfaceRoot[]{person, place};
+        // Convert documentCollection to GenericDocument
+        GenericDocument genericDocument = GenericDocument.fromDocumentClass(documentCollection);
+
+        // Test that when deserializing genericDocument, we will get nested Person and Place
+        // instances, instead of just nested InterfaceRoot instances.
+        DocumentCollection newDocumentCollection = genericDocument.toDocumentClass(
+                DocumentCollection.class, AppSearchDocumentClassMap.getGlobalMap());
+        assertThat(newDocumentCollection.mId).isEqualTo("id_collection");
+        assertThat(newDocumentCollection.mNamespace).isEqualTo("namespace");
+        assertThat(newDocumentCollection.mCollection).hasLength(2);
+        // Check nested Person
+        assertThat(newDocumentCollection.mCollection[0]).isInstanceOf(Person.class);
+        Person newPerson = (Person) newDocumentCollection.mCollection[0];
+        assertThat(newPerson.getId()).isEqualTo("id_person");
+        assertThat(newPerson.getNamespace()).isEqualTo("namespace");
+        assertThat(newPerson.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(newPerson.getFirstName()).isEqualTo("first");
+        assertThat(newPerson.getLastName()).isEqualTo("last");
+        // Check nested Place
+        assertThat(newDocumentCollection.mCollection[1]).isInstanceOf(Place.class);
+        Place newPlace = (Place) newDocumentCollection.mCollection[1];
+        assertThat(newPlace.getId()).isEqualTo("id_place");
+        assertThat(newPlace.getNamespace()).isEqualTo("namespace");
+        assertThat(newPlace.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(newPlace.getLocation()).isEqualTo("place_loc");
+
+        // Test that without the document class map provided, the nested properties will only be
+        // deserialized to InterfaceRoot instances instead.
+        newDocumentCollection = genericDocument.toDocumentClass(DocumentCollection.class);
+        assertThat(newDocumentCollection.mId).isEqualTo("id_collection");
+        assertThat(newDocumentCollection.mNamespace).isEqualTo("namespace");
+        assertThat(newDocumentCollection.mCollection).hasLength(2);
+        // Check nested Person
+        assertThat(newDocumentCollection.mCollection[0]).isInstanceOf(InterfaceRoot.class);
+        assertThat(newDocumentCollection.mCollection[0]).isNotInstanceOf(Person.class);
+        assertThat(newDocumentCollection.mCollection[0].getId()).isEqualTo("id_person");
+        assertThat(newDocumentCollection.mCollection[0].getNamespace()).isEqualTo("namespace");
+        assertThat(newDocumentCollection.mCollection[0].getCreationTimestamp()).isEqualTo(3000);
+        // Check nested Place
+        assertThat(newDocumentCollection.mCollection[1]).isInstanceOf(InterfaceRoot.class);
+        assertThat(newDocumentCollection.mCollection[1]).isNotInstanceOf(Place.class);
+        assertThat(newDocumentCollection.mCollection[1].getId()).isEqualTo("id_place");
+        assertThat(newDocumentCollection.mCollection[1].getNamespace()).isEqualTo("namespace");
+        assertThat(newDocumentCollection.mCollection[1].getCreationTimestamp()).isEqualTo(3000);
+    }
+
+    @Test
+    public void testPolymorphicDeserialization_Integration() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        // Add an unknown business type this is a subtype of Business.
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addDocumentClasses(Business.class)
+                .addSchemas(new AppSearchSchema.Builder("UnknownBusiness")
+                        .addParentType("Business")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "organizationDescription")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder("location")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "businessName")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "unknownProperty")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .build())
+                .build()).get();
+
+        // Create and put an UnknownBusiness document.
+        GenericDocument genericDoc =
+                new GenericDocument.Builder<>("namespace", "id", "UnknownBusiness")
+                        .setCreationTimestampMillis(3000)
+                        .setPropertyString("location", "business_loc")
+                        .setPropertyString("organizationDescription", "business_dec")
+                        .setPropertyString("businessName", "business_name")
+                        .setPropertyString("unknownProperty", "foo")
+                        .build();
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(genericDoc).build()));
+
+        // Query to get the document back, with parent information added.
+        SearchResults searchResults = mSession.search("", new SearchSpec.Builder().build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        GenericDocument actualGenericDoc = documents.get(0);
+        GenericDocument expectedGenericDoc = new GenericDocument.Builder<>(genericDoc)
+                .setParentTypes(new ArrayList<>(Arrays.asList("Business", "Place", "Organization",
+                        "InterfaceRoot")))
+                .build();
+        assertThat(actualGenericDoc).isEqualTo(expectedGenericDoc);
+
+        // Deserializing it to InterfaceRoot will get a Business instance back.
+        InterfaceRoot interfaceRoot = actualGenericDoc.toDocumentClass(InterfaceRoot.class,
+                AppSearchDocumentClassMap.getGlobalMap());
+        assertThat(interfaceRoot).isInstanceOf(Business.class);
+        Business business = (Business) interfaceRoot;
+        assertThat(business.getId()).isEqualTo("id");
+        assertThat(business.getNamespace()).isEqualTo("namespace");
+        assertThat(business.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(business.getLocation()).isEqualTo("business_loc");
+        assertThat(business.getOrganizationDescription()).isEqualTo("business_dec");
+        assertThat(business.getBusinessName()).isEqualTo("business_name");
+    }
+
+    // InterfaceRoot
+    //   |    \
+    //   |    Person
+    //   |    /
+    //   UnknownA
+    @Test
+    public void testPolymorphicDeserialization_IntegrationDiamondThreeTypes() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(new AppSearchSchema.Builder("UnknownA")
+                        .addParentType("InterfaceRoot")
+                        .addParentType("Person")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "firstName")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "lastName")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .build())
+                .addDocumentClasses(Person.class)
+                .build()).get();
+
+        // Create and put an UnknownA document.
+        GenericDocument genericDoc =
+                new GenericDocument.Builder<>("namespace", "id", "UnknownA")
+                        .setCreationTimestampMillis(3000)
+                        .setPropertyString("firstName", "first")
+                        .setPropertyString("lastName", "last")
+                        .build();
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(genericDoc).build()));
+
+        // Query to get the document back, with parent information added.
+        SearchResults searchResults = mSession.search("", new SearchSpec.Builder().build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        GenericDocument actualGenericDoc = documents.get(0);
+        GenericDocument expectedGenericDoc = new GenericDocument.Builder<>(genericDoc)
+                .setParentTypes(new ArrayList<>(Arrays.asList("Person", "InterfaceRoot")))
+                .build();
+        assertThat(actualGenericDoc).isEqualTo(expectedGenericDoc);
+
+        // Deserializing it to InterfaceRoot will get a Person instance back.
+        InterfaceRoot interfaceRoot = actualGenericDoc.toDocumentClass(InterfaceRoot.class,
+                AppSearchDocumentClassMap.getGlobalMap());
+        assertThat(interfaceRoot).isInstanceOf(Person.class);
+        Person person = (Person) interfaceRoot;
+        assertThat(person.getId()).isEqualTo("id");
+        assertThat(person.getNamespace()).isEqualTo("namespace");
+        assertThat(person.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(person.getFirstName()).isEqualTo("first");
+        assertThat(person.getLastName()).isEqualTo("last");
+    }
+
+    //   InterfaceRoot
+    //    /        \
+    // UnknownA   Person
+    //    \       /
+    //    Unknown B
+    @Test
+    public void testPolymorphicDeserialization_IntegrationDiamondTwoUnknown() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addSchemas(new AppSearchSchema.Builder("UnknownA")
+                        .addParentType("InterfaceRoot")
+                        .build())
+                .addSchemas(new AppSearchSchema.Builder("UnknownB")
+                        .addParentType("UnknownA")
+                        .addParentType("Person")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "firstName")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "lastName")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .build())
+                .addDocumentClasses(Person.class)
+                .build()).get();
+
+        // Create and put an UnknownB document.
+        GenericDocument genericDoc =
+                new GenericDocument.Builder<>("namespace", "id", "UnknownB")
+                        .setCreationTimestampMillis(3000)
+                        .setPropertyString("firstName", "first")
+                        .setPropertyString("lastName", "last")
+                        .build();
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(genericDoc).build()));
+
+        // Query to get the document back, with parent information added.
+        SearchResults searchResults = mSession.search("", new SearchSpec.Builder().build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        GenericDocument actualGenericDoc = documents.get(0);
+        GenericDocument expectedGenericDoc = new GenericDocument.Builder<>(genericDoc)
+                .setParentTypes(new ArrayList<>(
+                        Arrays.asList("UnknownA", "Person", "InterfaceRoot")))
+                .build();
+        assertThat(actualGenericDoc).isEqualTo(expectedGenericDoc);
+
+        // Deserializing it to InterfaceRoot will get a Person instance back.
+        InterfaceRoot interfaceRoot = actualGenericDoc.toDocumentClass(InterfaceRoot.class,
+                AppSearchDocumentClassMap.getGlobalMap());
+        assertThat(interfaceRoot).isInstanceOf(Person.class);
+        Person person = (Person) interfaceRoot;
+        assertThat(person.getId()).isEqualTo("id");
+        assertThat(person.getNamespace()).isEqualTo("namespace");
+        assertThat(person.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(person.getFirstName()).isEqualTo("first");
+        assertThat(person.getLastName()).isEqualTo("last");
+    }
+
+    //   InterfaceRoot
+    //    /        \
+    // Person   Organization
+    //    \        /
+    //    Unknown A
+    @Test
+    public void testPolymorphicDeserialization_IntegrationDiamondOneUnknown() throws Exception {
+        assumeTrue(mSession.getFeatures().isFeatureSupported(Features.SCHEMA_ADD_PARENT_TYPE));
+
+        mSession.setSchemaAsync(new SetSchemaRequest.Builder()
+                .addDocumentClasses(Person.class)
+                .addDocumentClasses(Organization.class)
+                .addSchemas(new AppSearchSchema.Builder("UnknownA")
+                        .addParentType("Person")
+                        .addParentType("Organization")
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "firstName")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "lastName")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .addProperty(new AppSearchSchema.StringPropertyConfig.Builder(
+                                "organizationDescription")
+                                .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+                                .build())
+                        .build())
+                .addDocumentClasses(Person.class)
+                .build()).get();
+
+        // Create and put an UnknownA document.
+        GenericDocument genericDoc =
+                new GenericDocument.Builder<>("namespace", "id", "UnknownA")
+                        .setCreationTimestampMillis(3000)
+                        .setPropertyString("firstName", "first")
+                        .setPropertyString("lastName", "last")
+                        .setPropertyString("organizationDescription", "person")
+                        .build();
+        checkIsBatchResultSuccess(mSession.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(genericDoc).build()));
+
+        // Query to get the document back, with parent information added.
+        SearchResults searchResults = mSession.search("", new SearchSpec.Builder().build());
+        List<GenericDocument> documents = convertSearchResultsToDocuments(searchResults);
+        assertThat(documents).hasSize(1);
+        GenericDocument actualGenericDoc = documents.get(0);
+        GenericDocument expectedGenericDoc = new GenericDocument.Builder<>(genericDoc)
+                .setParentTypes(new ArrayList<>(
+                        Arrays.asList("Person", "Organization", "InterfaceRoot")))
+                .build();
+        assertThat(actualGenericDoc).isEqualTo(expectedGenericDoc);
+
+        // Deserializing it to InterfaceRoot will get a Person instance back, which is the first
+        // known type, instead of an Organization.
+        InterfaceRoot interfaceRoot = actualGenericDoc.toDocumentClass(InterfaceRoot.class,
+                AppSearchDocumentClassMap.getGlobalMap());
+        assertThat(interfaceRoot).isInstanceOf(Person.class);
+        assertThat(interfaceRoot).isNotInstanceOf(Organization.class);
+        Person person = (Person) interfaceRoot;
+        assertThat(person.getId()).isEqualTo("id");
+        assertThat(person.getNamespace()).isEqualTo("namespace");
+        assertThat(person.getCreationTimestamp()).isEqualTo(3000);
+        assertThat(person.getFirstName()).isEqualTo("first");
+        assertThat(person.getLastName()).isEqualTo("last");
     }
 }
