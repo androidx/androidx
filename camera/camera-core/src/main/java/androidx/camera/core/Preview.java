@@ -1163,7 +1163,44 @@ public final class Preview extends UseCase {
          *
          * <p>The supported dynamic ranges for preview depend on the capabilities of the
          * camera and the ability of the {@link Surface} provided by the
-         * {@link Preview.SurfaceProvider} to consume the dynamic range.
+         * {@link Preview.SurfaceProvider} to consume the dynamic range. The supported dynamic
+         * ranges of the camera can be queried using
+         * {@link CameraInfo#querySupportedDynamicRanges(Set)}.
+         *
+         * <p>As an example, if the {@link Surface} provided by {@link Preview.SurfaceProvider}
+         * comes from a {@link SurfaceView}, such as with
+         * {@link androidx.camera.viewfinder.CameraViewfinder CameraViewfinder} set to
+         * implementation mode
+         * {@link androidx.camera.viewfinder.CameraViewfinder.ImplementationMode#PERFORMANCE
+         * PERFORMANCE}, you may want to query the dynamic ranges supported by the display:
+         * <pre>
+         *   <code>
+         *
+         *        // Get supported HDR dynamic ranges from the display
+         *        Display display = requireContext().getDisplay();
+         *        List&lt;Integer&gt; displayHdrTypes =
+         *                display.getHdrCapabilities().getSupportedHdrTypes();
+         *        Set&lt;DynamicRange&gt; displayHighDynamicRanges =
+         *                // Simple map of Display.HdrCapabilities enums to CameraX DynamicRange
+         *                convertToDynamicRangeSet(displayHdrTypes);
+         *
+         *        // Query dynamic ranges supported by the camera from our
+         *        // dynamic ranges supported by the display.
+         *        mSupportedHighDynamicRanges =
+         *                mCameraInfo.querySupportedDynamicRanges(
+         *                        displayHighDynamicRanges);
+         *
+         *        // Update our UI picker for dynamic range.
+         *        ...
+         *
+         *
+         *        // Create the Preview use case from the dynamic range
+         *        // selected by the UI picker.
+         *        mPreview = new Preview.Builder()
+         *                .setDynamicRange(mSelectedDynamicRange)
+         *                .build();
+         *   </code>
+         * </pre>
          *
          * <p>If the dynamic range is not provided, the returned {@code Preview} use case will use
          * a default of {@link DynamicRange#UNSPECIFIED}. When a {@code Preview} is bound with
@@ -1187,6 +1224,7 @@ public final class Preview extends UseCase {
          *
          * @return The current Builder.
          * @see DynamicRange
+         * @see CameraInfo#querySupportedDynamicRanges(Set)
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull

@@ -24,13 +24,13 @@ import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATIO
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.params.DynamicRangeProfiles
-import android.os.Build
 import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.integration.compat.DynamicRangeProfilesCompat
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.workaround.isFlashAvailable
@@ -57,6 +57,7 @@ import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraCaptureCallback
 import androidx.camera.core.impl.CameraInfoInternal
+import androidx.camera.core.impl.DynamicRanges
 import androidx.camera.core.impl.EncoderProfilesProvider
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.Timebase
@@ -199,17 +200,16 @@ class CameraInfoAdapter @Inject constructor(
         return false
     }
 
-    @SuppressLint("ClassVerificationFailure")
     override fun getSupportedDynamicRanges(): Set<DynamicRange> {
-        // TODO: use DynamicRangesCompat instead after it is migrates from camera-camera2.
-        if (Build.VERSION.SDK_INT >= 33) {
-            val availableProfiles = cameraProperties.metadata[
-                CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES]
-            if (availableProfiles != null) {
-                return profileSetToDynamicRangeSet(availableProfiles.supportedProfiles)
-            }
-        }
-        return setOf(SDR)
+        return DynamicRangeProfilesCompat
+            .fromCameraMetaData(cameraProperties.metadata)
+            .supportedDynamicRanges
+    }
+
+    override fun querySupportedDynamicRanges(
+        candidateDynamicRanges: Set<DynamicRange>
+    ): Set<DynamicRange> {
+        return DynamicRanges.findAllPossibleMatches(candidateDynamicRanges, supportedDynamicRanges)
     }
 
     override fun isPreviewStabilizationSupported(): Boolean {
