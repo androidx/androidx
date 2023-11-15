@@ -273,6 +273,51 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
+    public void testTextSetOverflow_ellipsizeEnd() {
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText(STATIC_STRING_PROP)
+                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
+                        .build();
+
+        LayoutElementProto.Text textProto = text.toProto();
+
+        assertThat(textProto.getText().getValue()).isEqualTo(STATIC_STRING_PROP.getValue());
+        assertThat(textProto.getOverflow().getValue().getNumber())
+                .isEqualTo(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END);
+    }
+
+    @Test
+    public void testTextSetOverflow_truncate() {
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText(STATIC_STRING_PROP)
+                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_TRUNCATE)
+                        .build();
+
+        LayoutElementProto.Text textProto = text.toProto();
+
+        assertThat(textProto.getText().getValue()).isEqualTo(STATIC_STRING_PROP.getValue());
+        assertThat(textProto.getOverflow().getValue().getNumber())
+                .isEqualTo(LayoutElementBuilders.TEXT_OVERFLOW_TRUNCATE);
+    }
+
+    @Test
+    public void testTextSetOverflow_marquee() {
+        LayoutElementBuilders.Text text =
+                new LayoutElementBuilders.Text.Builder()
+                        .setText(STATIC_STRING_PROP)
+                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_MARQUEE)
+                        .build();
+
+        LayoutElementProto.Text textProto = text.toProto();
+
+        assertThat(textProto.getText().getValue()).isEqualTo(STATIC_STRING_PROP.getValue());
+        assertThat(textProto.getOverflow().getValue().getNumber())
+                .isEqualTo(LayoutElementBuilders.TEXT_OVERFLOW_MARQUEE);
+    }
+
+    @Test
     public void testFontStyleSetMultipleSizes() {
         int size1 = 12;
         int size2 = 30;
