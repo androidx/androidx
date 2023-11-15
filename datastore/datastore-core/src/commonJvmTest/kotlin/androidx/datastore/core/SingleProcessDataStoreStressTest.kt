@@ -40,7 +40,6 @@ import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
 import org.junit.After
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.rules.TemporaryFolder
 import org.junit.rules.Timeout
@@ -98,7 +97,6 @@ class SingleProcessDataStoreStressTest {
         }
     }
 
-    @Ignore("b/307969316")
     @Test
     fun testManyConcurrentReadsAndWrites_withIntermittentWriteFailures() = runBlocking<Unit> {
         val file = tempFolder.newFile()
@@ -113,14 +111,19 @@ class SingleProcessDataStoreStressTest {
 
         val readers = (0 until READER_COUNT).map {
             testScope.async {
-                dataStore.data.takeWhile {
-                    it < FINAL_TEST_VALUE
-                }.reduce { accumulator, value ->
-                    // we don't use `assertIncreasingAfterFirstRead` here because failed writes
-                    // might increment the shared counter and trigger more reads than necessary.
-                    // Hence, we only assert for ">=" here.
-                    assertThat(value).isAtLeast(accumulator)
-                    value
+                try {
+                    dataStore.data.takeWhile {
+                        it < FINAL_TEST_VALUE
+                    }.reduce { accumulator, value ->
+                        // we don't use `assertIncreasingAfterFirstRead` here because failed writes
+                        // might increment the shared counter and trigger more reads than necessary.
+                        // Hence, we only assert for ">=" here.
+                        assertThat(value).isAtLeast(accumulator)
+                        value
+                    }
+                } catch (_: NoSuchElementException) {
+                    // the reduce on dataStore.data could start after dataStore is in Final state
+                    // thus no longer emitting elements.
                 }
             }
         }
