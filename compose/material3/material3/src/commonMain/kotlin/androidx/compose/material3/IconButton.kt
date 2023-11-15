@@ -31,6 +31,7 @@ import androidx.compose.material3.tokens.OutlinedIconButtonTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -825,6 +826,7 @@ class IconButtonColors constructor(
      *
      * @param enabled whether the icon button is enabled
      */
+    @Stable
     internal fun containerColor(enabled: Boolean): Color =
         if (enabled) containerColor else disabledContainerColor
 
@@ -833,6 +835,7 @@ class IconButtonColors constructor(
      *
      * @param enabled whether the icon button is enabled
      */
+    @Stable
     internal fun contentColor(enabled: Boolean): Color =
         if (enabled) contentColor else disabledContentColor
 

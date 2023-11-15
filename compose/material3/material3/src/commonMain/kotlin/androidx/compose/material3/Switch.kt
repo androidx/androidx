@@ -40,6 +40,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -385,6 +386,7 @@ class SwitchColors constructor(
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
+    @Stable
     internal fun thumbColor(enabled: Boolean, checked: Boolean): Color =
         if (enabled) {
             if (checked) checkedThumbColor else uncheckedThumbColor
@@ -398,6 +400,7 @@ class SwitchColors constructor(
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
+    @Stable
     internal fun trackColor(enabled: Boolean, checked: Boolean): Color =
         if (enabled) {
             if (checked) checkedTrackColor else uncheckedTrackColor
@@ -411,6 +414,7 @@ class SwitchColors constructor(
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
+    @Stable
     internal fun borderColor(enabled: Boolean, checked: Boolean): Color =
         if (enabled) {
             if (checked) checkedBorderColor else uncheckedBorderColor
@@ -424,6 +428,7 @@ class SwitchColors constructor(
      * @param enabled whether the [Switch] is enabled or not
      * @param checked whether the [Switch] is checked or not
      */
+    @Stable
     internal fun iconColor(enabled: Boolean, checked: Boolean): Color =
         if (enabled) {
             if (checked) checkedIconColor else uncheckedIconColor
