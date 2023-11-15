@@ -94,8 +94,8 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         binding.bottomNavigationView.setupWithNavController(navController)
 
-        val bluetoothManager = getSystemService(BluetoothManager::class.java)
-        isBluetoothEnabled = bluetoothManager.adapter.isEnabled
+        val bluetoothManager = getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
+        isBluetoothEnabled = bluetoothManager?.adapter?.isEnabled ?: false
 
         binding.buttonEnable.setOnClickListener {
             if (ContextCompat.checkSelfPermission(
