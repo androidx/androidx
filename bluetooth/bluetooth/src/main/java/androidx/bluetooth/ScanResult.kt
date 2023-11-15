@@ -58,6 +58,19 @@ class ScanResult @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
             fwkScanResult.scanRecord?.serviceSolicitationUuids.orEmpty()
     }
 
+    @RequiresApi(26)
+    private object ScanResultApi26Impl {
+        @JvmStatic
+        @DoNotInline
+        fun isConnectable(fwkScanResult: FwkScanResult): Boolean =
+            fwkScanResult.isConnectable
+
+        @JvmStatic
+        @DoNotInline
+        fun periodicAdvertisingInterval(fwkScanResult: FwkScanResult): Long =
+            (fwkScanResult.periodicAdvertisingInterval * 1.25).toLong()
+    }
+
     /** Remote Bluetooth device found. */
     val device: BluetoothDevice = BluetoothDevice(fwkScanResult.device)
 
@@ -126,9 +139,16 @@ class ScanResult @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
      * Checks if this object represents a connectable scan result.
      *
      * @return {@code true} if the scanned device is connectable.
+     *
+     * Please note that this will return {@code true} on versions
+     * before [android.os.Build.VERSION_CODES.Q].
      */
     fun isConnectable(): Boolean {
-        return fwkScanResult.isConnectable
+        return if (Build.VERSION.SDK_INT >= 26) {
+            ScanResultApi26Impl.isConnectable(fwkScanResult)
+        } else {
+            true
+        }
     }
 
     /** Returns the received signal strength in dBm. The valid range is [-127, 126]. */
@@ -138,9 +158,15 @@ class ScanResult @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
     /**
      * Returns the periodic advertising interval in milliseconds ranging from 7.5ms to 81918.75ms
      * A value of [PERIODIC_INTERVAL_NOT_PRESENT] means periodic advertising interval is not present.
+     *
+     * Please note that this will return [PERIODIC_INTERVAL_NOT_PRESENT] on versions
+     * before [android.os.Build.VERSION_CODES.Q].
      */
     val periodicAdvertisingInterval: Long
-        // TODO(b/304870068) Cover periodicAdvertisingInterval for below API 26
-        // Framework returns interval in units of 1.25ms.
-        get() = (fwkScanResult.periodicAdvertisingInterval * 1.25).toLong()
+        get() = if (Build.VERSION.SDK_INT >= 26) {
+            // Framework returns interval in units of 1.25ms.
+            ScanResultApi26Impl.periodicAdvertisingInterval(fwkScanResult)
+        } else {
+            PERIODIC_INTERVAL_NOT_PRESENT.toLong()
+        }
 }
