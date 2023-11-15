@@ -268,15 +268,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     fun jvm(block: Action<KotlinJvmTarget>? = null): KotlinJvmTarget? {
         supportedPlatforms.add(PlatformIdentifier.JVM)
         return if (project.enableJvm()) {
-            kotlinExtension.jvm {
-                block?.execute(this)
-                // quick fix for b/286852059
-                // We need to have either Java plugin or Android plugin for the API
-                // files to be generated.
-                if (!project.plugins.hasPlugin("com.android.library")) {
-                    withJava()
-                }
-            }
+            kotlinExtension.jvm { block?.execute(this) }
         } else {
             null
         }
