@@ -746,10 +746,8 @@ public abstract class CameraController {
      * still set). Otherwise, {@code FLASH_MODE_OFF} will be set.
      *
      * @param flashMode the flash mode for {@link ImageCapture}.
-     *
      * @throws IllegalArgumentException If flash mode is invalid or FLASH_MODE_SCREEN is used
      *                                  without a front camera.
-     *
      * @see PreviewView#setScreenFlashWindow(Window)
      * @see ScreenFlashView#setScreenFlashWindow(Window)
      */
@@ -843,12 +841,10 @@ public abstract class CameraController {
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
-     *
      * @throws IllegalStateException If {@link ImageCapture#FLASH_MODE_SCREEN} is set to the
      *                               {@link CameraController}, but a non-null {@link Window}
      *                               instance has not been set with
      *                               {@link PreviewView#setScreenFlashWindow}.
-     *
      * @see ImageCapture#takePicture(
      *ImageCapture.OutputFileOptions, Executor, ImageCapture.OnImageSavedCallback)
      */
@@ -891,12 +887,10 @@ public abstract class CameraController {
      *
      * @param executor The executor in which the callback methods will be run.
      * @param callback Callback to be invoked for the newly captured image
-     *
      * @throws IllegalStateException If {@link ImageCapture#FLASH_MODE_SCREEN} is set to the
      *                               {@link CameraController}, but a non-null {@link Window}
      *                               instance has not been set with
      *                               {@link PreviewView#setScreenFlashWindow}.
-     *
      * @see ImageCapture#takePicture(Executor, ImageCapture.OnImageCapturedCallback)
      */
     @MainThread
@@ -1166,7 +1160,7 @@ public abstract class CameraController {
         if (!Objects.equals(oldResolution, newResolution)) {
             // Rebind ImageAnalysis to reconfigure target resolution.
             unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(),
-                    mImageAnalysis.getImageQueueDepth());
+                    mImageAnalysis.getImageQueueDepth(), mImageAnalysis.getOutputImageFormat());
             startCameraAndTrackStates();
         }
     }
@@ -1208,7 +1202,8 @@ public abstract class CameraController {
             return;
         }
 
-        unbindImageAnalysisAndRecreate(strategy, mImageAnalysis.getImageQueueDepth());
+        unbindImageAnalysisAndRecreate(strategy, mImageAnalysis.getImageQueueDepth(),
+                mImageAnalysis.getOutputImageFormat());
         startCameraAndTrackStates();
     }
 
@@ -1231,7 +1226,8 @@ public abstract class CameraController {
         if (mImageAnalysis.getImageQueueDepth() == depth) {
             return;
         }
-        unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(), depth);
+        unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(), depth,
+                mImageAnalysis.getOutputImageFormat());
         startCameraAndTrackStates();
     }
 
@@ -1274,7 +1270,8 @@ public abstract class CameraController {
         mImageAnalysisTargetSize = targetSize;
         unbindImageAnalysisAndRecreate(
                 mImageAnalysis.getBackpressureStrategy(),
-                mImageAnalysis.getImageQueueDepth());
+                mImageAnalysis.getImageQueueDepth(),
+                mImageAnalysis.getOutputImageFormat());
         startCameraAndTrackStates();
     }
 
@@ -1316,7 +1313,8 @@ public abstract class CameraController {
         mImageAnalysisResolutionSelector = resolutionSelector;
         unbindImageAnalysisAndRecreate(
                 mImageAnalysis.getBackpressureStrategy(),
-                mImageAnalysis.getImageQueueDepth());
+                mImageAnalysis.getImageQueueDepth(),
+                mImageAnalysis.getOutputImageFormat());
         startCameraAndTrackStates();
     }
 
@@ -1354,7 +1352,7 @@ public abstract class CameraController {
         }
         mAnalysisBackgroundExecutor = executor;
         unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(),
-                mImageAnalysis.getImageQueueDepth());
+                mImageAnalysis.getImageQueueDepth(), mImageAnalysis.getOutputImageFormat());
         startCameraAndTrackStates();
     }
 
@@ -1371,17 +1369,71 @@ public abstract class CameraController {
     }
 
     /**
+     * Sets the output image format for {@link ImageAnalysis}.
+     *
+     * <p>The supported output image format
+     * are {@link ImageAnalysis.OutputImageFormat#OUTPUT_IMAGE_FORMAT_YUV_420_888} and
+     * {@link ImageAnalysis.OutputImageFormat#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
+     *
+     * <p>If not set, {@link ImageAnalysis.OutputImageFormat#OUTPUT_IMAGE_FORMAT_YUV_420_888}
+     * will be used.
+     *
+     * <p>Requesting {@link ImageAnalysis.OutputImageFormat#OUTPUT_IMAGE_FORMAT_RGBA_8888}
+     * causes extra overhead because format conversion takes time.
+     *
+     * <p>Changing the value will reconfigure the camera, which may cause additional latency. To
+     * avoid this, set the value before controller is bound to lifecycle. If the value is changed
+     * when the camera is active, check the {@link ImageProxy#getFormat()} value to determine
+     * when the new format takes effect.
+     *
+     * @see ImageAnalysis.Builder#setOutputImageFormat(int)
+     * @see ImageAnalysis.Builder#getOutputImageFormat()
+     * @see ImageAnalysis#getOutputImageFormat()
+     */
+    @MainThread
+    public void setImageAnalysisOutputImageFormat(
+            @ImageAnalysis.OutputImageFormat int imageAnalysisOutputImageFormat) {
+        checkMainThread();
+        if (imageAnalysisOutputImageFormat == mImageAnalysis.getOutputImageFormat()) {
+            // No-op if the value is not changed.
+            return;
+        }
+        unbindImageAnalysisAndRecreate(mImageAnalysis.getBackpressureStrategy(),
+                mImageAnalysis.getImageQueueDepth(), imageAnalysisOutputImageFormat);
+    }
+
+    /**
+     * Gets the output image format for {@link ImageAnalysis}.
+     *
+     * <p>The returned image format can be either
+     * {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_YUV_420_888} or
+     * {@link ImageAnalysis#OUTPUT_IMAGE_FORMAT_RGBA_8888}.
+     *
+     * @see ImageAnalysis.Builder#setOutputImageFormat(int)
+     * @see ImageAnalysis.Builder#getOutputImageFormat()
+     * @see ImageAnalysis#getOutputImageFormat()
+     */
+    @MainThread
+    @ImageAnalysis.OutputImageFormat
+    public int getImageAnalysisOutputImageFormat() {
+        checkMainThread();
+        return mImageAnalysis.getOutputImageFormat();
+    }
+
+    /**
      * Unbinds {@link ImageAnalysis} and recreates with the latest parameters.
      */
     @MainThread
-    private void unbindImageAnalysisAndRecreate(int strategy, int imageQueueDepth) {
+    private void unbindImageAnalysisAndRecreate(int strategy, int imageQueueDepth,
+            @ImageAnalysis.OutputImageFormat int outputFormat) {
         checkMainThread();
         if (isCameraInitialized()) {
             mCameraProvider.unbind(mImageAnalysis);
         }
         ImageAnalysis.Builder builder = new ImageAnalysis.Builder()
                 .setBackpressureStrategy(strategy)
-                .setImageQueueDepth(imageQueueDepth);
+                .setImageQueueDepth(imageQueueDepth)
+                .setOutputImageFormat(outputFormat);
         setTargetOutputSize(builder, mImageAnalysisTargetSize);
         setResolutionSelector(builder, mImageAnalysisResolutionSelector);
         if (mAnalysisBackgroundExecutor != null) {

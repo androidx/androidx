@@ -11,6 +11,7 @@ package androidx.camera.view {
     method @MainThread public java.util.concurrent.Executor? getImageAnalysisBackgroundExecutor();
     method @MainThread public int getImageAnalysisBackpressureStrategy();
     method @MainThread public int getImageAnalysisImageQueueDepth();
+    method @MainThread public int getImageAnalysisOutputImageFormat();
     method @MainThread public androidx.camera.core.resolutionselector.ResolutionSelector? getImageAnalysisResolutionSelector();
     method @Deprecated @MainThread public androidx.camera.view.CameraController.OutputSize? getImageAnalysisTargetSize();
     method @MainThread public int getImageCaptureFlashMode();
@@ -42,6 +43,7 @@ package androidx.camera.view {
     method @MainThread public void setImageAnalysisBackgroundExecutor(java.util.concurrent.Executor?);
     method @MainThread public void setImageAnalysisBackpressureStrategy(int);
     method @MainThread public void setImageAnalysisImageQueueDepth(int);
+    method @MainThread public void setImageAnalysisOutputImageFormat(int);
     method @MainThread public void setImageAnalysisResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector?);
     method @Deprecated @MainThread public void setImageAnalysisTargetSize(androidx.camera.view.CameraController.OutputSize?);
     method @MainThread public void setImageCaptureFlashMode(int);
