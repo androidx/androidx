@@ -1829,6 +1829,8 @@ public final class ProtoLayoutInflater {
                 return TruncateAt.MARQUEE;
             case TEXT_OVERFLOW_UNDEFINED:
             case UNRECOGNIZED:
+            // TODO(b/302531877): Implement ellipsize.
+            case TEXT_OVERFLOW_ELLIPSIZE:
                 return TEXT_OVERFLOW_DEFAULT;
         }
 
