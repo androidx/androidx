@@ -716,6 +716,7 @@ class Camera2CapturePipeline {
 
             ListenableFuture<Void> future = CallbackToFutureAdapter.getFuture(completer -> {
                 CameraXExecutors.mainThreadExecutor().execute(() -> {
+                    Logger.d(TAG, "ScreenFlashTask#preCapture: invoking applyScreenFlashUi");
                     mScreenFlashUiControl.applyScreenFlashUi(screenFlashUiCompleter.get());
                     completer.set(null);
                 });
@@ -727,12 +728,6 @@ class Camera2CapturePipeline {
                             true),
                     mExecutor
             ).transformAsync(
-                    input -> Futures.makeTimeoutFuture(TimeUnit.SECONDS.toMillis(
-                                    ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
-                            mScheduler, null,
-                            uiAppliedFuture),
-                    mExecutor
-            ).transformAsync(
                     // Won't have any effect if CONTROL_AE_MODE_ON_EXTERNAL_FLASH is supported
                     input -> CallbackToFutureAdapter.getFuture(
                             completer -> {
@@ -742,6 +737,12 @@ class Camera2CapturePipeline {
                                 completer.set(null);
                                 return "EnableTorchInternal";
                             }),
+                    mExecutor
+            ).transformAsync(
+                    input -> Futures.makeTimeoutFuture(TimeUnit.SECONDS.toMillis(
+                                    ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS),
+                            mScheduler, null,
+                            uiAppliedFuture),
                     mExecutor
             ).transformAsync(
                     input -> mCameraControl.getFocusMeteringControl().triggerAePrecapture(),
