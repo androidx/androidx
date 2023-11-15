@@ -13,6 +13,7 @@ package androidx.window.core.layout {
 
   public final class WindowSizeClass {
     method public static androidx.window.core.layout.WindowSizeClass compute(float dpWidth, float dpHeight);
+    method public static androidx.window.core.layout.WindowSizeClass compute(int pxWidth, int pxHeight, float density);
     method public androidx.window.core.layout.WindowHeightSizeClass getWindowHeightSizeClass();
     method public androidx.window.core.layout.WindowWidthSizeClass getWindowWidthSizeClass();
     property public final androidx.window.core.layout.WindowHeightSizeClass windowHeightSizeClass;
@@ -22,6 +23,7 @@ package androidx.window.core.layout {
 
   public static final class WindowSizeClass.Companion {
     method public androidx.window.core.layout.WindowSizeClass compute(float dpWidth, float dpHeight);
+    method public androidx.window.core.layout.WindowSizeClass compute(int pxWidth, int pxHeight, float density);
   }
 
   public final class WindowWidthSizeClass {
