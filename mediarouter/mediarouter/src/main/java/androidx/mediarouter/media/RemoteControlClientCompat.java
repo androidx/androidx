@@ -140,13 +140,13 @@ abstract class RemoteControlClientCompat {
             if (!mRegistered) {
                 mRegistered = true;
                 mUserRoute.setVolumeCallback(
-                        MediaRouterApi16Impl.createVolumeCallback(new VolumeCallbackWrapper(this)));
+                        MediaRouterUtils.createVolumeCallback(new VolumeCallbackWrapper(this)));
                 mUserRoute.setRemoteControlClient(mRcc);
             }
         }
 
         private static final class VolumeCallbackWrapper
-                implements MediaRouterApi16Impl.VolumeCallback {
+                implements MediaRouterUtils.VolumeCallback {
             // Unfortunately, the framework never unregisters its volume observer from
             // the audio service so the UserRouteInfo object may leak along with
             // any callbacks that we attach to it.  Use a weak reference to prevent

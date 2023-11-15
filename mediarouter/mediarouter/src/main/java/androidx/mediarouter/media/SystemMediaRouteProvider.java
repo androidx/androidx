@@ -46,6 +46,13 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
     public static final String PACKAGE_NAME = "android";
     public static final String DEFAULT_ROUTE_ID = "DEFAULT_ROUTE";
 
+    public static final int ROUTE_TYPE_LIVE_AUDIO = 0x1;
+    public static final int ROUTE_TYPE_LIVE_VIDEO = 0x2;
+    public static final int ROUTE_TYPE_USER = 0x00800000;
+
+    public static final int ALL_ROUTE_TYPES =
+            ROUTE_TYPE_LIVE_AUDIO | ROUTE_TYPE_LIVE_VIDEO | ROUTE_TYPE_USER;
+
     protected SystemMediaRouteProvider(Context context) {
         super(context, new ProviderMetadata(new ComponentName(PACKAGE_NAME,
                 SystemMediaRouteProvider.class.getName())));
@@ -93,11 +100,9 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         void onSystemRouteSelectedByDescriptorId(@NonNull String id);
     }
 
-    /**
-     * Jellybean MR2 implementation.
-     */
+    /** Jellybean MR2 implementation. */
     private static class JellybeanMr2Impl extends SystemMediaRouteProvider
-            implements MediaRouterApi17Impl.Callback, MediaRouterApi16Impl.VolumeCallback {
+            implements MediaRouterUtils.Callback, MediaRouterUtils.VolumeCallback {
 
         private static final ArrayList<IntentFilter> LIVE_AUDIO_CONTROL_FILTERS;
 
@@ -145,8 +150,8 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             mRouter =
                     (android.media.MediaRouter)
                             context.getSystemService(Context.MEDIA_ROUTER_SERVICE);
-            mCallback = createCallback();
-            mVolumeCallback = createVolumeCallback();
+            mCallback = MediaRouterUtils.createCallback(this);
+            mVolumeCallback = MediaRouterUtils.createVolumeCallback(this);
 
             Resources r = context.getResources();
             mUserRouteCategory =
@@ -177,11 +182,11 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                 for (int i = 0; i < count; i++) {
                     String category = categories.get(i);
                     if (category.equals(MediaControlIntent.CATEGORY_LIVE_AUDIO)) {
-                        newRouteTypes |= MediaRouterApi16Impl.ROUTE_TYPE_LIVE_AUDIO;
+                        newRouteTypes |= ROUTE_TYPE_LIVE_AUDIO;
                     } else if (category.equals(MediaControlIntent.CATEGORY_LIVE_VIDEO)) {
-                        newRouteTypes |= MediaRouterApi16Impl.ROUTE_TYPE_LIVE_VIDEO;
+                        newRouteTypes |= ROUTE_TYPE_LIVE_VIDEO;
                     } else {
-                        newRouteTypes |= MediaRouterApi16Impl.ROUTE_TYPE_USER;
+                        newRouteTypes |= ROUTE_TYPE_USER;
                     }
                 }
                 newActiveScan = request.isActiveScan();
@@ -294,7 +299,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         @Override
         public void onRouteSelected(int type,
                 @NonNull android.media.MediaRouter.RouteInfo route) {
-            if (route != mRouter.getSelectedRoute(MediaRouterApi16Impl.ALL_ROUTE_TYPES)) {
+            if (route != mRouter.getSelectedRoute(ALL_ROUTE_TYPES)) {
                 // The currently selected route has already changed so this callback
                 // is stale.  Drop it to prevent getting into sync loops.
                 return;
@@ -367,7 +372,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                 // route in the framework media router then ensure it is selected in
                 // the compat media router.
                 android.media.MediaRouter.RouteInfo routeObj =
-                        mRouter.getSelectedRoute(MediaRouterApi16Impl.ALL_ROUTE_TYPES);
+                        mRouter.getSelectedRoute(ALL_ROUTE_TYPES);
                 int index = findSystemRouteRecord(routeObj);
                 if (index >= 0) {
                     SystemRouteRecord record = mSystemRouteRecords.get(index);
@@ -499,10 +504,10 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
         protected void onBuildSystemRouteDescriptor(SystemRouteRecord record,
                 MediaRouteDescriptor.Builder builder) {
             int supportedTypes = record.mRoute.getSupportedTypes();
-            if ((supportedTypes & MediaRouterApi16Impl.ROUTE_TYPE_LIVE_AUDIO) != 0) {
+            if ((supportedTypes & ROUTE_TYPE_LIVE_AUDIO) != 0) {
                 builder.addControlFilters(LIVE_AUDIO_CONTROL_FILTERS);
             }
-            if ((supportedTypes & MediaRouterApi16Impl.ROUTE_TYPE_LIVE_VIDEO) != 0) {
+            if ((supportedTypes & ROUTE_TYPE_LIVE_VIDEO) != 0) {
                 builder.addControlFilters(LIVE_VIDEO_CONTROL_FILTERS);
             }
 
@@ -554,7 +559,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
 
         @DoNotInline
         protected void selectRoute(android.media.MediaRouter.RouteInfo route) {
-            mRouter.selectRoute(MediaRouterApi16Impl.ALL_ROUTE_TYPES, route);
+            mRouter.selectRoute(ALL_ROUTE_TYPES, route);
         }
 
         @DoNotInline
@@ -574,14 +579,6 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             userRoute.setVolumeMax(routeInfo.getVolumeMax());
             userRoute.setVolumeHandling(routeInfo.getVolumeHandling());
             userRoute.setDescription(routeInfo.getDescription());
-        }
-
-        protected android.media.MediaRouter.Callback createCallback() {
-            return MediaRouterApi17Impl.createCallback(this);
-        }
-
-        protected android.media.MediaRouter.VolumeCallback createVolumeCallback() {
-            return MediaRouterApi16Impl.createVolumeCallback(this);
         }
 
         @DoNotInline
