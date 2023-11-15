@@ -32,7 +32,6 @@ import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.OutputConfiguration;
-import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
@@ -41,7 +40,6 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
-import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.DoNotInline;
@@ -59,7 +57,6 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.concurrent.CameraCoordinator;
 import androidx.camera.core.impl.CameraInternal;
-import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.impl.fakes.FakeCameraCoordinator;
@@ -1016,46 +1013,6 @@ public final class CameraUtil {
         }
 
         return checkResult;
-    }
-
-    /**
-     * Retrieves the max high resolution output size if the camera has high resolution output sizes
-     * with the specified lensFacing.
-     *
-     * @param lensFacing The desired camera lensFacing.
-     * @return the max high resolution output size if the camera has high resolution output sizes
-     * with the specified LensFacing. Returns null otherwise.
-     * @throws IllegalStateException if the CAMERA permission is not currently granted.
-     */
-    @Nullable
-    public static Size getMaxHighResolutionOutputSizeWithLensFacing(
-            @CameraSelector.LensFacing int lensFacing, int imageFormat) {
-        @SupportedLensFacingInt
-        int lensFacingInteger = getLensFacingIntFromEnum(lensFacing);
-        for (String cameraId : getBackwardCompatibleCameraIdListOrThrow()) {
-            CameraCharacteristics characteristics = getCameraCharacteristicsOrThrow(cameraId);
-            Integer cameraLensFacing = characteristics.get(CameraCharacteristics.LENS_FACING);
-            if (cameraLensFacing == null || cameraLensFacing != lensFacingInteger) {
-                continue;
-            }
-
-            StreamConfigurationMap map = characteristics.get(
-                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                @SuppressLint("ClassVerificationFailure")
-                Size[] highResolutionOutputSizes = map.getHighResolutionOutputSizes(imageFormat);
-
-                if (highResolutionOutputSizes == null || Arrays.asList(
-                        highResolutionOutputSizes).isEmpty()) {
-                    return null;
-                }
-
-                Arrays.sort(highResolutionOutputSizes, new CompareSizesByArea(true));
-                return highResolutionOutputSizes[0];
-            }
-        }
-        return null;
     }
 
     /**
