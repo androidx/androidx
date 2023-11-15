@@ -85,7 +85,6 @@ class UseCaseCameraTest {
     )
     private val requestControl = UseCaseCameraRequestControlImpl(
         capturePipeline = FakeCapturePipeline(),
-        configAdapter = fakeConfigAdapter,
         state = fakeUseCaseCameraState,
         useCaseGraphConfig = fakeUseCaseGraphConfig,
     )
