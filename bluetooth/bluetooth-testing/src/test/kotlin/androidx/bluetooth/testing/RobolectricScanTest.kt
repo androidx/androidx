@@ -19,6 +19,7 @@ package androidx.bluetooth.testing
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanResult as FwkScanResult
+import android.bluetooth.le.ScanSettings as FwkScanSettings
 import android.content.Context
 import androidx.bluetooth.BluetoothLe
 import androidx.bluetooth.ScanFilter
@@ -91,6 +92,9 @@ class RobolectricScanTest {
 }
 
 class ScanImplForTesting(val scanResults: List<ScanResult>) : ScanImpl {
+    override val fwkSettings: FwkScanSettings = FwkScanSettings.Builder()
+        .build()
+
     override fun scan(filters: List<ScanFilter>): Flow<ScanResult> {
         return scanResults.asFlow()
     }

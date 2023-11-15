@@ -23,6 +23,7 @@ import android.content.Context
 import android.os.Build
 import android.os.ParcelUuid
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import java.util.UUID
 import junit.framework.TestCase.assertEquals
@@ -48,6 +49,7 @@ class ScanResultTest {
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
     private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager.adapter
 
+    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun constructorWithFwkInstance() {
         Assume.assumeNotNull(bluetoothAdapter) // Bluetooth is not available if adapter is null
@@ -92,6 +94,7 @@ class ScanResultTest {
         assertEquals(scanResult.periodicAdvertisingInterval, expectedPeriodicAdvertisingInterval)
     }
 
+    @SdkSuppress(minSdkVersion = 26)
     @Test
     fun sameDeviceReturned() {
         Assume.assumeNotNull(bluetoothAdapter) // Bluetooth is not available if adapter is null
