@@ -70,6 +70,7 @@ import androidx.camera.core.resolutionselector.ResolutionFilter
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionSelector.PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE
 import androidx.camera.core.resolutionselector.ResolutionStrategy
+import androidx.camera.integration.core.util.CameraInfoUtil
 import androidx.camera.integration.core.util.CameraPipeUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.testing.impl.CameraPipeConfigTestRule
@@ -1851,8 +1852,14 @@ class ImageCaptureTest(private val implName: String, private val cameraXConfig: 
         //  ResolutionSelector logic
         assumeTrue(implName != CameraPipeConfig::class.simpleName)
 
-        val maxHighResolutionOutputSize = CameraUtil.getMaxHighResolutionOutputSizeWithLensFacing(
-            BACK_SELECTOR.lensFacing!!,
+        val cameraInfo = withContext(Dispatchers.Main) {
+            cameraProvider.bindToLifecycle(
+                fakeLifecycleOwner,
+                CameraSelector.DEFAULT_BACK_CAMERA
+            ).cameraInfo
+        }
+        val maxHighResolutionOutputSize = CameraInfoUtil.getMaxHighResolutionOutputSize(
+            cameraInfo,
             ImageFormat.JPEG
         )
         // Only runs the test when the device has high resolution output sizes
