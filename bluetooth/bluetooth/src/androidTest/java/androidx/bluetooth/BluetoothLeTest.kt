@@ -21,7 +21,6 @@ import android.content.Context
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.GrantPermissionRule
-import java.time.Duration
 import java.util.UUID
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
@@ -107,7 +106,7 @@ class BluetoothLeTest {
     @Test
     fun advertise1000Millis() = runTest {
         val advertiseParams = AdvertiseParams(
-            duration = Duration.ofMillis(1000)
+            durationMillis = 1000
         )
 
         val advertiseJob = bluetoothLe.advertise(advertiseParams)
