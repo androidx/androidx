@@ -24,7 +24,6 @@ import androidx.bluetooth.BluetoothLe
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.time.Duration
 import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Job
@@ -51,7 +50,7 @@ class AdvertiserViewModel @Inject constructor(
     internal var includeDeviceName: Boolean = true
     internal var connectable: Boolean = true
     internal var discoverable: Boolean = true
-    internal var duration: Duration = Duration.ZERO
+    internal var durationMillis: Long = 0
     internal var manufacturerDatas: MutableList<Pair<Int, ByteArray>> = mutableListOf()
     internal var serviceDatas: MutableList<Pair<UUID, ByteArray>> = mutableListOf()
     internal var serviceUuids: MutableList<UUID> = mutableListOf()
@@ -81,7 +80,7 @@ class AdvertiserViewModel @Inject constructor(
             includeDeviceName,
             connectable,
             discoverable,
-            duration,
+            durationMillis,
             manufacturerDatas.toMap(),
             serviceDatas.toMap(),
             serviceUuids,

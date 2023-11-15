@@ -22,8 +22,8 @@ import android.bluetooth.le.AdvertisingSetParameters as FwkAdvertisingSetParamet
 import android.os.Build
 import android.os.ParcelUuid
 import androidx.annotation.DoNotInline
+import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
-import java.time.Duration
 import java.util.UUID
 
 /**
@@ -46,12 +46,13 @@ class AdvertiseParams(
      */
     val isDiscoverable: Boolean = false,
     /**
-     * Advertising duration.
+     * Advertising duration in milliseconds.
      *
      * It must not exceed 180000 milliseconds. A value of 0 means advertising continues
      * until it is stopped explicitly.
+     * @throws IllegalArgumentException if it is not in the range [0..180000].
      */
-    val duration: Duration = Duration.ZERO,
+    @IntRange(from = 0, to = 180000) val durationMillis: Long = 0,
     /**
      * A map of company identifiers to manufacturer specific data.
      * <p>
@@ -100,10 +101,8 @@ class AdvertiseParams(
     internal val fwkAdvertiseSettings: FwkAdvertiseSettings
         get() = FwkAdvertiseSettings.Builder().run {
             setConnectable(isConnectable)
-            duration.toMillis().let {
-                if (it !in 0..180000)
-                    throw IllegalArgumentException("Advertise duration must be in [0, 180000]")
-                setTimeout(it.toInt())
+            if (durationMillis > 0) {
+                setTimeout(durationMillis.toInt())
             }
             if (Build.VERSION.SDK_INT >= 34) {
                 AdvertiseParamsApi34Impl.setDiscoverable(this, isDiscoverable)
@@ -139,4 +138,9 @@ class AdvertiseParams(
             }
             build()
         }
+
+    init {
+        if (durationMillis !in 0..180000)
+            throw IllegalArgumentException("Advertise duration must be in [0, 180000]")
+    }
 }
