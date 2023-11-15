@@ -77,6 +77,7 @@ object Arguments {
     internal val thermalThrottleSleepDurationSeconds: Long
     private val cpuEventCounterEnable: Boolean
     internal val cpuEventCounterMask: Int
+    val runOnMainDeadlineSeconds: Long // non-internal, used in BenchmarkRule
 
     internal var error: String? = null
     internal val additionalTestOutputDir: String?
@@ -225,6 +226,12 @@ object Arguments {
 
         enableStartupProfiles =
             arguments.getBenchmarkArgument("startupProfiles.enable")?.toBoolean() ?: true
+
+        // very relaxed default to start, ideally this would be less than 5 (ANR timeout),
+        // but configurability should help experimenting / narrowing over time
+        runOnMainDeadlineSeconds =
+            arguments.getBenchmarkArgument("runOnMainDeadlineSeconds")?.toLong() ?: 30
+        Log.d(BenchmarkState.TAG, "runOnMainDeadlineSeconds $runOnMainDeadlineSeconds")
     }
 
     fun macrobenchMethodTracingEnabled(): Boolean {

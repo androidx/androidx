@@ -44,6 +44,7 @@ dependencies {
     androidTestImplementation(project(":internal-testutils-ktx"))
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.kotlinTest)
 }
 
 androidx {
