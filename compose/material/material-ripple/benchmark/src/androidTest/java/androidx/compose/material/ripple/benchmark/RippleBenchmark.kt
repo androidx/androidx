@@ -136,7 +136,7 @@ class RippleBenchmark {
 
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
-                measureRepeated {
+                measureRepeatedOnUiThread {
                     runWithTimingDisabled {
                         doFramesUntilNoChangesMeasureLayoutOrDrawPending()
                     }
@@ -166,7 +166,7 @@ class RippleBenchmark {
 
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
-                measureRepeated {
+                measureRepeatedOnUiThread {
                     runWithTimingDisabled {
                         doFramesUntilNoChangesMeasureLayoutOrDrawPending()
                         runBlocking {
@@ -205,7 +205,7 @@ class RippleBenchmark {
 
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
-                measureRepeated {
+                measureRepeatedOnUiThread {
                     runWithTimingDisabled {
                         doFramesUntilNoChangesMeasureLayoutOrDrawPending()
                     }
@@ -237,7 +237,7 @@ class RippleBenchmark {
 
         with(benchmarkRule) {
             runBenchmarkFor({ RippleInteractionTestCase() }) {
-                measureRepeated {
+                measureRepeatedOnUiThread {
                     runWithTimingDisabled {
                         doFramesUntilNoChangesMeasureLayoutOrDrawPending()
                         runBlocking {
