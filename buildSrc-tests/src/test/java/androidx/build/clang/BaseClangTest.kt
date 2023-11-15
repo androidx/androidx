@@ -45,7 +45,9 @@ abstract class BaseClangTest {
         project = ProjectBuilder.builder().withProjectDir(projectSetup.rootDir).build()
         val extension = project.rootProject.property("ext") as ExtraPropertiesExtension
         // build service needs prebuilts location to "download" clang and targets.
-        extension.set("prebuiltsRoot", projectSetup.props.prebuiltsPath)
+        projectSetup.props.prebuiltsPath?.let {
+            extension.set("prebuiltsRoot", it)
+        }
         project.pluginManager.apply(KotlinMultiplatformPluginWrapper::class.java)
         clangExtension = AndroidXClang(project)
         KonanPrebuiltsSetup.configureKonanDirectory(project)
