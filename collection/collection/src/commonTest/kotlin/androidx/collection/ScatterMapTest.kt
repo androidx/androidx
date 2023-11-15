@@ -926,6 +926,21 @@ class ScatterMapTest {
     }
 
     @Test
+    fun asMapToList() {
+        val map = mutableScatterMapOf<Int, Int>()
+        map[0] = 0
+        map[1] = -1
+
+        val list = map
+            .asMap()
+            .toList() // this requires the iterator to return new Entry instances
+
+        assertEquals(map.size, list.size)
+        assertTrue(list.contains(0 to 0))
+        assertTrue(list.contains(1 to -1))
+    }
+
+    @Test
     fun asMutableMapClear() {
         val map = MutableScatterMap<String?, String?>()
         map["Hello"] = "World"
