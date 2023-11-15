@@ -98,6 +98,22 @@ class AdvertiseParams(
         }
     }
 
+    @RequiresApi(26)
+    private object AdvertiseParamsApi26Impl {
+        @JvmStatic
+        @DoNotInline
+        fun fwkAdvertiseSetParams(
+            isConnectable: Boolean,
+            isDiscoverable: Boolean
+        ): FwkAdvertisingSetParameters = FwkAdvertisingSetParameters.Builder().run {
+            setConnectable(isConnectable)
+            if (Build.VERSION.SDK_INT >= 34) {
+                AdvertiseParamsApi34Impl.setDiscoverable(this, isDiscoverable)
+            }
+            build()
+        }
+    }
+
     internal val fwkAdvertiseSettings: FwkAdvertiseSettings
         get() = FwkAdvertiseSettings.Builder().run {
             setConnectable(isConnectable)
@@ -110,14 +126,10 @@ class AdvertiseParams(
             build()
         }
 
-    internal val fwkAdvertiseSetParams: FwkAdvertisingSetParameters
-        get() = FwkAdvertisingSetParameters.Builder().run {
-            setConnectable(isConnectable)
-            if (Build.VERSION.SDK_INT >= 34) {
-                AdvertiseParamsApi34Impl.setDiscoverable(this, isDiscoverable)
-            }
-            build()
-        }
+    @RequiresApi(26)
+    internal fun fwkAdvertiseSetParams(): FwkAdvertisingSetParameters {
+        return AdvertiseParamsApi26Impl.fwkAdvertiseSetParams(isConnectable, isDiscoverable)
+    }
 
     internal val fwkAdvertiseData: FwkAdvertiseData
         get() = FwkAdvertiseData.Builder().run {

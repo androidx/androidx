@@ -16,7 +16,6 @@
 
 package androidx.bluetooth
 
-import android.annotation.SuppressLint
 import android.bluetooth.le.AdvertiseCallback as FwkAdvertiseCallback
 import android.bluetooth.le.AdvertiseSettings as FwkAdvertiseSettings
 import android.bluetooth.le.AdvertisingSet as FwkAdvertisingSet
@@ -36,7 +35,6 @@ interface AdvertiseImpl {
     fun advertise(advertiseParams: AdvertiseParams): Flow<@BluetoothLe.AdvertiseResult Int>
 }
 
-@SuppressLint("ObsoleteSdkInt")
 internal fun getAdvertiseImpl(bleAdvertiser: FwkBluetoothLeAdvertiser): AdvertiseImpl {
     return if (Build.VERSION.SDK_INT >= 26) AdvertiseImplApi26(bleAdvertiser)
     else AdvertiseImplBase(bleAdvertiser)
@@ -71,7 +69,6 @@ private open class AdvertiseImplBase(val bleAdvertiser: FwkBluetoothLeAdvertiser
     }
 }
 
-@SuppressLint("ObsoleteSdkInt")
 @RequiresApi(26)
 private class AdvertiseImplApi26(
     bleAdvertiser: FwkBluetoothLeAdvertiser
@@ -106,7 +103,7 @@ private class AdvertiseImplApi26(
         }
 
         bleAdvertiser.startAdvertisingSet(
-            advertiseParams.fwkAdvertiseSetParams,
+            advertiseParams.fwkAdvertiseSetParams(),
             advertiseParams.fwkAdvertiseData,
             /*scanResponse=*/null,
             /*periodicParameters=*/null,
