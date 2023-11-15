@@ -446,6 +446,9 @@ dependencies {
     docs("androidx.work:work-rxjava2:2.9.0-rc01")
     docs("androidx.work:work-rxjava3:2.9.0-rc01")
     docs("androidx.work:work-testing:2.9.0-rc01")
+
+    // Force upgrade to jsoup 1.16.2 (b/309773103)
+    stubs("org.jsoup:jsoup:1.16.2")
 }
 
 afterEvaluate {
