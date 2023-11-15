@@ -23,6 +23,7 @@ import androidx.annotation.RequiresPermission
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
@@ -140,14 +141,11 @@ class BluetoothLe(context: Context) {
      * Only one server at a time can be opened.
      *
      * @param services the services that will be exposed to the clients
-     * @param block a block of code that is invoked after the server is opened
      *
      * @see GattServerConnectRequest
      */
-    suspend fun <R> openGattServer(
-        services: List<GattService>,
-        block: suspend GattServerConnectScope.() -> R
-    ): R {
-        return server.open(services, block)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun openGattServer(services: List<GattService>): GattServerConnectFlow {
+        return server.open(services)
     }
 }
