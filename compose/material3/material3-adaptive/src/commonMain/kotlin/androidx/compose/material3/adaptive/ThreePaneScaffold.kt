@@ -376,19 +376,15 @@ private class ThreePaneContentMeasurePolicy(
                 it == PaneAdaptedValue.Hidden
             }
 
-            val verticalSpacerSize = scaffoldDirective.gutterSizes.verticalSpacerSize.roundToPx()
+            val verticalSpacerSize = scaffoldDirective.horizontalPartitionSpacerSize.roundToPx()
             val leftContentPadding =
-                scaffoldDirective.gutterSizes.contentPadding.calculateLeftPadding(
-                    layoutDirection
-                ).roundToPx()
+                scaffoldDirective.contentPadding.calculateLeftPadding(layoutDirection).roundToPx()
             val rightContentPadding =
-                scaffoldDirective.gutterSizes.contentPadding.calculateRightPadding(
-                    layoutDirection
-                ).roundToPx()
+                scaffoldDirective.contentPadding.calculateRightPadding(layoutDirection).roundToPx()
             val topContentPadding =
-                scaffoldDirective.gutterSizes.contentPadding.calculateTopPadding().roundToPx()
+                scaffoldDirective.contentPadding.calculateTopPadding().roundToPx()
             val bottomContentPadding =
-                scaffoldDirective.gutterSizes.contentPadding.calculateBottomPadding().roundToPx()
+                scaffoldDirective.contentPadding.calculateBottomPadding().roundToPx()
             val outerBounds = IntRect(
                 leftContentPadding,
                 topContentPadding,
