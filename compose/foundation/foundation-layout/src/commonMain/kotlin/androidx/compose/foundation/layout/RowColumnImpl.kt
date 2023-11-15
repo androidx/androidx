@@ -592,9 +592,11 @@ private fun intrinsicCrossAxisSize(
         if (weight == 0f) {
             // Ask the child how much main axis space it wants to occupy. This cannot be more
             // than the remaining available space.
+            val remaining = if (mainAxisAvailable == Constraints.Infinity)
+                Constraints.Infinity else mainAxisAvailable - fixedSpace
             val mainAxisSpace = min(
                 child.mainAxisSize(Constraints.Infinity),
-                mainAxisAvailable - fixedSpace
+                remaining
             )
             fixedSpace += mainAxisSpace
             // Now that the assigned main axis space is known, ask about the cross axis space.

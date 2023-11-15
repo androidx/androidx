@@ -25,7 +25,7 @@ import androidx.compose.runtime.Composable
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun SimpleFlowRowDemo() {
-    Column() {
+    Column {
         SimpleFlowRow()
         SimpleFlowRowWithWeights()
     }
