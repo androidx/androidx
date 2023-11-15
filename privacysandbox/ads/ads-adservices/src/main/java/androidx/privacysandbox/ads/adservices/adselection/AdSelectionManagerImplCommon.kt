@@ -62,6 +62,19 @@ open class AdSelectionManagerImplCommon(
 
     @DoNotInline
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    override suspend fun selectAds(adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig):
+        AdSelectionOutcome {
+        if (AdServicesInfo.adServicesVersion() >= 10 || AdServicesInfo.extServicesVersion() >= 10) {
+            return Ext10Impl.selectAds(
+                mAdSelectionManager,
+                adSelectionFromOutcomesConfig
+            )
+        }
+        throw UnsupportedOperationException("API is not available. Min version is API 31 ext 10")
+    }
+
+    @DoNotInline
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     override suspend fun reportImpression(reportImpressionRequest: ReportImpressionRequest) {
         suspendCancellableCoroutine<Any> { continuation ->
             mAdSelectionManager.reportImpression(
@@ -157,6 +170,21 @@ open class AdSelectionManagerImplCommon(
                 return AdSelectionOutcome(suspendCancellableCoroutine { continuation ->
                     adSelectionManager.persistAdSelectionResult(
                         persistAdSelectionResultRequest.convertToAdServices(),
+                        Runnable::run,
+                        continuation.asOutcomeReceiver()
+                    )
+                })
+            }
+
+            @DoNotInline
+            @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+            suspend fun selectAds(
+                adSelectionManager: android.adservices.adselection.AdSelectionManager,
+                adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig
+            ): AdSelectionOutcome {
+                return AdSelectionOutcome(suspendCancellableCoroutine { continuation ->
+                    adSelectionManager.selectAds(
+                        adSelectionFromOutcomesConfig.convertToAdServices(),
                         Runnable::run,
                         continuation.asOutcomeReceiver()
                     )

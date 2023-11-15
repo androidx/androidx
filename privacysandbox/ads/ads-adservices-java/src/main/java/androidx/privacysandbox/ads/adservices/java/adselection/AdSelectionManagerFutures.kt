@@ -23,6 +23,7 @@ import android.os.TransactionTooLargeException
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresPermission
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionConfig
+import androidx.privacysandbox.ads.adservices.adselection.AdSelectionFromOutcomesConfig
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionManager.Companion.obtain
 import androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome
@@ -75,6 +76,42 @@ abstract class AdSelectionManagerFutures internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
     abstract fun selectAdsAsync(
         adSelectionConfig: AdSelectionConfig
+    ): ListenableFuture<AdSelectionOutcome>
+
+    /**
+     * Selects an ad from the results of previously ran ad selections.
+     *
+     * @param adSelectionFromOutcomesConfig is provided by the Ads SDK and the
+     * [AdSelectionFromOutcomesConfig] object is transferred via a Binder call. For this reason, the
+     * total size of these objects is bound to the Android IPC limitations. Failures to transfer the
+     * [AdSelectionFromOutcomesConfig] will throw an [TransactionTooLargeException].
+     *
+     * The output is passed by the receiver, which either returns an [AdSelectionOutcome]
+     * for a successful run, or an [Exception] includes the type of the exception thrown and
+     * the corresponding error message.
+     *
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
+     * the API received to run the ad selection.
+     *
+     * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
+     * services.", it is caused by an internal failure of the ad selection service.
+     *
+     * If the [TimeoutException] is thrown, it is caused when a timeout is encountered
+     * during bidding, scoring, or overall selection process to find winning Ad.
+     *
+     * If the [LimitExceededException] is thrown, it is caused when the calling package
+     * exceeds the allowed rate limits and is throttled.
+     *
+     * If the [SecurityException] is thrown, it is caused when the caller is not authorized
+     * or permission is not requested.
+     *
+     * If the [UnsupportedOperationException] is thrown, it is caused when the Android API level and
+     * AdServices module versions don't support this API.
+     */
+    @ExperimentalFeatures.Ext10OptIn
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    abstract fun selectAdsAsync(
+        adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig
     ): ListenableFuture<AdSelectionOutcome>
 
     /**
@@ -273,6 +310,17 @@ abstract class AdSelectionManagerFutures internal constructor() {
         ): ListenableFuture<AdSelectionOutcome> {
             return CoroutineScope(Dispatchers.Default).async {
                 mAdSelectionManager!!.selectAds(adSelectionConfig)
+            }.asListenableFuture()
+        }
+
+        @OptIn(ExperimentalFeatures.Ext10OptIn::class)
+        @DoNotInline
+        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+        override fun selectAdsAsync(
+            adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig
+        ): ListenableFuture<AdSelectionOutcome> {
+            return CoroutineScope(Dispatchers.Default).async {
+                mAdSelectionManager!!.selectAds(adSelectionFromOutcomesConfig)
             }.asListenableFuture()
         }
 

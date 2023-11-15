@@ -22,6 +22,7 @@ import android.os.Build
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
+import androidx.privacysandbox.ads.adservices.common.ExperimentalFeatures
 
 /**
  * This class represents the output of the [AdSelectionManager#selectAds] in the
@@ -56,6 +57,18 @@ class AdSelectionOutcome public constructor(
     /** Overrides the toString method.  */
     override fun toString(): String {
         return "AdSelectionOutcome: adSelectionId=$adSelectionId, renderUri=$renderUri"
+    }
+
+    @ExperimentalFeatures.Ext10OptIn
+    fun hasOutcome(): Boolean {
+        return this != NO_OUTCOME
+    }
+
+    @ExperimentalFeatures.Ext10OptIn
+    companion object {
+        /** Represents an AdSelectionOutcome with empty results. */
+        @ExperimentalFeatures.Ext10OptIn
+        @JvmField public val NO_OUTCOME = AdSelectionOutcome(0, Uri.EMPTY)
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)

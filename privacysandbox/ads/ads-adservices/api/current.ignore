@@ -13,3 +13,6 @@ AddedMethod: androidx.privacysandbox.ads.adservices.common.AdData#getAdFilters()
     Added method androidx.privacysandbox.ads.adservices.common.AdData.getAdFilters()
 AddedMethod: androidx.privacysandbox.ads.adservices.common.AdData#getAdRenderId():
     Added method androidx.privacysandbox.ads.adservices.common.AdData.getAdRenderId()
+
+AddedField: androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome#Companion:
+    Added field androidx.privacysandbox.ads.adservices.adselection.AdSelectionOutcome.Companion

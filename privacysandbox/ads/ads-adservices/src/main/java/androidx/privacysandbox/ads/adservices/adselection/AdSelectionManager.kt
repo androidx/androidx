@@ -60,6 +60,42 @@ abstract class AdSelectionManager internal constructor() {
     abstract suspend fun selectAds(adSelectionConfig: AdSelectionConfig): AdSelectionOutcome
 
     /**
+     * Selects an ad from the results of previously ran ad selections.
+     *
+     * @param adSelectionFromOutcomesConfig is provided by the Ads SDK and the
+     * [AdSelectionFromOutcomesConfig] object is transferred via a Binder call. For this reason, the
+     * total size of these objects is bound to the Android IPC limitations. Failures to transfer the
+     * [AdSelectionFromOutcomesConfig] will throw an [TransactionTooLargeException].
+     *
+     * The output is passed by the receiver, which either returns an [AdSelectionOutcome]
+     * for a successful run, or an [Exception] includes the type of the exception thrown and
+     * the corresponding error message.
+     *
+     * If the [IllegalArgumentException] is thrown, it is caused by invalid input argument
+     * the API received to run the ad selection.
+     *
+     * If the [IllegalStateException] is thrown with error message "Failure of AdSelection
+     * services.", it is caused by an internal failure of the ad selection service.
+     *
+     * If the [TimeoutException] is thrown, it is caused when a timeout is encountered
+     * during bidding, scoring, or overall selection process to find winning Ad.
+     *
+     * If the [LimitExceededException] is thrown, it is caused when the calling package
+     * exceeds the allowed rate limits and is throttled.
+     *
+     * If the [SecurityException] is thrown, it is caused when the caller is not authorized
+     * or permission is not requested.
+     *
+     * If the [UnsupportedOperationException] is thrown, it is caused when the Android API level and
+     * AdServices module versions don't support this API.
+     */
+    @ExperimentalFeatures.Ext10OptIn
+    @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_CUSTOM_AUDIENCE)
+    abstract suspend fun selectAds(
+        adSelectionFromOutcomesConfig: AdSelectionFromOutcomesConfig
+    ): AdSelectionOutcome
+
+    /**
      * Report the given impression. The [ReportImpressionRequest] is provided by the Ads SDK.
      * The receiver either returns a {@code void} for a successful run, or an [Exception]
      * indicating the error.
