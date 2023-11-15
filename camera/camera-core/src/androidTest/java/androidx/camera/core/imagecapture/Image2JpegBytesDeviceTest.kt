@@ -26,6 +26,7 @@ import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
 import androidx.camera.core.imagecapture.Utils.WIDTH
 import androidx.camera.core.impl.utils.Exif.createFromInputStream
+import androidx.camera.core.internal.compat.quirk.DeviceQuirks
 import androidx.camera.core.processing.Packet
 import androidx.camera.testing.impl.TestImageUtil.createYuvFakeImageProxy
 import androidx.camera.testing.impl.fakes.FakeImageInfo
@@ -45,7 +46,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 21)
 class Image2JpegBytesDeviceTest {
 
-    private val operation = Image2JpegBytes()
+    private val operation = Image2JpegBytes(DeviceQuirks.getAll())
 
     @Test
     fun processYuvImage_assertOutput() {

@@ -21,6 +21,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Looper.getMainLooper
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.core.imagecapture.Utils.CAMERA_CAPTURE_RESULT
 import androidx.camera.core.imagecapture.Utils.HEIGHT
 import androidx.camera.core.imagecapture.Utils.OUTPUT_FILE_OPTIONS
 import androidx.camera.core.imagecapture.Utils.ROTATION_DEGREES
@@ -30,6 +31,8 @@ import androidx.camera.core.imagecapture.Utils.createProcessingRequest
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.isSequentialExecutor
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.impl.utils.futures.Futures
+import androidx.camera.core.internal.CameraCaptureResultImageInfo
+import androidx.camera.testing.impl.TestImageUtil.createA24ProblematicJpegByteArray
 import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
 import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
 import androidx.camera.testing.impl.fakes.FakeImageInfo
@@ -54,7 +57,7 @@ class ProcessingNodeTest {
 
     private lateinit var processingNodeIn: ProcessingNode.In
 
-    private val node = ProcessingNode(mainThreadExecutor())
+    private var node = ProcessingNode(mainThreadExecutor())
 
     @Before
     fun setUp() {
@@ -190,5 +193,36 @@ class ProcessingNodeTest {
                 isSequentialExecutor(ProcessingNode(mainThreadExecutor()).mBlockingExecutor)
             ).isTrue()
         }
+    }
+
+    @Test
+    fun canProcessOnDiskCaptureForA24ProblematicJpegMetadata() {
+        setStaticField(Build::class.java, "BRAND", "SAMSUNG")
+        setStaticField(Build::class.java, "DEVICE", "a24")
+
+        // Creates the ProcessingNode after updating the device name to load the correct quirks
+        node = ProcessingNode(mainThreadExecutor())
+
+        processingNodeIn = ProcessingNode.In.of(ImageFormat.JPEG, ImageFormat.JPEG)
+        node.transform(processingNodeIn)
+
+        // Arrange: create an invalid ImageProxy.
+        val takePictureCallback = FakeTakePictureCallback()
+        val brokenJpegByteArray = createA24ProblematicJpegByteArray(WIDTH, HEIGHT)
+        val image = createJpegFakeImageProxy(
+            CameraCaptureResultImageInfo(CAMERA_CAPTURE_RESULT),
+            brokenJpegByteArray,
+            WIDTH,
+            HEIGHT
+        )
+        val processingRequest = createProcessingRequest(takePictureCallback)
+        val input = ProcessingNode.InputPacket.of(processingRequest, image)
+
+        // Act: send input to the edge and wait for callback
+        processingNodeIn.edge.accept(input)
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: can process the problematic A24 JPEG byte array successfully.
+        assertThat(takePictureCallback.processFailure).isNull()
     }
 }

@@ -22,7 +22,6 @@ import static android.graphics.ImageFormat.YUV_420_888;
 import static androidx.camera.core.ImageCapture.ERROR_UNKNOWN;
 import static androidx.camera.core.impl.utils.Exif.createFromInputStream;
 import static androidx.camera.core.impl.utils.TransformUtils.updateSensorToBufferTransform;
-import static androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray;
 
 import static java.util.Objects.requireNonNull;
 
@@ -35,7 +34,9 @@ import androidx.annotation.RequiresApi;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.utils.Exif;
+import androidx.camera.core.internal.compat.workaround.JpegMetadataCorrector;
 import androidx.camera.core.internal.utils.ImageUtil;
 import androidx.camera.core.processing.Operation;
 import androidx.camera.core.processing.Packet;
@@ -50,6 +51,11 @@ import java.io.IOException;
  */
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 final class Image2JpegBytes implements Operation<Image2JpegBytes.In, Packet<byte[]>> {
+    private final JpegMetadataCorrector mJpegMetadataCorrector;
+
+    Image2JpegBytes(@NonNull Quirks quirks) {
+        mJpegMetadataCorrector = new JpegMetadataCorrector(quirks);
+    }
 
     @NonNull
     @Override
@@ -72,7 +78,7 @@ final class Image2JpegBytes implements Operation<Image2JpegBytes.In, Packet<byte
     private Packet<byte[]> processJpegImage(@NonNull Image2JpegBytes.In input) {
         Packet<ImageProxy> packet = input.getPacket();
         return Packet.of(
-                jpegImageToJpegByteArray(packet.getData()),
+                mJpegMetadataCorrector.jpegImageToJpegByteArray(packet.getData()),
                 requireNonNull(packet.getExif()),
                 JPEG,
                 packet.getSize(),

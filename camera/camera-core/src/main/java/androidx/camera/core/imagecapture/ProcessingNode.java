@@ -39,8 +39,10 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.compat.quirk.DeviceQuirks;
+import androidx.camera.core.internal.compat.quirk.IncorrectJpegMetadataQuirk;
 import androidx.camera.core.internal.compat.quirk.LowMemoryQuirk;
 import androidx.camera.core.processing.Edge;
 import androidx.camera.core.processing.InternalImageProcessor;
@@ -76,6 +78,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     private Operation<Packet<byte[]>, Packet<ImageProxy>> mJpegBytes2Image;
     private Operation<Packet<ImageProxy>, Bitmap> mImage2Bitmap;
     private Operation<Packet<Bitmap>, Packet<Bitmap>> mBitmapEffect;
+    private final Quirks mQuirks;
+    private final boolean mHasIncorrectJpegMetadataQuirk;
 
     /**
      * @param blockingExecutor a executor that can be blocked by long running tasks. e.g.
@@ -83,7 +87,17 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
      */
     @VisibleForTesting
     ProcessingNode(@NonNull Executor blockingExecutor) {
-        this(blockingExecutor, /*imageProcessor=*/null);
+        this(blockingExecutor, /*imageProcessor=*/null, DeviceQuirks.getAll());
+    }
+
+    @VisibleForTesting
+    ProcessingNode(@NonNull Executor blockingExecutor, @NonNull Quirks quirks) {
+        this(blockingExecutor, /*imageProcessor=*/null, quirks);
+    }
+
+    ProcessingNode(@NonNull Executor blockingExecutor,
+            @Nullable InternalImageProcessor imageProcessor) {
+        this(blockingExecutor, imageProcessor, DeviceQuirks.getAll());
     }
 
     /**
@@ -92,7 +106,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
      * @param imageProcessor   external effect for post-processing.
      */
     ProcessingNode(@NonNull Executor blockingExecutor,
-            @Nullable InternalImageProcessor imageProcessor) {
+            @Nullable InternalImageProcessor imageProcessor,
+            @NonNull Quirks quirks) {
         boolean isLowMemoryDevice = DeviceQuirks.get(LowMemoryQuirk.class) != null;
         if (isLowMemoryDevice) {
             mBlockingExecutor = CameraXExecutors.newSequentialExecutor(blockingExecutor);
@@ -100,6 +115,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             mBlockingExecutor = blockingExecutor;
         }
         mImageProcessor = imageProcessor;
+        mQuirks = quirks;
+        mHasIncorrectJpegMetadataQuirk = quirks.contains(IncorrectJpegMetadataQuirk.class);
     }
 
     @NonNull
@@ -128,13 +145,14 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         );
 
         mInput2Packet = new ProcessingInput2Packet();
-        mImage2JpegBytes = new Image2JpegBytes();
+        mImage2JpegBytes = new Image2JpegBytes(mQuirks);
         mJpegBytes2CroppedBitmap = new JpegBytes2CroppedBitmap();
         mBitmap2JpegBytes = new Bitmap2JpegBytes();
         mJpegBytes2Disk = new JpegBytes2Disk();
         mJpegImage2Result = new JpegImage2Result();
         mImage2Bitmap = new Image2Bitmap();
-        if (inputEdge.getInputFormat() == YUV_420_888 || mImageProcessor != null) {
+        if (inputEdge.getInputFormat() == YUV_420_888 || mImageProcessor != null
+                || mHasIncorrectJpegMetadataQuirk) {
             // Convert JPEG bytes to ImageProxy for:
             // - YUV input: YUV -> JPEG -> ImageProxy
             // - Effects: JPEG -> Bitmap -> effect -> Bitmap -> JPEG -> ImageProxy
@@ -213,7 +231,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
             throws ImageCaptureException {
         ProcessingRequest request = inputPacket.getProcessingRequest();
         Packet<ImageProxy> image = mInput2Packet.apply(inputPacket);
-        if ((image.getFormat() == YUV_420_888 || mBitmapEffect != null)
+        if ((image.getFormat() == YUV_420_888 || mBitmapEffect != null
+                || mHasIncorrectJpegMetadataQuirk)
                 && mInputEdge.getOutputFormat() == JPEG) {
             Packet<byte[]> jpegBytes = mImage2JpegBytes.apply(
                     Image2JpegBytes.In.of(image, request.getJpegQuality()));
