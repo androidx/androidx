@@ -21,6 +21,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -158,16 +159,15 @@ class AdvertiserFragment : Fragment() {
     }
 
     private fun initData() {
-        if (ContextCompat.checkSelfPermission(
+        if (Build.VERSION.SDK_INT < 31 || (ContextCompat.checkSelfPermission(
                 requireContext(),
                 Manifest.permission.BLUETOOTH_CONNECT
-            )
-            == PackageManager.PERMISSION_GRANTED
+            ) == PackageManager.PERMISSION_GRANTED)
         ) {
-            binding.textInputEditTextDisplayName.setText(
-                (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager)
-                    .adapter.name
-            )
+            (requireContext().getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?)
+                ?.adapter?.name?.let {
+                    binding.textInputEditTextDisplayName.setText(it)
+                }
         }
 
         binding.checkBoxIncludeDeviceName.isChecked = viewModel.includeDeviceName
