@@ -29,6 +29,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.unit.DpSize
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
@@ -240,6 +241,15 @@ class GlanceAppWidgetManager(private val context: Context) {
     @VisibleForTesting
     internal suspend fun listKnownReceivers(): Collection<String>? =
         dataStore.data.firstOrNull()?.let { it[providersKey] }
+
+    /**
+     * Clears the datastore that holds data about glance widgets. Useful for tests that wish to
+     * mimic clearing app data.
+     */
+    @VisibleForTesting
+    internal suspend fun clearDataStore() {
+        dataStore.edit { it.clear() }
+    }
 
     private companion object {
         private val Context.appManagerDataStore

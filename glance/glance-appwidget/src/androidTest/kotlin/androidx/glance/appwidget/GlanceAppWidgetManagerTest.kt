@@ -23,7 +23,6 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiSelector
 import com.google.common.truth.Truth.assertThat
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -32,7 +31,6 @@ import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @SdkSuppress(minSdkVersion = 29)
 @MediumTest
 class GlanceAppWidgetManagerTest {
@@ -84,6 +82,32 @@ class GlanceAppWidgetManagerTest {
                     mHostRule.portraitSize,
                     mHostRule.landscapeSize
                 )
+            }
+        }
+    }
+
+    @Test
+    // This is an existing behavior, but, it is not expected.
+    fun withAppWidget_onClearingAppData_returnsEmptyGlanceIds() {
+        TestGlanceAppWidget.uiDefinition = {
+            Text("Something")
+        }
+
+        mHostRule.startHost()
+
+        mHostRule.onHostActivity { activity ->
+            val manager = GlanceAppWidgetManager(activity)
+            runBlocking {
+                // Returns glanceIds initially
+                assertThat(manager.getGlanceIds(TestGlanceAppWidget::class.java)).hasSize(1)
+
+                // using "pm clear <package>" is not suitable here - it will crash the process.
+                // See https://github.com/android/testing-samples/issues/98.
+                // So, we clear the datastore to mimic clearing the app data.
+                GlanceAppWidgetManager(context).clearDataStore()
+
+                // Returns an empty list on clearing the app data
+                assertThat(manager.getGlanceIds(TestGlanceAppWidget::class.java)).isEmpty()
             }
         }
     }
