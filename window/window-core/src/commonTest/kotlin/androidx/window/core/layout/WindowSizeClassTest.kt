@@ -19,7 +19,10 @@ package androidx.window.core.layout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-public class WindowSizeClassTest {
+/**
+ * Tests for [WindowSizeClass] that verify construction.
+ */
+class WindowSizeClassTest {
 
     @Test
     public fun testWidthSizeClass_construction() {
@@ -39,7 +42,16 @@ public class WindowSizeClassTest {
     }
 
     @Test
-    public fun testHeightSizeClass_construction() {
+    fun testConstruction_usingPx() {
+        val expected = WindowSizeClass(WindowWidthSizeClass.MEDIUM, WindowHeightSizeClass.MEDIUM)
+
+        val actual = WindowSizeClass.compute(600, 600, 1f)
+
+        assertEquals(expected, actual)
+    }
+
+    @Test
+    fun testHeightSizeClass_construction() {
         val expected = listOf(
             WindowHeightSizeClass.COMPACT,
             WindowHeightSizeClass.MEDIUM,
@@ -56,7 +68,7 @@ public class WindowSizeClassTest {
     }
 
     @Test
-    public fun testEqualsImpliesHashCode() {
+    fun testEqualsImpliesHashCode() {
         val first = WindowSizeClass.compute(100f, 500f)
         val second = WindowSizeClass.compute(100f, 500f)
 

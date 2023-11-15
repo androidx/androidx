@@ -42,7 +42,7 @@ import kotlin.jvm.JvmStatic
  * @see WindowWidthSizeClass
  * @see WindowHeightSizeClass
  */
-class WindowSizeClass private constructor(
+class WindowSizeClass internal constructor(
     val windowWidthSizeClass: WindowWidthSizeClass,
     val windowHeightSizeClass: WindowHeightSizeClass
 ) {
@@ -85,6 +85,22 @@ class WindowSizeClass private constructor(
             val windowWidthSizeClass = WindowWidthSizeClass.compute(dpWidth)
             val windowHeightSizeClass = WindowHeightSizeClass.compute(dpHeight)
             return WindowSizeClass(windowWidthSizeClass, windowHeightSizeClass)
+        }
+
+        /**
+         * Computes the [WindowSizeClass] for the given width and height in pixels with density.
+         * @param pxWidth width of a window in PX.
+         * @param pxHeight height of a window in PX.
+         * @param density density of the display where the window is shown.
+         * @return [WindowSizeClass] that is recommended for the given dimensions.
+         * @throws IllegalArgumentException if [pxWidth], [pxHeight], or [density] is
+         * negative.
+         */
+        @JvmStatic
+        fun compute(pxWidth: Int, pxHeight: Int, density: Float): WindowSizeClass {
+            val dpWidth = pxWidth / density
+            val dpHeight = pxHeight / density
+            return compute(dpWidth, dpHeight)
         }
     }
 }
