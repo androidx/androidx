@@ -106,9 +106,11 @@ class ThreePaneScaffoldTest {
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private val MockScaffoldDirective = PaneScaffoldDirective(
+    contentPadding = PaddingValues(0.dp),
     maxHorizontalPartitions = 1,
-    gutterSizes = GutterSizes(PaddingValues(0.dp), 0.dp),
+    horizontalPartitionSpacerSize = 0.dp,
     maxVerticalPartitions = 1,
+    verticalPartitionSpacerSize = 0.dp,
     excludedBounds = emptyList()
 )
 

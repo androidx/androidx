@@ -24,16 +24,6 @@ package androidx.compose.material3.adaptive {
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This material3-adaptive API is experimental and is likely to change or to be" + "removed in the future.") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalMaterial3AdaptiveApi {
   }
 
-  @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class GutterSizes {
-    ctor public GutterSizes(androidx.compose.foundation.layout.PaddingValues contentPadding, float verticalSpacerSize, optional float horizontalSpacerSize);
-    method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
-    method public float getHorizontalSpacerSize();
-    method public float getVerticalSpacerSize();
-    property public final androidx.compose.foundation.layout.PaddingValues contentPadding;
-    property public final float horizontalSpacerSize;
-    property public final float verticalSpacerSize;
-  }
-
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class HingePolicy {
     field public static final androidx.compose.material3.adaptive.HingePolicy.Companion Companion;
   }
@@ -89,15 +79,19 @@ package androidx.compose.material3.adaptive {
   }
 
   @SuppressCompatibility @androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi @androidx.compose.runtime.Immutable public final class PaneScaffoldDirective {
-    ctor public PaneScaffoldDirective(int maxHorizontalPartitions, androidx.compose.material3.adaptive.GutterSizes gutterSizes, int maxVerticalPartitions, java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
+    ctor public PaneScaffoldDirective(androidx.compose.foundation.layout.PaddingValues contentPadding, int maxHorizontalPartitions, float horizontalPartitionSpacerSize, int maxVerticalPartitions, float verticalPartitionSpacerSize, java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds);
+    method public androidx.compose.foundation.layout.PaddingValues getContentPadding();
     method public java.util.List<androidx.compose.ui.geometry.Rect> getExcludedBounds();
-    method public androidx.compose.material3.adaptive.GutterSizes getGutterSizes();
+    method public float getHorizontalPartitionSpacerSize();
     method public int getMaxHorizontalPartitions();
     method public int getMaxVerticalPartitions();
+    method public float getVerticalPartitionSpacerSize();
+    property public final androidx.compose.foundation.layout.PaddingValues contentPadding;
     property public final java.util.List<androidx.compose.ui.geometry.Rect> excludedBounds;
-    property public final androidx.compose.material3.adaptive.GutterSizes gutterSizes;
+    property public final float horizontalPartitionSpacerSize;
     property public final int maxHorizontalPartitions;
     property public final int maxVerticalPartitions;
+    property public final float verticalPartitionSpacerSize;
   }
 
   public final class PaneScaffoldDirectiveKt {
