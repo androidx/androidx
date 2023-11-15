@@ -19,28 +19,7 @@ package androidx.compose.ui.unit
 import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.internal.JvmDefaultWithCompatibility
-
-/**
- * Flag indicating if [Density] will use non-linear font scaling for Compose.
- *
- * Set this flag to true to keep the old linear font scaling behavior. Note that this only affects
- * Compose. Views always use non-linear font scaling in Android 14 and later.
- *
- * <b>This flag will be removed in Compose 1.6.0-beta01.</b> If you encounter any issues with the
- * new behavior, please file an issue at: issuetracker.google.com/issues/new?component=779818
- */
-// TODO(b/300538470): Remove flag before beta
-@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
-@get:Suppress("GetterSetterNames")
-@set:ExperimentalComposeUiApi
-@get:ExperimentalComposeUiApi
-@ExperimentalComposeUiApi
-var DisableNonLinearFontScalingInCompose by mutableStateOf(false)
 
 /**
  * Converts [TextUnit] to [Dp] and vice-versa.

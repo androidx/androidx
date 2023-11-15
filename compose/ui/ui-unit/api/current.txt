@@ -199,12 +199,6 @@ package androidx.compose.ui.unit {
     property public abstract float fontScale;
   }
 
-  public final class FontScalingKt {
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getDisableNonLinearFontScalingInCompose();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setDisableNonLinearFontScalingInCompose(boolean);
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final boolean DisableNonLinearFontScalingInCompose;
-  }
-
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntOffset {
     method @androidx.compose.runtime.Stable public operator int component1();
     method @androidx.compose.runtime.Stable public operator int component2();
