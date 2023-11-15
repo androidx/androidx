@@ -23,6 +23,7 @@
  */
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -44,10 +45,11 @@ androidXMultiplatform {
                 api(project(":compose:animation:animation-core"))
                 api("androidx.compose.foundation:foundation-layout:1.6.0")
                 api(project(":compose:runtime:runtime"))
-                api("androidx.compose.ui:ui:1.6.0")
                 api("androidx.compose.ui:ui-geometry:1.6.0")
 
+                implementation project(':compose:ui:ui')
                 implementation(project(":compose:ui:ui-util"))
+                implementation project(':compose:ui:ui-graphics')
 
                 implementation("androidx.collection:collection:1.4.0")
             }
@@ -125,6 +127,10 @@ androidx {
     description = "Compose animation library"
     legacyDisableKotlinStrictApiMode = true
     samples(project(":compose:animation:animation:animation-samples"))
+}
+
+tasks.withType(KotlinCompile).configureEach {
+    kotlinOptions.freeCompilerArgs += "-Xcontext-receivers"
 }
 
 android {
