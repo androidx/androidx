@@ -43,6 +43,7 @@ import androidx.glance.action.LambdaAction
 import androidx.glance.session.Session
 import androidx.glance.state.ConfigManager
 import androidx.glance.state.GlanceState
+import androidx.glance.state.GlanceStateDefinition
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -113,6 +114,14 @@ internal class AppWidgetSession(
         ) {
             var minSize by remember { mutableStateOf(DpSize.Zero) }
             val configIsReady by produceState(false) {
+                // Only get a Glance state value if we did not receive an initial value.
+                val newGlanceState = if (glanceState == null) {
+                    widget.stateDefinition
+                        ?.let { stateDefinition: GlanceStateDefinition<*> ->
+                            configManager.getValue(context, stateDefinition, key)
+                        }
+                } else null
+
                 Snapshot.withMutableSnapshot {
                     if (id.isRealId) {
                         // Only get sizing info from app widget manager if we are composing for
@@ -127,13 +136,7 @@ internal class AppWidgetSession(
                             options = manager.getAppWidgetOptions(id.appWidgetId)
                         }
                     }
-                    // Only get a Glance state value if we did not receive an initial value.
-                    widget.stateDefinition
-                        ?.takeIf { glanceState == null }
-                        ?.let { stateDefinition ->
-                            glanceState =
-                                configManager.getValue(context, stateDefinition, key)
-                        }
+                    newGlanceState?.let { glanceState = it }
                     value = true
                 }
             }
