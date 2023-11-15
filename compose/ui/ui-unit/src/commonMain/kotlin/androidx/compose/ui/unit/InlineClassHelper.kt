@@ -14,34 +14,26 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.geometry
+package androidx.compose.ui.unit
 
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
-// Masks all float values that are infinity or NaN (i.e. any non-finite value)
-internal const val FloatNonFiniteMask = 0x7fffffffL
-
-// Any value greater than this is a NaN
-internal const val FloatInfinityBase = 0x7f800000L
-
-// Same as Offset/Size.Unspecified.packedValue, but avoids a getstatic
-internal const val UnspecifiedPackedFloats = 0x7fc00000_7fc00000L // NaN_NaN
-
 // This function exists so we do *not* inline the throw. It keeps
 // the call site much smaller and since it's the slow path anyway,
 // we don't mind the extra function call
-internal fun throwIllegalStateException(message: String) {
-    throw IllegalStateException(message)
+internal fun throwIllegalArgumentException(message: String) {
+    throw IllegalArgumentException(message)
 }
 
 // Like Kotlin's require() but without the .toString() call
+@Suppress("BanInlineOptIn") // same opt-in as using Kotlin's require()
 @OptIn(ExperimentalContracts::class)
-internal inline fun checkPrecondition(value: Boolean, lazyMessage: () -> String) {
+internal inline fun requirePrecondition(value: Boolean, lazyMessage: () -> String) {
     contract {
         returns() implies value
     }
     if (!value) {
-        throwIllegalStateException(lazyMessage())
+        throwIllegalArgumentException(lazyMessage())
     }
 }
