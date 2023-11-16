@@ -563,7 +563,12 @@ public class ListTemplateTest {
         // 10 messages, it should truncate it to 7 message to fill 8 spaces.
         messages.clear();
         for (int i = 0; i < 10; i++) {
-            messages.add(TestConversationFactory.createMinimalMessage());
+            // Set received time on a message to be equal to its index as messages should be
+            // ordered from oldest to newest in a conversation. Truncating messages from
+            // a conversation should remove the oldest ones.
+            messages.add(TestConversationFactory.createMinimalMessageBuilder()
+                    .setReceivedTimeEpochMillis(i)
+                    .build());
         }
         builder.addItem(TestConversationFactory.createMinimalConversationItemBuilder()
                 .setMessages(messages)
@@ -589,9 +594,14 @@ public class ListTemplateTest {
                 .hasSize(ListTemplate.MAX_MESSAGES_PER_CONVERSATION);
         // Expect that the last item (which originally had 10 messages), should have its message
         // count truncated to fill the remaining spaces
-        assertThat(((ConversationItem) listTemplate.getSingleList().getItems().get(
-                10)).getMessages())
-                .hasSize(7);
+        ConversationItem lastConversationItem =
+                (ConversationItem) listTemplate.getSingleList().getItems().get(10);
+        assertThat(lastConversationItem.getMessages()).hasSize(7);
+        // Expect that the oldest 3 messages are removed.
+        assertThat(lastConversationItem.getMessages().get(0).getReceivedTimeEpochMillis())
+                .isEqualTo(3);
+        assertThat(lastConversationItem.getMessages().get(6).getReceivedTimeEpochMillis())
+                .isEqualTo(9);
     }
 
     @Test
