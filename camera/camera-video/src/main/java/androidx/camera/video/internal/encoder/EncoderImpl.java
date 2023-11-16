@@ -56,6 +56,7 @@ import androidx.camera.video.internal.compat.quirk.CameraUseInconsistentTimebase
 import androidx.camera.video.internal.compat.quirk.CodecStuckOnFlushQuirk;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
+import androidx.camera.video.internal.compat.quirk.StopCodecAfterSurfaceRemovalCrashMediaServerQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk;
 import androidx.camera.video.internal.workaround.EncoderFinder;
 import androidx.camera.video.internal.workaround.VideoTimebaseConverter;
@@ -850,7 +851,9 @@ public class EncoderImpl implements Encoder {
                 if (!futures.isEmpty()) {
                     Logger.d(mTag, "encoded data and input buffers are returned");
                 }
-                if (mEncoderInput instanceof SurfaceInput && !mSourceStoppedSignalled) {
+                if (mEncoderInput instanceof SurfaceInput && !mSourceStoppedSignalled
+                        && !hasStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+                ) {
                     // For a SurfaceInput, the codec is in control of de-queuing buffers from the
                     // underlying BufferQueue. If we stop the codec, then it will stop de-queuing
                     // buffers and the BufferQueue may run out of input buffers, causing the camera
@@ -1026,6 +1029,10 @@ public class EncoderImpl implements Encoder {
     @SuppressWarnings("WeakerAccess") // synthetic accessor
     static boolean hasEndOfStreamFlag(@NonNull BufferInfo bufferInfo) {
         return (bufferInfo.flags & MediaCodec.BUFFER_FLAG_END_OF_STREAM) != 0;
+    }
+
+    private boolean hasStopCodecAfterSurfaceRemovalCrashMediaServerQuirk() {
+        return DeviceQuirks.get(StopCodecAfterSurfaceRemovalCrashMediaServerQuirk.class) != null;
     }
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor

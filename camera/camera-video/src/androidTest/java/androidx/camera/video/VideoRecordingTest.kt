@@ -61,6 +61,8 @@ import androidx.camera.testing.impl.mocks.helpers.ArgumentCaptor as ArgumentCapt
 import androidx.camera.testing.impl.mocks.helpers.CallTimesAtLeast
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_NONE
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
+import androidx.camera.video.internal.compat.quirk.DeviceQuirks
+import androidx.camera.video.internal.compat.quirk.StopCodecAfterSurfaceRemovalCrashMediaServerQuirk
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -426,6 +428,8 @@ class VideoRecordingTest(
 
     @Test
     fun stopRecording_when_useCaseUnbind() {
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
         // Arrange.
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         latchForVideoSaved = CountDownLatch(1)
@@ -454,6 +458,8 @@ class VideoRecordingTest(
 
     @Test
     fun stopRecordingWhenLifecycleStops() {
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
         // Arrange.
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
         latchForVideoSaved = CountDownLatch(1)
@@ -482,6 +488,8 @@ class VideoRecordingTest(
 
     @Test
     fun start_finalizeImmediatelyWhenSourceInactive() {
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
         val file = File.createTempFile("CameraX", ".tmp").apply { deleteOnExit() }
 
         instrumentation.runOnMainSync {
@@ -701,6 +709,12 @@ class VideoRecordingTest(
                 )
             }
 
+        mockVideoRecordEventConsumer.verifyAcceptCall(
+            VideoRecordEvent.Finalize::class.java,
+            true,
+            GENERAL_TIMEOUT
+        )
+
         file1.delete()
         file2.delete()
     }
@@ -812,6 +826,8 @@ class VideoRecordingTest(
 
     @Test
     fun canReuseRecorder_sourceInactive() {
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
         val recorder = Recorder.Builder().build()
         val videoCapture1 = VideoCapture.withOutput(recorder)
 
@@ -1355,6 +1371,7 @@ class VideoRecordingTest(
         )
 }
 
+@RequiresApi(21)
 private class VideoCaptureMonitor : Consumer<VideoRecordEvent> {
     private var countDown: CountDownLatch? = null
 
@@ -1408,4 +1425,14 @@ fun assumeExtraCroppingQuirk(implName: String) {
     } else {
         assumeTrue(msg, Camera2DeviceQuirks.get(Camera2ExtraCroppingQuirk::class.java) == null)
     }
+}
+
+@RequiresApi(21)
+fun assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk() {
+    // Skip for b/293978082. For tests that will unbind the VideoCapture before stop the recording,
+    // they should be skipped since media server will crash if the codec surface has been removed
+    // before MediaCodec.stop() is called.
+    assumeTrue(
+        DeviceQuirks.get(StopCodecAfterSurfaceRemovalCrashMediaServerQuirk::class.java) == null
+    )
 }
