@@ -90,6 +90,7 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.editable
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.insertTextAtCursor
@@ -454,6 +455,7 @@ internal fun CoreTextField(
         this.textSelectionRange = value.selection
         if (!enabled) this.disabled()
         if (isPassword) this.password()
+        if (enabled && !readOnly) this.editable()
         getTextLayoutResult {
             if (state.layoutResult != null) {
                 it.add(state.layoutResult!!.value)
