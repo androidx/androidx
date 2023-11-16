@@ -751,7 +751,7 @@ private fun SnapLayoutInfoProvider(
                     itemSize = layoutInfo.pageSize,
                     itemOffset = currentOffset,
                     itemIndex = page,
-                    snapPositionInLayout = SnapAlignmentStartToStart
+                    snapPosition = SnapAlignmentStartToStart
                 )
 
                 debugLog { "Snapping Offset=$offset for page=$page" }
@@ -784,7 +784,7 @@ private fun SnapLayoutInfoProvider(
                     itemSize = layoutInfo.pageSize,
                     itemOffset = currentOffset,
                     itemIndex = page,
-                    snapPositionInLayout = SnapAlignmentStartToStart
+                    snapPosition = SnapAlignmentStartToStart
                 )
 
                 debugLog {

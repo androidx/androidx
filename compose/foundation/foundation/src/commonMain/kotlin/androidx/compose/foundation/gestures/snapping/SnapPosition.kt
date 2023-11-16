@@ -22,12 +22,16 @@ import androidx.compose.foundation.ExperimentalFoundationApi
  * Describes the general positioning of a given snap item in its containing layout.
  */
 @ExperimentalFoundationApi
-fun interface SnapPositionInLayout {
+fun interface SnapPosition {
     /**
-     * Calculates an offset positioning between a container and an element within this container.
-     * The offset calculation is the necessary diff that should be applied to the item offset to
-     * align the item with a position within the container. As a base line, if we wanted to align
-     * the start of the container and the start of the item, we would return 0 in this function.
+     * Calculates the anchor reference position where items will be snapped to in a snapping
+     * container. For instance, if [SnapPosition.Center] is used, once the snapping finishes
+     * one of the items in the snapping container will be aligned exactly to the position
+     * returned by [position]. The value returned will be applied to the item's current offset
+     * to generate its final positioning.
+     *
+     * The reference point is with respect to the start of the layout (including the content
+     * padding).
      *
      * @param layoutSize The main axis layout size within which an item can be positioned.
      * @param itemSize The main axis size for the item being positioned within this snapping
@@ -50,11 +54,28 @@ fun interface SnapPositionInLayout {
         /**
          * Aligns the center of the item with the center of the containing layout.
          */
-        val CenterToCenter =
-            SnapPositionInLayout {
-                layoutSize, itemSize, beforeContentPadding, afterContentPadding, _ ->
+        val Center =
+            SnapPosition { layoutSize, itemSize, beforeContentPadding, afterContentPadding, _ ->
                 val availableLayoutSpace = layoutSize - beforeContentPadding - afterContentPadding
+                // we use availableLayoutSpace / 2 as the main anchor point and we discount half
+                // an item size so the item appear aligned with the center of the container.
                 availableLayoutSpace / 2 - itemSize / 2
+            }
+
+        /**
+         * Aligns the start of the item with the start of the containing layout.
+         */
+        val Start = SnapPosition { _, _, _, _, _ -> 0 }
+
+        /**
+         * Aligns the end of the item with the end of the containing layout.
+         */
+        val End =
+            SnapPosition { layoutSize, itemSize, beforeContentPadding, afterContentPadding, _ ->
+                val availableLayoutSpace = layoutSize - beforeContentPadding - afterContentPadding
+                // the snap position for the item is the end of the layout, discounting the item
+                // size
+                availableLayoutSpace - itemSize
             }
     }
 }
@@ -67,9 +88,9 @@ internal fun calculateDistanceToDesiredSnapPosition(
     itemSize: Int,
     itemOffset: Int,
     itemIndex: Int,
-    snapPositionInLayout: SnapPositionInLayout
+    snapPosition: SnapPosition
 ): Float {
-    val desiredDistance = with(snapPositionInLayout) {
+    val desiredDistance = with(snapPosition) {
         position(
             mainAxisViewPortSize,
             itemSize,
