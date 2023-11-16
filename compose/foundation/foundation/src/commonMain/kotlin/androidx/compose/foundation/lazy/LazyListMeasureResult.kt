@@ -33,7 +33,7 @@ internal class LazyListMeasureResult(
     /** The new value for [LazyListState.firstVisibleItemScrollOffset].*/
     var firstVisibleItemScrollOffset: Int,
     /** True if there is some space available to continue scrolling in the forward direction.*/
-    val canScrollForward: Boolean,
+    var canScrollForward: Boolean,
     /** The amount of scroll consumed during the measure pass.*/
     var consumedScroll: Float,
     /** MeasureResult defining the layout.*/
@@ -61,7 +61,8 @@ internal class LazyListMeasureResult(
     override val mainAxisItemSpacing: Int
 ) : LazyListLayoutInfo, MeasureResult by measureResult {
 
-    val canScrollBackward = (firstVisibleItem?.index ?: 0) != 0 || firstVisibleItemScrollOffset != 0
+    val canScrollBackward
+        get() = (firstVisibleItem?.index ?: 0) != 0 || firstVisibleItemScrollOffset != 0
 
     override val viewportSize: IntSize
         get() = IntSize(width, height)
@@ -108,6 +109,10 @@ internal class LazyListMeasureResult(
                 it.applyScrollDelta(delta)
             }
             consumedScroll = delta.toFloat()
+            if (!canScrollForward && delta > 0) {
+                // we scrolled backward, so now we can scroll forward
+                canScrollForward = true
+            }
             true
         } else {
             false

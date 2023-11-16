@@ -21,7 +21,9 @@ import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.BaseLazyLayoutTestWithOrientation.Companion.FrameDuration
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
@@ -71,7 +73,6 @@ class LazyScrollTest(private val orientation: Orientation) {
 
     private val itemSizePx = 100
     private var itemSizeDp = Dp.Unspecified
-    private var containerSizeDp = Dp.Unspecified
 
     lateinit var scope: CoroutineScope
 
@@ -79,15 +80,21 @@ class LazyScrollTest(private val orientation: Orientation) {
     fun setup() {
         with(rule.density) {
             itemSizeDp = itemSizePx.toDp()
-            containerSizeDp = itemSizeDp * 3
         }
     }
 
-    private fun testScroll(spacingPx: Int = 0, assertBlock: suspend () -> Unit) {
+    private fun testScroll(
+        spacingPx: Int = 0,
+        containerSizePx: Int = itemSizePx * 3,
+        afterContentPaddingPx: Int = 0,
+        assertBlock: suspend () -> Unit
+    ) {
         rule.setContent {
             state = rememberLazyListState()
             scope = rememberCoroutineScope()
-            TestContent(with(rule.density) { spacingPx.toDp() })
+            with(rule.density) {
+                TestContent(spacingPx.toDp(), containerSizePx.toDp(), afterContentPaddingPx.toDp())
+            }
         }
         runBlocking {
             assertBlock()
@@ -354,6 +361,85 @@ class LazyScrollTest(private val orientation: Orientation) {
     }
 
     @Test
+    fun canScrollForwardAndBackward_afterSmallScrollFromStart() = testScroll(
+        containerSizePx = (itemSizePx * 1.5f).roundToInt()
+    ) {
+        val delta = (itemSizePx / 3f).roundToInt()
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            // small enough scroll to not cause any new items to be composed or old ones disposed.
+            state.scrollBy(delta.toFloat())
+        }
+        rule.runOnIdle {
+            assertThat(state.firstVisibleItemScrollOffset).isEqualTo(delta)
+            assertThat(state.canScrollForward).isTrue()
+            assertThat(state.canScrollBackward).isTrue()
+        }
+        // and scroll back to start
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.scrollBy(-delta.toFloat())
+        }
+        rule.runOnIdle {
+            assertThat(state.canScrollForward).isTrue()
+            assertThat(state.canScrollBackward).isFalse()
+        }
+    }
+
+    @Test
+    fun canScrollForwardAndBackward_afterSmallScrollFromEnd() = testScroll(
+        containerSizePx = (itemSizePx * 1.5f).roundToInt()
+    ) {
+        val delta = -(itemSizePx / 3f).roundToInt()
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            // scroll to the end of the list.
+            state.scrollToItem(itemsCount)
+            // small enough scroll to not cause any new items to be composed or old ones disposed.
+            state.scrollBy(delta.toFloat())
+        }
+        rule.runOnIdle {
+            assertThat(state.canScrollForward).isTrue()
+            assertThat(state.canScrollBackward).isTrue()
+        }
+        // and scroll back to the end
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.scrollBy(-delta.toFloat())
+        }
+        rule.runOnIdle {
+            assertThat(state.canScrollForward).isFalse()
+            assertThat(state.canScrollBackward).isTrue()
+        }
+    }
+
+    @Test
+    fun canScrollForwardAndBackward_afterSmallScrollFromEnd_withContentPadding() = testScroll(
+        containerSizePx = (itemSizePx * 1.5f).roundToInt(),
+        afterContentPaddingPx = 2,
+    ) {
+        val delta = -(itemSizePx / 3f).roundToInt()
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            // scroll to the end of the list.
+            state.scrollToItem(itemsCount)
+
+            assertThat(state.canScrollForward).isFalse()
+            assertThat(state.canScrollBackward).isTrue()
+
+            // small enough scroll to not cause any new items to be composed or old ones disposed.
+            state.scrollBy(delta.toFloat())
+        }
+        rule.runOnIdle {
+            assertThat(state.canScrollForward).isTrue()
+            assertThat(state.canScrollBackward).isTrue()
+        }
+        // and scroll back to the end
+        withContext(Dispatchers.Main + AutoTestFrameClock()) {
+            state.scrollBy(-delta.toFloat())
+        }
+        rule.runOnIdle {
+            assertThat(state.canScrollForward).isFalse()
+            assertThat(state.canScrollBackward).isTrue()
+        }
+    }
+
+    @Test
     fun animatePerFrameWithSpacing() = testScroll(spacingPx = 10) {
         assertSpringAnimation(toIndex = 8, spacingPx = 10)
     }
@@ -433,11 +519,12 @@ class LazyScrollTest(private val orientation: Orientation) {
     }
 
     @Composable
-    private fun TestContent(spacingDp: Dp) {
+    private fun TestContent(spacingDp: Dp, containerSizeDp: Dp, afterContentPaddingDp: Dp) {
         if (vertical) {
             LazyColumn(
                 Modifier.height(containerSizeDp).testTag(lazyListTag),
                 state,
+                contentPadding = PaddingValues(bottom = afterContentPaddingDp),
                 verticalArrangement = Arrangement.spacedBy(spacingDp)
             ) {
                 items(itemsCount) {
@@ -448,6 +535,7 @@ class LazyScrollTest(private val orientation: Orientation) {
             LazyRow(
                 Modifier.width(containerSizeDp).testTag(lazyListTag),
                 state,
+                contentPadding = PaddingValues(end = afterContentPaddingDp),
                 horizontalArrangement = Arrangement.spacedBy(spacingDp)
             ) {
                 items(itemsCount) {
