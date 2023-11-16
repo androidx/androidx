@@ -193,7 +193,18 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
     /**
      * Returns the current content size
      */
+    @Deprecated("Will be removed in 1.7", replaceWith = ReplaceWith("calculateContentSize()"))
     val contentSize: IntSize get() = scene.contentSize
+
+    /**
+     * Returns the current content size in infinity constraints.
+     *
+     * @throws IllegalStateException when [ComposeScene] content has lazy layouts without maximum size bounds
+     * (e.g. LazyColumn without maximum height).
+     */
+    fun calculateContentSize(): IntSize {
+        return scene.calculateContentSize()
+    }
 
     /**
      * Render the current content into an image. [nanoTime] will be used to drive all

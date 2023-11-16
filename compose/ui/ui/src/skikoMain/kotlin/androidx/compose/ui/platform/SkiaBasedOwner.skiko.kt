@@ -245,8 +245,26 @@ internal class SkiaBasedOwner(
         }
     }
 
-    var contentSize = IntSize.Zero
-        private set
+    /**
+     * Provides a way to measure Owner's content in given [constraints]
+     * Draw/pointer and other callbacks won't be called here like in [measureAndLayout] functions
+     */
+    internal fun measureInConstraints(constraints: Constraints): IntSize {
+        val oldConstraints = this.constraints
+        try {
+            // TODO: is it possible to measure without reassigning root constraints?
+            measureAndLayoutDelegate.updateRootConstraints(constraints)
+            measureAndLayoutDelegate.measureOnly()
+
+            // Don't use mainOwner.root.width here, as it strictly coerced by [constraints]
+            return IntSize(
+                root.children.maxOfOrNull { it.outerCoordinator.measuredWidth } ?: 0,
+                root.children.maxOfOrNull { it.outerCoordinator.measuredHeight } ?: 0,
+            )
+        } finally {
+            measureAndLayoutDelegate.updateRootConstraints(oldConstraints)
+        }
+    }
 
     override fun measureAndLayout(sendPointerUpdate: Boolean) {
         measureAndLayoutDelegate.updateRootConstraints(constraints)
@@ -260,21 +278,13 @@ internal class SkiaBasedOwner(
             requestDraw?.invoke()
         }
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
-        contentSize = computeContentSize()
     }
 
     override fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
         measureAndLayoutDelegate.measureAndLayout(layoutNode, constraints)
         onPointerUpdate()
         measureAndLayoutDelegate.dispatchOnPositionedCallbacks()
-        contentSize = computeContentSize()
     }
-
-    // Don't use mainOwner.root.width here, as it strictly coerced by [constraints]
-    private fun computeContentSize() = IntSize(
-        root.children.maxOfOrNull { it.outerCoordinator.measuredWidth } ?: 0,
-        root.children.maxOfOrNull { it.outerCoordinator.measuredHeight } ?: 0,
-    )
 
     override fun forceMeasureTheSubtree(layoutNode: LayoutNode, affectsLookahead: Boolean) {
         measureAndLayoutDelegate.forceMeasureTheSubtree(layoutNode, affectsLookahead)

@@ -132,6 +132,7 @@ public final class androidx/compose/ui/ComposeScene {
 	public synthetic fun <init> (Lkotlin/coroutines/CoroutineContext;Landroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (Lkotlin/coroutines/CoroutineContext;Landroidx/compose/ui/unit/Density;Lkotlin/jvm/functions/Function0;)V
 	public synthetic fun <init> (Lkotlin/coroutines/CoroutineContext;Landroidx/compose/ui/unit/Density;Lkotlin/jvm/functions/Function0;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun calculateContentSize-YbymL2g ()J
 	public final fun close ()V
 	public final fun getCompositionLocalContext ()Landroidx/compose/runtime/CompositionLocalContext;
 	public final fun getConstraints-msEJaDk ()J
@@ -228,6 +229,7 @@ public final class androidx/compose/ui/ImageComposeScene {
 	public synthetic fun <init> (IILandroidx/compose/ui/unit/Density;Landroidx/compose/ui/unit/LayoutDirection;Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun <init> (IILandroidx/compose/ui/unit/Density;Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;)V
 	public synthetic fun <init> (IILandroidx/compose/ui/unit/Density;Lkotlin/coroutines/CoroutineContext;Lkotlin/jvm/functions/Function2;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun calculateContentSize-YbymL2g ()J
 	public final fun close ()V
 	public final fun getConstraints-msEJaDk ()J
 	public final fun getContentSize-YbymL2g ()J

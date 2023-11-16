@@ -70,7 +70,7 @@ internal class WindowComposeBridge(
         }
 
         override fun getPreferredSize(): Dimension {
-            return if (isPreferredSizeSet) super.getPreferredSize() else sceneDimension
+            return if (isPreferredSizeSet) super.getPreferredSize() else scenePreferredSize
         }
     }
 

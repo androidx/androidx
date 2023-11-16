@@ -76,7 +76,7 @@ internal class SwingComposeBridge(
             }
 
             override fun getPreferredSize(): Dimension {
-                return if (isPreferredSizeSet) super.getPreferredSize() else sceneDimension
+                return if (isPreferredSizeSet) super.getPreferredSize() else scenePreferredSize
             }
 
             override fun getAccessibleContext(): AccessibleContext? {
