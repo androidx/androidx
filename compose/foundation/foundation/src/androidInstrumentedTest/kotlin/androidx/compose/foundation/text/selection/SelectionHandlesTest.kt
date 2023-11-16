@@ -20,21 +20,27 @@ import android.graphics.Bitmap
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.text.Handle
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -51,24 +57,33 @@ class SelectionHandlesTest {
     @get:Rule
     val rule = createComposeRule()
 
-    private val handleColor = Color(0xFF4286F4)
+    private val handleColor = Color.Black
     private val backgroundColor = Color.White
+
+    private val contentTag = "contentTag"
+
+    /**
+     * How many pixels into the handle to check the color of.
+     * This should be far enough in to avoid anti-aliasing blending the edge colors together,
+     * but not so far in that it reaches the center circle of the handle
+     */
+    private val inwardBias = 3
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun SelectionHandleIcon_left_pointsTopRight() {
-        rule.setContent {
+        setContent {
             SelectionHandleIcon(
-                modifier = Modifier.background(backgroundColor),
+                modifier = Modifier.testTag(contentTag),
                 iconVisible = { true },
                 isLeft = true,
             )
         }
 
         rule.waitForIdle()
-        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
-        val pixelLeftTop = bitmap.getPixel(0, 0)
-        val pixelRightTop = bitmap.getPixel(bitmap.width - 1, 0)
+        val bitmap = rule.onNodeWithTag(contentTag).captureToImage().asAndroidBitmap()
+        val pixelLeftTop = bitmap.getPixel(inwardBias, inwardBias)
+        val pixelRightTop = bitmap.getPixel(bitmap.width - inwardBias - 1, inwardBias)
         assertThat(pixelLeftTop).isEqualTo(backgroundColor.toArgb())
         assertThat(pixelRightTop).isEqualTo(handleColor.toArgb())
     }
@@ -76,18 +91,18 @@ class SelectionHandlesTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun SelectionHandleIcon_right_pointsTopLeft() {
-        rule.setContent {
+        setContent {
             SelectionHandleIcon(
-                modifier = Modifier.background(backgroundColor),
+                modifier = Modifier.testTag(contentTag),
                 iconVisible = { true },
                 isLeft = false,
             )
         }
 
         rule.waitForIdle()
-        val bitmap = rule.onRoot().captureToImage().asAndroidBitmap()
-        val pixelLeftTop = bitmap.getPixel(0, 0)
-        val pixelRightTop = bitmap.getPixel(bitmap.width - 1, 0)
+        val bitmap = rule.onNodeWithTag(contentTag).captureToImage().asAndroidBitmap()
+        val pixelLeftTop = bitmap.getPixel(inwardBias, inwardBias)
+        val pixelRightTop = bitmap.getPixel(bitmap.width - inwardBias - 1, inwardBias)
         assertThat(pixelLeftTop).isEqualTo(handleColor.toArgb())
         assertThat(pixelRightTop).isEqualTo(backgroundColor.toArgb())
     }
@@ -95,27 +110,29 @@ class SelectionHandlesTest {
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun SelectionHandleIcon_left_notVisible() {
-        rule.setContent {
+        setContent {
             SelectionHandleIcon(
-                modifier = Modifier.background(backgroundColor),
+                modifier = Modifier.testTag(contentTag),
                 iconVisible = { false },
                 isLeft = true,
             )
         }
-        assertThat(rule.onRoot().uniquePixels()).containsExactly(backgroundColor.toArgb())
+        assertThat(rule.onNodeWithTag(contentTag).uniquePixels())
+            .containsExactly(backgroundColor.toArgb())
     }
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun SelectionHandleIcon_right_notVisible() {
-        rule.setContent {
+        setContent {
             SelectionHandleIcon(
-                modifier = Modifier.background(backgroundColor),
+                modifier = Modifier.testTag(contentTag),
                 iconVisible = { false },
                 isLeft = false,
             )
         }
-        assertThat(rule.onRoot().uniquePixels()).containsExactly(backgroundColor.toArgb())
+        assertThat(rule.onNodeWithTag(contentTag).uniquePixels())
+            .containsExactly(backgroundColor.toArgb())
     }
 
     /**
@@ -133,13 +150,13 @@ class SelectionHandlesTest {
     @Test
     fun DefaultSelectionHandle_visibilityAndSemantics_changesFromOffsetState() {
         val tag = "testTag"
-        val specifiedOffset = Offset(5f, 5f)
+        var specifiedOffset = Offset.Zero
         var offsetState by mutableStateOf(specifiedOffset)
-        rule.setContent {
+        setContent(
+            Modifier.onGloballyPositioned { specifiedOffset = it.boundsInRoot().center }
+        ) {
             SelectionHandle(
-                modifier = Modifier
-                    .testTag(tag)
-                    .background(backgroundColor),
+                modifier = Modifier.testTag(tag),
                 offsetProvider = { offsetState },
                 isStartHandle = false,
                 direction = ResolvedTextDirection.Ltr,
@@ -148,6 +165,10 @@ class SelectionHandlesTest {
         }
 
         rule.waitForIdle()
+        offsetState = specifiedOffset
+        assertThat(offsetState).isNotEqualTo(Offset.Zero)
+        rule.waitForIdle()
+
         val testNode = rule.onNodeWithTag(tag)
         val startHandleNode = rule.onNode(isSelectionHandle(Handle.SelectionStart))
         val endHandleNode = rule.onNode(isSelectionHandle(Handle.SelectionEnd))
@@ -168,8 +189,8 @@ class SelectionHandlesTest {
 
         offsetState = specifiedOffset
         rule.waitForIdle()
-        assertThat(testNode.uniquePixels()).contains(handleColor.toArgb())
         testNode.assertExists()
+        assertThat(testNode.uniquePixels()).contains(handleColor.toArgb())
         startHandleNode.assertDoesNotExist()
         endHandleNode.assertExists()
         endHandleNode.assertVisible(visible = true)
@@ -205,6 +226,26 @@ class SelectionHandlesTest {
         assertThat(
             isHandleLtrDirection(direction = ResolvedTextDirection.Rtl, areHandlesCrossed = true)
         ).isTrue()
+    }
+
+    private fun setContent(
+        modifier: Modifier = Modifier,
+        content: @Composable () -> Unit
+    ) {
+        rule.setContent {
+            Box(
+                modifier = modifier
+                    .fillMaxSize()
+                    .background(backgroundColor),
+                contentAlignment = Alignment.Center,
+            ) {
+                val colors = TextSelectionColors(handleColor, backgroundColor)
+                CompositionLocalProvider(
+                    value = LocalTextSelectionColors provides colors,
+                    content = content,
+                )
+            }
+        }
     }
 }
 
