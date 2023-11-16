@@ -25,6 +25,7 @@ import android.hardware.camera2.CaptureRequest
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.camera.camera2.pipe.core.Debug
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
@@ -52,7 +53,7 @@ value class RequestNumber(val value: Long)
  * @param streams The list of streams to submit. Each request *must* have 1 or more valid streams.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-data class Request(
+class Request(
     val streams: List<StreamId>,
     val parameters: Map<CaptureRequest.Key<*>, Any> = emptyMap(),
     val extras: Map<Metadata.Key<*>, Any> = emptyMap(),
@@ -236,6 +237,18 @@ data class Request(
     @Suppress("UNCHECKED_CAST")
     private fun <T> getUnchecked(key: CaptureRequest.Key<T>): T? =
         this.parameters[key] as T?
+
+    override fun toString(): String {
+        val parametersString =
+            if (parameters.isEmpty()) "" else ", parameters=${Debug.formatParameterMap(parameters)}"
+        val extrasString =
+            if (extras.isEmpty()) "" else ", extras=${Debug.formatParameterMap(extras)}"
+        val templateString = if (template == null) "" else ", template=$template"
+        // Ignore listener count, always include stream list (required), and use super.toString to
+        // reference the class name.
+        return "Request@${super.hashCode().toString(16)}(streams=$streams" +
+            "$parametersString$extrasString$templateString)"
+    }
 }
 
 /**

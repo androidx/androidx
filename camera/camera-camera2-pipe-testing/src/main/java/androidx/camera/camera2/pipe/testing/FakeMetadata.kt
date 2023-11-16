@@ -131,6 +131,26 @@ class FakeRequestMetadata(
     override fun <T> getOrDefault(key: CaptureRequest.Key<T>, default: T): T = get(key) ?: default
 
     override fun <T : Any> unwrapAs(type: KClass<T>): T? = null
+
+    companion object {
+        /**
+         * Initialize FakeRequestMetadata based on a specific [Request] object.
+         */
+        fun from(
+            request: Request,
+            streamToSurfaces: Map<StreamId, Surface>,
+            repeating: Boolean = false
+        ): FakeRequestMetadata {
+            check(streamToSurfaces.keys.containsAll(request.streams))
+            return FakeRequestMetadata(
+                requestParameters = request.parameters,
+                template = request.template ?: RequestTemplate(0),
+                streams = request.streams.map { it to streamToSurfaces[it]!! }.toMap(),
+                repeating = repeating,
+                request = request
+            )
+        }
+    }
 }
 
 /**

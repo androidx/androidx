@@ -24,6 +24,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraStream
 import androidx.camera.camera2.pipe.OutputId
+import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.media.AndroidImageReader.Companion.IMAGEREADER_MAX_CAPACITY
@@ -63,7 +64,7 @@ interface ImageSource : UnsafeWrapper, AutoCloseable {
     /** The graphics surface that the Camera produces images into. */
     val surface: Surface
 
-    fun setImageSourceListener(listener: ImageSourceListener)
+    fun setListener(listener: ImageSourceListener)
 
     companion object {
         private const val IMAGE_CAPACITY_MARGIN = 2
@@ -110,6 +111,7 @@ interface ImageSource : UnsafeWrapper, AutoCloseable {
                     output.format.value,
                     imageReaderCapacity,
                     usageFlags,
+                    cameraStream.id,
                     output.id,
                     handler
                 )
@@ -145,7 +147,7 @@ fun interface ImageSourceListener {
      * they are done with it. Receiving a null [image] indicates the underlying ImageSource is full,
      * and that the image was dropped to avoid stalling the pipeline.
      */
-    fun onImage(outputId: OutputId, outputTimestamp: Long, image: ImageWrapper?)
+    fun onImage(streamId: StreamId, outputId: OutputId, outputTimestamp: Long, image: ImageWrapper?)
 }
 
 /**
@@ -166,7 +168,7 @@ internal class ImageSourceImpl(
         imageReader.setOnImageListener(::onImage)
     }
 
-    override fun setImageSourceListener(listener: ImageSourceListener) {
+    override fun setListener(listener: ImageSourceListener) {
         this.listener.value = listener
     }
 
@@ -181,7 +183,7 @@ internal class ImageSourceImpl(
         }
     }
 
-    private fun onImage(outputId: OutputId, image: ImageWrapper) {
+    private fun onImage(streamId: StreamId, outputId: OutputId, image: ImageWrapper) {
         // Always increment the imageCount before acquireNextImage
         val currentImageCount = imageCount.incrementAndGet()
 
@@ -199,13 +201,13 @@ internal class ImageSourceImpl(
             // null for the image).
             val outputTimestamp = image.timestamp
             closeAndDecrementImageCount(image)
-            outputListener.onImage(outputId, outputTimestamp, null)
+            outputListener.onImage(streamId, outputId, outputTimestamp, null)
             return
         }
 
         // Wrap and track the image, and pass it along to the outputListener, which is now
         // responsible for closing the image when it is done with it.
-        outputListener.onImage(outputId, image.timestamp, TrackedImage(image))
+        outputListener.onImage(streamId, outputId, image.timestamp, TrackedImage(image))
     }
 
     internal fun closeAndDecrementImageCount(image: ImageWrapper) {
