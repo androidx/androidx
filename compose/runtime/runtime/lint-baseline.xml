@@ -1,5 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable useDefault with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="            val useDefault ="
+        errorLine2="            ^">
+        <location
+            file="src/jvmMain/kotlin/androidx/compose/runtime/reflect/ComposableMethod.jvm.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field groupInfos with type HashMap&lt;Integer, GroupInfo>: replace with IntObjectMap"
+        errorLine1="    private val groupInfos = run {"
+        errorLine2="    ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable result with type HashMap&lt;Integer, GroupInfo>: replace with IntObjectMap"
+        errorLine1="        val result = hashMapOf&lt;Int, GroupInfo>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
+    </issue>
+
+    <issue
+        id="ExperimentalPropertyAnnotation"
+        message="This property does not have all required annotations to correctly mark it as experimental."
+        errorLine1="    @InternalComposeApi"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
+    </issue>
 
     <issue
         id="BanSuppressTag"
@@ -35,186 +71,6 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/HotReloader.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="    @InternalComposeApi"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
-    </issue>
-
-    <issue
-        id="ExperimentalPropertyAnnotation"
-        message="This property does not have all required annotations to correctly mark it as experimental."
-        errorLine1="@InternalComposeApi"
-        errorLine2="~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/internal/LiveLiteral.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable useDefault with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="            val useDefault ="
-        errorLine2="            ^">
-        <location
-            file="src/jvmMain/kotlin/androidx/compose/runtime/reflect/ComposableMethod.jvm.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field groupInfos with type HashMap&lt;Integer, GroupInfo>: replace with IntObjectMap"
-        errorLine1="    private val groupInfos = run {"
-        errorLine2="    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable result with type HashMap&lt;Integer, GroupInfo>: replace with IntObjectMap"
-        errorLine1="        val result = hashMapOf&lt;Int, GroupInfo>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field nodeCountVirtualOverrides with type HashMap&lt;Integer, Integer>: replace with IntIntMap"
-        errorLine1="    private var nodeCountVirtualOverrides: HashMap&lt;Int, Int>? = null"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable var63166efe with type HashMap&lt;Integer, Integer>: replace with IntIntMap"
-        errorLine1="                val virtualCounts = nodeCountVirtualOverrides ?: run {"
-        errorLine2="                                    ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable virtualCounts with type HashMap&lt;Integer, Integer>: replace with IntIntMap"
-        errorLine1="                val virtualCounts = nodeCountVirtualOverrides ?: run {"
-        errorLine2="                ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable newCounts with type HashMap&lt;Integer, Integer>: replace with IntIntMap"
-        errorLine1="                    val newCounts = HashMap&lt;Int, Int>()"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/Composer.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field intParams with type List&lt;IntParameter>: replace with IntList"
-        errorLine1="        val intParams = List(ints) { index -> IntParameter(index) }"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/changelist/Operation.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;IntParameter> of getIntParams: replace with IntList"
-        errorLine1="        val intParams = List(ints) { index -> IntParameter(index) }"
-        errorLine2="            ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/changelist/Operation.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field objParams with type List&lt;ObjectParameter&lt;Object>>: replace with IntList"
-        errorLine1="        val objParams = List(objects) { index -> ObjectParameter&lt;Any?>(index) }"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/changelist/Operation.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;ObjectParameter&lt;Object>> of getObjParams: replace with IntList"
-        errorLine1="        val objParams = List(objects) { index -> ObjectParameter&lt;Any?>(index) }"
-        errorLine2="            ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/changelist/Operation.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of keys: replace with IntList"
-        errorLine1="    private fun keys() = groups.keys(groupsSize * Group_Fields_Size)"
-        errorLine2="                ~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of nodes: replace with IntList"
-        errorLine1="    private fun nodes() = groups.nodeCounts(groupsSize * Group_Fields_Size)"
-        errorLine2="                ~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of parentIndexes: replace with IntList"
-        errorLine1="    private fun parentIndexes() = groups.parentAnchors(groupsSize * Group_Fields_Size)"
-        errorLine2="                ~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of dataIndexes: replace with IntList"
-        errorLine1="    private fun dataIndexes() = groups.dataAnchors(groupsSize * Group_Fields_Size)"
-        errorLine2="                ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of groupSizes: replace with IntList"
-        errorLine1="    private fun groupSizes() = groups.groupSizes(groupsSize * Group_Fields_Size)"
-        errorLine2="                ~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of dataIndexes: replace with IntList"
-        errorLine1="    private fun IntArray.dataIndexes() = groups.dataAnchors().let {"
-        errorLine2="                         ~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of keys: replace with IntList"
-        errorLine1="    private fun keys() = groups.keys().fastFilterIndexed { index, _ ->"
-        errorLine2="                ~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
     </issue>
 
     <issue
@@ -282,9 +138,63 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="constructor PrioritySet has parameter list with type List&lt;Integer>: replace with IntList"
-        errorLine1="internal class PrioritySet(private val list: MutableList&lt;Int> = mutableListOf()) {"
-        errorLine2="                                             ~~~~~~~~~~~~~~~~">
+        message="return type List&lt;Integer> of keys: replace with IntList"
+        errorLine1="    private fun keys() = groups.keys(groupsSize * Group_Fields_Size)"
+        errorLine2="                ~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of nodes: replace with IntList"
+        errorLine1="    private fun nodes() = groups.nodeCounts(groupsSize * Group_Fields_Size)"
+        errorLine2="                ~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of parentIndexes: replace with IntList"
+        errorLine1="    private fun parentIndexes() = groups.parentAnchors(groupsSize * Group_Fields_Size)"
+        errorLine2="                ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of dataIndexes: replace with IntList"
+        errorLine1="    private fun dataIndexes() = groups.dataAnchors(groupsSize * Group_Fields_Size)"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of groupSizes: replace with IntList"
+        errorLine1="    private fun groupSizes() = groups.groupSizes(groupsSize * Group_Fields_Size)"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of dataIndexes: replace with IntList"
+        errorLine1="    private fun IntArray.dataIndexes() = groups.dataAnchors().let {"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of keys: replace with IntList"
+        errorLine1="    private fun keys() = groups.keys().fastFilterIndexed { index, _ ->"
+        errorLine2="                ~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
     </issue>
@@ -300,11 +210,47 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="variable newBelowBound with type List&lt;Integer>: replace with IntList"
-        errorLine1="                var newBelowBound: MutableList&lt;Int>? = null"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
+        message="constructor PrioritySet has parameter list with type List&lt;Integer>: replace with IntList"
+        errorLine1="internal class PrioritySet(private val list: MutableList&lt;Int> = mutableListOf()) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/runtime/snapshots/SnapshotIdSet.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/runtime/SlotTable.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field intParams with type List&lt;IntParameter>: replace with IntList"
+        errorLine1="        val intParams = List(ints) { index -> IntParameter(index) }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/changelist/Operation.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field objParams with type List&lt;ObjectParameter&lt;Object>>: replace with IntList"
+        errorLine1="        val objParams = List(objects) { index -> ObjectParameter&lt;Any?>(index) }"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/changelist/Operation.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;IntParameter> of getIntParams: replace with IntList"
+        errorLine1="        val intParams = List(ints) { index -> IntParameter(index) }"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/changelist/Operation.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;ObjectParameter&lt;Object>> of getObjParams: replace with IntList"
+        errorLine1="        val objParams = List(objects) { index -> ObjectParameter&lt;Any?>(index) }"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/changelist/Operation.kt"/>
     </issue>
 
     <issue
@@ -350,6 +296,24 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/runtime/external/kotlinx/collections/immutable/extensions.kt"/>
+    </issue>
+
+    <issue
+        id="ExperimentalPropertyAnnotation"
+        message="This property does not have all required annotations to correctly mark it as experimental."
+        errorLine1="@InternalComposeApi"
+        errorLine2="~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/internal/LiveLiteral.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable newBelowBound with type List&lt;Integer>: replace with IntList"
+        errorLine1="                var newBelowBound: MutableList&lt;Int>? = null"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/runtime/snapshots/SnapshotIdSet.kt"/>
     </issue>
 
 </issues>
