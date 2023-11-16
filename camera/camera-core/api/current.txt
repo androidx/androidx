@@ -54,6 +54,7 @@ package androidx.camera.core {
     method public boolean hasFlashUnit();
     method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
     method @SuppressCompatibility @androidx.camera.core.ExperimentalZeroShutterLag public default boolean isZslSupported();
+    method public static boolean mustPlayShutterSound();
   }
 
   @RequiresApi(21) public final class CameraInfoUnavailableException extends java.lang.Exception {

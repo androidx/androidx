@@ -112,9 +112,12 @@ public interface CameraInfo {
      * {@link MediaActionSound#START_VIDEO_RECORDING} and
      * {@link MediaActionSound#STOP_VIDEO_RECORDING}.
      *
+     * <p>This method and {@link MediaActionSound#mustPlayShutterSound()} serve the same purpose,
+     * while this method is compatible on API level lower than
+     * {@link android.os.Build.VERSION_CODES#TIRAMISU}.
+     *
      * @return {@code true} if shutter sound must be played, otherwise {@code false}.
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     static boolean mustPlayShutterSound() {
         return MediaActionSoundCompat.mustPlayShutterSound();
     }
