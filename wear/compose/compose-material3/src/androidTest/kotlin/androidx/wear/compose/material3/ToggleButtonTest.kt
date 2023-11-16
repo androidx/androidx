@@ -48,6 +48,12 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.samples.SplitToggleButtonWithCheckbox
+import androidx.wear.compose.material3.samples.SplitToggleButtonWithRadioButton
+import androidx.wear.compose.material3.samples.SplitToggleButtonWithSwitch
+import androidx.wear.compose.material3.samples.ToggleButtonWithCheckbox
+import androidx.wear.compose.material3.samples.ToggleButtonWithRadioButton
+import androidx.wear.compose.material3.samples.ToggleButtonWithSwitch
 import org.junit.Rule
 import org.junit.Test
 
@@ -75,6 +81,24 @@ class ToggleButtonTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).assertExists()
+    }
+
+    @Test
+    fun toggle_button_samples_build() {
+        rule.setContentWithTheme {
+            ToggleButtonWithCheckbox()
+            ToggleButtonWithRadioButton()
+            ToggleButtonWithSwitch()
+        }
+    }
+
+    @Test
+    fun split_toggle_button_samples_build() {
+        rule.setContentWithTheme {
+            SplitToggleButtonWithCheckbox()
+            SplitToggleButtonWithSwitch()
+            SplitToggleButtonWithRadioButton()
+        }
     }
 
     @Test
@@ -371,23 +395,6 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun has_role_checkbox() {
-        rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
-                )
-            )
-    }
-
-    @Test
     fun can_override_role() {
         rule.setContentWithTheme {
             ToggleButtonWithDefaults(
@@ -409,26 +416,20 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_button_has_roles_button_and_checkbox() {
+    fun split_button_clickable_has_role_button() {
         rule.setContentWithTheme {
             SplitToggleButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
+        // NB The toggle control (Checkbox or Switch) provides its own role,
+        // but the main clickable section is a Button.
         rule.onNodeWithTag(TEST_TAG).onChildAt(0)
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
                     Role.Button
-                )
-            )
-
-        rule.onNodeWithTag(TEST_TAG).onChildAt(1)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
                 )
             )
     }

@@ -16,10 +16,8 @@
 
 package androidx.wear.compose.material3.demos
 
-import androidx.compose.foundation.layout.BoxScope
+import android.widget.Toast
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -28,18 +26,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.material3.Checkbox
-import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.RadioButton
+import androidx.wear.compose.material3.SplitToggleButton
 import androidx.wear.compose.material3.Switch
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.ToggleButton
 
 @Composable
-fun ToggleButtonDemo() {
+fun SplitToggleButtonDemo() {
     var selectedRadioIndex by remember { mutableIntStateOf(0) }
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -49,50 +47,50 @@ fun ToggleButtonDemo() {
             ListHeader { Text("Checkbox") }
         }
         item {
-            DemoToggleCheckbox(enabled = true, initiallyChecked = true)
+            DemoSplitToggleCheckbox(enabled = true, initiallyChecked = true)
         }
         item {
-            DemoToggleCheckbox(enabled = true, initiallyChecked = false)
+            DemoSplitToggleCheckbox(enabled = true, initiallyChecked = false)
         }
         item {
             ListHeader { Text("Disabled Checkbox") }
         }
         item {
-            DemoToggleCheckbox(enabled = false, initiallyChecked = true)
+            DemoSplitToggleCheckbox(enabled = false, initiallyChecked = true)
         }
         item {
-            DemoToggleCheckbox(enabled = false, initiallyChecked = false)
+            DemoSplitToggleCheckbox(enabled = false, initiallyChecked = false)
         }
         item {
             ListHeader { Text("Switch") }
         }
         item {
-            DemoToggleSwitch(enabled = true, initiallyChecked = true)
+            DemoSplitToggleSwitch(enabled = true, initiallyChecked = true)
         }
         item {
-            DemoToggleSwitch(enabled = true, initiallyChecked = false)
+            DemoSplitToggleSwitch(enabled = true, initiallyChecked = false)
         }
         item {
             ListHeader { Text("Disabled Switch") }
         }
         item {
-            DemoToggleSwitch(enabled = false, initiallyChecked = true)
+            DemoSplitToggleSwitch(enabled = false, initiallyChecked = true)
         }
         item {
-            DemoToggleSwitch(enabled = false, initiallyChecked = false)
+            DemoSplitToggleSwitch(enabled = false, initiallyChecked = false)
         }
         item {
             ListHeader { Text("Radio Button") }
         }
         item {
-            DemoToggleRadioButton(
-                true,
+            DemoSplitToggleRadioButton(
+                enabled = true,
                 (selectedRadioIndex == 0)
             ) { selectedRadioIndex = 0 }
         }
         item {
-            DemoToggleRadioButton(
-                true,
+            DemoSplitToggleRadioButton(
+                enabled = true,
                 (selectedRadioIndex == 1)
             ) { selectedRadioIndex = 1 }
         }
@@ -100,38 +98,16 @@ fun ToggleButtonDemo() {
             ListHeader { Text("Disabled Radio Button") }
         }
         item {
-            DemoToggleRadioButton(enabled = false, selected = true)
+            DemoSplitToggleRadioButton(enabled = false, selected = true)
         }
         item {
-            DemoToggleRadioButton(enabled = false, selected = false)
-        }
-        item {
-            ListHeader { Text("Icon") }
-        }
-        item {
-            DemoToggleCheckbox(
-                enabled = true,
-                initiallyChecked = true,
-                primary = "Primary label",
-            ) {
-                Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite")
-            }
-        }
-        item {
-            DemoToggleCheckbox(
-                enabled = true,
-                initiallyChecked = true,
-                primary = "Primary label",
-                secondary = "Secondary label"
-            ) {
-                Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite")
-            }
+            DemoSplitToggleRadioButton(enabled = false, selected = false)
         }
         item {
             ListHeader { Text("Multi-line") }
         }
         item {
-            DemoToggleCheckbox(
+            DemoSplitToggleCheckbox(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "8:15AM",
@@ -139,14 +115,14 @@ fun ToggleButtonDemo() {
             )
         }
         item {
-            DemoToggleCheckbox(
+            DemoSplitToggleCheckbox(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max"
             )
         }
         item {
-            DemoToggleCheckbox(
+            DemoSplitToggleCheckbox(
                 enabled = true,
                 initiallyChecked = true,
                 primary = "Primary Label with 3 lines of content max",
@@ -157,19 +133,18 @@ fun ToggleButtonDemo() {
 }
 
 @Composable
-private fun DemoToggleCheckbox(
+private fun DemoSplitToggleCheckbox(
     enabled: Boolean,
     initiallyChecked: Boolean,
     primary: String = "Primary label",
-    secondary: String = "",
-    content: (@Composable BoxScope.() -> Unit)? = null,
+    secondary: String = ""
 ) {
     var checked by remember { mutableStateOf(initiallyChecked) }
-    ToggleButton(
+    val context = LocalContext.current
+    SplitToggleButton(
         label = {
             Text(primary, maxLines = 3, overflow = TextOverflow.Ellipsis)
         },
-        icon = content,
         checked = checked,
         selectionControl = {
             Checkbox(
@@ -178,6 +153,9 @@ private fun DemoToggleCheckbox(
             )
         },
         onCheckedChange = { checked = it },
+        onClick = {
+            Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+        },
         enabled = enabled,
         secondaryLabel = {
             if (secondary.isNotEmpty()) {
@@ -188,9 +166,10 @@ private fun DemoToggleCheckbox(
 }
 
 @Composable
-private fun DemoToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
+private fun DemoSplitToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
     var checked by remember { mutableStateOf(initiallyChecked) }
-    ToggleButton(
+    val context = LocalContext.current
+    SplitToggleButton(
         label = {
             Text("Primary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
         },
@@ -202,17 +181,21 @@ private fun DemoToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
             )
         },
         onCheckedChange = { checked = it },
+        onClick = {
+            Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+        },
         enabled = enabled,
     )
 }
 
 @Composable
-private fun DemoToggleRadioButton(
+private fun DemoSplitToggleRadioButton(
     enabled: Boolean,
     selected: Boolean,
     onSelectedChanged: (Boolean) -> Unit = {}
 ) {
-    ToggleButton(
+    val context = LocalContext.current
+    SplitToggleButton(
         label = {
             Text("Primary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
         },
@@ -224,6 +207,9 @@ private fun DemoToggleRadioButton(
             )
         },
         onCheckedChange = onSelectedChanged,
+        onClick = {
+            Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
+        },
         enabled = enabled,
     )
 }
