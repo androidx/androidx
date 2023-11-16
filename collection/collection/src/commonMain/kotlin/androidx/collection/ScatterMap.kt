@@ -670,12 +670,6 @@ public sealed class ScatterMap<K, V> {
      * [ScatterMap]'s APIs directly. While the [Map] implementation returned by
      * this method tries to be as efficient as possible, the semantics of [Map]
      * may require the allocation of temporary objects for access and iteration.
-     *
-     * **Note**: the semantics of the returned [Map.entries] property is
-     * different from that of a regular [Map] implementation: the [Map.Entry]
-     * returned by the iterator is a single instance that exists for the
-     * lifetime of the iterator, so you can *not* hold on to it after calling
-     * [Iterator.next].
      */
     public fun asMap(): Map<K, V> = MapWrapper()
 
@@ -1294,12 +1288,6 @@ public class MutableScatterMap<K, V>(
      * implementation returned by this method tries to be as efficient as possible,
      * the semantics of [MutableMap] may require the allocation of temporary
      * objects for access and iteration.
-     *
-     * **Note**: the semantics of the returned [MutableMap.entries] property is
-     * different from that of a regular [MutableMap] implementation: the
-     * [MutableMap.MutableEntry] returned by the iterator is a single instance
-     * that exists for the lifetime of the iterator, so you can *not* hold on to
-     * it after calling [Iterator.next].
      */
     public fun asMutableMap(): MutableMap<K, V> = MutableMapWrapper()
 
