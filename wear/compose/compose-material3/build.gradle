@@ -46,6 +46,7 @@ dependencies {
     androidTestImplementation(project(":test:screenshot:screenshot"))
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":wear:compose:compose-material3-samples"))
 
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
