@@ -16,11 +16,14 @@
 
 package androidx.compose.testutils
 
+import androidx.annotation.UiThread
+
 expect class NativeView
 
 /**
  * Test scope accessible from execution controlled tests to test compose.
  */
+@UiThread
 interface ComposeExecutionControl {
     /**
      * The measured width of the underlying view.
@@ -222,6 +225,7 @@ fun ComposeExecutionControl.doFramesAssertAllHadChangesExceptLastOne(
  * @param maxAmountOfFrames Max amount of frames to perform before giving up and throwing exception.
  * @throws AssertionError if there are still pending changes after [maxAmountOfFrames] executed.
  */
+@UiThread
 fun ComposeExecutionControl.doFramesUntilNoChangesPending(maxAmountOfFrames: Int = 10): Int {
     var framesDone = 0
     while (framesDone < maxAmountOfFrames) {

@@ -165,10 +165,12 @@ private fun ComposeBenchmarkRule.createBenchmark(
     testCase: () -> ReuseTestCase,
 ) {
     runBenchmarkFor(testCase) {
-        setupContent()
-        doFramesUntilIdle()
+        runOnUiThread {
+            setupContent()
+            doFramesUntilIdle()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 assertNoPendingChanges()
                 getTestCase().clearContent()
@@ -186,11 +188,13 @@ private fun ComposeBenchmarkRule.disposeBenchmark(
     testCase: () -> ReuseTestCase,
 ) {
     runBenchmarkFor(testCase) {
-        setupContent()
-        doFramesUntilIdle()
-        assertNoPendingChanges()
+        runOnUiThread {
+            setupContent()
+            doFramesUntilIdle()
+            assertNoPendingChanges()
+        }
 
-        measureRepeated {
+        measureRepeatedOnUiThread {
             getTestCase().clearContent()
             doFramesUntilIdle()
 

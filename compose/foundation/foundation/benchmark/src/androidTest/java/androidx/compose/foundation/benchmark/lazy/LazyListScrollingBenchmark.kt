@@ -60,6 +60,7 @@ class LazyListScrollingBenchmark(
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
+    @Ignore("b/311256618")
     @Test
     fun scrollProgrammatically_noNewItems() {
         benchmarkRule.toggleStateBenchmark {
@@ -82,6 +83,7 @@ class LazyListScrollingBenchmark(
         }
     }
 
+    @Ignore("b/311256618")
     @Test
     fun scrollProgrammatically_noNewItems_withoutKeys() {
         benchmarkRule.toggleStateBenchmark {
@@ -106,8 +108,8 @@ class LazyListScrollingBenchmark(
         }
     }
 
+    @Ignore("b/311256618")
     @Test
-    @Ignore("b/300472956")
     fun scrollViaPointerInput_noNewItems() {
         benchmarkRule.toggleStateBenchmark {
             ListRemeasureTestCase(
@@ -120,7 +122,6 @@ class LazyListScrollingBenchmark(
     }
 
     @Test
-    @Ignore("b/300472956")
     fun scrollViaPointerInput_newItemComposed() {
         benchmarkRule.toggleStateBenchmark {
             ListRemeasureTestCase(

@@ -200,8 +200,10 @@ internal fun ComposeBenchmarkRule.changePositionBenchmark(
     caseFactory: () -> PositionIndicatorBenchmarkTestCase
 ) {
     runBenchmarkFor(caseFactory) {
-        disposeContent()
-        measureRepeated {
+        runOnUiThread {
+            disposeContent()
+        }
+        measureRepeatedOnUiThread {
             runWithTimingDisabled {
                 setupContent()
                 assertNoPendingChanges()

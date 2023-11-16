@@ -98,7 +98,6 @@ class LazyStaggeredGridScrollingBenchmark(
     }
 
     @Test
-    @Ignore("b/300472956")
     fun scrollViaPointerInput_noNewItems() {
         benchmarkRule.toggleStateBenchmark {
             StaggeredGridRemeasureTestCase(
@@ -111,7 +110,6 @@ class LazyStaggeredGridScrollingBenchmark(
     }
 
     @Test
-    @Ignore("b/300472956")
     fun scrollViaPointerInput_newItemComposed_up() {
         benchmarkRule.toggleStateBenchmark {
             StaggeredGridRemeasureTestCase(
