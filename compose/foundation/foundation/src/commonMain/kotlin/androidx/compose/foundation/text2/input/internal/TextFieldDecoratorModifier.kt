@@ -59,6 +59,7 @@ import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.copyText
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.editable
 import androidx.compose.ui.semantics.editableText
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.insertTextAtCursor
@@ -152,6 +153,8 @@ internal class TextFieldDecoratorModifierNode(
     KeyInputModifierNode,
     CompositionLocalConsumerModifierNode,
     ObserverModifierNode {
+
+    private val editable get() = enabled && !readOnly
 
     private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
         with(textFieldSelectionState) {
@@ -300,13 +303,14 @@ internal class TextFieldDecoratorModifierNode(
         editableText = AnnotatedString(text.toString())
         textSelectionRange = selection
 
+        if (!enabled) disabled()
+        if (editable) editable()
+
         getTextLayoutResult {
             textLayoutState.layoutResult?.let { result -> it.add(result) } ?: false
         }
-        if (!enabled) disabled()
-
         setText { newText ->
-            if (readOnly || !enabled) return@setText false
+            if (!editable) return@setText false
 
             textFieldState.replaceAll(newText)
             true
@@ -352,7 +356,7 @@ internal class TextFieldDecoratorModifierNode(
             return@setSelection true
         }
         insertTextAtCursor { newText ->
-            if (readOnly || !enabled) return@insertTextAtCursor false
+            if (!editable) return@insertTextAtCursor false
 
             // Finish composing text first because when the field is focused the IME
             // might set composition.
@@ -392,7 +396,7 @@ internal class TextFieldDecoratorModifierNode(
                 }
             }
         }
-        if (enabled && !readOnly) {
+        if (editable) {
             pasteText {
                 textFieldSelectionState.paste()
                 true
@@ -409,7 +413,7 @@ internal class TextFieldDecoratorModifierNode(
 
         if (focusState.isFocused) {
             // Deselect when losing focus even if readonly.
-            if (enabled && !readOnly) {
+            if (editable) {
                 startInputSession()
                 // TODO(halilibo): bringIntoView
             }

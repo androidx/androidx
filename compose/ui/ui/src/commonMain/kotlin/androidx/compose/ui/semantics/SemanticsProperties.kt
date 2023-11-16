@@ -251,6 +251,11 @@ object SemanticsProperties {
      * @see SemanticsPropertyReceiver.indexForKey
      */
     val IndexForKey = SemanticsPropertyKey<(Any) -> Int>("IndexForKey")
+
+    /**
+     * @see SemanticsPropertyReceiver.editable
+     */
+    val Editable = SemanticsPropertyKey<Unit>("Editable")
 }
 
 /**
@@ -1076,6 +1081,13 @@ fun SemanticsPropertyReceiver.error(description: String) {
  */
 fun SemanticsPropertyReceiver.indexForKey(mapping: (Any) -> Int) {
     this[SemanticsProperties.IndexForKey] = mapping
+}
+
+/**
+ * Whether this semantics node is editable, e.g. an editable text field.
+ */
+fun SemanticsPropertyReceiver.editable() {
+    this[SemanticsProperties.Editable] = Unit
 }
 
 /**
