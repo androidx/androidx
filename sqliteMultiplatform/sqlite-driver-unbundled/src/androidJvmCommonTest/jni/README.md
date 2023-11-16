@@ -1,0 +1,1 @@
+Implementation of SimpleDatabaseSubject using JNI
