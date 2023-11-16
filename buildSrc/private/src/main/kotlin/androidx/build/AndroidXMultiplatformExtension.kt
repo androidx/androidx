@@ -20,11 +20,14 @@ import androidx.build.clang.AndroidXClang
 import androidx.build.clang.MultiTargetNativeCompilation
 import androidx.build.clang.NativeLibraryBundler
 import androidx.build.clang.configureCinterop
+import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
+import com.android.build.gradle.api.KotlinMultiplatformAndroidPlugin
 import groovy.lang.Closure
 import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
+import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
@@ -54,6 +57,13 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         project.multiplatformExtension!!
     }
     private val kotlinExtension: KotlinMultiplatformExtension by kotlinExtensionDelegate
+    val agpKmpExtensionDelegate = lazy {
+        project.plugins.apply(KotlinMultiplatformAndroidPlugin::class.java)
+        (kotlinExtension as ExtensionAware)
+            .extensions
+            .getByType(KotlinMultiplatformAndroidTarget::class.java)
+    }
+    val agpKmpExtension: KotlinMultiplatformAndroidTarget by agpKmpExtensionDelegate
 
     /**
      * The list of platforms that have been declared as supported in the build configuration.
@@ -133,6 +143,10 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         // it is important to check initialized here not to trigger initialization
         return kotlinExtensionDelegate.isInitialized() &&
             targets.any { it.platformType == KotlinPlatformType.native }
+    }
+
+    internal fun hasAndroidMultiplatform(): Boolean {
+        return agpKmpExtensionDelegate.isInitialized()
     }
 
     fun sourceSets(closure: Closure<*>) {
@@ -336,6 +350,18 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         supportedPlatforms.add(PlatformIdentifier.ANDROID_NATIVE_ARM32)
         return if (project.enableNative()) {
             kotlinExtension.androidNativeArm32().also { block?.execute(it) }
+        } else {
+            null
+        }
+    }
+
+    @JvmOverloads
+    fun androidLibrary(
+        block: Action<KotlinMultiplatformAndroidTarget>? = null
+    ): KotlinMultiplatformAndroidTarget? {
+        supportedPlatforms.add(PlatformIdentifier.ANDROID)
+        return if (project.enableJvm()) {
+            agpKmpExtension.also { block?.execute(it) }
         } else {
             null
         }
