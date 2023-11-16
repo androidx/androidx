@@ -729,7 +729,7 @@ import java.util.Set;
                     provider.mRoutes.add(targetIndex++, route);
                     mRoutes.add(route);
                     // 2. Create the route's contents.
-                    if (routeDescriptor.getGroupMemberIds().size() > 0) {
+                    if (!routeDescriptor.getGroupMemberIds().isEmpty()) {
                         addedGroups.add(new Pair<>(route, routeDescriptor));
                     } else {
                         route.maybeUpdateDescriptor(routeDescriptor);
@@ -746,7 +746,7 @@ import java.util.Set;
                     // 1. Reorder the route within the list.
                     Collections.swap(provider.mRoutes, sourceIndex, targetIndex++);
                     // 2. Update the route's contents.
-                    if (routeDescriptor.getGroupMemberIds().size() > 0) {
+                    if (!routeDescriptor.getGroupMemberIds().isEmpty()) {
                         updatedGroups.add(new Pair<>(route, routeDescriptor));
                     } else {
                         // 3. Notify clients about changes.
