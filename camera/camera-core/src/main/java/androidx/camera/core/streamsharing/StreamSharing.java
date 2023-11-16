@@ -42,6 +42,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.core.CameraEffect;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -319,7 +320,7 @@ public class StreamSharing extends UseCase {
         mEffectNode = new SurfaceProcessorNode(camera,
                 getEffect().createSurfaceProcessorInternal());
         // Effect does not apply rotation.
-        int rotationAppliedByEffect = 0;
+        int rotationAppliedByEffect = getRotationAppliedByEffect();
         SurfaceProcessorNode.OutConfig outConfig = SurfaceProcessorNode.OutConfig.of(
                 cameraEdge.getTargets(),
                 cameraEdge.getFormat(),
@@ -331,6 +332,18 @@ public class StreamSharing extends UseCase {
                 singletonList(outConfig));
         SurfaceProcessorNode.Out out = mEffectNode.transform(in);
         return requireNonNull(out.get(outConfig));
+    }
+
+    private int getRotationAppliedByEffect() {
+        CameraEffect effect = checkNotNull(getEffect());
+        if (effect.getTransformation() == CameraEffect.TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION) {
+            // Apply the rotation degrees if the effect is configured to do so.
+            // TODO: handle this option in VideoCapture.
+            return getRelativeRotation(checkNotNull(getCamera()));
+        } else {
+            // By default, the effect node does not apply any rotation.
+            return 0;
+        }
     }
 
     private void addCameraErrorListener(
@@ -437,5 +450,11 @@ public class StreamSharing extends UseCase {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static boolean isStreamSharing(@Nullable UseCase useCase) {
         return useCase instanceof StreamSharing;
+    }
+
+    @VisibleForTesting
+    @Nullable
+    public SurfaceEdge getSharingInputEdge() {
+        return mSharingInputEdge;
     }
 }
