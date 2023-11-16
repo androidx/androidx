@@ -94,6 +94,32 @@ class ActivityEmbeddingController internal constructor(private val backend: Embe
         backend.finishActivityStacks(activityStacks)
     }
 
+    /**
+     * Sets the [EmbeddingConfiguration] of the Activity Embedding environment that defines how the
+     * embedded Activities behaves.
+     *
+     * The [EmbeddingConfiguration] can be supported only if the vendor API level of the target
+     * device is equals or higher than required API level. Otherwise, it would be no-op when setting
+     * the [EmbeddingConfiguration] on a target device that has lower API level.
+     *
+     * In addition, the existing configuration in the library won't be overwritten if the properties
+     * of the given [embeddingConfiguration] are undefined. Only the configuration properties that
+     * are explicitly set will be updated.
+     *
+     * **Note** that it is recommended to be configured in the [androidx.startup.Initializer] or
+     * [android.app.Application.onCreate], so that the [EmbeddingConfiguration] is applied early
+     * in the application startup, before any activities complete initialization. The
+     * [EmbeddingConfiguration] updates afterward may or may not apply to already running
+     * activities.
+     *
+     * @param embeddingConfiguration The [EmbeddingConfiguration]
+     */
+    @ExperimentalWindowApi
+    @RequiresWindowSdkExtension(5)
+    fun setEmbeddingConfiguration(embeddingConfiguration: EmbeddingConfiguration) {
+        backend.setEmbeddingConfiguration(embeddingConfiguration)
+    }
+
     companion object {
         /**
          * Obtains an instance of [ActivityEmbeddingController].

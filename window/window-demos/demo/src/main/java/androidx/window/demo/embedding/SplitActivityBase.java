@@ -25,6 +25,7 @@ import static androidx.window.embedding.SplitRule.FinishBehavior.NEVER;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
@@ -170,6 +171,12 @@ public class SplitActivityBase extends AppCompatActivity
         });
         mViewBinding.launchExpandedDialogButton.setOnClickListener((View v) ->
                 startActivity(new Intent(this, ExpandedDialogActivity.class)));
+        mViewBinding.launchDialogActivityButton.setOnClickListener((View v) ->
+                startActivity(new Intent(this, DialogActivity.class)));
+        mViewBinding.launchDialogButton.setOnClickListener((View v) ->
+                new AlertDialog.Builder(this)
+                        .setTitle("Alert dialog demo")
+                        .setMessage("This is a dialog demo").create().show());
 
         final SplitController splitController = SplitController.getInstance(this);
         if (WindowSdkExtensions.getInstance().getExtensionVersion() < 5) {

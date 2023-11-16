@@ -47,6 +47,8 @@ internal class EmbeddingCompat(
     private val applicationContext: Context
 ) : EmbeddingInterfaceCompat {
 
+    private var isCustomSplitAttributeCalculatorSet: Boolean = false
+
     override fun setRules(rules: Set<EmbeddingRule>) {
         var hasSplitRule = false
         for (rule in rules) {
@@ -121,6 +123,7 @@ internal class EmbeddingCompat(
         embeddingExtension.setSplitAttributesCalculator(
             adapter.translateSplitAttributesCalculator(calculator)
         )
+        isCustomSplitAttributeCalculatorSet = true;
     }
 
     @RequiresWindowSdkExtension(2)
@@ -128,6 +131,8 @@ internal class EmbeddingCompat(
         WindowSdkExtensions.getInstance().requireExtensionVersion(2)
 
         embeddingExtension.clearSplitAttributesCalculator()
+        isCustomSplitAttributeCalculatorSet = false
+        setDefaultSplitAttributeCalculatorIfNeeded()
     }
 
     @RequiresWindowSdkExtension(5)
@@ -136,6 +141,26 @@ internal class EmbeddingCompat(
 
         val stackTokens = activityStacks.mapTo(mutableSetOf()) { it.token }
         embeddingExtension.finishActivityStacks(stackTokens)
+    }
+
+    @OptIn(ExperimentalWindowApi::class)
+    @RequiresWindowSdkExtension(5)
+    override fun setEmbeddingConfiguration(embeddingConfig: EmbeddingConfiguration) {
+        WindowSdkExtensions.getInstance().requireExtensionVersion(5)
+        adapter.embeddingConfiguration = embeddingConfig
+        setDefaultSplitAttributeCalculatorIfNeeded()
+    }
+
+    @OptIn(ExperimentalWindowApi::class)
+    private fun setDefaultSplitAttributeCalculatorIfNeeded() {
+        // Setting a default SplitAttributeCalculator if the EmbeddingConfiguration is set,
+        // in order to ensure the dimArea in the SplitAttribute is up-to-date.
+        if (ExtensionsUtil.safeVendorApiLevel >= 5 && !isCustomSplitAttributeCalculatorSet &&
+            adapter.embeddingConfiguration != null) {
+            embeddingExtension.setSplitAttributesCalculator { params ->
+                adapter.translateSplitAttributes(adapter.translate(params.defaultSplitAttributes))
+            }
+        }
     }
 
     @RequiresWindowSdkExtension(3)

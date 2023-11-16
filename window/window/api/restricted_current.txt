@@ -131,6 +131,7 @@ package androidx.window.embedding {
     method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.ActivityStack? getActivityStack(android.app.Activity activity);
     method public static androidx.window.embedding.ActivityEmbeddingController getInstance(android.content.Context context);
     method public boolean isActivityEmbedded(android.app.Activity activity);
+    method @SuppressCompatibility @androidx.window.RequiresWindowSdkExtension(version=5) @androidx.window.core.ExperimentalWindowApi public void setEmbeddingConfiguration(androidx.window.embedding.EmbeddingConfiguration embeddingConfiguration);
     field public static final androidx.window.embedding.ActivityEmbeddingController.Companion Companion;
   }
 
@@ -182,6 +183,29 @@ package androidx.window.embedding {
 
   public static final class EmbeddingAspectRatio.Companion {
     method public androidx.window.embedding.EmbeddingAspectRatio ratio(@FloatRange(from=1.0, fromInclusive=false) float ratio);
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public final class EmbeddingConfiguration {
+    ctor public EmbeddingConfiguration();
+    ctor public EmbeddingConfiguration(optional @androidx.window.RequiresWindowSdkExtension(version=5) androidx.window.embedding.EmbeddingConfiguration.DimArea dimArea);
+    method public androidx.window.embedding.EmbeddingConfiguration.DimArea getDimArea();
+    property public final androidx.window.embedding.EmbeddingConfiguration.DimArea dimArea;
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final class EmbeddingConfiguration.Builder {
+    ctor public EmbeddingConfiguration.Builder();
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.EmbeddingConfiguration build();
+    method @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public androidx.window.embedding.EmbeddingConfiguration.Builder setDimArea(androidx.window.embedding.EmbeddingConfiguration.DimArea area);
+  }
+
+  @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final class EmbeddingConfiguration.DimArea {
+    field public static final androidx.window.embedding.EmbeddingConfiguration.DimArea.Companion Companion;
+    field @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final androidx.window.embedding.EmbeddingConfiguration.DimArea ON_ACTIVITY_STACK;
+    field @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final androidx.window.embedding.EmbeddingConfiguration.DimArea ON_TASK;
+    field @SuppressCompatibility @androidx.window.core.ExperimentalWindowApi public static final androidx.window.embedding.EmbeddingConfiguration.DimArea UNDEFINED;
+  }
+
+  public static final class EmbeddingConfiguration.DimArea.Companion {
   }
 
   public abstract class EmbeddingRule {

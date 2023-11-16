@@ -130,6 +130,7 @@ package androidx.window.extensions.embedding {
     method public androidx.window.extensions.embedding.SplitAttributes.AnimationBackground getAnimationBackground();
     method public int getLayoutDirection();
     method public androidx.window.extensions.embedding.SplitAttributes.SplitType getSplitType();
+    method public androidx.window.extensions.embedding.WindowAttributes getWindowAttributes();
   }
 
   public abstract static class SplitAttributes.AnimationBackground {
@@ -144,6 +145,7 @@ package androidx.window.extensions.embedding {
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setAnimationBackground(androidx.window.extensions.embedding.SplitAttributes.AnimationBackground);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setLayoutDirection(int);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setSplitType(androidx.window.extensions.embedding.SplitAttributes.SplitType);
+    method public androidx.window.extensions.embedding.SplitAttributes.Builder setWindowAttributes(androidx.window.extensions.embedding.WindowAttributes);
   }
 
   public static final class SplitAttributes.LayoutDirection {
@@ -253,6 +255,13 @@ package androidx.window.extensions.embedding {
     field public static final int FINISH_ADJACENT = 2; // 0x2
     field public static final int FINISH_ALWAYS = 1; // 0x1
     field public static final int FINISH_NEVER = 0; // 0x0
+  }
+
+  public class WindowAttributes {
+    ctor public WindowAttributes(int);
+    method public int getDimArea();
+    field public static final int DIM_AREA_ON_ACTIVITY_STACK = 1; // 0x1
+    field public static final int DIM_AREA_ON_TASK = 2; // 0x2
   }
 
 }

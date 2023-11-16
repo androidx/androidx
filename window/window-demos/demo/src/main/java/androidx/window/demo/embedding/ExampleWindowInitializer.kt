@@ -19,6 +19,7 @@ package androidx.window.demo.embedding
 import android.content.Context
 import androidx.startup.Initializer
 import androidx.window.WindowSdkExtensions
+import androidx.window.core.ExperimentalWindowApi
 import androidx.window.demo.R
 import androidx.window.demo.embedding.SplitAttributesToggleMainActivity.Companion.PREFIX_FULLSCREEN_TOGGLE
 import androidx.window.demo.embedding.SplitAttributesToggleMainActivity.Companion.PREFIX_PLACEHOLDER
@@ -31,6 +32,9 @@ import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_HORIZONTAL_LAYOUT_IN_TABLETOP
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_SHOW_LAYOUT_FOLLOWING_HINGE_WHEN_SEPARATING
 import androidx.window.demo.embedding.SplitDeviceStateActivityBase.Companion.TAG_USE_DEFAULT_SPLIT_ATTRIBUTES
+import androidx.window.embedding.ActivityEmbeddingController
+import androidx.window.embedding.EmbeddingConfiguration
+import androidx.window.embedding.EmbeddingConfiguration.DimArea.Companion.ON_ACTIVITY_STACK
 import androidx.window.embedding.RuleController
 import androidx.window.embedding.SplitAttributes
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
@@ -54,10 +58,18 @@ class ExampleWindowInitializer : Initializer<RuleController> {
 
     private val mDemoActivityEmbeddingController = DemoActivityEmbeddingController.getInstance()
 
+    @OptIn(ExperimentalWindowApi::class)
     override fun create(context: Context): RuleController {
         SplitController.getInstance(context).apply {
             if (WindowSdkExtensions.getInstance().extensionVersion >= 2) {
                 setSplitAttributesCalculator(::sampleSplitAttributesCalculator)
+            }
+        }
+        ActivityEmbeddingController.getInstance(context).apply {
+            if (WindowSdkExtensions.getInstance().extensionVersion >= 5) {
+                setEmbeddingConfiguration(
+                    EmbeddingConfiguration.Builder().setDimArea(ON_ACTIVITY_STACK).build()
+                )
             }
         }
         return RuleController.getInstance(context).apply {

@@ -27,6 +27,7 @@ import android.view.WindowMetrics
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.ExperimentalWindowApi
 import androidx.window.core.PredicateAdapter
+import androidx.window.embedding.EmbeddingConfiguration.DimArea.Companion.ON_TASK
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.BOTTOM_TO_TOP
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LEFT_TO_RIGHT
 import androidx.window.embedding.SplitAttributes.LayoutDirection.Companion.LOCALE
@@ -56,6 +57,7 @@ import androidx.window.extensions.embedding.SplitPinRule as OEMSplitPinRule
 import androidx.window.extensions.embedding.SplitPinRule.Builder as SplitPinRuleBuilder
 import androidx.window.extensions.embedding.SplitPlaceholderRule as OEMSplitPlaceholderRule
 import androidx.window.extensions.embedding.SplitPlaceholderRule.Builder as SplitPlaceholderRuleBuilder
+import androidx.window.extensions.embedding.WindowAttributes as OEMWindowAttributes
 import androidx.window.layout.WindowMetricsCalculator
 import androidx.window.layout.adapter.extensions.ExtensionsWindowLayoutInfoAdapter
 
@@ -69,6 +71,8 @@ internal class EmbeddingAdapter(
         get() = WindowSdkExtensions.getInstance().extensionVersion
     private val api1Impl = VendorApiLevel1Impl(predicateAdapter)
     private val api2Impl = VendorApiLevel2Impl()
+    @OptIn(ExperimentalWindowApi::class)
+    var embeddingConfiguration: EmbeddingConfiguration? = null
 
     fun translate(splitInfoList: List<OEMSplitInfo>): List<SplitInfo> {
         return splitInfoList.map(this::translate)
@@ -214,11 +218,12 @@ internal class EmbeddingAdapter(
         return builder.build()
     }
 
+    @OptIn(ExperimentalWindowApi::class)
     fun translateSplitAttributes(splitAttributes: SplitAttributes): OEMSplitAttributes {
         require(vendorApiLevel >= 2)
         // To workaround the "unused" error in ktlint. It is necessary to translate SplitAttributes
         // from WM Jetpack version to WM extension version.
-        return androidx.window.extensions.embedding.SplitAttributes.Builder()
+        val builder = OEMSplitAttributes.Builder()
             .setSplitType(translateSplitType(splitAttributes.splitType))
             .setLayoutDirection(
                 when (splitAttributes.layoutDirection) {
@@ -232,7 +237,17 @@ internal class EmbeddingAdapter(
                     )
                 }
             )
-            .build()
+        if (vendorApiLevel >= 5) {
+            builder.setWindowAttributes(
+                OEMWindowAttributes(
+                    when (embeddingConfiguration?.dimArea) {
+                        ON_TASK -> OEMWindowAttributes.DIM_AREA_ON_TASK
+                        else -> OEMWindowAttributes.DIM_AREA_ON_ACTIVITY_STACK
+                    }
+                )
+            )
+        }
+        return builder.build()
     }
 
     private fun translateSplitType(splitType: SplitType): OEMSplitType {
