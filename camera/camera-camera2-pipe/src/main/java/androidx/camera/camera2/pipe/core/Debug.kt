@@ -89,6 +89,28 @@ object Debug {
         }
     }
 
+    /**
+     * Format a map of parameters as a comma separated list.
+     *
+     * Example: `[abc.xyz=1, abc.zyx=something]`
+     */
+    fun formatParameterMap(parameters: Map<*, Any?>): String {
+        return parameters.map {
+            when (val key = it.key) {
+                is CameraCharacteristics.Key<*> -> key.name
+                is CaptureRequest.Key<*> -> key.name
+                is CaptureResult.Key<*> -> key.name
+                else -> key.toString()
+            } to it.value
+        }
+            .sortedBy { it.first }
+            .joinToString(
+                separator = ", ",
+                prefix = "{",
+                postfix = "}"
+            ) { "${it.first}=${it.second}" }
+    }
+
     fun formatCameraGraphProperties(
         metadata: CameraMetadata,
         graphConfig: CameraGraph.Config,
