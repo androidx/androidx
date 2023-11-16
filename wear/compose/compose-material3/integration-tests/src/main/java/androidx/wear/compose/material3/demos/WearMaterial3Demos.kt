@@ -83,10 +83,12 @@ val WearMaterial3Demos = DemoCategory(
         ComposableDemo("Radio Button") {
             RadioButtonDemos()
         },
-        DemoCategory(
-            title = "Toggle Button",
-            toggleButtonDemos
-        ),
+        ComposableDemo("Toggle Button") {
+            ToggleButtonDemo()
+        },
+        ComposableDemo("Split Toggle Button") {
+            SplitToggleButtonDemo()
+        },
         DemoCategory(
             "Stepper",
             listOf(
