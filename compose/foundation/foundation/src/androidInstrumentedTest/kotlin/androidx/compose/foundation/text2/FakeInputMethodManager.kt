@@ -17,6 +17,7 @@
 package androidx.compose.foundation.text2
 
 import android.view.KeyEvent
+import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.ExtractedText
 import androidx.compose.foundation.text2.input.internal.ComposeInputMethodManager
 import com.google.common.truth.Truth.assertThat
@@ -60,6 +61,10 @@ internal class FakeInputMethodManager : ComposeInputMethodManager {
     ) {
         calls += "updateSelection($selectionStart, $selectionEnd, " +
             "$compositionStart, $compositionEnd)"
+    }
+
+    override fun updateCursorAnchorInfo(info: CursorAnchorInfo) {
+        calls += "updateCursorAnchorInfo"
     }
 
     override fun sendKeyEvent(event: KeyEvent) {
