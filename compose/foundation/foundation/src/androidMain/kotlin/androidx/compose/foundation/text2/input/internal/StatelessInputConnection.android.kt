@@ -219,7 +219,8 @@ internal class StatelessInputConnection(private val session: TextInputSession) :
 
     override fun requestCursorUpdates(cursorUpdateMode: Int): Boolean {
         logDebug("requestCursorUpdates($cursorUpdateMode)")
-        return false
+        session.requestCursorUpdates(cursorUpdateMode)
+        return true
     }
 
     override fun getExtractedText(request: ExtractedTextRequest?, flags: Int): ExtractedText {

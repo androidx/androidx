@@ -224,6 +224,7 @@ class AndroidTextInputSessionTest {
             inputTransformation = null,
             codepointTransformation = null
         ),
+        layoutState = TextLayoutState(),
         imeOptions = imeOptions,
         onImeAction = onImeAction
     )

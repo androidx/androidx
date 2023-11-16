@@ -484,6 +484,7 @@ internal class TextFieldDecoratorModifierNode(
 
                 platformSpecificTextInputSession(
                     textFieldState,
+                    textLayoutState,
                     keyboardOptions.toImeOptions(singleLine),
                     onImeAction = onImeActionPerformed
                 )
@@ -515,6 +516,7 @@ internal class TextFieldDecoratorModifierNode(
  */
 internal expect suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
     state: TransformedTextFieldState,
+    layoutState: TextLayoutState,
     imeOptions: ImeOptions,
     onImeAction: ((ImeAction) -> Unit)?
 ): Nothing
