@@ -84,6 +84,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".area.RearDisplayPresentationActivity"
+            android:exported="false"
+            android:configChanges="orientation|screenLayout|screenSize|layoutDirection|smallestScreenSize"
+            android:label="@string/dual_display" />
         <activity
             android:name=".embedding.SplitActivityA"
             android:exported="true"

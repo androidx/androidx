@@ -35,6 +35,7 @@ import androidx.window.demo.R.string.show_all_display_features_no_config_change_
 import androidx.window.demo.R.string.show_all_display_features_portrait_slim
 import androidx.window.demo.SplitLayoutActivity
 import androidx.window.demo.WindowMetricsActivity
+import androidx.window.demo.area.RearDisplayPresentationActivity
 import androidx.window.demo.common.DisplayFeaturesActivity
 
 /**
@@ -85,6 +86,11 @@ class WindowDemosActivity : AppCompatActivity() {
                 buttonTitle = getString(R.string.ime),
                 description = getString(R.string.ime_demo_description),
                 clazz = ImeActivity::class.java
+            ),
+            DemoItem(
+                buttonTitle = getString(R.string.dual_display),
+                description = getString(R.string.dual_display_description),
+                clazz = RearDisplayPresentationActivity::class.java
             )
         )
         val recyclerView = findViewById<RecyclerView>(R.id.demo_recycler_view)
