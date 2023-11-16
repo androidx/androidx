@@ -32,10 +32,6 @@ import androidx.glance.ImageProvider
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.GlanceAppWidgetReceiver
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.component.CircleIconButton
-import androidx.glance.appwidget.component.FilledButton
-import androidx.glance.appwidget.component.OutlineButton
-import androidx.glance.appwidget.component.SquareIconButton
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.lazy.LazyItemScope
 import androidx.glance.appwidget.lazy.LazyListScope
@@ -49,6 +45,10 @@ import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
 import androidx.glance.layout.size
+import androidx.glance.material3.CircleIconButton
+import androidx.glance.material3.FilledButton
+import androidx.glance.material3.OutlineButton
+import androidx.glance.material3.SquareIconButton
 
 class ButtonsWidgetBroadcastReceiver() : GlanceAppWidgetReceiver() {
 

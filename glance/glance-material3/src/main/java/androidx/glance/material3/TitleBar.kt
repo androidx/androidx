@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.glance.appwidget.component
+package androidx.glance.material3
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable

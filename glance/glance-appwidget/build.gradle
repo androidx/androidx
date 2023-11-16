@@ -69,6 +69,7 @@ dependencies {
     testImplementation("androidx.datastore:datastore-preferences:1.0.0")
 
     androidTestImplementation(project(":test:screenshot:screenshot"))
+    androidTestImplementation(project(":glance:glance-material3"))
     androidTestImplementation("androidx.test.uiautomator:uiautomator:2.2.0")
     androidTestImplementation("androidx.room:room-runtime:2.4.3")
     androidTestImplementation('androidx.core:core-ktx:1.7.0')

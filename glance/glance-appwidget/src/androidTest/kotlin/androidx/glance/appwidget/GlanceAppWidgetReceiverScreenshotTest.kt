@@ -31,11 +31,6 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.action.actionStartActivity
-import androidx.glance.appwidget.component.CircleIconButton
-import androidx.glance.appwidget.component.FilledButton
-import androidx.glance.appwidget.component.OutlineButton
-import androidx.glance.appwidget.component.SquareIconButton
-import androidx.glance.appwidget.component.TitleBar
 import androidx.glance.appwidget.lazy.LazyColumn
 import androidx.glance.appwidget.test.R
 import androidx.glance.background
@@ -55,6 +50,11 @@ import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.layout.wrapContentSize
+import androidx.glance.material3.CircleIconButton
+import androidx.glance.material3.FilledButton
+import androidx.glance.material3.OutlineButton
+import androidx.glance.material3.SquareIconButton
+import androidx.glance.material3.TitleBar
 import androidx.glance.text.FontStyle
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
@@ -1124,12 +1124,24 @@ private object ButtonComponentsScreenshotTests {
             colors = colors
         ) {
             Column {
-                FilledButton("Filled button", icon = icon, onClick = onClick)
+                FilledButton(
+                    "Filled button",
+                    icon = icon,
+                    onClick = onClick
+                )
                 // [OutlineButton] does not have a default color, so not important to test here
                 Space()
-                SquareIconButton(imageProvider = icon, contentDescription = null, onClick = onClick)
+                SquareIconButton(
+                    imageProvider = icon,
+                    contentDescription = null,
+                    onClick = onClick
+                )
                 Space()
-                CircleIconButton(imageProvider = icon, contentDescription = null, onClick = onClick)
+                CircleIconButton(
+                    imageProvider = icon,
+                    contentDescription = null,
+                    onClick = onClick
+                )
             }
         }
     }
