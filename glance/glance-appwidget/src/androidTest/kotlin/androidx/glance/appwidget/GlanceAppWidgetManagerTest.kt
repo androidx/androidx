@@ -20,7 +20,6 @@ import android.content.Intent
 import androidx.glance.text.Text
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.test.uiautomator.UiSelector
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -45,71 +44,53 @@ class GlanceAppWidgetManagerTest {
 
     @After
     fun tearDown() {
-        getInstrumentation().context.startActivity(Intent(Intent.ACTION_MAIN).apply {
+        context.startActivity(Intent(Intent.ACTION_MAIN).apply {
             addCategory(Intent.CATEGORY_HOME)
             flags = Intent.FLAG_ACTIVITY_NEW_TASK
         })
     }
 
     @Test
-    fun noAppWidget() {
-        mHostRule.onHostActivity { activity ->
-            val manager = GlanceAppWidgetManager(activity)
-            runBlocking {
-                assertThat(manager.getGlanceIds(TestGlanceAppWidget::class.java)).isEmpty()
-            }
-        }
+    fun noAppWidget() = runBlocking {
+        val manager = GlanceAppWidgetManager(context)
+
+        assertThat(manager.getGlanceIds(TestGlanceAppWidget::class.java)).isEmpty()
     }
 
     @Test
-    fun withAppWidget() {
+    fun withAppWidget() = runBlocking {
         TestGlanceAppWidget.uiDefinition = {
             Text("Something")
+        }
+        val manager = GlanceAppWidgetManager(context)
+
+        suspend fun verifyGlanceIdsAndSizes() {
+            val glanceIds = manager.getGlanceIds(TestGlanceAppWidget::class.java)
+            assertThat(glanceIds).hasSize(1)
+            assertThat(manager.listKnownReceivers()).containsExactly(
+                TestGlanceAppWidgetReceiver::class.java.canonicalName
+            )
+
+            val glanceId = manager.getGlanceIdBy((glanceIds[0] as AppWidgetId).appWidgetId)
+            assertThat(glanceId).isEqualTo(glanceIds[0])
+
+            val sizes = manager.getAppWidgetSizes(glanceIds[0])
+            assertThat(sizes).containsExactly(
+                mHostRule.portraitSize,
+                mHostRule.landscapeSize
+            )
         }
 
         mHostRule.startHost()
 
-        mHostRule.onHostActivity { activity ->
-            val manager = GlanceAppWidgetManager(activity)
+        verifyGlanceIdsAndSizes()
 
-            runBlocking {
-                val glanceIds = manager.getGlanceIds(TestGlanceAppWidget::class.java)
-                assertThat(glanceIds).hasSize(1)
-                val glanceId = manager.getGlanceIdBy((glanceIds[0] as AppWidgetId).appWidgetId)
-                assertThat(glanceId).isEqualTo(glanceIds[0])
-                val sizes = manager.getAppWidgetSizes(glanceIds[0])
-                assertThat(sizes).containsExactly(
-                    mHostRule.portraitSize,
-                    mHostRule.landscapeSize
-                )
-            }
-        }
-    }
+        // using "pm clear <package>" is not suitable here - it will crash process.
+        // See https://github.com/android/testing-samples/issues/98
+        // So, we clear datastore to mimic clearing appData.
+        manager.clearDataStore()
 
-    @Test
-    // This is an existing behavior, but, it is not expected.
-    fun withAppWidget_onClearingAppData_returnsEmptyGlanceIds() {
-        TestGlanceAppWidget.uiDefinition = {
-            Text("Something")
-        }
-
-        mHostRule.startHost()
-
-        mHostRule.onHostActivity { activity ->
-            val manager = GlanceAppWidgetManager(activity)
-            runBlocking {
-                // Returns glanceIds initially
-                assertThat(manager.getGlanceIds(TestGlanceAppWidget::class.java)).hasSize(1)
-
-                // using "pm clear <package>" is not suitable here - it will crash the process.
-                // See https://github.com/android/testing-samples/issues/98.
-                // So, we clear the datastore to mimic clearing the app data.
-                GlanceAppWidgetManager(context).clearDataStore()
-
-                // Returns an empty list on clearing the app data
-                assertThat(manager.getGlanceIds(TestGlanceAppWidget::class.java)).isEmpty()
-            }
-        }
+        verifyGlanceIdsAndSizes()
     }
 
     @Test
@@ -123,6 +104,7 @@ class GlanceAppWidgetManagerTest {
             TestGlanceAppWidgetReceiver::class.java,
             preview = TestGlanceAppWidget
         )
+
         assertThat(result).isTrue()
         mHostRule.onHostActivity {
             assertThat(mHostRule.device.findObject(UiSelector().text(text)).exists())
@@ -134,28 +116,27 @@ class GlanceAppWidgetManagerTest {
         val result = GlanceAppWidgetManager(context).requestPinGlanceAppWidget(
             DummyGlanceAppWidgetReceiver::class.java,
         )
+
         assertThat(result).isFalse()
     }
 
     @Ignore("b/285198114")
     @Test
-    fun cleanReceivers() {
-        mHostRule.onHostActivity { activity ->
-            val manager = GlanceAppWidgetManager(activity)
+    fun cleanReceivers() = runBlocking<Unit> {
+        val manager = GlanceAppWidgetManager(context)
 
-            runBlocking {
-                manager.updateReceiver(DummyGlanceAppWidgetReceiver(), TestGlanceAppWidget)
-                assertThat(manager.listKnownReceivers()).containsExactly(
-                    DummyGlanceAppWidgetReceiver::class.java.canonicalName,
-                    TestGlanceAppWidgetReceiver::class.java.canonicalName
-                )
+        manager.updateReceiver(DummyGlanceAppWidgetReceiver(), TestGlanceAppWidget)
 
-                manager.cleanReceivers()
-                assertThat(manager.listKnownReceivers()).containsExactly(
-                    TestGlanceAppWidgetReceiver::class.java.canonicalName
-                )
-            }
-        }
+        assertThat(manager.listKnownReceivers()).containsExactly(
+            DummyGlanceAppWidgetReceiver::class.java.canonicalName,
+            TestGlanceAppWidgetReceiver::class.java.canonicalName
+        )
+
+        manager.cleanReceivers()
+
+        assertThat(manager.listKnownReceivers()).containsExactly(
+            TestGlanceAppWidgetReceiver::class.java.canonicalName
+        )
     }
 }
 
