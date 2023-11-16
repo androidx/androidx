@@ -18,9 +18,43 @@ package androidx.slidingpanelayout
 
 import android.app.Activity
 import android.os.Bundle
+import android.view.ViewGroup.LayoutParams
+import androidx.slidingpanelayout.demo.R
+import androidx.slidingpanelayout.widget.SlidingPaneLayout
 
 class SlidingPaneLayoutResizeSample : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val minSize = (resources.displayMetrics.density * 64).toInt()
+        setContentView(
+            SlidingPaneLayout(this).apply {
+                setBackgroundColor(0xff555555.toInt())
+                addView(
+                    PaneView(context).apply {
+                        minimumWidth = minSize
+                        setBackgroundColor(0xe0aa0000.toInt())
+                        layoutParams = SlidingPaneLayout.LayoutParams(
+                            LayoutParams.WRAP_CONTENT,
+                            LayoutParams.MATCH_PARENT
+                        ).apply { weight = 1f }
+                    }
+                )
+                addView(
+                    PaneView(context).apply {
+                        minimumWidth = minSize
+                        setBackgroundColor(0xe00000aa.toInt())
+                        layoutParams = SlidingPaneLayout.LayoutParams(
+                            LayoutParams.WRAP_CONTENT,
+                            LayoutParams.MATCH_PARENT
+                        ).apply { weight = 1f }
+                    }
+                )
+                isUserResizingEnabled = true
+                isOverlappingEnabled = false
+                setUserResizingDividerDrawable(R.drawable.divider)
+            },
+            LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
+        )
     }
 }

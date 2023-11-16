@@ -47,11 +47,21 @@ class UserResizeModeTest {
 
         assertWithMessage("leftPane width").that(leftPane.width).isEqualTo(50)
         assertWithMessage("rightPane width").that(rightPane.width).isEqualTo(50)
+        assertWithMessage("isSlideable").that(spl.isSlideable).isFalse()
+        assertWithMessage("SlidingPaneLayout width").that(spl.width).isEqualTo(100)
+        assertWithMessage("SlidingPaneLayout height").that(spl.height).isEqualTo(100)
 
         spl.onTouchEvent(downEvent(50f, 50f))
         spl.onTouchEvent(moveEvent(25f, 50f))
         assertWithMessage("divider dragging").that(spl.isDividerDragging).isTrue()
         spl.onTouchEvent(upEvent(25f, 50f))
+        assertWithMessage("visualDividerPosition")
+            .that(spl.visualDividerPosition)
+            .isEqualTo(30)
+        assertWithMessage("SlidingPaneLayout.isLayoutRequested")
+            .that(spl.isLayoutRequested)
+            .isTrue()
+        spl.measureAndLayoutForTest()
     }
 
     @Test
@@ -91,6 +101,10 @@ private fun createTestSpl(context: Context): SlidingPaneLayout = SlidingPaneLayo
     isUserResizingEnabled = true
     isOverlappingEnabled = false
     setUserResizingDividerDrawable(TestDividerDrawable())
+    measureAndLayoutForTest()
+}
+
+private fun View.measureAndLayoutForTest() {
     measure(Exactly100Px, Exactly100Px)
     layout(0, 0, measuredWidth, measuredHeight)
 }
