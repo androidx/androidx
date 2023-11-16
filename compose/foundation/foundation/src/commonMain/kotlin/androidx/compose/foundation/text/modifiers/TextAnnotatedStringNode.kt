@@ -55,6 +55,7 @@ import androidx.compose.ui.semantics.showTextSubstitution
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.semantics.textSubstitution
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutInput
 import androidx.compose.ui.text.TextLayoutResult
@@ -480,6 +481,7 @@ internal class TextAnnotatedStringNode(
             // no-up for !isAttached. The node will invalidate when attaching again.
             return
         }
+
         selectionController?.draw(this)
         drawIntoCanvas { canvas ->
             val layoutCache = getLayoutCache(this)
@@ -530,9 +532,15 @@ internal class TextAnnotatedStringNode(
                     canvas.restore()
                 }
             }
-        }
-        if (!placeholders.isNullOrEmpty()) {
-            drawContent()
+
+            // draw inline content and links indication
+            if (text.hasLinks() || !placeholders.isNullOrEmpty()) {
+                drawContent()
+            }
         }
     }
 }
+
+@OptIn(ExperimentalTextApi::class)
+// TODO(soboleva) replace with has*Annotations in upcoming CL with API change
+internal fun AnnotatedString.hasLinks() = getUrlAnnotations(0, text.length).isNotEmpty()
