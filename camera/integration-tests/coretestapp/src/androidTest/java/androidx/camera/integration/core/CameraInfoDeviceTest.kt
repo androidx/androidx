@@ -28,6 +28,7 @@ import androidx.camera.testing.impl.CoreAppTestUtil
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.util.concurrent.TimeUnit
@@ -110,6 +111,15 @@ class CameraInfoDeviceTest(
                 ).that(
                     it.isFullySpecified
                 ).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun emptyCandidateDynamicRangeSet_throwsIllegalArgumentException() {
+        cameraProvider.availableCameraInfos.forEach { cameraInfo ->
+            assertThrows(IllegalArgumentException::class.java) {
+                cameraInfo.querySupportedDynamicRanges(emptySet())
             }
         }
     }

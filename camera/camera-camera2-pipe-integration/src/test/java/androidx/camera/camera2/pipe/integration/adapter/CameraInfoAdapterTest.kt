@@ -51,6 +51,7 @@ import androidx.camera.core.ZoomState
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.testutils.MainDispatcherRule
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import com.google.common.util.concurrent.MoreExecutors
@@ -425,12 +426,14 @@ class CameraInfoAdapterTest {
         )
     }
 
-    // Analog to Camera2CameraInfoImplTest#queryDynamicRangeWithEmptySet_returnsEmptySet()
+    // Analog to Camera2CameraInfoImplTest#queryDynamicRangeWithEmptySet_throwsException()
     @Test
-    fun cameraInfo_queryWithEmptySet_returnsEmptySet() {
+    fun cameraInfo_queryWithEmptySet_throwsException() {
         val cameraInfo: CameraInfo = createCameraInfoAdapter()
 
-        assertThat(cameraInfo.querySupportedDynamicRanges(emptySet())).isEmpty()
+        assertThrows(IllegalArgumentException::class.java) {
+            cameraInfo.querySupportedDynamicRanges(emptySet())
+        }
     }
 
     @Test
