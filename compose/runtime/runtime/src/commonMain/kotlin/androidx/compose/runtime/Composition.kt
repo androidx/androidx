@@ -17,6 +17,7 @@
 @file:OptIn(InternalComposeApi::class)
 package androidx.compose.runtime
 
+import androidx.collection.MutableScatterSet
 import androidx.compose.runtime.changelist.ChangeList
 import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
@@ -460,7 +461,8 @@ internal class CompositionImpl(
      * is dispatched. If any are left in this when exiting [applyChanges] they have been
      * abandoned and are sent an [RememberObserver.onAbandoned] notification.
      */
-    private val abandonSet = HashSet<RememberObserver>()
+    @Suppress("AsCollectionCall") // Requires iterator API when dispatching abandons
+    private val abandonSet = MutableScatterSet<RememberObserver>().asMutableSet()
 
     /**
      * The slot table is used to store the composition information required for recomposition.
@@ -486,7 +488,7 @@ internal class CompositionImpl(
      * [observations] map until invalidations are drained for composition as a later call to
      * [recordModificationsOf] might later cause them to be unconditionally invalidated.
      */
-    private val conditionallyInvalidatedScopes = HashSet<RecomposeScopeImpl>()
+    private val conditionallyInvalidatedScopes = MutableScatterSet<RecomposeScopeImpl>()
 
     /**
      * A map of object read during derived states to the corresponding derived state.
@@ -503,7 +505,8 @@ internal class CompositionImpl(
      * Used for testing. Returns the conditional scopes being tracked by the composer
      */
     internal val conditionalScopes: List<RecomposeScopeImpl>
-        @TestOnly get() = conditionallyInvalidatedScopes.toList()
+        @TestOnly @Suppress("AsCollectionCall")
+        get() = conditionallyInvalidatedScopes.asSet().toList()
 
     /**
      * A list of changes calculated by [Composer] to be applied to the [Applier] and the
@@ -817,10 +820,10 @@ internal class CompositionImpl(
 
     override fun prepareCompose(block: () -> Unit) = composer.prepareCompose(block)
 
-    private fun HashSet<RecomposeScopeImpl>?.addPendingInvalidationsLocked(
+    private fun MutableScatterSet<RecomposeScopeImpl>?.addPendingInvalidationsLocked(
         value: Any,
         forgetConditionalScopes: Boolean
-    ): HashSet<RecomposeScopeImpl>? {
+    ): MutableScatterSet<RecomposeScopeImpl>? {
         var set = this
         observations.forEachScopeOf(value) { scope ->
             if (
@@ -830,7 +833,7 @@ internal class CompositionImpl(
                 if (scope.isConditional && !forgetConditionalScopes) {
                     conditionallyInvalidatedScopes.add(scope)
                 } else {
-                    if (set == null) set = HashSet()
+                    if (set == null) set = MutableScatterSet()
                     set?.add(scope)
                 }
             }
@@ -839,7 +842,7 @@ internal class CompositionImpl(
     }
 
     private fun addPendingInvalidationsLocked(values: Set<Any>, forgetConditionalScopes: Boolean) {
-        var invalidated: HashSet<RecomposeScopeImpl>? = null
+        var invalidated: MutableScatterSet<RecomposeScopeImpl>? = null
 
         values.fastForEach { value ->
             if (value is RecomposeScopeImpl) {
@@ -871,7 +874,7 @@ internal class CompositionImpl(
     private fun cleanUpDerivedStateObservations() {
         derivedStates.removeScopeIf { derivedState -> derivedState !in observations }
         if (conditionallyInvalidatedScopes.isNotEmpty()) {
-            conditionallyInvalidatedScopes.removeValueIf { scope -> !scope.isConditional }
+            conditionallyInvalidatedScopes.removeIf { scope -> !scope.isConditional }
         }
     }
 
@@ -1218,6 +1221,29 @@ internal class CompositionImpl(
         }
     }
 
+    override fun deactivate() {
+        val nonEmptySlotTable = slotTable.groupsSize > 0
+        if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
+            trace("Compose:deactivate") {
+                val manager = RememberEventDispatcher(abandonSet)
+                if (nonEmptySlotTable) {
+                    applier.onBeginChanges()
+                    slotTable.write { writer ->
+                        writer.deactivateCurrentGroup(manager)
+                    }
+                    applier.onEndChanges()
+                    manager.dispatchRememberObservers()
+                }
+                manager.dispatchAbandons()
+            }
+        }
+        observations.clear()
+        derivedStates.clear()
+        invalidations.clear()
+        changes.clear()
+        composer.deactivate()
+    }
+
     /**
      * Helper for collecting remember observers for later strictly ordered dispatch.
      */
@@ -1257,11 +1283,12 @@ internal class CompositionImpl(
                 trace("Compose:onForgotten") {
                     for (i in forgetting.size - 1 downTo 0) {
                         val instance = forgetting[i]
-                        abandoning.remove(instance)
                         if (instance is RememberObserver) {
+                            abandoning.remove(instance)
                             instance.onForgotten()
                         }
                         if (instance is ComposeNodeLifecycleCallback) {
+                            // deactivations are in the same queue as forgets to ensure ordering
                             instance.onDeactivate()
                         }
                     }
@@ -1316,29 +1343,6 @@ internal class CompositionImpl(
             }
         }
     }
-
-    override fun deactivate() {
-        val nonEmptySlotTable = slotTable.groupsSize > 0
-        if (nonEmptySlotTable || abandonSet.isNotEmpty()) {
-            trace("Compose:deactivate") {
-                val manager = RememberEventDispatcher(abandonSet)
-                if (nonEmptySlotTable) {
-                    applier.onBeginChanges()
-                    slotTable.write { writer ->
-                        writer.deactivateCurrentGroup(manager)
-                    }
-                    applier.onEndChanges()
-                    manager.dispatchRememberObservers()
-                }
-                manager.dispatchAbandons()
-            }
-        }
-        observations.clear()
-        derivedStates.clear()
-        invalidations.clear()
-        changes.clear()
-        composer.deactivate()
-    }
 }
 
 private fun <K : Any, V : Any> IdentityArrayMap<K, IdentityArraySet<V>?>.addValue(
@@ -1349,19 +1353,6 @@ private fun <K : Any, V : Any> IdentityArrayMap<K, IdentityArraySet<V>?>.addValu
         this[key]?.add(value)
     } else {
         this[key] = IdentityArraySet<V>().also { it.add(value) }
-    }
-}
-
-/**
- * This is provided natively in API 26 and this should be removed if 26 is made the lowest API
- * level supported
- */
-private inline fun <E> HashSet<E>.removeValueIf(predicate: (E) -> Boolean) {
-    val iter = iterator()
-    while (iter.hasNext()) {
-        if (predicate(iter.next())) {
-            iter.remove()
-        }
     }
 }
 
