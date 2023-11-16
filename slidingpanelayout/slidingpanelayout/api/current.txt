@@ -15,6 +15,8 @@ package androidx.slidingpanelayout.widget {
     method public final int getLockMode();
     method @Px public int getParallaxDistance();
     method @Deprecated @ColorInt public int getSliderFadeColor();
+    method public final int getSplitDividerPosition();
+    method public final int getVisualDividerPosition();
     method public final boolean isDividerDragging();
     method public boolean isOpen();
     method public final boolean isOverlappingEnabled();
@@ -38,7 +40,9 @@ package androidx.slidingpanelayout.widget {
     method public void setShadowResourceLeft(@DrawableRes int resId);
     method public void setShadowResourceRight(@DrawableRes int resId);
     method @Deprecated public void setSliderFadeColor(int);
+    method public final void setSplitDividerPosition(int);
     method public final void setUserResizingDividerDrawable(android.graphics.drawable.Drawable? drawable);
+    method public final void setUserResizingDividerDrawable(@DrawableRes int resId);
     method public final void setUserResizingEnabled(boolean);
     method @Deprecated public void smoothSlideClosed();
     method @Deprecated public void smoothSlideOpen();
@@ -51,11 +55,14 @@ package androidx.slidingpanelayout.widget {
     property public final int lockMode;
     property @Px public int parallaxDistance;
     property @Deprecated @ColorInt public int sliderFadeColor;
+    property public final int splitDividerPosition;
+    property public final int visualDividerPosition;
     field public static final androidx.slidingpanelayout.widget.SlidingPaneLayout.Companion Companion;
     field public static final int LOCK_MODE_LOCKED = 3; // 0x3
     field public static final int LOCK_MODE_LOCKED_CLOSED = 2; // 0x2
     field public static final int LOCK_MODE_LOCKED_OPEN = 1; // 0x1
     field public static final int LOCK_MODE_UNLOCKED = 0; // 0x0
+    field public static final int SPLIT_DIVIDER_POSITION_AUTO = -1; // 0xffffffff
   }
 
   public static final class SlidingPaneLayout.Companion {
