@@ -18,7 +18,6 @@ package androidx.compose.animation.core
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import kotlin.math.absoluteValue
 
 /**
  * Easing is a way to adjust an animation’s fraction. Easing allows transitioning
@@ -101,33 +100,28 @@ class CubicBezierEasing(
     private val c: Float,
     private val d: Float
 ) : Easing {
-
     init {
         require(!a.isNaN() && !b.isNaN() && !c.isNaN() && !d.isNaN()) {
             "Parameters to CubicBezierEasing cannot be NaN. Actual parameters are: $a, $b, $c, $d."
         }
     }
 
-    private fun evaluateCubic(a: Float, b: Float, m: Float): Float {
-        return 3 * a * (1 - m) * (1 - m) * m +
-            3 * b * (1 - m) * /*    */ m * m +
-            /*                      */ m * m * m
-    }
-
     override fun transform(fraction: Float): Float {
         if (fraction > 0f && fraction < 1f) {
-            var start = 0.0f
-            var end = 1.0f
-            while (true) {
-                val midpoint = (start + end) / 2
-                val estimate = evaluateCubic(a, c, midpoint)
-                if ((fraction - estimate).absoluteValue < CubicErrorBound)
-                    return evaluateCubic(b, d, midpoint)
-                if (estimate < fraction)
-                    start = midpoint
-                else
-                    end = midpoint
+            val t = findFirstCubicRoot(
+                0.0f - fraction,
+                a - fraction,
+                c - fraction,
+                1.0f - fraction,
+            )
+
+            // No root, the cubic curve has no solution
+            if (t.isNaN()) {
+                return fraction
             }
+
+            // Clamp to clean up numerical imprecision at the extremes
+            return evaluateCubic(b, d, t).coerceAtLeast(0.0f).coerceAtMost(1.0f)
         } else {
             return fraction
         }
@@ -141,6 +135,6 @@ class CubicBezierEasing(
     override fun hashCode(): Int {
         return ((a.hashCode() * 31 + b.hashCode()) * 31 + c.hashCode()) * 31 + d.hashCode()
     }
-}
 
-private const val CubicErrorBound: Float = 0.001f
+    override fun toString(): String = "CubicBezierEasing(a=$a, b=$b, c=$c, d=$d)"
+}
