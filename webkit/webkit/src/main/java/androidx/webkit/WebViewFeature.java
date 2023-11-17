@@ -574,7 +574,6 @@ public class WebViewFeature {
      * {@link androidx.webkit.WebSettingsCompat#setWebViewMediaIntegrityApiStatus(WebSettings, WebViewMediaIntegrityApiStatusConfig)}
      * {@link androidx.webkit.WebSettingsCompat#getWebViewMediaIntegrityApiStatus(WebSettings)}
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String WEBVIEW_MEDIA_INTEGRITY_API_STATUS =
             "WEBVIEW_MEDIA_INTEGRITY_API_STATUS";
 

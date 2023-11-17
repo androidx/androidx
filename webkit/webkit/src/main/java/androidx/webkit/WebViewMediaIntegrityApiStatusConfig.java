@@ -42,46 +42,39 @@ import java.util.Set;
  * <p>The override rules are a map from origin patterns to the desired
  * {@link WebViewMediaIntegrityApiStatus}.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresFeature(name = WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
         enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
 public class WebViewMediaIntegrityApiStatusConfig {
-    /**
-     * @hide
-     */
     @Target(ElementType.TYPE_USE)
     @IntDef({WEBVIEW_MEDIA_INTEGRITY_API_DISABLED,
             WEBVIEW_MEDIA_INTEGRITY_API_ENABLED_WITHOUT_APP_IDENTITY,
             WEBVIEW_MEDIA_INTEGRITY_API_ENABLED})
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @interface WebViewMediaIntegrityApiStatus {
     }
 
     /**
-     * {@link WebViewMediaIntegrityApiStatus} that enables the API and allows sharing of the app
-     * package name with the JavaScript caller.
+     * Enables the WebView Media Integrity API and allows sharing of the app package name with
+     * the JavaScript caller.
      *
      * <p>This is the default value.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int WEBVIEW_MEDIA_INTEGRITY_API_ENABLED =
             WebSettingsBoundaryInterface.WebViewMediaIntegrityApiStatus.ENABLED;
 
     /**
-     * {@link WebViewMediaIntegrityApiStatus} that enables the API for JavaScript callers but
-     * disables sharing app package name in generated tokens.
+     * Enables the WebView Media Integrity API for JavaScript callers but disables sharing app
+     * package name in generated tokens.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int WEBVIEW_MEDIA_INTEGRITY_API_ENABLED_WITHOUT_APP_IDENTITY =
             WebSettingsBoundaryInterface.WebViewMediaIntegrityApiStatus
                     .ENABLED_WITHOUT_APP_IDENTITY;
 
     /**
-     * {@link WebViewMediaIntegrityApiStatus} that disables the API and causes it to return an
+     * Disables the WebView Media Integrity API and causes it to return an
      * error code to the JavaScript callers indicating that the app has disabled it.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final int WEBVIEW_MEDIA_INTEGRITY_API_DISABLED =
             WebSettingsBoundaryInterface.WebViewMediaIntegrityApiStatus.DISABLED;
 
@@ -95,7 +88,7 @@ public class WebViewMediaIntegrityApiStatusConfig {
 
     /**
      * Builds a {@link WebViewMediaIntegrityApiStatusConfig} having a default API status and
-     * a map of origin pattern rules to their {@link WebViewMediaIntegrityApiStatus}.
+     * a map of origin pattern rules to their respective API status.
      *
      * <p>
      * Example:
@@ -112,8 +105,8 @@ public class WebViewMediaIntegrityApiStatusConfig {
         private Map<String, @WebViewMediaIntegrityApiStatus Integer> mOverrideRules;
 
         /**
-         * @param defaultStatus Default {@link WebViewMediaIntegrityApiStatus} that will be
-         * used for URIs that don't match any origin pattern rule.
+         * @param defaultStatus Default API status that will be used for URIs that don't match
+         *                      any origin pattern rule.
          */
         public Builder(@WebViewMediaIntegrityApiStatus int defaultStatus) {
             this.mDefaultStatus = defaultStatus;
@@ -121,9 +114,9 @@ public class WebViewMediaIntegrityApiStatusConfig {
         }
 
         /**
-         * Add an override rule to set a specific {@link WebViewMediaIntegrityApiStatus} for
-         * origin sites matching the origin pattern stated in the rule. Origin patterns
-         * should be supplied in the same format as those in
+         * Add an override rule to set a specific API status for origin sites matching the origin
+         * pattern stated in the rule. Origin patterns should be supplied in the same format as
+         * those in
          * {@link androidx.webkit.WebViewCompat.WebMessageListener#addWebMessageListener(WebView, String, Set, WebViewCompat.WebMessageListener)}
          *
          * If two or more origin patterns match a given origin site, the least permissive option
@@ -139,10 +132,12 @@ public class WebViewMediaIntegrityApiStatusConfig {
 
         /**
          * Set all required override rules at once using a map of origin patterns to
-         * {@link WebViewMediaIntegrityApiStatus}. This overwrites existing rules.
+         * desired API statuses. This overwrites existing rules.
          *
          * If two or more origin patterns match a given origin site, the least permissive option
          * will be chosen.
+         *
+         * This is only meant for internal use within the library.
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY)
         @NonNull
@@ -170,7 +165,7 @@ public class WebViewMediaIntegrityApiStatusConfig {
 
     /**
      * Get the explicitly set override rules.
-     * <p> This is a map from origin pattern to {@link WebViewMediaIntegrityApiStatus}.
+     * <p> This is a map from origin patterns to their desired WebView Media Integrity API statuses.
      *
      */
     @NonNull

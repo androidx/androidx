@@ -879,7 +879,6 @@ public class WebSettingsCompat {
      * {@link WebViewMediaIntegrityApiStatusConfig} for using the
      * WebView Integrity API.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWebViewMediaIntegrityApiStatus(
@@ -897,7 +896,6 @@ public class WebSettingsCompat {
     /**
      * Returns the {@link WebViewMediaIntegrityApiStatusConfig} currently in use.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(name = WebViewFeature.WEBVIEW_MEDIA_INTEGRITY_API_STATUS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     @NonNull
