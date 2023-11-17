@@ -19,6 +19,8 @@ AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Boolean) parameter #0:
     Must avoid boxed primitives (`java.lang.Boolean`)
 AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Double) parameter #0:
     Must avoid boxed primitives (`java.lang.Double`)
+AutoBoxing: androidx.kruth.StandardSubjectBuilder#that(Integer) parameter #0:
+    Must avoid boxed primitives (`java.lang.Integer`)
 
 
 BuilderSetStyle: androidx.kruth.SimpleSubjectBuilder#that(T):
@@ -33,12 +35,16 @@ BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Boolean):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Boolean)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Double):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Double)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Integer):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Integer)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(Iterable<? extends T>)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(String):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(String)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(T):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(T)
+BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(byte[]):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(byte[])
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.kruth.StandardSubjectBuilder.that(java.util.Map<K,? extends V>)
 BuilderSetStyle: androidx.kruth.StandardSubjectBuilder#withMessage(String):

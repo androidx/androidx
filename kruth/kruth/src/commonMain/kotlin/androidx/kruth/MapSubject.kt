@@ -248,9 +248,7 @@ class MapSubject<K, V> internal constructor(
             val commonFromExpected = expectedMap.keys.intersect(actual.keys).toList()
             val commonFromActual = actual.keys.intersect(expectedMap.keys).toList()
 
-            metadata.assertEquals(
-                commonFromExpected,
-                commonFromActual,
+            metadata.assertEquals(commonFromExpected, commonFromActual) {
                 buildString {
                     appendLine(
                         if (allowUnexpected) {
@@ -270,7 +268,7 @@ class MapSubject<K, V> internal constructor(
 
                     appendLine("Actual: $actual.")
                 }
-            )
+            }
         }
     }
 }
