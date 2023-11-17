@@ -180,14 +180,14 @@ internal object FrameTimingQuery {
             return emptyList()
         }
 
-        // check data looks reasonable
-        val newSlicesShouldBeEmpty = captureApiLevel < 31
-        require(actualSlices.isEmpty() == newSlicesShouldBeEmpty)
-        require(expectedSlices.isEmpty() == newSlicesShouldBeEmpty)
-
         return if (captureApiLevel >= 31) {
-            // No slice should be missing a frameId
-            require(slices.none { it.frameId == null })
+            check(actualSlices.isNotEmpty() && expectedSlices.isNotEmpty()) {
+                "Observed no expect/actual slices in trace," +
+                    " please report bug and attach perfetto trace."
+            }
+            check(slices.none { it.frameId == null }) {
+                "Observed frame in trace missing id, please report bug and attach perfetto trace."
+            }
 
             val actualSlicesPool = actualSlices.toMutableList()
             rtSlices.mapNotNull { rtSlice ->
@@ -221,7 +221,8 @@ internal object FrameTimingQuery {
                 }
             }
         } else {
-            require(slices.none { it.frameId != null })
+            // note that we expect no frame ids on API < 31, and don't observe them
+            // on most devices, but it has been observed, so we just ignore them
             rtSlices.mapNotNull { rtSlice ->
                 FrameData.tryCreateBasic(
                     uiSlice = uiSlices.firstOrNull { it.contains(rtSlice.ts) },
