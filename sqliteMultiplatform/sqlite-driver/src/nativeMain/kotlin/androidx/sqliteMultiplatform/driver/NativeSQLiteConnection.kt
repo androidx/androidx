@@ -16,6 +16,7 @@
 
 package androidx.sqliteMultiplatform.driver
 
+import androidx.annotation.RestrictTo
 import androidx.sqliteMultiplatform.SQLiteConnection
 import androidx.sqliteMultiplatform.SQLiteStatement
 import cnames.structs.sqlite3
@@ -30,11 +31,13 @@ import sqlite3.SQLITE_OK
 import sqlite3.sqlite3_close_v2
 import sqlite3.sqlite3_prepare_v2
 
-internal class NativeSQLiteConnection(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
+class NativeSQLiteConnection(
     private val dbPointer: CPointer<sqlite3>
 ) : SQLiteConnection {
     override fun prepare(sql: String): SQLiteStatement = memScoped {
         val stmtPointer = allocPointerTo<sqlite3_stmt>()
+        // Kotlin/Native uses UTF-8 character encoding by default.
         val sqlUtf8 = sql.utf8
         val resultCode = sqlite3_prepare_v2(
             db = dbPointer,

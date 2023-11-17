@@ -28,12 +28,23 @@ plugins {
     id("com.android.library")
 }
 
-def enableNative = KmpPlatformsKt.enableNative(project)
+def nativeEnabled = KmpPlatformsKt.enableNative(project)
+
+configurations {
+    // Configuration for resolving shared archive file of androidx's SQLite compilation
+    sqliteSharedArchive {
+        canBeConsumed = false
+        canBeResolved = true
+        attributes {
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.NATIVE_LINK))
+        }
+    }
+}
 
 androidXMultiplatform {
     android()
-    // TODO(b/300666074): Enable linux target once we can compile sqlite3.c
-    // linux()
+    androidNative()
+    linux()
     mac()
     ios() {
         // Link to sqlite3 available in iOS
@@ -48,6 +59,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
+                api(project(":annotation:annotation"))
                 api(project(":sqliteMultiplatform:sqlite"))
             }
         }
@@ -72,7 +84,7 @@ androidXMultiplatform {
         androidInstrumentedTest {
             dependsOn(androidUnitTest)
         }
-        if (enableNative) {
+        if (nativeEnabled) {
             nativeMain {
                 dependsOn(commonMain)
             }
@@ -86,7 +98,7 @@ androidXMultiplatform {
                 main.defaultSourceSet {
                     dependsOn(nativeMain)
                 }
-                // For usage of sqlite3.h C APIs
+                // For usage of C interop APIs
                 // See: https://kotlinlang.org/docs/whatsnew19.html#explicit-c-interoperability-stability-guarantees
                 main.compilerOptions.options.optIn.add("kotlinx.cinterop.ExperimentalForeignApi")
                 main.cinterops {
@@ -102,12 +114,19 @@ androidXMultiplatform {
                 def test = target.compilations["test"]
                 test.defaultSourceSet {
                     dependsOn(nativeTest)
-                    if (target.konanTarget != KonanTarget.LINUX_X64) {
-                        // For tests in Mac host, link to shared library included in MacOS
-                        test.kotlinOptions.freeCompilerArgs += [
-                                "-linker-options", "-lsqlite3"
-                        ]
-                    }
+                }
+                if (target.konanTarget == KonanTarget.LINUX_X64.INSTANCE) {
+                    // For tests in Linux host, statically include androidx's compiled SQLite
+                    // via a generated C interop definition
+                    createCinteropFromArchiveConfiguration(test, configurations["sqliteSharedArchive"])
+                } else if (
+                        target.konanTarget == KonanTarget.MACOS_X64.INSTANCE ||
+                                target.konanTarget == KonanTarget.MACOS_ARM64.INSTANCE
+                ) {
+                    // For tests in Mac host, link to shared SQLite library included in MacOS
+                    test.kotlinOptions.freeCompilerArgs += [
+                            "-linker-options", "-lsqlite3"
+                    ]
                 }
             }
         }
@@ -116,6 +135,10 @@ androidXMultiplatform {
 
 android {
     namespace "androidx.sqliteMultiplatform.driver"
+}
+
+dependencies {
+    sqliteSharedArchive(project(":sqliteMultiplatform:sqlite-driver-unbundled"))
 }
 
 androidx {

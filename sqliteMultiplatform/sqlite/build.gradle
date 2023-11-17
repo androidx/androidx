@@ -26,6 +26,7 @@ androidXMultiplatform {
     mac()
     linux()
     ios()
+    androidNative()
 
     sourceSets {
         commonMain {

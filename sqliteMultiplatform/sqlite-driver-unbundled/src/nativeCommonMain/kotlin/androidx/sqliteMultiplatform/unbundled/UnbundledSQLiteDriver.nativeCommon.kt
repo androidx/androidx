@@ -16,8 +16,5 @@
 
 package androidx.sqliteMultiplatform.unbundled
 
-internal actual object NativeLibraryLoader {
-    actual fun loadLibrary(name: String) {
-        System.loadLibrary(name)
-    }
-}
+actual typealias UnbundledSQLiteDriver =
+    androidx.sqliteMultiplatform.driver.NativeSQLiteDriver

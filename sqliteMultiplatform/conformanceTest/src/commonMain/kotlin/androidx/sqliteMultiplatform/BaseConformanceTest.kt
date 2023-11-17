@@ -46,7 +46,7 @@ abstract class BaseConformanceTest {
             connection.execSQL("CREATE TABLE Pet (id INTEGER NOT NULL PRIMARY KEY)")
             connection.execSQL("INSERT INTO Pet (id) VALUES (3)")
             connection.prepare("SELECT * FROM Pet WHERE id = ?").use { statement ->
-                statement.bindLong(0, 3)
+                statement.bindLong(1, 3)
                 assertThat(statement.step()).isTrue()
                 assertThat(statement.getColumnCount()).isEqualTo(1)
                 assertThat(statement.getLong(0)).isEqualTo(3)
