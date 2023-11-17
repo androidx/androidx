@@ -46,7 +46,7 @@ class MultiPointerPredictorTest {
         val predicted = predictor.predict(PREDICT_SAMPLE * generator.getRateMs().toInt())!!
         assertThat(predicted.getPointerCount()).isEqualTo(2)
         var historicalTime = predicted.getEventTime()
-        for (i in (PREDICT_SAMPLE - 2) downTo 1) {
+        for (i in (PREDICT_SAMPLE - 2) downTo 0) {
             historicalTime -= generator.getRateMs().toInt();
             assertThat(predicted.getHistoricalEventTime(i)).isEqualTo(historicalTime)
         }

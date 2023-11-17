@@ -183,7 +183,7 @@ public class MultiPointerPredictor implements KalmanPredictor {
         MotionEvent multiPointerEvent =
                 MotionEvent.obtain(
                         0 /* down time */,
-                        0 /* event time */,
+                        pointerEventTimes[0] /* event time */,
                         MotionEvent.ACTION_MOVE /* action */,
                         pointerCount /* pointer count */,
                         pointerProperties /* pointer properties */,
