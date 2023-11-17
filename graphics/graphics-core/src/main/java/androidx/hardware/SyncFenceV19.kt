@@ -55,7 +55,7 @@ internal class SyncFenceV19(private var fd: Int) : AutoCloseable, SyncFenceImpl 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun getSignalTimeNanos(): Long = fenceLock.withLock {
         if (isValid()) {
-            nGetSignalTime(fd)
+            SyncFenceBindings.nGetSignalTime(fd)
         } else {
             SyncFenceCompat.SIGNAL_TIME_INVALID
         }
@@ -127,9 +127,6 @@ internal class SyncFenceV19(private var fd: Int) : AutoCloseable, SyncFenceImpl 
     // the poll API which consumes a timeout in nanoseconds as an int.
     @JniVisible
     private external fun nWait(fd: Int, timeoutMillis: Int): Boolean
-
-    @JniVisible
-    private external fun nGetSignalTime(fd: Int): Long
 
     @JniVisible
     private external fun nClose(fd: Int)
