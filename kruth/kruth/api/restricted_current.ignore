@@ -39,18 +39,20 @@ AddedFinal: androidx.kruth.ThrowableSubject:
     Class androidx.kruth.ThrowableSubject added 'final' qualifier
 
 
+ChangedType: androidx.kruth.PrimitiveByteArraySubject#asList():
+    Method androidx.kruth.PrimitiveByteArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Byte>
 ChangedType: androidx.kruth.SimpleSubjectBuilder#that(T):
     Method androidx.kruth.SimpleSubjectBuilder.that has changed return type from SubjectT (extends androidx.kruth.Subject) to S (extends androidx.kruth.Subject<? extends T>)
 ChangedType: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.Subject.Factory<? extends S,T>):
     Method androidx.kruth.StandardSubjectBuilder.about has changed return type from androidx.kruth.SimpleSubjectBuilder<S,A> to androidx.kruth.SimpleSubjectBuilder<S,T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#fail():
     Method androidx.kruth.StandardSubjectBuilder.fail has changed return type from void to java.lang.Void
-ChangedType: androidx.kruth.StandardSubjectBuilder#that(Boolean):
-    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ObjectArraySubject<T> to androidx.kruth.BooleanSubject
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ClassSubject to androidx.kruth.Subject<T>
+ChangedType: androidx.kruth.StandardSubjectBuilder#that(byte[]):
+    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ObjectArraySubject<T> to androidx.kruth.PrimitiveByteArraySubject
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MapSubject to androidx.kruth.MapSubject<K,V>
 ChangedType: androidx.kruth.Subject#failWithActual(String, Object):
@@ -125,8 +127,6 @@ RemovedClass: androidx.kruth.ObjectArraySubject:
     Removed class androidx.kruth.ObjectArraySubject
 RemovedClass: androidx.kruth.PrimitiveBooleanArraySubject:
     Removed class androidx.kruth.PrimitiveBooleanArraySubject
-RemovedClass: androidx.kruth.PrimitiveByteArraySubject:
-    Removed class androidx.kruth.PrimitiveByteArraySubject
 RemovedClass: androidx.kruth.PrimitiveCharArraySubject:
     Removed class androidx.kruth.PrimitiveCharArraySubject
 RemovedClass: androidx.kruth.PrimitiveDoubleArraySubject:

@@ -115,6 +115,7 @@ package androidx.kruth {
 
   public final class KruthKt {
     method public static <S extends androidx.kruth.Subject<? extends T>, T> androidx.kruth.SimpleSubjectBuilder<S,T> assertAbout(androidx.kruth.Subject.Factory<? extends S,T> subjectFactory);
+    method public static androidx.kruth.PrimitiveByteArraySubject assertThat(byte[]? actual);
     method public static androidx.kruth.BooleanSubject assertThat(Boolean? actual);
     method public static androidx.kruth.DoubleSubject assertThat(Double? actual);
     method public static androidx.kruth.IntegerSubject assertThat(Integer? actual);
@@ -147,6 +148,13 @@ package androidx.kruth {
     method public void inOrder();
   }
 
+  public final class PrimitiveByteArraySubject extends androidx.kruth.Subject<byte[]> {
+    method public androidx.kruth.IterableSubject<java.lang.Byte> asList();
+    method public void hasLength(int length);
+    method public void isEmpty();
+    method public void isNotEmpty();
+  }
+
   public final class SimpleSubjectBuilder<S extends androidx.kruth.Subject<? extends T>, T> {
     method public S that(T actual);
   }
@@ -155,8 +163,10 @@ package androidx.kruth {
     method public <T, S extends androidx.kruth.Subject<? extends T>> androidx.kruth.SimpleSubjectBuilder<S,T> about(androidx.kruth.Subject.Factory<? extends S,T> subjectFactory);
     method public Void fail();
     method public static androidx.kruth.StandardSubjectBuilder? forCustomFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
+    method public androidx.kruth.PrimitiveByteArraySubject that(byte[]? actual);
     method public androidx.kruth.BooleanSubject that(Boolean? actual);
     method public androidx.kruth.DoubleSubject that(Double? actual);
+    method public androidx.kruth.IntegerSubject that(Integer? actual);
     method public <T> androidx.kruth.IterableSubject<T> that(Iterable<? extends T>? actual);
     method public androidx.kruth.StringSubject that(String? actual);
     method public <K, V> androidx.kruth.MapSubject<K,V> that(java.util.Map<K,? extends V>? actual);

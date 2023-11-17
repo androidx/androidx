@@ -34,20 +34,18 @@ class StringSubject internal constructor(
     fun contains(charSequence: CharSequence) {
         metadata.assertNotNull(actual)
 
-        metadata.assertTrue(
-            message = "Expected to contain \"$charSequence\", but was: \"$actual\"",
-            actual = actual.contains(charSequence),
-        )
+        metadata.assertTrue(actual.contains(charSequence)) {
+            "Expected to contain \"$charSequence\", but was: \"$actual\""
+        }
     }
 
     /** Fails if the string does not have the given length.  */
     fun hasLength(expectedLength: Int) {
         metadata.assertNotNull(actual)
 
-        metadata.assertTrue(
-            message = "Expected to have length $expectedLength, but was: \"$actual\"",
-            actual = actual.length == expectedLength,
-        )
+        metadata.assertTrue(actual.length == expectedLength) {
+            "Expected to have length $expectedLength, but was: \"$actual\""
+        }
     }
 
     /** Fails if the string is not equal to the zero-length "empty string."  */
@@ -73,7 +71,7 @@ class StringSubject internal constructor(
 
     /** Fails if the string contains the given sequence.  */
     fun doesNotContain(string: CharSequence) {
-        metadata.assertNotNull(actual, "expected a string that does not contain $string")
+        metadata.assertNotNull(actual) { "expected a string that does not contain $string" }
 
         if (actual.contains(string)) {
             metadata.fail(
@@ -87,7 +85,7 @@ class StringSubject internal constructor(
 
     /** Fails if the string does not start with the given string.  */
     fun startsWith(string: String) {
-        metadata.assertNotNull(actual, "expected a string that starts with $string")
+        metadata.assertNotNull(actual) { "expected a string that starts with $string" }
 
         if (!actual.startsWith(string)) {
             metadata.fail(
@@ -101,7 +99,7 @@ class StringSubject internal constructor(
 
     /** Fails if the string does not end with the given string.  */
     fun endsWith(string: String) {
-        metadata.assertNotNull(actual, "expected a string that ends with $string")
+        metadata.assertNotNull(actual) { "expected a string that ends with $string" }
 
         if (!actual.endsWith(string)) {
             metadata.fail(
