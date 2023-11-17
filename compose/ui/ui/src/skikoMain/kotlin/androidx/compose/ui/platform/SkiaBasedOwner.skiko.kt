@@ -215,6 +215,9 @@ internal class SkiaBasedOwner(
 
     override val textInputService = TextInputService(platformInputService)
 
+    override val softwareKeyboardController: SoftwareKeyboardController =
+        DelegatingSoftwareKeyboardController(textInputService)
+
     @Deprecated(
         "fontLoader is deprecated, use fontFamilyResolver",
         replaceWith = ReplaceWith("fontFamilyResolver")
