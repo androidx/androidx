@@ -508,6 +508,10 @@ class TextFieldSelectionManagerTest {
         manager.selectAll()
 
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
+        assertThat(manager.state).isNotNull()
+        val state = manager.state!!
+        assertThat(state.handleState).isEqualTo(HandleState.Selection)
+        assertThat(state.showFloatingToolbar).isEqualTo(true)
     }
 
     @Test
@@ -520,6 +524,10 @@ class TextFieldSelectionManagerTest {
         manager.selectAll()
 
         assertThat(value.selection).isEqualTo(TextRange(0, text.length))
+        assertThat(manager.state).isNotNull()
+        val state = manager.state!!
+        assertThat(state.handleState).isEqualTo(HandleState.Selection)
+        assertThat(state.showFloatingToolbar).isEqualTo(true)
     }
 
     @Test
