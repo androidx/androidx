@@ -1494,10 +1494,11 @@ open class SlidingPaneLayout @JvmOverloads constructor(
 
     override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
-        val ss = SavedState(superState)
-        ss.isOpen = if (isSlideable) isOpen else preservedOpenState
-        ss.lockMode = lockMode
-        return ss
+        val state = SavedState(superState)
+        state.isOpen = if (isSlideable) isOpen else preservedOpenState
+        state.lockMode = lockMode
+        state.splitDividerPosition = splitDividerPosition
+        return state
     }
 
     override fun onRestoreInstanceState(state: Parcelable?) {
@@ -1513,6 +1514,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
         preservedOpenState = state.isOpen
         lockMode = state.lockMode
+        splitDividerPosition = state.splitDividerPosition
     }
 
     /**
@@ -1609,16 +1611,27 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         @LockMode
         var lockMode = 0
 
+        /**
+         * This saves the raw pixel position of the split, or the AUTO constant.
+         * Using raw pixel position will bias toward the list pane in a list/detail arrangement
+         * remaining stable in size even if the window size changes across configurations.
+         * This does NOT (yet) elegantly handle density changes, or customization of biasing the
+         * resize divider point toward one pane or the other based on a different developer intent.
+         */
+        var splitDividerPosition: Int = SPLIT_DIVIDER_POSITION_AUTO
+
         constructor(superState: Parcelable?) : super(superState!!)
         constructor(parcel: Parcel, loader: ClassLoader?) : super(parcel, loader) {
             isOpen = parcel.readInt() != 0
             lockMode = parcel.readInt()
+            splitDividerPosition = parcel.readInt()
         }
 
         override fun writeToParcel(out: Parcel, flags: Int) {
             super.writeToParcel(out, flags)
             out.writeInt(if (isOpen) 1 else 0)
             out.writeInt(lockMode)
+            out.writeInt(splitDividerPosition)
         }
 
         companion object {
