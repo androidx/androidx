@@ -2217,6 +2217,77 @@ public class WatchFaceServiceTest {
     }
 
     @Test
+    @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
+    public fun defaultComplicationDataSourcePolicy_heartRate_preU() {
+        val complication =
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                LEFT_COMPLICATION_ID,
+                { watchState, listener ->
+                    CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
+                },
+                listOf(ComplicationType.SHORT_TEXT),
+                DefaultComplicationDataSourcePolicy(
+                    SystemDataSources.DATA_SOURCE_HEART_RATE,
+                    ComplicationType.SHORT_TEXT
+                ),
+                ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            )
+                .build()
+
+        assertFailsWith<IllegalArgumentException> {
+            initWallpaperInteractiveWatchFaceInstance(
+                WatchFaceType.ANALOG,
+                listOf(complication),
+                UserStyleSchema(emptyList()),
+                WallpaperInteractiveWatchFaceInstanceParams(
+                    INTERACTIVE_INSTANCE_ID,
+                    DeviceConfig(false, false, 0, 0),
+                    WatchUiState(false, 0),
+                    UserStyle(emptyMap()).toWireFormat(),
+                    null,
+                    null,
+                    null
+                )
+            )
+        }
+    }
+
+    @Test
+    @Config(sdk = [Build.VERSION_CODES.UPSIDE_DOWN_CAKE])
+    public fun defaultComplicationDataSourcePolicy_heartRate_U() {
+        val complication =
+            ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                LEFT_COMPLICATION_ID,
+                { watchState, listener ->
+                    CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
+                },
+                listOf(ComplicationType.SHORT_TEXT),
+                DefaultComplicationDataSourcePolicy(
+                    SystemDataSources.DATA_SOURCE_HEART_RATE,
+                    ComplicationType.SHORT_TEXT
+                ),
+                ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            )
+                .build()
+
+        // This shouldn't throw an exception.
+        initWallpaperInteractiveWatchFaceInstance(
+            WatchFaceType.ANALOG,
+            listOf(complication),
+            UserStyleSchema(emptyList()),
+            WallpaperInteractiveWatchFaceInstanceParams(
+                INTERACTIVE_INSTANCE_ID,
+                DeviceConfig(false, false, 0, 0),
+                WatchUiState(false, 0),
+                UserStyle(emptyMap()).toWireFormat(),
+                null,
+                null,
+                null
+            )
+        )
+    }
+
+    @Test
     @Config(sdk = [Build.VERSION_CODES.R])
     public fun previewReferenceTimeMillisAnalog() {
         val instanceParams =
@@ -6988,7 +7059,6 @@ class TestNopWatchFaceRuntimeService(testContext: Context) : WatchFaceRuntimeSer
         resourceOnlyWatchFacePackageName: String
     ): WatchFace {
         lastResourceOnlyWatchFacePackageName = resourceOnlyWatchFacePackageName
-        System.out.println("<<< createWatchFace " + resourceOnlyWatchFacePackageName)
         return WatchFace(
             WatchFaceType.DIGITAL,
             @Suppress("deprecation")
