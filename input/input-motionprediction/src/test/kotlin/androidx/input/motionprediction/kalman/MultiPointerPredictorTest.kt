@@ -16,6 +16,7 @@
 
 package androidx.input.motionprediction.kalman
 
+import android.view.MotionEvent
 import androidx.input.motionprediction.MotionEventGenerator
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -50,6 +51,31 @@ class MultiPointerPredictorTest {
             historicalTime -= generator.getRateMs().toInt();
             assertThat(predicted.getHistoricalEventTime(i)).isEqualTo(historicalTime)
         }
+    }
+
+    // Ensures that the down time is properly populated
+    @Test
+    fun downTime() {
+        val predictor = MultiPointerPredictor()
+        val generator = MotionEventGenerator(
+                { delta: Long -> delta.toFloat() },
+                { delta: Long -> delta.toFloat() },
+                null,
+                { delta: Long -> delta.toFloat() },
+                { delta: Long -> delta.toFloat() },
+                null,
+        )
+        var firstEvent: MotionEvent? = null
+        for (i in 1..INITIAL_FEED) {
+            val nextEvent = generator.next()
+            if (firstEvent == null) {
+                firstEvent = nextEvent
+            }
+            predictor.onTouchEvent(nextEvent)
+        }
+        val predicted = predictor.predict(PREDICT_SAMPLE * generator.getRateMs().toInt())!!
+        assertThat(predicted.getPointerCount()).isEqualTo(2)
+        assertThat(predicted.getDownTime()).isEqualTo(firstEvent?.getEventTime())
     }
 }
 
