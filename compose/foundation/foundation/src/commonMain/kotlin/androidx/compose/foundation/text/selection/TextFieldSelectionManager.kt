@@ -644,7 +644,7 @@ internal class TextFieldSelectionManager(
         )
         onValueChange(newValue)
         oldValue = oldValue.copy(selection = newValue.selection)
-        updateFloatingToolbar(show = true)
+        enterSelectionMode(showFloatingToolbar = true)
     }
 
     internal fun getHandlePosition(isStartHandle: Boolean): Offset {
