@@ -18,9 +18,6 @@ package androidx.wear.compose.material3
 
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.testutils.assertContainsColor
 import androidx.compose.testutils.assertDoesNotContainColor
 import androidx.compose.ui.Modifier
@@ -32,14 +29,8 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotSelected
-import androidx.compose.ui.test.assertIsOff
-import androidx.compose.ui.test.assertIsOn
-import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.isSelectable
-import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
@@ -91,73 +82,6 @@ class SelectionControlsTest {
                     Role.Checkbox
                 )
             )
-    }
-
-    @Test
-    fun checkbox_is_toggleable() {
-        rule.setContentWithTheme {
-            Checkbox(
-                checked = true,
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNode(isToggleable()).assertExists()
-    }
-
-    @Test
-    fun checkbox_is_on_when_checked() {
-        rule.setContentWithTheme {
-            Checkbox(
-                checked = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsOn()
-    }
-
-    @Test
-    fun checkbox_is_off_when_checked() {
-        rule.setContentWithTheme {
-            Checkbox(
-                checked = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsOff()
-    }
-
-    @Test
-    fun checkbox_responds_to_toggle_on() {
-        var checked by mutableStateOf(false)
-        rule.setContentWithTheme {
-            Checkbox(
-                checked = checked,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsOff()
-        checked = true
-        rule.onNodeWithTag(TEST_TAG).assertIsOn()
-    }
-
-    @Test
-    fun checkbox_responds_to_toggle_off() {
-        var checked by mutableStateOf(true)
-        rule.setContentWithTheme {
-            Checkbox(
-                checked = checked,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsOn()
-        checked = false
-        rule.onNodeWithTag(TEST_TAG).assertIsOff()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -255,75 +179,6 @@ class SelectionControlsTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).assertHasNoClickAction()
-    }
-
-    @Test
-    fun switch_is_toggleable() {
-        rule.setContentWithTheme {
-            Switch(
-                checked = true,
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNode(isToggleable()).assertExists()
-    }
-
-    @Test
-    fun switch_is_on_when_checked() {
-        // This test only applies when onCheckedChange is defined.
-        rule.setContentWithTheme {
-            Switch(
-                checked = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsOn()
-    }
-
-    @Test
-    fun switch_is_off_when_checked() {
-        // This test only applies when onCheckedChange is defined.
-        rule.setContentWithTheme {
-            Switch(
-                checked = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsOff()
-    }
-
-    @Test
-    fun switch_responds_to_toggle_on() {
-        var checked by mutableStateOf(false)
-        rule.setContentWithTheme {
-            Switch(
-                checked = checked,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsOff()
-        checked = true
-        rule.onNodeWithTag(TEST_TAG).assertIsOn()
-    }
-
-    @Test
-    fun switch_responds_to_toggle_off() {
-        var checked by mutableStateOf(true)
-        rule.setContentWithTheme {
-            Switch(
-                checked = checked,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsOn()
-        checked = false
-        rule.onNodeWithTag(TEST_TAG).assertIsOff()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -424,19 +279,6 @@ class SelectionControlsTest {
     }
 
     @Test
-    fun radiobutton_is_selectable_when_onclick_defined() {
-        rule.setContentWithTheme {
-            RadioButton(
-                selected = true,
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNode(isSelectable()).assertExists()
-    }
-
-    @Test
     fun radiobutton_is_correctly_enabled() {
         rule.setContentWithTheme {
             RadioButton(
@@ -447,62 +289,6 @@ class SelectionControlsTest {
         }
 
         rule.onNodeWithTag(TEST_TAG).assertIsEnabled()
-    }
-
-    @Test
-    fun radiobutton_is_on_when_checked() {
-        // This test only applies when onClick is provided and the RadioButton itself is selectable.
-        rule.setContentWithTheme {
-            RadioButton(
-                selected = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsSelected()
-    }
-
-    @Test
-    fun radiobutton_is_off_when_checked() {
-        // This test only applies when onClick is provided and the RadioButton itself is selectable.
-        rule.setContentWithTheme {
-            RadioButton(
-                selected = false,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsNotSelected()
-    }
-
-    @Test
-    fun radiobutton_responds_to_toggle_on() {
-        var selected by mutableStateOf(false)
-        rule.setContentWithTheme {
-            RadioButton(
-                selected = selected,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsNotSelected()
-        selected = true
-        rule.onNodeWithTag(TEST_TAG).assertIsSelected()
-    }
-
-    @Test
-    fun radiobutton_responds_to_toggle_off() {
-        var selected by mutableStateOf(true)
-        rule.setContentWithTheme {
-            RadioButton(
-                selected = selected,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG).assertIsSelected()
-        selected = false
-        rule.onNodeWithTag(TEST_TAG).assertIsNotSelected()
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

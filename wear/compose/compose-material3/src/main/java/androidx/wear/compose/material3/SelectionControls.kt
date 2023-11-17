@@ -32,12 +32,6 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.toggleableState
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
 import androidx.wear.compose.materialcore.animateSelectionColor
@@ -66,10 +60,7 @@ fun Checkbox(
     enabled: Boolean = true,
 ) = androidx.wear.compose.materialcore.Checkbox(
     checked = checked,
-    modifier = modifier.semantics {
-        this.toggleableState = if (checked) ToggleableState.On else ToggleableState.Off
-        this.role = Role.Checkbox
-    },
+    modifier = modifier,
     boxColor = { isEnabled, isChecked ->
         colors.boxColor(
             enabled = isEnabled,
@@ -118,10 +109,7 @@ fun Switch(
     colors: SwitchColors = SwitchDefaults.colors(),
     enabled: Boolean = true,
 ) = androidx.wear.compose.materialcore.Switch(
-    modifier = modifier.semantics {
-        this.toggleableState = if (checked) ToggleableState.On else ToggleableState.Off
-        this.role = Role.Switch
-    },
+    modifier = modifier,
     checked = checked,
     enabled = enabled,
     onCheckedChange = null,
@@ -186,10 +174,7 @@ fun RadioButton(
     colors: RadioButtonColors = RadioButtonDefaults.colors(),
     enabled: Boolean = true,
 ) = androidx.wear.compose.materialcore.RadioButton(
-    modifier = modifier.semantics {
-        this.selected = selected
-        this.role = Role.RadioButton
-    },
+    modifier = modifier,
     selected = selected,
     enabled = enabled,
     ringColor = { isEnabled, isSelected ->

@@ -58,7 +58,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * Wear Material [ToggleButton] that offers a single slot to take any content
+ * Round [ToggleButton] that offers a single slot to take any content
  * (text, icon or image).
  *
  * [ToggleButton]s can be enabled or disabled. A disabled toggle button will not respond to click
@@ -99,6 +99,7 @@ fun ToggleButton(
     shape: Shape,
     content: @Composable BoxScope.() -> Unit,
 ) {
+    // Round toggle button
     val borderStroke = border(enabled, checked)?.value
     Box(
         contentAlignment = Alignment.Center,
@@ -126,7 +127,7 @@ fun ToggleButton(
 }
 
 /**
- * The [ToggleButton] offers four slots and a specific layout for an icon, a
+ * The Stadium-shaped [ToggleButton] offers four slots and a specific layout for an icon, a
  * label, a secondaryLabel and selection control. The icon and secondaryLabel are optional.
  * The items are laid out in a row with the optional icon at the start, a column containing the two
  * label slots in the middle and a slot for the selection control at the end.
@@ -181,6 +182,7 @@ fun ToggleButton(
     selectionControlWidth: Dp,
     selectionControlHeight: Dp
 ) {
+    // Stadium/Chip shaped toggle button
     Row(
         modifier = modifier
             .clip(shape = shape)
@@ -193,9 +195,6 @@ fun ToggleButton(
                 indication = rememberRipple(),
                 interactionSource = interactionSource
             )
-            .semantics {
-                role = Role.Checkbox
-            }
             .padding(contentPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -332,9 +331,6 @@ fun SplitToggleButton(
                     indication = rememberRipple(),
                     interactionSource = checkedInteractionSource
                 )
-                .semantics {
-                    role = Role.Checkbox
-                }
                 .fillMaxHeight()
                 .drawWithCache {
                     onDrawWithContent {
