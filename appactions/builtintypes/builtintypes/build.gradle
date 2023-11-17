@@ -21,16 +21,25 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("org.jetbrains.kotlin.android")
+    id("kotlin-kapt")
 }
 
 dependencies {
     api(libs.kotlinStdlib)
     api(project(":appsearch:appsearch"))
 
+    kapt(project(":appsearch:appsearch-compiler"))
+
     testImplementation(libs.junit)
     testImplementation(libs.truth)
 
     samples(project(":appactions:builtintypes:builtintypes:builtintypes-samples"))
+}
+
+kapt {
+    arguments {
+        arg("AppSearchCompiler.RestrictGeneratedCodeToLib", "true")
+    }
 }
 
 android {
