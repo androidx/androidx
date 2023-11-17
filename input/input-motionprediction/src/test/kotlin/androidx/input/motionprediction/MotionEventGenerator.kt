@@ -33,7 +33,7 @@ class MotionEventGenerator(
             firstPressureGenerator: ((Long) -> Float)?
     ) : this(firstXGenerator, firstYGenerator, firstPressureGenerator, null, null, null)
 
-    private val downEventTime: Long = 0
+    private val downEventTime: Long = System.currentTimeMillis()
     private var currentEventTime: Long = downEventTime
     private val firstStartX = 500f
     private val firstStartY = 500f
