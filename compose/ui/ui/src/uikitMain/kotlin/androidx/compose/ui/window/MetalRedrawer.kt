@@ -203,11 +203,6 @@ internal class MetalRedrawer(
     private var lastRenderTimestamp: NSTimeInterval = CACurrentMediaTime()
     private val pictureRecorder = PictureRecorder()
 
-    /**
-     * Lock used to avoid skia context being disposed in the middle of rendering encoding on a separate thread.
-     */
-    private val disposeLock = NSLock()
-
     // Semaphore for preventing command buffers count more than swapchain size to be scheduled/executed at the same time
     private val inflightSemaphore =
         dispatch_semaphore_create(metalLayer.maximumDrawableCount.toLong())
@@ -289,7 +284,7 @@ internal class MetalRedrawer(
         caDisplayLink.addToRunLoop(NSRunLoop.mainRunLoop, NSRunLoop.mainRunLoop.currentMode)
     }
 
-    fun dispose() = disposeLock.doLocked {
+    fun dispose() {
         check(caDisplayLink != null) { "MetalRedrawer.dispose() was called more than once" }
 
         applicationStateListener.dispose()
@@ -386,7 +381,11 @@ internal class MetalRedrawer(
                 isForcedToPresentWithTransactionEveryFrame || interopTransaction.isNotEmpty()
             metalLayer.presentsWithTransaction = presentsWithTransaction
 
-            val mustEncodeAndPresentOnMainThread = presentsWithTransaction || waitUntilCompletion
+            // TODO: encoding on separate thread requires investigation for reported crashes
+            //  https://github.com/JetBrains/compose-multiplatform/issues/3862
+            //  https://youtrack.jetbrains.com/issue/COMPOSE-608/iOS-reproduce-and-investigate-parallel-rendering-encoding-crash
+            // val mustEncodeAndPresentOnMainThread = presentsWithTransaction || waitUntilCompletion
+            val mustEncodeAndPresentOnMainThread = true
 
             val encodeAndPresentBlock = {
                 surface.canvas.drawPicture(picture)
@@ -437,16 +436,7 @@ internal class MetalRedrawer(
             } else {
                 dispatch_async(renderingDispatchQueue) {
                     autoreleasepool {
-                        disposeLock.doLocked {
-                            if (caDisplayLink == null) {
-                                // Was disposed before render encoding started
-                                picture.close()
-                                surface.close()
-                                renderTarget.close()
-                            } else {
-                                encodeAndPresentBlock()
-                            }
-                        }
+                        encodeAndPresentBlock()
                     }
                 }
             }
