@@ -31,7 +31,7 @@ class MonoSplineTest {
         val time = floatArrayOf(
             0f, 5f, 10f
         )
-        val spline = MonoSpline(time, Arrays.asList(*points))
+        val spline = MonoSpline(time, points)
         var value = spline.getPos(5f, 0).toDouble()
         assertEquals(1.0, value, 0.001)
         value = spline.getPos(7f, 0).toDouble()
@@ -53,7 +53,7 @@ class MonoSplineTest {
         val time = floatArrayOf(
             0f, 1f, 2f, 3f, 4f, 5f
         )
-        val mspline = MonoSpline(time, Arrays.asList(*points))
+        val mspline = MonoSpline(time, points)
         assertEquals(1.0f, mspline.getPos(1f, 0), 0.001f)
         assertEquals(1.0f, mspline.getPos(1.1f, 0), 0.001f)
         assertEquals(1.0f, mspline.getPos(1.3f, 0), 0.001f)

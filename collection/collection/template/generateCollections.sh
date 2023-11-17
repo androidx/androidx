@@ -3,6 +3,7 @@
 primitives=("Float" "Long" "Int")
 suffixes=("f" "L" "")
 
+# Note: Had to use `dirname ${0}` on Linux
 scriptDir=`dirname ${PWD}/${0}`
 
 for index in ${!primitives[@]}
