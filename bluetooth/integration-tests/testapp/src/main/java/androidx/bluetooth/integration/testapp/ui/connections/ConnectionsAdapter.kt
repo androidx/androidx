@@ -27,6 +27,7 @@ import androidx.bluetooth.integration.testapp.R
 import androidx.bluetooth.integration.testapp.data.connection.DeviceConnection
 import androidx.bluetooth.integration.testapp.data.connection.OnCharacteristicActionClick
 import androidx.bluetooth.integration.testapp.data.connection.Status
+import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -104,7 +105,7 @@ class ConnectionsAdapter(
                 Status.DISCONNECTED -> {
                     textViewDeviceConnectionStatus.text = context.getString(R.string.disconnected)
                     textViewDeviceConnectionStatus
-                        .setTextColor(context.getColor(R.color.green_500))
+                        .setTextColor(ContextCompat.getColor(context, R.color.green_500))
                     buttonReconnect.isVisible = true
                 }
 
@@ -112,13 +113,13 @@ class ConnectionsAdapter(
                     progressIndicatorDeviceConnection.isVisible = true
                     textViewDeviceConnectionStatus.text = context.getString(R.string.connecting)
                     textViewDeviceConnectionStatus
-                        .setTextColor(context.getColor(R.color.indigo_500))
+                        .setTextColor(ContextCompat.getColor(context, R.color.indigo_500))
                 }
 
                 Status.CONNECTED -> {
                     textViewDeviceConnectionStatus.text = context.getString(R.string.connected)
                     textViewDeviceConnectionStatus
-                        .setTextColor(context.getColor(R.color.indigo_500))
+                        .setTextColor(ContextCompat.getColor(context, R.color.indigo_500))
                     buttonDisconnect.isVisible = true
                 }
             }
