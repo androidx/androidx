@@ -33,7 +33,7 @@ import androidx.compose.material3.adaptive.AnimatedPane
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.ListDetailPaneScaffoldRole
-import androidx.compose.material3.adaptive.rememberListDetailPaneScaffoldState
+import androidx.compose.material3.adaptive.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,11 +45,9 @@ import androidx.compose.ui.unit.dp
 @Sampled
 @Composable
 fun ListDetailPaneScaffoldSample() {
-    val scaffoldState = rememberListDetailPaneScaffoldState(
-        initialFocusHistory = listOf(ListDetailPaneScaffoldRole.List)
-    )
+    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
     ListDetailPaneScaffold(
-        scaffoldState = scaffoldState,
+        scaffoldState = scaffoldNavigator.scaffoldState,
         listPane = {
             AnimatedPane(
                 modifier = Modifier.preferredWidth(200.dp),
@@ -57,7 +55,7 @@ fun ListDetailPaneScaffoldSample() {
                 Surface(
                     color = MaterialTheme.colorScheme.secondary,
                     onClick = {
-                        scaffoldState.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                        scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
                     }
                 ) {
                     Text("List")
@@ -69,7 +67,7 @@ fun ListDetailPaneScaffoldSample() {
             Surface(
                 color = MaterialTheme.colorScheme.primary,
                 onClick = {
-                    scaffoldState.navigateBack()
+                    scaffoldNavigator.navigateBack()
                 }
             ) {
                 Text("Details")
@@ -83,12 +81,9 @@ fun ListDetailPaneScaffoldSample() {
 @Sampled
 @Composable
 fun ListDetailExtraPaneScaffoldSample() {
-    val scaffoldState = rememberListDetailPaneScaffoldState(
-        initialFocusHistory = listOf(ListDetailPaneScaffoldRole.List)
-    )
-
+    val scaffoldNavigator = rememberListDetailPaneScaffoldNavigator()
     ListDetailPaneScaffold(
-        scaffoldState = scaffoldState,
+        scaffoldState = scaffoldNavigator.scaffoldState,
         listPane = {
             AnimatedPane(
                 modifier = Modifier.preferredWidth(200.dp),
@@ -96,7 +91,7 @@ fun ListDetailExtraPaneScaffoldSample() {
                 Surface(
                     color = MaterialTheme.colorScheme.secondary,
                     onClick = {
-                        scaffoldState.navigateTo(ListDetailPaneScaffoldRole.Detail)
+                        scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Detail)
                     }
                 ) {
                     Text("List")
@@ -111,7 +106,7 @@ fun ListDetailExtraPaneScaffoldSample() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.tertiary,
                     onClick = {
-                        scaffoldState.navigateBack()
+                        scaffoldNavigator.navigateBack()
                     }
                 ) {
                     Text("Extra")
@@ -135,7 +130,7 @@ fun ListDetailExtraPaneScaffoldSample() {
                     ) {
                         Surface(
                             onClick = {
-                                scaffoldState.navigateBack()
+                                scaffoldNavigator.navigateBack()
                             },
                             modifier = Modifier
                                 .weight(0.5f)
@@ -152,7 +147,7 @@ fun ListDetailExtraPaneScaffoldSample() {
                         VerticalDivider()
                         Surface(
                             onClick = {
-                                scaffoldState.navigateTo(ListDetailPaneScaffoldRole.Extra)
+                                scaffoldNavigator.navigateTo(ListDetailPaneScaffoldRole.Extra)
                             },
                             modifier = Modifier
                                 .weight(0.5f)
