@@ -16,6 +16,9 @@
 
 package androidx.appsearch.compiler;
 
+import static androidx.appsearch.compiler.AppSearchCompiler.OUTPUT_DIR_OPTION;
+import static androidx.appsearch.compiler.AppSearchCompiler.RESTRICT_GENERATED_CODE_TO_LIB_OPTION;
+
 import static com.google.testing.compile.CompilationSubject.assertThat;
 
 import com.google.auto.value.processor.AutoValueProcessor;
@@ -59,11 +62,12 @@ public class AppSearchCompilerTest {
     @Test
     public void testPrivate() {
         Compilation compilation = compile(
-                "Wrapper",
+                /* classSimpleName= */"Wrapper",
                 "public class Wrapper {\n"
                         + "@Document\n"
                         + "private class Gift {}\n"
-                        + "}  // Wrapper\n"
+                        + "}  // Wrapper\n",
+                /* restrictGeneratedCodeToLibrary= */false
         );
 
         assertThat(compilation).hadErrorContaining("annotated class is private");
@@ -3084,11 +3088,27 @@ public class AppSearchCompilerTest {
         checkEqualsGolden("Gift.java");
     }
 
-    private Compilation compile(String classBody) {
-        return compile("Gift", classBody);
+    @Test
+    public void testGeneratedCodeRestrictedToLibrary() throws Exception {
+        Compilation compilation = compile(
+                /* classSimpleName=*/"Gift",
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "}\n",
+                /* restrictGeneratedCodeToLibrary= */true);
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Gift.java", "@RestrictTo(RestrictTo.Scope.LIBRARY)");
+        checkEqualsGolden("Gift.java");
     }
 
-    private Compilation compile(String classSimpleName, String classBody) {
+    private Compilation compile(String classBody) {
+        return compile("Gift", classBody, /* restrictGeneratedCodeToLibrary= */false);
+    }
+
+    private Compilation compile(
+            String classSimpleName, String classBody, boolean restrictGeneratedCodeToLibrary) {
         String src = "package com.example.appsearch;\n"
                 + "import androidx.appsearch.annotation.Document;\n"
                 + "import androidx.appsearch.annotation.Document.*;\n"
@@ -3099,13 +3119,13 @@ public class AppSearchCompilerTest {
         // Fully compiling this source code requires AppSearch to be on the classpath, but it only
         // builds on Android. Instead, this test configures the annotation processor to write to a
         // test-controlled path which is then diffed.
-        String outputDirFlag = String.format(
-                "-A%s=%s",
-                AppSearchCompiler.OUTPUT_DIR_OPTION,
-                mGenFilesDir.getAbsolutePath());
+        String outputDirFlag = "-A%s=%s".formatted(
+                OUTPUT_DIR_OPTION, mGenFilesDir.getAbsolutePath());
+        String restrictGeneratedCodeToLibraryFlag = "-A%s=%s".formatted(
+                RESTRICT_GENERATED_CODE_TO_LIB_OPTION, restrictGeneratedCodeToLibrary);
         return Compiler.javac()
                 .withProcessors(new AppSearchCompiler(), new AutoValueProcessor())
-                .withOptions(outputDirFlag)
+                .withOptions(outputDirFlag, restrictGeneratedCodeToLibraryFlag)
                 .compile(jfo);
     }
 
