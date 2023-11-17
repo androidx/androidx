@@ -843,7 +843,7 @@ internal object ThreePaneScaffoldDefaults {
     // TODO(conradchen): open this to public when we support motion customization
     val PaneSpringSpec: SpringSpec<IntOffset> =
         spring(
-            dampingRatio = 0.7f,
+            dampingRatio = 0.8f,
             stiffness = 600f,
             visibilityThreshold = IntOffset.VisibilityThreshold
         )
