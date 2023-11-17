@@ -21,11 +21,14 @@ import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.drawable.Drawable
+import android.os.Parcelable
+import android.util.SparseArray
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup.LayoutParams
 import androidx.core.view.get
+import androidx.slidingpanelayout.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -76,6 +79,34 @@ class UserResizeModeTest {
         spl.onTouchEvent(upEvent(50f, 50f))
 
         assertWithMessage("click listener invoked").that(wasClicked).isTrue()
+    }
+
+    @Test
+    fun savedInstanceStateRestoredSameSize() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val sourceSpl = createTestSpl(context).apply {
+            id = R.id.slidingPaneLayout
+        }
+
+        assertWithMessage("initial splitDividerPosition")
+            .that(sourceSpl.splitDividerPosition)
+            .isEqualTo(SlidingPaneLayout.SPLIT_DIVIDER_POSITION_AUTO)
+        sourceSpl.splitDividerPosition = 35
+        assertWithMessage("modified splitDividerPosition")
+            .that(sourceSpl.splitDividerPosition)
+            .isEqualTo(35)
+
+        val savedState = SparseArray<Parcelable>()
+        sourceSpl.saveHierarchyState(savedState)
+
+        val destSpl = createTestSpl(context).apply {
+            id = R.id.slidingPaneLayout
+        }
+        destSpl.restoreHierarchyState(savedState)
+
+        assertWithMessage("restored splitDividerPosition")
+            .that(destSpl.splitDividerPosition)
+            .isEqualTo(35)
     }
 }
 
