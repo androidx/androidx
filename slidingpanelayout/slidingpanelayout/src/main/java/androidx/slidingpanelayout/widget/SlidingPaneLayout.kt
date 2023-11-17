@@ -1283,6 +1283,25 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             }
             canvas.clipRect(tmpRect)
         }
+        if (!isSlideable) {
+            val visualDividerPosition = visualDividerPosition
+            if (visualDividerPosition >= 0) {
+                with(tmpRect) {
+                    if (isLayoutRtl xor (child === getChildAt(0))) {
+                        // left child
+                        left = paddingLeft
+                        right = visualDividerPosition
+                    } else {
+                        // right child
+                        left = visualDividerPosition
+                        right = width - paddingRight
+                    }
+                    top = paddingTop
+                    bottom = height - paddingBottom
+                }
+                canvas.clipRect(tmpRect)
+            }
+        }
         return super.drawChild(canvas, child, drawingTime).also {
             canvas.restoreToCount(save)
         }
