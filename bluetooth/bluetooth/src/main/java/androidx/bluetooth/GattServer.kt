@@ -123,7 +123,7 @@ class GattServer(private val context: Context) {
         private val attributeMap = AttributeMap()
 
         // Should be accessed only from the callback thread
-        private val sessions: MutableMap<FwkBluetoothDevice, Session> = mutableMapOf()
+        private val sessions = mutableMapOf<FwkBluetoothDevice, Session>()
         private val notifyMutex = Mutex()
         private var notifyJob: CompletableDeferred<Boolean>? = null
 
@@ -135,6 +135,7 @@ class GattServer(private val context: Context) {
         override suspend fun collectSafely(collector: FlowCollector<GattServerConnectRequest>) {
             val connectRequests = callbackFlow {
                 attributeMap.updateWithServices(services)
+
                 val callback = object : FwkBluetoothGattServerCallback() {
                     override fun onConnectionStateChange(
                         fwkDevice: FwkBluetoothDevice,
@@ -299,6 +300,7 @@ class GattServer(private val context: Context) {
                     fwkAdapter.closeGattServer()
                 }
             }
+
             connectRequests.collect { collector.emit(it) }
         }
 
@@ -319,6 +321,7 @@ class GattServer(private val context: Context) {
         }
 
         private inner class Session(override val device: BluetoothDevice) : GattServer.Session {
+
             // A map from a characteristic to the corresponding
             // client characteristic configuration descriptor value
             private val cccdMap = ArrayMap<GattCharacteristic, Int>()
@@ -450,6 +453,7 @@ class GattServer(private val context: Context) {
     }
 
     private open class FrameworkAdapterBase : FrameworkAdapter {
+
         override var fwkGattServer: FwkBluetoothGattServer? = null
         private val isOpen = AtomicBoolean(false)
 

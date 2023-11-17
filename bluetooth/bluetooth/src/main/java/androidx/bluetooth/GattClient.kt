@@ -145,8 +145,7 @@ class GattClient(private val context: Context) {
         val connectResult = CompletableDeferred<Unit>(parent = coroutineContext.job)
         val callbackResultsFlow =
             MutableSharedFlow<CallbackResult>(extraBufferCapacity = Int.MAX_VALUE)
-        val subscribeMap: MutableMap<FwkBluetoothGattCharacteristic, SubscribeListener> =
-            mutableMapOf()
+        val subscribeMap = mutableMapOf<FwkBluetoothGattCharacteristic, SubscribeListener>()
         val subscribeMutex = Mutex()
         val attributeMap = AttributeMap()
         val servicesFlow = MutableStateFlow<List<GattService>>(listOf())
@@ -189,7 +188,7 @@ class GattClient(private val context: Context) {
             }
 
             override fun onCharacteristicRead(
-                gatt: FwkBluetoothGatt,
+                fwkBluetoothGatt: FwkBluetoothGatt,
                 fwkCharacteristic: FwkBluetoothGattCharacteristic,
                 value: ByteArray,
                 status: Int
@@ -201,8 +200,22 @@ class GattClient(private val context: Context) {
                 }
             }
 
+            @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+            override fun onCharacteristicRead(
+                fwkBluetoothGatt: FwkBluetoothGatt,
+                fwkCharacteristic: FwkBluetoothGattCharacteristic,
+                status: Int
+            ) {
+                onCharacteristicRead(
+                    fwkBluetoothGatt,
+                    fwkCharacteristic,
+                    fwkCharacteristic.value,
+                    status
+                )
+            }
+
             override fun onCharacteristicWrite(
-                gatt: FwkBluetoothGatt,
+                fwkBluetoothGatt: FwkBluetoothGatt,
                 fwkCharacteristic: FwkBluetoothGattCharacteristic,
                 status: Int
             ) {
@@ -214,26 +227,37 @@ class GattClient(private val context: Context) {
             }
 
             override fun onDescriptorRead(
-                gatt: FwkBluetoothGatt,
-                descriptor: FwkBluetoothGattDescriptor,
+                fwkBluetoothGatt: FwkBluetoothGatt,
+                fwkDescriptor: FwkBluetoothGattDescriptor,
                 status: Int,
                 value: ByteArray
             ) {
                 callbackResultsFlow.tryEmit(
-                    CallbackResult.OnDescriptorRead(descriptor, value, status)
+                    CallbackResult.OnDescriptorRead(fwkDescriptor, value, status)
                 )
             }
 
-            override fun onDescriptorWrite(
-                gatt: FwkBluetoothGatt,
-                descriptor: FwkBluetoothGattDescriptor,
+            @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+            override fun onDescriptorRead(
+                fwkBluetoothGatt: FwkBluetoothGatt,
+                fwkDescriptor: FwkBluetoothGattDescriptor,
                 status: Int
             ) {
-                callbackResultsFlow.tryEmit(CallbackResult.OnDescriptorWrite(descriptor, status))
+                onDescriptorRead(fwkBluetoothGatt, fwkDescriptor, status, fwkDescriptor.value)
+            }
+
+            override fun onDescriptorWrite(
+                fwkBluetoothGatt: FwkBluetoothGatt,
+                fwkDescriptor: FwkBluetoothGattDescriptor,
+                status: Int
+            ) {
+                callbackResultsFlow.tryEmit(
+                    CallbackResult.OnDescriptorWrite(fwkDescriptor, status)
+                )
             }
 
             override fun onCharacteristicChanged(
-                gatt: FwkBluetoothGatt,
+                fwkBluetoothGatt: FwkBluetoothGatt,
                 fwkCharacteristic: FwkBluetoothGattCharacteristic,
                 value: ByteArray
             ) {
@@ -242,6 +266,18 @@ class GattClient(private val context: Context) {
                         subscribeMap[fwkCharacteristic]?.onCharacteristicNotification(value)
                     }
                 }
+            }
+
+            @Suppress("DEPRECATION", "OVERRIDE_DEPRECATION")
+            override fun onCharacteristicChanged(
+                fwkBluetoothGatt: FwkBluetoothGatt,
+                fwkCharacteristic: FwkBluetoothGattCharacteristic,
+            ) {
+                onCharacteristicChanged(
+                    fwkBluetoothGatt,
+                    fwkCharacteristic,
+                    fwkCharacteristic.value
+                )
             }
         }
 
@@ -252,8 +288,10 @@ class GattClient(private val context: Context) {
         withTimeout(CONNECT_TIMEOUT_MS) {
             connectResult.await()
         }
+
         val gattClientScope = object : GattClientScope {
             val taskMutex = Mutex()
+
             suspend fun <R> runTask(block: suspend () -> R): R {
                 taskMutex.withLock {
                     return block()
@@ -395,9 +433,11 @@ class GattClient(private val context: Context) {
                 }
             }
         }
+
         coroutineContext.job.invokeOnCompletion {
             fwkAdapter.closeGatt()
         }
+
         gattClientScope.block()
     }
 
@@ -409,6 +449,7 @@ class GattClient(private val context: Context) {
     }
 
     private open class FrameworkAdapterBase : FrameworkAdapter {
+
         override var fwkBluetoothGatt: FwkBluetoothGatt? = null
 
         @SuppressLint("MissingPermission")
@@ -479,6 +520,7 @@ class GattClient(private val context: Context) {
 
     @RequiresApi(31)
     private open class FrameworkAdapterApi31 : FrameworkAdapterBase() {
+
         @RequiresPermission(BLUETOOTH_CONNECT)
         override fun connectGatt(
             context: Context,
