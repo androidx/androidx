@@ -598,6 +598,33 @@ public sealed class ScatterMap<K, V> {
         return s.append('}').toString()
     }
 
+    internal fun asDebugString(): String = buildString {
+        append('{')
+        append("metadata=[")
+        for (i in 0 until capacity) {
+            when (val metadata = readRawMetadata(metadata, i)) {
+                Empty -> append("Empty")
+                Deleted -> append("Deleted")
+                else -> append(metadata)
+            }
+            append(", ")
+        }
+        append("], ")
+        append("keys=[")
+        for (i in keys.indices) {
+            append(keys[i])
+            append(", ")
+        }
+        append("], ")
+        append("values=[")
+        for (i in values.indices) {
+            append(values[i])
+            append(", ")
+        }
+        append("]")
+        append('}')
+    }
+
     /**
      * Scans the hash table to find the index in the backing arrays of the
      * specified [key]. Returns -1 if the key is not present.
@@ -1572,13 +1599,18 @@ public class MutableScatterMap<K, V>(
 }
 
 /**
- * Returns the hash code of [k]. This follows the [HashMap] default behavior on Android
- * of returning [Object.hashcode()] with the higher bits of hash spread to the lower bits.
+ * Returns the hash code of [k]. The hash spreads low bits to to minimize collisions in high
+ * 25-bits that are used for probing.
  */
 internal inline fun hash(k: Any?): Int {
-    val hash = k.hashCode()
-    return hash xor (hash ushr 16)
+    // scramble bits to account for collisions between similar hash values.
+    val hash = k.hashCode() * MurmurHashC1
+    // spread low bits into high bits that are used for probing
+    return hash xor (hash shl 16)
 }
+
+// C1 constant from MurmurHash implementation: https://en.wikipedia.org/wiki/MurmurHash#Algorithm
+internal const val MurmurHashC1: Int = 0xcc9e2d51.toInt()
 
 // Returns the "H1" part of the specified hash code. In our implementation,
 // it is simply the top-most 25 bits

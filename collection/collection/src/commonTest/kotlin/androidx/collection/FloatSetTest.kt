@@ -237,7 +237,7 @@ class FloatSetTest {
 
         // Make sure reinserting an entry after filling the table
         // with "Deleted" markers works
-        set += 3f
+        set += 1f
 
         assertEquals(1, set.size)
         assertEquals(capacity, set.capacity)
