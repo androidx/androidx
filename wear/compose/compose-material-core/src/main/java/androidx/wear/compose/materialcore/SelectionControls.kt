@@ -49,6 +49,8 @@ import androidx.compose.ui.graphics.drawscope.DrawScope.Companion.DefaultBlendMo
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
@@ -108,13 +110,15 @@ fun Checkbox(
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
         modifier = modifier
+            .semantics {
+                this.role = Role.Checkbox
+            }
             .maybeToggleable(
                 onCheckedChange,
                 enabled,
                 checked,
                 interactionSource,
                 rememberRipple(),
-                Role.Checkbox,
                 width,
                 height
             )
@@ -203,13 +207,15 @@ fun Switch(
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
         modifier = modifier
+            .semantics {
+                this.role = Role.Switch
+            }
             .maybeToggleable(
                 onCheckedChange,
                 enabled,
                 checked,
                 interactionSource,
                 rememberRipple(),
-                Role.Switch,
                 width,
                 height
             )
@@ -305,6 +311,9 @@ fun RadioButton(
     // Using Spacer.drawWithCache to optimize the stroke allocations.
     Spacer(
         modifier = modifier
+            .semantics {
+                this.role = Role.RadioButton
+            }
             .maybeSelectable(
                 onClick, enabled, selected, interactionSource, rememberRipple(), width, height
             )
@@ -413,7 +422,6 @@ private fun Modifier.maybeToggleable(
     checked: Boolean,
     interactionSource: MutableInteractionSource?,
     indication: Indication,
-    role: Role,
     canvasWidth: Dp,
     canvasHeight: Dp
 ): Modifier {
@@ -429,7 +437,6 @@ private fun Modifier.maybeToggleable(
                 enabled = enabled,
                 value = checked,
                 onValueChange = onCheckedChange,
-                role = role,
                 indication = indication,
                 interactionSource = interactionSource
             )

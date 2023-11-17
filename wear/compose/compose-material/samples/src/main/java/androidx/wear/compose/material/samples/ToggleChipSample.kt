@@ -27,8 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.Checkbox
@@ -63,10 +61,6 @@ fun ToggleChipWithSwitch() {
             Switch(
                 checked = checked,
                 enabled = true,
-                modifier = Modifier.semantics {
-                    this.contentDescription =
-                        if (checked) "On" else "Off"
-                }
             )
         },
         onCheckedChange = { checked = it },
@@ -98,10 +92,6 @@ fun ToggleChipWithRadioButton() {
             RadioButton(
                 selected = selected,
                 enabled = true,
-                modifier = Modifier.semantics {
-                    this.contentDescription =
-                        if (selected) "On" else "Off"
-                }
             )
         },
         onCheckedChange = { selected = it },
@@ -130,10 +120,6 @@ fun SplitToggleChipWithCheckbox() {
             Checkbox(
                 checked = checked,
                 enabled = true,
-                modifier = Modifier.semantics {
-                    this.contentDescription =
-                        if (checked) "Checked" else "Unchecked"
-                }
             )
         },
         onCheckedChange = { checked = it },
