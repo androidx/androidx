@@ -126,7 +126,39 @@ class UserResizeModeTest {
         spl.drawToBitmap()
         assertWithMessage("right child clip")
             .that(((spl[1] as ViewGroup)[0] as TestPaneView).clipBoundsAtLastDraw)
-            .isEqualTo(Rect(15, 0, 50, 100))
+            .isEqualTo(Rect(0, 0, 35, 100))
+    }
+
+    @Test
+    fun splitDividerPositionAffectsLayout() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        assertWithMessage("layout requested after SlidingPaneLayout creation")
+            .that(spl.isLayoutRequested)
+            .isFalse()
+        spl.splitDividerPosition = 35
+        assertWithMessage("layout requested by splitDividerPosition change")
+            .that(spl.isLayoutRequested)
+            .isTrue()
+        spl.measureAndLayoutForTest()
+        assertWithMessage("first child expected width")
+            .that(spl[0].width)
+            .isEqualTo(35)
+        assertWithMessage("second child expected width")
+            .that(spl[1].width)
+            .isEqualTo(65)
+
+        spl.splitDividerPosition = 70
+        assertWithMessage("layout requested by splitDividerPosition change (2)")
+            .that(spl.isLayoutRequested)
+            .isTrue()
+        spl.measureAndLayoutForTest()
+        assertWithMessage("first child expected width")
+            .that(spl[0].width)
+            .isEqualTo(70)
+        assertWithMessage("second child expected width")
+            .that(spl[1].width)
+            .isEqualTo(30)
     }
 }
 

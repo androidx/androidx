@@ -803,6 +803,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
         var weightSum = 0f
         var canSlide = false
+        val isLayoutRtl = isLayoutRtl
         val widthAvailable = (widthSize - paddingLeft - paddingRight).coerceAtLeast(0)
         var widthRemaining = widthAvailable
         val childCount = childCount
@@ -898,8 +899,8 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         // distribute the extra width proportionally to weight.
         if (canSlide || weightSum > 0 || skippedChildMeasure) {
             var totalMeasuredWidth = 0
-            forEach { child ->
-                if (child.visibility == GONE) return@forEach
+            forEachIndexed { index, child ->
+                if (child.visibility == GONE) return@forEachIndexed
                 val lp = child.spLayoutParams
                 val skippedFirstPass = !lp.canInfluenceParentSize || lp.weightOnlyWidth
                 val measuredWidth = if (skippedFirstPass) 0 else child.measuredWidth
@@ -908,10 +909,21 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                     // the layout available width.
                     canSlide -> widthAvailable - lp.horizontalMargin
                     lp.weight > 0 -> {
-                        // Distribute the extra width proportionally similar to LinearLayout
-                        val widthToDistribute = widthRemaining.coerceAtLeast(0)
-                        val addedWidth = (lp.weight * widthToDistribute / weightSum).roundToInt()
-                        measuredWidth + addedWidth
+                        val dividerPos = splitDividerPosition
+                        if (canSlide || dividerPos == SPLIT_DIVIDER_POSITION_AUTO) {
+                            // Distribute the extra width proportionally similar to LinearLayout
+                            val widthToDistribute = widthRemaining.coerceAtLeast(0)
+                            val addedWidth =
+                                (lp.weight * widthToDistribute / weightSum).roundToInt()
+                            measuredWidth + addedWidth
+                        } else { // Explicit dividing line is defined
+                            if ((index == 0) xor isLayoutRtl) {
+                                dividerPos - lp.horizontalMargin - paddingLeft
+                            } else {
+                                // padding accounted for in widthAvailable
+                                widthAvailable - lp.horizontalMargin - dividerPos
+                            }
+                        }
                     }
                     lp.width == MATCH_PARENT -> {
                         widthAvailable - lp.horizontalMargin - totalMeasuredWidth
