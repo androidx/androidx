@@ -23,7 +23,7 @@ import kotlin.math.hypot
  * time is an array of all positions and y is a list of arrays each with the values at each point
  */
 @ExperimentalAnimationSpecApi
-internal class MonoSpline(time: FloatArray, y: List<FloatArray>) {
+internal class MonoSpline(time: FloatArray, y: Array<FloatArray>) {
     private val timePoints: FloatArray
     private val values: ArrayList<FloatArray>
     private val tangents: ArrayList<FloatArray>
@@ -82,7 +82,7 @@ internal class MonoSpline(time: FloatArray, y: List<FloatArray>) {
         return ret
     }
 
-    private fun copyData(y: List<FloatArray>): ArrayList<FloatArray> {
+    private fun copyData(y: Array<FloatArray>): ArrayList<FloatArray> {
         val ret = ArrayList<FloatArray>()
         ret.addAll(y)
         return ret

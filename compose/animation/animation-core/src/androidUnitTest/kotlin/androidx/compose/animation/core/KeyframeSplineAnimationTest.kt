@@ -19,6 +19,7 @@ package androidx.compose.animation.core
 import androidx.compose.ui.geometry.Offset
 import junit.framework.TestCase.assertEquals
 import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -58,6 +59,37 @@ class KeyframeSplineAnimationTest {
             AnimationVector2D(-4f, -10f),
             animation.velocityAt(375, start = Offset(2f, 2f), end = Offset(0f, 0f))
         )
+    }
+
+    @Test
+    fun testMultipleEasing() {
+        val animation = keyframesWithSpline {
+            durationMillis = 300
+
+            Offset(0f, 0f) at 0 using EaseInCubic
+            Offset(1f, 1f) at 100 using EaseOutCubic
+            Offset(2f, 2f) at 200 using LinearEasing
+
+            // This easing is never applied since it's at the end
+            Offset(3f, 3f) at 300 using LinearOutSlowInEasing
+        }.vectorize(Offset.VectorConverter)
+
+        // Initial and target values don't matter since they're overwritten
+        var valueVector = animation.valueAt(50)
+
+        // Start with EaseInCubic, which is always a lower value than Linear
+        assertTrue(valueVector[0] < 0.5f)
+        assertTrue(valueVector[1] < 0.5f)
+
+        // Then, EaseOutCubic, which is always a higher value than linear
+        valueVector = animation.valueAt(50 + 100)
+        assertTrue(valueVector[0] > (0.5f + 1f))
+        assertTrue(valueVector[1] > (0.5f + 1f))
+
+        // Then, LinearEasing which is the same as linear interpolation (in this particular setup)
+        valueVector = animation.valueAt(50 + 200)
+        assertEquals((0.5f + 2f), valueVector[0], 0.001f)
+        assertEquals((0.5f + 2f), valueVector[1], 0.001f)
     }
 
     @Test
