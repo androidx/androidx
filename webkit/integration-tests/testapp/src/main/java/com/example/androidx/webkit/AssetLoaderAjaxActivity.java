@@ -24,6 +24,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -123,6 +124,9 @@ public class AssetLoaderAjaxActivity extends AppCompatActivity {
         // if your app is not using file:// or content:// URLs.
         webViewSettings.setAllowFileAccess(false);
         webViewSettings.setAllowContentAccess(false);
+
+        Button loadButton = findViewById(R.id.button_load_ajax_html);
+        loadButton.setOnClickListener(v -> loadUrl());
     }
 
     /**
