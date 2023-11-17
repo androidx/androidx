@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.media.ImageWriter
 import android.os.SystemClock
+import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraInfo
@@ -49,7 +50,8 @@ const val FAKE_CAPTURE_SEQUENCE_ID = 1
 @RequiresApi(23) // ImageWriter requires API 23+
 class FakeSessionProcessor(
     val inputFormatPreview: Int? = null,
-    val inputFormatCapture: Int? = null
+    val inputFormatCapture: Int? = null,
+    val postviewSupportedSizes: Map<Int, List<Size>>? = null
 ) : SessionProcessor {
     private lateinit var previewProcessorSurface: DeferrableSurface
     private lateinit var captureProcessorSurface: DeferrableSurface
@@ -230,6 +232,10 @@ class FakeSessionProcessor(
     @RestrictedCameraControl.CameraOperation
     override fun getSupportedCameraOperations(): Set<Int> {
         return restrictedCameraOperations
+    }
+
+    override fun getSupportedPostviewSize(captureSize: Size): Map<Int, List<Size>> {
+        return postviewSupportedSizes ?: emptyMap()
     }
 
     override fun startRepeating(callback: SessionProcessor.CaptureCallback): Int {

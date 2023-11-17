@@ -259,6 +259,12 @@ public class ImagePipeline {
         return mPipelineIn.getPostviewSurface() != null;
     }
 
+    @VisibleForTesting
+    @Nullable
+    public Size getPostviewSize() {
+        return mPipelineIn.getPostviewSize();
+    }
+
     private CameraRequest createCameraRequest(
             @NonNull CaptureBundle captureBundle,
             @NonNull TakePictureRequest takePictureRequest,

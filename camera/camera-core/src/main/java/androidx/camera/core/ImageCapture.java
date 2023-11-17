@@ -115,6 +115,7 @@ import androidx.camera.core.impl.utils.CompareSizesByArea;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
+import androidx.camera.core.internal.SupportedOutputSizesSorter;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.compat.quirk.SoftwareJpegEncodingPreferredQuirk;
 import androidx.camera.core.internal.compat.workaround.ExifRotationAvailability;
@@ -1184,11 +1185,32 @@ public final class ImageCapture extends UseCase {
                         sessionProcessor.getSupportedPostviewSize(resolution);
                 List<Size> sizes = map.get(ImageFormat.JPEG);
 
-                Preconditions.checkNotNull(sizes,
-                        "getSupportedPostviewResolutions doesn't contain valid JPEG sizes.");
-
-                // TODO: select the size by ResolutionSelector
-                postViewSize = Collections.max(sizes, new CompareSizesByArea());
+                if (sizes != null) {
+                    if (postviewSizeSelector != null) {
+                        Collections.sort(sizes, new CompareSizesByArea(true));
+                        CameraInternal camera = getCamera();
+                        Rect sensorRect = camera.getCameraControlInternal().getSensorRect();
+                        CameraInfoInternal cameraInfo = camera.getCameraInfoInternal();
+                        Rational fullFov = new Rational(sensorRect.width(), sensorRect.height());
+                        List<Size> result =
+                                SupportedOutputSizesSorter
+                                        .sortSupportedOutputSizesByResolutionSelector(
+                                                postviewSizeSelector,
+                                                sizes,
+                                                null,
+                                                getTargetRotation(),
+                                                fullFov,
+                                                cameraInfo.getSensorRotationDegrees(),
+                                                cameraInfo.getLensFacing());
+                        if (result.isEmpty()) {
+                            throw new IllegalArgumentException("The postview ResolutionSelector "
+                                    + "cannot select a valid size for the postview.");
+                        }
+                        postViewSize = result.get(0);
+                    } else {
+                        postViewSize = Collections.max(sizes, new CompareSizesByArea());
+                    }
+                }
             }
         }
 

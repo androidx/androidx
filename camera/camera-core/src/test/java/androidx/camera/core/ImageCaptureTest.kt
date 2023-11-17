@@ -27,6 +27,7 @@ import android.util.Pair
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import androidx.annotation.RequiresApi
 import androidx.camera.core.CameraEffect.IMAGE_CAPTURE
 import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
@@ -48,6 +49,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor
 import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.core.internal.utils.SizeUtil
+import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
@@ -55,8 +57,10 @@ import androidx.camera.testing.fakes.FakeCameraControl
 import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
+import androidx.camera.testing.impl.fakes.FakeCameraConfig
 import androidx.camera.testing.impl.fakes.FakeCameraFactory
 import androidx.camera.testing.impl.fakes.FakeImageReaderProxy
+import androidx.camera.testing.impl.fakes.FakeSessionProcessor
 import androidx.camera.testing.impl.mocks.MockScreenFlashUiControl
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
@@ -539,6 +543,90 @@ class ImageCaptureTest {
 
         assertThat((imageCapture.currentConfig as ImageCaptureConfig).postviewResolutionSelector)
             .isSameInstanceAs(resolutionSelector)
+    }
+
+    @RequiresApi(23)
+    @Test
+    fun useMaximumSize_whenNotSettingPostviewResolutioSelector() {
+        val imageCapture = ImageCapture.Builder()
+            .setPostviewEnabled(true)
+            .build()
+
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+            ApplicationProvider.getApplicationContext(),
+            CameraSelector.DEFAULT_BACK_CAMERA
+        )
+
+        val cameraConfig = FakeCameraConfig(
+            sessionProcessor = FakeSessionProcessor(
+                postviewSupportedSizes = mapOf(
+                    ImageFormat.JPEG to
+                        listOf(Size(1920, 1080), Size(640, 480)))
+            )
+        )
+
+        cameraUseCaseAdapter.setExtendedConfig(cameraConfig)
+        cameraUseCaseAdapter.addUseCases(listOf(imageCapture))
+        assertThat(imageCapture.imagePipeline!!.postviewSize).isEqualTo(Size(1920, 1080))
+    }
+
+    @RequiresApi(23)
+    @Test
+    fun postviewResolutioSelectorCanWork() {
+        val resolutionSelector = ResolutionSelector.Builder()
+            .setAspectRatioStrategy(AspectRatioStrategy.RATIO_16_9_FALLBACK_AUTO_STRATEGY)
+            .build()
+
+        val imageCapture = ImageCapture.Builder()
+            .setPostviewEnabled(true)
+            .setPostviewResolutionSelector(resolutionSelector)
+            .build()
+
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+            ApplicationProvider.getApplicationContext(),
+            CameraSelector.DEFAULT_BACK_CAMERA
+        )
+
+        val cameraConfig = FakeCameraConfig(
+            sessionProcessor = FakeSessionProcessor(
+                postviewSupportedSizes = mapOf(
+                    ImageFormat.JPEG to
+                        listOf(Size(4000, 3000), Size(1920, 1080)))
+            )
+        )
+
+        cameraUseCaseAdapter.setExtendedConfig(cameraConfig)
+        cameraUseCaseAdapter.addUseCases(listOf(imageCapture))
+        assertThat(imageCapture.imagePipeline!!.postviewSize).isEqualTo(Size(1920, 1080))
+    }
+
+    @RequiresApi(23)
+    @Test
+    fun throwException_whenPostviewResolutionSelectorCannotSelectSize() {
+        val resolutionSelector = ResolutionSelector.Builder()
+            .setResolutionFilter({ _, _ -> emptyList() }).build()
+        val imageCapture = ImageCapture.Builder()
+            .setPostviewEnabled(true)
+            .setPostviewResolutionSelector(resolutionSelector)
+            .build()
+
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+            ApplicationProvider.getApplicationContext(),
+            CameraSelector.DEFAULT_BACK_CAMERA
+        )
+
+        val cameraConfig = FakeCameraConfig(
+            sessionProcessor = FakeSessionProcessor(
+                postviewSupportedSizes = mapOf(
+                    ImageFormat.JPEG to listOf(Size(1920, 1080)))
+            )
+        )
+
+        cameraUseCaseAdapter.setExtendedConfig(cameraConfig)
+        // the CameraException will be converted to IllegalArgumentException in camera-lifecycle.
+        assertThrows(CameraUseCaseAdapter.CameraException::class.java) {
+            cameraUseCaseAdapter.addUseCases(listOf(imageCapture))
+        }
     }
 
     private fun bindImageCapture(
