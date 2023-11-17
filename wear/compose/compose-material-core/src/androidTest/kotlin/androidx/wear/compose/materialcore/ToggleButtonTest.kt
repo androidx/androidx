@@ -571,23 +571,6 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun toggle_button_has_role_checkbox() {
-        rule.setContent {
-            ToggleButtonWithDefaults(
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
-                )
-            )
-    }
-
-    @Test
     fun toggle_button_displays_label_content() {
         val textContent = "abc"
 
@@ -807,7 +790,7 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_button_has_roles_button_and_checkbox() {
+    fun split_button_clickable_has_role_button() {
         rule.setContent {
             SplitToggleButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
@@ -819,14 +802,6 @@ class ToggleButtonTest {
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
                     Role.Button
-                )
-            )
-
-        rule.onNodeWithTag(TEST_TAG).onChildAt(1)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
                 )
             )
     }

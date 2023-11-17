@@ -460,28 +460,7 @@ class ToggleChipBehaviourTest {
     }
 
     @Test
-    fun has_role_checkbox() {
-        rule.setContentWithTheme {
-            ToggleChip(
-                checked = false,
-                onCheckedChange = {},
-                label = { Text("Label") },
-                toggleControl = { TestImage() },
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule.onNodeWithTag(TEST_TAG)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
-                )
-            )
-    }
-
-    @Test
-    fun split_chip_has_roles_button_and_checkbox() {
+    fun split_chip_clickable_has_role_button() {
         rule.setContentWithTheme {
             SplitToggleChip(
                 checked = false,
@@ -498,14 +477,6 @@ class ToggleChipBehaviourTest {
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.Role,
                     Role.Button
-                )
-            )
-
-        rule.onNodeWithTag(TEST_TAG).onChildAt(1)
-            .assert(
-                SemanticsMatcher.expectValue(
-                    SemanticsProperties.Role,
-                    Role.Checkbox
                 )
             )
     }

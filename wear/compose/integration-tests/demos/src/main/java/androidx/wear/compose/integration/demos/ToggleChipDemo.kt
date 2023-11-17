@@ -25,12 +25,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
@@ -91,16 +88,12 @@ fun ToggleChips(
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 ToggleChip(
-                    label = { Text("CheckboxIcon") },
+                    label = { Text("Checkbox") },
                     checked = checkBoxIconChecked,
                     toggleControl = {
                         Checkbox(
                             checked = checkBoxIconChecked,
                             enabled = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (checkBoxIconChecked) "Checked" else "Unchecked"
-                            }
                         )
                     },
                     onCheckedChange = { checkBoxIconChecked = it },
@@ -111,7 +104,7 @@ fun ToggleChips(
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 ToggleChip(
-                    label = { Text("CheckboxIcon") },
+                    label = { Text("Checkbox") },
                     secondaryLabel = { Text("Custom color") },
                     checked = checkBoxIconCustomColorChecked,
                     toggleControl = {
@@ -124,10 +117,6 @@ fun ToggleChips(
                             ),
                             checked = checkBoxIconCustomColorChecked,
                             enabled = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (checkBoxIconCustomColorChecked) "Checked" else "Unchecked"
-                            }
                         )
                     },
                     onCheckedChange = { checkBoxIconCustomColorChecked = it },
@@ -138,15 +127,12 @@ fun ToggleChips(
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 ToggleChip(
-                    label = { Text("SwitchIcon") },
+                    label = { Text("Switch") },
                     checked = switchIconChecked,
                     toggleControl = {
                         Switch(
                             checked = switchIconChecked,
                             enabled = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription = if (switchIconChecked) "On" else "Off"
-                            }
                         )
                     },
                     onCheckedChange = { switchIconChecked = it },
@@ -157,7 +143,7 @@ fun ToggleChips(
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 ToggleChip(
-                    label = { Text("SwitchIcon") },
+                    label = { Text("Switch") },
                     secondaryLabel = { Text("Custom color") },
                     checked = switchIconCustomColorChecked,
                     toggleControl = {
@@ -170,10 +156,6 @@ fun ToggleChips(
                             ),
                             checked = switchIconCustomColorChecked,
                             enabled = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (switchIconCustomColorChecked) "On" else "Off"
-                            }
                         )
                     },
                     onCheckedChange = { switchIconCustomColorChecked = it },
@@ -185,17 +167,13 @@ fun ToggleChips(
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 ToggleChip(
                     label = {
-                        Text("RadioIcon", maxLines = 2, overflow = TextOverflow.Ellipsis)
+                        Text("Radio", maxLines = 2, overflow = TextOverflow.Ellipsis)
                     },
                     checked = radioIconChecked,
                     toggleControl = {
                         RadioButton(
                             selected = radioIconChecked,
                             enabled = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (radioIconChecked) "Selected" else "Unselected"
-                            }
                         )
                     },
                     onCheckedChange = { radioIconChecked = it },
@@ -227,10 +205,6 @@ fun ToggleChips(
                                 unselectedRingColor = Color.Magenta,
                                 unselectedDotColor = Color.Red,
                             ),
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (radioIconWithSecondaryChecked) "Selected" else "Unselected"
-                            }
                         )
                     },
                     onCheckedChange = { radioIconWithSecondaryChecked = it },
@@ -246,7 +220,7 @@ fun ToggleChips(
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 ToggleChip(
                     label = {
-                        Text("SwitchIcon", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                        Text("Switch", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     },
                     secondaryLabel = {
                         Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
@@ -263,10 +237,6 @@ fun ToggleChips(
                         Switch(
                             checked = switchIconWithSecondaryChecked,
                             enabled = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (switchIconWithSecondaryChecked) "On" else "Off"
-                            }
                         )
                      },
                     onCheckedChange = { switchIconWithSecondaryChecked = it },
@@ -278,7 +248,7 @@ fun ToggleChips(
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 ToggleChip(
-                    label = { Text("SwitchIcon", maxLines = 1, overflow = TextOverflow.Ellipsis) },
+                    label = { Text("Switch", maxLines = 1, overflow = TextOverflow.Ellipsis) },
                     secondaryLabel = {
                         Text("With switchable icon", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     },
@@ -294,10 +264,6 @@ fun ToggleChips(
                         Switch(
                             checked = switchIconWithIconChecked,
                             enabled = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (switchIconWithIconChecked) "On" else "Off"
-                            }
                         )
                     },
                     onCheckedChange = { switchIconWithIconChecked = it },
@@ -322,16 +288,12 @@ fun ToggleChips(
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 SplitToggleChip(
-                    label = { Text("Split with CheckboxIcon") },
+                    label = { Text("Split with Checkbox") },
                     checked = splitWithCheckboxIconChecked,
                     toggleControl = {
                         Checkbox(
                             checked = splitWithCheckboxIconChecked,
                             enabled = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (splitWithCheckboxIconChecked) "Checked" else "Unchecked"
-                            }
                         )
                     },
                     onCheckedChange = { splitWithCheckboxIconChecked = it },
@@ -348,7 +310,7 @@ fun ToggleChips(
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 SplitToggleChip(
-                    label = { Text("Split with SwitchIcon") },
+                    label = { Text("Split with Switch") },
                     checked = splitWithSwitchIconChecked,
                     // For Switch  toggle controls the Wear Material UX guidance is to set the
                     // unselected toggle control color to
@@ -361,10 +323,6 @@ fun ToggleChips(
                         Switch(
                             checked = splitWithSwitchIconChecked,
                             enabled = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (splitWithSwitchIconChecked) "On" else "Off"
-                            }
                         )
                     },
                     onCheckedChange = { splitWithSwitchIconChecked = it },
@@ -381,16 +339,12 @@ fun ToggleChips(
         item {
             CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                 SplitToggleChip(
-                    label = { Text("Split with RadioIcon") },
+                    label = { Text("Split with Radio") },
                     checked = splitWithRadioIconChecked,
                     toggleControl = {
                         RadioButton(
                             selected = splitWithRadioIconChecked,
                             enabled = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (splitWithRadioIconChecked) "Selected" else "Unselected"
-                            }
                         )
                     },
                     onCheckedChange = { splitWithRadioIconChecked = it },
@@ -409,7 +363,7 @@ fun ToggleChips(
                 SplitToggleChip(
                     label = {
                         Text(
-                            "Split with SwitchIcon", maxLines = 1,
+                            "Split with Switch", maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                     },
@@ -424,10 +378,6 @@ fun ToggleChips(
                         Switch(
                             checked = splitWithCustomColorChecked,
                             enabled = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (splitWithCustomColorChecked) "On" else "Off"
-                            }
                         )
                     },
                     onCheckedChange = { splitWithCustomColorChecked = it },
@@ -467,10 +417,6 @@ fun ToggleChips(
                     toggleControl = {
                         Switch(
                             checked = enabled,
-                            modifier = Modifier.semantics {
-                                this.contentDescription =
-                                    if (enabled) "On" else "Off"
-                            }
                         )
                     },
                 )
