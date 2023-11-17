@@ -17,15 +17,18 @@
 package androidx.slidingpanelayout.widget
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorFilter
 import android.graphics.PixelFormat
+import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import android.util.SparseArray
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec
+import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
 import androidx.core.view.get
 import androidx.slidingpanelayout.test.R
@@ -108,6 +111,30 @@ class UserResizeModeTest {
             .that(destSpl.splitDividerPosition)
             .isEqualTo(35)
     }
+
+    @Test
+    fun visualDividerPositionClipsChildren() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        spl.splitDividerPosition = 35
+        spl.drawToBitmap()
+        assertWithMessage("left child clip")
+            .that((spl[0] as TestPaneView).clipBoundsAtLastDraw)
+            .isEqualTo(Rect(0, 0, 35, 100))
+        spl.splitDividerPosition = 65
+        spl.measureAndLayoutForTest()
+        spl.drawToBitmap()
+        assertWithMessage("right child clip")
+            .that(((spl[1] as ViewGroup)[0] as TestPaneView).clipBoundsAtLastDraw)
+            .isEqualTo(Rect(15, 0, 50, 100))
+    }
+}
+
+private fun View.drawToBitmap(): Bitmap {
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    draw(canvas)
+    return bitmap
 }
 
 private fun createTestSpl(context: Context): SlidingPaneLayout = SlidingPaneLayout(context).apply {
@@ -155,6 +182,8 @@ private class TestDividerDrawable(
 }
 
 private class TestPaneView(context: Context) : View(context) {
+    val clipBoundsAtLastDraw = Rect()
+
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val widthSize = MeasureSpec.getSize(widthMeasureSpec)
         val widthMode = MeasureSpec.getMode(widthMeasureSpec)
@@ -174,6 +203,11 @@ private class TestPaneView(context: Context) : View(context) {
                 else -> error("bad width mode $heightMode")
             }
         )
+    }
+
+    override fun draw(canvas: Canvas) {
+        super.draw(canvas)
+        canvas.getClipBounds(clipBoundsAtLastDraw)
     }
 }
 
