@@ -25,7 +25,6 @@ import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class EasingTest {
-
     @Test
     fun cubicBezierStartsAt0() {
         val easing = FastOutSlowInEasing
@@ -39,7 +38,7 @@ class EasingTest {
     }
 
     @Test
-    fun testCubicBezierEquals() {
+    fun cubicBezierEquals() {
         val curve1 = CubicBezierEasing(1f, 2f, 3f, 4f)
         val curve1Dup = CubicBezierEasing(1f, 2f, 3f, 4f)
         val curve2 = CubicBezierEasing(0f, 2f, 3f, 4f)
