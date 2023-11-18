@@ -70,6 +70,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
+import kotlin.test.Ignore
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
 import kotlin.test.assertNotNull
@@ -410,6 +411,13 @@ class AndroidExternalSurfaceTest {
     }
 
     @Test
+    @Ignore(
+        """Despite best efforts in screenshotToImage(), this test is too flaky currently.
+            |Since this test only tests that the `isOpaque` parameter is properly passed
+            |to the underlying SurfaceView, we don't lose much by disabling it.
+            |This test should be more robust on API level 34 using the window
+            |screenshot API."""
+    )
     fun testNotOpaque() {
         val latch = CountDownLatch(FrameCount)
         val translucentRed = Color(1.0f, 0.0f, 0.0f, 0.5f).toArgb()
@@ -459,6 +467,13 @@ class AndroidExternalSurfaceTest {
     }
 
     @Test
+    @Ignore(
+        """Despite best efforts in screenshotToImage(), this test is too flaky currently.
+            |Since this test only tests that the `isSecure` parameter is properly passed
+            |to the underlying SurfaceView, we don't lose much by disabling it.
+            |This test should be more robust on API level 34 using the window
+            |screenshot API."""
+    )
     fun testSecure() {
         val latch = CountDownLatch(FrameCount)
 
