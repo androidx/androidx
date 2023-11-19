@@ -24,7 +24,6 @@ import android.view.SurfaceControl
 import androidx.annotation.IntRange
 import androidx.annotation.RequiresApi
 import androidx.core.util.Consumer
-import androidx.graphics.BufferedRendererImpl.Companion.DefaultColorSpace
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.surface.SurfaceControlCompat.Companion.BufferTransform
 import androidx.hardware.DefaultFlags
@@ -69,7 +68,7 @@ class CanvasBufferedRenderer internal constructor(
 ) : AutoCloseable {
 
     private val mImpl: Impl = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-        !useV29Impl(useImpl)
+        useImpl == DEFAULT_IMPL
     ) {
         CanvasBufferedRendererV34(
             width,
@@ -85,7 +84,7 @@ class CanvasBufferedRenderer internal constructor(
             mFormat,
             mUsage,
             mMaxBuffers,
-            useImpl == USE_V29_IMPL_WITH_REDRAW
+            useImpl
         )
     }
 
@@ -344,7 +343,7 @@ class CanvasBufferedRenderer internal constructor(
             } else {
                 throw IllegalArgumentException(
                     "Invalid transform provided, must be one of the " +
-                        "SurfaceControlCompat.BufferTransform values"
+                        "SurfaceControlCompat.BufferTransform values received: " + bufferTransform
                 )
             }
             return this
@@ -473,6 +472,8 @@ class CanvasBufferedRenderer internal constructor(
 
     internal companion object {
 
+        val DefaultColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
+
         /**
          * Test flag to use the optimal implementation for the corresponding
          * Android platform version
@@ -480,17 +481,15 @@ class CanvasBufferedRenderer internal constructor(
         internal const val DEFAULT_IMPL = 0
 
         /**
-         * Test flag used to verify the V29 implementation for all devices
-         */
-        internal const val USE_V29_IMPL = 1
-
-        /**
          * Test flag used to verify the V29 implementation that leverages the
          * redraw strategy on devices that do not persist contents of opaque renders
          */
-        internal const val USE_V29_IMPL_WITH_REDRAW = 2
+        internal const val USE_V29_IMPL_WITH_REDRAW = 1
 
-        fun useV29Impl(impl: Int): Boolean = impl == USE_V29_IMPL ||
-            impl == USE_V29_IMPL_WITH_REDRAW
+        /**
+         * Test flag used to verify the V29 implementation that leverages the default
+         * single buffered restoration strategy
+         */
+        internal const val USE_V29_IMPL_WITH_SINGLE_BUFFER = 2
     }
 }

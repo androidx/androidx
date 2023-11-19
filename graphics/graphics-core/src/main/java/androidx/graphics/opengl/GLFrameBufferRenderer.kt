@@ -279,8 +279,8 @@ class GLFrameBufferRenderer internal constructor(
                 inverseTransform: Int
             ) {
                 val frameBufferPool = FrameBufferPool(
-                    bufferTransformer.glWidth,
-                    bufferTransformer.glHeight,
+                    bufferTransformer.bufferWidth,
+                    bufferTransformer.bufferHeight,
                     this@GLFrameBufferRenderer.mFormat,
                     mUsage,
                     mMaxBuffers
@@ -375,8 +375,8 @@ class GLFrameBufferRenderer internal constructor(
             private val height = bufferTransformer.logicalHeight
 
             private val bufferInfo = BufferInfo().apply {
-                this.width = bufferTransformer.glWidth
-                this.height = bufferTransformer.glHeight
+                this.width = bufferTransformer.bufferWidth
+                this.height = bufferTransformer.bufferHeight
             }
 
             override fun obtainFrameBuffer(egl: EGLSpec): FrameBuffer {

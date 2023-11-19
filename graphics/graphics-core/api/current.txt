@@ -63,9 +63,11 @@ package androidx.graphics.lowlatency {
 
   @RequiresApi(android.os.Build.VERSION_CODES.Q) public final class CanvasFrontBufferedRenderer<T> {
     ctor public CanvasFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.CanvasFrontBufferedRenderer.Callback<T> callback);
+    ctor public CanvasFrontBufferedRenderer(android.view.SurfaceView surfaceView, androidx.graphics.lowlatency.CanvasFrontBufferedRenderer.Callback<T> callback, optional int bufferFormat);
     method public void cancel();
     method public void clear();
     method public void commit();
+    method public int getBufferFormat();
     method public android.graphics.ColorSpace getColorSpace();
     method public boolean isValid();
     method public void release(boolean cancelPending);
@@ -73,6 +75,7 @@ package androidx.graphics.lowlatency {
     method public void renderFrontBufferedLayer(T param);
     method public void renderMultiBufferedLayer(java.util.Collection<? extends T> params);
     method public void setColorSpace(android.graphics.ColorSpace);
+    property public final int bufferFormat;
     property public final android.graphics.ColorSpace colorSpace;
   }
 

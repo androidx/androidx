@@ -35,6 +35,7 @@ import androidx.graphics.CanvasBufferedRenderer.RenderResult.Companion.SUCCESS
 import androidx.graphics.lowlatency.BufferTransformHintResolver
 import androidx.graphics.lowlatency.PreservedBufferContentsVerifier
 import androidx.hardware.SyncFenceCompat
+import androidx.hardware.SyncFenceV33
 import java.util.concurrent.Executor
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
@@ -46,10 +47,10 @@ internal class CanvasBufferedRendererV29(
     format: Int,
     usage: Long,
     private val mMaxBuffers: Int,
-    forceRedrawContentsStrategy: Boolean = false
+    preservationStrategy: Int,
 ) : CanvasBufferedRenderer.Impl {
 
-    private val mPreservedRenderStrategy = createPreservationStrategy(forceRedrawContentsStrategy)
+    private val mPreservedRenderStrategy = createPreservationStrategy(preservationStrategy)
 
     private val mImageReader = ImageReader.newInstance(
         mWidth,
@@ -331,7 +332,7 @@ internal class CanvasBufferedRendererV29(
                 mFence?.awaitForever()
                 val bitmap = Bitmap.wrapHardwareBuffer(
                     buffer,
-                    BufferedRendererImpl.DefaultColorSpace
+                    CanvasBufferedRenderer.DefaultColorSpace
                 )
                 if (bitmap != null) {
                     canvas.save()
@@ -354,26 +355,53 @@ internal class CanvasBufferedRendererV29(
         const val TAG = "BufferRendererV29"
 
         internal fun createPreservationStrategy(
-            forceRedrawContentsStrategy: Boolean
-        ): PreservedRenderStrategy {
-            val supportsBufferPreservation = if (forceRedrawContentsStrategy) {
-                false
-            } else {
-                val verifier = PreservedBufferContentsVerifier()
-                val preserveContents = verifier.supportsPreservedRenderedContent()
-                verifier.release()
-                preserveContents
+            preservationStrategy: Int
+        ): PreservedRenderStrategy =
+            when (preservationStrategy) {
+                CanvasBufferedRenderer.USE_V29_IMPL_WITH_SINGLE_BUFFER -> {
+                    Log.v(TAG, "Explicit usage of single buffered preservation strategy")
+                    SingleBufferedStrategy()
+                }
+                CanvasBufferedRenderer.USE_V29_IMPL_WITH_REDRAW -> {
+                    Log.v(TAG, "Explicit usage of double buffered redraw strategy " +
+                        "with force clear")
+                    RedrawBufferStrategy(true)
+                }
+                else -> {
+                    val verifier = PreservedBufferContentsVerifier()
+                    val preserveContents = verifier.supportsPreservedRenderedContent()
+                    verifier.release()
+                    if (preserveContents) {
+                        Log.v(TAG, "Device supports persisted canvas optimizations")
+                        SingleBufferedStrategy()
+                    } else {
+                        Log.w(
+                            TAG,
+                            "Warning, device DOES NOT support persisted canvas optimizations."
+                        )
+                        RedrawBufferStrategy(false)
+                    }
+                }
             }
+    }
+}
 
-            return if (supportsBufferPreservation) {
-                Log.v(TAG, "Device supports persisted canvas optimizations")
-                SingleBufferedStrategy()
-            } else {
-                Log.w(
-                    TAG,
-                    "Warning, device DOES NOT support persisted canvas optimizations."
-                )
-                RedrawBufferStrategy(forceRedrawContentsStrategy)
+/**
+ * Helper class to avoid class verification failures
+ */
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+internal class ImageVerificationHelper private constructor() {
+    companion object {
+
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        @androidx.annotation.DoNotInline
+        fun getFence(image: Image): SyncFenceCompat = SyncFenceCompat(image.fence)
+
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        @androidx.annotation.DoNotInline
+        fun setFence(image: Image, fence: SyncFenceCompat?) {
+            if (fence != null && fence.mImpl is SyncFenceV33) {
+                image.fence = fence.mImpl.mSyncFence
             }
         }
     }
