@@ -60,7 +60,6 @@ import static java.util.Objects.requireNonNull;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.ImageFormat;
-import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.location.Location;
 import android.media.Image;
@@ -112,7 +111,6 @@ import androidx.camera.core.impl.StreamSpec;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
-import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.IoConfig;
@@ -128,21 +126,16 @@ import androidx.lifecycle.LifecycleOwner;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Executor;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -1939,145 +1932,6 @@ public final class ImageCapture extends UseCase {
                     + "mIsReversedVertical=" + mIsReversedVertical + ", "
                     + "mLocation=" + mLocation
                     + "}";
-        }
-    }
-
-    @VisibleForTesting
-    static class ImageCaptureRequest {
-        @RotationValue
-        final int mRotationDegrees;
-        @IntRange(from = 1, to = 100)
-        final int mJpegQuality;
-
-        private final Rational mTargetRatio;
-        @NonNull
-        private final Executor mListenerExecutor;
-        @NonNull
-        private final OnImageCapturedCallback mCallback;
-
-        AtomicBoolean mDispatched = new AtomicBoolean(false);
-
-        private final Rect mViewPortCropRect;
-
-        @NonNull
-        private final Matrix mSensorToBufferTransformMatrix;
-
-        /**
-         * @param rotationDegrees               The degrees to rotate the image buffer from sensor
-         *                                      coordinates into the final output coordinate space.
-         * @param jpegQuality                   The requested output JPEG image compression
-         *                                      quality. The value must
-         *                                      be in range [1..100] which larger is higher quality.
-         * @param targetRatio                   The aspect ratio of the image in final output
-         *                                      coordinate space.
-         *                                      This must be a non-negative, non-zero value.
-         * @param viewPortCropRect              The cropped rect of the field of view.
-         * @param sensorToBufferTransformMatrix The sensor to buffer transform matrix.
-         * @param executor                      The {@link Executor} which will be used for the
-         *                                      listener.
-         * @param callback                      The {@link OnImageCapturedCallback} for the quest.
-         * @throws IllegalArgumentException If targetRatio is not a valid value.
-         */
-        ImageCaptureRequest(
-                @RotationValue int rotationDegrees,
-                @IntRange(from = 1, to = 100) int jpegQuality,
-                Rational targetRatio,
-                @Nullable Rect viewPortCropRect,
-                @NonNull Matrix sensorToBufferTransformMatrix,
-                @NonNull Executor executor,
-                @NonNull OnImageCapturedCallback callback) {
-            mRotationDegrees = rotationDegrees;
-            mJpegQuality = jpegQuality;
-            if (targetRatio != null) {
-                Preconditions.checkArgument(!targetRatio.isZero(), "Target ratio cannot be zero");
-                Preconditions.checkArgument(targetRatio.floatValue() > 0, "Target ratio must be "
-                        + "positive");
-            }
-            mTargetRatio = targetRatio;
-            mViewPortCropRect = viewPortCropRect;
-            mSensorToBufferTransformMatrix = sensorToBufferTransformMatrix;
-            mListenerExecutor = executor;
-            mCallback = callback;
-        }
-
-        void dispatchImage(final ImageProxy image) {
-            // Check to make sure image hasn't been already dispatched or error has been notified
-            if (!mDispatched.compareAndSet(false, true)) {
-                image.close();
-                return;
-            }
-
-            Size dispatchResolution;
-            int dispatchRotationDegrees;
-
-            // Retrieve the dimension and rotation values from the embedded EXIF data in the
-            // captured image only if those information is available.
-            if (EXIF_ROTATION_AVAILABILITY.shouldUseExifOrientation(image)) {
-                // JPEG needs to have rotation/crop based on the EXIF
-                try {
-                    ImageProxy.PlaneProxy[] planes = image.getPlanes();
-                    ByteBuffer buffer = planes[0].getBuffer();
-                    Exif exif;
-
-                    buffer.rewind();
-
-                    byte[] data = new byte[buffer.capacity()];
-                    buffer.get(data);
-                    exif = Exif.createFromInputStream(new ByteArrayInputStream(data));
-                    buffer.rewind();
-
-                    dispatchResolution = new Size(exif.getWidth(), exif.getHeight());
-                    dispatchRotationDegrees = exif.getRotation();
-                } catch (IOException e) {
-                    notifyCallbackError(ERROR_FILE_IO, "Unable to parse JPEG exif", e);
-                    image.close();
-                    return;
-                }
-            } else {
-                // All other formats take the rotation based simply on the target rotation
-                dispatchResolution = new Size(image.getWidth(), image.getHeight());
-                dispatchRotationDegrees = mRotationDegrees;
-            }
-
-            // Construct the ImageProxy with the updated rotation & crop for the output
-            ImageInfo imageInfo = ImmutableImageInfo.create(
-                    image.getImageInfo().getTagBundle(),
-                    image.getImageInfo().getTimestamp(),
-                    dispatchRotationDegrees,
-                    mSensorToBufferTransformMatrix);
-
-            final ImageProxy dispatchedImageProxy = new SettableImageProxy(image,
-                    dispatchResolution, imageInfo);
-
-            // Update the crop rect aspect ratio after it has been rotated into the buffer
-            // orientation
-            Rect cropRect = computeDispatchCropRect(mViewPortCropRect, mTargetRatio,
-                    mRotationDegrees, dispatchResolution, dispatchRotationDegrees);
-            dispatchedImageProxy.setCropRect(cropRect);
-
-            try {
-                mListenerExecutor.execute(() -> mCallback.onCaptureSuccess(dispatchedImageProxy));
-            } catch (RejectedExecutionException e) {
-                Logger.e(TAG, "Unable to post to the supplied executor.");
-
-                // Unable to execute on the supplied executor, close the image.
-                image.close();
-            }
-        }
-
-        void notifyCallbackError(final @ImageCaptureError int imageCaptureError,
-                final String message, final Throwable cause) {
-            // Check to make sure image hasn't been already dispatched or error has been notified
-            if (!mDispatched.compareAndSet(false, true)) {
-                return;
-            }
-
-            try {
-                mListenerExecutor.execute(() -> mCallback.onError(
-                        new ImageCaptureException(imageCaptureError, message, cause)));
-            } catch (RejectedExecutionException e) {
-                Logger.e(TAG, "Unable to post to the supplied executor.");
-            }
         }
     }
 
