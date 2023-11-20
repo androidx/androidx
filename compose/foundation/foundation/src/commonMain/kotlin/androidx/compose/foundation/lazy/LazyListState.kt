@@ -451,9 +451,9 @@ class LazyListState constructor(
             } else {
                 scrollPosition.updateFromMeasureResult(result)
                 cancelPrefetchIfVisibleItemsChanged(result)
-                canScrollBackward = result.canScrollBackward
-                canScrollForward = result.canScrollForward
             }
+            canScrollBackward = result.canScrollBackward
+            canScrollForward = result.canScrollForward
             scrollToBeConsumed -= result.consumedScroll
             layoutInfoState.value = result
 
