@@ -21,6 +21,8 @@ package androidx.compose.animation.demos.lookahead
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.DeferredTargetAnimation
+import androidx.compose.animation.core.ExperimentalAnimatableApi
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.spring
@@ -41,6 +43,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.movableContentOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -48,7 +51,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.LookaheadScope
-import androidx.compose.ui.layout.intermediateLayout
+import androidx.compose.ui.layout.approachLayout
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -147,22 +150,35 @@ fun Details(visible: Boolean, modifier: Modifier = Modifier) {
 }
 
 context(LookaheadScope)
+@OptIn(ExperimentalAnimatableApi::class)
 @SuppressLint("UnnecessaryComposedModifier")
 fun Modifier.animatePosition(): Modifier = composed {
     val offsetAnimation = remember {
-        DeferredAnimation(IntOffset.VectorConverter)
+        DeferredTargetAnimation(IntOffset.VectorConverter)
     }
-    this.intermediateLayout { measurable, constraints ->
+    val coroutineScope = rememberCoroutineScope()
+    this.approachLayout(isMeasurementApproachComplete = { true },
+        isPlacementApproachComplete = {
+            offsetAnimation.updateTarget(
+                lookaheadScopeCoordinates.localLookaheadPositionOf(
+                    it
+                ).round(),
+                coroutineScope,
+                spring(stiffness = Spring.StiffnessMediumLow)
+            )
+            offsetAnimation.isIdle
+        }
+    ) { measurable, constraints ->
         measurable.measure(constraints).run {
             layout(width, height) {
                 val (x, y) =
                     coordinates?.let { coordinates ->
                         val origin = this.lookaheadScopeCoordinates
-                        offsetAnimation.updateTarget(
+                        val animOffset = offsetAnimation.updateTarget(
                             origin.localLookaheadPositionOf(
                                 coordinates
-                            )
-                                .round(),
+                            ).round(),
+                            coroutineScope,
                             spring(stiffness = Spring.StiffnessMediumLow),
                         )
                         val currentOffset =
@@ -170,8 +186,7 @@ fun Modifier.animatePosition(): Modifier = composed {
                                 coordinates,
                                 Offset.Zero
                             )
-                        (offsetAnimation.value
-                            ?: offsetAnimation.target!!) - currentOffset.round()
+                        animOffset - currentOffset.round()
                     } ?: IntOffset.Zero
                 place(x, y)
             }
