@@ -64,10 +64,12 @@ class BluetoothLeTest {
         val bluetoothManager = context
             .getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         val bluetoothAdapter = bluetoothManager.adapter
-        bluetoothLe = BluetoothLe(context)
 
         Assume.assumeNotNull(bluetoothAdapter)
         Assume.assumeTrue(bluetoothAdapter.isEnabled)
+        Assume.assumeTrue(bluetoothAdapter.bluetoothLeAdvertiser != null)
+
+        bluetoothLe = BluetoothLe(context)
     }
 
     @Test
