@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.text.BasicText
-import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text2.input.TextFieldState
 import androidx.compose.foundation.text2.input.rememberTextFieldState
 import androidx.compose.runtime.Composable
@@ -53,9 +52,10 @@ import org.junit.runner.RunWith
 @OptIn(ExperimentalFoundationApi::class)
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-class TextFieldFocusTest {
+internal class TextFieldFocusTest {
     @get:Rule
     val rule = createComposeRule()
+    private val inputMethodInterceptor = InputMethodInterceptor(rule)
 
     private val testKeyboardController = TestSoftwareKeyboardController(rule)
 
@@ -151,8 +151,8 @@ class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun keyboardIsShown_forFieldInActivity_whenFocusRequestedImmediately_fromLaunchedEffect() {
-        keyboardIsShown_whenFocusRequestedImmediately_fromEffect(
+    fun textInputStarted_forFieldInActivity_whenFocusRequestedImmediately_fromLaunchedEffect() {
+        textInputStarted_whenFocusRequestedImmediately_fromEffect(
             runEffect = {
                 LaunchedEffect(Unit) {
                     it()
@@ -163,8 +163,8 @@ class TextFieldFocusTest {
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
     @Test
-    fun keyboardIsShown_forFieldInActivity_whenFocusRequestedImmediately_fromDisposableEffect() {
-        keyboardIsShown_whenFocusRequestedImmediately_fromEffect(
+    fun textInputStarted_forFieldInActivity_whenFocusRequestedImmediately_fromDisposableEffect() {
+        textInputStarted_whenFocusRequestedImmediately_fromEffect(
             runEffect = {
                 DisposableEffect(Unit) {
                     it()
@@ -178,8 +178,8 @@ class TextFieldFocusTest {
     //  this test can't assert.
     @SdkSuppress(minSdkVersion = 30)
     @Test
-    fun keyboardIsShown_forFieldInDialog_whenFocusRequestedImmediately_fromLaunchedEffect() {
-        keyboardIsShown_whenFocusRequestedImmediately_fromEffect(
+    fun textInputStarted_forFieldInDialog_whenFocusRequestedImmediately_fromLaunchedEffect() {
+        textInputStarted_whenFocusRequestedImmediately_fromEffect(
             runEffect = {
                 LaunchedEffect(Unit) {
                     it()
@@ -195,8 +195,8 @@ class TextFieldFocusTest {
     //  this test can't assert.
     @SdkSuppress(minSdkVersion = 30)
     @Test
-    fun keyboardIsShown_forFieldInDialog_whenFocusRequestedImmediately_fromDisposableEffect() {
-        keyboardIsShown_whenFocusRequestedImmediately_fromEffect(
+    fun textInputStarted_forFieldInDialog_whenFocusRequestedImmediately_fromDisposableEffect() {
+        textInputStarted_whenFocusRequestedImmediately_fromEffect(
             runEffect = {
                 DisposableEffect(Unit) {
                     it()
@@ -209,20 +209,16 @@ class TextFieldFocusTest {
         )
     }
 
-    private fun keyboardIsShown_whenFocusRequestedImmediately_fromEffect(
+    private fun textInputStarted_whenFocusRequestedImmediately_fromEffect(
         runEffect: @Composable (body: () -> Unit) -> Unit,
         wrapContent: @Composable (@Composable () -> Unit) -> Unit = { it() }
     ) {
         val focusRequester = FocusRequester()
-        val keyboardHelper = KeyboardHelper(rule)
         val state = TextFieldState()
 
-        rule.setContent {
+        inputMethodInterceptor.setContent {
             wrapContent {
-                keyboardHelper.initialize()
-
                 runEffect {
-                    assertThat(keyboardHelper.isSoftwareKeyboardShown()).isFalse()
                     focusRequester.requestFocus()
                 }
 
@@ -233,13 +229,7 @@ class TextFieldFocusTest {
             }
         }
 
-        keyboardHelper.waitForKeyboardVisibility(visible = true)
-
-        // Ensure the keyboard doesn't leak in to the next test. Can't do this at the start of the
-        // test since the KeyboardHelper won't be initialized until composition runs, and this test
-        // is checking behavior that all happens on the first frame.
-        keyboardHelper.hideKeyboard()
-        keyboardHelper.waitForKeyboardVisibility(visible = false)
+        inputMethodInterceptor.assertSessionActive()
     }
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195
