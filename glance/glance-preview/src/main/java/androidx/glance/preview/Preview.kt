@@ -26,4 +26,4 @@ package androidx.glance.preview
 )
 @ExperimentalGlancePreviewApi
 @Repeatable
-annotation class GlancePreview(@Surface val surface: String)
+annotation class Preview(@Surface val surface: String)
