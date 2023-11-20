@@ -43,7 +43,7 @@ import org.junit.runner.RunWith
 @SdkSuppress(minSdkVersion = 34)
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-class SingleBufferedCanvasRendererV34Test {
+class SingleBufferedCanvasRendererTest {
 
     companion object {
         const val TEST_WIDTH = 20
@@ -142,7 +142,7 @@ class SingleBufferedCanvasRendererV34Test {
         val firstRenderLatch = CountDownLatch(1)
         val clearLatch = CountDownLatch(2)
         var buffer: HardwareBuffer? = null
-        val renderer = SingleBufferedCanvasRendererV34(
+        val renderer = SingleBufferedCanvasRenderer(
             TEST_WIDTH,
             TEST_HEIGHT,
             transformer,
@@ -193,7 +193,7 @@ class SingleBufferedCanvasRendererV34Test {
         val initialDrawLatch = CountDownLatch(1)
 
         var drawCancelledRequestLatch: CountDownLatch? = null
-        val renderer = SingleBufferedCanvasRendererV34(
+        val renderer = SingleBufferedCanvasRenderer(
             TEST_WIDTH,
             TEST_HEIGHT,
             transformer,
@@ -246,7 +246,7 @@ class SingleBufferedCanvasRendererV34Test {
             computeTransform(TEST_WIDTH, TEST_HEIGHT, BUFFER_TRANSFORM_IDENTITY)
         }
         val executor = HandlerThreadExecutor("thread")
-        val renderer = SingleBufferedCanvasRendererV34(
+        val renderer = SingleBufferedCanvasRenderer(
             TEST_WIDTH,
             TEST_HEIGHT,
             transformer,
@@ -293,7 +293,7 @@ class SingleBufferedCanvasRendererV34Test {
         val executor = HandlerThreadExecutor("thread")
         var syncFenceNull = false
         var drawLatch: CountDownLatch? = null
-        val renderer = SingleBufferedCanvasRendererV34(
+        val renderer = SingleBufferedCanvasRenderer(
             TEST_WIDTH,
             TEST_HEIGHT,
             transformer,
@@ -343,7 +343,7 @@ class SingleBufferedCanvasRendererV34Test {
         val bufferLatch = CountDownLatch(1)
         var bufferRenderCancelled = false
         val executor = HandlerThreadExecutor("thread")
-        val renderer = SingleBufferedCanvasRendererV34(
+        val renderer = SingleBufferedCanvasRenderer(
             TEST_WIDTH,
             TEST_HEIGHT,
             transformer,
@@ -396,7 +396,7 @@ class SingleBufferedCanvasRendererV34Test {
         val executor = HandlerThreadExecutor("thread")
         var buffer: HardwareBuffer? = null
         val renderLatch = CountDownLatch(1)
-        val renderer = SingleBufferedCanvasRendererV34(
+        val renderer = SingleBufferedCanvasRenderer(
             TEST_WIDTH,
             TEST_HEIGHT,
             transformer,

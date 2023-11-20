@@ -34,7 +34,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
-import androidx.graphics.BufferedRendererImpl
+import androidx.graphics.CanvasBufferedRenderer
 import androidx.graphics.lowlatency.ColorSpaceVerificationHelper.Companion.getColorSpaceFromDataSpace
 import androidx.graphics.surface.SurfaceControlCompat
 import androidx.graphics.utils.HandlerThreadExecutor
@@ -193,7 +193,7 @@ class LowLatencyCanvasView @JvmOverloads constructor(
     /**
      * Configured ColorSpace
      */
-    private var mColorSpace = BufferedRendererImpl.DefaultColorSpace
+    private var mColorSpace = CanvasBufferedRenderer.DefaultColorSpace
 
     private val mSurfaceHolderCallbacks = object : SurfaceHolder.Callback2 {
         override fun surfaceCreated(holder: SurfaceHolder) {
@@ -248,7 +248,12 @@ class LowLatencyCanvasView @JvmOverloads constructor(
         val bufferTransformer = BufferTransformer()
         val inverse = bufferTransformer.invertBufferTransform(transformHint)
         bufferTransformer.computeTransform(width, height, inverse)
-        bufferTransformer.configureMatrix(mInverseTransform).apply {
+        BufferTransformHintResolver.configureTransformMatrix(
+            mInverseTransform,
+            bufferTransformer.bufferWidth.toFloat(),
+            bufferTransformer.bufferHeight.toFloat(),
+            inverse
+        ).apply {
             invert(this)
         }
 
@@ -263,19 +268,22 @@ class LowLatencyCanvasView @JvmOverloads constructor(
         val colorSpace: ColorSpace
         if (isAndroidUPlus && supportsWideColorGamut()) {
             colorSpace = getColorSpaceFromDataSpace(DataSpace.DATASPACE_DISPLAY_P3)
-            dataSpace = if (colorSpace === BufferedRendererImpl.DefaultColorSpace) {
+            dataSpace = if (colorSpace === CanvasBufferedRenderer.DefaultColorSpace) {
                 DataSpace.DATASPACE_SRGB
             } else {
                 DataSpace.DATASPACE_DISPLAY_P3
             }
         } else {
             dataSpace = DataSpace.DATASPACE_SRGB
-            colorSpace = BufferedRendererImpl.DefaultColorSpace
+            colorSpace = CanvasBufferedRenderer.DefaultColorSpace
         }
-        val frontBufferRenderer = SingleBufferedCanvasRenderer.create(
+        val frontBufferRenderer = SingleBufferedCanvasRenderer(
             width,
             height,
-            bufferTransformer,
+            bufferTransformer.bufferWidth,
+            bufferTransformer.bufferHeight,
+            HardwareBuffer.RGBA_8888,
+            inverse,
             mHandlerThread,
             object : SingleBufferedCanvasRenderer.RenderCallbacks<Unit> {
 
@@ -315,10 +323,10 @@ class LowLatencyCanvasView @JvmOverloads constructor(
                                 syncFenceCompat
                             )
                             .setVisibility(frontBufferSurfaceControl, true)
-                        if (inverse != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
+                        if (transformHint != BufferTransformHintResolver.UNKNOWN_TRANSFORM) {
                             transaction.setBufferTransform(
                                 frontBufferSurfaceControl,
-                                inverse
+                                transformHint
                             )
                         }
                         if (isAndroidUPlus) {
@@ -650,6 +658,6 @@ internal class ColorSpaceVerificationHelper {
             ColorSpace.getFromDataSpace(dataSpace)
                 // If wide color gamut is supported, then this should always return non-null
                 // fallback to SRGB to maintain non-null ColorSpace kotlin type
-                ?: BufferedRendererImpl.DefaultColorSpace
+                ?: CanvasBufferedRenderer.DefaultColorSpace
     }
 }
