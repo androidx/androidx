@@ -153,7 +153,11 @@ class DynamicDataBiTransformNode<LhsT, RhsT, O> implements DynamicDataNode<O> {
                 mDownstream.onInvalidated();
             } else {
                 O result = mTransformer.apply(lhs, rhs);
-                mDownstream.onData(result);
+                if (result == null) {
+                    mDownstream.onInvalidated();
+                } else {
+                    mDownstream.onData(result);
+                }
             }
         }
     }
