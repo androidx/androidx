@@ -27,7 +27,7 @@ Deprecation is an non-breaking API change that must occur in a **major** or
 
 APIs that are added during a pre-release cycle and marked as `@Deprecated`
 within the same cycle, e.g. added in `alpha01` and deprecated in `alpha06`,
-[must be removed](/company/teams/androidx/versioning.md#beta-checklist) before
+[must be removed](/docs/versioning.md#beta-checklist) before
 moving to `beta01`.
 
 NOTE While some APIs can safely be removed without a deprecation cycle, a full

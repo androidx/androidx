@@ -40,7 +40,7 @@ The
 for macrobenchmark explains how to use the library. This page focuses on
 specifics to writing library macrobenchmarks in the AndroidX repo. If you're
 looking for measuring CPU perf of individual functions, see the guide for
-MICRObenchmarks [here](/company/teams/androidx/benchmarking.md).
+MICRObenchmarks [here](/docs/benchmarking.md).
 
 ### Writing the benchmark
 
