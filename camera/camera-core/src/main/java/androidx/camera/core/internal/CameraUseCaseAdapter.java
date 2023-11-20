@@ -785,7 +785,7 @@ public final class CameraUseCaseAdapter implements Camera {
     private void updateViewPort(@NonNull Map<UseCase, StreamSpec> suggestedStreamSpecMap,
             @NonNull Collection<UseCase> useCases) {
         synchronized (mLock) {
-            if (mViewPort != null) {
+            if (mViewPort != null && !useCases.isEmpty()) {
                 Integer lensFacing = mCameraInternal.getCameraInfoInternal().getLensFacing();
                 boolean isFrontCamera;
                 if (lensFacing == null) {
