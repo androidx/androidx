@@ -73,8 +73,8 @@ internal abstract class AbstractMainTestClock(
             // `currentTime + delayTimeMillis`. See `advanceTimeBy`.
             // Therefore we also call `runCurrent` as it's done in TestCoroutineDispatcher
             testScheduler.runCurrent()
-        }
 
-        onTimeAdvanced?.invoke(currentTime)
+            onTimeAdvanced?.invoke(currentTime)
+        }
     }
 }

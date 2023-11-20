@@ -16,11 +16,17 @@
 
 package androidx.compose.ui.test
 
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameMillis
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.junit4.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import kotlin.coroutines.CoroutineContext
+import kotlin.test.fail
 import kotlinx.coroutines.CoroutineScope
 import org.junit.Ignore
 import org.junit.Rule
@@ -122,6 +128,32 @@ class ComposeUiTestTest {
 
             runOnIdle {
                 assertThat(lastRecordedMotionDurationScale).isEqualTo(0f)
+            }
+        }
+    }
+
+    @Test
+    fun effectShouldBeCancelledImmediately() {
+        runComposeUiTest {
+            var runEffect by mutableStateOf(false)
+
+            setContent {
+                if (runEffect) {
+                    LaunchedEffect(Unit) {
+                        repeat(5) {
+                            withFrameMillis {}
+                        }
+                        runEffect = false
+                        withFrameMillis {
+                            fail("Effect should have stopped running")
+                        }
+                    }
+                }
+            }
+
+            repeat(2000) {
+                runEffect = true
+                waitForIdle()
             }
         }
     }
