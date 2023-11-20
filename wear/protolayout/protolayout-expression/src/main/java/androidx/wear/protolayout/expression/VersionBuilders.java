@@ -29,9 +29,8 @@ public final class VersionBuilders {
     /**
      * Version information. This is used to encode the schema version of a payload (e.g. inside of a
      * layout).
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class VersionInfo {
         private final VersionProto.VersionInfo mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -44,9 +43,8 @@ public final class VersionBuilders {
         /**
          * Gets major version. Incremented on breaking changes (i.e. compatibility is not guaranteed
          * across major versions).
-         *
-         * @since 1.0
          */
+        @RequiresSchemaVersion(major = 1, minor = 0)
         public int getMajor() {
             return mImpl.getMajor();
         }
@@ -54,9 +52,8 @@ public final class VersionBuilders {
         /**
          * Gets minor version. Incremented on non-breaking changes (e.g. schema additions). Anything
          * consuming a payload can safely consume anything with a lower minor version.
-         *
-         * @since 1.0
          */
+        @RequiresSchemaVersion(major = 1, minor = 0)
         public int getMinor() {
             return mImpl.getMinor();
         }
@@ -110,9 +107,8 @@ public final class VersionBuilders {
             /**
              * Sets major version. Incremented on breaking changes (i.e. compatibility is not
              * guaranteed across major versions).
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setMajor(int major) {
                 mImpl.setMajor(major);
@@ -123,9 +119,8 @@ public final class VersionBuilders {
             /**
              * Sets minor version. Incremented on non-breaking changes (e.g. schema additions).
              * Anything consuming a payload can safely consume anything with a lower minor version.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setMinor(int minor) {
                 mImpl.setMinor(minor);
