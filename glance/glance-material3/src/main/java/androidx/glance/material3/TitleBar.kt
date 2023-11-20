@@ -26,6 +26,7 @@ import androidx.glance.GlanceTheme
 import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.layout.Alignment
+import androidx.glance.layout.Box
 import androidx.glance.layout.Row
 import androidx.glance.layout.RowScope
 import androidx.glance.layout.fillMaxWidth
@@ -63,12 +64,17 @@ fun TitleBar(
 ) {
     @Composable
     fun StartIcon() {
-        Image(
-            modifier = GlanceModifier.size(24.dp),
-            provider = startIcon,
-            contentDescription = "",
-            colorFilter = ColorFilter.tint(contentColor)
-        )
+        Box(
+            GlanceModifier.size(48.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                modifier = GlanceModifier.size(24.dp),
+                provider = startIcon,
+                contentDescription = "",
+                colorFilter = ColorFilter.tint(contentColor)
+            )
+        }
     }
 
     @Composable
@@ -82,11 +88,14 @@ fun TitleBar(
                 fontFamily = fontFamily
             ),
             maxLines = 1,
-            modifier = GlanceModifier.defaultWeight().padding(start = 8.dp)
+            modifier = GlanceModifier.defaultWeight()
         )
     }
 
-    Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.Vertical.CenterVertically) {
+    Row(
+        modifier.fillMaxWidth().padding(4.dp),
+        verticalAlignment = Alignment.Vertical.CenterVertically
+    ) {
         StartIcon()
         Title()
         actions()
