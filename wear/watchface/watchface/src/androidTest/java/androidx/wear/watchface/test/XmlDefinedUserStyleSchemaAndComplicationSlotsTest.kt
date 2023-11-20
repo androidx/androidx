@@ -162,7 +162,6 @@ public class XmlDefinedUserStyleSchemaAndComplicationSlotsTest {
     val mocks = MockitoJUnit.rule()
 
     @Mock private lateinit var surfaceHolder: SurfaceHolder
-
     @Mock private lateinit var surface: Surface
 
     private val bitmap = Bitmap.createBitmap(BITMAP_WIDTH, BITMAP_HEIGHT, Bitmap.Config.ARGB_8888)

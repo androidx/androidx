@@ -2191,41 +2191,52 @@ public abstract class WatchFaceService : WallpaperService() {
 
             backgroundThreadCoroutineScope.launch {
                 val timeBefore = System.currentTimeMillis()
-                val currentUserStyleRepository =
-                    TraceEvent("WatchFaceService.createUserStyleSchema").use {
-                        CurrentUserStyleRepository(
-                            createUserStyleSchemaInternal(resourceOnlyWatchFacePackageName)
-                        )
-                    }
-                initStyle(currentUserStyleRepository)
+                val currentUserStyleRepository: CurrentUserStyleRepository
+                val complicationSlotsManager: ComplicationSlotsManager
+                val userStyleFlavors: UserStyleFlavors
 
-                val complicationSlotsManager =
-                    TraceEvent("WatchFaceService.createComplicationsManager").use {
-                        createComplicationSlotsManagerInternal(
-                            currentUserStyleRepository,
-                            resourceOnlyWatchFacePackageName
+                try {
+                    currentUserStyleRepository =
+                        TraceEvent("WatchFaceService.createUserStyleSchema").use {
+                            CurrentUserStyleRepository(
+                                createUserStyleSchemaInternal(resourceOnlyWatchFacePackageName)
+                            )
+                        }
+                    initStyle(currentUserStyleRepository)
+
+                    complicationSlotsManager =
+                        TraceEvent("WatchFaceService.createComplicationsManager").use {
+                            createComplicationSlotsManagerInternal(
+                                currentUserStyleRepository,
+                                resourceOnlyWatchFacePackageName
+                            )
+                        }
+                    complicationSlotsManager.watchFaceHostApi = this@EngineWrapper
+                    complicationSlotsManager.watchState = watchState
+                    complicationSlotsManager.listenForStyleChanges(uiThreadCoroutineScope)
+                    listenForComplicationChanges(complicationSlotsManager)
+                    if (!watchState.isHeadless) {
+                        periodicallyWriteComplicationDataCache(
+                            _context,
+                            watchState.watchFaceInstanceId.value,
+                            complicationsFlow
                         )
                     }
-                complicationSlotsManager.watchFaceHostApi = this@EngineWrapper
-                complicationSlotsManager.watchState = watchState
-                complicationSlotsManager.listenForStyleChanges(uiThreadCoroutineScope)
-                listenForComplicationChanges(complicationSlotsManager)
-                if (!watchState.isHeadless) {
-                    periodicallyWriteComplicationDataCache(
-                        _context,
-                        watchState.watchFaceInstanceId.value,
-                        complicationsFlow
-                    )
+
+                    userStyleFlavors =
+                        TraceEvent("WatchFaceService.createUserStyleFlavors").use {
+                            createUserStyleFlavorsInternal(
+                                currentUserStyleRepository,
+                                complicationSlotsManager,
+                                resourceOnlyWatchFacePackageName
+                            )
+                        }
+                } catch (e: Exception) {
+                    Log.e(TAG, "WatchFace crashed during init", e)
+                    deferredEarlyInitDetails.completeExceptionally(e)
+                    deferredWatchFaceImpl.completeExceptionally(e)
+                    return@launch
                 }
-
-                val userStyleFlavors =
-                    TraceEvent("WatchFaceService.createUserStyleFlavors").use {
-                        createUserStyleFlavorsInternal(
-                            currentUserStyleRepository,
-                            complicationSlotsManager,
-                            resourceOnlyWatchFacePackageName
-                        )
-                    }
 
                 deferredEarlyInitDetails.complete(
                     EarlyInitDetails(
