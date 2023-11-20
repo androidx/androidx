@@ -43,25 +43,27 @@ import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.round
 import kotlinx.atomicfu.atomic
 import kotlinx.cinterop.CValue
-import kotlinx.cinterop.useContents
 import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
 import platform.Foundation.NSThread
-import platform.UIKit.NSStringFromCGRect
 import platform.UIKit.UIColor
 import platform.UIKit.UIView
+import platform.UIKit.UIViewController
+import platform.UIKit.addChildViewController
+import platform.UIKit.didMoveToParentViewController
+import platform.UIKit.removeFromParentViewController
+import platform.UIKit.willMoveToParentViewController
 
 private val STUB_CALLBACK_WITH_RECEIVER: Any.() -> Unit = {}
-private val NoOpUpdate: UIView.() -> Unit = STUB_CALLBACK_WITH_RECEIVER
-private val NoOpDispose: UIView.() -> Unit = STUB_CALLBACK_WITH_RECEIVER
-private val DefaultResize: UIView.(CValue<CGRect>) -> Unit = { rect -> this.setFrame(rect) }
+private val DefaultViewResize: UIView.(CValue<CGRect>) -> Unit = { rect -> this.setFrame(rect) }
+private val DefaultViewControllerResize: UIViewController.(CValue<CGRect>) -> Unit = { rect -> this.view.setFrame(rect) }
 
 /**
  * @param factory The block creating the [UIView] to be composed.
  * @param modifier The modifier to be applied to the layout. Size should be specified in modifier.
  * Modifier may contains crop() modifier with different shapes.
  * @param update A callback to be invoked after the layout is inflated.
- * @param background A color of UIView background.
+ * @param background A color of [UIView] background wrapping the view created by [factory].
  * @param onRelease A callback invoked as a signal that this view instance has exited the
  * composition hierarchy entirely and will not be reused again. Any additional resources used by the
  * View should be freed at this time.
@@ -72,16 +74,21 @@ private val DefaultResize: UIView.(CValue<CGRect>) -> Unit = { rect -> this.setF
 fun <T : UIView> UIKitView(
     factory: () -> T,
     modifier: Modifier,
-    update: (T) -> Unit = NoOpUpdate,
+    update: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
     background: Color = Color.Unspecified,
-    onRelease: (T) -> Unit = NoOpDispose,
-    onResize: (view: T, rect: CValue<CGRect>) -> Unit = DefaultResize,
+    onRelease: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
+    onResize: (view: T, rect: CValue<CGRect>) -> Unit = DefaultViewResize,
     interactive: Boolean = true,
 ) {
     // TODO: adapt UIKitView to reuse inside LazyColumn like in AndroidView:
     //  https://developer.android.com/reference/kotlin/androidx/compose/ui/viewinterop/package-summary#AndroidView(kotlin.Function1,kotlin.Function1,androidx.compose.ui.Modifier,kotlin.Function1,kotlin.Function1)
-    val componentInfo = remember { ComponentInfo<T>() }
-    val root = LocalLayerContainer.current
+    val rootView = LocalLayerContainer.current
+    val embeddedInteropComponent = remember {
+        EmbeddedInteropView(
+            rootView = rootView,
+            onRelease
+        )
+    }
     val density = LocalDensity.current.density
     var rectInPixels by remember { mutableStateOf(IntRect(0, 0, 0, 0)) }
     var localToWindowOffset: IntOffset by remember { mutableStateOf(IntOffset.Zero) }
@@ -96,13 +103,13 @@ fun <T : UIView> UIKitView(
                 val rect = newRectInPixels / density
 
                 interopContext.deferAction {
-                    componentInfo.container.setFrame(rect.toCGRect())
+                    embeddedInteropComponent.wrappingView.setFrame(rect.toCGRect())
                 }
 
                 if (rectInPixels.width != newRectInPixels.width || rectInPixels.height != newRectInPixels.height) {
                     interopContext.deferAction {
                         onResize(
-                            componentInfo.component,
+                            embeddedInteropComponent.component,
                             CGRectMake(0.0, 0.0, rect.width.toDouble(), rect.height.toDouble()),
                         )
                     }
@@ -121,39 +128,130 @@ fun <T : UIView> UIKitView(
     )
 
     DisposableEffect(Unit) {
-        componentInfo.component = factory()
-        componentInfo.updater = Updater(componentInfo.component, update) {
+        embeddedInteropComponent.component = factory()
+        embeddedInteropComponent.updater = Updater(embeddedInteropComponent.component, update) {
             interopContext.deferAction(action = it)
         }
 
         interopContext.deferAction(UIKitInteropViewHierarchyChange.VIEW_ADDED) {
-            componentInfo.container = UIView().apply {
-                addSubview(componentInfo.component)
-            }
-            root.insertSubview(componentInfo.container, 0)
+            embeddedInteropComponent.addToHierarchy()
         }
 
         onDispose {
             interopContext.deferAction(UIKitInteropViewHierarchyChange.VIEW_REMOVED) {
-                componentInfo.container.removeFromSuperview()
-                componentInfo.updater.dispose()
-                onRelease(componentInfo.component)
+                embeddedInteropComponent.removeFromHierarchy()
             }
         }
     }
 
     LaunchedEffect(background) {
         interopContext.deferAction {
-            if (background == Color.Unspecified) {
-                componentInfo.container.backgroundColor = root.backgroundColor
-            } else {
-                componentInfo.container.backgroundColor = parseColor(background)
-            }
+            embeddedInteropComponent.setBackgroundColor(background)
         }
     }
 
     SideEffect {
-        componentInfo.updater.update = update
+        embeddedInteropComponent.updater.update = update
+    }
+}
+
+/**
+ * @param factory The block creating the [UIViewController] to be composed.
+ * @param modifier The modifier to be applied to the layout. Size should be specified in modifier.
+ * Modifier may contains crop() modifier with different shapes.
+ * @param update A callback to be invoked after the layout is inflated.
+ * @param background A color of [UIView] background wrapping the view of [UIViewController] created by [factory].
+ * @param onRelease A callback invoked as a signal that this view controller instance has exited the
+ * composition hierarchy entirely and will not be reused again. Any additional resources used by the
+ * view controller should be freed at this time.
+ * @param onResize May be used to custom resize logic.
+ * @param interactive If true, then user touches will be passed to this UIViewController
+ */
+@Composable
+fun <T : UIViewController> UIKitViewController(
+    factory: () -> T,
+    modifier: Modifier,
+    update: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
+    background: Color = Color.Unspecified,
+    onRelease: (T) -> Unit = STUB_CALLBACK_WITH_RECEIVER,
+    onResize: (viewController: T, rect: CValue<CGRect>) -> Unit = DefaultViewControllerResize,
+    interactive: Boolean = true,
+) {
+    // TODO: adapt UIKitViewController to reuse inside LazyColumn like in AndroidView:
+    //  https://developer.android.com/reference/kotlin/androidx/compose/ui/viewinterop/package-summary#AndroidView(kotlin.Function1,kotlin.Function1,androidx.compose.ui.Modifier,kotlin.Function1,kotlin.Function1)
+    val rootView = LocalLayerContainer.current
+    val rootViewController = LocalUIViewController.current
+    val embeddedInteropComponent = remember {
+        EmbeddedInteropViewController(
+            rootView,
+            rootViewController,
+            onRelease
+        )
+    }
+
+    val density = LocalDensity.current.density
+    var rectInPixels by remember { mutableStateOf(IntRect(0, 0, 0, 0)) }
+    var localToWindowOffset: IntOffset by remember { mutableStateOf(IntOffset.Zero) }
+    val interopContext = LocalUIKitInteropContext.current
+
+    Place(
+        modifier.onGloballyPositioned { childCoordinates ->
+            val coordinates = childCoordinates.parentCoordinates!!
+            localToWindowOffset = coordinates.localToWindow(Offset.Zero).round()
+            val newRectInPixels = IntRect(localToWindowOffset, coordinates.size)
+            if (rectInPixels != newRectInPixels) {
+                val rect = newRectInPixels / density
+
+                interopContext.deferAction {
+                    embeddedInteropComponent.wrappingView.setFrame(rect.toCGRect())
+                }
+
+                if (rectInPixels.width != newRectInPixels.width || rectInPixels.height != newRectInPixels.height) {
+                    interopContext.deferAction {
+                        onResize(
+                            embeddedInteropComponent.component,
+                            CGRectMake(0.0, 0.0, rect.width.toDouble(), rect.height.toDouble()),
+                        )
+                    }
+                }
+                rectInPixels = newRectInPixels
+            }
+        }.drawBehind {
+            drawRect(Color.Transparent, blendMode = BlendMode.DstAtop) // draw transparent hole
+        }.let {
+            if (interactive) {
+                it.then(InteropViewCatchPointerModifier())
+            } else {
+                it
+            }
+        }
+    )
+
+    DisposableEffect(Unit) {
+        embeddedInteropComponent.component = factory()
+        embeddedInteropComponent.updater = Updater(embeddedInteropComponent.component, update) {
+            interopContext.deferAction(action = it)
+        }
+
+        interopContext.deferAction(UIKitInteropViewHierarchyChange.VIEW_ADDED) {
+            embeddedInteropComponent.addToHierarchy()
+        }
+
+        onDispose {
+            interopContext.deferAction(UIKitInteropViewHierarchyChange.VIEW_REMOVED) {
+                embeddedInteropComponent.removeFromHierarchy()
+            }
+        }
+    }
+
+    LaunchedEffect(background) {
+        interopContext.deferAction {
+            embeddedInteropComponent.setBackgroundColor(background)
+        }
+    }
+
+    SideEffect {
+        embeddedInteropComponent.updater.update = update
     }
 }
 
@@ -176,13 +274,71 @@ private fun parseColor(color: Color): UIColor {
     )
 }
 
-private class ComponentInfo<T : UIView> {
-    lateinit var container: UIView
+private abstract class EmbeddedInteropComponent<T : Any>(
+    val rootView: UIView,
+    val onRelease: (T) -> Unit
+) {
+    lateinit var wrappingView: UIView
     lateinit var component: T
     lateinit var updater: Updater<T>
+
+    fun setBackgroundColor(color: Color) {
+        if (color == Color.Unspecified) {
+            wrappingView.backgroundColor = rootView.backgroundColor
+        } else {
+            wrappingView.backgroundColor = parseColor(color)
+        }
+    }
+
+    abstract fun addToHierarchy()
+    abstract fun removeFromHierarchy()
+
+    protected fun addViewToHierarchy(view: UIView) {
+        wrappingView = UIView().apply {
+            addSubview(view)
+        }
+        rootView.insertSubview(wrappingView, 0)
+    }
+
+    protected fun removeViewFromHierarchy(view: UIView) {
+        wrappingView.removeFromSuperview()
+        updater.dispose()
+        onRelease(component)
+    }
 }
 
-private class Updater<T : UIView>(
+private class EmbeddedInteropView<T : UIView>(
+    rootView: UIView,
+    onRelease: (T) -> Unit
+) : EmbeddedInteropComponent<T>(rootView, onRelease) {
+    override fun addToHierarchy() {
+        addViewToHierarchy(component)
+    }
+
+    override fun removeFromHierarchy() {
+        removeViewFromHierarchy(component)
+    }
+}
+
+private class EmbeddedInteropViewController<T : UIViewController>(
+    rootView: UIView,
+    private val rootViewController: UIViewController,
+    onRelease: (T) -> Unit
+) : EmbeddedInteropComponent<T>(rootView, onRelease) {
+    override fun addToHierarchy() {
+        rootViewController.addChildViewController(component)
+        addViewToHierarchy(component.view)
+        component.didMoveToParentViewController(rootViewController)
+    }
+
+    override fun removeFromHierarchy() {
+        component.willMoveToParentViewController(null)
+        removeViewFromHierarchy(component.view)
+        component.removeFromParentViewController()
+    }
+}
+
+private class Updater<T : Any>(
     private val component: T,
     update: (T) -> Unit,
 

@@ -2,11 +2,13 @@
 package androidx.compose.mpp.demo
 
 import NativeModalWithNaviationExample
+import SwiftUIInteropExample
 import androidx.compose.runtime.*
 import androidx.compose.ui.main.defaultUIKitMain
 import androidx.compose.ui.window.ComposeUIViewController
 import bugs.IosBugs
 import bugs.StartRecompositionCheck
+import platform.UIKit.UIViewController
 
 
 fun main(vararg args: String) {
@@ -17,13 +19,17 @@ fun main(vararg args: String) {
 }
 
 @Composable
-fun IosDemo(arg: String) {
+fun IosDemo(arg: String, makeHostingController: ((Int) -> UIViewController)? = null) {
     val app = remember {
         App(
             extraScreens = listOf(
                 IosBugs,
                 NativeModalWithNaviationExample,
-            )
+            ) + listOf(makeHostingController).mapNotNull {
+                it?.let {
+                    SwiftUIInteropExample(it)
+                }
+            }
         )
     }
     when (arg) {
