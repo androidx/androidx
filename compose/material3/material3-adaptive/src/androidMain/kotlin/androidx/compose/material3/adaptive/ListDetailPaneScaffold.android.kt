@@ -77,7 +77,7 @@ fun calculateListDetailPaneScaffoldState(
     calculateThreePaneScaffoldValue(
         scaffoldDirective.maxHorizontalPartitions,
         adaptStrategies,
-        currentPaneDestination.threePaneScaffoldRole
+        currentPaneDestination
     )
 )
 
@@ -109,19 +109,34 @@ object ListDetailPaneScaffoldDefaults {
  * The set of the available pane roles of [ListDetailPaneScaffold].
  */
 @ExperimentalMaterial3AdaptiveApi
-enum class ListDetailPaneScaffoldRole(internal val threePaneScaffoldRole: ThreePaneScaffoldRole) {
-    /**
-     * The list pane of [ListDetailPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Secondary].
-     */
-    List(ThreePaneScaffoldRole.Secondary),
+class ListDetailPaneScaffoldRole private constructor(
+    internalRole: ThreePaneScaffoldRoleInternal
+) : ThreePaneScaffoldRole(internalRole) {
+    companion object {
+        /**
+         * The list pane of [ListDetailPaneScaffold]. It is mapped to
+         * [ThreePaneScaffoldRoleInternal.Secondary].
+         */
+        val List = ListDetailPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Secondary)
 
-    /**
-     * The detail pane of [ListDetailPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Primary].
-     */
-    Detail(ThreePaneScaffoldRole.Primary),
+        /**
+         * The detail pane of [ListDetailPaneScaffold]. It is mapped to
+         * [ThreePaneScaffoldRoleInternal.Primary].
+         */
+        val Detail = ListDetailPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Primary)
 
-    /**
-     * The extra pane of [ListDetailPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Tertiary].
-     */
-    Extra(ThreePaneScaffoldRole.Tertiary);
+        /**
+         * The extra pane of [ListDetailPaneScaffold]. It is mapped to
+         * [ThreePaneScaffoldRoleInternal.Tertiary].
+         */
+        val Extra = ListDetailPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Tertiary)
+    }
 }
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal fun ThreePaneScaffoldRoleInternal.toListDetailPaneScaffoldRole():
+    ListDetailPaneScaffoldRole = when (this) {
+        ThreePaneScaffoldRoleInternal.Primary -> ListDetailPaneScaffoldRole.Detail
+        ThreePaneScaffoldRoleInternal.Secondary -> ListDetailPaneScaffoldRole.List
+        ThreePaneScaffoldRoleInternal.Tertiary -> ListDetailPaneScaffoldRole.Extra
+    }

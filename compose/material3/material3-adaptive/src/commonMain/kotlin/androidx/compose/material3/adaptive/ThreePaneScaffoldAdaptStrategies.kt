@@ -32,11 +32,13 @@ class ThreePaneScaffoldAdaptStrategies(
     private val secondaryPaneAdaptStrategy: AdaptStrategy,
     private val tertiaryPaneAdaptStrategy: AdaptStrategy
 ) {
-    operator fun get(role: ThreePaneScaffoldRole): AdaptStrategy {
+    operator fun get(role: ThreePaneScaffoldRole): AdaptStrategy = get(role.internalRole)
+
+    internal operator fun get(role: ThreePaneScaffoldRoleInternal): AdaptStrategy {
         return when (role) {
-            ThreePaneScaffoldRole.Primary -> primaryPaneAdaptStrategy
-            ThreePaneScaffoldRole.Secondary -> secondaryPaneAdaptStrategy
-            ThreePaneScaffoldRole.Tertiary -> tertiaryPaneAdaptStrategy
+            ThreePaneScaffoldRoleInternal.Primary -> primaryPaneAdaptStrategy
+            ThreePaneScaffoldRoleInternal.Secondary -> secondaryPaneAdaptStrategy
+            ThreePaneScaffoldRoleInternal.Tertiary -> tertiaryPaneAdaptStrategy
         }
     }
 
