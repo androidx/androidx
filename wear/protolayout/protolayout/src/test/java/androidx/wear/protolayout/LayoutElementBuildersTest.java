@@ -20,6 +20,7 @@ import static androidx.wear.protolayout.ColorBuilders.argb;
 import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
 import static androidx.wear.protolayout.DimensionBuilders.sp;
+import static androidx.wear.protolayout.DimensionBuilders.weight;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -53,10 +54,7 @@ public class LayoutElementBuildersTest {
                     .setDynamicValue(DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))
                     .build();
     private static final DimensionBuilders.ExpandedDimensionProp EXPAND_PROP = expand();
-    private static final DimensionBuilders.ExpandedDimensionProp EXPAND_WEIGHT_PROP =
-            new DimensionBuilders.ExpandedDimensionProp.Builder()
-                    .setLayoutWeight(new TypeBuilders.FloatProp.Builder(12).build())
-                    .build();
+    private static final DimensionBuilders.ExpandedDimensionProp EXPAND_WEIGHT_PROP = weight(12);
 
     private static final DimensionBuilders.HorizontalLayoutConstraint HORIZONTAL_LAYOUT_CONSTRAINT =
             new DimensionBuilders.HorizontalLayoutConstraint.Builder(20)
