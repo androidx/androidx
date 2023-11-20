@@ -40,7 +40,7 @@ Major (`x.0.0`)
 Minor (`1.x.0`)
 :   Minor indicates compatible public API changes. This number is incremented
     when APIs are added, including the addition of
-    [`@Deprecated` annotations](/company/teams/androidx/api_guidelines/index.md#deprecation-and-removal).
+    [`@Deprecated` annotations](/docs/api_guidelines/index.md#deprecation-and-removal).
     Binary compatibility must be preserved between minor version changes.
 
 Bugfix (`1.0.x`)
@@ -244,11 +244,11 @@ Council review but are expected to have performed a minimum level of validation.
     *   May add/remove APIs within `alpha` cycle, but deprecate/remove cycle is
         strongly recommended.
     *   May use
-        [experimental APIs](/company/teams/androidx/api_guidelines/index.md#experimental-api)
+        [experimental APIs](/docs/api_guidelines/index.md#experimental-api)
         across same-version group boundaries
 *   Testing
     *   Ensure the library is testable. Follow the guideline on
-        [go/androidx/testability](/company/teams/androidx/testability.md)
+        [go/androidx/testability](/docs/testability.md)
     *   All changes **should** be accompanied by a `Test:` stanza
     *   All pre-submit and post-submit tests are passing
     *   Flaky or failing tests **must** be suppressed or fixed within one day
@@ -280,7 +280,7 @@ additions of `@Experimental` APIs or changes to `@Experimental` APIs.
         *   The final removal of a `@Deprecated` API should occur in alpha, not
             in beta
     *   Must not use
-        [experimental APIs](/company/teams/androidx/api_guidelines#experimental-api)
+        [experimental APIs](/docs/api_guidelines#experimental-api)
         across same-version group boundaries
 *   Testing
     *   All public APIs are tested
@@ -361,11 +361,11 @@ A few notes about version updates:
     be handled by the library owner, with the Jetpack TPM (natnaelbelay@) CC'd
     for API+1.
 -   Version increments in release branches will need to follow the guide
-    [How to update your version on a release branch](/company/teams/androidx/release_branches.md#update-your-version)
+    [How to update your version on a release branch](/docs/release_branches.md#update-your-version)
 -   When you're ready for `rc01`, the increment to `rc01` should be done in
     `androidx-main` and then your release branch should be snapped to that
     build. See the guide
-    [Snap your release branch](/company/teams/androidx/release_branches.md#snap)
+    [Snap your release branch](/docs/release_branches.md#snap)
     on how to do this. After the release branch is snapped to that build, you
     will need to update your version in `androidx-main` to `alpha01` of the next
     minor (or major) version.
@@ -385,7 +385,7 @@ An example of a version bump can be found here:
 
 ## `-ktx` Modules {#ktx}
 
-[Kotlin extension libraries](/company/teams/androidx/api_guidelines/index.md#module-ktx)
+[Kotlin extension libraries](/docs/api_guidelines/index.md#module-ktx)
 (`-ktx`) follow the same versioning requirements as other libraries, but with
 one exception: they must match the version of the Java libraries that they
 extend.

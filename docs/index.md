@@ -15,13 +15,13 @@ simplify and unify platform features, and other new features that target
 developer pain points.
 
 For frequently asked questions, see the
-[General FAQ](/company/teams/androidx/faq.md).
+[General FAQ](/docs/faq.md).
 
 To get started developing in AndroidX, see the
-[Getting started](/company/teams/androidx/onboarding.md) guide.
+[Getting started](/docs/onboarding.md) guide.
 
 For information on library and API design, see the
-[Library API Guidelines](/company/teams/androidx/api_guidelines/index.md).
+[Library API Guidelines](/docs/api_guidelines/index.md).
 
 ## Quick links
 
@@ -31,4 +31,4 @@ Have a bug or feature request? Please check our
 [public Issue Tracker component](http://issuetracker.google.com/issues/new?component=192731&template=842428)
 for duplicates first, then file against the appropriate sub-component according
 to the library package or infrastructure system. Learn more at
-[Issue tracking](/company/teams/androidx/onboarding.md#tracking-bugs).
+[Issue tracking](/docs/onboarding.md#tracking-bugs).

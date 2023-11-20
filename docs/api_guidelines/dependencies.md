@@ -17,7 +17,7 @@ schedule.
     `androidx.core:core` library and requires that they be loaded in the
     workspace.
 -   Playground `projectOrArtifact(":core:core")` is used for the
-    [Playground](/company/teams/androidx/playground.md) workflow and will use
+    [Playground](/docs/playground.md) workflow and will use
     tip-of-tree sources, if present in the workspace, or `SNAPSHOT` prebuilt
     artifacts from [androidx.dev](http://androidx.dev) otherwise.
 -   Pinned `"androidx.core:core:1.4.0"` uses the prebuilt AAR and requires that
@@ -77,7 +77,7 @@ dependencies {
 Artifacts may depend on non-public or restricted APIs exposed within their own
 artifact or another artifact in the same `groupId`; however, cross-artifact
 usages are subject to binary compatibility guarantees. See
-[`@RestrictTo` APIs](/company/teams/androidx/api_guidelines#restricted-api) for
+[`@RestrictTo` APIs](/docs/api_guidelines#restricted-api) for
 more details.
 
 NOTE Dependency versioning policies are enforced at build time in the
@@ -100,7 +100,7 @@ must conform to the following guidelines:
 *   Library **must** be approved by legal
 
 Please see Jetpack's
-[open-source policy page](/company/teams/androidx/open_source.md) for more
+[open-source policy page](/docs/open_source.md) for more
 details on using third-party libraries.
 
 ### Platform extension (sidecar JAR) dependencies {#dependencies-sidecar}
@@ -155,7 +155,7 @@ dependencies {
 }
 ```
 
-See [Packaging and naming](/company/teams/androidx/api_guidelines#module-naming)
+See [Packaging and naming](/docs/api_guidelines#module-naming)
 for details about defining extension interfaces in Jetpack projects.
 
 ### Types of dependencies {#dependencies-types}
@@ -270,7 +270,7 @@ possible aspects of migration, so some manual work will be required.
 The Kotlin coroutines library adds around 100kB post-shrinking. New libraries
 that are written in Kotlin should prefer coroutines over `ListenableFuture`, but
 existing libraries must consider the size impact on their clients. See
-[Asynchronous work with return values](/company/teams/androidx/api_guidelines#async-return)
+[Asynchronous work with return values](/docs/api_guidelines#async-return)
 for more details on using Kotlin coroutines in Jetpack libraries.
 
 ```
@@ -292,7 +292,7 @@ Guava.
 
 Libraries that only need `ListenableFuture` may instead depend on the standalone
 `com.google.guava:listenablefuture` artifact. See
-[Asynchronous work with return values](/company/teams/androidx/api_guidelines#async-return)
+[Asynchronous work with return values](/docs/api_guidelines#async-return)
 for more details on using `ListenableFuture` in Jetpack libraries.
 
 #### Protobuf {#dependencies-protobuf}
@@ -315,7 +315,7 @@ classes, e.g. the Java `Builder` pattern.
 
 ### Open-source compatibility {#dependencies-aosp}
 
-Jetpack's [open-source](/company/teams/androidx/open_source.md) guidelines
+Jetpack's [open-source](/docs/open_source.md) guidelines
 require that libraries consider the open-source compatibility implications of
 their dependencies, including:
 

@@ -6,9 +6,9 @@ This page describes how to set up your workstation to check out source code,
 make simple changes in Android Studio, and upload commits to Gerrit for review.
 
 This page does **not** cover best practices for the content of changes. Please
-see [Life of a Jetpack Feature](/company/teams/androidx/loaf.md) for details on
+see [Life of a Jetpack Feature](/docs/loaf.md) for details on
 developing and releasing a library,
-[API Guidelines](/company/teams/androidx/api_guidelines/index.md) for best
+[API Guidelines](/docs/api_guidelines/index.md) for best
 practices regarding public APIs and an overview of the constraints placed on
 changes.
 
@@ -524,7 +524,7 @@ the prebuilt checked into
 `{androidx-main-checkout}/prebuilts/androidx/internal/androidx/`. We
 colloquially refer to this two step process of (1) updating `docs-public` and
 (2) checking in a prebuilt artifact into the prebuilts directory as
-[The Prebuilts Dance](/company/teams/androidx/releasing_prebuilts_dance.md#the-prebuilts-dance™).
+[The Prebuilts Dance](/docs/releasing_prebuilts_dance.md#the-prebuilts-dance™).
 So, to build javadocs that will be published to
 https://developer.android.com/reference/androidx/packages, both of these steps
 need to be completed.
@@ -571,10 +571,10 @@ version -- we record three different types of API surfaces.
 *   `<version>.txt`: Public API surface, tracked for compatibility
 *   `restricted_<version>.txt`: `@RestrictTo` API surface, tracked for
     compatibility where necessary (see
-    [Restricted APIs](/company/teams/androidx/api_guidelines/index.md#restricted-api))
+    [Restricted APIs](/docs/api_guidelines/index.md#restricted-api))
 *   `public_plus_experimental_<version>.txt`: Public API surface plus
     `@RequiresOptIn` experimental API surfaces used for documentation (see
-    [Experimental APIs](/company/teams/androidx/api_guidelines/index.md#experimental-api))
+    [Experimental APIs](/docs/api_guidelines/index.md#experimental-api))
     and API review
 
 ### Release notes & the `Relnote:` tag {#relnote}
@@ -762,7 +762,7 @@ You probably need to update the prebuilt SDK used by the gradle build. If you
 are referencing new framework APIs, you will need to wait for the framework
 changes to land in an SDK build (or build it yourself) and then land in both
 prebuilts/fullsdk and prebuilts/sdk. See
-[Updating SDK prebuilts](/company/teams/androidx/playbook.md#prebuilts-fullsdk)
+[Updating SDK prebuilts](/docs/playbook.md#prebuilts-fullsdk)
 for more information.
 
 #### How do I handle refactoring a framework API referenced from a library?
@@ -790,7 +790,7 @@ the issue being fixed.
 Generally, tests in the AndroidX repository should be run through the Android
 Studio UI. You can also run tests from the command line or via remote devices on
 FTL, see
-[Running unit and integration tests](/company/teams/androidx/testing.md#running)
+[Running unit and integration tests](/docs/testing.md#running)
 for details.
 
 #### Single test class or method
@@ -814,7 +814,7 @@ These applications are named either `<libraryname>-integration-tests-testapp`,
 or `support-\*-demos` (e.g. `support-v4-demos` or `support-leanback-demos`). You
 can run them by clicking `Run > Run ...` and choosing the desired application.
 
-See the [Testing](/company/teams/androidx/testing.md) page for more resources on
+See the [Testing](/docs/testing.md) page for more resources on
 writing, running, and monitoring tests.
 
 ### AVD Manager
@@ -1029,7 +1029,7 @@ you can build the Android platform code with the new `androidx` code.
 ### How do I measure library size? {#library-size}
 
 Method count and bytecode size are tracked in CI
-[alongside benchmarks](/company/teams/androidx/benchmarking.md#monitoring) to
+[alongside benchmarks](/docs/benchmarking.md#monitoring) to
 detect regressions.
 
 For local measurements, use the `:reportLibraryMetrics` task. For example:
