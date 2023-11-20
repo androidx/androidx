@@ -17,6 +17,8 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.mock.Text
+import androidx.compose.runtime.mock.View
+import androidx.compose.runtime.mock.ViewApplier
 import androidx.compose.runtime.mock.compositionTest
 import org.junit.After
 import org.junit.Assert
@@ -490,6 +492,50 @@ class LiveEditTests {
             }
         }
     }
+
+    @Test
+    fun testThrowing_inSubcomposition() {
+        /*
+         * This test verifies that crashing one subcomposition does not affect future invalidation
+         * of others.
+         * We reload two times, invalidating main composition and each subcomposition scopes.
+         * Second subcomposition crashes on reload (recomposeCount == 2), resulting in unapplied
+         * changes. After we reload, we should successfully compose all compositions, as applied
+         * changes were cleared after recompose loop has exited prematurely.
+         */
+
+        var recomposeCount = 0
+        val content: @Composable LiveEditTestScope.() -> Unit = @Composable {
+            MarkAsTarget()
+            remember { Any() }
+        }
+        val crashyContent: @Composable LiveEditTestScope.() -> Unit = @Composable {
+            MarkAsTarget()
+            remember { Any() }
+            if (recomposeCount == 2) {
+                throw IllegalArgumentException("throwInSubcompose")
+            }
+        }
+
+        liveEditTest(
+            reloadCount = 2,
+            collectSourceInformation = SourceInfo.None
+        ) {
+            expectError("throwInSubcompose", 1)
+
+            RestartGroup {
+                MarkAsTarget()
+                recomposeCount++
+            }
+
+            Subcompose {
+                content()
+            }
+            Subcompose {
+                crashyContent()
+            }
+        }
+    }
 }
 
 @Composable
@@ -589,6 +635,18 @@ fun LiveEditTestScope.Expect(
         onAbandoned = 0,
     )
     content()
+}
+
+@Composable
+fun LiveEditTestScope.Subcompose(
+    content: @Composable () -> Unit
+): Composition {
+    val context = rememberCompositionContext()
+    return remember(context) {
+        Composition(ViewApplier(View()), context).apply {
+            setContent(content)
+        }
+    }
 }
 
 @Composable

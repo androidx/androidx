@@ -267,6 +267,12 @@ sealed interface ControlledComposition : Composition {
     fun changesApplied()
 
     /**
+     * Abandon current changes and reset composition state. Called when recomposer cannot proceed
+     * with current recomposition loop and needs to reset composition.
+     */
+    fun abandonChanges()
+
+    /**
      * Invalidate all invalidation scopes. This is called, for example, by [Recomposer] when the
      * Recomposer becomes active after a previous period of inactivity, potentially missing more
      * granular invalidations.
@@ -1043,11 +1049,14 @@ internal class CompositionImpl(
             throw e
         }
 
-    private fun abandonChanges() {
+    override fun abandonChanges() {
         pendingModifications.set(null)
         changes.clear()
         lateChanges.clear()
-        abandonSet.clear()
+
+        if (abandonSet.isNotEmpty()) {
+            RememberEventDispatcher(abandonSet).dispatchAbandons()
+        }
     }
 
     override fun invalidateAll() {
