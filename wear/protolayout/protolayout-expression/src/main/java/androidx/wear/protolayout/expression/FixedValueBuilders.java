@@ -37,11 +37,8 @@ import java.time.Instant;
 final class FixedValueBuilders {
     private FixedValueBuilders() {}
 
-    /**
-     * A fixed int32 type.
-     *
-     * @since 1.2
-     */
+    /** A fixed int32 type. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     static final class FixedInt32
             implements DynamicBuilders.DynamicInt32,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicInt32> {
@@ -53,11 +50,8 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.2
-         */
+        /** Gets the value. */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         public int getValue() {
             return mImpl.getValue();
         }
@@ -138,11 +132,8 @@ final class FixedValueBuilders {
 
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.2
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setValue(int value) {
                 mImpl.setValue(value);
@@ -158,11 +149,8 @@ final class FixedValueBuilders {
         }
     }
 
-    /**
-     * A fixed string type.
-     *
-     * @since 1.2
-     */
+    /** A fixed string type. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     static final class FixedString
             implements DynamicBuilders.DynamicString,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicString> {
@@ -174,11 +162,8 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.2
-         */
+        /** Gets the value. */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public String getValue() {
             return mImpl.getValue();
@@ -262,11 +247,8 @@ final class FixedValueBuilders {
 
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.2
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setValue(@NonNull String value) {
                 mImpl.setValue(value);
@@ -282,11 +264,8 @@ final class FixedValueBuilders {
         }
     }
 
-    /**
-     * A fixed float type.
-     *
-     * @since 1.2
-     */
+    /** A fixed float type. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     static final class FixedFloat
             implements DynamicBuilders.DynamicFloat,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicFloat> {
@@ -302,9 +281,8 @@ final class FixedValueBuilders {
          * Gets the value. Note that a NaN value is considered invalid and any expression with this
          * node will have an invalid value delivered via {@link
          * DynamicTypeValueReceiver<T>#onInvalidate()}.
-         *
-         * @since 1.2
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         public float getValue() {
             return mImpl.getValue();
         }
@@ -389,9 +367,8 @@ final class FixedValueBuilders {
              * Sets the value. Note that a NaN value is considered invalid and any expression with
              * this node will have an invalid value delivered via {@link
              * DynamicTypeValueReceiver<T>#onInvalidate()}.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setValue(float value) {
                 mImpl.setValue(value);
@@ -407,11 +384,8 @@ final class FixedValueBuilders {
         }
     }
 
-    /**
-     * A fixed boolean type.
-     *
-     * @since 1.2
-     */
+    /** A fixed boolean type. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     static final class FixedBool
             implements DynamicBuilders.DynamicBool,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicBool> {
@@ -423,11 +397,8 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the value.
-         *
-         * @since 1.2
-         */
+        /** Gets the value. */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         public boolean getValue() {
             return mImpl.getValue();
         }
@@ -508,11 +479,8 @@ final class FixedValueBuilders {
 
             public Builder() {}
 
-            /**
-             * Sets the value.
-             *
-             * @since 1.2
-             */
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setValue(boolean value) {
@@ -529,11 +497,8 @@ final class FixedValueBuilders {
         }
     }
 
-    /**
-     * A fixed color type.
-     *
-     * @since 1.2
-     */
+    /** A fixed color type. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     static final class FixedColor
             implements DynamicBuilders.DynamicColor,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicColor> {
@@ -545,11 +510,8 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the color value, in ARGB format.
-         *
-         * @since 1.2
-         */
+        /** Gets the color value, in ARGB format. */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @ColorInt
         public int getArgb() {
             return mImpl.getArgb();
@@ -631,11 +593,8 @@ final class FixedValueBuilders {
 
             public Builder() {}
 
-            /**
-             * Sets the color value, in ARGB format.
-             *
-             * @since 1.2
-             */
+            /** Sets the color value, in ARGB format. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setArgb(@ColorInt int argb) {
                 mImpl.setArgb(argb);
@@ -651,11 +610,8 @@ final class FixedValueBuilders {
         }
     }
 
-    /**
-     * A fixed time instant type.
-     *
-     * @since 1.2
-     */
+    /** A fixed time instant type. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     static final class FixedInstant
             implements DynamicBuilders.DynamicInstant,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicInstant> {
@@ -667,11 +623,8 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
-         *
-         * @since 1.2
-         */
+        /** Gets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970. */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         public long getEpochSeconds() {
             return mImpl.getEpochSeconds();
         }
@@ -755,9 +708,8 @@ final class FixedValueBuilders {
 
             /**
              * Sets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setEpochSeconds(long epochSeconds) {
                 mImpl.setEpochSeconds(epochSeconds);
@@ -773,11 +725,8 @@ final class FixedValueBuilders {
         }
     }
 
-    /**
-     * A fixed duration type.
-     *
-     * @since 1.2
-     */
+    /** A fixed duration type. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     static final class FixedDuration
             implements DynamicBuilders.DynamicDuration,
                     DynamicDataBuilders.DynamicDataValue<DynamicBuilders.DynamicDuration> {
@@ -789,11 +738,8 @@ final class FixedValueBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets duration in seconds.
-         *
-         * @since 1.2
-         */
+        /** Gets duration in seconds. */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         public long getSeconds() {
             return mImpl.getSeconds();
         }
@@ -875,11 +821,8 @@ final class FixedValueBuilders {
 
             public Builder() {}
 
-            /**
-             * Sets duration in seconds.
-             *
-             * @since 1.2
-             */
+            /** Sets duration in seconds. */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setSeconds(long seconds) {
                 mImpl.setSeconds(seconds);

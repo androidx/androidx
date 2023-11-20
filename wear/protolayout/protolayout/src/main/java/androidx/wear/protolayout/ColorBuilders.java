@@ -30,6 +30,7 @@ import androidx.wear.protolayout.TypeBuilders.FloatProp;
 import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.Fingerprint;
+import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.proto.ColorProto;
 
 import java.util.ArrayList;
@@ -40,21 +41,15 @@ import java.util.List;
 public final class ColorBuilders {
     private ColorBuilders() {}
 
-    /**
-     * Shortcut for building a {@link ColorProp} using an ARGB value.
-     *
-     * @since 1.0
-     */
+    /** Shortcut for building a {@link ColorProp} using an ARGB value. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     @NonNull
     public static ColorProp argb(@ColorInt int colorArgb) {
         return new ColorProp.Builder(colorArgb).build();
     }
 
-    /**
-     * A property defining a color.
-     *
-     * @since 1.0
-     */
+    /** A property defining a color. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class ColorProp {
         private final ColorProto.ColorProp mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -69,9 +64,8 @@ public final class ColorBuilders {
          * renderer supports dynamic values for the corresponding field, this static value will be
          * ignored. If the static value is not specified, zero (equivalent to {@link
          * Color#TRANSPARENT}) will be used instead.
-         *
-         * @since 1.0
          */
+        @RequiresSchemaVersion(major = 1, minor = 0)
         @ColorInt
         public int getArgb() {
             return mImpl.getArgb();
@@ -81,9 +75,8 @@ public final class ColorBuilders {
          * Gets the dynamic value. Note that when setting this value, the static value is still
          * required to be set to support older renderers that only read the static value. If {@code
          * dynamicValue} has an invalid result, the provided static value will be used instead.
-         *
-         * @since 1.2
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public DynamicColor getDynamicValue() {
             if (mImpl.hasDynamicValue()) {
@@ -152,9 +145,8 @@ public final class ColorBuilders {
              * renderer supports dynamic values for the corresponding field, this static value will
              * be ignored. If the static value is not specified, zero (equivalent to {@link
              * Color#TRANSPARENT}) will be used instead.
-             *
-             * @since 1.0
              */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setArgb(@ColorInt int argb) {
                 mImpl.setArgb(argb);
@@ -167,9 +159,8 @@ public final class ColorBuilders {
              * required to be set to support older renderers that only read the static value. If
              * {@code dynamicValue} has an invalid result, the provided static value will be used
              * instead.
-             *
-             * @since 1.2
              */
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             public Builder setDynamicValue(@NonNull DynamicColor dynamicValue) {
                 mImpl.setDynamicValue(dynamicValue.toDynamicColorProto());
@@ -195,11 +186,8 @@ public final class ColorBuilders {
         }
     }
 
-    /**
-     * A color and an offset, determining a color position in a gradient.
-     *
-     * @since 1.3
-     */
+    /** A color and an offset, determining a color position in a gradient. */
+    @RequiresSchemaVersion(major = 1, minor = 300)
     public static final class ColorStop {
         private final ColorProto.ColorStop mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -209,11 +197,8 @@ public final class ColorBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /**
-         * Gets the color for this stop.
-         *
-         * @since 1.3
-         */
+        /** Gets the color for this stop. */
+        @RequiresSchemaVersion(major = 1, minor = 300)
         @NonNull
         public ColorProp getColor() {
             return ColorProp.fromProto(mImpl.getColor());
@@ -222,9 +207,8 @@ public final class ColorBuilders {
         /**
          * Gets the relative offset for this color, between 0 and 1. This determines where the color
          * is positioned relative to a gradient space.
-         *
-         * @since 1.3
          */
+        @RequiresSchemaVersion(major = 1, minor = 300)
         @Nullable
         public FloatProp getOffset() {
             if (mImpl.hasOffset()) {
@@ -242,8 +226,8 @@ public final class ColorBuilders {
          *
          * @param color the color for this stop.
          *     <p>Note that this parameter only supports static values.
-         * @since 1.3
          */
+        @RequiresSchemaVersion(major = 1, minor = 300)
         public ColorStop(@NonNull ColorProp color) {
             ColorStop inst = new Builder().setColor(color).build();
             this.mImpl = inst.mImpl;
@@ -258,8 +242,8 @@ public final class ColorBuilders {
          * @param color the color for this stop.
          * @param offset the relative offset for this color, between 0 and 1. This determines where
          *     the color is positioned relative to a gradient space.
-         * @since 1.3
          */
+        @RequiresSchemaVersion(major = 1, minor = 300)
         public ColorStop(@NonNull ColorProp color, @NonNull FloatProp offset) {
             ColorStop inst = new Builder().setColor(color).setOffset(offset).build();
             this.mImpl = inst.mImpl;
@@ -311,9 +295,8 @@ public final class ColorBuilders {
              * Sets the color for this stop.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.3
              */
+            @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
             Builder setColor(@NonNull ColorProp color) {
                 if (color.getDynamicValue() != null) {
@@ -333,8 +316,8 @@ public final class ColorBuilders {
              * <p>Note that this field only supports static values.
              *
              * @throws IllegalArgumentException if the offset value is outside of range [0,1].
-             * @since 1.3
              */
+            @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
             Builder setOffset(@NonNull FloatProp offset) {
                 if (offset.getDynamicValue() != null) {
@@ -366,9 +349,8 @@ public final class ColorBuilders {
      * continues clockwise until it reaches the starting position again.
      *
      * <p>The gradient center corresponds to center of the parent element.
-     *
-     * @since 1.3
      */
+    @RequiresSchemaVersion(major = 1, minor = 300)
     public static final class SweepGradient implements Brush {
         private final ColorProto.SweepGradient mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -390,9 +372,8 @@ public final class ColorBuilders {
          * <p>There must be at least 2 colors and at most 10 colors.
          *
          * <p>If offset values are not set, the colors are evenly distributed in the gradient.
-         *
-         * @since 1.3
          */
+        @RequiresSchemaVersion(major = 1, minor = 300)
         @NonNull
         public List<ColorStop> getColorStops() {
             List<ColorStop> list = new ArrayList<>();
@@ -410,9 +391,8 @@ public final class ColorBuilders {
          * the angle where the line starts. The value represents a relative position in the line's
          * length span. Values greater than 360 degrees correspond to upper layers of the arc line
          * as it wraps over itself.
-         *
-         * @since 1.3
          */
+        @RequiresSchemaVersion(major = 1, minor = 300)
         @NonNull
         public DegreesProp getStartAngle() {
             if (mImpl.hasStartAngle()) {
@@ -430,9 +410,8 @@ public final class ColorBuilders {
          * the angle where the line starts. The value represents a relative position in the line's
          * length span. Values greater than 360 degrees correspond to upper layers of the arc line
          * as it wraps over itself.
-         *
-         * @since 1.3
          */
+        @RequiresSchemaVersion(major = 1, minor = 300)
         @NonNull
         public DegreesProp getEndAngle() {
             if (mImpl.hasEndAngle()) {
@@ -506,9 +485,8 @@ public final class ColorBuilders {
              * <p>There must be at least 2 colors and at most 10 colors.
              *
              * <p>If offset values are not set, the colors are evenly distributed in the gradient.
-             *
-             * @since 1.3
              */
+            @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
             private Builder addColorStop(@NonNull ColorStop colorStop) {
                 mImpl.addColorStops(colorStop.toProto());
@@ -527,9 +505,8 @@ public final class ColorBuilders {
              * the arc line as it wraps over itself.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.3
              */
+            @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
             public Builder setStartAngle(@NonNull DegreesProp startAngle) {
                 if (startAngle.getDynamicValue() != null) {
@@ -552,9 +529,8 @@ public final class ColorBuilders {
              * the arc line as it wraps over itself.
              *
              * <p>Note that this field only supports static values.
-             *
-             * @since 1.3
              */
+            @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
             public Builder setEndAngle(@NonNull DegreesProp endAngle) {
                 if (endAngle.getDynamicValue() != null) {
@@ -581,8 +557,8 @@ public final class ColorBuilders {
              *     than 10.
              * @throws IllegalArgumentException if offsets in {@code colorStops} are partially set.
              *     Either all or none of the {@link ColorStop} parameters should have an offset.
-             * @since 1.3
              */
+            @RequiresSchemaVersion(major = 1, minor = 300)
             @SafeVarargs
             public Builder(@NonNull ColorStop... colorStops) {
                 if (colorStops.length < 2 || colorStops.length > 10) {
@@ -623,9 +599,8 @@ public final class ColorBuilders {
     /**
      * Interface defining a {@link Brush} describes how something is drawn on screen. It determines
      * the color(s) that are drawn in the drawing area.
-     *
-     * @since 1.3
      */
+    @RequiresSchemaVersion(major = 1, minor = 300)
     public interface Brush {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
