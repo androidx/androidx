@@ -601,6 +601,9 @@ internal class LayoutNodeLayoutDelegate(
          * Return true if the measured size has been changed
          */
         fun remeasure(constraints: Constraints): Boolean {
+            require(!layoutNode.isDeactivated) {
+                "measure is called on a deactivated node"
+            }
             val owner = layoutNode.requireOwner()
             val parent = layoutNode.parent
             @Suppress("Deprecation")
@@ -722,6 +725,9 @@ internal class LayoutNodeLayoutDelegate(
             zIndex: Float,
             layerBlock: (GraphicsLayerScope.() -> Unit)?
         ) {
+            require(!layoutNode.isDeactivated) {
+                "place is called on a deactivated node"
+            }
             layoutState = LayoutState.LayingOut
 
             lastPosition = position
@@ -1261,6 +1267,9 @@ internal class LayoutNodeLayoutDelegate(
 
         // Lookahead remeasurement with the given constraints.
         fun remeasure(constraints: Constraints): Boolean {
+            require(!layoutNode.isDeactivated) {
+                "measure is called on a deactivated node"
+            }
             val parent = layoutNode.parent
             @Suppress("Deprecation")
             layoutNode.canMultiMeasure = layoutNode.canMultiMeasure ||
@@ -1308,6 +1317,9 @@ internal class LayoutNodeLayoutDelegate(
             zIndex: Float,
             layerBlock: (GraphicsLayerScope.() -> Unit)?
         ) {
+            require(!layoutNode.isDeactivated) {
+                "place is called on a deactivated node"
+            }
             layoutState = LayoutState.LookaheadLayingOut
             placedOnce = true
             onNodePlacedCalled = false
