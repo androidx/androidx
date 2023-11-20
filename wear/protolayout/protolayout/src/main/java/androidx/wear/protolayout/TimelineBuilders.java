@@ -21,6 +21,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.LayoutElementBuilders.Layout;
+import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.proto.TimelineProto;
 
 import java.util.ArrayList;
@@ -36,9 +37,8 @@ public final class TimelineBuilders {
 
     /**
      * A time interval, typically used to describe the validity period of a {@link TimelineEntry}.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class TimeInterval {
         private final TimelineProto.TimeInterval mImpl;
 
@@ -46,20 +46,14 @@ public final class TimelineBuilders {
             this.mImpl = impl;
         }
 
-        /**
-         * Gets starting point of the time interval, in milliseconds since the Unix epoch.
-         *
-         * @since 1.0
-         */
+        /** Gets starting point of the time interval, in milliseconds since the Unix epoch. */
+        @RequiresSchemaVersion(major = 1, minor = 0)
         public long getStartMillis() {
             return mImpl.getStartMillis();
         }
 
-        /**
-         * Gets end point of the time interval, in milliseconds since the Unix epoch.
-         *
-         * @since 1.0
-         */
+        /** Gets end point of the time interval, in milliseconds since the Unix epoch. */
+        @RequiresSchemaVersion(major = 1, minor = 0)
         public long getEndMillis() {
             return mImpl.getEndMillis();
         }
@@ -97,22 +91,16 @@ public final class TimelineBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets starting point of the time interval, in milliseconds since the Unix epoch.
-             *
-             * @since 1.0
-             */
+            /** Sets starting point of the time interval, in milliseconds since the Unix epoch. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setStartMillis(long startMillis) {
                 mImpl.setStartMillis(startMillis);
                 return this;
             }
 
-            /**
-             * Sets end point of the time interval, in milliseconds since the Unix epoch.
-             *
-             * @since 1.0
-             */
+            /** Sets end point of the time interval, in milliseconds since the Unix epoch. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setEndMillis(long endMillis) {
                 mImpl.setEndMillis(endMillis);
@@ -127,11 +115,8 @@ public final class TimelineBuilders {
         }
     }
 
-    /**
-     * One piece of renderable content along with the time that it is valid for.
-     *
-     * @since 1.0
-     */
+    /** One piece of renderable content along with the time that it is valid for. */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class TimelineEntry {
         private final TimelineProto.TimelineEntry mImpl;
 
@@ -139,11 +124,8 @@ public final class TimelineBuilders {
             this.mImpl = impl;
         }
 
-        /**
-         * Gets the validity period for this timeline entry.
-         *
-         * @since 1.0
-         */
+        /** Gets the validity period for this timeline entry. */
+        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public TimeInterval getValidity() {
             if (mImpl.hasValidity()) {
@@ -153,11 +135,8 @@ public final class TimelineBuilders {
             }
         }
 
-        /**
-         * Gets the contents of this timeline entry.
-         *
-         * @since 1.0
-         */
+        /** Gets the contents of this timeline entry. */
+        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Layout getLayout() {
             if (mImpl.hasLayout()) {
@@ -167,11 +146,8 @@ public final class TimelineBuilders {
             }
         }
 
-        /**
-         * Returns the {@link TimelineEntry} object containing the given layout element.
-         *
-         * @since 1.0
-         */
+        /** Returns the {@link TimelineEntry} object containing the given layout element. */
+        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public static TimelineEntry fromLayoutElement(
                 @NonNull LayoutElementBuilders.LayoutElement layoutElement) {
@@ -206,22 +182,16 @@ public final class TimelineBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Sets the validity period for this timeline entry.
-             *
-             * @since 1.0
-             */
+            /** Sets the validity period for this timeline entry. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setValidity(@NonNull TimeInterval validity) {
                 mImpl.setValidity(validity.toProto());
                 return this;
             }
 
-            /**
-             * Sets the contents of this timeline entry.
-             *
-             * @since 1.0
-             */
+            /** Sets the contents of this timeline entry. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setLayout(@NonNull Layout layout) {
                 mImpl.setLayout(layout.toProto());
@@ -249,9 +219,8 @@ public final class TimelineBuilders {
      * validity period will be shown. This allows a layout provider to show a "default" layout, and
      * override it at set points without having to explicitly insert the default layout between the
      * "override" layout.
-     *
-     * @since 1.0
      */
+    @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class Timeline {
         private final TimelineProto.Timeline mImpl;
 
@@ -259,11 +228,8 @@ public final class TimelineBuilders {
             this.mImpl = impl;
         }
 
-        /**
-         * Gets the entries in a timeline.
-         *
-         * @since 1.0
-         */
+        /** Gets the entries in a timeline. */
+        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public List<TimelineEntry> getTimelineEntries() {
             List<TimelineEntry> list = new ArrayList<>();
@@ -273,11 +239,8 @@ public final class TimelineBuilders {
             return Collections.unmodifiableList(list);
         }
 
-        /**
-         * Returns the {@link Timeline} object containing the given layout element.
-         *
-         * @since 1.0
-         */
+        /** Returns the {@link Timeline} object containing the given layout element. */
+        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public static Timeline fromLayoutElement(
                 @NonNull LayoutElementBuilders.LayoutElement layoutElement) {
@@ -314,11 +277,8 @@ public final class TimelineBuilders {
             /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
-            /**
-             * Adds one item to the entries in a timeline.
-             *
-             * @since 1.0
-             */
+            /** Adds one item to the entries in a timeline. */
+            @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder addTimelineEntry(@NonNull TimelineEntry timelineEntry) {
                 mImpl.addTimelineEntries(timelineEntry.toProto());

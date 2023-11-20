@@ -49,11 +49,8 @@ import java.time.Instant;
 public final class DynamicDataBuilders {
     private DynamicDataBuilders() {}
 
-    /**
-     * Interface defining a dynamic data value.
-     *
-     * @since 1.2
-     */
+    /** Interface defining a dynamic data value. */
+    @RequiresSchemaVersion(major = 1, minor = 200)
     public interface DynamicDataValue<T extends DynamicType> {
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
