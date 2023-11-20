@@ -21,7 +21,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("kotlin-android")
-    id("kotlin-kapt")
+    id("com.google.devtools.ksp")
     id("AndroidXComposePlugin")
     id("dagger.hilt.android.plugin")
 }
@@ -49,7 +49,7 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.hiltAndroid)
     androidTestImplementation(libs.hiltAndroidTesting)
-    kaptAndroidTest(libs.hiltCompiler)
+    kspAndroidTest(libs.hiltCompiler)
     androidTestImplementation(projectOrArtifact(":compose:material:material"))
     androidTestImplementation(project(":compose:test-utils"))
     androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-common"))
