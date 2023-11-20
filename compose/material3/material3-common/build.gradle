@@ -35,6 +35,14 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlibCommon)
+
+                api(project(":compose:foundation:foundation"))
+                api(project(":compose:foundation:foundation-layout"))
+                api(project(":compose:runtime:runtime"))
+                api(project(":compose:ui:ui-graphics"))
+                api(project(":compose:ui:ui-text"))
+
+                implementation(project(":compose:ui:ui-util"))
             }
         }
         androidMain.dependencies {
