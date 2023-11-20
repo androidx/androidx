@@ -21,7 +21,6 @@ import android.util.Range;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.stabilization.StabilizationMode;
@@ -44,11 +43,13 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
      */
     Option<SessionConfig> OPTION_DEFAULT_SESSION_CONFIG =
             Option.create("camerax.core.useCase.defaultSessionConfig", SessionConfig.class);
+
     /**
      * Option: camerax.core.useCase.defaultCaptureConfig
      */
     Option<CaptureConfig> OPTION_DEFAULT_CAPTURE_CONFIG =
             Option.create("camerax.core.useCase.defaultCaptureConfig", CaptureConfig.class);
+
     /**
      * Option: camerax.core.useCase.sessionConfigUnpacker
      *
@@ -58,6 +59,7 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     Option<SessionConfig.OptionUnpacker> OPTION_SESSION_CONFIG_UNPACKER =
             Option.create("camerax.core.useCase.sessionConfigUnpacker",
                     SessionConfig.OptionUnpacker.class);
+
     /**
      * Option: camerax.core.useCase.captureConfigUnpacker
      *
@@ -67,16 +69,13 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     Option<CaptureConfig.OptionUnpacker> OPTION_CAPTURE_CONFIG_UNPACKER =
             Option.create("camerax.core.useCase.captureConfigUnpacker",
                     CaptureConfig.OptionUnpacker.class);
+
     /**
      * Option: camerax.core.useCase.surfaceOccypyPriority
      */
     Option<Integer> OPTION_SURFACE_OCCUPANCY_PRIORITY =
             Option.create("camerax.core.useCase.surfaceOccupancyPriority", int.class);
-    /**
-     * Option: camerax.core.useCase.cameraSelector
-     */
-    Option<CameraSelector> OPTION_CAMERA_SELECTOR =
-            Config.Option.create("camerax.core.useCase.cameraSelector", CameraSelector.class);
+
     /**
      * Option: camerax.core.useCase.targetFrameRate
      */
@@ -265,29 +264,6 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
     }
 
     /**
-     * Retrieves the camera selector that this use case requires.
-     *
-     * @param valueIfMissing The value to return if this configuration option has not been set.
-     * @return The stored value or <code>valueIfMissing</code> if the value does not exist in this
-     * configuration.
-     */
-    @Nullable
-    default CameraSelector getCameraSelector(@Nullable CameraSelector valueIfMissing) {
-        return retrieveOption(OPTION_CAMERA_SELECTOR, valueIfMissing);
-    }
-
-    /**
-     * Retrieves the camera selector that this use case requires.
-     *
-     * @return The stored value, if it exists in this configuration.
-     * @throws IllegalArgumentException if the option does not exist in this configuration.
-     */
-    @NonNull
-    default CameraSelector getCameraSelector() {
-        return retrieveOption(OPTION_CAMERA_SELECTOR);
-    }
-
-    /**
      * Retrieves target frame rate
      * @param valueIfMissing
      * @return the stored value or <code>valueIfMissing</code> if the value does not exist in
@@ -423,15 +399,6 @@ public interface UseCaseConfig<T extends UseCase> extends TargetConfig<T>, UseCa
          */
         @NonNull
         B setSurfaceOccupancyPriority(int priority);
-
-        /**
-         * Sets the camera selector that this use case requires.
-         *
-         * @param cameraSelector The camera filter appended internally.
-         * @return The current Builder.
-         */
-        @NonNull
-        B setCameraSelector(@NonNull CameraSelector cameraSelector);
 
         /**
          * Sets zsl disabled or not.

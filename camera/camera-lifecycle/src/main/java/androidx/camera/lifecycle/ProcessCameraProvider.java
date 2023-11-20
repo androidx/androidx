@@ -565,24 +565,9 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
             @NonNull UseCase... useCases) {
         Threads.checkMainThread();
         // TODO(b/153096869): override UseCase's target rotation.
-        // TODO(b/154939118) The filter appending should be removed after extensions are moved to
-        //  the CheckedCameraInternal
-        CameraSelector.Builder selectorBuilder =
-                CameraSelector.Builder.fromSelector(cameraSelector);
-        // Append the camera filter required internally if there's any.
-        for (UseCase useCase : useCases) {
-            CameraSelector selector = useCase.getCurrentConfig().getCameraSelector(null);
-            if (selector != null) {
-                for (CameraFilter filter : selector.getCameraFilterSet()) {
-                    selectorBuilder.addCameraFilter(filter);
-                }
-            }
-        }
-
-        CameraSelector modifiedSelector = selectorBuilder.build();
 
         LinkedHashSet<CameraInternal> cameraInternals =
-                modifiedSelector.filter(mCameraX.getCameraRepository().getCameras());
+                cameraSelector.filter(mCameraX.getCameraRepository().getCameras());
         if (cameraInternals.isEmpty()) {
             throw new IllegalArgumentException("Provided camera selector unable to resolve a "
                     + "camera for the given use case");
