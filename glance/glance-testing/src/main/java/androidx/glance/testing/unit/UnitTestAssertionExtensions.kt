@@ -146,6 +146,25 @@ fun <T : Activity> UnitTestAssertion.assertHasStartActivityClickAction(
 /**
  * Asserts that a given node has a clickable set with action that starts an activity.
  *
+ * @param T class of the activity that is expected to have been passed in the
+ *          `actionStartActivity` method call
+ * @param parameters the parameters associated with the action that are expected to have been passed
+ *                      in the `actionStartActivity` method call
+ * @param activityOptions Additional options built from an [android.app.ActivityOptions] that are
+ *                        expected to have been passed in the `actionStartActivity` method call
+ * @throws AssertionError if the matcher does not match or the node can no longer be found.
+ */
+@JvmOverloads
+inline fun <reified T : Activity> UnitTestAssertion.assertHasStartActivityClickAction(
+    parameters: ActionParameters = actionParametersOf(),
+    activityOptions: Bundle? = null
+): UnitTestAssertion {
+    return assert(hasStartActivityClickAction<T>(parameters, activityOptions))
+}
+
+/**
+ * Asserts that a given node has a clickable set with action that starts an activity.
+ *
  * @param componentName component of the activity that is expected to have been passed in the
  *                      `actionStartActivity` method call
  * @param parameters the parameters associated with the action that are expected to have been passed
