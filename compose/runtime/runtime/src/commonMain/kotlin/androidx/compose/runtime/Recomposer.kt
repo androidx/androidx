@@ -16,6 +16,7 @@
 
 package androidx.compose.runtime
 
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
 import androidx.compose.runtime.snapshots.MutableSnapshot
@@ -510,19 +511,39 @@ class Recomposer(
         val toRecompose = mutableListOf<ControlledComposition>()
         val toInsert = mutableListOf<MovableContentStateReference>()
         val toApply = mutableListOf<ControlledComposition>()
-        val toLateApply = mutableSetOf<ControlledComposition>()
-        val toComplete = mutableSetOf<ControlledComposition>()
+        val toLateApply = mutableScatterSetOf<ControlledComposition>()
+        val toComplete = mutableScatterSetOf<ControlledComposition>()
         val modifiedValues = IdentityArraySet<Any>()
-        val alreadyComposed = IdentityArraySet<ControlledComposition>()
+        val alreadyComposed = mutableScatterSetOf<ControlledComposition>()
 
         fun clearRecompositionState() {
-            toRecompose.clear()
-            toInsert.clear()
-            toApply.clear()
-            toLateApply.clear()
-            toComplete.clear()
-            modifiedValues.clear()
-            alreadyComposed.clear()
+            synchronized(stateLock) {
+                toRecompose.clear()
+                toInsert.clear()
+
+                toApply.fastForEach {
+                    it.abandonChanges()
+                    recordFailedCompositionLocked(it)
+                }
+                toApply.clear()
+
+                toLateApply.forEach {
+                    it.abandonChanges()
+                    recordFailedCompositionLocked(it)
+                }
+                toLateApply.clear()
+
+                toComplete.forEach { it.changesApplied() }
+                toComplete.clear()
+
+                modifiedValues.clear()
+
+                alreadyComposed.forEach {
+                    it.abandonChanges()
+                    recordFailedCompositionLocked(it)
+                }
+                alreadyComposed.clear()
+            }
         }
 
         fun fillToInsert() {
@@ -576,10 +597,10 @@ class Recomposer(
                     while (toRecompose.isNotEmpty() || toInsert.isNotEmpty()) {
                         try {
                             toRecompose.fastForEach { composition ->
-                                alreadyComposed.add(composition)
                                 performRecompose(composition, modifiedValues)?.let {
                                     toApply += it
                                 }
+                                alreadyComposed.add(composition)
                             }
                         } catch (e: Exception) {
                             processCompositionError(e, recoverable = true)
@@ -716,15 +737,7 @@ class Recomposer(
                 )
 
                 if (failedInitialComposition != null) {
-                    val failedCompositions = failedCompositions
-                        ?: mutableListOf<ControlledComposition>().also {
-                            failedCompositions = it
-                        }
-
-                    if (failedInitialComposition !in failedCompositions) {
-                        failedCompositions += failedInitialComposition
-                    }
-                    removeKnownCompositionLocked(failedInitialComposition)
+                    recordFailedCompositionLocked(failedInitialComposition)
                 }
 
                 deriveStateLocked()
@@ -798,12 +811,24 @@ class Recomposer(
                 // If we did not complete the last list then add the remaining compositions back
                 // into the failedCompositions list
                 synchronized(stateLock) {
-                    failedCompositions =
-                        failedCompositions?.also { it.addAll(compositionsToRetry) }
-                            ?: compositionsToRetry
+                    compositionsToRetry.fastForEach {
+                        recordFailedCompositionLocked(it)
+                    }
                 }
             }
         }
+    }
+
+    private fun recordFailedCompositionLocked(composition: ControlledComposition) {
+        val failedCompositions = failedCompositions
+            ?: mutableListOf<ControlledComposition>().also {
+                failedCompositions = it
+            }
+
+        if (composition !in failedCompositions) {
+            failedCompositions += composition
+        }
+        removeKnownCompositionLocked(composition)
     }
 
     /**
