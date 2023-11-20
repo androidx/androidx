@@ -16,6 +16,10 @@
 
 package androidx.compose.ui.platform
 
+/**
+ * A [ViewConfiguration] with Android's default configurations. Derived from
+ * [android.view.ViewConfiguration]
+ */
 class AndroidViewConfiguration(
     private val viewConfiguration: android.view.ViewConfiguration
 ) : ViewConfiguration {
