@@ -267,6 +267,7 @@ public final class ProtoLayoutInflater {
     private static final int LINE_COLOR_DEFAULT = 0xFFFFFFFF;
 
     static final PendingLayoutParams NO_OP_PENDING_LAYOUT_PARAMS = layoutParams -> layoutParams;
+    private static final byte UNSET_MASK = 0;
 
     final Context mUiContext;
 
@@ -964,6 +965,22 @@ public final class ProtoLayoutInflater {
         }
 
         return linearLayoutParams;
+    }
+
+    /**
+     * Creates {@link ContainerDimension} from the given {@link SpacerDimension}. If none of the
+     * linear or expanded dimension are present, it defaults to linear dimension 0.
+     */
+    private static ContainerDimension spacerDimensionToContainerDimension(
+            SpacerDimension spacerDimension) {
+        ContainerDimension.Builder containerDimension =
+                ContainerDimension.newBuilder().setLinearDimension(DpProp.newBuilder().setValue(0));
+        if (spacerDimension.hasLinearDimension()) {
+            containerDimension.setLinearDimension(spacerDimension.getLinearDimension());
+        } else if (spacerDimension.hasExpandedDimension()) {
+            containerDimension.setExpandedDimension(spacerDimension.getExpandedDimension());
+        }
+        return containerDimension.build();
     }
 
     private LayoutParams updateLayoutParams(
@@ -2163,8 +2180,16 @@ public final class ProtoLayoutInflater {
             Spacer spacer,
             String posId,
             Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
-        // TODO(b/307515493): Add support for expanded dimension.
         LayoutParams layoutParams = generateDefaultLayoutParams();
+        layoutParams =
+                updateLayoutParams(
+                        parentViewWrapper.getParentProperties(),
+                        layoutParams,
+                        // This doesn't copy layout constraint for dynamic fields. That is fine, because that
+                        // will be later applied to the wrapper, and this layoutParams would have dimension
+                        // reset and put into the pipeline.
+                        spacerDimensionToContainerDimension(spacer.getWidth()),
+                        spacerDimensionToContainerDimension(spacer.getHeight()));
 
         // Initialize the size wrapper here, if needed. This simplifies the logic below when
         // creating the actual Spacer and adding it to its parent...
@@ -2172,11 +2197,16 @@ public final class ProtoLayoutInflater {
         @Nullable Float widthForLayoutDp = resolveSizeForLayoutIfNeeded(spacer.getWidth());
         @Nullable Float heightForLayoutDp = resolveSizeForLayoutIfNeeded(spacer.getHeight());
 
+        // Handling dynamic width/height for the spacer.
         if (widthForLayoutDp != null || heightForLayoutDp != null) {
             sizeWrapper = new FrameLayout(mUiContext);
             LayoutParams spaceWrapperLayoutParams = generateDefaultLayoutParams();
-            spaceWrapperLayoutParams.width = LayoutParams.WRAP_CONTENT;
-            spaceWrapperLayoutParams.height = LayoutParams.WRAP_CONTENT;
+            spaceWrapperLayoutParams =
+                    updateLayoutParams(
+                            parentViewWrapper.getParentProperties(),
+                            spaceWrapperLayoutParams,
+                            spacerDimensionToContainerDimension(spacer.getWidth()),
+                            spacerDimensionToContainerDimension(spacer.getHeight()));
 
             if (widthForLayoutDp != null) {
                 if (widthForLayoutDp <= 0f) {
@@ -2199,17 +2229,29 @@ public final class ProtoLayoutInflater {
             }
 
             int gravity =
-                    horizontalAlignmentToGravity(
-                                    spacer.getWidth()
-                                            .getLinearDimension()
-                                            .getHorizontalAlignmentForLayout())
-                            | verticalAlignmentToGravity(
-                                    spacer.getHeight()
-                                            .getLinearDimension()
-                                            .getVerticalAlignmentForLayout());
+                    (spacer.getWidth().hasLinearDimension()
+                            ? horizontalAlignmentToGravity(
+                            spacer.getWidth().getLinearDimension().getHorizontalAlignmentForLayout())
+                            : UNSET_MASK)
+                            | (spacer.getHeight().hasLinearDimension()
+                            ? verticalAlignmentToGravity(
+                            spacer.getHeight().getLinearDimension().getVerticalAlignmentForLayout())
+                            : UNSET_MASK);
+
+            // This layoutParams will override what we initially had and will be used for Spacer
+            // itself. This means that the wrapper's layout params should follow the rules for
+            // expand, and this one should just match the parents size when dimension is set to
+            // expand. When dimension is dynamic, the value will be assigned during the
+            // evaluation, so currently we will just copy over the value from constraints.
             FrameLayout.LayoutParams frameLayoutLayoutParams =
                     new FrameLayout.LayoutParams(layoutParams);
             frameLayoutLayoutParams.gravity = gravity;
+            if (spacer.getWidth().hasExpandedDimension()) {
+                frameLayoutLayoutParams.width = LayoutParams.MATCH_PARENT;
+            }
+            if (spacer.getHeight().hasExpandedDimension()) {
+                frameLayoutLayoutParams.height = LayoutParams.MATCH_PARENT;
+            }
             layoutParams = frameLayoutLayoutParams;
 
             parentViewWrapper.maybeAddView(sizeWrapper, spaceWrapperLayoutParams);
@@ -2229,62 +2271,93 @@ public final class ProtoLayoutInflater {
                             posId,
                             pipelineMaker);
 
-            // Currently, a spacer can only have a known size, not wrap or expand. Because of that,
-            // we don't need to use updateLayoutParams (it only exists to special-case expand() in a
-            // linear layout). Just go and set the LayoutParams directly here. First though, init
-            // the layout params to 0 (so we don't get strange behaviour before the first data
-            // pipeline update).
-            layoutParams.width = 0;
-            layoutParams.height = 0;
-
+            // LayoutParams have been updated above to accommodate from expand option.
             // The View needs to be added before any of the *Prop messages are wired up.
             // View#getLayoutParams will return null if the View has not been added to a container
             // yet
             // (since the LayoutParams are technically managed by the parent).
             parentViewWrapper.maybeAddView(view, layoutParams);
 
-            handleProp(
-                    spacer.getWidth().getLinearDimension(),
-                    width -> {
-                        LayoutParams lp = view.getLayoutParams();
-                        if (lp == null) {
-                            Log.e(TAG, "LayoutParams was null when updating spacer width");
-                            return;
-                        }
+            if (spacer.getWidth().hasLinearDimension()) {
+                // Init the layout params' width to 0 (so we don't get strange behaviour before the
+                // first data pipeline update).
+                layoutParams.width = 0;
+                handleProp(
+                        spacer.getWidth().getLinearDimension(),
+                        width -> {
+                            LayoutParams lp = view.getLayoutParams();
+                            if (lp == null) {
+                                Log.e(TAG, "LayoutParams was null when updating spacer width");
+                                return;
+                            }
 
-                        lp.width = safeDpToPx(width);
-                        view.requestLayout();
-                    },
-                    posId,
-                    pipelineMaker);
+                            lp.width = safeDpToPx(width);
+                            view.requestLayout();
+                        },
+                        posId,
+                        pipelineMaker);
+            }
 
-            handleProp(
-                    spacer.getHeight().getLinearDimension(),
-                    height -> {
-                        LayoutParams lp = view.getLayoutParams();
-                        if (lp == null) {
-                            Log.e(TAG, "LayoutParams was null when updating spacer height");
-                            return;
-                        }
+            if (spacer.getHeight().hasLinearDimension()) {
+                // Init the layout params' width to 0 (so we don't get strange behaviour before the
+                // first data pipeline update).
+                layoutParams.height = 0;
+                handleProp(
+                        spacer.getHeight().getLinearDimension(),
+                        height -> {
+                            LayoutParams lp = view.getLayoutParams();
+                            if (lp == null) {
+                                Log.e(TAG, "LayoutParams was null when updating spacer height");
+                                return;
+                            }
 
-                        lp.height = safeDpToPx(height);
-                        view.requestLayout();
-                    },
-                    posId,
-                    pipelineMaker);
+                            lp.height = safeDpToPx(height);
+                            view.requestLayout();
+                        },
+                        posId,
+                        pipelineMaker);
+            }
         } else {
             view = new Space(mUiContext);
-            handleProp(
-                    spacer.getWidth().getLinearDimension(),
-                    width -> view.setMinimumWidth(safeDpToPx(width)),
-                    posId,
-                    pipelineMaker);
-            handleProp(
-                    spacer.getHeight().getLinearDimension(),
-                    height -> view.setMinimumHeight(safeDpToPx(height)),
-                    posId,
-                    pipelineMaker);
             parentViewWrapper.maybeAddView(view, layoutParams);
+            if (spacer.getWidth().hasLinearDimension()) {
+                handleProp(
+                        spacer.getWidth().getLinearDimension(),
+                        width -> {
+                            // We still need to update layout params in case other dimension is expand, so 0 could
+                            // be miss interpreted.
+                            LayoutParams lp = view.getLayoutParams();
+                            if (lp == null) {
+                                Log.e(TAG, "LayoutParams was null when updating spacer width");
+                                return;
+                            }
+
+                            lp.width = safeDpToPx(width);
+                            // This calls requestLayout.
+                            view.setMinimumWidth(safeDpToPx(width));
+                        },
+                        posId,
+                        pipelineMaker);
+            }
+            if (spacer.getHeight().hasLinearDimension()) {
+                handleProp(
+                        spacer.getHeight().getLinearDimension(),
+                        height -> {
+                            // We still need to update layout params in case other dimension is expand, so 0 could
+                            // be miss interpreted.
+                            LayoutParams lp = view.getLayoutParams();
+                            if (lp == null) {
+                                Log.e(TAG, "LayoutParams was null when updating spacer height");
+                                return;
+                            }
+
+                            lp.height = safeDpToPx(height);
+                            // This calls requestLayout.
+                            view.setMinimumHeight(safeDpToPx(height));
+                        },
+                        posId,
+                        pipelineMaker);
+            }
         }
 
         if (sizeWrapper != null) {
@@ -3870,7 +3943,6 @@ public final class ProtoLayoutInflater {
             case LINEAR_DIMENSION:
                 return true;
             case EXPANDED_DIMENSION:
-                // TODO(b/307515493): Add support for expanded dimension.
                 return false;
             case INNER_NOT_SET:
                 return false;
