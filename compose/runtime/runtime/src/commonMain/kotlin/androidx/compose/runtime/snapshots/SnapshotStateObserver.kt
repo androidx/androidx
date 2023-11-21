@@ -379,7 +379,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         /**
          * Values that have been read during the scope's [SnapshotStateObserver.observeReads].
          */
-        private val valueToScopes = ScopeMap<Any>()
+        private val valueToScopes = ScopeMap<Any, Any>()
 
         /**
          * Reverse index (scope -> values) for faster scope invalidation.
@@ -423,7 +423,7 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
         /**
          * Invalidation index from state objects to derived states reading them.
          */
-        private val dependencyToDerivedStates = ScopeMap<DerivedState<*>>()
+        private val dependencyToDerivedStates = ScopeMap<Any, DerivedState<*>>()
 
         /**
          * Last derived state value recorded during read.

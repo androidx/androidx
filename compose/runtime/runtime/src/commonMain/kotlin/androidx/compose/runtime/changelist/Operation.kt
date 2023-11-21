@@ -35,7 +35,6 @@ import androidx.compose.runtime.RememberObserverHolder
 import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.SlotWriter
 import androidx.compose.runtime.TestOnly
-import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.composeRuntimeError
 import androidx.compose.runtime.deactivateCurrentGroup
 import androidx.compose.runtime.internal.IntRef
@@ -952,9 +951,7 @@ private fun releaseMovableGroupAtCurrent(
                 // If the original owner ignores this then we need to record it in the
                 // reference
                 if (result == InvalidationResult.IGNORED) {
-                    reference.invalidations += scope to instance?.let {
-                        IdentityArraySet<Any>().also { it.add(it) }
-                    }
+                    reference.invalidations += scope to instance
                     return InvalidationResult.SCHEDULED
                 }
                 return result
