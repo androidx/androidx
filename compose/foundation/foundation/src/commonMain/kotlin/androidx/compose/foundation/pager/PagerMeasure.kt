@@ -18,7 +18,7 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.snapping.SnapPositionInLayout
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
@@ -55,7 +55,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
     pageAvailableSize: Int,
     beyondBoundsPageCount: Int,
     pinnedPages: List<Int>,
-    snapPositionInLayout: SnapPositionInLayout,
+    snapPosition: SnapPosition,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): PagerMeasureResult {
     require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
@@ -368,7 +368,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
                 beforeContentPadding,
                 afterContentPadding,
                 pageSizeWithSpacing,
-                snapPositionInLayout
+                snapPosition
             )
 
         val currentPagePositionOffset = newCurrentPage?.offset ?: 0
@@ -464,7 +464,7 @@ private fun calculateNewCurrentPage(
     beforeContentPadding: Int,
     afterContentPadding: Int,
     itemSize: Int,
-    snapPositionInLayout: SnapPositionInLayout
+    snapPosition: SnapPosition
 ): MeasuredPage? {
     return visiblePagesInfo.fastMaxBy {
         -abs(
@@ -475,7 +475,7 @@ private fun calculateNewCurrentPage(
                 itemSize = itemSize,
                 itemOffset = it.offset,
                 itemIndex = it.index,
-                snapPositionInLayout = snapPositionInLayout
+                snapPosition = snapPosition
             )
         )
     }

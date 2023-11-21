@@ -35,7 +35,7 @@ import kotlin.math.sign
  * A [SnapLayoutInfoProvider] for LazyGrids.
  *
  * @param lazyGridState The [LazyGridState] with information about the current state of the grid
- * @param positionInLayout The desired positioning of the snapped item within the main layout.
+ * @param snapPosition The desired positioning of the snapped item within the main layout.
  * This position should be considered with regards to the start edge of the item and the placement
  * within the viewport.
  *
@@ -44,7 +44,7 @@ import kotlin.math.sign
 @ExperimentalFoundationApi
 fun SnapLayoutInfoProvider(
     lazyGridState: LazyGridState,
-    positionInLayout: SnapPositionInLayout = SnapPositionInLayout.CenterToCenter
+    snapPosition: SnapPosition = SnapPosition.Center
 ) = object : SnapLayoutInfoProvider {
     private val layoutInfo: LazyGridLayoutInfo
         get() = lazyGridState.layoutInfo
@@ -93,7 +93,7 @@ fun SnapLayoutInfoProvider(
                     itemSize = item.sizeOnMainAxis(orientation = layoutInfo.orientation),
                     itemOffset = item.offsetOnMainAxis(orientation = layoutInfo.orientation),
                     itemIndex = item.index,
-                    snapPositionInLayout = positionInLayout
+                    snapPosition = snapPosition
                 )
 
             // Find item that is closest to the center

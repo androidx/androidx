@@ -538,11 +538,11 @@ package androidx.compose.foundation.gestures {
 package androidx.compose.foundation.gestures.snapping {
 
   public final class LazyGridSnapLayoutInfoProviderKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.compose.foundation.lazy.grid.LazyGridState lazyGridState, optional androidx.compose.foundation.gestures.snapping.SnapPositionInLayout positionInLayout);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.compose.foundation.lazy.grid.LazyGridState lazyGridState, optional androidx.compose.foundation.gestures.snapping.SnapPosition snapPosition);
   }
 
   public final class LazyListSnapLayoutInfoProviderKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.compose.foundation.lazy.LazyListState lazyListState, optional androidx.compose.foundation.gestures.snapping.SnapPositionInLayout positionInLayout);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider SnapLayoutInfoProvider(androidx.compose.foundation.lazy.LazyListState lazyListState, optional androidx.compose.foundation.gestures.snapping.SnapPosition snapPosition);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.gestures.FlingBehavior rememberSnapFlingBehavior(androidx.compose.foundation.lazy.LazyListState lazyListState);
   }
 
@@ -562,14 +562,18 @@ package androidx.compose.foundation.gestures.snapping {
     method public float calculateSnappingOffset(float currentVelocity);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public fun interface SnapPositionInLayout {
+  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public fun interface SnapPosition {
     method public int position(int layoutSize, int itemSize, int beforeContentPadding, int afterContentPadding, int itemIndex);
-    field public static final androidx.compose.foundation.gestures.snapping.SnapPositionInLayout.Companion Companion;
+    field public static final androidx.compose.foundation.gestures.snapping.SnapPosition.Companion Companion;
   }
 
-  public static final class SnapPositionInLayout.Companion {
-    method public androidx.compose.foundation.gestures.snapping.SnapPositionInLayout getCenterToCenter();
-    property public final androidx.compose.foundation.gestures.snapping.SnapPositionInLayout CenterToCenter;
+  public static final class SnapPosition.Companion {
+    method public androidx.compose.foundation.gestures.snapping.SnapPosition getCenter();
+    method public androidx.compose.foundation.gestures.snapping.SnapPosition getEnd();
+    method public androidx.compose.foundation.gestures.snapping.SnapPosition getStart();
+    property public final androidx.compose.foundation.gestures.snapping.SnapPosition Center;
+    property public final androidx.compose.foundation.gestures.snapping.SnapPosition End;
+    property public final androidx.compose.foundation.gestures.snapping.SnapPosition Start;
   }
 
 }

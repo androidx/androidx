@@ -24,7 +24,7 @@ import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
 import androidx.compose.foundation.gestures.ScrollableState
-import androidx.compose.foundation.gestures.snapping.SnapPositionInLayout
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.layout.AwaitFirstLayoutModifier
@@ -728,7 +728,7 @@ private val UnitDensity = object : Density {
 
 @OptIn(ExperimentalFoundationApi::class)
 internal val SnapAlignmentStartToStart =
-    SnapPositionInLayout { _, _, _, _, _ -> 0 }
+    SnapPosition { _, _, _, _, _ -> 0 }
 
 private const val DEBUG = PagerDebugEnable
 private inline fun debugLog(generateMsg: () -> String) {
