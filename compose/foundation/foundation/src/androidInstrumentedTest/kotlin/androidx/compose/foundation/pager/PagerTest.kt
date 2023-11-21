@@ -257,6 +257,23 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
     }
 
     @Test
+    fun pageCount_canBeMaxInt() {
+        // Arrange
+
+        // Act
+        createPager(modifier = Modifier.fillMaxSize(), pageCount = { Int.MAX_VALUE })
+
+        // Assert
+        rule.runOnIdle {
+            scope.launch {
+                pagerState.scrollToPage(Int.MAX_VALUE)
+            }
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag("${Int.MAX_VALUE - 1}").assertIsDisplayed()
+    }
+
+    @Test
     fun keyLambdaShouldUpdateWhenDatasetChanges() {
         lateinit var pagerState: PagerState
         val listA = mutableStateOf(listOf(1))

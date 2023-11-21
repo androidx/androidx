@@ -166,7 +166,7 @@ abstract class PagerState(
     internal var firstVisiblePageOffset = 0
         private set
 
-    private var maxScrollOffset: Int = Int.MAX_VALUE
+    private var maxScrollOffset: Float = Float.MAX_VALUE
         private set
 
     private var accumulator: Float = 0f
@@ -196,7 +196,7 @@ abstract class PagerState(
         }
 
         val absolute = (currentScrollPosition + delta + accumulator)
-        val newValue = absolute.coerceIn(0.0f, maxScrollOffset.toFloat())
+        val newValue = absolute.coerceIn(0.0f, maxScrollOffset)
         val changed = absolute != newValue
         val consumed = newValue - currentScrollPosition
 
@@ -742,8 +742,8 @@ private val PagerLayoutInfo.singleAxisViewPort: Int
     get() = if (orientation == Orientation.Vertical) viewportSize.height else viewportSize.width
 
 @OptIn(ExperimentalFoundationApi::class)
-private fun PagerMeasureResult.calculateNewMaxScrollOffset(pageCount: Int): Int {
+private fun PagerMeasureResult.calculateNewMaxScrollOffset(pageCount: Int): Float {
     return beforeContentPadding +
-        pageCount * (pageSpacing + pageSize) +
+        pageCount * (pageSpacing + pageSize).toFloat() +
         afterContentPadding - pageSpacing - singleAxisViewPort
 }
