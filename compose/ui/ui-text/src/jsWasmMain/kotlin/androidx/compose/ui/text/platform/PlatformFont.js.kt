@@ -25,6 +25,5 @@ actual sealed class PlatformFont : Font {
         // Example: given LoadedFont(identity="abc", ...), it will return "LoadedFont|abc"
         // Such implementation is sufficient since PlatformFont is a sealed class, and
         // we control all of its variants (subclasses).
-        get() = "${this::class.simpleName}|$identity"
+        get() = "${this::class.simpleName}|$identity|weight=${weight.weight}|style=$style"
 }
-

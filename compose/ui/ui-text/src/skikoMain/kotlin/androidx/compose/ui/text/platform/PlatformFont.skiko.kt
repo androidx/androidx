@@ -40,7 +40,15 @@ expect sealed class PlatformFont() : Font {
 }
 
 /**
- * A Font that already installed in system.
+ * A Font that's already installed in the system.
+ *
+ * @param identity Unique identity for a font. Used internally to distinguish fonts.
+ * @param weight The weight of the font. The system uses this to match a font to a font request
+ * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param style The style of the font, normal or italic. The system uses this to match a font to a
+ * font request that is given in a [androidx.compose.ui.text.SpanStyle].
+ *
+ * @see FontFamily
  */
 @ExperimentalTextApi
 class SystemFont(
@@ -49,12 +57,12 @@ class SystemFont(
     override val style: FontStyle = FontStyle.Normal
 ) : PlatformFont() {
     override fun toString(): String {
-        return "SystemInstalledFont(identity='$identity', weight=$weight, style=$style)"
+        return "SystemFont(identity='$identity', weight=$weight, style=$style)"
     }
 }
 
 /**
- * Defines a Font using byte array with loaded font data.
+ * Defines a Font using a byte array with loaded font data.
  *
  * @param identity Unique identity for a font. Used internally to distinguish fonts.
  * @param getData should return Byte array with loaded font data.

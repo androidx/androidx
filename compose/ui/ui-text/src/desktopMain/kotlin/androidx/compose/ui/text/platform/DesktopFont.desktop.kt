@@ -15,12 +15,13 @@
  */
 package androidx.compose.ui.text.platform
 
-import org.jetbrains.skia.Typeface as SkTypeface
 import org.jetbrains.skia.FontStyle as SkFontStyle
+import org.jetbrains.skia.Typeface as SkTypeface
 import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.*
 import java.io.File
 import org.jetbrains.skia.Data
+import org.jetbrains.skia.FontMgr
 import org.jetbrains.skia.FontSlant
 import org.jetbrains.skia.FontWidth
 import org.jetbrains.skia.makeFromFile
@@ -28,18 +29,19 @@ import org.jetbrains.skia.makeFromFile
 actual sealed class PlatformFont : Font {
     actual abstract val identity: String
     internal actual val cacheKey: String
-        get() = "${this::class.qualifiedName}|$identity"
+        get() = "${this::class.qualifiedName}|$identity|weight=${weight.weight}|style=$style"
 }
 
 /**
- * Defines a Font using resource name.
+ * Defines a Font using a resource name.
  *
  * @param name The resource name in classpath.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
- * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
- *
+ * @param weight The weight of the font. The system uses this to match a
+ *     font to a font request that is given in a
+ *     [androidx.compose.ui.text.SpanStyle].
+ * @param style The style of the font, normal or italic. The system uses
+ *     this to match a font to a font request that is given in a
+ *     [androidx.compose.ui.text.SpanStyle].
  * @see FontFamily
  */
 
@@ -78,14 +80,15 @@ class ResourceFont internal constructor(
 }
 
 /**
- * Creates a Font using resource name.
+ * Creates a Font using a resource name.
  *
  * @param resource The resource name in classpath.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
- * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
- *
+ * @param weight The weight of the font. The system uses this to match a
+ *     font to a font request that is given in a
+ *     [androidx.compose.ui.text.SpanStyle].
+ * @param style The style of the font, normal or italic. The system uses
+ *     this to match a font to a font request that is given in a
+ *     [androidx.compose.ui.text.SpanStyle].
  * @see FontFamily
  */
 fun Font(
@@ -95,14 +98,15 @@ fun Font(
 ): Font = ResourceFont(resource, weight, style)
 
 /**
- * Defines a Font using file path.
+ * Defines a Font using a file path.
  *
  * @param file File path to font.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
- * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
- *
+ * @param weight The weight of the font. The system uses this to match a
+ *     font to a font request that is given in a
+ *     [androidx.compose.ui.text.SpanStyle].
+ * @param style The style of the font, normal or italic. The system uses
+ *     this to match a font to a font request that is given in a
+ *     [androidx.compose.ui.text.SpanStyle].
  * @see FontFamily
  */
 class FileFont internal constructor(
@@ -140,14 +144,15 @@ class FileFont internal constructor(
 }
 
 /**
- * Creates a Font using file path.
+ * Creates a Font using a file path.
  *
  * @param file File path to font.
- * @param weight The weight of the font. The system uses this to match a font to a font request
- * that is given in a [androidx.compose.ui.text.SpanStyle].
- * @param style The style of the font, normal or italic. The system uses this to match a font to a
- * font request that is given in a [androidx.compose.ui.text.SpanStyle].
- *
+ * @param weight The weight of the font. The system uses this to match a
+ *     font to a font request that is given in a
+ *     [androidx.compose.ui.text.SpanStyle].
+ * @param style The style of the font, normal or italic. The system uses
+ *     this to match a font to a font request that is given in a
+ *     [androidx.compose.ui.text.SpanStyle].
  * @see FontFamily
  */
 fun Font(
@@ -162,10 +167,11 @@ internal actual fun loadTypeface(font: Font): SkTypeface {
     }
     return when (font) {
         is ResourceFont -> typefaceResource(font.name)
+        // TODO: replace with FontMgr.makeFromFile(font.file.toString())
         is FileFont -> SkTypeface.makeFromFile(font.file.toString())
-        is LoadedFont -> SkTypeface.makeFromData(Data.makeFromBytes(font.getData()))
-        is SystemFont -> SkTypeface.makeFromName(font.identity, font.skFontStyle)
-    }
+        is LoadedFont -> FontMgr.default.makeFromData(Data.makeFromBytes(font.getData()))
+        is SystemFont -> FontMgr.default.matchFamilyStyle(font.identity, font.skFontStyle)
+    } ?: SkTypeface.makeFromName(SkTypeface.makeDefault().familyName, font.skFontStyle)
 }
 
 private fun typefaceResource(resourceName: String): SkTypeface {
@@ -178,11 +184,12 @@ private fun typefaceResource(resourceName: String): SkTypeface {
     return SkTypeface.makeFromData(Data.makeFromBytes(bytes))
 }
 
-private val Font.skFontStyle: SkFontStyle get() = SkFontStyle(
-    weight = weight.weight,
-    width = FontWidth.NORMAL,
-    slant = if (style == FontStyle.Italic) FontSlant.ITALIC else FontSlant.UPRIGHT
-)
+private val Font.skFontStyle: SkFontStyle
+    get() = SkFontStyle(
+        weight = weight.weight,
+        width = FontWidth.NORMAL,
+        slant = if (style == FontStyle.Italic) FontSlant.ITALIC else FontSlant.UPRIGHT
+    )
 
 internal actual fun currentPlatform(): Platform {
     val name = System.getProperty("os.name")
