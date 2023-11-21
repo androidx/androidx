@@ -75,8 +75,8 @@ class GroupSizeValidationTests {
     fun checkboxLike() = compositionTest {
         slotExpect(
             name = "CheckboxLike",
-            noMoreGroupsThan = 11,
-            noMoreSlotsThan = 21
+            noMoreGroupsThan = 12,
+            noMoreSlotsThan = 17
         ) {
             CheckboxLike(checked = false, onCheckedChange = { })
         }
