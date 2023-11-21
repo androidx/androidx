@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:JvmName("DataStoreFile")
+@file:JvmName("DataStoreFile") // Workaround for b/313964643
 
 package androidx.datastore
 

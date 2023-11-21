@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("DataStoreDelegateKt") // Workaround for b/313964643
+
 package androidx.datastore
 
 import android.content.Context
@@ -54,6 +56,7 @@ import okio.Path.Companion.toPath
  * @param fileName the filename relative to Context.applicationContext.filesDir that DataStore
  * acts on. The File is obtained from [dataStoreFile]. It is created in the "/datastore"
  * subdirectory.
+ * @param serializer The serializer for `T`.
  * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
  * [androidx.datastore.core.CorruptionException] when attempting to read data. CorruptionExceptions
  * are thrown by serializers when data can not be de-serialized.

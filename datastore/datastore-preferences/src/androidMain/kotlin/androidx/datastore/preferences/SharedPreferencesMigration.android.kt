@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+// Workaround for b/313964643 to keep class name consistent in Metalava.
+@file:JvmName("SharedPreferencesMigrationKt")
+
 package androidx.datastore.preferences
 
 import android.content.Context

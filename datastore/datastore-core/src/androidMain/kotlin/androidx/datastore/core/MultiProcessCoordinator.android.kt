@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("MultiProcessCoordinatorKt") // Workaround for b/313964643
+
 package androidx.datastore.core
 
 import java.io.File
