@@ -1842,10 +1842,10 @@ class ComposableFunctionBodyTransformer(
                 (expectedTarget == null || expectedTarget == expr.returnTargetSymbol.owner)
             ) {
                 block.statements.pop()
-                return if (expr.value.type.isUnitOrNullableUnit() ||
-                    expr.value.type.isNothing() ||
-                    expr.value.type.isNullableNothing()
-                ) {
+                val valueType = expr.value.type
+                val returnType = (expr.returnTargetSymbol as? IrFunctionSymbol)?.owner?.returnType
+                    ?: valueType
+                return if (returnType.isUnit() || returnType.isNothing() || valueType.isNothing()) {
                     block.statements.add(expr.value)
                     original to null
                 } else {
