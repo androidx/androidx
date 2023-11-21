@@ -884,7 +884,6 @@ public final class ImageCapture extends UseCase {
      *
      * @return {@link ImageCaptureCapabilities}
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public static ImageCaptureCapabilities getImageCaptureCapabilities(
             @NonNull CameraInfo cameraInfo) {
@@ -1427,6 +1426,26 @@ public final class ImageCapture extends UseCase {
     }
 
     /**
+     * Returns if postview is enabled or not.
+     *
+     * @see Builder#setPostviewEnabled(boolean)
+     */
+    public boolean isPostviewEnabled() {
+        return getCurrentConfig().retrieveOption(OPTION_POSTVIEW_ENABLED, false);
+    }
+
+    /**
+     * Returns the {@link ResolutionSelector} used to select the postview size.
+     *
+     * @see Builder#setPostviewResolutionSelector(ResolutionSelector)
+     */
+    @Nullable
+    public ResolutionSelector getPostviewResolutionSelector() {
+        return getCurrentConfig().retrieveOption(OPTION_POSTVIEW_RESOLUTION_SELECTOR,
+                null);
+    }
+
+    /**
      * Describes the error that occurred during an image capture operation (such as {@link
      * ImageCapture#takePicture(Executor, OnImageCapturedCallback)}).
      *
@@ -1510,44 +1529,37 @@ public final class ImageCapture extends UseCase {
          *
          * <p>To know in advanced if this callback will be invoked or not, check the
          * capabilities by {@link #getImageCaptureCapabilities(CameraInfo)} and
-         * {@link ImageCaptureCapabilities#isCaptureProcessProgressSupported()}.
+         * {@link ImageCaptureCapabilities#isCaptureProcessProgressSupported()}. If supported,
+         * this callback will be called multiple times with monotonically increasing
+         * values. At the minimum the callback will be called once with value 100 to
+         * indicate the processing is finished. This callback will always be called before
+         * {@link #onImageSaved(OutputFileResults)}.
          *
          * @param progress the progress ranging from 0 to 100.
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         default void onCaptureProcessProgressed(int progress) {
         }
 
         /**
-         * Callback to notify that the postview image is available. The postview is intended to be
+         * Callback to notify that the postview bitmap is available. The postview is intended to be
          * shown on UI before the long-processing capture is completed in order to provide a
-         * better UX. The image format is {@link ImageFormat#JPEG}.
+         * better UX.
          *
          * <p>The postview is only available when the
          * {@link ImageCaptureCapabilities#isPostviewSupported()} returns true for the specified
          * {@link CameraInfo} and applications must explicitly enable the postview using the
-         * {@link Builder#setPostviewEnabled(boolean)}. Please note that if something goes wrong
-         * when processing the postview, this callback method won't be invoked.
+         * {@link Builder#setPostviewEnabled(boolean)}. This callback will be called before
+         * {@link #onImageSaved(OutputFileResults)}. But if something goes wrong when processing
+         * the postview, this callback method could be skipped.
          *
-         * <p>Please close the {@link ImageProxy} once you no longer need it. The default
-         * implementation of this method will close it in case apps don't implement the method.
-         *
-         * <p>The image is provided as captured by the underlying {@link ImageReader} without
-         * rotation applied. The value in {@code image.getImageInfo().getRotationDegrees()}
-         * describes the magnitude of clockwise rotation, which if applied to the image will make
-         * it match the currently configured target rotation.
-         *
-         * <p>For example, if the current target rotation is set to the display rotation,
-         * rotationDegrees is the rotation to apply to the image to match the display orientation.
-         * A rotation of 90 degrees would mean rotating the image 90 degrees clockwise produces an
-         * image that will match the display orientation.
+         * <p>The bitmap is rotated according to the target rotation set to the {@link ImageCapture}
+         * to make it upright. If target rotation is not set, the display rotation is used.
          *
          * <p>See also {@link ImageCapture.Builder#setTargetRotation(int)} and
          * {@link #setTargetRotation(int)}.
          *
-         * @param image the postview {@link ImageProxy}
+         * @param bitmap the postview bitmap.
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         default void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
         }
     }
@@ -1616,44 +1628,38 @@ public final class ImageCapture extends UseCase {
          *
          * <p>To know in advanced if this callback will be invoked or not, check the
          * capabilities by {@link #getImageCaptureCapabilities(CameraInfo)} and
-         * {@link ImageCaptureCapabilities#isCaptureProcessProgressSupported()}.
+         * {@link ImageCaptureCapabilities#isCaptureProcessProgressSupported()}. If supported,
+         * this callback will be called multiple times with monotonically increasing
+         * values. At the minimum the callback will be called once with value 100 to
+         * indicate the processing is finished. This callback will always be called before
+         * {@link #onCaptureSuccess(ImageProxy)}.
          *
          * @param progress the progress ranging from 0 to 100.
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         public void onCaptureProcessProgressed(int progress) {
         }
 
         /**
-         * Callback to notify that the postview image is available. The postview is intended to be
+         * Callback to notify that the postview bitmap is available. The postview is intended to be
          * shown on UI before the long-processing capture is completed in order to provide a
-         * better UX. The image format is {@link ImageFormat#JPEG}.
+         * better UX.
          *
          * <p>The postview is only available when the
          * {@link ImageCaptureCapabilities#isPostviewSupported()} returns true for the specified
          * {@link CameraInfo} and applications must explicitly enable the postview using the
-         * {@link Builder#setPostviewEnabled(boolean)}. Please note that if something goes wrong
-         * when processing the postview, this callback method won't be invoked.
+         * {@link Builder#setPostviewEnabled(boolean)}. This callback will be called before
+         * {@link #onCaptureSuccess(ImageProxy)}. But if something goes wrong when processing the
+         * postview, this callback method could be skipped.
          *
-         * <p>Please close the {@link ImageProxy} once you no longer need it. The default
-         * implementation of this method will close it in case apps don't implement the method.
-         *
-         * <p>The image is provided as captured by the underlying {@link ImageReader} without
-         * rotation applied. The value in {@code image.getImageInfo().getRotationDegrees()}
-         * describes the magnitude of clockwise rotation, which if applied to the image will make
-         * it match the currently configured target rotation.
-         *
-         * <p>For example, if the current target rotation is set to the display rotation,
-         * rotationDegrees is the rotation to apply to the image to match the display orientation.
-         * A rotation of 90 degrees would mean rotating the image 90 degrees clockwise produces an
-         * image that will match the display orientation.
+         * <p>The bitmap is rotated according to the target rotation set to the {@link ImageCapture}
+         * to make it upright. If target rotation is not set, the display rotation is used.
          *
          * <p>See also {@link ImageCapture.Builder#setTargetRotation(int)} and
          * {@link #setTargetRotation(int)}.
          *
-         * @param image the postview {@link ImageProxy}
+         * @param bitmap the postview bitmap.
+
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         public void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
         }
     }
@@ -2538,22 +2544,27 @@ public final class ImageCapture extends UseCase {
         }
 
         /**
-         * Enables the postview which allows you to get the unprocessed image before the processing
-         * is done during the <code>takePicture</code> call.
+         * Enables postview image generation. A postview image is a low-quality image
+         * that's produced earlier during image capture than the final high-quality image,
+         * and can be used as a thumbnail or placeholder until the final image is ready.
          *
-         * <p>By default the largest available postview size that are smaller or equal to the
+         * <p>When the postview is available,
+         * {@link OnImageCapturedCallback#onPostviewBitmapAvailable(Bitmap)} or
+         * {@link OnImageSavedCallback#onPostviewBitmapAvailable(Bitmap)} will be called.
+         *
+         * <p>By default the largest available postview size that is smaller or equal to the
          * ImagaeCapture size will be used to configure the postview. The {@link ResolutionSelector}
          * can also be used to select a specific size via
          * {@link #setPostviewResolutionSelector(ResolutionSelector)}.
          *
-         * <p>It is recommended to query the capture capability via
-         * {@link #getImageCaptureCapabilities(CameraInfo)} before enabling this feature to avoid
-         * unnecessary initializations.
+         * <p>You can query the postview capability by invoking
+         * {@link #getImageCaptureCapabilities(CameraInfo)}. If
+         * {@link ImageCaptureCapabilities#isPostviewSupported()} returns false and you still
+         * enable the postview, the postview image won't be generated.
          *
          * @param postviewEnabled whether postview is enabled or not
          * @return the current Builder.
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setPostviewEnabled(boolean postviewEnabled) {
             getMutableConfig().insertOption(OPTION_POSTVIEW_ENABLED,
@@ -2563,15 +2574,17 @@ public final class ImageCapture extends UseCase {
 
         /**
          * Set the {@link ResolutionSelector} to select the postview size from the available
-         * postview sizes. Please note the selected size will be smaller or equal to the
-         * ImageCapture size.
+         * postview sizes. These available postview sizes are smaller or equal to the
+         * ImageCapture size. You can implement the
+         * {@link androidx.camera.core.resolutionselector.ResolutionFilter} and set it to the
+         * {@link ResolutionSelector} to get the list of available sizes and determine which size
+         * to use.
          *
          * <p>If no sizes can be selected using the given {@link ResolutionSelector}, it will throw
          * an {@link IllegalArgumentException} when {@code bindToLifecycle()} is invoked.
          *
          * @return the current Builder.
          */
-        @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public Builder setPostviewResolutionSelector(
                 @NonNull ResolutionSelector resolutionSelector) {

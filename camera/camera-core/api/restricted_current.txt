@@ -288,11 +288,14 @@ package androidx.camera.core {
   @RequiresApi(21) public final class ImageCapture extends androidx.camera.core.UseCase {
     method public int getCaptureMode();
     method public int getFlashMode();
+    method public static androidx.camera.core.ImageCaptureCapabilities getImageCaptureCapabilities(androidx.camera.core.CameraInfo);
     method @IntRange(from=1, to=100) public int getJpegQuality();
+    method public androidx.camera.core.resolutionselector.ResolutionSelector? getPostviewResolutionSelector();
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getResolutionSelector();
     method public androidx.camera.core.ImageCapture.ScreenFlashUiControl? getScreenFlashUiControl();
     method public int getTargetRotation();
+    method public boolean isPostviewEnabled();
     method public void setCropAspectRatio(android.util.Rational);
     method public void setFlashMode(int);
     method public void setScreenFlashUiControl(androidx.camera.core.ImageCapture.ScreenFlashUiControl?);
@@ -321,6 +324,8 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageCapture.Builder setFlashMode(int);
     method public androidx.camera.core.ImageCapture.Builder setIoExecutor(java.util.concurrent.Executor);
     method public androidx.camera.core.ImageCapture.Builder setJpegQuality(@IntRange(from=1, to=100) int);
+    method public androidx.camera.core.ImageCapture.Builder setPostviewEnabled(boolean);
+    method public androidx.camera.core.ImageCapture.Builder setPostviewResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
     method public androidx.camera.core.ImageCapture.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
     method public androidx.camera.core.ImageCapture.Builder setScreenFlashUiControl(androidx.camera.core.ImageCapture.ScreenFlashUiControl);
     method @Deprecated public androidx.camera.core.ImageCapture.Builder setTargetAspectRatio(int);
@@ -341,15 +346,19 @@ package androidx.camera.core {
 
   public abstract static class ImageCapture.OnImageCapturedCallback {
     ctor public ImageCapture.OnImageCapturedCallback();
+    method public void onCaptureProcessProgressed(int);
     method public void onCaptureStarted();
     method public void onCaptureSuccess(androidx.camera.core.ImageProxy);
     method public void onError(androidx.camera.core.ImageCaptureException);
+    method public void onPostviewBitmapAvailable(android.graphics.Bitmap);
   }
 
   public static interface ImageCapture.OnImageSavedCallback {
+    method public default void onCaptureProcessProgressed(int);
     method public default void onCaptureStarted();
     method public void onError(androidx.camera.core.ImageCaptureException);
     method public void onImageSaved(androidx.camera.core.ImageCapture.OutputFileResults);
+    method public default void onPostviewBitmapAvailable(android.graphics.Bitmap);
   }
 
   public static final class ImageCapture.OutputFileOptions {
@@ -374,6 +383,11 @@ package androidx.camera.core {
   public static interface ImageCapture.ScreenFlashUiControl {
     method @UiThread public void applyScreenFlashUi(androidx.camera.core.ImageCapture.ScreenFlashUiCompleter);
     method @UiThread public void clearScreenFlashUi();
+  }
+
+  public interface ImageCaptureCapabilities {
+    method public boolean isCaptureProcessProgressSupported();
+    method public boolean isPostviewSupported();
   }
 
   @RequiresApi(21) public class ImageCaptureException extends java.lang.Exception {
