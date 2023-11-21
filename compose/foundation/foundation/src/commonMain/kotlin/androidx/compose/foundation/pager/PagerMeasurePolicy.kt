@@ -19,7 +19,7 @@ package androidx.compose.foundation.pager
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.snapping.SnapPositionInLayout
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -52,7 +52,7 @@ internal fun rememberPagerMeasurePolicy(
     pageSize: PageSize,
     horizontalAlignment: Alignment.Horizontal?,
     verticalAlignment: Alignment.Vertical?,
-    snapPositionInLayout: SnapPositionInLayout,
+    snapPosition: SnapPosition,
     pageCount: () -> Int,
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
@@ -63,7 +63,7 @@ internal fun rememberPagerMeasurePolicy(
     verticalAlignment,
     pageSpacing,
     pageSize,
-    snapPositionInLayout,
+    snapPosition,
     pageCount,
 ) {
     { containerConstraints ->
@@ -174,7 +174,7 @@ internal fun rememberPagerMeasurePolicy(
             pagerItemProvider = itemProvider,
             reverseLayout = reverseLayout,
             pinnedPages = pinnedPages,
-            snapPositionInLayout = snapPositionInLayout,
+            snapPosition = snapPosition,
             layout = { width, height, placement ->
                 state.remeasureTrigger // read state to trigger remeasures on state write
                 layout(

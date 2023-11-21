@@ -37,7 +37,7 @@ import kotlin.math.sign
  * A [SnapLayoutInfoProvider] for LazyLists.
  *
  * @param lazyListState The [LazyListState] with information about the current state of the list
- * @param positionInLayout The desired positioning of the snapped item within the main layout.
+ * @param snapPosition The desired positioning of the snapped item within the main layout.
  * This position should be considered with regard to the start edge of the item and the placement
  * within the viewport.
  *
@@ -46,7 +46,7 @@ import kotlin.math.sign
 @ExperimentalFoundationApi
 fun SnapLayoutInfoProvider(
     lazyListState: LazyListState,
-    positionInLayout: SnapPositionInLayout = SnapPositionInLayout.CenterToCenter
+    snapPosition: SnapPosition = SnapPosition.Center
 ): SnapLayoutInfoProvider = object : SnapLayoutInfoProvider {
 
     private val layoutInfo: LazyListLayoutInfo
@@ -84,7 +84,7 @@ fun SnapLayoutInfoProvider(
                     itemSize = item.size,
                     itemOffset = item.offset,
                     itemIndex = item.index,
-                    snapPositionInLayout = positionInLayout
+                    snapPosition = snapPosition
                 )
 
             // Find item that is closest to the center

@@ -118,7 +118,7 @@ internal fun Pager(
         horizontalAlignment = horizontalAlignment,
         verticalAlignment = verticalAlignment,
         itemProviderLambda = pagerItemProvider,
-        snapPositionInLayout = SnapAlignmentStartToStart,
+        snapPosition = SnapAlignmentStartToStart,
         pageCount = { state.pageCount }
     )
 
