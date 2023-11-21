@@ -303,8 +303,13 @@ public inline fun BenchmarkRule.measureRepeated(crossinline block: BenchmarkRule
     val localState = getState()
     val localScope = scope
 
-    while (localState.keepRunningInline()) {
-        block(localScope)
+    try {
+        while (localState.keepRunningInline()) {
+            block(localScope)
+        }
+    } catch (t: Throwable) {
+        localState.cleanupBeforeThrow()
+        throw t
     }
 }
 
@@ -383,6 +388,7 @@ inline fun BenchmarkRule.measureRepeatedOnMainThread(
                 localState.pauseTiming()
 
                 if (timeNs > hardDeadlineNs) {
+                    localState.cleanupBeforeThrow()
                     val overrunInSec = (timeNs - hardDeadlineNs) / 1_000_000_000.0
                     throw IllegalStateException(
                         "Benchmark loop overran hard time limit by $overrunInSec seconds"
