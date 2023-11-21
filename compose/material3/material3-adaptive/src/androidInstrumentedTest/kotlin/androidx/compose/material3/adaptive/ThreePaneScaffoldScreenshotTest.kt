@@ -17,10 +17,12 @@
 package androidx.compose.material3.adaptive
 
 import android.os.Build
+import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -32,7 +34,6 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 class ThreePaneScaffoldScreenshotTest {
     @get:Rule
     val rule = createComposeRule()
@@ -43,17 +44,7 @@ class ThreePaneScaffoldScreenshotTest {
     @Test
     fun threePaneScaffold_listDetailPaneOrder_standard() {
         rule.setContent {
-            val scaffoldDirective = calculateStandardPaneScaffoldDirective(
-                currentWindowAdaptiveInfo()
-            )
-            val scaffoldValue = calculateThreePaneScaffoldValue(
-                scaffoldDirective.maxHorizontalPartitions
-            )
-            SampleThreePaneScaffold(
-                scaffoldDirective,
-                scaffoldValue,
-                ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder
-            )
+            SampleThreePaneScaffoldStandardMode()
         }
 
         rule.onNodeWithTag(ThreePaneScaffoldTestTag)
@@ -64,21 +55,99 @@ class ThreePaneScaffoldScreenshotTest {
     @Test
     fun threePaneScaffold_listDetailPaneOrder_dense() {
         rule.setContent {
-            val scaffoldDirective = calculateDensePaneScaffoldDirective(
-                currentWindowAdaptiveInfo()
-            )
-            val scaffoldValue = calculateThreePaneScaffoldValue(
-                scaffoldDirective.maxHorizontalPartitions
-            )
-            SampleThreePaneScaffold(
-                scaffoldDirective,
-                scaffoldValue,
-                ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder
-            )
+            SampleThreePaneScaffoldDenseMode()
         }
 
         rule.onNodeWithTag(ThreePaneScaffoldTestTag)
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "threePaneScaffold_listDetail_dense")
     }
+
+    @Test
+    fun threePaneScaffold_listDetailPaneOrder_standard_medium_size_window() {
+        rule.setContentWithSimulatedSize(
+            simulatedWidth = 700.dp,
+            simulatedHeight = 500.dp
+        ) {
+            SampleThreePaneScaffoldStandardMode()
+        }
+
+        rule.onNodeWithTag(ThreePaneScaffoldTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "threePaneScaffold_listDetail_standard_medium")
+    }
+
+    @Test
+    fun threePaneScaffold_listDetailPaneOrder_dense_medium_size_window() {
+        rule.setContentWithSimulatedSize(
+            simulatedWidth = 700.dp,
+            simulatedHeight = 500.dp
+        ) {
+            SampleThreePaneScaffoldDenseMode()
+        }
+
+        rule.onNodeWithTag(ThreePaneScaffoldTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "threePaneScaffold_listDetail_dense_medium")
+    }
+
+    @Test
+    fun threePaneScaffold_listDetailPaneOrder_standard_expanded_size_window() {
+        rule.setContentWithSimulatedSize(
+            simulatedWidth = 1024.dp,
+            simulatedHeight = 800.dp
+        ) {
+            SampleThreePaneScaffoldStandardMode()
+        }
+
+        rule.onNodeWithTag(ThreePaneScaffoldTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "threePaneScaffold_listDetail_standard_expanded")
+    }
+
+    @Test
+    fun threePaneScaffold_listDetailPaneOrder_dense_expanded_size_window() {
+        rule.setContentWithSimulatedSize(
+            simulatedWidth = 1024.dp,
+            simulatedHeight = 800.dp
+        ) {
+            SampleThreePaneScaffoldDenseMode()
+        }
+
+        rule.onNodeWithTag(ThreePaneScaffoldTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "threePaneScaffold_listDetail_dense_expanded")
+    }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+private fun SampleThreePaneScaffoldStandardMode() {
+    val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+        currentWindowAdaptiveInfo()
+    )
+    val scaffoldValue = calculateThreePaneScaffoldValue(
+        scaffoldDirective.maxHorizontalPartitions
+    )
+    SampleThreePaneScaffold(
+        scaffoldDirective,
+        scaffoldValue,
+        ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder
+    )
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+private fun SampleThreePaneScaffoldDenseMode() {
+    val scaffoldDirective = calculateDensePaneScaffoldDirective(
+        currentWindowAdaptiveInfo()
+    )
+    val scaffoldValue = calculateThreePaneScaffoldValue(
+        scaffoldDirective.maxHorizontalPartitions
+    )
+    SampleThreePaneScaffold(
+        scaffoldDirective,
+        scaffoldValue,
+        ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder
+    )
 }
