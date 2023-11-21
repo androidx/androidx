@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.tokens.ListHeaderTokens
+import androidx.wear.compose.material3.tokens.ListSubHeaderTokens
 
 /**
  * A slot based composable for creating a list header item. [ListHeader]s are typically expected
@@ -61,14 +63,14 @@ import androidx.compose.ui.unit.dp
 fun ListHeader(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.Transparent,
-    contentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    contentColor: Color = ListHeaderTokens.ContentColor.value,
     contentPadding: PaddingValues = ListHeaderDefaults.HeaderContentPadding,
     content: @Composable RowScope.() -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.Center,
         modifier = modifier
-            .defaultMinSize(minHeight = ListHeaderDefaults.Height)
+            .defaultMinSize(minHeight = ListHeaderTokens.Height)
             .height(IntrinsicSize.Min)
             .wrapContentSize()
             .background(backgroundColor)
@@ -77,7 +79,7 @@ fun ListHeader(
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
-            LocalTextStyle provides MaterialTheme.typography.titleMedium,
+            LocalTextStyle provides ListHeaderTokens.ContentTypography.value,
         ) {
             content()
         }
@@ -109,7 +111,7 @@ fun ListHeader(
 fun ListSubheader(
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.Transparent,
-    contentColor: Color = MaterialTheme.colorScheme.onBackground,
+    contentColor: Color = ListSubHeaderTokens.ContentColor.value,
     contentPadding: PaddingValues = ListHeaderDefaults.SubheaderContentPadding,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     label: @Composable RowScope.() -> Unit,
@@ -118,7 +120,7 @@ fun ListSubheader(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Start,
         modifier = modifier
-            .defaultMinSize(minHeight = ListHeaderDefaults.Height)
+            .defaultMinSize(minHeight = ListSubHeaderTokens.Height)
             .height(IntrinsicSize.Min)
             .fillMaxWidth()
             .wrapContentSize(align = Alignment.CenterStart)
@@ -128,7 +130,7 @@ fun ListSubheader(
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
-            LocalTextStyle provides MaterialTheme.typography.titleMedium,
+            LocalTextStyle provides ListSubHeaderTokens.ContentTypography.value
         ) {
             if (icon != null) {
                 Box(
@@ -147,7 +149,6 @@ object ListHeaderDefaults {
     private val SubheaderBottomPadding = 8.dp
     private val HeaderBottomPadding = 12.dp
     private val HorizontalPadding = 14.dp
-    internal val Height = 48.dp
 
     val HeaderContentPadding = PaddingValues(
         HorizontalPadding,
