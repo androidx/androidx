@@ -30,9 +30,9 @@ import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.abs
 import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
 
@@ -112,7 +112,7 @@ internal fun measureLazyList(
         }
 
         // represents the real amount of scroll we applied as a result of this measure pass.
-        var scrollDelta = scrollToBeConsumed.roundToInt()
+        var scrollDelta = scrollToBeConsumed.fastRoundToInt()
 
         // applying the whole requested scroll offset. we will figure out if we can't consume
         // all of it later
@@ -237,8 +237,8 @@ internal fun measureLazyList(
         // scrollToBeConsumed if there were not enough items to fill the offered space or it
         // can be larger if items were resized, or if, for example, we were previously
         // displaying the item 15, but now we have only 10 items in total in the data set.
-        val consumedScroll = if (scrollToBeConsumed.roundToInt().sign == scrollDelta.sign &&
-            abs(scrollToBeConsumed.roundToInt()) >= abs(scrollDelta)
+        val consumedScroll = if (scrollToBeConsumed.fastRoundToInt().sign == scrollDelta.sign &&
+            abs(scrollToBeConsumed.fastRoundToInt()) >= abs(scrollDelta)
         ) {
             scrollDelta.toFloat()
         } else {

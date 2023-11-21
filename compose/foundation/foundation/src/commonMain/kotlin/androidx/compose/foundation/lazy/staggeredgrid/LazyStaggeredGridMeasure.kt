@@ -32,12 +32,12 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastForEachReversed
 import androidx.compose.ui.util.fastMaxOfOrNull
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
 import kotlin.math.abs
 import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
 
@@ -166,7 +166,7 @@ internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
     }
 
     return context.measure(
-        initialScrollDelta = state.scrollToBeConsumed.roundToInt(),
+        initialScrollDelta = state.scrollToBeConsumed.fastRoundToInt(),
         initialItemIndices = initialItemIndices,
         initialItemOffsets = initialItemOffsets,
         canRestartMeasure = true,
@@ -673,8 +673,8 @@ private fun LazyStaggeredGridMeasureContext.measure(
         // can be larger if items were resized, or if, for example, we were previously
         // displaying the item 15, but now we have only 10 items in total in the data set.
         val consumedScroll = if (
-            state.scrollToBeConsumed.roundToInt().sign == scrollDelta.sign &&
-            abs(state.scrollToBeConsumed.roundToInt()) >= abs(scrollDelta)
+            state.scrollToBeConsumed.fastRoundToInt().sign == scrollDelta.sign &&
+            abs(state.scrollToBeConsumed.fastRoundToInt()) >= abs(scrollDelta)
         ) {
             scrollDelta.toFloat()
         } else {

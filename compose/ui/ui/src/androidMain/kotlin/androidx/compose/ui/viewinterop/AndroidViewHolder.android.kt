@@ -56,6 +56,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Velocity
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.core.view.NestedScrollingParent3
 import androidx.core.view.NestedScrollingParentHelper
 import androidx.core.view.ViewCompat
@@ -63,7 +64,6 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
-import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 /**
@@ -593,8 +593,8 @@ internal open class AndroidViewHolder(
 
 private fun View.layoutAccordingTo(layoutNode: LayoutNode) {
     val position = layoutNode.coordinates.positionInRoot()
-    val x = position.x.roundToInt()
-    val y = position.y.roundToInt()
+    val x = position.x.fastRoundToInt()
+    val y = position.y.fastRoundToInt()
     layout(x, y, x + measuredWidth, y + measuredHeight)
 }
 

@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-@file:Suppress(
-    "NOTHING_TO_INLINE",
-    "",
-    "EXPERIMENTAL_FEATURE_WARNING"
-)
+@file:Suppress("NOTHING_TO_INLINE")
 
 package androidx.compose.ui.unit
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.util.packInts
 import androidx.compose.ui.util.unpackInt1
 import androidx.compose.ui.util.unpackInt2
-import kotlin.math.roundToInt
 
 /**
  * Constructs a [IntOffset] from [x] and [y] position [Int] values.
@@ -42,7 +38,7 @@ fun IntOffset(x: Int, y: Int): IntOffset =
  * A two-dimensional position using [Int] pixels for units
  */
 @Immutable
-@kotlin.jvm.JvmInline
+@JvmInline
 value class IntOffset internal constructor(@PublishedApi internal val packedValue: Long) {
 
     /**
@@ -60,36 +56,42 @@ value class IntOffset internal constructor(@PublishedApi internal val packedValu
         get() = unpackInt2(packedValue)
 
     @Stable
-    operator fun component1(): Int = x
+    inline operator fun component1(): Int = x
 
     @Stable
-    operator fun component2(): Int = y
+    inline operator fun component2(): Int = y
 
     /**
      * Returns a copy of this IntOffset instance optionally overriding the
      * x or y parameter
      */
-    fun copy(x: Int = this.x, y: Int = this.y) = IntOffset(x, y)
+    fun copy(x: Int = unpackInt1(packedValue), y: Int = unpackInt2(packedValue)) = IntOffset(x, y)
 
     /**
      * Subtract a [IntOffset] from another one.
      */
     @Stable
     inline operator fun minus(other: IntOffset) =
-        IntOffset(x - other.x, y - other.y)
+        IntOffset(
+            unpackInt1(packedValue) - unpackInt1(other.packedValue),
+            unpackInt2(packedValue) - unpackInt2(other.packedValue)
+        )
 
     /**
      * Add a [IntOffset] to another one.
      */
     @Stable
     inline operator fun plus(other: IntOffset) =
-        IntOffset(x + other.x, y + other.y)
+        IntOffset(
+            unpackInt1(packedValue) + unpackInt1(other.packedValue),
+            unpackInt2(packedValue) + unpackInt2(other.packedValue)
+        )
 
     /**
      * Returns a new [IntOffset] representing the negation of this point.
      */
     @Stable
-    inline operator fun unaryMinus() = IntOffset(-x, -y)
+    inline operator fun unaryMinus() = IntOffset(-unpackInt1(packedValue), -unpackInt2(packedValue))
 
     /**
      * Multiplication operator.
@@ -100,8 +102,8 @@ value class IntOffset internal constructor(@PublishedApi internal val packedValu
      */
     @Stable
     operator fun times(operand: Float): IntOffset = IntOffset(
-        (x * operand).roundToInt(),
-        (y * operand).roundToInt()
+        (unpackInt1(packedValue) * operand).fastRoundToInt(),
+        (unpackInt2(packedValue) * operand).fastRoundToInt()
     )
 
     /**
@@ -113,8 +115,8 @@ value class IntOffset internal constructor(@PublishedApi internal val packedValu
      */
     @Stable
     operator fun div(operand: Float): IntOffset = IntOffset(
-        (x / operand).roundToInt(),
-        (y / operand).roundToInt()
+        (unpackInt1(packedValue) / operand).fastRoundToInt(),
+        (unpackInt2(packedValue) / operand).fastRoundToInt()
     )
 
     /**
@@ -125,7 +127,10 @@ value class IntOffset internal constructor(@PublishedApi internal val packedValu
      * right-hand-side operand (an Int).
      */
     @Stable
-    operator fun rem(operand: Int) = IntOffset(x % operand, y % operand)
+    operator fun rem(operand: Int) = IntOffset(
+        unpackInt1(packedValue) % operand,
+        unpackInt2(packedValue) % operand
+    )
 
     @Stable
     override fun toString(): String = "($x, $y)"
@@ -176,4 +181,4 @@ operator fun IntOffset.minus(offset: Offset): Offset =
  * Round a [Offset] down to the nearest [Int] coordinates.
  */
 @Stable
-inline fun Offset.round(): IntOffset = IntOffset(x.roundToInt(), y.roundToInt())
+inline fun Offset.round(): IntOffset = IntOffset(x.fastRoundToInt(), y.fastRoundToInt())

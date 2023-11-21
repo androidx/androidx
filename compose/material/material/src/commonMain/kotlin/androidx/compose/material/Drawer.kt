@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.math.max
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
@@ -782,7 +783,7 @@ object DrawerDefaults {
 }
 
 private fun calculateFraction(a: Float, b: Float, pos: Float) =
-    ((pos - a) / (b - a)).coerceIn(0f, 1f)
+    ((pos - a) / (b - a)).fastCoerceIn(0f, 1f)
 
 @Composable
 private fun BottomDrawerScrim(

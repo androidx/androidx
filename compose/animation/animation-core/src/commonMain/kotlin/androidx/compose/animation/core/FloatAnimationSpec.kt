@@ -18,6 +18,7 @@ package androidx.compose.animation.core
 
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.internal.JvmDefaultWithCompatibility
+import androidx.compose.ui.util.fastCoerceIn
 
 /**
  * [FloatAnimationSpec] interface is similar to [VectorizedAnimationSpec], except it deals
@@ -212,7 +213,7 @@ class FloatTweenSpec(
         val playTimeMillis = playTimeNanos / MillisToNanos
         val clampedPlayTime = clampPlayTime(playTimeMillis)
         val rawFraction = if (duration == 0) 1f else clampedPlayTime / duration.toFloat()
-        val fraction = easing.transform(rawFraction.coerceIn(0f, 1f))
+        val fraction = easing.transform(rawFraction.fastCoerceIn(0f, 1f))
         return lerp(initialValue, targetValue, fraction)
     }
 

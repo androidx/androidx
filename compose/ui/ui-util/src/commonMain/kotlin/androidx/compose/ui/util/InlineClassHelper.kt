@@ -35,6 +35,28 @@ expect fun floatFromBits(bits: Int): Float
 expect fun doubleFromBits(bits: Long): Double
 
 /**
+ * Returns the closest integer to the argument, tying rounding to positive
+ * infinity. Some values are treated differently:
+ * - NaN becomes 0
+ * - -Infinity or any value less than Integer.MIN_VALUE becomes
+ *   Integer.MIN_VALUE.toFloat()
+ * - +Infinity or any value greater than Integer.MAX_VALUE becomes
+ *   Integer.MAX_VALUE.toFloat()
+ */
+expect fun Float.fastRoundToInt(): Int
+
+/**
+ * Returns the closest integer to the argument, tying rounding to positive
+ * infinity. Some values are treated differently:
+ * - NaN becomes 0
+ * - -Infinity or any value less than Integer.MIN_VALUE becomes
+ *   Integer.MIN_VALUE.toFloat()
+ * - +Infinity or any value greater than Integer.MAX_VALUE becomes
+ *   Integer.MAX_VALUE.toFloat()
+ */
+expect fun Double.fastRoundToInt(): Int
+
+/**
  * Packs two Float values into one Long value for use in inline classes.
  */
 inline fun packFloats(val1: Float, val2: Float): Long {

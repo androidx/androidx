@@ -36,6 +36,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.PathNode
 import androidx.compose.ui.graphics.vector.VectorConfig
 import androidx.compose.ui.graphics.vector.VectorProperty
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
@@ -422,7 +423,7 @@ internal class PropertyValuesHolderPath(
         val innerFraction = easing.transform(
             ((fraction - animatorKeyframes[index].fraction) /
                 (animatorKeyframes[index + 1].fraction - animatorKeyframes[index].fraction))
-                .coerceIn(0f, 1f)
+                .fastCoerceIn(0f, 1f)
         )
         return lerp(
             animatorKeyframes[index].value,

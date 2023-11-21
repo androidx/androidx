@@ -23,9 +23,9 @@ import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.translate
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.lerp
 import kotlin.math.absoluteValue
-import kotlin.math.roundToInt
 
 /**
  * An immutable, 2D, axis-aligned, integer bounds rectangle whose coordinates are relative
@@ -327,8 +327,8 @@ fun IntRect.toRect(): Rect = Rect(
  */
 @Stable
 fun Rect.roundToIntRect(): IntRect = IntRect(
-    left = left.roundToInt(),
-    top = top.roundToInt(),
-    right = right.roundToInt(),
-    bottom = bottom.roundToInt()
+    left = left.fastRoundToInt(),
+    top = top.fastRoundToInt(),
+    right = right.fastRoundToInt(),
+    bottom = bottom.fastRoundToInt()
 )

@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.util
 
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 
 /**
@@ -29,7 +28,7 @@ fun lerp(start: Float, stop: Float, fraction: Float): Float {
  * Linearly interpolate between [start] and [stop] with [fraction] fraction between them.
  */
 fun lerp(start: Int, stop: Int, fraction: Float): Int {
-    return start + ((stop - start) * fraction.toDouble()).roundToInt()
+    return start + ((stop - start) * fraction.toDouble()).fastRoundToInt()
 }
 
 /**
@@ -37,4 +36,56 @@ fun lerp(start: Int, stop: Int, fraction: Float): Int {
  */
 fun lerp(start: Long, stop: Long, fraction: Float): Long {
     return start + ((stop - start) * fraction.toDouble()).roundToLong()
+}
+
+/**
+ * Returns this float value clamped in the inclusive range defined by
+ * [minimumValue] and [maximumValue]. Unlike [Float.coerceIn], the range
+ * is not validated: the caller must ensure that [minimumValue] is less than
+ * [maximumValue].
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun Float.fastCoerceIn(minimumValue: Float, maximumValue: Float) =
+    this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
+
+/**
+ * Ensures that this value is not less than the specified [minimumValue].
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun Float.fastCoerceAtLeast(minimumValue: Float): Float {
+    return if (this < minimumValue) minimumValue else this
+}
+
+/**
+ * Ensures that this value is not greater than the specified [maximumValue].
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun Float.fastCoerceAtMost(maximumValue: Float): Float {
+    return if (this > maximumValue) maximumValue else this
+}
+
+/**
+ * Returns this double value clamped in the inclusive range defined by
+ * [minimumValue] and [maximumValue]. Unlike [Float.coerceIn], the range
+ * is not validated: the caller must ensure that [minimumValue] is less than
+ * [maximumValue].
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun Double.fastCoerceIn(minimumValue: Double, maximumValue: Double) =
+    this.fastCoerceAtLeast(minimumValue).fastCoerceAtMost(maximumValue)
+
+/**
+ * Ensures that this value is not less than the specified [minimumValue].
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun Double.fastCoerceAtLeast(minimumValue: Double): Double {
+    return if (this < minimumValue) minimumValue else this
+}
+
+/**
+ * Ensures that this value is not greater than the specified [maximumValue].
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun Double.fastCoerceAtMost(maximumValue: Double): Double {
+    return if (this > maximumValue) maximumValue else this
 }

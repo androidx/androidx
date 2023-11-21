@@ -58,7 +58,7 @@ import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.unit.Constraints
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 import kotlinx.coroutines.launch
 
 /**
@@ -142,7 +142,7 @@ class ScrollState(initial: Int) : ScrollableState {
         val newValue = absolute.coerceIn(0f, maxValue.toFloat())
         val changed = absolute != newValue
         val consumed = newValue - value
-        val consumedInt = consumed.roundToInt()
+        val consumedInt = consumed.fastRoundToInt()
         value += consumedInt
         accumulator = consumed - consumedInt
 

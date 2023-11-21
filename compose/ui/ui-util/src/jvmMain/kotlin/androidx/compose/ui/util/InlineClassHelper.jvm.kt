@@ -18,7 +18,11 @@
 
 package androidx.compose.ui.util
 
-// See explanation in FastFloatParser.kt
+// See explanation in InlineClassHelper.kt
 actual inline fun floatFromBits(bits: Int): Float = java.lang.Float.intBitsToFloat(bits)
 
 actual inline fun doubleFromBits(bits: Long): Double = java.lang.Double.longBitsToDouble(bits)
+
+actual inline fun Float.fastRoundToInt(): Int = Math.round(this)
+
+actual inline fun Double.fastRoundToInt(): Int = Math.round(this).toInt()

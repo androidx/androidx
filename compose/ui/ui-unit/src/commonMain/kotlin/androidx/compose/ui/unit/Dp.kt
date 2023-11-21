@@ -41,21 +41,19 @@ import kotlin.math.min
  * @sample androidx.compose.ui.unit.samples.ToPxSample
  */
 @Immutable
-@kotlin.jvm.JvmInline
+@JvmInline
 value class Dp(val value: Float) : Comparable<Dp> {
     /**
      * Add two [Dp]s together.
      */
     @Stable
-    inline operator fun plus(other: Dp) =
-        Dp(value = this.value + other.value)
+    inline operator fun plus(other: Dp) = Dp(this.value + other.value)
 
     /**
      * Subtract a Dp from another one.
      */
     @Stable
-    inline operator fun minus(other: Dp) =
-        Dp(value = this.value - other.value)
+    inline operator fun minus(other: Dp) = Dp(this.value - other.value)
 
     /**
      * This is the same as multiplying the Dp by -1.0.
@@ -67,12 +65,10 @@ value class Dp(val value: Float) : Comparable<Dp> {
      * Divide a Dp by a scalar.
      */
     @Stable
-    inline operator fun div(other: Float): Dp =
-        Dp(value = value / other)
+    inline operator fun div(other: Float): Dp = Dp(value / other)
 
     @Stable
-    inline operator fun div(other: Int): Dp =
-        Dp(value = value / other)
+    inline operator fun div(other: Int): Dp = Dp(value / other)
 
     /**
      * Divide by another Dp to get a scalar.
@@ -84,12 +80,10 @@ value class Dp(val value: Float) : Comparable<Dp> {
      * Multiply a Dp by a scalar.
      */
     @Stable
-    inline operator fun times(other: Float): Dp =
-        Dp(value = value * other)
+    inline operator fun times(other: Float): Dp = Dp(value * other)
 
     @Stable
-    inline operator fun times(other: Int): Dp =
-        Dp(value = value * other)
+    inline operator fun times(other: Int): Dp = Dp(value * other)
 
     /**
      * Support comparing Dimensions with comparison operators.
@@ -106,19 +100,19 @@ value class Dp(val value: Float) : Comparable<Dp> {
          * space, but will draw a single pixel, independent of the device's resolution and density.
          */
         @Stable
-        val Hairline = Dp(value = 0f)
+        val Hairline = Dp(0f)
 
         /**
          * Infinite dp dimension.
          */
         @Stable
-        val Infinity = Dp(value = Float.POSITIVE_INFINITY)
+        val Infinity = Dp(Float.POSITIVE_INFINITY)
 
         /**
          * Constant that means unspecified Dp
          */
         @Stable
-        val Unspecified = Dp(value = Float.NaN)
+        val Unspecified = Dp(Float.NaN)
     }
 }
 
@@ -151,7 +145,7 @@ inline fun Dp.takeOrElse(block: () -> Dp): Dp =
  *     val y = 10.dp
  */
 @Stable
-inline val Int.dp: Dp get() = Dp(value = this.toFloat())
+inline val Int.dp: Dp get() = Dp(this.toFloat())
 
 /**
  * Create a [Dp] using a [Double]:
@@ -161,7 +155,7 @@ inline val Int.dp: Dp get() = Dp(value = this.toFloat())
  *     val y = 10.0.dp
  */
 @Stable
-inline val Double.dp: Dp get() = Dp(value = this.toFloat())
+inline val Double.dp: Dp get() = Dp(this.toFloat())
 
 /**
  * Create a [Dp] using a [Float]:
@@ -171,7 +165,7 @@ inline val Double.dp: Dp get() = Dp(value = this.toFloat())
  *     val y = 10f.dp
  */
 @Stable
-inline val Float.dp: Dp get() = Dp(value = this)
+inline val Float.dp: Dp get() = Dp(this)
 
 @Stable
 inline operator fun Float.times(other: Dp) =
@@ -186,10 +180,10 @@ inline operator fun Int.times(other: Dp) =
     Dp(this * other.value)
 
 @Stable
-inline fun min(a: Dp, b: Dp): Dp = Dp(value = min(a.value, b.value))
+inline fun min(a: Dp, b: Dp): Dp = Dp(min(a.value, b.value))
 
 @Stable
-inline fun max(a: Dp, b: Dp): Dp = Dp(value = max(a.value, b.value))
+inline fun max(a: Dp, b: Dp): Dp = Dp(max(a.value, b.value))
 
 /**
  * Ensures that this value lies in the specified range [minimumValue]..[maximumValue].
@@ -199,7 +193,7 @@ inline fun max(a: Dp, b: Dp): Dp = Dp(value = max(a.value, b.value))
  */
 @Stable
 inline fun Dp.coerceIn(minimumValue: Dp, maximumValue: Dp): Dp =
-    Dp(value = value.coerceIn(minimumValue.value, maximumValue.value))
+    Dp(value.coerceIn(minimumValue.value, maximumValue.value))
 
 /**
  * Ensures that this value is not less than the specified [minimumValue].
@@ -208,7 +202,7 @@ inline fun Dp.coerceIn(minimumValue: Dp, maximumValue: Dp): Dp =
  */
 @Stable
 inline fun Dp.coerceAtLeast(minimumValue: Dp): Dp =
-    Dp(value = value.coerceAtLeast(minimumValue.value))
+    Dp(value.coerceAtLeast(minimumValue.value))
 
 /**
  * Ensures that this value is not greater than the specified [maximumValue].
@@ -218,7 +212,7 @@ inline fun Dp.coerceAtLeast(minimumValue: Dp): Dp =
  */
 @Stable
 inline fun Dp.coerceAtMost(maximumValue: Dp): Dp =
-    Dp(value = value.coerceAtMost(maximumValue.value))
+    Dp(value.coerceAtMost(maximumValue.value))
 
 /**
  *
@@ -257,17 +251,16 @@ fun DpOffset(x: Dp, y: Dp): DpOffset = DpOffset(packFloats(x.value, y.value))
  * A two-dimensional offset using [Dp] for units
  */
 @Immutable
-@kotlin.jvm.JvmInline
+@JvmInline
 value class DpOffset internal constructor(@PublishedApi internal val packedValue: Long) {
-
     /**
      * The horizontal aspect of the offset in [Dp]
      */
     @Stable
-        /*inline*/ val x: Dp
+    val x: Dp
         get() {
             // Explicitly compare against packed values to avoid auto-boxing of DpOffset.Unspecified
-            check(this.packedValue != Unspecified.packedValue) {
+            checkPrecondition(this.packedValue != UnspecifiedPackedFloats) {
                 "DpOffset is unspecified"
             }
             return unpackFloat1(packedValue).dp
@@ -277,10 +270,10 @@ value class DpOffset internal constructor(@PublishedApi internal val packedValue
      * The vertical aspect of the offset in [Dp]
      */
     @Stable
-        /*inline*/ val y: Dp
+    val y: Dp
         get() {
             // Explicitly compare against packed values to avoid auto-boxing of DpOffset.Unspecified
-            check(this.packedValue != Unspecified.packedValue) {
+            checkPrecondition(this.packedValue != UnspecifiedPackedFloats) {
                 "DpOffset is unspecified"
             }
             return unpackFloat2(packedValue).dp
@@ -334,14 +327,14 @@ value class DpOffset internal constructor(@PublishedApi internal val packedValue
  */
 @Stable
 inline val DpOffset.isSpecified: Boolean
-    get() = packedValue != DpOffset.Unspecified.packedValue
+    get() = packedValue != 0x7fc00000_7fc00000L // Keep UnspecifiedPackedFloats internal
 
 /**
  * `true` when this is [DpOffset.Unspecified].
  */
 @Stable
 inline val DpOffset.isUnspecified: Boolean
-    get() = packedValue == DpOffset.Unspecified.packedValue
+    get() = packedValue == 0x7fc00000_7fc00000L // Keep UnspecifiedPackedFloats internal
 
 /**
  * If this [DpOffset]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed
@@ -375,17 +368,16 @@ fun DpSize(width: Dp, height: Dp): DpSize = DpSize(packFloats(width.value, heigh
  * A two-dimensional Size using [Dp] for units
  */
 @Immutable
-@kotlin.jvm.JvmInline
+@JvmInline
 value class DpSize internal constructor(@PublishedApi internal val packedValue: Long) {
-
     /**
      * The horizontal aspect of the Size in [Dp]
      */
     @Stable
-        /*inline*/ val width: Dp
+    val width: Dp
         get() {
             // Explicitly compare against packed values to avoid auto-boxing of DpSize.Unspecified
-            check(this.packedValue != Unspecified.packedValue) {
+            checkPrecondition(packedValue != UnspecifiedPackedFloats) {
                 "DpSize is unspecified"
             }
             return unpackFloat1(packedValue).dp
@@ -395,10 +387,10 @@ value class DpSize internal constructor(@PublishedApi internal val packedValue: 
      * The vertical aspect of the Size in [Dp]
      */
     @Stable
-        /*inline*/ val height: Dp
+    val height: Dp
         get() {
             // Explicitly compare against packed values to avoid auto-boxing of DpSize.Unspecified
-            check(this.packedValue != Unspecified.packedValue) {
+            checkPrecondition(packedValue != UnspecifiedPackedFloats) {
                 "DpSize is unspecified"
             }
             return unpackFloat2(packedValue).dp
@@ -470,14 +462,14 @@ value class DpSize internal constructor(@PublishedApi internal val packedValue: 
  */
 @Stable
 inline val DpSize.isSpecified: Boolean
-    get() = packedValue != DpSize.Unspecified.packedValue
+    get() = packedValue != 0x7fc00000_7fc00000L // Keep UnspecifiedPackedFloats internal
 
 /**
  * `true` when this is [DpSize.Unspecified].
  */
 @Stable
 inline val DpSize.isUnspecified: Boolean
-    get() = packedValue == DpSize.Unspecified.packedValue
+    get() = packedValue == 0x7fc00000_7fc00000L // Keep UnspecifiedPackedFloats internal
 
 /**
  * If this [DpSize]&nbsp;[isSpecified] then this is returned, otherwise [block] is executed

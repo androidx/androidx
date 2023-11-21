@@ -17,6 +17,8 @@ package androidx.compose.ui.util {
 
   public final class InlineClassHelperKt {
     method public static double doubleFromBits(long bits);
+    method public static int fastRoundToInt(double);
+    method public static int fastRoundToInt(float);
     method public static float floatFromBits(int bits);
     method public static inline long packFloats(float val1, float val2);
     method public static inline long packInts(int val1, int val2);
@@ -30,6 +32,8 @@ package androidx.compose.ui.util {
 
   public final class InlineClassHelper_jvmKt {
     method public static inline double doubleFromBits(long bits);
+    method public static inline int fastRoundToInt(double);
+    method public static inline int fastRoundToInt(float);
     method public static inline float floatFromBits(int bits);
   }
 
@@ -63,6 +67,12 @@ package androidx.compose.ui.util {
   }
 
   public final class MathHelpersKt {
+    method public static inline double fastCoerceAtLeast(double, double minimumValue);
+    method public static inline float fastCoerceAtLeast(float, float minimumValue);
+    method public static inline double fastCoerceAtMost(double, double maximumValue);
+    method public static inline float fastCoerceAtMost(float, float maximumValue);
+    method public static inline double fastCoerceIn(double, double minimumValue, double maximumValue);
+    method public static inline float fastCoerceIn(float, float minimumValue, float maximumValue);
     method public static float lerp(float start, float stop, float fraction);
     method public static int lerp(int start, int stop, float fraction);
     method public static long lerp(long start, long stop, float fraction);
