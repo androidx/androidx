@@ -2,8 +2,8 @@
 package androidx.glance {
 
   public final class BackgroundKt {
-    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.ImageProvider imageProvider, androidx.glance.ColorFilter? colorFilter, optional int contentScale);
-    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.ImageProvider imageProvider, optional int contentScale);
+    method @Deprecated public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.ImageProvider imageProvider, optional int contentScale);
+    method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.ImageProvider imageProvider, optional int contentScale, optional androidx.glance.ColorFilter? colorFilter);
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, androidx.glance.unit.ColorProvider colorProvider);
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, @ColorRes int color);
     method public static androidx.glance.GlanceModifier background(androidx.glance.GlanceModifier, long color);
