@@ -85,6 +85,44 @@ private class PreferredWidthNode(var width: Dp) : ParentDataModifierNode, Modifi
         }
 }
 
+internal fun Modifier.animatedPane(): Modifier {
+    return this.then(AnimatedPaneElement)
+}
+
+private object AnimatedPaneElement : ModifierNodeElement<AnimatedPaneNode>() {
+    private val inspectorInfo = debugInspectorInfo {
+        name = "isPaneComposable"
+        value = true
+    }
+
+    override fun create(): AnimatedPaneNode {
+        return AnimatedPaneNode()
+    }
+
+    override fun update(node: AnimatedPaneNode) {
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        inspectorInfo()
+    }
+
+    override fun hashCode(): Int {
+        return 0
+    }
+
+    override fun equals(other: Any?): Boolean {
+        return (other is AnimatedPaneElement)
+    }
+}
+
+private class AnimatedPaneNode : ParentDataModifierNode, Modifier.Node() {
+    override fun Density.modifyParentData(parentData: Any?) =
+        ((parentData as? PaneScaffoldParentData) ?: PaneScaffoldParentData()).also {
+            it.isAnimatedPane = true
+        }
+}
+
 internal data class PaneScaffoldParentData(
     var preferredWidth: Float? = null,
+    var isAnimatedPane: Boolean = false
 )
