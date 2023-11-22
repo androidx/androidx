@@ -118,5 +118,12 @@ public final class CameraCaptureCallbacks {
         public List<CameraCaptureCallback> getCallbacks() {
             return mCallbacks;
         }
+
+        @Override
+        public void onCaptureProcessProgressed(int progress) {
+            for (CameraCaptureCallback callback : mCallbacks) {
+                callback.onCaptureProcessProgressed(progress);
+            }
+        }
     }
 }

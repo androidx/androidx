@@ -36,6 +36,13 @@ interface TakePictureCallback {
     void onCaptureStarted();
 
     /**
+     * Invoked when there is some progress in the processing stage.
+     *
+     * @param progress the progress ranging from 0 to 100.
+     */
+    void onCaptureProcessProgressed(int progress);
+
+    /**
      * Invoked when the capture is complete.
      *
      * <p>Once invoked, {@link TakePictureManager} can submit the next request to camera.
@@ -61,6 +68,11 @@ interface TakePictureCallback {
      */
     @MainThread
     void onFinalResult(@NonNull ImageProxy imageProxy);
+
+    /**
+     * Invoked when the postview image is available.
+     */
+    void onPostviewImageAvailable(@NonNull ImageProxy imageProxy);
 
     /**
      * Invoked when camera fails to return the image.
