@@ -28,7 +28,10 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.Offset
@@ -149,11 +152,13 @@ internal fun ThreePaneScaffold(
         },
     )
 
-    val measurePolicy =
-        remember { ThreePaneContentMeasurePolicy(scaffoldDirective, scaffoldValue, ltrPaneOrder) }
-    measurePolicy.scaffoldDirective = scaffoldDirective
-    measurePolicy.scaffoldValue = scaffoldValue
-    measurePolicy.paneOrder = ltrPaneOrder
+    val measurePolicy = remember {
+        ThreePaneContentMeasurePolicy(scaffoldDirective, scaffoldValue, ltrPaneOrder)
+    }.apply {
+        this.scaffoldDirective = scaffoldDirective
+        this.scaffoldValue = scaffoldValue
+        this.paneOrder = ltrPaneOrder
+    }
 
     LookaheadScope {
         Layout(
@@ -328,10 +333,13 @@ private fun getExpandedCount(scaffoldValue: ThreePaneScaffoldValue): Int {
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 private class ThreePaneContentMeasurePolicy(
-    var scaffoldDirective: PaneScaffoldDirective,
-    var scaffoldValue: ThreePaneScaffoldValue,
-    var paneOrder: ThreePaneScaffoldHorizontalOrder
+    scaffoldDirective: PaneScaffoldDirective,
+    scaffoldValue: ThreePaneScaffoldValue,
+    paneOrder: ThreePaneScaffoldHorizontalOrder
 ) : MultiContentMeasurePolicy {
+    var scaffoldDirective by mutableStateOf(scaffoldDirective)
+    var scaffoldValue by mutableStateOf(scaffoldValue)
+    var paneOrder by mutableStateOf(paneOrder)
 
     /**
      * Data class that is used to store the position and width of an expanded pane to be reused when
@@ -642,6 +650,10 @@ private class ThreePaneContentMeasurePolicy(
         // When panes are being hidden, apply each pane's width and position from the cache to
         // maintain the those before it's hidden by the AnimatedVisibility.
         measurables.fastForEach {
+            if (!it.isAnimatedPane) {
+                // When panes are not animated, we don't need to measure and place them.
+                return
+            }
             val cachedPanePlacement = placementsCache[it.role]!!
             it.measure(
                 Constraints.fixed(
@@ -684,6 +696,7 @@ fun ThreePaneScaffoldScope.AnimatedPane(
     AnimatedVisibility(
         visible = paneAdaptedValue == PaneAdaptedValue.Expanded,
         modifier = modifier
+            .animatedPane()
             .clipToBounds(paneAdaptedValue)
             .then(
                 if (paneAdaptedValue == PaneAdaptedValue.Expanded) {
@@ -722,6 +735,8 @@ private class PaneMeasurable(
     } else {
         data.preferredWidth!!.toInt()
     }
+
+    val isAnimatedPane = data.isAnimatedPane
 }
 
 /**
