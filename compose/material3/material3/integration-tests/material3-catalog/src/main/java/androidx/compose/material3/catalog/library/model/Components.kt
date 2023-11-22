@@ -105,6 +105,18 @@ private val Card = Component(
     examples = CardExamples
 )
 
+private val Carousel = Component(
+    id = nextId(),
+    name = "Carousel",
+    description = "Carousels are stylized versions of lists that provide a unique viewing and " +
+        "behavior that suit large imagery and other visually rich content.",
+    // No carousel icon
+    guidelinesUrl = "$StyleGuidelinesUrl/carousel",
+    docsUrl = "$PackageSummaryUrl#carousel",
+    sourceUrl = "$Material3SourceUrl/Carousel.kt",
+    examples = CarouselExamples
+)
+
 private val Checkboxes = Component(
     id = nextId(),
     name = "Checkboxes",
@@ -414,6 +426,7 @@ val Components = listOf(
     BottomSheets,
     Buttons,
     Card,
+    Carousel,
     Checkboxes,
     Chips,
     DatePickers,
