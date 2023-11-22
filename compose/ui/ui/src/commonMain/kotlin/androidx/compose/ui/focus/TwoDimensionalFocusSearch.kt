@@ -30,13 +30,12 @@ import androidx.compose.ui.focus.FocusStateImpl.Inactive
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.Nodes
+import androidx.compose.ui.node.requireLayoutNode
 import androidx.compose.ui.node.visitChildren
 import kotlin.math.absoluteValue
 import kotlin.math.max
 
-@Suppress("ConstPropertyName")
 private const val InvalidFocusDirection = "This function should only be used for 2-D focus search"
-@Suppress("ConstPropertyName")
 private const val NoActiveChild = "ActiveParent must have a focusedChild"
 
 /**
@@ -189,7 +188,7 @@ private fun DelegatableNode.collectAccessibleChildren(
 ) {
     visitChildren(Nodes.FocusTarget) {
         // TODO(b/278765590): Find the root issue why visitChildren returns unattached nodes.
-        if (!it.isAttached) return@visitChildren
+        if (!it.isAttached || it.requireLayoutNode().isDeactivated) return@visitChildren
 
         if (it.fetchFocusProperties().canFocus) {
             accessibleChildren.add(it)

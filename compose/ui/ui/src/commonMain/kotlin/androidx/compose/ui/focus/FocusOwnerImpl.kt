@@ -200,6 +200,10 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
      * Dispatches a key event through the compose hierarchy.
      */
     override fun dispatchKeyEvent(keyEvent: KeyEvent): Boolean {
+        check(!focusInvalidationManager.hasPendingInvalidation()) {
+            "Dispatching key event while focus system is invalidated."
+        }
+
         if (!validateKeyEvent(keyEvent)) return false
 
         val activeFocusTarget = rootFocusNode.findActiveFocusNode()
@@ -219,6 +223,10 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
 
     @OptIn(ExperimentalComposeUiApi::class)
     override fun dispatchInterceptedSoftKeyboardEvent(keyEvent: KeyEvent): Boolean {
+        check(!focusInvalidationManager.hasPendingInvalidation()) {
+            "Dispatching intercepted soft keyboard event while focus system is invalidated."
+        }
+
         val focusedSoftKeyboardInterceptionNode = rootFocusNode.findActiveFocusNode()
             ?.nearestAncestor(Nodes.SoftKeyboardKeyInput)
 
@@ -234,6 +242,10 @@ internal class FocusOwnerImpl(onRequestApplyChangesListener: (() -> Unit) -> Uni
      * Dispatches a rotary scroll event through the compose hierarchy.
      */
     override fun dispatchRotaryEvent(event: RotaryScrollEvent): Boolean {
+        check(!focusInvalidationManager.hasPendingInvalidation()) {
+            "Dispatching rotary event while focus system is invalidated."
+        }
+
         val focusedRotaryInputNode = rootFocusNode.findActiveFocusNode()
             ?.nearestAncestor(Nodes.RotaryInput)
 
