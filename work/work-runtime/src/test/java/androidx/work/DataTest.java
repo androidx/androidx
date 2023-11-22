@@ -119,7 +119,7 @@ public class DataTest {
     public void testToString() {
         Data data = createData();
         String result = data.toString();
-        for (String key : data.mValues.keySet()) {
+        for (String key : data.getKeyValueMap().keySet()) {
             assertThat(result, containsString(key));
         }
     }
