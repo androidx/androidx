@@ -72,6 +72,7 @@ class GattServer(private val context: Context) {
 
     interface FrameworkAdapter {
         var fwkGattServer: FwkBluetoothGattServer?
+        fun isOpened(): Boolean
         fun openGattServer(context: Context, fwkCallback: FwkBluetoothGattServerCallback)
         fun closeGattServer()
         fun clearServices()
@@ -126,10 +127,28 @@ class GattServer(private val context: Context) {
         private val sessions = mutableMapOf<FwkBluetoothDevice, Session>()
         private val notifyMutex = Mutex()
         private var notifyJob: CompletableDeferred<Boolean>? = null
+        private val servicesMutex = Mutex()
+        private var serviceCallbackChannel: Channel<FwkBluetoothGattService?>? = null
 
-        override fun updateServices(services: List<GattService>) {
-            fwkAdapter.clearServices()
-            services.forEach { fwkAdapter.addService(it.fwkService) }
+        private var onOpened: (suspend () -> Unit)? = null
+        private var onClosed: (suspend () -> Unit)? = null
+
+        override suspend fun updateServices(services: List<GattService>) {
+            if (!fwkAdapter.isOpened()) throw IllegalStateException("GATT server is not opened")
+            servicesMutex.withLock {
+                fwkAdapter.clearServices()
+                addServices(services)
+            }
+        }
+
+        override fun onOpened(action: suspend () -> Unit): GattServerConnectFlow {
+            onOpened = action
+            return this
+        }
+
+        override fun onClosed(action: suspend () -> Unit): GattServerConnectFlow {
+            onClosed = action
+            return this
         }
 
         override suspend fun collectSafely(collector: FlowCollector<GattServerConnectRequest>) {
@@ -153,6 +172,10 @@ class GattServer(private val context: Context) {
 
                             FwkBluetoothProfile.STATE_DISCONNECTED -> removeSession(fwkDevice)
                         }
+                    }
+
+                    override fun onServiceAdded(status: Int, service: FwkBluetoothGattService) {
+                        serviceCallbackChannel?.trySend(service)
                     }
 
                     override fun onCharacteristicReadRequest(
@@ -294,14 +317,30 @@ class GattServer(private val context: Context) {
                     }
                 }
                 fwkAdapter.openGattServer(context, callback)
-                services.forEach { fwkAdapter.addService(it.fwkService) }
+                addServices(services)
+
+                onOpened?.invoke()
 
                 awaitClose {
                     fwkAdapter.closeGattServer()
                 }
+                onClosed?.invoke()
             }
 
             connectRequests.collect { collector.emit(it) }
+        }
+
+        private suspend fun addServices(services: List<GattService>) {
+            // Capacity = 1 allows getting callback before it's caught
+            serviceCallbackChannel = Channel(1)
+            services.forEach {
+                fwkAdapter.addService(it.fwkService)
+                val addedService = serviceCallbackChannel?.receive()
+                if (addedService != it.fwkService) {
+                    throw BluetoothException(BluetoothException.ERROR_UNKNOWN)
+                }
+            }
+            serviceCallbackChannel = null
         }
 
         private fun addSession(fwkDevice: FwkBluetoothDevice): GattServer.Session {
@@ -455,11 +494,15 @@ class GattServer(private val context: Context) {
     private open class FrameworkAdapterBase : FrameworkAdapter {
 
         override var fwkGattServer: FwkBluetoothGattServer? = null
-        private val isOpen = AtomicBoolean(false)
+        private val isOpened = AtomicBoolean(false)
+
+        override fun isOpened(): Boolean {
+            return isOpened.get()
+        }
 
         @SuppressLint("MissingPermission")
         override fun openGattServer(context: Context, fwkCallback: FwkBluetoothGattServerCallback) {
-            if (!isOpen.compareAndSet(false, true))
+            if (!isOpened.compareAndSet(false, true))
                 throw IllegalStateException("GATT server is already opened")
             val bluetoothManager =
                 context.getSystemService(Context.BLUETOOTH_SERVICE) as FwkBluetoothManager?
@@ -468,7 +511,7 @@ class GattServer(private val context: Context) {
 
         @SuppressLint("MissingPermission")
         override fun closeGattServer() {
-            if (!isOpen.compareAndSet(true, false))
+            if (!isOpened.compareAndSet(true, false))
                 throw IllegalStateException("GATT server is already closed")
             fwkGattServer?.close()
         }
@@ -575,6 +618,21 @@ class GattServer(private val context: Context) {
     }
 }
 
+/**
+ * A flow of [GattServerConnectRequest] returned by calling [BluetoothLe.openGattServer].
+ */
 interface GattServerConnectFlow : Flow<GattServerConnectRequest> {
-    fun updateServices(services: List<GattService>)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun onOpened(action: suspend () -> Unit): GattServerConnectFlow
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    fun onClosed(action: suspend () -> Unit): GattServerConnectFlow
+    /**
+     * Updates the services provided by the opened GATT server.
+     *
+     * @param services a new list of services that should be provided
+     *
+     * @throws IllegalStateException if it's called before the server is opened.
+     */
+    suspend fun updateServices(services: List<GattService>)
 }
