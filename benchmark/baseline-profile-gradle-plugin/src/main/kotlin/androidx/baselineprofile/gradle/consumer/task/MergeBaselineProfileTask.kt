@@ -262,7 +262,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                         logger.warn(
                             """
                             A baseline profile was generated for the variant `${variantName.get()}`:
-                            $absolutePath
+                            file:///$absolutePath
                         """.trimIndent()
                         )
                     }
@@ -312,7 +312,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                         logger.warn(
                             """
                             A startup profile was generated for the variant `${variantName.get()}`:
-                            $absolutePath
+                            file:///$absolutePath
                         """.trimIndent()
                         )
                     }
