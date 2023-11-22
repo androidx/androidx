@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorProducer
@@ -35,7 +36,9 @@ import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatableNode
 import androidx.compose.ui.node.DelegatingNode
+import androidx.compose.ui.node.ObserverModifierNode
 import androidx.compose.ui.node.currentValueOf
+import androidx.compose.ui.node.observeReads
 import androidx.compose.ui.unit.Dp
 
 /**
@@ -194,6 +197,65 @@ object RippleDefaults {
 val LocalUseFallbackRippleImplementation: ProvidableCompositionLocal<Boolean> =
     staticCompositionLocalOf { false }
 
+/**
+ * CompositionLocal used for providing [RippleConfiguration] down the tree. This acts as a
+ * tree-local 'override' for ripples used inside components that you cannot directly control, such
+ * as to change the color of a specific component's ripple, or disable it entirely.
+ *
+ * In most cases you should rely on the default theme behavior for consistency with other components
+ * - this exists as an escape hatch for individual components and is not intended to be used for
+ * full theme customization across an application. For this use case you should instead build your
+ * own custom ripple that queries your design system theme values directly using
+ * [createRippleModifierNode].
+ */
+@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
+@get:ExperimentalMaterialApi
+@ExperimentalMaterialApi
+val LocalRippleConfiguration: ProvidableCompositionLocal<RippleConfiguration> =
+    compositionLocalOf { RippleConfiguration() }
+
+/**
+ * Configuration for [ripple] appearance, provided using [LocalRippleConfiguration]. In most cases
+ * the default values should be used, for custom design system use cases you should instead
+ * build your own custom ripple using [createRippleModifierNode].
+ *
+ * @param isEnabled whether the ripple is enabled. If false, no ripple will be rendered
+ * @param color the color override for the ripple. If [Color.Unspecified], then the default color
+ * from the theme will be used instead. Note that if the ripple has a color explicitly set with
+ * the parameter on [ripple], that will always be used instead of this value.
+ * @param rippleAlpha the [RippleAlpha] override for this ripple. If null, then the default alpha
+ * will be used instead.
+ */
+@Immutable
+@ExperimentalMaterialApi
+class RippleConfiguration(
+    val isEnabled: Boolean = true,
+    val color: Color = Color.Unspecified,
+    val rippleAlpha: RippleAlpha? = null
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is RippleConfiguration) return false
+
+        if (isEnabled != other.isEnabled) return false
+        if (color != other.color) return false
+        if (rippleAlpha != other.rippleAlpha) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = isEnabled.hashCode()
+        result = 31 * result + color.hashCode()
+        result = 31 * result + (rippleAlpha?.hashCode() ?: 0)
+        return result
+    }
+
+    override fun toString(): String {
+        return "RippleConfiguration(enabled=$isEnabled, color=$color, rippleAlpha=$rippleAlpha)"
+    }
+}
+
 // TODO: b/304985887 - remove after one stable release
 @Suppress("DEPRECATION_ERROR")
 @OptIn(ExperimentalMaterialApi::class)
@@ -273,38 +335,74 @@ private class RippleNodeFactory private constructor(
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 private class DelegatingThemeAwareRippleNode(
     private val interactionSource: InteractionSource,
     private val bounded: Boolean,
     private val radius: Dp,
     private val color: ColorProducer,
-) : DelegatingNode(), CompositionLocalConsumerModifierNode {
+) : DelegatingNode(), CompositionLocalConsumerModifierNode, ObserverModifierNode {
+    private var rippleNode: DelegatableNode? = null
+
     override fun onAttach() {
+        observeReads {
+            updateConfiguration()
+        }
+    }
+
+    override fun onObservedReadsChanged() {
+        updateConfiguration()
+    }
+
+    /**
+     * Handles changes to [RippleConfiguration.isEnabled]. Changes to [RippleConfiguration.color] and
+     * [RippleConfiguration.rippleAlpha] are handled as part of the ripple definition.
+     */
+    private fun updateConfiguration() {
+        val configuration = currentValueOf(LocalRippleConfiguration)
+        if (!configuration.isEnabled) {
+            removeRipple()
+        } else {
+            if (rippleNode == null) attachNewRipple()
+        }
+    }
+
+    private fun attachNewRipple() {
         val calculateColor = ColorProducer {
             val userDefinedColor = color()
             if (userDefinedColor.isSpecified) {
                 userDefinedColor
             } else {
-                 RippleDefaults.rippleColor(
-                    contentColor = currentValueOf(LocalContentColor),
-                    lightTheme = currentValueOf(LocalColors).isLight
-                )
+                val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
+                if (rippleConfiguration.color.isSpecified) {
+                    rippleConfiguration.color
+                } else {
+                    RippleDefaults.rippleColor(
+                        contentColor = currentValueOf(LocalContentColor),
+                        lightTheme = currentValueOf(LocalColors).isLight
+                    )
+                }
             }
         }
-        val calculateAlpha = {
-            RippleDefaults.rippleAlpha(
+        val calculateRippleAlpha = {
+            val rippleConfiguration = currentValueOf(LocalRippleConfiguration)
+            rippleConfiguration.rippleAlpha ?: RippleDefaults.rippleAlpha(
                 contentColor = currentValueOf(LocalContentColor),
                 lightTheme = currentValueOf(LocalColors).isLight
             )
         }
 
-        delegate(createRippleModifierNode(
+        rippleNode = delegate(createRippleModifierNode(
             interactionSource,
             bounded,
             radius,
             calculateColor,
-            calculateAlpha
+            calculateRippleAlpha
         ))
+    }
+
+    private fun removeRipple() {
+        rippleNode?.let { undelegate(it) }
     }
 }
 
