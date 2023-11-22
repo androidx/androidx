@@ -35,17 +35,17 @@ import androidx.glance.unit.ColorProvider
  * component.
  *
  * @param titleBar A composable that creates the [TitleBar]
- * @param content The main content of the widget.
  * @param modifier a modifier
  * @param backgroundColor the background color for the layout.
+ * @param content The main content of the widget.
  */
 @Composable
 fun Scaffold(
     titleBar: @Composable () -> Unit,
-    content: @Composable ColumnScope.() -> Unit,
     modifier: GlanceModifier = GlanceModifier,
-    backgroundColor: ColorProvider = GlanceTheme.colors.surface
-) {
+    backgroundColor: ColorProvider = GlanceTheme.colors.surface,
+    content: @Composable ColumnScope.() -> Unit,
+    ) {
     Box(modifier
         .fillMaxSize()
         .background(backgroundColor)
