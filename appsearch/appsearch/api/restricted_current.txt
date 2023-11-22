@@ -24,6 +24,8 @@ package androidx.appsearch.annotation {
 
   @java.lang.annotation.Documented @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.FIELD, java.lang.annotation.ElementType.METHOD}) public static @interface Document.DocumentProperty {
     method public abstract boolean indexNestedProperties() default false;
+    method public abstract String[] indexableNestedPropertiesList() default {};
+    method public abstract boolean inheritIndexableNestedPropertiesFromSuperclass() default false;
     method public abstract String name() default "";
     method public abstract boolean required() default false;
   }

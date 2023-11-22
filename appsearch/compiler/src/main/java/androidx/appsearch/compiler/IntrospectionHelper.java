@@ -22,6 +22,9 @@ import static java.util.stream.Collectors.toCollection;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.compiler.annotationwrapper.DataPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.DocumentPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.PropertyAnnotation;
 
 import com.google.auto.value.AutoValue;
 import com.squareup.javapoet.ClassName;
@@ -155,11 +158,58 @@ public class IntrospectionHelper {
     @Nullable
     public static AnnotationMirror getDocumentAnnotation(@NonNull Element element) {
         Objects.requireNonNull(element);
-        for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
-            String annotationFq = annotation.getAnnotationType().toString();
-            if (IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS.canonicalName().equals(
-                    annotationFq)) {
-                return annotation;
+        List<? extends AnnotationMirror> annotations = getAnnotations(element,
+                DOCUMENT_ANNOTATION_CLASS);
+        if (annotations.isEmpty()) {
+            return null;
+        } else {
+            return annotations.get(0);
+        }
+    }
+
+    /**
+     * Returns a list of annotations of a given kind from the input element's annotations,
+     * specified by the annotation's class name. Returns null if no annotation of such kind is
+     * found.
+     */
+    @NonNull
+    public static List<? extends AnnotationMirror> getAnnotations(@NonNull Element element,
+            @NonNull ClassName className) {
+        Objects.requireNonNull(element);
+        Objects.requireNonNull(className);
+        return element.getAnnotationMirrors()
+                .stream()
+                .filter(annotation -> annotation.getAnnotationType().toString()
+                        .equals(className.canonicalName()))
+                .toList();
+    }
+
+    /**
+     * Returns the document property annotation that matches the given property name from a given
+     * class or interface element.
+     *
+     * <p>Returns null if the property cannot be found in the class or interface, or if the
+     * property matching the property name is not a document property.
+     */
+    @Nullable
+    public DocumentPropertyAnnotation getDocumentPropertyAnnotation(
+            @NonNull TypeElement clazz, @NonNull String propertyName) throws ProcessingException {
+        Objects.requireNonNull(clazz);
+        Objects.requireNonNull(propertyName);
+        for (Element enclosedElement : clazz.getEnclosedElements()) {
+            AnnotatedGetterOrField getterOrField =
+                    AnnotatedGetterOrField.tryCreateFor(enclosedElement, mEnv);
+            if (getterOrField == null || !(getterOrField.getAnnotation().getPropertyKind()
+                    == PropertyAnnotation.Kind.DATA_PROPERTY)) {
+                continue;
+            }
+            if (((DataPropertyAnnotation) getterOrField.getAnnotation()).getDataPropertyKind()
+                    == DataPropertyAnnotation.Kind.DOCUMENT_PROPERTY) {
+                DocumentPropertyAnnotation documentPropertyAnnotation =
+                        (DocumentPropertyAnnotation) getterOrField.getAnnotation();
+                if (documentPropertyAnnotation.getName().equals(propertyName)) {
+                    return documentPropertyAnnotation;
+                }
             }
         }
         return null;

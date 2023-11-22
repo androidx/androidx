@@ -1828,6 +1828,341 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testIndexableNestedPropertiesListSimple() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Address {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty long streetNumber;\n"
+                        + "  @Document.StringProperty String streetName;\n"
+                        + "  @Document.StringProperty String state;\n"
+                        + "  @Document.LongProperty long zipCode;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Person {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String name;\n"
+                        + "  @Document.DocumentProperty(indexableNestedPropertiesList ="
+                        + "    {\"streetNumber\", \"streetName\"}) Address livesAt;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        checkResultContains("Person.java", "addIndexableNestedProperties(\"streetNumber\")");
+        checkResultContains("Person.java", "addIndexableNestedProperties(\"streetName\")");
+
+        checkEqualsGolden("Person.java");
+    }
+
+    @Test
+    public void testIndexableNestedPropertiesListEmpty() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Address {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty long streetNumber;\n"
+                        + "  @Document.StringProperty String streetName;\n"
+                        + "  @Document.StringProperty String state;\n"
+                        + "  @Document.LongProperty long zipCode;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Person {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String name;\n"
+                        + "  @Document.DocumentProperty(indexableNestedPropertiesList = {})"
+                        + "  Address livesAt;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultDoesNotContain("Person.java", "addIndexableNestedProperties");
+        checkEqualsGolden("Person.java");
+    }
+
+    @Test
+    public void testIndexableNestedPropertiesListInheritSuperclassTrue() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Address {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty long streetNumber;\n"
+                        + "  @Document.StringProperty String streetName;\n"
+                        + "  @Document.StringProperty String state;\n"
+                        + "  @Document.LongProperty long zipCode;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Person {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String name;\n"
+                        + "  @Document.DocumentProperty(indexableNestedPropertiesList ="
+                        + "    {\"streetNumber\", \"streetName\"}) Address livesAt;\n"
+                        + "}\n"
+                        + "@Document(name = \"Artist\", parent = {Person.class})\n"
+                        + "class Artist extends Person {\n"
+                        + "  @Document.StringProperty String mostFamousWork;\n"
+                        + "  @Document.DocumentProperty("
+                        + "    indexableNestedPropertiesList = {\"state\"},"
+                        + "    inheritIndexableNestedPropertiesFromSuperclass = true)"
+                        + "  Address livesAt;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        checkResultContains("Artist.java", "addIndexableNestedProperties(\"streetNumber\")");
+        checkResultContains("Artist.java", "addIndexableNestedProperties(\"streetName\")");
+        checkResultContains("Artist.java", "addIndexableNestedProperties(\"state\")");
+
+        checkEqualsGolden("Artist.java");
+    }
+
+    @Test
+    public void testIndexableNestedPropertiesListInheritSuperclassFalse() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Address {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty long streetNumber;\n"
+                        + "  @Document.StringProperty String streetName;\n"
+                        + "  @Document.StringProperty String state;\n"
+                        + "  @Document.LongProperty long zipCode;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Person {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String name;\n"
+                        + "  @Document.DocumentProperty(indexableNestedPropertiesList ="
+                        + "    {\"streetNumber\", \"streetName\"}) Address livesAt;\n"
+                        + "}\n"
+                        + "@Document(name = \"Artist\", parent = {Person.class})\n"
+                        + "class Artist extends Person {\n"
+                        + "  @Document.StringProperty String mostFamousWork;\n"
+                        + "  @Document.DocumentProperty("
+                        + "    indexableNestedPropertiesList = {\"state\"},"
+                        + "    inheritIndexableNestedPropertiesFromSuperclass = false)"
+                        + "  Address livesAt;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        checkResultContains("Artist.java", "addIndexableNestedProperties(\"state\")");
+        checkResultDoesNotContain("Artist.java", "addIndexableNestedProperties(\"streetNumber\")");
+        checkResultDoesNotContain("Artist.java", "addIndexableNestedProperties(\"streetName\")");
+
+        checkEqualsGolden("Artist.java");
+    }
+
+    @Test
+    public void testIndexableNestedPropertiesListInheritWithMultipleParentsClasses()
+            throws Exception {
+        // Tests that the child class inherits nested properties from the parent correctly. When
+        // set to true, the field overridden by the child class should only inherit indexable
+        // nested properties form its java parent class (i.e. the superclass/interface which the
+        // child class extends from/implements).
+        // In this test case, Artist's parent class is Person, and ArtistEmployee's parent class
+        // is Artist. This means that ArtistEmployee.livesAt's indexable list should contain the
+        // properties s specified in Artist.livesAt. and Person.livesAt (since both Artist and
+        // ArtistEmployee sets inheritFromParent=true for this field). ArtistEmployee.livesAt
+        // should not inherit the indexable list from Employee.livesAt since Employee is not
+        // ArtistEmployee's java class parent.
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Address {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty long streetNumber;\n"
+                        + "  @Document.StringProperty String streetName;\n"
+                        + "  @Document.StringProperty String state;\n"
+                        + "  @Document.LongProperty long zipCode;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Person {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String name;\n"
+                        + "  @Document.DocumentProperty(indexableNestedPropertiesList ="
+                        + "    {\"streetNumber\", \"streetName\"}) Address livesAt;\n"
+                        + "}\n"
+                        + "@Document(name = \"Artist\", parent = {Person.class})\n"
+                        + "class Artist extends Person {\n"
+                        + "  @Document.StringProperty String mostFamousWork;\n"
+                        + "  @Document.DocumentProperty("
+                        + "    indexableNestedPropertiesList = {\"state\"},"
+                        + "    inheritIndexableNestedPropertiesFromSuperclass = true)"
+                        + "  Address livesAt;\n"
+                        + "}\n"
+                        + "@Document(name = \"Employee\", parent = {Person.class})\n"
+                        + "class Employee extends Person {\n"
+                        + "  @Document.DocumentProperty("
+                        + "    indexableNestedPropertiesList = {\"zipCode\"},"
+                        + "    inheritIndexableNestedPropertiesFromSuperclass = true)"
+                        + "  Address livesAt;\n"
+                        + "  @Document.DocumentProperty(indexableNestedPropertiesList ="
+                        + "    {\"zipCode\", \"streetName\"}) Address worksAt;\n"
+                        + "}\n"
+                        + "@Document(name = \"ArtistEmployee\", parent = {Artist.class,"
+                        + "Employee.class})\n"
+                        + "class ArtistEmployee extends Artist {\n"
+                        + "  @Document.StringProperty String mostFamousWork;\n"
+                        + "  @Document.DocumentProperty("
+                        + "    inheritIndexableNestedPropertiesFromSuperclass = true)"
+                        + "  Address livesAt;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        checkResultContains("ArtistEmployee.java",
+                "addIndexableNestedProperties(\"streetNumber\")");
+        checkResultContains("ArtistEmployee.java", "addIndexableNestedProperties(\"streetName\")");
+        checkResultContains("ArtistEmployee.java", "addIndexableNestedProperties(\"state\")");
+        // ArtistEmployee's indexable list should not contain 'zipCode' as  ArtistEmployee only
+        // extends Artist, which does not index zipCode
+        checkResultDoesNotContain("ArtistEmployee.java",
+                "addIndexableNestedProperties(\"zipCode\")");
+
+        checkEqualsGolden("ArtistEmployee.java");
+    }
+
+    @Test
+    public void testIndexableNestedPropertiesListImplicitInheritance() throws Exception {
+        // Tests that properties that are not declared in the child class itself but exists in
+        // the class due to java class inheritance indexes the correct indexable list.
+        // Artist.livesAt should be defined for Artist and index the same indexable properties as
+        // Person.livesAt.
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Address {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty long streetNumber;\n"
+                        + "  @Document.StringProperty String streetName;\n"
+                        + "  @Document.StringProperty String state;\n"
+                        + "  @Document.LongProperty long zipCode;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Person {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String name;\n"
+                        + "  @Document.DocumentProperty(indexableNestedPropertiesList ="
+                        + "    {\"streetNumber\", \"streetName\"}) Address livesAt;\n"
+                        + "}\n"
+                        + "@Document(name = \"Artist\", parent = {Person.class})\n"
+                        + "class Artist extends Person {\n"
+                        + "  @Document.StringProperty String mostFamousWork;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        checkResultContains("Artist.java",
+                "addIndexableNestedProperties(\"streetNumber\")");
+        checkResultContains("Artist.java", "addIndexableNestedProperties(\"streetName\")");
+
+        checkResultDoesNotContain("Artist.java",
+                "addIndexableNestedProperties(\"zipCode\")");
+        checkResultDoesNotContain("Artist.java", "addIndexableNestedProperties(\"state\")");
+
+        checkEqualsGolden("Artist.java");
+    }
+
+    @Test
+    public void testIndexableNestedPropertiesListImplicitlyInheritFromMultipleLevels()
+            throws Exception {
+        // Tests that the indexable list is inherited correctly across multiple java inheritance
+        // levels.
+        // ArtistEmployee.livesAt should index the nested properties defined in Person.livesAt.
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Address {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty long streetNumber;\n"
+                        + "  @Document.StringProperty String streetName;\n"
+                        + "  @Document.StringProperty String state;\n"
+                        + "  @Document.LongProperty long zipCode;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Person {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String name;\n"
+                        + "  @Document.DocumentProperty(indexableNestedPropertiesList ="
+                        + "    {\"streetNumber\", \"streetName\"}) Address livesAt;\n"
+                        + "}\n"
+                        + "@Document(name = \"Artist\", parent = {Person.class})\n"
+                        + "class Artist extends Person {\n"
+                        + "  @Document.StringProperty String mostFamousWork;\n"
+                        + "}\n"
+                        + "@Document(name = \"ArtistEmployee\", parent = {Artist.class})\n"
+                        + "class ArtistEmployee extends Artist {\n"
+                        + "  @Document.StringProperty String worksAt;\n"
+                        + "  @Document.DocumentProperty("
+                        + "    inheritIndexableNestedPropertiesFromSuperclass = true)"
+                        + "  Address livesAt;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        checkResultContains("ArtistEmployee.java",
+                "addIndexableNestedProperties(\"streetNumber\")");
+        checkResultContains("ArtistEmployee.java", "addIndexableNestedProperties(\"streetName\")");
+
+        checkResultDoesNotContain("ArtistEmployee.java",
+                "addIndexableNestedProperties(\"zipCode\")");
+        checkResultDoesNotContain("ArtistEmployee.java", "addIndexableNestedProperties(\"state\")");
+
+        checkEqualsGolden("ArtistEmployee.java");
+    }
+
+    @Test
+    public void testIndexableNestedPropertiesListTopLevelInheritTrue() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "class Address {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.LongProperty long streetNumber;\n"
+                        + "  @Document.StringProperty String streetName;\n"
+                        + "  @Document.StringProperty String state;\n"
+                        + "  @Document.LongProperty long zipCode;\n"
+                        + "}\n"
+                        + "@Document\n"
+                        + "class Person {\n"
+                        + "  @Document.Namespace String namespace;\n"
+                        + "  @Document.Id String id;\n"
+                        + "  @Document.StringProperty String name;\n"
+                        + "  @Document.DocumentProperty(indexableNestedPropertiesList ="
+                        + "    {\"streetNumber\", \"streetName\"},"
+                        + "    inheritIndexableNestedPropertiesFromSuperclass = true)"
+                        + "  Address livesAt;\n"
+                        + "}\n"
+                        + "@Document(name = \"Artist\", parent = {Person.class})\n"
+                        + "class Artist extends Person {\n"
+                        + "  @Document.StringProperty String mostFamousWork;\n"
+                        + "  @Document.DocumentProperty(indexableNestedPropertiesList ="
+                        + "    {\"state\"}, inheritIndexableNestedPropertiesFromSuperclass = true)"
+                        + "  Address livesAt;\n"
+                        + "}\n"
+                        + "@Document(name = \"ArtistEmployee\", parent = {Artist.class})\n"
+                        + "class ArtistEmployee extends Artist {\n"
+                        + "  @Document.StringProperty String worksAt;\n"
+                        + "  @Document.DocumentProperty("
+                        + "    inheritIndexableNestedPropertiesFromSuperclass = true)"
+                        + "  Address livesAt;\n"
+                        + "}\n");
+        assertThat(compilation).succeededWithoutWarnings();
+
+        checkResultContains("ArtistEmployee.java",
+                "addIndexableNestedProperties(\"streetNumber\")");
+        checkResultContains("ArtistEmployee.java", "addIndexableNestedProperties(\"streetName\")");
+        checkResultContains("ArtistEmployee.java", "addIndexableNestedProperties(\"state\")");
+
+        checkResultDoesNotContain("ArtistEmployee.java",
+                "addIndexableNestedProperties(\"zipCode\")");
+
+        checkEqualsGolden("ArtistEmployee.java");
+    }
+
+    @Test
     public void testAnnotationOnClassGetter() throws Exception {
         Compilation compilation = compile(
                 "@Document\n"
@@ -3192,14 +3527,21 @@ public class AppSearchCompilerTest {
     }
 
     private void checkResultContains(String className, String content) throws IOException {
-        // Get the actual file contents
+        String fileContents = getClassFileContents(className);
+        Truth.assertThat(fileContents).contains(content);
+    }
+
+    private void checkResultDoesNotContain(String className, String content) throws IOException {
+        String fileContents = getClassFileContents(className);
+        Truth.assertThat(fileContents).doesNotContain(content);
+    }
+
+    private String getClassFileContents(String className) throws IOException {
         File actualPackageDir = new File(mGenFilesDir, "com/example/appsearch");
         File actualPath =
                 new File(actualPackageDir, IntrospectionHelper.GEN_CLASS_PREFIX + className);
         Truth.assertWithMessage("Path " + actualPath + " is not a file")
                 .that(actualPath.isFile()).isTrue();
-        String actual = Files.asCharSource(actualPath, StandardCharsets.UTF_8).read();
-
-        Truth.assertThat(actual).contains(content);
+        return Files.asCharSource(actualPath, StandardCharsets.UTF_8).read();
     }
 }
