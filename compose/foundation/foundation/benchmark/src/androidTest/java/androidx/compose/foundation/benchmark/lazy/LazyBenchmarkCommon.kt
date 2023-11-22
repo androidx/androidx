@@ -24,6 +24,7 @@ import androidx.compose.testutils.ComposeExecutionControl
 import androidx.compose.testutils.ComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.doFramesUntilNoChangesPending
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.ViewRootForTest
 
@@ -106,20 +107,26 @@ internal fun ComposeBenchmarkRule.toggleStateBenchmark(
                 }
                 assertNoPendingRecompositionMeasureOrLayout()
             }
-            getTestCase().toggle()
-            if (hasPendingChanges()) {
-                recompose()
-            }
-            if (hasPendingMeasureOrLayout()) {
-                measure()
-                layout()
-            }
+            performToggle(getTestCase())
             runWithTimingDisabled {
                 assertNoPendingRecompositionMeasureOrLayout()
                 getTestCase().afterToggle()
                 assertNoPendingRecompositionMeasureOrLayout()
             }
         }
+    }
+}
+
+// we extract this function so it is easier to differentiate this work  in the traces from the work
+// we are not measuring, like beforeToggle() and afterToggle().
+@OptIn(ExperimentalComposeUiApi::class)
+private fun ComposeExecutionControl.performToggle(testCase: LazyBenchmarkTestCase) {
+    testCase.toggle()
+    if (hasPendingChanges()) {
+        recompose()
+    }
+    if (hasPendingMeasureOrLayout()) {
+        getViewRoot().measureAndLayoutForTest()
     }
 }
 
@@ -130,8 +137,11 @@ private fun ComposeExecutionControl.assertNoPendingRecompositionMeasureOrLayout(
 }
 
 private fun ComposeExecutionControl.hasPendingMeasureOrLayout(): Boolean {
-    return (getHostView() as ViewRootForTest).hasPendingMeasureOrLayout
+    return getViewRoot().hasPendingMeasureOrLayout
 }
+
+private fun ComposeExecutionControl.getViewRoot(): ViewRootForTest =
+    getHostView() as ViewRootForTest
 
 // TODO(b/169852102 use existing public constructs instead)
 internal fun ComposeBenchmarkRule.toggleStateBenchmarkDraw(
