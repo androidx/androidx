@@ -71,7 +71,11 @@ val LinearEasing: Easing = Easing { fraction -> fraction }
  *
  * The [CubicBezierEasing] class implements third-order Bézier curves.
  *
- * This is equivalent to the Android `PathInterpolator`
+ * This is equivalent to the Android `PathInterpolator` when a single cubic Bézier
+ * curve is specified.
+ *
+ * Note: [CubicBezierEasing] instances are stateless and can be used concurrently
+ * from multiple threads.
  *
  * Rather than creating a new instance, consider using one of the common
  * cubic [Easing]s:
