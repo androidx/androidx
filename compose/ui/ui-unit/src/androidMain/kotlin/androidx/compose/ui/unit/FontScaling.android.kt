@@ -18,7 +18,6 @@ package androidx.compose.ui.unit
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.fontscaling.FontScaleConverterFactory
 import androidx.compose.ui.unit.internal.JvmDefaultWithCompatibility
 
@@ -31,7 +30,6 @@ import androidx.compose.ui.unit.internal.JvmDefaultWithCompatibility
  */
 @Immutable
 @JvmDefaultWithCompatibility
-@OptIn(ExperimentalComposeUiApi::class)
 actual interface FontScaling {
     /**
      * Current user preference for the scaling factor for fonts.
@@ -44,8 +42,7 @@ actual interface FontScaling {
      */
     @Stable
     actual fun Dp.toSp(): TextUnit {
-        if (!FontScaleConverterFactory.isNonLinearFontScalingActive(fontScale) ||
-            DisableNonLinearFontScalingInCompose) {
+        if (!FontScaleConverterFactory.isNonLinearFontScalingActive(fontScale)) {
             return (value / fontScale).sp
         }
 
@@ -60,8 +57,7 @@ actual interface FontScaling {
     @Stable
     actual fun TextUnit.toDp(): Dp {
         check(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
-        if (!FontScaleConverterFactory.isNonLinearFontScalingActive(fontScale) ||
-            DisableNonLinearFontScalingInCompose) {
+        if (!FontScaleConverterFactory.isNonLinearFontScalingActive(fontScale)) {
             return Dp(value * fontScale)
         }
 
