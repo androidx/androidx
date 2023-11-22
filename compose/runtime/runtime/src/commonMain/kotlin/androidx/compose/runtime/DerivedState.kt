@@ -226,15 +226,11 @@ private class DerivedSnapshotState<T>(
             ) {
                 readable.dependencies = newDependencies
                 readable.resultHash = readable.readableHash(this, currentSnapshot)
-                readable.validSnapshotId = snapshot.id
-                readable.validSnapshotWriteCount = snapshot.writeCount
                 readable
             } else {
                 val writable = first.newWritableRecord(this, currentSnapshot)
                 writable.dependencies = newDependencies
                 writable.resultHash = writable.readableHash(this, currentSnapshot)
-                writable.validSnapshotId = snapshot.id
-                writable.validSnapshotWriteCount = snapshot.writeCount
                 writable.result = result
                 writable
             }
@@ -242,6 +238,12 @@ private class DerivedSnapshotState<T>(
 
         if (calculationBlockNestedLevel.get()?.element == 0) {
             Snapshot.notifyObjectsInitialized()
+
+            sync {
+                val currentSnapshot = Snapshot.current
+                record.validSnapshotId = currentSnapshot.id
+                record.validSnapshotWriteCount = currentSnapshot.writeCount
+            }
         }
 
         return record
