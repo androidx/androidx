@@ -48,6 +48,9 @@ import javax.lang.model.util.Elements;
 /**
  * Processes @Document annotations.
  *
+ * @see AnnotatedGetterAndFieldAccumulator for the DocumentModel's invariants with regards to its
+ * getter and field definitions.
+ *
  * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)

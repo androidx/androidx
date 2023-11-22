@@ -420,9 +420,7 @@ public abstract class DocumentClassCreationInfo {
         }
 
         private static boolean isAnnotatedWithBuilderProducer(@NonNull Element element) {
-            return element.getAnnotationMirrors().stream()
-                    .anyMatch(annotation -> annotation.getAnnotationType().toString()
-                            .equals(BUILDER_PRODUCER_CLASS.canonicalName()));
+            return !IntrospectionHelper.getAnnotations(element, BUILDER_PRODUCER_CLASS).isEmpty();
         }
 
         /**
