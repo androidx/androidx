@@ -2187,3 +2187,11 @@ package androidx.collection {
 
 }
 
+package androidx.collection.internal {
+
+  public final class PackingHelpers_jvmKt {
+    method @kotlin.PublishedApi internal static inline float floatFromBits(int bits);
+  }
+
+}
+
