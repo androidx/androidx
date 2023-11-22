@@ -217,6 +217,7 @@ class EffectsFragment : Fragment() {
     private fun stopRecording() {
         record.text = "Record"
         recording?.stop()
+        recording = null
     }
 
     private fun getNewVideoOutputMediaStoreOptions(): MediaStoreOutputOptions {
