@@ -111,7 +111,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
         gradleRunner.build("generateBaselineProfile") {
             val notFound = it.lines().requireInOrder(
                 "A baseline profile was generated for the variant `release`:",
-                baselineProfileFile("main").canonicalPath
+                "file:///${baselineProfileFile("main").canonicalPath}"
             )
             assertThat(notFound).isEmpty()
         }
@@ -154,9 +154,9 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
         gradleRunner.build("generateBaselineProfile") {
             val notFound = it.lines().requireInOrder(
                 "A baseline profile was generated for the variant `release`:",
-                baselineProfileFile("release").canonicalPath,
+                "file:///${baselineProfileFile("release").canonicalPath}",
                 "A startup profile was generated for the variant `release`:",
-                startupProfileFile("release").canonicalPath
+                "file:///${startupProfileFile("release").canonicalPath}"
             )
             assertThat(notFound).isEmpty()
         }
@@ -237,9 +237,9 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
 
                 val notFound = it.lines().requireInOrder(
                     "A baseline profile was generated for the variant `$variantName`:",
-                    baselineProfileFile(variantName).canonicalPath,
+                    "file:///${baselineProfileFile(variantName).canonicalPath}",
                     "A startup profile was generated for the variant `$variantName`:",
-                    startupProfileFile(variantName).canonicalPath
+                    "file:///${startupProfileFile(variantName).canonicalPath}"
                 )
 
                 assertWithMessage(
