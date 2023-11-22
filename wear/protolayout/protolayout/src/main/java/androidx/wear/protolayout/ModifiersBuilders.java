@@ -880,7 +880,7 @@ public final class ModifiersBuilders {
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setRtlAware(boolean rtlAware) {
-                return setRtlAware(new BoolProp.Builder().setValue(rtlAware).build());
+                return setRtlAware(new BoolProp.Builder(rtlAware).build());
             }
 
             /** Sets the padding for all sides of the content, in DP. */

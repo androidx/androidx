@@ -25,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.DynamicBuilders;
+import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
 import androidx.wear.protolayout.expression.Fingerprint;
@@ -506,6 +507,21 @@ public final class TypeBuilders {
             return mImpl.getValue();
         }
 
+        /**
+         * Gets the dynamic value. Note that when setting this value, the static value is still
+         * required to be set to support older renderers that only read the static value. If {@code
+         * dynamicValue} has an invalid result, the provided static value will be used instead.
+         */
+        @RequiresSchemaVersion(major = 1, minor = 200)
+        @Nullable
+        public DynamicBool getDynamicValue() {
+            if (mImpl.hasDynamicValue()) {
+                return DynamicBuilders.dynamicBoolFromProto(mImpl.getDynamicValue());
+            } else {
+                return null;
+            }
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -544,6 +560,20 @@ public final class TypeBuilders {
             private final TypesProto.BoolProp.Builder mImpl = TypesProto.BoolProp.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(1691257528);
 
+            /**
+             * Creates an instance of {@link Builder} from the given static value. {@link
+             * #setDynamicValue(DynamicBool)} can be used to provide a dynamic value.
+             */
+            public Builder(boolean staticValue) {
+                setValue(staticValue);
+            }
+
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * @deprecated use {@link #Builder(boolean)}
+             */
+            @Deprecated
             public Builder() {}
 
             /** Sets the static value. */
@@ -556,9 +586,33 @@ public final class TypeBuilders {
                 return this;
             }
 
-            /** Builds an instance from accumulated values. */
+            /**
+             * Sets the dynamic value. Note that when setting this value, the static value is still
+             * required to be set to support older renderers that only read the static value. If
+             * {@code dynamicValue} has an invalid result, the provided static value will be used
+             * instead.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 200)
+            @NonNull
+            public Builder setDynamicValue(@NonNull DynamicBool dynamicValue) {
+                mImpl.setDynamicValue(dynamicValue.toDynamicBoolProto());
+                mFingerprint.recordPropertyUpdate(
+                        2, checkNotNull(dynamicValue.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Builds an instance from accumulated values.
+             *
+             * @throws IllegalStateException if a dynamic value is set using {@link
+             *     #setDynamicValue(DynamicBool)} but neither {@link #Builder(boolean)} nor {@link
+             *     #setValue(boolean)} is used to provide a static value.
+             */
             @NonNull
             public BoolProp build() {
+                if (mImpl.hasDynamicValue() && !mImpl.hasValue()) {
+                    throw new IllegalStateException("Static value is missing.");
+                }
                 return new BoolProp(mImpl.build(), mFingerprint);
             }
         }

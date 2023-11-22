@@ -1280,12 +1280,15 @@ package androidx.wear.protolayout {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class TypeBuilders.BoolProp {
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool? getDynamicValue();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public boolean getValue();
   }
 
   public static final class TypeBuilders.BoolProp.Builder {
-    ctor public TypeBuilders.BoolProp.Builder();
+    ctor @Deprecated public TypeBuilders.BoolProp.Builder();
+    ctor public TypeBuilders.BoolProp.Builder(boolean);
     method public androidx.wear.protolayout.TypeBuilders.BoolProp build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.TypeBuilders.BoolProp.Builder setDynamicValue(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.TypeBuilders.BoolProp.Builder setValue(boolean);
   }
 
