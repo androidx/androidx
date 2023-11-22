@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material3.tokens.ChildButtonTokens
 import androidx.wear.compose.material3.tokens.FilledButtonTokens
 import androidx.wear.compose.material3.tokens.FilledTonalButtonTokens
+import androidx.wear.compose.material3.tokens.ImageButtonTokens
 import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
 
 /**
@@ -908,19 +909,37 @@ object ButtonDefaults {
      * @param secondaryContentColor The secondary content color of this [Button] when enabled, used
      * for secondaryLabel content
      * @param iconColor The icon color of this [Button] when enabled, used for icon content
+     * @param disabledContentColor The content color of this [Button] when disabled
+     * @param disabledSecondaryContentColor The secondary content color of this [Button] when
+     * disabled, used for secondary label content
+     * @param disabledIconColor The icon color of this [Button] when disabled, used for icon content
      */
     @Composable
     fun imageBackgroundButtonColors(
         backgroundImagePainter: Painter,
         backgroundImageScrimBrush: Brush = Brush.linearGradient(
             colors = listOf(
-                MaterialTheme.colorScheme.surface.copy(alpha = 1.0f),
-                MaterialTheme.colorScheme.surface.copy(alpha = 0f)
+                ImageButtonTokens.BackgroundImageGradientColor.value.copy(
+                    alpha = ImageButtonTokens.GradientStartOpacity
+                ),
+                ImageButtonTokens.BackgroundImageGradientColor.value.copy(
+                    alpha = ImageButtonTokens.GradientEndOpacity
+                )
             )
         ),
-        contentColor: Color = MaterialTheme.colorScheme.onSurface,
-        secondaryContentColor: Color = contentColor,
-        iconColor: Color = contentColor,
+        contentColor: Color = ImageButtonTokens.ContentColor.value,
+        secondaryContentColor: Color = ImageButtonTokens.SecondaryContentColor.value,
+        iconColor: Color = ImageButtonTokens.IconColor.value,
+        disabledContentColor: Color = ImageButtonTokens.DisabledContentColor.value.toDisabledColor(
+            disabledAlpha = ImageButtonTokens.DisabledContentOpacity
+        ),
+        disabledSecondaryContentColor: Color = ImageButtonTokens.DisabledContentColor.value
+            .toDisabledColor(
+                disabledAlpha = ImageButtonTokens.DisabledContentOpacity
+            ),
+        disabledIconColor: Color = ImageButtonTokens.DisabledContentColor.value.toDisabledColor(
+            disabledAlpha = ImageButtonTokens.DisabledContentOpacity
+        )
     ): ButtonColors {
         val backgroundPainter =
             remember(backgroundImagePainter, backgroundImageScrimBrush) {
@@ -930,7 +949,7 @@ object ButtonDefaults {
                 )
             }
 
-        val disabledContentAlpha = ContentAlpha.disabled
+        val disabledContentAlpha = ImageButtonTokens.DisabledContentOpacity
         val disabledBackgroundPainter =
             remember(backgroundImagePainter, backgroundImageScrimBrush, disabledContentAlpha) {
                 androidx.wear.compose.materialcore.ImageWithScrimPainter(
@@ -945,11 +964,9 @@ object ButtonDefaults {
             secondaryContentColor = secondaryContentColor,
             iconColor = iconColor,
             disabledContainerPainter = disabledBackgroundPainter,
-            disabledContentColor = contentColor.copy(alpha = ContentAlpha.disabled),
-            disabledSecondaryContentColor = secondaryContentColor.copy(
-                alpha = ContentAlpha.disabled
-            ),
-            disabledIconColor = iconColor.copy(alpha = ContentAlpha.disabled),
+            disabledContentColor = disabledContentColor,
+            disabledSecondaryContentColor = disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor,
         )
     }
 
@@ -971,7 +988,7 @@ object ButtonDefaults {
             OutlinedButtonTokens.DisabledContainerBorderColor.value.toDisabledColor(
                 disabledAlpha = OutlinedButtonTokens.DisabledContainerBorderOpacity
             ),
-        borderWidth: Dp = 1.dp
+        borderWidth: Dp = OutlinedButtonTokens.ContainerBorderWidth
     ): BorderStroke {
         return remember {
             BorderStroke(borderWidth, if (enabled) borderColor else disabledBorderColor)
