@@ -64,7 +64,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * Node that implements Text for [AnnotatedString] or [onTextLayout] parameters.
@@ -395,8 +395,8 @@ internal class TextAnnotatedStringNode(
             onTextLayout?.invoke(textLayoutResult)
             selectionController?.updateTextLayout(textLayoutResult)
             baselineCache = mapOf(
-                FirstBaseline to textLayoutResult.firstBaseline.roundToInt(),
-                LastBaseline to textLayoutResult.lastBaseline.roundToInt()
+                FirstBaseline to textLayoutResult.firstBaseline.fastRoundToInt(),
+                LastBaseline to textLayoutResult.lastBaseline.fastRoundToInt()
             )
         }
 

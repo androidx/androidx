@@ -200,8 +200,8 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class IntOffset {
-    method @androidx.compose.runtime.Stable public operator int component1();
-    method @androidx.compose.runtime.Stable public operator int component2();
+    method @androidx.compose.runtime.Stable public inline operator int component1();
+    method @androidx.compose.runtime.Stable public inline operator int component2();
     method public long copy(optional int x, optional int y);
     method @androidx.compose.runtime.Stable public operator long div(float operand);
     method public int getX();

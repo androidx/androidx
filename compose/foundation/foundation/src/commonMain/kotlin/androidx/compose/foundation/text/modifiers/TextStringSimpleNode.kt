@@ -62,7 +62,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * Node that implements Text for [String].
@@ -333,8 +333,8 @@ internal class TextStringSimpleNode(
             if (cache == null) {
                 cache = LinkedHashMap(2)
             }
-            cache[FirstBaseline] = paragraph.firstBaseline.roundToInt()
-            cache[LastBaseline] = paragraph.lastBaseline.roundToInt()
+            cache[FirstBaseline] = paragraph.firstBaseline.fastRoundToInt()
+            cache[LastBaseline] = paragraph.lastBaseline.fastRoundToInt()
             baselineCache = cache
         }
 

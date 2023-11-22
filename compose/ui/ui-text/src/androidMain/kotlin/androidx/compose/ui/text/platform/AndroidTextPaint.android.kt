@@ -36,7 +36,8 @@ import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.platform.extensions.correctBlurRadius
 import androidx.compose.ui.text.style.TextDecoration
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastCoerceIn
+import androidx.compose.ui.util.fastRoundToInt
 
 internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
     init {
@@ -96,7 +97,7 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
             brush.applyTo(
                 size,
                 composePaint,
-                if (alpha.isNaN()) composePaint.alpha else alpha.coerceIn(0f, 1f)
+                if (alpha.isNaN()) composePaint.alpha else alpha.fastCoerceIn(0f, 1f)
             )
         } else if (brush == null) {
             composePaint.shader = null
@@ -137,7 +138,7 @@ internal class AndroidTextPaint(flags: Int, density: Float) : TextPaint(flags) {
  */
 internal fun TextPaint.setAlpha(alpha: Float) {
     if (!alpha.isNaN()) {
-        val alphaInt = alpha.coerceIn(0f, 1f).times(255).roundToInt()
+        val alphaInt = alpha.fastCoerceIn(0f, 1f).times(255).fastRoundToInt()
         setAlpha(alphaInt)
     }
 }

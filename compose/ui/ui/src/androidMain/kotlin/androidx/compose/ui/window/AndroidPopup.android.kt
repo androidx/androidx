@@ -76,6 +76,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.setViewTreeLifecycleOwner
@@ -83,7 +84,6 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
-import kotlin.math.roundToInt
 import kotlinx.coroutines.isActive
 import org.jetbrains.annotations.TestOnly
 
@@ -517,13 +517,13 @@ internal class PopupLayout(
     private val displayWidth: Int
         get() {
             val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenWidthDp * density).roundToInt()
+            return (context.resources.configuration.screenWidthDp * density).fastRoundToInt()
         }
 
     private val displayHeight: Int
         get() {
             val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenHeightDp * density).roundToInt()
+            return (context.resources.configuration.screenHeightDp * density).fastRoundToInt()
         }
 
     /**
@@ -654,7 +654,7 @@ internal class PopupLayout(
         val layoutSize = coordinates.size
 
         val position = coordinates.positionInWindow()
-        val layoutPosition = IntOffset(position.x.roundToInt(), position.y.roundToInt())
+        val layoutPosition = IntOffset(position.x.fastRoundToInt(), position.y.fastRoundToInt())
 
         val newParentBounds = IntRect(layoutPosition, layoutSize)
         if (newParentBounds != parentBounds) {

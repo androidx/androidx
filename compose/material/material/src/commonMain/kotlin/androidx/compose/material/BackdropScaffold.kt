@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.zIndex
@@ -426,8 +427,8 @@ private fun BackLayerTransition(
     )
     val animationSlideOffset = with(LocalDensity.current) { AnimationSlideOffset.toPx() }
 
-    val appBarFloat = (animationProgress - 1).coerceIn(0f, 1f)
-    val contentFloat = (1 - animationProgress).coerceIn(0f, 1f)
+    val appBarFloat = (animationProgress - 1).fastCoerceIn(0f, 1f)
+    val contentFloat = (1 - animationProgress).fastCoerceIn(0f, 1f)
 
     Box {
         Box(

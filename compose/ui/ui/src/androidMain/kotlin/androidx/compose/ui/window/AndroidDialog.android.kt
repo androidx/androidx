@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
@@ -65,7 +66,6 @@ import androidx.lifecycle.setViewTreeViewModelStoreOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import java.util.UUID
-import kotlin.math.roundToInt
 
 /**
  * Properties used to customize the behavior of a [Dialog].
@@ -256,13 +256,13 @@ private class DialogLayout(
     private val displayWidth: Int
         get() {
             val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenWidthDp * density).roundToInt()
+            return (context.resources.configuration.screenWidthDp * density).fastRoundToInt()
         }
 
     private val displayHeight: Int
         get() {
             val density = context.resources.displayMetrics.density
-            return (context.resources.configuration.screenHeightDp * density).roundToInt()
+            return (context.resources.configuration.screenHeightDp * density).fastRoundToInt()
         }
 
     @Composable

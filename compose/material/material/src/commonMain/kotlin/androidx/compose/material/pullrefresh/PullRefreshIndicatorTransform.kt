@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.platform.inspectable
+import androidx.compose.ui.util.fastCoerceIn
 
 /**
  * A modifier for translating the position and scaling the size of a pull-to-refresh indicator
@@ -67,7 +68,7 @@ fun Modifier.pullRefreshIndicatorTransform(
             if (scale && !state.refreshing) {
                 val scaleFraction = LinearOutSlowInEasing
                     .transform(state.position / state.threshold)
-                    .coerceIn(0f, 1f)
+                    .fastCoerceIn(0f, 1f)
                 scaleX = scaleFraction
                 scaleY = scaleFraction
             }

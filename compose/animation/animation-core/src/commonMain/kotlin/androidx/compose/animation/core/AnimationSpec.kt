@@ -26,8 +26,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.abs
-import kotlin.math.roundToInt
 
 object AnimationConstants {
     /**
@@ -446,7 +446,7 @@ sealed class KeyframesSpecBaseConfig<T, E : KeyframeBaseEntity<T>> {
      *  @return an instance of [E] so a custom [Easing] can be added by the [using] method
      */
     infix fun T.atFraction(fraction: Float): E {
-        return at((durationMillis * fraction).roundToInt())
+        return at((durationMillis * fraction).fastRoundToInt())
     }
 
     /**
