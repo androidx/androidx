@@ -1226,6 +1226,35 @@ class LazyListAnimateItemPlacementTest(private val config: Config) {
     }
 
     @Test
+    fun noAnimationWhenScrollForwardBySmallOffsetAndThenLargeOffset() {
+        rule.setContent {
+            LazyList(maxSize = itemSizeDp * 2.2f) {
+                items(listOf(0, 1, 2, 3, 4, 5, 6, 7), key = { it }) {
+                    Item(it)
+                }
+            }
+        }
+
+        rule.runOnUiThread {
+            runBlocking {
+                // first a small scroll, which will only require a relayout
+                state.scrollBy(itemSize * 0.5f)
+                // then a larger scroll, which requires composing new items
+                state.scrollBy(itemSize * 1f)
+            }
+        }
+
+        onAnimationFrame { fraction ->
+            assertPositions(
+                1 to -itemSize / 2,
+                2 to itemSize / 2,
+                3 to itemSize * 3 / 2,
+                fraction = fraction
+            )
+        }
+    }
+
+    @Test
     fun itemWithSpecsIsMovingOut() {
         var list by mutableStateOf(listOf(0, 1, 2, 3))
         val listSize = itemSize * 2
