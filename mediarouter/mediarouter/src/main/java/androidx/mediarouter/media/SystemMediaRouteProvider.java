@@ -516,7 +516,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
             builder.setVolume(record.mRoute.getVolume());
             builder.setVolumeMax(record.mRoute.getVolumeMax());
             builder.setVolumeHandling(record.mRoute.getVolumeHandling());
-            builder.setIsSystemRoute(true);
+            builder.setIsSystemRoute((supportedTypes & ROUTE_TYPE_USER) == 0);
 
             if (!record.mRoute.isEnabled()) {
                 builder.setEnabled(false);
