@@ -19,6 +19,7 @@ package androidx.mediarouter.media;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -196,6 +197,51 @@ public class MediaRouter2Test {
         assertTrue(onRouteUnselectedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         // Make sure the route is enabled
         assertTrue(onRouteEnabledLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    @MediumTest
+    public void addUserRouteFromMr1_isSystemRoute_returnsFalse() throws Exception {
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            android.media.MediaRouter mediaRouter1 =
+                                    (android.media.MediaRouter)
+                                            mContext.getSystemService(Context.MEDIA_ROUTER_SERVICE);
+
+                            android.media.MediaRouter.RouteCategory sampleRouteCategory =
+                                    mediaRouter1.createRouteCategory(
+                                            "SAMPLE_ROUTE_CATEGORY", /* isGroupable= */ false);
+
+                            android.media.MediaRouter.UserRouteInfo sampleUserRoute =
+                                    mediaRouter1.createUserRoute(sampleRouteCategory);
+                            sampleUserRoute.setName("SAMPLE_USER_ROUTE");
+
+                            mediaRouter1.addUserRoute(sampleUserRoute);
+
+                            for (RouteInfo routeInfo : mRouter.getRoutes()) {
+                                // We are checking for this route using getRoutes rather than
+                                // through the onRouteAdded callback because of b/312700919
+                                if (routeInfo.getName().equals("SAMPLE_USER_ROUTE")) {
+                                    assertFalse(routeInfo.isSystemRoute());
+                                }
+                            }
+                        });
+
+    }
+
+    @Test
+    @MediumTest
+    public void defaultAndBluetoothRoutes_isSystemRoute_returnsTrue() {
+        getInstrumentation()
+                .runOnMainSync(
+                        () -> {
+                            for (RouteInfo routeInfo : mRouter.getRoutes()) {
+                                if (routeInfo.isDefaultOrBluetooth()) {
+                                    assertTrue(routeInfo.isSystemRoute());
+                                }
+                            }
+                        });
     }
 
     @SmallTest
