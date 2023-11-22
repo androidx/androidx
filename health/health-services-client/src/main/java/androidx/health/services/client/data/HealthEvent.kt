@@ -16,6 +16,8 @@
 
 package androidx.health.services.client.data
 
+import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.HealthEvent.MetricsEntry
 import java.time.Instant
@@ -33,7 +35,13 @@ public class HealthEvent(
 ) {
 
     /** Health event types. */
-    public class Type private constructor(public val id: Int, public val name: String) {
+    public class Type @RestrictTo(Scope.LIBRARY) constructor(
+        /** Returns a unique identifier for the [Type], as an `int`. */
+        public val id: Int,
+
+        /** Returns a human readable name to represent this [Type]. */
+        public val name: String
+    ) {
 
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
