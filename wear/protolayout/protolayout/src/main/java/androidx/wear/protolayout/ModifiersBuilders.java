@@ -1423,6 +1423,24 @@ public final class ModifiersBuilders {
             }
         }
 
+        /**
+         * Gets whether the attached element is hidden, or visible. If the element is hidden, then
+         * it will still consume space in the layout, but will not render any contents, nor will any
+         * children render any contents.
+         *
+         * <p>Note that a hidden element also cannot be clickable (i.e. a {@link Clickable} modifier
+         * would be ignored).
+         */
+        @ProtoLayoutExperimental
+        @Nullable
+        public BoolProp getHidden() {
+            if (mImpl.hasHidden()) {
+                return BoolProp.fromProto(mImpl.getHidden());
+            } else {
+                return null;
+            }
+        }
+
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -1474,6 +1492,8 @@ public final class ModifiersBuilders {
                     + getMetadata()
                     + ", contentUpdateAnimation="
                     + getContentUpdateAnimation()
+                    + ", hidden="
+                    + getHidden()
                     + "}";
         }
 
@@ -1569,6 +1589,26 @@ public final class ModifiersBuilders {
                         7,
                         checkNotNull(contentUpdateAnimation.getFingerprint())
                                 .aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets whether the attached element is hidden, or visible. If the element is hidden,
+             * then it will still consume space in the layout, but will not render any contents, nor
+             * will any children render any contents.
+             *
+             * <p>Note that a hidden element also cannot be clickable (i.e. a {@link Clickable}
+             * modifier would be ignored).
+             *
+             * <p>Defaults to false (i.e. not hidden).
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @ProtoLayoutExperimental
+            @NonNull
+            public Builder setHidden(@NonNull BoolProp hidden) {
+                mImpl.setHidden(hidden.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        8, checkNotNull(hidden.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 

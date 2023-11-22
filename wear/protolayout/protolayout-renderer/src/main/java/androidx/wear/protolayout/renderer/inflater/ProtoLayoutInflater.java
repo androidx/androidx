@@ -17,6 +17,8 @@
 package androidx.wear.protolayout.renderer.inflater;
 
 import static android.util.TypedValue.COMPLEX_UNIT_SP;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
 import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.wear.protolayout.renderer.common.ProtoLayoutDiffer.FIRST_CHILD_INDEX;
@@ -161,6 +163,7 @@ import androidx.wear.protolayout.proto.StateProto.State;
 import androidx.wear.protolayout.proto.TriggerProto.OnConditionMetTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.OnLoadTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
+import androidx.wear.protolayout.proto.TypesProto.BoolProp;
 import androidx.wear.protolayout.proto.TypesProto.StringProp;
 import androidx.wear.protolayout.renderer.ProtoLayoutExtensionViewProvider;
 import androidx.wear.protolayout.renderer.ProtoLayoutTheme;
@@ -1521,6 +1524,10 @@ public final class ProtoLayoutInflater {
             @NonNull Modifiers modifiers,
             @NonNull String posId,
             @NonNull Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
+        if (modifiers.hasHidden()) {
+            applyHidden(view, modifiers.getHidden(), posId, pipelineMaker);
+        }
+
         if (modifiers.hasClickable()) {
             applyClickable(view, wrapper, modifiers.getClickable(), /* extendTouchTarget= */ true);
         }
@@ -1562,6 +1569,16 @@ public final class ProtoLayoutInflater {
         }
 
         return view;
+    }
+
+    private void applyHidden(
+            View view, BoolProp hidden, String posId,
+            Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
+        handleProp(
+                hidden,
+                hide -> view.setVisibility(hide ? INVISIBLE : VISIBLE),
+                posId,
+                pipelineMaker);
     }
 
     @SuppressWarnings("RestrictTo")
@@ -3756,6 +3773,23 @@ public final class ProtoLayoutInflater {
             }
         } else {
             consumer.accept(colorProp.getArgb());
+        }
+    }
+
+    private void handleProp(
+            BoolProp boolProp,
+            Consumer<Boolean> consumer,
+            String posId,
+            Optional<ProtoLayoutDynamicDataPipeline.PipelineMaker> pipelineMaker) {
+        if (boolProp.hasDynamicValue() && pipelineMaker.isPresent()) {
+            try {
+                pipelineMaker.get().addPipelineFor(boolProp, boolProp.getValue(), posId, consumer);
+            } catch (RuntimeException ex) {
+                Log.e(TAG, "Error building pipeline", ex);
+                consumer.accept(boolProp.getValue());
+            }
+        } else {
+            consumer.accept(boolProp.getValue());
         }
     }
 

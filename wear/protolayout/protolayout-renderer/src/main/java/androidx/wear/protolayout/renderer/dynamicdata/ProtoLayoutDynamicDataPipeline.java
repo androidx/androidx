@@ -64,6 +64,7 @@ import androidx.wear.protolayout.proto.ModifiersProto.AnimatedVisibility;
 import androidx.wear.protolayout.proto.ModifiersProto.EnterTransition;
 import androidx.wear.protolayout.proto.ModifiersProto.ExitTransition;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
+import androidx.wear.protolayout.proto.TypesProto.BoolProp;
 import androidx.wear.protolayout.renderer.dynamicdata.NodeInfo.ResolvedAvd;
 
 import com.google.common.collect.ImmutableList;
@@ -750,6 +751,24 @@ public class ProtoLayoutDynamicDataPipeline {
         @SuppressWarnings("RestrictTo")
         @NonNull
         public PipelineMaker addPipelineFor(
+                @NonNull BoolProp boolProp,
+                @NonNull String posId,
+                @NonNull DynamicTypeValueReceiver<Boolean> consumer) {
+            DynamicTypeBindingRequest bindingRequest =
+                    DynamicTypeBindingRequest.forDynamicBoolInternal(
+                            boolProp.getDynamicValue(), consumer);
+            tryBindRequest(posId, bindingRequest, consumer::onInvalidated);
+            return this;
+        }
+
+        /**
+         * Add the given source to the pipeline for future evaluation. Evaluation will start when
+         * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @SuppressWarnings("RestrictTo")
+        @NonNull
+        public PipelineMaker addPipelineFor(
                 @NonNull DpProp dpProp,
                 float invalidData,
                 @NonNull String posId,
@@ -787,6 +806,21 @@ public class ProtoLayoutDynamicDataPipeline {
                 @NonNull Consumer<Integer> consumer) {
             return addPipelineFor(
                     colorProp, posId, buildStateUpdateCallback(invalidData, consumer));
+        }
+
+        /**
+         * Add the given source to the pipeline for future evaluation. Evaluation will start when
+         * {@link PipelineMaker} is committed with {@link PipelineMaker#commit}.
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @SuppressWarnings("RestrictTo")
+        @NonNull
+        public PipelineMaker addPipelineFor(
+                @NonNull BoolProp boolProp,
+                boolean invalidData,
+                @NonNull String posId,
+                @NonNull Consumer<Boolean> consumer) {
+            return addPipelineFor(boolProp, posId, buildStateUpdateCallback(invalidData, consumer));
         }
 
         private void tryBindRequest(
