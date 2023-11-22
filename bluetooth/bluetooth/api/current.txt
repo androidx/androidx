@@ -124,7 +124,7 @@ package androidx.bluetooth {
   }
 
   public interface GattServerConnectFlow extends kotlinx.coroutines.flow.Flow<androidx.bluetooth.GattServerConnectRequest> {
-    method public void updateServices(java.util.List<androidx.bluetooth.GattService> services);
+    method public suspend Object? updateServices(java.util.List<androidx.bluetooth.GattService> services, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public final class GattServerConnectRequest {
