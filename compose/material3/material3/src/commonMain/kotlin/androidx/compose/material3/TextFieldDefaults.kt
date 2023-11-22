@@ -58,7 +58,7 @@ object TextFieldDefaults {
     val shape: Shape @Composable get() = FilledTextFieldTokens.ContainerShape.value
 
     /**
-     * The default min width applied to a [TextField].
+     * The default min height applied to a [TextField].
      * Note that you can override it by applying Modifier.heightIn directly on a text field.
      */
     val MinHeight = 56.dp
@@ -1348,7 +1348,7 @@ object OutlinedTextFieldDefaults {
     val shape: Shape @Composable get() = OutlinedTextFieldTokens.ContainerShape.value
 
     /**
-     * The default min width applied to an [OutlinedTextField].
+     * The default min height applied to an [OutlinedTextField].
      * Note that you can override it by applying Modifier.heightIn directly on a text field.
      */
     val MinHeight = 56.dp
