@@ -38,6 +38,10 @@ public class TypeBuildersTest {
             new TypeBuilders.FloatProp.Builder(12f)
                     .setDynamicValue(DynamicBuilders.DynamicFloat.from(new AppDataKey<>(STATE_KEY)))
                     .build();
+    private static final TypeBuilders.BoolProp BOOL_PROP =
+            new TypeBuilders.BoolProp.Builder(true)
+                    .setDynamicValue(DynamicBuilders.DynamicBool.from(new AppDataKey<>(STATE_KEY)))
+                    .build();
 
     @SuppressWarnings("deprecation")
     private static final TypeBuilders.FloatProp.Builder FLOAT_PROP_WITHOUT_STATIC_VALUE =
@@ -50,6 +54,11 @@ public class TypeBuildersTest {
             new TypeBuilders.StringProp.Builder()
                     .setDynamicValue(
                             DynamicBuilders.DynamicString.from(new AppDataKey<>(STATE_KEY)));
+
+    @SuppressWarnings("deprecation")
+    private static final TypeBuilders.BoolProp.Builder BOOL_PROP_BUILDER_WITHOUT_STATIC_VALUE =
+            new TypeBuilders.BoolProp.Builder()
+                    .setDynamicValue(DynamicBuilders.DynamicBool.from(new AppDataKey<>(STATE_KEY)));
 
     @Test
     public void stringPropSupportsDynamicString() {
@@ -91,5 +100,19 @@ public class TypeBuildersTest {
     @Test
     public void floatProp_withoutStaticValue_throws() {
         assertThrows(IllegalStateException.class, FLOAT_PROP_WITHOUT_STATIC_VALUE::build);
+    }
+
+    @Test
+    public void boolPropSupportsDynamicBool() {
+        TypesProto.BoolProp boolPropProto = BOOL_PROP.toProto();
+
+        assertThat(boolPropProto.getValue()).isEqualTo(BOOL_PROP.getValue());
+        assertThat(boolPropProto.getDynamicValue().getStateSource().getSourceKey())
+                .isEqualTo(STATE_KEY);
+    }
+
+    @Test
+    public void boolProp_withoutStaticValue_throws() {
+        assertThrows(IllegalStateException.class, BOOL_PROP_BUILDER_WITHOUT_STATIC_VALUE::build);
     }
 }
