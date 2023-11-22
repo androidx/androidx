@@ -17,6 +17,8 @@
 package androidx.wear.protolayout.renderer.inflater;
 
 import static android.os.Looper.getMainLooper;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static androidx.wear.protolayout.proto.ModifiersProto.SlideParentSnapOption.SLIDE_PARENT_SNAP_TO_INSIDE;
@@ -89,15 +91,18 @@ import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Animat
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Repeatable;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
+import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicBool;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicInt32;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DynamicString;
 import androidx.wear.protolayout.expression.proto.DynamicProto.Int32ToFloatOp;
+import androidx.wear.protolayout.expression.proto.DynamicProto.StateBoolSource;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateColorSource;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateFloatSource;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateInt32Source;
 import androidx.wear.protolayout.expression.proto.DynamicProto.StateStringSource;
+import androidx.wear.protolayout.expression.proto.FixedProto.FixedBool;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedColor;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
@@ -187,6 +192,7 @@ import androidx.wear.protolayout.proto.ResourceProto.Resources;
 import androidx.wear.protolayout.proto.StateProto.State;
 import androidx.wear.protolayout.proto.TriggerProto.OnVisibleTrigger;
 import androidx.wear.protolayout.proto.TriggerProto.Trigger;
+import androidx.wear.protolayout.proto.TypesProto.BoolProp;
 import androidx.wear.protolayout.proto.TypesProto.FloatProp;
 import androidx.wear.protolayout.proto.TypesProto.Int32Prop;
 import androidx.wear.protolayout.proto.TypesProto.StringProp;
@@ -4708,6 +4714,72 @@ public class ProtoLayoutInflaterTest {
                 (LinearLayout.LayoutParams) boxWithWeight.getLayoutParams();
 
         expect.that(linearLayoutParams.weight).isEqualTo(10.0f);
+    }
+
+    @Test
+    public void inflate_box_withHiddenModifier() {
+        final String protoResId = "android";
+        final String boolKey = "bool-key";
+
+        LayoutElement image = buildImage(protoResId, 30, 30);
+
+
+        BoolProp.Builder stateBoolPropBuilder = BoolProp
+                .newBuilder()
+                .setValue(
+                        true)
+                .setDynamicValue(
+                        DynamicBool
+                                .newBuilder()
+                                .setStateSource(
+                                        StateBoolSource
+                                                .newBuilder()
+                                                .setSourceKey(
+                                                        boolKey)));
+        LayoutElement.Builder boxBuilder = LayoutElement.newBuilder()
+                .setBox(
+                        Box.newBuilder()
+                                .addContents(image)
+                                .setModifiers(
+                                        Modifiers
+                                                .newBuilder()
+                                                .setHidden(stateBoolPropBuilder)));
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setRow(
+                                Row.newBuilder()
+                                        .addContents(boxBuilder)
+                                        .addContents(image))
+                        .build();
+
+        FrameLayout layout = renderer(fingerprintedLayout(root)).inflate();
+
+        // There should be a child ViewGroup which is a LinearLayout.
+        assertThat(layout.getChildAt(0)).isInstanceOf(ViewGroup.class);
+        ViewGroup firstChild = (ViewGroup) layout.getChildAt(0);
+        ViewGroup box = (ViewGroup) firstChild.getChildAt(0);
+        ViewGroup secondImage = (ViewGroup) firstChild.getChildAt(1);
+
+        // The box should be hidden but still take some space (as it wraps around its inner image)
+        assertThat(box.getWidth()).isGreaterThan(0);
+        assertThat(box.getVisibility()).isEqualTo(INVISIBLE);
+
+        // The second image should start after the hidden (but not gone) box.
+        int secondImageLeft = secondImage.getLeft();
+        assertThat(secondImageLeft).isEqualTo(box.getWidth());
+        assertThat(box.getWidth()).isEqualTo(secondImage.getWidth());
+
+        // Try to unhide the box.
+        mStateStore.setAppStateEntryValuesProto(
+                ImmutableMap.of(
+                        new AppDataKey<DynamicBuilders.DynamicBool>(boolKey),
+                        DynamicDataValue.newBuilder()
+                                .setBoolVal(FixedBool.newBuilder().setValue(false))
+                                .build()));
+
+        assertThat(box.getVisibility()).isEqualTo(VISIBLE);
+        // The second image shouldn't move around.
+        assertThat(secondImage.getLeft()).isEqualTo(secondImageLeft);
     }
 
     @Test
