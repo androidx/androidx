@@ -79,7 +79,7 @@ internal class LazyListMeasureResult(
      * If true is returned, only the placement phase is needed to apply new offsets.
      * If false is returned, it means we have to rerun the full measure phase to apply the [delta].
      */
-    fun tryToApplyScrollWithoutRemeasure(delta: Int): Boolean {
+    fun tryToApplyScrollWithoutRemeasure(delta: Int, updateAnimations: Boolean): Boolean {
         if (remeasureNeeded || visibleItemsInfo.isEmpty() || firstVisibleItem == null ||
             // applying this delta will change firstVisibleItem
             (firstVisibleItemScrollOffset - delta) !in 0 until firstVisibleItem.sizeWithSpacings
@@ -106,7 +106,7 @@ internal class LazyListMeasureResult(
         return if (canApply) {
             firstVisibleItemScrollOffset -= delta
             visibleItemsInfo.fastForEach {
-                it.applyScrollDelta(delta)
+                it.applyScrollDelta(delta, updateAnimations)
             }
             consumedScroll = delta.toFloat()
             if (!canScrollForward && delta > 0) {
