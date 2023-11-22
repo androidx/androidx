@@ -138,7 +138,8 @@ fun ToggleButton(
         contentPadding = contentPadding,
         shape = shape,
         selectionControlWidth = SELECTION_CONTROL_WIDTH,
-        selectionControlHeight = SELECTION_CONTROL_HEIGHT
+        selectionControlHeight = SELECTION_CONTROL_HEIGHT,
+        ripple = rippleOrFallbackImplementation()
     )
 
 /**
@@ -254,7 +255,8 @@ fun SplitToggleButton(
     checkedInteractionSource = checkedInteractionSource,
     clickInteractionSource = clickInteractionSource,
     contentPadding = contentPadding,
-    shape = shape
+    shape = shape,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**

@@ -18,6 +18,7 @@ package androidx.wear.compose.materialcore
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -41,7 +42,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
@@ -83,6 +83,7 @@ import androidx.compose.ui.unit.dp
  * appearance / behavior of this ToggleButton in different [Interaction]s.
  * @param shape Defines the shape for this toggle button. It is strongly recommended to use the
  * default as this shape is a key characteristic of the Wear Material Theme.
+ * @param ripple Ripple used for this toggle button
  * @param content The icon, image or text to be drawn inside the toggle button.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -97,6 +98,7 @@ fun ToggleButton(
     toggleButtonSize: Dp,
     interactionSource: MutableInteractionSource,
     shape: Shape,
+    ripple: Indication,
     content: @Composable BoxScope.() -> Unit,
 ) {
     // Round toggle button
@@ -112,7 +114,7 @@ fun ToggleButton(
                 onValueChange = onCheckedChange,
                 enabled = enabled,
                 interactionSource = interactionSource,
-                indication = rememberRipple()
+                indication = ripple
             )
             .then(
                 if (borderStroke != null) Modifier.border(border = borderStroke, shape = shape)
@@ -163,6 +165,7 @@ fun ToggleButton(
  * default as this shape is a key characteristic of the Wear Material Theme
  * @param selectionControlWidth Width for the selection control.
  * @param selectionControlHeight Height for the selection control.
+ * @param ripple Ripple used for this toggle button
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -180,7 +183,8 @@ fun ToggleButton(
     contentPadding: PaddingValues,
     shape: Shape,
     selectionControlWidth: Dp,
-    selectionControlHeight: Dp
+    selectionControlHeight: Dp,
+    ripple: Indication
 ) {
     // Stadium/Chip shaped toggle button
     Row(
@@ -192,7 +196,7 @@ fun ToggleButton(
                 enabled = enabled,
                 value = checked,
                 onValueChange = onCheckedChange,
-                indication = rememberRipple(),
+                indication = ripple,
                 interactionSource = interactionSource
             )
             .padding(contentPadding),
@@ -263,6 +267,7 @@ fun ToggleButton(
  * content
  * @param shape Defines the SplitToggleButton's shape. It is strongly recommended to use the
  * default as this shape is a key characteristic of the Wear Material Theme
+ * @param ripple Ripple used for this toggle button
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -280,7 +285,8 @@ fun SplitToggleButton(
     checkedInteractionSource: MutableInteractionSource,
     clickInteractionSource: MutableInteractionSource,
     contentPadding: PaddingValues,
-    shape: Shape
+    shape: Shape,
+    ripple: Indication
 ) {
     val (startPadding, endPadding) = contentPadding.splitHorizontally()
 
@@ -296,7 +302,7 @@ fun SplitToggleButton(
                 .clickable(
                     enabled = enabled,
                     onClick = onClick,
-                    indication = rememberRipple(),
+                    indication = ripple,
                     interactionSource = clickInteractionSource,
                 )
                 .semantics {
@@ -328,7 +334,7 @@ fun SplitToggleButton(
                     enabled = enabled,
                     value = checked,
                     onValueChange = onCheckedChange,
-                    indication = rememberRipple(),
+                    indication = ripple,
                     interactionSource = checkedInteractionSource
                 )
                 .fillMaxHeight()

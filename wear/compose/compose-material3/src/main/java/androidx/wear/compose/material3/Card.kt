@@ -198,6 +198,7 @@ fun AppCard(
         contentPadding = contentPadding,
         appImage = appImage?.let { { appImage() } },
         interactionSource = interactionSource,
+        ripple = rippleOrFallbackImplementation(),
         appName = {
             CompositionLocalProvider(
                 LocalContentColor provides colors.appNameColor,
@@ -330,7 +331,8 @@ fun TitleCard(
         contentPadding = contentPadding,
         interactionSource = interactionSource,
         role = null,
-        shape = shape
+        shape = shape,
+        ripple = rippleOrFallbackImplementation(),
     ) {
         Column {
             if (content == null) {
@@ -649,6 +651,7 @@ private fun CardImpl(
         interactionSource = interactionSource,
         role = null,
         shape = shape,
+        ripple = rippleOrFallbackImplementation()
     ) {
         CompositionLocalProvider(
             LocalContentColor provides colors.contentColor,

@@ -1022,6 +1022,7 @@ private fun RoundToggleButtonWithDefaults(
         toggleButtonSize = toggleButtonSize,
         interactionSource = interactionSource,
         shape = shape,
+        ripple = EmptyIndication,
         content = content
     )
 }
@@ -1067,7 +1068,8 @@ private fun ToggleButtonWithDefaults(
     contentPadding = contentPadding,
     shape = shape,
     selectionControlWidth = selectionControlWidth,
-    selectionControlHeight = selectionControlHeight
+    selectionControlHeight = selectionControlHeight,
+    ripple = EmptyIndication,
 )
 
 @Composable
@@ -1114,7 +1116,8 @@ private fun SplitToggleButtonWithDefaults(
     checkedInteractionSource = checkedInteractionSource,
     clickInteractionSource = clickInteractionSource,
     contentPadding = contentPadding,
-    shape = shape
+    shape = shape,
+    ripple = EmptyIndication,
 )
 
 private val CHIP_HORIZONTAL_PADDING = 14.dp

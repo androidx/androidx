@@ -225,6 +225,7 @@ public fun ToggleButton(
         toggleButtonSize = ToggleButtonDefaults.DefaultToggleButtonSize,
         interactionSource = interactionSource,
         shape = shape,
+        ripple = rippleOrFallbackImplementation(),
         content = provideScopeContent(
             colors.contentColor(enabled = enabled, checked = checked),
             MaterialTheme.typography.button,

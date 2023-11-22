@@ -115,6 +115,7 @@ public fun Card(
         shape = shape,
         interactionSource = interactionSource,
         role = role,
+        ripple = rippleOrFallbackImplementation(),
     ) {
         CompositionLocalProvider(
             LocalContentColor provides contentColor,
@@ -202,6 +203,7 @@ public fun AppCard(
         containerPainter = backgroundPainter,
         interactionSource = remember { MutableInteractionSource() },
         shape = MaterialTheme.shapes.large,
+        ripple = rippleOrFallbackImplementation(),
         appImage = appImage?.let { { appImage() } },
         appName = {
             CompositionLocalProvider(
@@ -308,7 +310,8 @@ public fun TitleCard(
         contentPadding = CardDefaults.ContentPadding,
         interactionSource = remember { MutableInteractionSource() },
         role = null,
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
+        ripple = rippleOrFallbackImplementation(),
     ) {
         Column {
             Row(
