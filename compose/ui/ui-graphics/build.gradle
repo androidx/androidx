@@ -65,7 +65,9 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
-                implementation("androidx.graphics:graphics-path:1.0.0-alpha02")
+                //TODO: Switch to pinned version when beta1 is released as it fixes bugs
+                //implementation("androidx.graphics:graphics-path:1.0.0-beta01")
+                implementation(project(":graphics:graphics-path"))
                 api(libs.androidx.annotation)
             }
         }
