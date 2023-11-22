@@ -735,7 +735,7 @@ public final class LayoutElementBuilders {
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setItalic(boolean italic) {
-                return setItalic(new BoolProp.Builder().setValue(italic).build());
+                return setItalic(new BoolProp.Builder(italic).build());
             }
 
             /**
@@ -759,7 +759,7 @@ public final class LayoutElementBuilders {
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setUnderline(boolean underline) {
-                return setUnderline(new BoolProp.Builder().setValue(underline).build());
+                return setUnderline(new BoolProp.Builder(underline).build());
             }
 
             /**
@@ -4927,7 +4927,7 @@ public final class LayoutElementBuilders {
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
             public Builder setRotateContents(boolean rotateContents) {
-                return setRotateContents(new BoolProp.Builder().setValue(rotateContents).build());
+                return setRotateContents(new BoolProp.Builder(rotateContents).build());
             }
 
             /** Builds an instance from accumulated values. */
