@@ -76,7 +76,7 @@ public class FakeCamera implements CameraInternal {
 
     private List<DeferrableSurface> mConfiguredDeferrableSurfaces = Collections.emptyList();
 
-    private CameraConfig mCameraConfig = CameraConfigs.emptyConfig();
+    private CameraConfig mCameraConfig = CameraConfigs.defaultConfig();
 
     public FakeCamera() {
         this(DEFAULT_CAMERA_ID, /*cameraControl=*/null,

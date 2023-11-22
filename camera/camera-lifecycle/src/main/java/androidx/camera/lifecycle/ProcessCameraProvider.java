@@ -56,6 +56,7 @@ import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.concurrent.CameraCoordinator.CameraOperatingMode;
 import androidx.camera.core.impl.CameraConfig;
+import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore;
 import androidx.camera.core.impl.utils.ContextUtil;
@@ -572,11 +573,16 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
             throw new IllegalArgumentException("Provided camera selector unable to resolve a "
                     + "camera for the given use case");
         }
+
+        CameraConfig cameraConfig = getCameraConfig(cameraSelector,
+                cameraInternals.iterator().next().getCameraInfo());
+
         CameraUseCaseAdapter.CameraId cameraId =
                 CameraUseCaseAdapter.generateCameraId(cameraInternals);
 
         LifecycleCamera lifecycleCameraToBind =
-                mLifecycleCameraRepository.getLifecycleCamera(lifecycleOwner, cameraId);
+                mLifecycleCameraRepository.getLifecycleCamera(
+                        lifecycleOwner, cameraId, cameraConfig);
 
         Collection<LifecycleCamera> lifecycleCameras =
                 mLifecycleCameraRepository.getLifecycleCameras();
@@ -600,33 +606,9 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
                             new CameraUseCaseAdapter(cameraInternals,
                                     mCameraX.getCameraFactory().getCameraCoordinator(),
                                     mCameraX.getCameraDeviceSurfaceManager(),
-                                    mCameraX.getDefaultConfigFactory()));
+                                    mCameraX.getDefaultConfigFactory(),
+                                    cameraConfig));
         }
-
-        CameraConfig cameraConfig = null;
-
-        // Retrieves extended camera configs from ExtendedCameraConfigProviderStore
-        for (CameraFilter cameraFilter : cameraSelector.getCameraFilterSet()) {
-            if (cameraFilter.getIdentifier() != CameraFilter.DEFAULT_ID) {
-                CameraConfig extendedCameraConfig =
-                        ExtendedCameraConfigProviderStore.getConfigProvider(
-                                cameraFilter.getIdentifier()).getConfig(
-                                lifecycleCameraToBind.getCameraInfo(), mContext);
-                if (extendedCameraConfig == null) { // ignore IDs unrelated to camera configs.
-                    continue;
-                }
-
-                // Only allows one camera config now.
-                if (cameraConfig != null) {
-                    throw new IllegalArgumentException(
-                            "Cannot apply multiple extended camera configs at the same time.");
-                }
-                cameraConfig = extendedCameraConfig;
-            }
-        }
-
-        // Applies extended camera configs to the camera
-        lifecycleCameraToBind.setExtendedConfig(cameraConfig);
 
         if (useCases.length == 0) {
             return lifecycleCameraToBind;
@@ -640,6 +622,35 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
                 mCameraX.getCameraFactory().getCameraCoordinator());
 
         return lifecycleCameraToBind;
+    }
+
+    @NonNull
+    private CameraConfig getCameraConfig(@NonNull CameraSelector cameraSelector,
+            @NonNull CameraInfo cameraInfo) {
+        CameraConfig cameraConfig = null;
+        for (CameraFilter cameraFilter : cameraSelector.getCameraFilterSet()) {
+            if (cameraFilter.getIdentifier() != CameraFilter.DEFAULT_ID) {
+                CameraConfig extendedCameraConfig =
+                        ExtendedCameraConfigProviderStore
+                                .getConfigProvider(cameraFilter.getIdentifier())
+                                .getConfig(cameraInfo, mContext);
+                if (extendedCameraConfig == null) { // ignore IDs unrelated to camera configs.
+                    continue;
+                }
+
+                // Only allows one camera config now.
+                if (cameraConfig != null) {
+                    throw new IllegalArgumentException(
+                            "Cannot apply multiple extended camera configs at the same time.");
+                }
+                cameraConfig = extendedCameraConfig;
+            }
+        }
+
+        if (cameraConfig == null) {
+            cameraConfig = CameraConfigs.defaultConfig();
+        }
+        return cameraConfig;
     }
 
     /**

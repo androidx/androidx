@@ -20,7 +20,6 @@ import android.os.Build;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
@@ -273,11 +272,6 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     @Override
     public CameraConfig getExtendedConfig() {
         return mCameraUseCaseAdapter.getExtendedConfig();
-    }
-
-    @Override
-    public void setExtendedConfig(@Nullable CameraConfig cameraConfig)  {
-        mCameraUseCaseAdapter.setExtendedConfig(cameraConfig);
     }
 
     @Override
