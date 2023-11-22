@@ -101,7 +101,6 @@ public final class ResourceBuilders {
          * Gets the Android resource ID of this image. This must refer to a drawable under
          * R.drawable.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @DrawableRes
         public int getResourceId() {
             return mImpl.getResourceId();
@@ -168,7 +167,6 @@ public final class ResourceBuilders {
         }
 
         /** Gets the byte array representing the image. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public byte[] getData() {
             return mImpl.getData().toByteArray();
@@ -178,7 +176,6 @@ public final class ResourceBuilders {
          * Gets the native width of the image, in pixels. Only required for formats (e.g.
          * IMAGE_FORMAT_RGB_565) where the image data does not include size.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Dimension(unit = PX)
         public int getWidthPx() {
             return mImpl.getWidthPx();
@@ -188,7 +185,6 @@ public final class ResourceBuilders {
          * Gets the native height of the image, in pixels. Only required for formats (e.g.
          * IMAGE_FORMAT_RGB_565) where the image data does not include size.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Dimension(unit = PX)
         public int getHeightPx() {
             return mImpl.getHeightPx();
@@ -200,7 +196,6 @@ public final class ResourceBuilders {
          * from the raw image data. If the platform does not support the format, the image will not
          * be decoded or displayed.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @ImageFormat
         public int getFormat() {
             return mImpl.getFormat().getNumber();
@@ -310,21 +305,18 @@ public final class ResourceBuilders {
         }
 
         /** Gets the format for the animated image. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @AnimatedImageFormat
         public int getAnimatedImageFormat() {
             return mImpl.getAnimatedImageFormat().getNumber();
         }
 
         /** Gets the Android resource ID, e.g. R.drawable.foo. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @DrawableRes
         public int getResourceId() {
             return mImpl.getResourceId();
         }
 
         /** Gets the trigger to start the animation. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public Trigger getStartTrigger() {
             if (mImpl.hasStartTrigger()) {
@@ -418,14 +410,12 @@ public final class ResourceBuilders {
         }
 
         /** Gets the format for the animated image. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @AnimatedImageFormat
         public int getAnimatedImageFormat() {
             return mImpl.getAnimatedImageFormat().getNumber();
         }
 
         /** Gets the Android resource ID, e.g. R.drawable.foo. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @DrawableRes
         public int getResourceId() {
             return mImpl.getResourceId();
@@ -441,7 +431,6 @@ public final class ResourceBuilders {
          * new value on subsequent updates. If not set, the animation will play on load (similar to
          * a non-seekable animated).
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public DynamicFloat getProgress() {
             if (mImpl.hasProgress()) {
@@ -542,7 +531,6 @@ public final class ResourceBuilders {
         }
 
         /** Gets an image resource that maps to an Android drawable by resource ID. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public AndroidImageResourceByResId getAndroidResourceByResId() {
             if (mImpl.hasAndroidResourceByResId()) {
@@ -553,7 +541,6 @@ public final class ResourceBuilders {
         }
 
         /** Gets an image resource that contains the image data inline. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public InlineImageResource getInlineResource() {
             if (mImpl.hasInlineResource()) {
@@ -567,7 +554,6 @@ public final class ResourceBuilders {
          * Gets a non-seekable animated image resource that maps to an Android drawable by resource
          * ID. The animation is started with given trigger, fire and forget.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         @ProtoLayoutExperimental
         public AndroidAnimatedImageResourceByResId getAndroidAnimatedResourceByResId() {
@@ -583,7 +569,6 @@ public final class ResourceBuilders {
          * Gets a seekable animated image resource that maps to an Android drawable by resource ID.
          * The animation progress is bound to the provided dynamic float.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         @ProtoLayoutExperimental
         public AndroidSeekableAnimatedImageResourceByResId
@@ -708,14 +693,12 @@ public final class ResourceBuilders {
          * layout to render successfully, and must match the resource version specified in
          * ResourcesRequest which triggered this request.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public String getVersion() {
             return mImpl.getVersion();
         }
 
         /** Gets a map of resource_ids to images, which can be used by layouts. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public Map<String, ImageResource> getIdToImageMapping() {
             Map<String, ImageResource> map = new HashMap<>();

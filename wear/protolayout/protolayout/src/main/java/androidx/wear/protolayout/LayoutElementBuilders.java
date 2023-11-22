@@ -306,7 +306,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @FontWeight
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -386,7 +385,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @FontVariant
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -466,7 +464,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @SpanVerticalAlignment
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -548,7 +545,6 @@ public final class LayoutElementBuilders {
          * Gets whether the text should be rendered in a italic typeface. If not specified, defaults
          * to "false".
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public BoolProp getItalic() {
             if (mImpl.hasItalic()) {
@@ -562,7 +558,6 @@ public final class LayoutElementBuilders {
          * Gets whether the text should be rendered with an underline. If not specified, defaults to
          * "false".
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public BoolProp getUnderline() {
             if (mImpl.hasUnderline()) {
@@ -578,7 +573,6 @@ public final class LayoutElementBuilders {
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ColorProp getColor() {
             if (mImpl.hasColor()) {
@@ -593,7 +587,6 @@ public final class LayoutElementBuilders {
          * nearest supported value will be used. If not defined, or when set to an invalid value,
          * defaults to "normal".
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public FontWeightProp getWeight() {
             if (mImpl.hasWeight()) {
@@ -607,7 +600,6 @@ public final class LayoutElementBuilders {
          * Gets the text letter-spacing. Positive numbers increase the space between letters while
          * negative numbers tighten the space. If not specified, defaults to 0.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public EmProp getLetterSpacing() {
             if (mImpl.hasLetterSpacing()) {
@@ -621,7 +613,6 @@ public final class LayoutElementBuilders {
          * Gets the variant of a font. Some renderers may use different fonts for title and body
          * text, which can be selected using this field. If not specified, defaults to "body".
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @ProtoLayoutExperimental
         @Nullable
         public FontVariantProp getVariant() {
@@ -636,7 +627,6 @@ public final class LayoutElementBuilders {
          * Gets the size of the font, in scaled pixels (sp). If more than one size was originally
          * added, it will return the last one.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public SpProp getSize() {
             List<DimensionProto.SpProp> sizes = mImpl.getSizeList();
@@ -644,7 +634,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the available sizes of the font, in scaled pixels (sp). */
-        @RequiresSchemaVersion(major = 1, minor = 300)
         @NonNull
         @ProtoLayoutExperimental
         public List<SpProp> getSizes() {
@@ -934,7 +923,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @TextOverflow
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -1017,7 +1005,6 @@ public final class LayoutElementBuilders {
          * Gets the number of times to repeat the Marquee animation. Set to -1 to repeat
          * indefinitely. Defaults to repeat indefinitely.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @ProtoLayoutExperimental
         public int getIterations() {
             return mImpl.getIterations();
@@ -1106,7 +1093,6 @@ public final class LayoutElementBuilders {
          * Gets whether the {@link Text} excludes padding specified by the font, i.e. extra top and
          * bottom padding above the normal ascent and descent. The default is false.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         public boolean getExcludeFontPadding() {
             return mImpl.getExcludeFontPadding();
         }
@@ -1192,7 +1178,6 @@ public final class LayoutElementBuilders {
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public StringProp getText() {
             if (mImpl.hasText()) {
@@ -1206,7 +1191,6 @@ public final class LayoutElementBuilders {
          * Gets the style of font to use (size, bold etc). If not specified, defaults to the
          * platform's default body font.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public FontStyle getFontStyle() {
             if (mImpl.hasFontStyle()) {
@@ -1217,7 +1201,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -1231,7 +1214,6 @@ public final class LayoutElementBuilders {
          * Gets the maximum number of lines that can be represented by the {@link Text} element. If
          * not defined, the {@link Text} element will be treated as a single-line element.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Int32Prop getMaxLines() {
             if (mImpl.hasMaxLines()) {
@@ -1248,7 +1230,6 @@ public final class LayoutElementBuilders {
          * the alignment of lines relative to the {@link Text} element bounds. If not defined,
          * defaults to TEXT_ALIGN_CENTER.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public TextAlignmentProp getMultilineAlignment() {
             if (mImpl.hasMultilineAlignment()) {
@@ -1265,7 +1246,6 @@ public final class LayoutElementBuilders {
          * which cannot fit inside its container will be truncated. If not defined, defaults to
          * TEXT_OVERFLOW_TRUNCATE.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public TextOverflowProp getOverflow() {
             if (mImpl.hasOverflow()) {
@@ -1280,7 +1260,6 @@ public final class LayoutElementBuilders {
          * distance between subsequent baselines. If not specified, defaults the font's recommended
          * interline spacing.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public SpProp getLineHeight() {
             if (mImpl.hasLineHeight()) {
@@ -1294,7 +1273,6 @@ public final class LayoutElementBuilders {
          * Gets an Android platform specific text style configuration options for styling and
          * compatibility.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @ProtoLayoutExperimental
         @Nullable
         public AndroidTextStyle getAndroidTextStyle() {
@@ -1309,7 +1287,6 @@ public final class LayoutElementBuilders {
          * Gets the number of times to repeat the Marquee animation. Only applies when overflow is
          * TEXT_OVERFLOW_MARQUEE. Set to -1 to repeat indefinitely. Defaults to repeat indefinitely.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @ProtoLayoutExperimental
         @IntRange(from = -1)
         public int getMarqueeIterations() {
@@ -1320,7 +1297,6 @@ public final class LayoutElementBuilders {
          * Gets the bounding constraints for the layout affected by the dynamic value from {@link
          * #getText()}.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public StringLayoutConstraint getLayoutConstraintsForDynamicText() {
             if (mImpl.hasText()) {
@@ -1617,7 +1593,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @ContentScaleMode
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -1706,7 +1681,6 @@ public final class LayoutElementBuilders {
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ColorProp getTint() {
             if (mImpl.hasTint()) {
@@ -1807,7 +1781,6 @@ public final class LayoutElementBuilders {
          * Gets the resource_id of the image to render. This must exist in the supplied resource
          * bundle.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public StringProp getResourceId() {
             if (mImpl.hasResourceId()) {
@@ -1818,7 +1791,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the width of this image. If not defined, the image will not be rendered. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ImageDimension getWidth() {
             if (mImpl.hasWidth()) {
@@ -1829,7 +1801,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the height of this image. If not defined, the image will not be rendered. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ImageDimension getHeight() {
             if (mImpl.hasHeight()) {
@@ -1843,7 +1814,6 @@ public final class LayoutElementBuilders {
          * Gets how to scale the image resource inside the bounds specified by width/height if its
          * size does not match those bounds. Defaults to CONTENT_SCALE_MODE_FIT.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ContentScaleModeProp getContentScaleMode() {
             if (mImpl.hasContentScaleMode()) {
@@ -1854,7 +1824,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -1865,7 +1834,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets filtering parameters for this image. If not specified, defaults to no filtering. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ColorFilter getColorFilter() {
             if (mImpl.hasColorFilter()) {
@@ -2061,7 +2029,6 @@ public final class LayoutElementBuilders {
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public SpacerDimension getWidth() {
             if (mImpl.hasWidth()) {
@@ -2077,7 +2044,6 @@ public final class LayoutElementBuilders {
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public SpacerDimension getHeight() {
             if (mImpl.hasHeight()) {
@@ -2088,7 +2054,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -2102,7 +2067,6 @@ public final class LayoutElementBuilders {
          * Gets the bounding constraints for the layout affected by the dynamic value from {@link
          * #getWidth()}.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public HorizontalLayoutConstraint getLayoutConstraintsForDynamicWidth() {
             if (mImpl.getWidth().hasLinearDimension()) {
@@ -2116,7 +2080,6 @@ public final class LayoutElementBuilders {
          * Gets the bounding constraints for the layout affected by the dynamic value from {@link
          * #getHeight()}.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public VerticalLayoutConstraint getLayoutConstraintsForDynamicHeight() {
             if (mImpl.getHeight().hasLinearDimension()) {
@@ -2317,7 +2280,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the child element(s) to wrap. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public List<LayoutElement> getContents() {
             List<LayoutElement> list = new ArrayList<>();
@@ -2331,7 +2293,6 @@ public final class LayoutElementBuilders {
          * Gets the height of this {@link Box}. If not defined, this will size itself to fit all of
          * its children (i.e. a WrappedDimension).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ContainerDimension getHeight() {
             if (mImpl.hasHeight()) {
@@ -2345,7 +2306,6 @@ public final class LayoutElementBuilders {
          * Gets the width of this {@link Box}. If not defined, this will size itself to fit all of
          * its children (i.e. a WrappedDimension).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ContainerDimension getWidth() {
             if (mImpl.hasWidth()) {
@@ -2359,7 +2319,6 @@ public final class LayoutElementBuilders {
          * Gets the horizontal alignment of the element inside this {@link Box}. If not defined,
          * defaults to HORIZONTAL_ALIGN_CENTER.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public HorizontalAlignmentProp getHorizontalAlignment() {
             if (mImpl.hasHorizontalAlignment()) {
@@ -2373,7 +2332,6 @@ public final class LayoutElementBuilders {
          * Gets the vertical alignment of the element inside this {@link Box}. If not defined,
          * defaults to VERTICAL_ALIGN_CENTER.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public VerticalAlignmentProp getVerticalAlignment() {
             if (mImpl.hasVerticalAlignment()) {
@@ -2384,7 +2342,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -2580,7 +2537,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the text to render. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public StringProp getText() {
             if (mImpl.hasText()) {
@@ -2594,7 +2550,6 @@ public final class LayoutElementBuilders {
          * Gets the style of font to use (size, bold etc). If not specified, defaults to the
          * platform's default body font.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public FontStyle getFontStyle() {
             if (mImpl.hasFontStyle()) {
@@ -2605,7 +2560,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public SpanModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -2619,7 +2573,6 @@ public final class LayoutElementBuilders {
          * Gets an Android platform specific text style configuration options for styling and
          * compatibility.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @ProtoLayoutExperimental
         @Nullable
         public AndroidTextStyle getAndroidTextStyle() {
@@ -2782,7 +2735,6 @@ public final class LayoutElementBuilders {
          * Gets the resource_id of the image to render. This must exist in the supplied resource
          * bundle.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public StringProp getResourceId() {
             if (mImpl.hasResourceId()) {
@@ -2793,7 +2745,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the width of this image. If not defined, the image will not be rendered. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public DpProp getWidth() {
             if (mImpl.hasWidth()) {
@@ -2804,7 +2755,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the height of this image. If not defined, the image will not be rendered. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public DpProp getHeight() {
             if (mImpl.hasHeight()) {
@@ -2815,7 +2765,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public SpanModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -2829,7 +2778,6 @@ public final class LayoutElementBuilders {
          * Gets alignment of this image within the line height of the surrounding {@link Spannable}.
          * If undefined, defaults to SPAN_VERTICAL_ALIGN_BOTTOM.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public SpanVerticalAlignmentProp getAlignment() {
             if (mImpl.hasAlignment()) {
@@ -3071,7 +3019,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the {@link Span} elements that form this {@link Spannable}. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public List<Span> getSpans() {
             List<Span> list = new ArrayList<>();
@@ -3082,7 +3029,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -3097,7 +3043,6 @@ public final class LayoutElementBuilders {
          * element. If not defined, the {@link Spannable} element will be treated as a single-line
          * element.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Int32Prop getMaxLines() {
             if (mImpl.hasMaxLines()) {
@@ -3114,7 +3059,6 @@ public final class LayoutElementBuilders {
          * content, however, this will set the alignment of lines relative to the {@link Spannable}
          * element bounds. If not defined, defaults to TEXT_ALIGN_CENTER.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public HorizontalAlignmentProp getMultilineAlignment() {
             if (mImpl.hasMultilineAlignment()) {
@@ -3131,7 +3075,6 @@ public final class LayoutElementBuilders {
          * content, the content which cannot fit inside its container will be truncated. If not
          * defined, defaults to TEXT_OVERFLOW_TRUNCATE.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public TextOverflowProp getOverflow() {
             if (mImpl.hasOverflow()) {
@@ -3146,7 +3089,6 @@ public final class LayoutElementBuilders {
          * distance between subsequent baselines. If not specified, defaults the font's recommended
          * interline spacing.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public SpProp getLineHeight() {
             if (mImpl.hasLineHeight()) {
@@ -3160,7 +3102,6 @@ public final class LayoutElementBuilders {
          * Gets the number of times to repeat the Marquee animation. Only applies when overflow is
          * TEXT_OVERFLOW_MARQUEE. Set to -1 to repeat indefinitely. Defaults to repeat indefinitely.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @ProtoLayoutExperimental
         @IntRange(from = -1)
         public int getMarqueeIterations() {
@@ -3394,7 +3335,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the list of child elements to place inside this {@link Column}. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public List<LayoutElement> getContents() {
             List<LayoutElement> list = new ArrayList<>();
@@ -3408,7 +3348,6 @@ public final class LayoutElementBuilders {
          * Gets the horizontal alignment of elements inside this column, if they are narrower than
          * the resulting width of the column. If not defined, defaults to HORIZONTAL_ALIGN_CENTER.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public HorizontalAlignmentProp getHorizontalAlignment() {
             if (mImpl.hasHorizontalAlignment()) {
@@ -3422,7 +3361,6 @@ public final class LayoutElementBuilders {
          * Gets the width of this column. If not defined, this will size itself to fit all of its
          * children (i.e. a WrappedDimension).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ContainerDimension getWidth() {
             if (mImpl.hasWidth()) {
@@ -3436,7 +3374,6 @@ public final class LayoutElementBuilders {
          * Gets the height of this column. If not defined, this will size itself to fit all of its
          * children (i.e. a WrappedDimension).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ContainerDimension getHeight() {
             if (mImpl.hasHeight()) {
@@ -3447,7 +3384,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -3624,7 +3560,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the list of child elements to place inside this {@link Row}. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public List<LayoutElement> getContents() {
             List<LayoutElement> list = new ArrayList<>();
@@ -3638,7 +3573,6 @@ public final class LayoutElementBuilders {
          * Gets the vertical alignment of elements inside this row, if they are narrower than the
          * resulting height of the row. If not defined, defaults to VERTICAL_ALIGN_CENTER.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public VerticalAlignmentProp getVerticalAlignment() {
             if (mImpl.hasVerticalAlignment()) {
@@ -3652,7 +3586,6 @@ public final class LayoutElementBuilders {
          * Gets the width of this row. If not defined, this will size itself to fit all of its
          * children (i.e. a WrappedDimension).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ContainerDimension getWidth() {
             if (mImpl.hasWidth()) {
@@ -3666,7 +3599,6 @@ public final class LayoutElementBuilders {
          * Gets the height of this row. If not defined, this will size itself to fit all of its
          * children (i.e. a WrappedDimension).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ContainerDimension getHeight() {
             if (mImpl.hasHeight()) {
@@ -3677,7 +3609,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -3843,7 +3774,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets contents of this container. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public List<ArcLayoutElement> getContents() {
             List<ArcLayoutElement> list = new ArrayList<>();
@@ -3865,7 +3795,6 @@ public final class LayoutElementBuilders {
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public DegreesProp getAnchorAngle() {
             if (mImpl.hasAnchorAngle()) {
@@ -3879,7 +3808,6 @@ public final class LayoutElementBuilders {
          * Gets how to align the contents of this container relative to anchor_angle. If not
          * defined, defaults to ARC_ANCHOR_CENTER.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ArcAnchorTypeProp getAnchorType() {
             if (mImpl.hasAnchorType()) {
@@ -3895,7 +3823,6 @@ public final class LayoutElementBuilders {
          * should be drawn towards the inner or outer edge of the arc, or drawn in the center. If
          * not defined, defaults to VERTICAL_ALIGN_CENTER.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public VerticalAlignmentProp getVerticalAlign() {
             if (mImpl.hasVerticalAlign()) {
@@ -3906,7 +3833,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Modifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -4090,7 +4016,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the text to render. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public StringProp getText() {
             if (mImpl.hasText()) {
@@ -4104,7 +4029,6 @@ public final class LayoutElementBuilders {
          * Gets the style of font to use (size, bold etc). If not specified, defaults to the
          * platform's default body font.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public FontStyle getFontStyle() {
             if (mImpl.hasFontStyle()) {
@@ -4115,7 +4039,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ArcModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -4256,7 +4179,6 @@ public final class LayoutElementBuilders {
          * <p>While this field is statically accessible from 1.0, it's only bindable since version
          * 1.2 and renderers supporting version 1.2 will use the dynamic value (if set).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public DegreesProp getLength() {
             if (mImpl.hasLength()) {
@@ -4267,7 +4189,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the thickness of this line. If not defined, defaults to 0. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public DpProp getThickness() {
             if (mImpl.hasThickness()) {
@@ -4285,7 +4206,6 @@ public final class LayoutElementBuilders {
          *
          * <p>If a brush is set, this color will not be used.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ColorProp getColor() {
             if (mImpl.hasColor()) {
@@ -4299,7 +4219,6 @@ public final class LayoutElementBuilders {
          * Gets a brush used to draw this line. If set, the brush will be used instead of the color
          * provided in {@code setColor()}.
          */
-        @RequiresSchemaVersion(major = 1, minor = 300)
         @Nullable
         public Brush getBrush() {
             if (mImpl.hasBrush()) {
@@ -4310,7 +4229,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ArcModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -4321,7 +4239,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public StrokeCapProp getStrokeCap() {
             if (mImpl.hasStrokeCap()) {
@@ -4335,7 +4252,6 @@ public final class LayoutElementBuilders {
          * Gets the bounding constraints for the layout affected by the dynamic value from {@link
          * #getLength()}.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public AngularLayoutConstraint getLayoutConstraintsForDynamicLength() {
             if (mImpl.hasLength()) {
@@ -4546,7 +4462,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @StrokeCap
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -4556,7 +4471,6 @@ public final class LayoutElementBuilders {
          * Gets the stroke cap's shadow. When set, the stroke cap will be drawn with a shadow, which
          * allows it to be visible on top of other similarly colored elements.
          */
-        @RequiresSchemaVersion(major = 1, minor = 300)
         @Nullable
         public Shadow getShadow() {
             if (mImpl.hasShadow()) {
@@ -4651,7 +4565,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the length of this spacer, in degrees. If not defined, defaults to 0. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public DegreesProp getLength() {
             if (mImpl.hasLength()) {
@@ -4662,7 +4575,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the thickness of this spacer, in DP. If not defined, defaults to 0. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public DpProp getThickness() {
             if (mImpl.hasThickness()) {
@@ -4673,7 +4585,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets {@link androidx.wear.protolayout.ModifiersBuilders.Modifiers} for this element. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public ArcModifiers getModifiers() {
             if (mImpl.hasModifiers()) {
@@ -4808,7 +4719,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the element to adapt to an {@link Arc}. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public LayoutElement getContent() {
             if (mImpl.hasContent()) {
@@ -4826,7 +4736,6 @@ public final class LayoutElementBuilders {
          * rotate_contents = false, the image will be placed at the 3 o clock position, but itself
          * will not be rotated. If not defined, defaults to false.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public BoolProp getRotateContents() {
             if (mImpl.hasRotateContents()) {
@@ -4965,7 +4874,6 @@ public final class LayoutElementBuilders {
          * Gets the content of the renderer extension element. This can be any data; it is expected
          * that the renderer extension knows how to parse this field.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public byte[] getPayload() {
             return mImpl.getPayload().toByteArray();
@@ -4975,14 +4883,12 @@ public final class LayoutElementBuilders {
          * Gets the ID of the renderer extension that should be used for rendering this layout
          * element.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public String getExtensionId() {
             return mImpl.getExtensionId();
         }
 
         /** Gets the width of this element. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public ExtensionDimension getWidth() {
             if (mImpl.hasWidth()) {
@@ -4993,7 +4899,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the height of this element. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public ExtensionDimension getHeight() {
             if (mImpl.hasHeight()) {
@@ -5245,7 +5150,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the root element in the layout. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public LayoutElement getRoot() {
             if (mImpl.hasRoot()) {
@@ -5560,7 +5464,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @HorizontalAlignment
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -5640,7 +5543,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @VerticalAlignment
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -5720,7 +5622,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @TextAlignment
         public int getValue() {
             return mImpl.getValue().getNumber();
@@ -5799,7 +5700,6 @@ public final class LayoutElementBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @ArcAnchorType
         public int getValue() {
             return mImpl.getValue().getNumber();

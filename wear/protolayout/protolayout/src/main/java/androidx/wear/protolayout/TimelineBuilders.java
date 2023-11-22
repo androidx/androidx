@@ -47,13 +47,11 @@ public final class TimelineBuilders {
         }
 
         /** Gets starting point of the time interval, in milliseconds since the Unix epoch. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public long getStartMillis() {
             return mImpl.getStartMillis();
         }
 
         /** Gets end point of the time interval, in milliseconds since the Unix epoch. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public long getEndMillis() {
             return mImpl.getEndMillis();
         }
@@ -125,7 +123,6 @@ public final class TimelineBuilders {
         }
 
         /** Gets the validity period for this timeline entry. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public TimeInterval getValidity() {
             if (mImpl.hasValidity()) {
@@ -136,7 +133,6 @@ public final class TimelineBuilders {
         }
 
         /** Gets the contents of this timeline entry. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public Layout getLayout() {
             if (mImpl.hasLayout()) {
@@ -229,7 +225,6 @@ public final class TimelineBuilders {
         }
 
         /** Gets the entries in a timeline. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public List<TimelineEntry> getTimelineEntries() {
             List<TimelineEntry> list = new ArrayList<>();

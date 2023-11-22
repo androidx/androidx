@@ -44,7 +44,6 @@ public final class VersionBuilders {
          * Gets major version. Incremented on breaking changes (i.e. compatibility is not guaranteed
          * across major versions).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public int getMajor() {
             return mImpl.getMajor();
         }
@@ -53,7 +52,6 @@ public final class VersionBuilders {
          * Gets minor version. Incremented on non-breaking changes (e.g. schema additions). Anything
          * consuming a payload can safely consume anything with a lower minor version.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public int getMinor() {
             return mImpl.getMinor();
         }
