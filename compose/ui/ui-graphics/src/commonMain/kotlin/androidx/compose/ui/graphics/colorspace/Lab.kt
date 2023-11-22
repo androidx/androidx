@@ -19,7 +19,7 @@ package androidx.compose.ui.graphics.colorspace
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.packFloats
-import kotlin.math.pow
+import kotlin.math.cbrt
 
 /**
  * Implementation of the CIE L*a*b* color space. Its PCS is CIE XYZ
@@ -95,9 +95,9 @@ internal class Lab(
         val y1 = y / Illuminant.D50Xyz[1]
         val z1 = z / Illuminant.D50Xyz[2]
 
-        val fx = if (x1 > A) x1.pow(1f / 3f) else B * x1 + C
-        val fy = if (y1 > A) y1.pow(1f / 3f) else B * y1 + C
-        val fz = if (z1 > A) z1.pow(1f / 3f) else B * z1 + C
+        val fx = if (x1 > A) cbrt(x1) else B * x1 + C
+        val fy = if (y1 > A) cbrt(y1) else B * y1 + C
+        val fz = if (z1 > A) cbrt(z1) else B * z1 + C
 
         val l = 116.0f * fy - 16.0f
         val a1 = 500.0f * (fx - fy)
@@ -117,9 +117,9 @@ internal class Lab(
         val y = v[1] / Illuminant.D50Xyz[1]
         val z = v[2] / Illuminant.D50Xyz[2]
 
-        val fx = if (x > A) x.pow(1f / 3f) else B * x + C
-        val fy = if (y > A) y.pow(1f / 3f) else B * y + C
-        val fz = if (z > A) z.pow(1f / 3f) else B * z + C
+        val fx = if (x > A) cbrt(x) else B * x + C
+        val fy = if (y > A) cbrt(y) else B * y + C
+        val fz = if (z > A) cbrt(z) else B * z + C
 
         val l = 116.0f * fy - 16.0f
         val a = 500.0f * (fx - fy)
