@@ -44,17 +44,23 @@ internal class FocusInvalidationManager(
         focusPropertiesNodes.scheduleInvalidation(node)
     }
 
+    fun hasPendingInvalidation(): Boolean {
+        return focusTargetNodes.isNotEmpty() ||
+        focusPropertiesNodes.isNotEmpty() ||
+        focusEventNodes.isNotEmpty()
+    }
+
     private fun <T> MutableSet<T>.scheduleInvalidation(node: T) {
         if (add(node)) {
             // If this is the first node scheduled for invalidation,
             // we set up a listener that runs after onApplyChanges.
             if (focusTargetNodes.size + focusEventNodes.size + focusPropertiesNodes.size == 1) {
-                onRequestApplyChangesListener.invoke(invalidateNodes)
+                onRequestApplyChangesListener.invoke(::invalidateNodes)
             }
         }
     }
 
-    private val invalidateNodes: () -> Unit = {
+    private fun invalidateNodes() {
         // Process all the invalidated FocusProperties nodes.
         focusPropertiesNodes.forEach {
             // We don't need to invalidate a focus properties node if it was scheduled for
