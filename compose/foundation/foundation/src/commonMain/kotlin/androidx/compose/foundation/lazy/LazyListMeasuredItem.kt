@@ -141,7 +141,7 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
     fun getOffset(index: Int) =
         IntOffset(placeableOffsets[index * 2], placeableOffsets[index * 2 + 1])
 
-    fun applyScrollDelta(delta: Int) {
+    fun applyScrollDelta(delta: Int, updateAnimations: Boolean) {
         if (nonScrollableItem) {
             return
         }
@@ -153,10 +153,12 @@ internal class LazyListMeasuredItem @ExperimentalFoundationApi constructor(
                 placeableOffsets[index] += delta
             }
         }
-        repeat(placeablesCount) { index ->
-            val animation = animator.getAnimation(key, index)
-            if (animation != null) {
-                animation.rawOffset = animation.rawOffset.copy { mainAxis -> mainAxis + delta }
+        if (updateAnimations) {
+            repeat(placeablesCount) { index ->
+                val animation = animator.getAnimation(key, index)
+                if (animation != null) {
+                    animation.rawOffset = animation.rawOffset.copy { mainAxis -> mainAxis + delta }
+                }
             }
         }
     }
