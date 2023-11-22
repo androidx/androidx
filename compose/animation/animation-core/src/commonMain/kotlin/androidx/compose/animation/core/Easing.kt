@@ -18,6 +18,7 @@ package androidx.compose.animation.core
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.util.fastCoerceIn
 
 /**
  * Easing is a way to adjust an animation’s fraction. Easing allows transitioning
@@ -110,8 +111,16 @@ class CubicBezierEasing(
         }
     }
 
+    /**
+     * Transforms the specified [fraction] in the range 0..1 by this cubic Bézier curve.
+     * To solve the curve, [fraction] is used as the x coordinate along the curve, and
+     * the corresponding y coordinate on the curve is returned. If no solution exists,
+     * this method throws an [IllegalArgumentException].
+     *
+     * @throws IllegalArgumentException If the cubic Bézier curve cannot be solved
+     */
     override fun transform(fraction: Float): Float {
-        if (fraction > 0f && fraction < 1f) {
+        return if (fraction > 0f && fraction < 1f) {
             val t = findFirstCubicRoot(
                 0.0f - fraction,
                 a - fraction,
@@ -121,13 +130,15 @@ class CubicBezierEasing(
 
             // No root, the cubic curve has no solution
             if (t.isNaN()) {
-                return fraction
+                throw IllegalArgumentException(
+                    "The cubic curve with parameters ($a, $b, $c, $d) has no solution at $fraction"
+                )
             }
 
             // Clamp to clean up numerical imprecision at the extremes
-            return evaluateCubic(b, d, t).coerceAtLeast(0.0f).coerceAtMost(1.0f)
+            evaluateCubic(b, d, t).fastCoerceIn(0f, 1f)
         } else {
-            return fraction
+            fraction
         }
     }
 
