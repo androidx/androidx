@@ -160,6 +160,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastLastOrNull
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.viewinterop.AndroidViewHolder
 import androidx.core.view.AccessibilityDelegateCompat
@@ -179,7 +180,6 @@ import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
 import java.util.function.Consumer
 import kotlin.coroutines.CoroutineContext
-import kotlin.math.roundToInt
 
 /**
  * Allows tests to inject a custom [PlatformTextInputService].
@@ -634,10 +634,10 @@ internal class AndroidComposeView(
      */
     override fun getFocusedRect(rect: Rect) {
         focusOwner.getFocusRect()?.run {
-            rect.left = left.roundToInt()
-            rect.top = top.roundToInt()
-            rect.right = right.roundToInt()
-            rect.bottom = bottom.roundToInt()
+            rect.left = left.fastRoundToInt()
+            rect.top = top.fastRoundToInt()
+            rect.right = right.fastRoundToInt()
+            rect.bottom = bottom.fastRoundToInt()
         } ?: super.getFocusedRect(rect)
     }
 

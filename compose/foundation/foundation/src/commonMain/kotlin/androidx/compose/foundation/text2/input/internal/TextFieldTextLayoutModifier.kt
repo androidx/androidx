@@ -36,7 +36,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 
 /**
  * This ModifierNodeElement is only responsible for laying out text and reporting its global
@@ -150,8 +150,8 @@ internal class TextFieldTextLayoutModifierNode(
             width = result.size.width,
             height = result.size.height,
             alignmentLines = mapOf(
-                FirstBaseline to result.firstBaseline.roundToInt(),
-                LastBaseline to result.lastBaseline.roundToInt()
+                FirstBaseline to result.firstBaseline.fastRoundToInt(),
+                LastBaseline to result.lastBaseline.fastRoundToInt()
             )
         ) {
             placeable.place(0, 0)

@@ -93,10 +93,12 @@ import androidx.compose.ui.text.platform.URLSpanCache
 import androidx.compose.ui.text.platform.toAccessibilitySpannableString
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toSize
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastJoinToString
 import androidx.compose.ui.util.fastMap
+import androidx.compose.ui.util.fastRoundToInt
 import androidx.core.util.keyIterator
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
@@ -115,7 +117,6 @@ import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlin.math.sign
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
@@ -1364,13 +1365,13 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
                         if (valueRange.endInclusive - valueRange.start == 0f) 0f
                         else (rangeInfo.current - valueRange.start) /
                             (valueRange.endInclusive - valueRange.start)
-                        ).coerceIn(0f, 1f)
+                        ).fastCoerceIn(0f, 1f)
 
                     // We only display 0% or 100% when it is exactly 0% or 100%.
                     val percent = when (progress) {
                         0f -> 0
                         1f -> 100
-                        else -> (progress * 100).roundToInt().coerceIn(1, 99)
+                        else -> (progress * 100).fastRoundToInt().coerceIn(1, 99)
                     }
                     stateDescription =
                         view.context.resources.getString(R.string.template_percent, percent)
@@ -3636,7 +3637,12 @@ private fun SemanticsOwner.getAllUncoveredSemanticsNodesToMap():
     }
 
     val unaccountedSpace = with(root.boundsInRoot) {
-        Region(left.roundToInt(), top.roundToInt(), right.roundToInt(), bottom.roundToInt())
+        Region(
+            left.fastRoundToInt(),
+            top.fastRoundToInt(),
+            right.fastRoundToInt(),
+            bottom.fastRoundToInt()
+        )
     }
 
     fun findAllSemanticNodesRecursive(currentNode: SemanticsNode, region: Region) {
@@ -3648,10 +3654,10 @@ private fun SemanticsOwner.getAllUncoveredSemanticsNodesToMap():
             return
         }
         val touchBoundsInRoot = currentNode.touchBoundsInRoot
-        val left = touchBoundsInRoot.left.roundToInt()
-        val top = touchBoundsInRoot.top.roundToInt()
-        val right = touchBoundsInRoot.right.roundToInt()
-        val bottom = touchBoundsInRoot.bottom.roundToInt()
+        val left = touchBoundsInRoot.left.fastRoundToInt()
+        val top = touchBoundsInRoot.top.fastRoundToInt()
+        val right = touchBoundsInRoot.right.fastRoundToInt()
+        val bottom = touchBoundsInRoot.bottom.fastRoundToInt()
 
         region.set(left, top, right, bottom)
 
@@ -3685,10 +3691,10 @@ private fun SemanticsOwner.getAllUncoveredSemanticsNodesToMap():
                 nodes[virtualViewId] = SemanticsNodeWithAdjustedBounds(
                     currentNode,
                     android.graphics.Rect(
-                        boundsForFakeNode.left.roundToInt(),
-                        boundsForFakeNode.top.roundToInt(),
-                        boundsForFakeNode.right.roundToInt(),
-                        boundsForFakeNode.bottom.roundToInt(),
+                        boundsForFakeNode.left.fastRoundToInt(),
+                        boundsForFakeNode.top.fastRoundToInt(),
+                        boundsForFakeNode.right.fastRoundToInt(),
+                        boundsForFakeNode.bottom.fastRoundToInt(),
                     )
                 )
             } else if (virtualViewId == AccessibilityNodeProviderCompat.HOST_VIEW_ID) {

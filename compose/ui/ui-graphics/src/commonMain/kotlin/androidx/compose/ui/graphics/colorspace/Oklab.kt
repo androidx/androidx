@@ -17,6 +17,7 @@
 package androidx.compose.ui.graphics.colorspace
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.packFloats
 import kotlin.math.abs
 import kotlin.math.pow
@@ -46,9 +47,9 @@ internal class Oklab(
     }
 
     override fun toXyz(v: FloatArray): FloatArray {
-        v[0] = v[0].coerceIn(0f, 1f)
-        v[1] = v[1].coerceIn(-0.5f, 0.5f)
-        v[2] = v[2].coerceIn(-0.5f, 0.5f)
+        v[0] = v[0].fastCoerceIn(0f, 1f)
+        v[1] = v[1].fastCoerceIn(-0.5f, 0.5f)
+        v[2] = v[2].fastCoerceIn(-0.5f, 0.5f)
 
         mul3x3Float3(InverseM2, v)
         v[0] = v[0] * v[0] * v[0]
@@ -60,9 +61,9 @@ internal class Oklab(
     }
 
     override fun toXy(v0: Float, v1: Float, v2: Float): Long {
-        val v00 = v0.coerceIn(0f, 1f)
-        val v10 = v1.coerceIn(-0.5f, 0.5f)
-        val v20 = v2.coerceIn(-0.5f, 0.5f)
+        val v00 = v0.fastCoerceIn(0f, 1f)
+        val v10 = v1.fastCoerceIn(-0.5f, 0.5f)
+        val v20 = v2.fastCoerceIn(-0.5f, 0.5f)
 
         val v01 = mul3x3Float3_0(InverseM2, v00, v10, v20)
         val v11 = mul3x3Float3_1(InverseM2, v00, v10, v20)
@@ -79,9 +80,9 @@ internal class Oklab(
     }
 
     override fun toZ(v0: Float, v1: Float, v2: Float): Float {
-        val v00 = v0.coerceIn(0f, 1f)
-        val v10 = v1.coerceIn(-0.5f, 0.5f)
-        val v20 = v2.coerceIn(-0.5f, 0.5f)
+        val v00 = v0.fastCoerceIn(0f, 1f)
+        val v10 = v1.fastCoerceIn(-0.5f, 0.5f)
+        val v20 = v2.fastCoerceIn(-0.5f, 0.5f)
 
         val v01 = mul3x3Float3_0(InverseM2, v00, v10, v20)
         val v11 = mul3x3Float3_1(InverseM2, v00, v10, v20)

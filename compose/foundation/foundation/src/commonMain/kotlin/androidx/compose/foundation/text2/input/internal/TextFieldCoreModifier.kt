@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.min
@@ -492,7 +493,7 @@ internal class TextFieldCoreModifierNode(
         // invalidates.
         if (cursorAlpha.value <= 0f || !showCursor) return
 
-        val cursorAlphaValue = cursorAlpha.value.coerceIn(0f, 1f)
+        val cursorAlphaValue = cursorAlpha.value.fastCoerceIn(0f, 1f)
         if (cursorAlphaValue == 0f) return
 
         val cursorRect = textFieldSelectionState.cursorRect

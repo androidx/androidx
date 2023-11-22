@@ -80,7 +80,7 @@ import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.compose.ui.util.fastMaxOfOrNull
-import kotlin.math.roundToInt
+import androidx.compose.ui.util.fastRoundToInt
 import kotlinx.coroutines.CoroutineScope
 
 /**
@@ -1197,8 +1197,8 @@ private class ScaleToFitInLookaheadNode(
         return layout(sizeToReport.width, sizeToReport.height) {
             val (x, y) = alignment.align(
                 IntSize(
-                    (contentSize.width * resolvedScale.scaleX).roundToInt(),
-                    (contentSize.height * resolvedScale.scaleY).roundToInt()
+                    (contentSize.width * resolvedScale.scaleX).fastRoundToInt(),
+                    (contentSize.height * resolvedScale.scaleY).fastRoundToInt()
                 ),
                 sizeToReport,
                 layoutDirection

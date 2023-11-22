@@ -23,9 +23,9 @@ import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.max
 import kotlin.math.min
-import kotlin.math.roundToInt
 import kotlin.math.sign
 
 /**
@@ -151,7 +151,7 @@ internal class RowColumnMeasurementHelper(
 
             val weightUnitSpace = if (totalWeight > 0) remainingToTarget / totalWeight else 0f
             var remainder = remainingToTarget - (startIndex until endIndex).sumOf {
-                (weightUnitSpace * rowColumnParentData[it].weight).roundToInt()
+                (weightUnitSpace * rowColumnParentData[it].weight).fastRoundToInt()
             }
 
             for (i in startIndex until endIndex) {
@@ -167,7 +167,7 @@ internal class RowColumnMeasurementHelper(
                     remainder -= remainderUnit
                     val childMainAxisSize = max(
                         0,
-                        (weightUnitSpace * weight).roundToInt() + remainderUnit
+                        (weightUnitSpace * weight).fastRoundToInt() + remainderUnit
                     )
                     val placeable = child.measure(
                         OrientationIndependentConstraints(

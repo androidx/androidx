@@ -51,8 +51,8 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMapIndexedNotNull
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.floor
-import kotlin.math.roundToInt
 
 /**
  * Basic element that displays text and provides semantics / accessibility information.
@@ -381,7 +381,7 @@ private class TextMeasurePolicy(
                             maxHeight = floor(it.height).toInt()
                         )
                     ),
-                    IntOffset(it.left.roundToInt(), it.top.roundToInt())
+                    IntOffset(it.left.fastRoundToInt(), it.top.fastRoundToInt())
                 )
             }
         }
