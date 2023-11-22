@@ -201,6 +201,29 @@ public abstract class TakePictureRequest {
                 requireNonNull(imageProxy)));
     }
 
+    void onCaptureProcessProgressed(int progress) {
+        getAppExecutor().execute(() -> {
+            if (getOnDiskCallback() != null) {
+                getOnDiskCallback().onCaptureProcessProgressed(progress);
+            } else if (getInMemoryCallback() != null) {
+                getInMemoryCallback().onCaptureProcessProgressed(progress);
+            }
+        });
+    }
+
+    /**
+     * Delivers postview image result to the app.
+     */
+    void onPostviewImageAvailable(@NonNull ImageProxy imageProxy) {
+        getAppExecutor().execute(() -> {
+            if (getOnDiskCallback() != null) {
+                getOnDiskCallback().onPostviewImageAvailable(imageProxy);
+            } else if (getInMemoryCallback() != null) {
+                getInMemoryCallback().onPostviewImageAvailable(imageProxy);
+            }
+        });
+    }
+
     /**
      * Creates a {@link TakePictureRequest} instance.
      */

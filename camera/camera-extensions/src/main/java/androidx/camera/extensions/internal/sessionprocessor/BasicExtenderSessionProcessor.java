@@ -28,6 +28,7 @@ import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.hardware.camera2.params.SessionConfiguration;
 import android.util.Pair;
+import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -42,6 +43,7 @@ import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.OutputSurface;
+import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.RequestProcessor;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
@@ -52,6 +54,7 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 import androidx.camera.extensions.internal.ClientVersion;
 import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.compat.workaround.OnEnableDisableSessionDurationCheck;
 import androidx.core.util.Preconditions;
@@ -87,8 +90,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     private volatile Camera2OutputConfig mCaptureOutputConfig;
     @Nullable
     private volatile Camera2OutputConfig mAnalysisOutputConfig = null;
-    private volatile OutputSurface mPreviewOutputSurfaceConfig;
-    private volatile OutputSurface mCaptureOutputSurfaceConfig;
+    private volatile OutputSurface mPreviewOutputSurface;
+    private volatile OutputSurface mCaptureOutputSurface;
     private volatile RequestProcessor mRequestProcessor;
     volatile boolean mIsCapturing = false;
     private final AtomicInteger mNextCaptureSequenceId = new AtomicInteger(0);
@@ -98,26 +101,29 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     private final List<CaptureResult.Key> mSupportedResultKeys;
     private OnEnableDisableSessionDurationCheck mOnEnableDisableSessionDurationCheck =
             new OnEnableDisableSessionDurationCheck();
+    @Nullable
+    private OutputSurface mPostviewOutputSurface;
+    private final VendorExtender mVendorExtender;
 
     public BasicExtenderSessionProcessor(@NonNull PreviewExtenderImpl previewExtenderImpl,
             @NonNull ImageCaptureExtenderImpl imageCaptureExtenderImpl,
             @NonNull List<CaptureRequest.Key> supportedRequestKeys,
             @NonNull List<CaptureResult.Key> supportedResultKeys,
+            @NonNull VendorExtender vendorExtender,
             @NonNull Context context) {
         super(supportedRequestKeys);
         mPreviewExtenderImpl = previewExtenderImpl;
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
         mSupportedResultKeys = supportedResultKeys;
         mContext = context;
+        mVendorExtender = vendorExtender;
     }
 
     @NonNull
     @Override
     protected Camera2SessionConfig initSessionInternal(@NonNull String cameraId,
             @NonNull Map<String, CameraCharacteristics> cameraCharacteristicsMap,
-            @NonNull OutputSurface previewSurfaceConfig,
-            @NonNull OutputSurface imageCaptureSurfaceConfig,
-            @Nullable OutputSurface imageAnalysisSurfaceConfig) {
+            @NonNull OutputSurfaceConfiguration outputSurfaceConfiguration) {
         Logger.d(TAG, "PreviewExtenderImpl.onInit");
         mPreviewExtenderImpl.onInit(cameraId, cameraCharacteristicsMap.get(cameraId),
                 mContext);
@@ -125,8 +131,9 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         mImageCaptureExtenderImpl.onInit(cameraId, cameraCharacteristicsMap.get(cameraId),
                 mContext);
 
-        mPreviewOutputSurfaceConfig = previewSurfaceConfig;
-        mCaptureOutputSurfaceConfig = imageCaptureSurfaceConfig;
+        mPreviewOutputSurface = outputSurfaceConfiguration.getPreviewOutputSurface();
+        mCaptureOutputSurface = outputSurfaceConfiguration.getImageCaptureOutputSurface();
+        mPostviewOutputSurface = outputSurfaceConfiguration.getPostviewOutputSurface();
 
         // Preview
         PreviewExtenderImpl.ProcessorType processorType =
@@ -135,24 +142,24 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         if (processorType == PROCESSOR_TYPE_IMAGE_PROCESSOR) {
             mPreviewOutputConfig = ImageReaderOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    previewSurfaceConfig.getSize(),
+                    mPreviewOutputSurface.getSize(),
                     ImageFormat.YUV_420_888,
                     PREVIEW_PROCESS_MAX_IMAGES);
             PreviewImageProcessorImpl previewImageProcessor =
                     (PreviewImageProcessorImpl) mPreviewExtenderImpl.getProcessor();
             mPreviewProcessor = new PreviewProcessor(
-                    previewImageProcessor, mPreviewOutputSurfaceConfig.getSurface(),
-                    mPreviewOutputSurfaceConfig.getSize());
+                    previewImageProcessor, mPreviewOutputSurface.getSurface(),
+                    mPreviewOutputSurface.getSize());
         } else if (processorType == PROCESSOR_TYPE_REQUEST_UPDATE_ONLY) {
             mPreviewOutputConfig = SurfaceOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    previewSurfaceConfig.getSurface());
+                    mPreviewOutputSurface.getSurface());
             mRequestUpdateProcessor =
                     (RequestUpdateProcessorImpl) mPreviewExtenderImpl.getProcessor();
         } else {
             mPreviewOutputConfig = SurfaceOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    previewSurfaceConfig.getSurface());
+                    mPreviewOutputSurface.getSurface());
         }
 
         // Image Capture
@@ -162,23 +169,25 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         if (captureProcessor != null) {
             mCaptureOutputConfig = ImageReaderOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    imageCaptureSurfaceConfig.getSize(),
+                    mCaptureOutputSurface.getSize(),
                     ImageFormat.YUV_420_888,
                     mImageCaptureExtenderImpl.getMaxCaptureStage());
             mStillCaptureProcessor = new StillCaptureProcessor(
-                    captureProcessor, mCaptureOutputSurfaceConfig.getSurface(),
-                    mCaptureOutputSurfaceConfig.getSize());
+                    captureProcessor, mCaptureOutputSurface.getSurface(),
+                    mCaptureOutputSurface.getSize(),
+                    mPostviewOutputSurface);
         } else {
             mCaptureOutputConfig = SurfaceOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    imageCaptureSurfaceConfig.getSurface());
+                    mCaptureOutputSurface.getSurface());
         }
 
         // Image Analysis
-        if (imageAnalysisSurfaceConfig != null) {
+        if (outputSurfaceConfiguration.getImageAnalysisOutputSurface() != null) {
             mAnalysisOutputConfig = SurfaceOutputConfig.create(
                     sLastOutputConfigId.getAndIncrement(),
-                    imageAnalysisSurfaceConfig.getSurface());
+                    outputSurfaceConfiguration.getImageAnalysisOutputSurface()
+                            .getSurface());
         }
 
         Camera2SessionConfigBuilder builder =
@@ -483,7 +492,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     }
 
     @Override
-    public int startCapture(@NonNull CaptureCallback captureCallback) {
+    public int startCapture(boolean postviewEnabled, @NonNull CaptureCallback captureCallback) {
         int captureSequenceId = mNextCaptureSequenceId.getAndIncrement();
 
         if (mRequestProcessor == null || mIsCapturing) {
@@ -575,7 +584,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
 
         Logger.d(TAG, "startCapture");
         if (mStillCaptureProcessor != null) {
-            mStillCaptureProcessor.startCapture(captureIdList,
+            mStillCaptureProcessor.startCapture(postviewEnabled, captureIdList,
                     new StillCaptureProcessor.OnCaptureResultCallback() {
                         @Override
                         public void onCompleted() {
@@ -594,6 +603,11 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
                                 @NonNull List<Pair<CaptureResult.Key, Object>> result) {
                             captureCallback.onCaptureCompleted(shutterTimestamp,
                                     captureSequenceId, getCaptureResultKeyMapFromList(result));
+                        }
+
+                        @Override
+                        public void onCaptureProcessProgressed(int progress) {
+                            captureCallback.onCaptureProcessProgressed(progress);
                         }
                     });
         }
@@ -672,5 +686,11 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
             return mImageCaptureExtenderImpl.getRealtimeCaptureLatency();
         }
         return null;
+    }
+
+    @NonNull
+    @Override
+    public Map<Integer, List<Size>> getSupportedPostviewSize(@NonNull Size captureSize) {
+        return mVendorExtender.getSupportedPostviewResolutions(captureSize);
     }
 }

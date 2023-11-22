@@ -128,6 +128,11 @@ class ProcessingRequest {
         mCallback.onCaptureStarted();
     }
 
+    @MainThread
+    void onCaptureProcessProgressed(int progress) {
+        mCallback.onCaptureProcessProgressed(progress);
+    }
+
     /**
      * @see TakePictureCallback#onImageCaptured()
      */
@@ -142,6 +147,10 @@ class ProcessingRequest {
     @MainThread
     void onFinalResult(@NonNull ImageCapture.OutputFileResults outputFileResults) {
         mCallback.onFinalResult(outputFileResults);
+    }
+
+    void onPostviewImageAvailable(@NonNull ImageProxy imageProxy) {
+        mCallback.onPostviewImageAvailable(imageProxy);
     }
 
     /**

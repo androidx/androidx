@@ -49,6 +49,7 @@ class SingleBundlingNode implements BundlingNode {
     public ProcessingNode.In transform(@NonNull CaptureNode.Out captureNodeOut) {
         // Listen to input edges.
         captureNodeOut.getImageEdge().setListener(this::matchImageWithRequest);
+        captureNodeOut.getPostviewImageEdge().setListener(this::matchPostviewImageWithRequest);
         captureNodeOut.getRequestEdge().setListener(this::trackIncomingRequest);
         // Set up output edge.
         mOutputEdge = ProcessingNode.In.of(captureNodeOut.getInputFormat(),
@@ -97,5 +98,13 @@ class SingleBundlingNode implements BundlingNode {
 
         mOutputEdge.getEdge().accept(ProcessingNode.InputPacket.of(mPendingRequest, imageProxy));
         mPendingRequest = null;
+    }
+
+    @MainThread
+    private void matchPostviewImageWithRequest(@NonNull ImageProxy imageProxy) {
+        checkMainThread();
+        checkState(mPendingRequest != null);
+        mOutputEdge.getPostviewEdge().accept(
+                ProcessingNode.InputPacket.of(mPendingRequest, imageProxy));
     }
 }

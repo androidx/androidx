@@ -85,6 +85,8 @@ public final class CaptureConfig {
     @StabilizationMode.Mode
     final int mVideoStabilizationMode;
 
+    final boolean mPostviewEnabled;
+
     /** The camera capture callback for a {@link CameraCaptureSession}. */
     final List<CameraCaptureCallback> mCameraCaptureCallbacks;
 
@@ -126,6 +128,7 @@ public final class CaptureConfig {
             @NonNull Range<Integer> expectedFrameRateRange,
             int previewStabilizationMode,
             int videoStabilizationMode,
+            boolean postviewEnabled,
             List<CameraCaptureCallback> cameraCaptureCallbacks,
             boolean useRepeatingSurface,
             @NonNull TagBundle tagBundle,
@@ -140,6 +143,7 @@ public final class CaptureConfig {
         mUseRepeatingSurface = useRepeatingSurface;
         mTagBundle = tagBundle;
         mCameraCaptureResult = cameraCaptureResult;
+        mPostviewEnabled = postviewEnabled;
     }
 
     /** Returns an instance of a capture configuration with minimal configurations. */
@@ -193,6 +197,10 @@ public final class CaptureConfig {
         return mVideoStabilizationMode;
     }
 
+    public boolean isPostviewEnabled() {
+        return mPostviewEnabled;
+    }
+
     public boolean isUseRepeatingSurface() {
         return mUseRepeatingSurface;
     }
@@ -234,6 +242,7 @@ public final class CaptureConfig {
         private int mPreviewStabilizationMode = StabilizationMode.UNSPECIFIED;
         @StabilizationMode.Mode
         private int mVideoStabilizationMode = StabilizationMode.UNSPECIFIED;
+        private boolean mPostviewEnabled = false;
         private List<CameraCaptureCallback> mCameraCaptureCallbacks = new ArrayList<>();
         private boolean mUseRepeatingSurface = false;
         private MutableTagBundle mMutableTagBundle = MutableTagBundle.create();
@@ -253,6 +262,7 @@ public final class CaptureConfig {
             mCameraCaptureCallbacks.addAll(base.getCameraCaptureCallbacks());
             mUseRepeatingSurface = base.isUseRepeatingSurface();
             mMutableTagBundle = MutableTagBundle.from(base.getTagBundle());
+            mPostviewEnabled = base.mPostviewEnabled;
         }
 
         /**
@@ -337,6 +347,10 @@ public final class CaptureConfig {
             if (mode != StabilizationMode.UNSPECIFIED) {
                 mVideoStabilizationMode = mode;
             }
+        }
+
+        public void setPostviewEnabled(boolean postviewEnabled) {
+            mPostviewEnabled = postviewEnabled;
         }
 
         /**
@@ -468,6 +482,7 @@ public final class CaptureConfig {
                     mExpectedFrameRateRange,
                     mPreviewStabilizationMode,
                     mVideoStabilizationMode,
+                    mPostviewEnabled,
                     new ArrayList<>(mCameraCaptureCallbacks),
                     mUseRepeatingSurface,
                     TagBundle.from(mMutableTagBundle),
