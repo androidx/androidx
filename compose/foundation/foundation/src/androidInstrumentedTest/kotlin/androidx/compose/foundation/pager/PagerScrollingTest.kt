@@ -297,7 +297,7 @@ class PagerScrollingTest(
             )
             up()
         }
-        rule.mainClock.advanceTimeUntil { pagerState.isScrollInProgress == false }
+        rule.mainClock.advanceTimeUntil { !pagerState.isScrollInProgress }
 
         // Assert
         rule.onNodeWithTag("0").assertIsDisplayed()
@@ -326,7 +326,7 @@ class PagerScrollingTest(
             )
             up()
         }
-        rule.mainClock.advanceTimeUntil { pagerState.isScrollInProgress == false }
+        rule.mainClock.advanceTimeUntil { !pagerState.isScrollInProgress }
 
         // Assert
         rule.onNodeWithTag("${DefaultPageCount - 1}").assertIsDisplayed()

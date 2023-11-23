@@ -24,6 +24,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -126,6 +127,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         reverseLayout: Boolean = config.reverseLayout,
         snapPositionalThreshold: Float = 0.5f,
         key: ((index: Int) -> Any)? = null,
+        snapPosition: SnapPosition = SnapPosition.Start,
         pageContent: @Composable PagerScope.(page: Int) -> Unit = { Page(index = it) }
     ) {
 
@@ -164,6 +166,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                         pageSpacing = pageSpacing,
                         contentPadding = contentPadding,
                         pageContent = pageContent,
+                        snapPosition = snapPosition,
                         key = key
                     )
                 }
@@ -286,6 +289,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
         pageSpacing: Dp = 0.dp,
         key: ((index: Int) -> Any)? = null,
+        snapPosition: SnapPosition = config.snapPosition,
         pageContent: @Composable PagerScope.(pager: Int) -> Unit
     ) {
         if (vertical) {
@@ -300,6 +304,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 flingBehavior = flingBehavior,
                 pageSpacing = pageSpacing,
                 key = key,
+                snapPosition = snapPosition,
                 pageContent = pageContent
             )
         } else {
@@ -314,6 +319,7 @@ open class BasePagerTest(private val config: ParamConfig) :
                 flingBehavior = flingBehavior,
                 pageSpacing = pageSpacing,
                 key = key,
+                snapPosition = snapPosition,
                 pageContent = pageContent
             )
         }
@@ -360,13 +366,15 @@ open class BasePagerTest(private val config: ParamConfig) :
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 class ParamConfig(
     val orientation: Orientation,
     val reverseLayout: Boolean = false,
     val layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     val pageSpacing: Dp = 0.dp,
     val mainAxisContentPadding: PaddingValues = PaddingValues(0.dp),
-    val beyondBoundsPageCount: Int = 0
+    val beyondBoundsPageCount: Int = 0,
+    val snapPosition: SnapPosition = SnapPosition.Start
 ) {
     override fun toString(): String {
         return "orientation=$orientation " +
@@ -374,7 +382,8 @@ class ParamConfig(
             "layoutDirection=$layoutDirection " +
             "pageSpacing=$pageSpacing " +
             "mainAxisContentPadding=$mainAxisContentPadding " +
-            "beyondBoundsPageCount=$beyondBoundsPageCount"
+            "beyondBoundsPageCount=$beyondBoundsPageCount" +
+            "snapPosition=$snapPosition"
     }
 }
 
@@ -382,6 +391,7 @@ internal const val PagerTestTag = "pager"
 internal const val DefaultPageCount = 20
 internal const val DefaultAnimationRepetition = 2
 internal val TestOrientation = listOf(Orientation.Vertical, Orientation.Horizontal)
+@OptIn(ExperimentalFoundationApi::class)
 internal val AllOrientationsParams = mutableListOf<ParamConfig>().apply {
     for (orientation in TestOrientation) {
         add(ParamConfig(orientation = orientation))
@@ -390,6 +400,8 @@ internal val AllOrientationsParams = mutableListOf<ParamConfig>().apply {
 internal val TestReverseLayout = listOf(false, true)
 internal val TestLayoutDirection = listOf(LayoutDirection.Rtl, LayoutDirection.Ltr)
 internal val TestPageSpacing = listOf(0.dp, 8.dp)
+@OptIn(ExperimentalFoundationApi::class)
+internal val TestSnapPosition = listOf(SnapPosition.Start, SnapPosition.Center, SnapPosition.End)
 internal fun testContentPaddings(orientation: Orientation) = listOf(
     PaddingValues(0.dp),
     if (orientation == Orientation.Vertical)
