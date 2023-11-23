@@ -67,7 +67,8 @@ val SimplePager = listOf(
 val PagerDemos = listOf(
     DemoCategory("Simple", SimplePager),
     DemoCategory("Carrousel", Carrousel),
-    DemoCategory("State Interactions", PagerStateInteractions)
+    DemoCategory("State Interactions", PagerStateInteractions),
+    DemoCategory("Snap Position", SnapPositionDemos),
 )
 
 @OptIn(ExperimentalFoundationApi::class)

@@ -27,6 +27,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.layout.IntervalList
 import androidx.compose.foundation.lazy.layout.LazyLayout
@@ -91,7 +92,9 @@ internal fun Pager(
     horizontalAlignment: Alignment.Horizontal,
     /** The alignment to align pages vertically. Required when isVertical is false */
     verticalAlignment: Alignment.Vertical,
-    /** The content of the list */
+    /** The final positioning of [PagerState.currentPage] in this layout */
+    snapPosition: SnapPosition,
+    /** The content of the pager */
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     require(beyondBoundsPageCount >= 0) {
@@ -118,7 +121,7 @@ internal fun Pager(
         horizontalAlignment = horizontalAlignment,
         verticalAlignment = verticalAlignment,
         itemProviderLambda = pagerItemProvider,
-        snapPosition = SnapAlignmentStartToStart,
+        snapPosition = snapPosition,
         pageCount = { state.pageCount }
     )
 

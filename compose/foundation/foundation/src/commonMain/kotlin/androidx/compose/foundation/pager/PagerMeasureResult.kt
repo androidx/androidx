@@ -18,6 +18,7 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.IntSize
 
@@ -34,9 +35,10 @@ internal class PagerMeasureResult(
     override val beyondBoundsPageCount: Int,
     val firstVisiblePage: MeasuredPage?,
     val currentPage: MeasuredPage?,
-    val firstVisiblePageScrollOffset: Int,
     val currentPageOffsetFraction: Float,
+    val firstVisiblePageScrollOffset: Int,
     val canScrollForward: Boolean,
+    override val snapPosition: SnapPosition,
     measureResult: MeasureResult,
 ) : PagerLayoutInfo, MeasureResult by measureResult {
     override val viewportSize: IntSize
