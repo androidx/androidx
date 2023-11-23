@@ -46,7 +46,6 @@ import androidx.test.filters.LargeTest
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assume
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,7 +59,6 @@ class LazyListScrollingBenchmark(
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
-    @Ignore("b/311256618")
     @Test
     fun scrollProgrammatically_noNewItems() {
         benchmarkRule.toggleStateBenchmark {
@@ -83,7 +81,6 @@ class LazyListScrollingBenchmark(
         }
     }
 
-    @Ignore("b/311256618")
     @Test
     fun scrollProgrammatically_noNewItems_withoutKeys() {
         benchmarkRule.toggleStateBenchmark {
@@ -108,7 +105,6 @@ class LazyListScrollingBenchmark(
         }
     }
 
-    @Ignore("b/311256618")
     @Test
     fun scrollViaPointerInput_noNewItems() {
         benchmarkRule.toggleStateBenchmark {
