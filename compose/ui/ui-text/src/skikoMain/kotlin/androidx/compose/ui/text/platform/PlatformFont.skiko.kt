@@ -57,7 +57,7 @@ class SystemFont(
  * Defines a Font using byte array with loaded font data.
  *
  * @param identity Unique identity for a font. Used internally to distinguish fonts.
- * @param data Byte array with loaded font data.
+ * @param getData should return Byte array with loaded font data.
  * @param weight The weight of the font. The system uses this to match a font to a font request
  * that is given in a [androidx.compose.ui.text.SpanStyle].
  * @param style The style of the font, normal or italic. The system uses this to match a font to a
@@ -67,12 +67,14 @@ class SystemFont(
  */
 class LoadedFont internal constructor(
     override val identity: String,
-    val data: ByteArray,
+    internal val getData: () -> ByteArray,
     override val weight: FontWeight,
     override val style: FontStyle
 ) : PlatformFont() {
     @ExperimentalTextApi
     override val loadingStrategy: FontLoadingStrategy = FontLoadingStrategy.Blocking
+
+    val data: ByteArray get() = getData()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -98,6 +100,33 @@ class LoadedFont internal constructor(
  * Creates a Font using byte array with loaded font data.
  *
  * @param identity Unique identity for a font. Used internally to distinguish fonts.
+ * @param getData should return Byte array with loaded font data.
+ * @param weight The weight of the font. The system uses this to match a font to a font request
+ * that is given in a [androidx.compose.ui.text.SpanStyle].
+ * @param style The style of the font, normal or italic. The system uses this to match a font to a
+ * font request that is given in a [androidx.compose.ui.text.SpanStyle].
+ *
+ * @see FontFamily
+ */
+fun Font(
+    identity: String,
+    getData: () -> ByteArray,
+    weight: FontWeight = FontWeight.Normal,
+    style: FontStyle = FontStyle.Normal
+): Font = LoadedFont(identity, getData, weight, style)
+
+private class SkiaBackedTypeface(
+    alias: String?,
+    val nativeTypeface: SkTypeface
+) : Typeface {
+    val alias = alias ?: nativeTypeface.familyName
+    override val fontFamily: FontFamily? = null
+}
+
+/**
+ * Creates a Font using byte array with loaded font data.
+ *
+ * @param identity Unique identity for a font. Used internally to distinguish fonts.
  * @param data Byte array with loaded font data.
  * @param weight The weight of the font. The system uses this to match a font to a font request
  * that is given in a [androidx.compose.ui.text.SpanStyle].
@@ -111,15 +140,12 @@ fun Font(
     data: ByteArray,
     weight: FontWeight = FontWeight.Normal,
     style: FontStyle = FontStyle.Normal
-): Font = LoadedFont(identity, data, weight, style)
-
-private class SkiaBackedTypeface(
-    alias: String?,
-    val nativeTypeface: SkTypeface
-) : Typeface {
-    val alias = alias ?: nativeTypeface.familyName
-    override val fontFamily: FontFamily? = null
-}
+): Font = Font(
+    identity = identity,
+    getData = { data },
+    weight = weight,
+    style = style,
+)
 
 /**
  * Returns a Compose [Typeface] from Skia [SkTypeface].

@@ -30,7 +30,7 @@ internal actual fun loadTypeface(font: Font): SkTypeface {
         throw IllegalArgumentException("Unsupported font type: $font")
     }
     return when (font) {
-        is LoadedFont -> SkTypeface.makeFromData(Data.makeFromBytes(font.data))
+        is LoadedFont -> SkTypeface.makeFromData(Data.makeFromBytes(font.getData()))
         is SystemFont -> SkTypeface.makeFromName(font.identity, font.skFontStyle)
     }
 }
