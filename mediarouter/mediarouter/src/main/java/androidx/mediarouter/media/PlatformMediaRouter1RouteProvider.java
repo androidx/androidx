@@ -35,12 +35,11 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Provides routes for built-in system destinations such as the local display
- * and speaker.  On Jellybean and newer platform releases, queries the framework
- * MediaRouter for framework-provided routes and registers non-framework-provided
- * routes as user routes.
+ * Provides routes for built-in system destinations such as the local display and speaker. it
+ * queries the framework {@link android.media.MediaRouter} for framework-provided routes and
+ * registers non-framework-provided routes as user routes.
  */
-abstract class SystemMediaRouteProvider extends MediaRouteProvider {
+abstract class PlatformMediaRouter1RouteProvider extends MediaRouteProvider {
 
     public static final String TAG = "AxSysMediaRouteProvider";
     public static final String PACKAGE_NAME = "android";
@@ -53,12 +52,13 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
     public static final int ALL_ROUTE_TYPES =
             ROUTE_TYPE_LIVE_AUDIO | ROUTE_TYPE_LIVE_VIDEO | ROUTE_TYPE_USER;
 
-    protected SystemMediaRouteProvider(Context context) {
+    protected PlatformMediaRouter1RouteProvider(Context context) {
         super(context, new ProviderMetadata(new ComponentName(PACKAGE_NAME,
-                SystemMediaRouteProvider.class.getName())));
+                PlatformMediaRouter1RouteProvider.class.getName())));
     }
 
-    public static SystemMediaRouteProvider obtain(Context context, SyncCallback syncCallback) {
+    public static PlatformMediaRouter1RouteProvider obtain(
+            Context context, SyncCallback syncCallback) {
         if (Build.VERSION.SDK_INT >= 24) {
             return new Api24Impl(context, syncCallback);
         }
@@ -97,11 +97,11 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
      * Callbacks into the media router to synchronize state with the framework media router.
      */
     public interface SyncCallback {
-        void onSystemRouteSelectedByDescriptorId(@NonNull String id);
+        void onPlatformRouteSelectedByDescriptorId(@NonNull String id);
     }
 
     /** Jellybean MR2 implementation. */
-    private static class JellybeanMr2Impl extends SystemMediaRouteProvider
+    private static class JellybeanMr2Impl extends PlatformMediaRouter1RouteProvider
             implements MediaRouterUtils.Callback, MediaRouterUtils.VolumeCallback {
 
         private static final ArrayList<IntentFilter> LIVE_AUDIO_CONTROL_FILTERS;
@@ -314,7 +314,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
                 int index = findSystemRouteRecord(route);
                 if (index >= 0) {
                     SystemRouteRecord record = mSystemRouteRecords.get(index);
-                    mSyncCallback.onSystemRouteSelectedByDescriptorId(record.mRouteDescriptorId);
+                    mSyncCallback.onPlatformRouteSelectedByDescriptorId(record.mRouteDescriptorId);
                 }
             }
         }
@@ -652,7 +652,7 @@ abstract class SystemMediaRouteProvider extends MediaRouteProvider {
      */
     @RequiresApi(24)
     private static class Api24Impl extends JellybeanMr2Impl {
-        public Api24Impl(Context context, SyncCallback syncCallback) {
+        /* package */ Api24Impl(Context context, SyncCallback syncCallback) {
             super(context, syncCallback);
         }
 
