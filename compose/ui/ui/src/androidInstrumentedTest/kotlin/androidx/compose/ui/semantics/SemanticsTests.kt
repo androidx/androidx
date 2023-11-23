@@ -32,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -201,6 +202,68 @@ class SemanticsTests {
         // only considered so when sorting in the DelegateCompat file
         rule.onNodeWithTag(TestTag)
             .assertDoesNotHaveProperty(SemanticsProperties.TraversalIndex)
+    }
+
+    @Test
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun unsetSimpleProperty() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .semantics { unset(SemanticsProperties.Heading) }.semantics { heading() }
+                    .semantics { traversalIndex = 1f; unset(SemanticsProperties.TraversalIndex) }
+                    .testTag(TestTag)
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TestTag)
+            .assertDoesNotHaveProperty(SemanticsProperties.Heading)
+        rule.onNodeWithTag(TestTag)
+            .assertDoesNotHaveProperty(SemanticsProperties.TraversalIndex)
+    }
+
+    @Test
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun unsetDuplicateProperty() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .semantics { unset(SemanticsProperties.TraversalIndex) }
+                    .semantics { traversalIndex = 2f }
+                    .semantics { traversalIndex = 1f }
+                    .testTag(TestTag)
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TestTag)
+            .assertDoesNotHaveProperty(SemanticsProperties.TraversalIndex)
+    }
+
+    @Test
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun unsetDuplicatePropertySandwiched() {
+        rule.setContent {
+            Surface {
+                Box(Modifier
+                    .semantics { traversalIndex = 2f }
+                    .semantics { unset(SemanticsProperties.TraversalIndex) }
+                    .semantics { traversalIndex = 1f }
+                    .testTag(TestTag)
+                ) {
+                    Text("Hello World", modifier = Modifier.padding(8.dp))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(TestTag)
+            .assert(SemanticsMatcher.expectValue(
+                SemanticsProperties.TraversalIndex, 2f))
     }
 
     @Test

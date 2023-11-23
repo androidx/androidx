@@ -137,6 +137,8 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.semantics.invisibleToUser
+import androidx.compose.ui.semantics.isContainer
+import androidx.compose.ui.semantics.isOpaque
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.role
@@ -3889,6 +3891,144 @@ class AndroidAccessibilityTest {
             assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(2)
             assertThat(createAccessibilityNodeInfo(overlappedChildTwoNodeId).text.toString())
                 .isEqualTo("Child Two")
+        }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun testSemanticsHitTest_unimportantTraversalProperties() {
+        // Arrange.
+        setContent {
+            Box(
+                Modifier
+                    .size(100.dp)
+                    .testTag(tag)
+                    .semantics { isTraversalGroup = true; traversalIndex = 1f }) {
+            }
+        }
+        val bounds = with(rule.density) { rule.onNodeWithTag(tag).getBoundsInRoot().toRect() }
+
+        // Act.
+        val hitNodeId = rule.runOnIdle {
+            delegate.hitTestSemanticsAt(
+                bounds.left + bounds.width / 2,
+                bounds.top + bounds.height / 2
+            )
+        }
+
+        // Assert it doesn't hit the tagged node since it only has unimportant properties.
+        rule.runOnIdle { assertThat(hitNodeId).isEqualTo(InvalidId) }
+    }
+
+    @Test
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Suppress("DEPRECATION")
+    fun testAccessibilityNodeInfoTreePruned_isContainerFalseDoesNotPrune() {
+        // Arrange.
+        val parentTag = "ParentForOverlappedChildren"
+        val childOneTag = "OverlappedChildOne"
+        val childTwoTag = "OverlappedChildTwo"
+        setContent {
+            Box(Modifier.testTag(parentTag)) {
+                with(LocalDensity.current) {
+                    Box(
+                        Modifier
+                            .zIndex(1f)
+                            .testTag(childOneTag)
+                            .semantics { isContainer = false }
+                            .semantics { isContainer = true }
+                            .requiredSize(50.toDp())
+                    )
+                    BasicText(
+                        "Child Two",
+                        Modifier
+                            .testTag(childTwoTag)
+                            .requiredSize(50.toDp())
+                    )
+                }
+            }
+        }
+        val parentNodeId = rule.onNodeWithTag(parentTag).semanticsId
+        val overlappedChildTwoNodeId = rule.onNodeWithTag(childTwoTag).semanticsId
+
+        rule.runOnIdle {
+            assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(2)
+            assertThat(createAccessibilityNodeInfo(overlappedChildTwoNodeId).text.toString())
+                .isEqualTo("Child Two")
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun testAccessibilityNodeInfoTreePruned_invisibleDoesNotPrune() {
+        // Arrange.
+        val parentTag = "ParentForOverlappedChildren"
+        val childOneTag = "OverlappedChildOne"
+        val childTwoTag = "OverlappedChildTwo"
+        setContent {
+            Box(Modifier.testTag(parentTag)) {
+                with(LocalDensity.current) {
+                    BasicText(
+                        "Child One",
+                        Modifier
+                            .zIndex(1f)
+                            .testTag(childOneTag)
+                            .semantics { invisibleToUser() }
+                            .requiredSize(50.toDp())
+                    )
+                    BasicText(
+                        "Child Two",
+                        Modifier
+                            .testTag(childTwoTag)
+                            .requiredSize(50.toDp())
+                    )
+                }
+            }
+        }
+        val parentNodeId = rule.onNodeWithTag(parentTag).semanticsId
+        val overlappedChildTwoNodeId = rule.onNodeWithTag(childTwoTag).semanticsId
+
+        rule.runOnIdle {
+            assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(2)
+            assertThat(createAccessibilityNodeInfo(overlappedChildTwoNodeId).text.toString())
+                .isEqualTo("Child Two")
+        }
+    }
+
+    @Test
+    @OptIn(ExperimentalComposeUiApi::class)
+    fun testAccessibilityNodeInfoTreePruned_isOpaquePrunes() {
+        // Arrange.
+        val parentTag = "ParentForOverlappedChildren"
+        val childOneTag = "OverlappedChildOne"
+        val childTwoTag = "OverlappedChildTwo"
+        setContent {
+            Box(Modifier.testTag(parentTag)) {
+                with(LocalDensity.current) {
+                    Box(
+                        Modifier
+                            .zIndex(1f)
+                            .testTag(childOneTag)
+                            .semantics { isOpaque() }
+                            .requiredSize(50.toDp())
+                    )
+                    BasicText(
+                        "Child Two",
+                        Modifier
+                            .testTag(childTwoTag)
+                            .requiredSize(50.toDp())
+                    )
+                }
+            }
+        }
+        val parentNodeId = rule.onNodeWithTag(parentTag).semanticsId
+        val overlappedChildOneNodeId = rule.onNodeWithTag(childOneTag).semanticsId
+        val overlappedChildTwoNodeId = rule.onNodeWithTag(childTwoTag).semanticsId
+
+        rule.runOnIdle {
+            assertThat(createAccessibilityNodeInfo(parentNodeId).childCount).isEqualTo(1)
+            assertThat(provider.createAccessibilityNodeInfo(overlappedChildOneNodeId)).isNotNull()
+            assertThat(provider.createAccessibilityNodeInfo(overlappedChildTwoNodeId)).isNull()
         }
     }
 
