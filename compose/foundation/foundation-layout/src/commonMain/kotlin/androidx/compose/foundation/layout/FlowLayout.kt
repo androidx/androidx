@@ -1,6 +1,25 @@
+/*
+ * Copyright 2023 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package androidx.compose.foundation.layout
 
 import androidx.annotation.FloatRange
+import androidx.collection.IntIntPair
+import androidx.collection.mutableIntListOf
+import androidx.collection.mutableIntObjectMapOf
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collection.MutableVector
@@ -15,6 +34,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.MultiContentMeasurePolicy
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.ParentDataModifierNode
@@ -27,6 +47,7 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.util.fastForEachIndexed
 import kotlin.math.ceil
 import kotlin.math.max
+import kotlin.math.min
 
 /**
  * [FlowRow] is a layout that fills items from left to right (ltr) in LTR layouts
@@ -55,27 +76,44 @@ import kotlin.math.max
  * @param horizontalArrangement The horizontal arrangement of the layout's children.
  * @param verticalArrangement The vertical arrangement of the layout's virtual rows.
  * @param maxItemsInEachRow The maximum number of items per row
+ * @param maxLines The max number of rows
+ * @param overflow The strategy to handle overflowing items
  * @param content The content as a [RowScope]
  *
  * @see FlowColumn
+ * @see ContextualFlowRow
  * @see [androidx.compose.foundation.layout.Row]
  */
 @Composable
 @ExperimentalLayoutApi
-inline fun FlowRow(
+fun FlowRow(
     modifier: Modifier = Modifier,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     maxItemsInEachRow: Int = Int.MAX_VALUE,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: FlowRowOverflow = FlowRowOverflow.Clip,
     content: @Composable FlowRowScope.() -> Unit
 ) {
-    val measurePolicy = rowMeasurementHelper(
+    val overflowState = remember(overflow) {
+        overflow.createOverflowState()
+    }
+    val measurePolicy = rowMeasurementMultiContentHelper(
         horizontalArrangement,
         verticalArrangement,
-        maxItemsInEachRow
+        maxItemsInEachRow,
+        maxLines,
+        overflowState
     )
+    val list: List<@Composable () -> Unit> = remember(overflow, content) {
+        val mutableList: MutableList<@Composable () -> Unit> = mutableListOf()
+        mutableList.add { FlowRowScopeInstance.content() }
+        overflow.addOverflowComposables(overflowState, mutableList)
+        mutableList
+    }
+
     Layout(
-        content = { FlowRowScopeInstance.content() },
+        contents = list,
         measurePolicy = measurePolicy,
         modifier = modifier
     )
@@ -105,27 +143,43 @@ inline fun FlowRow(
  * @param verticalArrangement The vertical arrangement of the layout's children.
  * @param horizontalArrangement The horizontal arrangement of the layout's virtual columns
  * @param maxItemsInEachColumn The maximum number of items per column
+ * @param maxLines The max number of rows
+ * @param overflow The strategy to handle overflowing items
  * @param content The content as a [ColumnScope]
  *
  * @see FlowRow
+ * @see ContextualFlowColumn
  * @see [androidx.compose.foundation.layout.Column]
  */
 @Composable
 @ExperimentalLayoutApi
-inline fun FlowColumn(
+fun FlowColumn(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
     maxItemsInEachColumn: Int = Int.MAX_VALUE,
+    maxLines: Int = Int.MAX_VALUE,
+    overflow: FlowColumnOverflow = FlowColumnOverflow.Clip,
     content: @Composable FlowColumnScope.() -> Unit
 ) {
-    val measurePolicy = columnMeasurementHelper(
+    val overflowState = remember(overflow) {
+        overflow.createOverflowState()
+    }
+    val measurePolicy = columnMeasurementMultiContentHelper(
         verticalArrangement,
         horizontalArrangement,
-        maxItemsInEachColumn
+        maxItemsInEachColumn,
+        maxLines,
+        overflowState
     )
+    val list: List<@Composable () -> Unit> = remember(overflow, content) {
+        val mutableList: MutableList<@Composable () -> Unit> = mutableListOf()
+        mutableList.add { FlowColumnScopeInstance.content() }
+        overflow.addOverflowComposables(overflowState, mutableList)
+        mutableList
+    }
     Layout(
-        content = { FlowColumnScopeInstance.content() },
+        contents = list,
         measurePolicy = measurePolicy,
         modifier = modifier
     )
@@ -156,6 +210,30 @@ interface FlowRowScope : RowScope {
 }
 
 /**
+ * Scope for the overflow [FlowRow].
+ */
+@LayoutScopeMarker
+@Immutable
+@ExperimentalLayoutApi
+interface FlowRowOverflowScope : FlowRowScope {
+    /**
+    * Total Number of Items available to show in [FlowRow]
+    * This includes items that may not be displayed.
+    *
+    * In [ContextualFlowRow], this matches the
+    * [ContextualFlowRow]'s `itemCount` parameter
+    */
+    @ExperimentalLayoutApi
+    val totalItemCount: Int
+
+    /**
+     * Total Number of Items displayed in the [FlowRow]
+     */
+    @ExperimentalLayoutApi
+    val shownItemCount: Int
+}
+
+/**
  * Scope for the children of [FlowColumn].
  */
 @LayoutScopeMarker
@@ -179,6 +257,30 @@ interface FlowColumnScope : ColumnScope {
     ): Modifier
 }
 
+/**
+ * Scope for the overflow [FlowColumn].
+ */
+@LayoutScopeMarker
+@Immutable
+@ExperimentalLayoutApi
+interface FlowColumnOverflowScope : FlowColumnScope {
+    /**
+     * Total Number of Items available to show in [FlowColumn]
+     * This includes items that may not be displayed.
+     *
+     * In [ContextualFlowColumn], this matches the
+     * [ContextualFlowColumn]'s `itemCount` parameter
+     */
+    @ExperimentalLayoutApi
+    val totalItemCount: Int
+
+    /**
+     * Total Number of Items displayed in the [FlowColumn]
+     */
+    @ExperimentalLayoutApi
+    val shownItemCount: Int
+}
+
 @OptIn(ExperimentalLayoutApi::class)
 internal object FlowRowScopeInstance : RowScope by RowScopeInstance, FlowRowScope {
     override fun Modifier.fillMaxRowHeight(fraction: Float): Modifier {
@@ -192,6 +294,28 @@ internal object FlowRowScopeInstance : RowScope by RowScopeInstance, FlowRowScop
             )
         )
     }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+internal class FlowRowOverflowScopeImpl(
+    private val state: FlowLayoutOverflowState
+) : FlowRowScope by FlowRowScopeInstance, FlowRowOverflowScope {
+    override val totalItemCount: Int
+        get() = state.itemCount
+
+    override val shownItemCount: Int
+        get() = state.noOfItemsShown
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+internal class FlowColumnOverflowScopeImpl(
+    private val state: FlowLayoutOverflowState
+) : FlowColumnScope by FlowColumnScopeInstance, FlowColumnOverflowScope {
+    override val totalItemCount: Int
+        get() = state.itemCount
+
+    override val shownItemCount: Int
+        get() = state.noOfItemsShown
 }
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -253,6 +377,7 @@ internal class FillCrossAxisSizeElement(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @PublishedApi
 @Composable
 internal fun rowMeasurementHelper(
@@ -260,7 +385,48 @@ internal fun rowMeasurementHelper(
     verticalArrangement: Arrangement.Vertical,
     maxItemsInMainAxis: Int,
 ): MeasurePolicy {
-    return remember(horizontalArrangement, verticalArrangement, maxItemsInMainAxis) {
+    return remember(
+        horizontalArrangement,
+        verticalArrangement,
+        maxItemsInMainAxis,
+    ) {
+        val measurePolicy = FlowMeasurePolicy(
+            orientation = LayoutOrientation.Horizontal,
+            horizontalArrangement = horizontalArrangement,
+            mainAxisArrangementSpacing = horizontalArrangement.spacing,
+            crossAxisSize = SizeMode.Wrap,
+            crossAxisAlignment = CROSS_AXIS_ALIGNMENT_TOP,
+            verticalArrangement = verticalArrangement,
+            crossAxisArrangementSpacing = verticalArrangement.spacing,
+            maxItemsInMainAxis = maxItemsInMainAxis,
+            maxLines = Int.MAX_VALUE,
+            overflow = FlowRowOverflow.Visible.createOverflowState()
+        ) as MultiContentMeasurePolicy
+
+        MeasurePolicy { measurables, constraints ->
+            with(measurePolicy) {
+                this@MeasurePolicy.measure(listOf(measurables), constraints)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun rowMeasurementMultiContentHelper(
+    horizontalArrangement: Arrangement.Horizontal,
+    verticalArrangement: Arrangement.Vertical,
+    maxItemsInMainAxis: Int,
+    maxLines: Int,
+    overflowState: FlowLayoutOverflowState,
+): MultiContentMeasurePolicy {
+    return remember(
+        horizontalArrangement,
+        verticalArrangement,
+        maxItemsInMainAxis,
+        maxLines,
+        overflowState
+    ) {
         FlowMeasurePolicy(
             orientation = LayoutOrientation.Horizontal,
             horizontalArrangement = horizontalArrangement,
@@ -269,11 +435,14 @@ internal fun rowMeasurementHelper(
             crossAxisAlignment = CROSS_AXIS_ALIGNMENT_TOP,
             verticalArrangement = verticalArrangement,
             crossAxisArrangementSpacing = verticalArrangement.spacing,
-            maxItemsInMainAxis = maxItemsInMainAxis
+            maxItemsInMainAxis = maxItemsInMainAxis,
+            maxLines = maxLines,
+            overflow = overflowState
         )
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @PublishedApi
 @Composable
 internal fun columnMeasurementHelper(
@@ -281,7 +450,47 @@ internal fun columnMeasurementHelper(
     horizontalArrangement: Arrangement.Horizontal,
     maxItemsInMainAxis: Int,
 ): MeasurePolicy {
-    return remember(verticalArrangement, horizontalArrangement, maxItemsInMainAxis) {
+    return remember(
+        verticalArrangement,
+        horizontalArrangement,
+        maxItemsInMainAxis,
+    ) {
+        val measurePolicy = FlowMeasurePolicy(
+            orientation = LayoutOrientation.Vertical,
+            verticalArrangement = verticalArrangement,
+            mainAxisArrangementSpacing = verticalArrangement.spacing,
+            crossAxisSize = SizeMode.Wrap,
+            crossAxisAlignment = CROSS_AXIS_ALIGNMENT_START,
+            horizontalArrangement = horizontalArrangement,
+            crossAxisArrangementSpacing = horizontalArrangement.spacing,
+            maxItemsInMainAxis = maxItemsInMainAxis,
+            maxLines = Int.MAX_VALUE,
+            overflow = FlowRowOverflow.Visible.createOverflowState()
+        )
+        MeasurePolicy { measurables, constraints ->
+            with(measurePolicy) {
+                this@MeasurePolicy.measure(listOf(measurables), constraints)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+internal fun columnMeasurementMultiContentHelper(
+    verticalArrangement: Arrangement.Vertical,
+    horizontalArrangement: Arrangement.Horizontal,
+    maxItemsInMainAxis: Int,
+    maxLines: Int,
+    overflowState: FlowLayoutOverflowState
+): MultiContentMeasurePolicy {
+    return remember(
+        verticalArrangement,
+        horizontalArrangement,
+        maxItemsInMainAxis,
+        maxLines,
+        overflowState
+    ) {
         FlowMeasurePolicy(
             orientation = LayoutOrientation.Vertical,
             verticalArrangement = verticalArrangement,
@@ -291,6 +500,8 @@ internal fun columnMeasurementHelper(
             horizontalArrangement = horizontalArrangement,
             crossAxisArrangementSpacing = horizontalArrangement.spacing,
             maxItemsInMainAxis = maxItemsInMainAxis,
+            maxLines = maxLines,
+            overflow = overflowState
         )
     }
 }
@@ -298,170 +509,178 @@ internal fun columnMeasurementHelper(
 /**
  * Returns a Flow Measure Policy
  */
+@OptIn(ExperimentalLayoutApi::class)
 private data class FlowMeasurePolicy(
     private val orientation: LayoutOrientation,
-    private val horizontalArrangement: Arrangement.Horizontal?,
-    private val verticalArrangement: Arrangement.Vertical?,
+    private val horizontalArrangement: Arrangement.Horizontal,
+    private val verticalArrangement: Arrangement.Vertical,
     private val mainAxisArrangementSpacing: Dp,
     private val crossAxisSize: SizeMode,
     private val crossAxisAlignment: CrossAxisAlignment,
     private val crossAxisArrangementSpacing: Dp,
     private val maxItemsInMainAxis: Int,
-) : MeasurePolicy {
+    private val maxLines: Int,
+    private val overflow: FlowLayoutOverflowState,
+) : MultiContentMeasurePolicy {
 
     override fun MeasureScope.measure(
-        measurables: List<Measurable>,
+        measurables: List<List<Measurable>>,
         constraints: Constraints
     ): MeasureResult {
-        if (measurables.isEmpty()) {
+        if (maxLines == 0 || maxItemsInMainAxis == 0 || measurables.isEmpty() ||
+            constraints.maxHeight == 0 && overflow.type != FlowLayoutOverflow.OverflowType.Visible
+        ) {
             return layout(0, 0) {}
         }
-        val placeables: Array<Placeable?> = arrayOfNulls(measurables.size)
-        val measureHelper = RowColumnMeasurementHelper(
+        val list = measurables.first()
+        if (list.isEmpty()) {
+            return layout(0, 0) {}
+        }
+        val seeMoreMeasurable = measurables.getOrNull(1)?.firstOrNull()
+        val collapseMeasurable = measurables.getOrNull(2)?.firstOrNull()
+        overflow.itemCount = list.size
+        overflow.setOverflowMeasurables(
+            seeMoreMeasurable,
+            collapseMeasurable,
+            orientation,
+            constraints,
+        )
+        return breakDownItems(
             orientation,
             horizontalArrangement,
             verticalArrangement,
-            mainAxisArrangementSpacing,
             crossAxisSize,
             crossAxisAlignment,
-            measurables,
-            placeables,
-        )
-        val orientationIndependentConstraints =
-            OrientationIndependentConstraints(constraints, orientation)
-        val flowResult = breakDownItems(
-            measureHelper,
-            orientation,
-            orientationIndependentConstraints,
+            list.iterator(),
+            constraints,
             maxItemsInMainAxis,
+            maxLines,
+            overflow
         )
-        val items = flowResult.items
-        val crossAxisSizes = IntArray(items.size) { index ->
-            items[index].crossAxisSize
-        }
-        // space in between children, except for the last child
-        val outPosition = IntArray(crossAxisSizes.size)
-        var totalCrossAxisSize = flowResult.crossAxisTotalSize
-        val totalCrossAxisSpacing =
-            crossAxisArrangementSpacing.roundToPx() * (items.size - 1)
-        totalCrossAxisSize += totalCrossAxisSpacing
-        // cross axis arrangement
-        if (orientation == LayoutOrientation.Horizontal) {
-            with(requireNotNull(verticalArrangement) { "null verticalArrangement" }) {
-                arrange(
-                    totalCrossAxisSize,
-                    crossAxisSizes,
-                    outPosition
-                )
-            }
-        } else {
-            with(requireNotNull(horizontalArrangement) { "null horizontalArrangement" }) {
-                arrange(
-                    totalCrossAxisSize,
-                    crossAxisSizes,
-                    layoutDirection,
-                    outPosition
-                )
-            }
-        }
-
-        var layoutWidth: Int
-        var layoutHeight: Int
-        if (orientation == LayoutOrientation.Horizontal) {
-            layoutWidth = flowResult.mainAxisTotalSize
-            layoutHeight = totalCrossAxisSize
-        } else {
-            layoutWidth = totalCrossAxisSize
-            layoutHeight = flowResult.mainAxisTotalSize
-        }
-        layoutWidth = constraints.constrainWidth(layoutWidth)
-        layoutHeight = constraints.constrainHeight(layoutHeight)
-
-        return layout(layoutWidth, layoutHeight) {
-            flowResult.items.forEachIndexed { currentRowOrColumnIndex,
-                measureResult ->
-                measureHelper.placeHelper(
-                    this,
-                    measureResult,
-                    outPosition[currentRowOrColumnIndex],
-                    this@measure.layoutDirection
-                )
-            }
-        }
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicWidth(
-        measurables: List<IntrinsicMeasurable>,
+        measurables: List<List<IntrinsicMeasurable>>,
         height: Int
-    ) = if (orientation == LayoutOrientation.Horizontal) {
-        minIntrinsicMainAxisSize(
-            measurables,
-            height,
-            mainAxisArrangementSpacing.roundToPx(),
-            crossAxisArrangementSpacing.roundToPx()
+    ): Int {
+        overflow.setOverflowMeasurables(
+            seeMoreMeasurable = measurables.getOrNull(1)?.firstOrNull(),
+            collapseMeasurable = measurables.getOrNull(2)?.firstOrNull(),
+            orientation = orientation,
+            constraints = Constraints(maxHeight = height)
         )
-    } else {
-        intrinsicCrossAxisSize(
-            measurables,
-            height,
-            mainAxisArrangementSpacing.roundToPx(),
-            crossAxisArrangementSpacing.roundToPx()
-        )
+        return if (orientation == LayoutOrientation.Horizontal) {
+            minIntrinsicMainAxisSize(
+                measurables.firstOrNull() ?: listOf(),
+                height,
+                mainAxisArrangementSpacing.roundToPx(),
+                crossAxisArrangementSpacing.roundToPx(),
+                maxLines = maxLines,
+                maxItemsInMainAxis = maxItemsInMainAxis,
+                overflow = overflow
+            )
+        } else {
+            intrinsicCrossAxisSize(
+                measurables.firstOrNull() ?: listOf(),
+                height,
+                mainAxisArrangementSpacing.roundToPx(),
+                crossAxisArrangementSpacing.roundToPx(),
+                maxLines = maxLines,
+                maxItemsInMainAxis = maxItemsInMainAxis,
+                overflow = overflow
+            )
+        }
     }
 
     override fun IntrinsicMeasureScope.minIntrinsicHeight(
-        measurables: List<IntrinsicMeasurable>,
+        measurables: List<List<IntrinsicMeasurable>>,
         width: Int
-    ) = if (orientation == LayoutOrientation.Horizontal) {
-        intrinsicCrossAxisSize(
-            measurables,
-            width,
-            mainAxisArrangementSpacing.roundToPx(),
-            crossAxisArrangementSpacing.roundToPx()
+    ): Int {
+        overflow.setOverflowMeasurables(
+            seeMoreMeasurable = measurables.getOrNull(1)?.firstOrNull(),
+            collapseMeasurable = measurables.getOrNull(2)?.firstOrNull(),
+            orientation = orientation,
+            constraints = Constraints(maxWidth = width)
         )
-    } else {
-        minIntrinsicMainAxisSize(
-            measurables,
-            width,
-            mainAxisArrangementSpacing.roundToPx(),
-            crossAxisArrangementSpacing.roundToPx(),
-        )
+        return if (orientation == LayoutOrientation.Horizontal) {
+            intrinsicCrossAxisSize(
+                measurables.firstOrNull() ?: listOf(),
+                width,
+                mainAxisArrangementSpacing.roundToPx(),
+                crossAxisArrangementSpacing.roundToPx(),
+                maxLines = maxLines,
+                maxItemsInMainAxis = maxItemsInMainAxis,
+                overflow = overflow
+            )
+        } else {
+            minIntrinsicMainAxisSize(
+                measurables.firstOrNull() ?: listOf(),
+                width,
+                mainAxisArrangementSpacing.roundToPx(),
+                crossAxisArrangementSpacing.roundToPx(),
+                maxLines = maxLines,
+                maxItemsInMainAxis = maxItemsInMainAxis,
+                overflow = overflow
+            )
+        }
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicHeight(
-        measurables: List<IntrinsicMeasurable>,
+        measurables: List<List<IntrinsicMeasurable>>,
         width: Int
-    ) = if (orientation == LayoutOrientation.Horizontal) {
-        intrinsicCrossAxisSize(
-            measurables,
-            width,
-            mainAxisArrangementSpacing.roundToPx(),
-            crossAxisArrangementSpacing.roundToPx()
+    ): Int {
+        overflow.setOverflowMeasurables(
+            seeMoreMeasurable = measurables.getOrNull(1)?.firstOrNull(),
+            collapseMeasurable = measurables.getOrNull(2)?.firstOrNull(),
+            orientation = orientation,
+            constraints = Constraints(maxWidth = width)
         )
-    } else {
-        maxIntrinsicMainAxisSize(
-            measurables,
-            width,
-            mainAxisArrangementSpacing.roundToPx(),
-        )
+        return if (orientation == LayoutOrientation.Horizontal) {
+            intrinsicCrossAxisSize(
+                measurables.firstOrNull() ?: listOf(),
+                width,
+                mainAxisArrangementSpacing.roundToPx(),
+                crossAxisArrangementSpacing.roundToPx(),
+                maxLines = maxLines,
+                maxItemsInMainAxis = maxItemsInMainAxis,
+                overflow = overflow
+            )
+        } else {
+            maxIntrinsicMainAxisSize(
+                measurables.firstOrNull() ?: listOf(),
+                width,
+                mainAxisArrangementSpacing.roundToPx(),
+            )
+        }
     }
 
     override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-        measurables: List<IntrinsicMeasurable>,
+        measurables: List<List<IntrinsicMeasurable>>,
         height: Int
-    ) = if (orientation == LayoutOrientation.Horizontal) {
-        maxIntrinsicMainAxisSize(
-            measurables,
-            height,
-            mainAxisArrangementSpacing.roundToPx(),
+    ): Int {
+        overflow.setOverflowMeasurables(
+            seeMoreMeasurable = measurables.getOrNull(1)?.firstOrNull(),
+            collapseMeasurable = measurables.getOrNull(2)?.firstOrNull(),
+            orientation = orientation,
+            constraints = Constraints(maxHeight = height)
         )
-    } else {
-        intrinsicCrossAxisSize(
-            measurables,
-            height,
-            mainAxisArrangementSpacing.roundToPx(),
-            crossAxisArrangementSpacing.roundToPx()
-        )
+        return if (orientation == LayoutOrientation.Horizontal) {
+            maxIntrinsicMainAxisSize(
+                measurables.firstOrNull() ?: listOf(),
+                height,
+                mainAxisArrangementSpacing.roundToPx(),
+            )
+        } else {
+            intrinsicCrossAxisSize(
+                measurables.firstOrNull() ?: listOf(),
+                height,
+                mainAxisArrangementSpacing.roundToPx(),
+                crossAxisArrangementSpacing.roundToPx(),
+                maxLines = maxLines,
+                maxItemsInMainAxis = maxItemsInMainAxis,
+                overflow = overflow
+            )
+        }
     }
 
     fun minIntrinsicMainAxisSize(
@@ -469,6 +688,9 @@ private data class FlowMeasurePolicy(
         crossAxisAvailable: Int,
         mainAxisSpacing: Int,
         crossAxisSpacing: Int,
+        maxItemsInMainAxis: Int,
+        maxLines: Int,
+        overflow: FlowLayoutOverflowState
     ) = minIntrinsicMainAxisSize(
         measurables,
         mainAxisSize = minMainAxisIntrinsicItemSize,
@@ -476,7 +698,9 @@ private data class FlowMeasurePolicy(
         crossAxisAvailable,
         mainAxisSpacing,
         crossAxisSpacing,
-        maxItemsInMainAxis
+        maxItemsInMainAxis,
+        maxLines,
+        overflow
     )
 
     fun maxIntrinsicMainAxisSize(
@@ -495,7 +719,10 @@ private data class FlowMeasurePolicy(
         measurables: List<IntrinsicMeasurable>,
         mainAxisAvailable: Int,
         mainAxisSpacing: Int,
-        crossAxisSpacing: Int
+        crossAxisSpacing: Int,
+        maxItemsInMainAxis: Int,
+        maxLines: Int,
+        overflow: FlowLayoutOverflowState
     ) = intrinsicCrossAxisSize(
         measurables,
         mainAxisSize = minMainAxisIntrinsicItemSize,
@@ -503,8 +730,10 @@ private data class FlowMeasurePolicy(
         mainAxisAvailable,
         mainAxisSpacing,
         crossAxisSpacing,
-        maxItemsInMainAxis
-    )
+        maxItemsInMainAxis = maxItemsInMainAxis,
+        overflow = overflow,
+        maxLines = maxLines
+    ).first
 
     val maxMainAxisIntrinsicItemSize: IntrinsicMeasurable.(Int, Int) -> Int =
         if (orientation == LayoutOrientation.Horizontal) { _, h ->
@@ -568,6 +797,7 @@ private fun maxIntrinsicMainAxisSize(
  * Slower algorithm but needed to determine the minimum main axis size
  * Uses a binary search to search different scenarios to see the minimum main axis size
  */
+@OptIn(ExperimentalLayoutApi::class)
 private fun minIntrinsicMainAxisSize(
     children: List<IntrinsicMeasurable>,
     mainAxisSize: IntrinsicMeasurable.(Int, Int) -> Int,
@@ -575,8 +805,13 @@ private fun minIntrinsicMainAxisSize(
     crossAxisAvailable: Int,
     mainAxisSpacing: Int,
     crossAxisSpacing: Int,
-    maxItemsInMainAxis: Int
+    maxItemsInMainAxis: Int,
+    maxLines: Int,
+    overflow: FlowLayoutOverflowState
 ): Int {
+    if (children.isEmpty()) {
+        return 0
+    }
     val mainAxisSizes = IntArray(children.size) { 0 }
     val crossAxisSizes = IntArray(children.size) { 0 }
 
@@ -587,35 +822,62 @@ private fun minIntrinsicMainAxisSize(
         crossAxisSizes[index] = child.crossAxisSize(index, mainAxisItemSize)
     }
 
-    val maxMainAxisSize = mainAxisSizes.sum()
+    var maxItemsThatCanBeShown = if (
+        maxLines != Int.MAX_VALUE &&
+        maxItemsInMainAxis != Int.MAX_VALUE) {
+        maxItemsInMainAxis * maxLines
+    } else {
+        Int.MAX_VALUE
+    }
+    val mustHaveEllipsis = when {
+        maxItemsThatCanBeShown < children.size &&
+            (overflow.type == FlowLayoutOverflow.OverflowType.ExpandIndicator ||
+                overflow.type == FlowLayoutOverflow.OverflowType.ExpandOrCollapseIndicator)
+        -> true
+        maxItemsThatCanBeShown >= children.size &&
+            maxLines >= overflow.minLinesToShowCollapse &&
+            overflow.type == FlowLayoutOverflow.OverflowType.ExpandOrCollapseIndicator ->
+            true
+        else -> false
+    }
+    maxItemsThatCanBeShown -= if (mustHaveEllipsis) 1 else 0
+    maxItemsThatCanBeShown = min(maxItemsThatCanBeShown, children.size)
+    val maxMainAxisSize = mainAxisSizes.sum().run { this + ((children.size - 1) * mainAxisSpacing) }
     var mainAxisUsed = maxMainAxisSize
     var crossAxisUsed = crossAxisSizes.maxOf { it }
 
     val minimumItemSize = mainAxisSizes.maxOf { it }
     var low = minimumItemSize
     var high = maxMainAxisSize
-    while (low < high) {
+    while (low <= high) {
         if (crossAxisUsed == crossAxisAvailable) {
             return mainAxisUsed
         }
         val mid = (low + high) / 2
         mainAxisUsed = mid
-        crossAxisUsed = intrinsicCrossAxisSize(
+        val pair = intrinsicCrossAxisSize(
             children,
             mainAxisSizes,
             crossAxisSizes,
             mainAxisUsed,
             mainAxisSpacing,
             crossAxisSpacing,
-            maxItemsInMainAxis
+            maxItemsInMainAxis,
+            maxLines,
+            overflow
         )
+        crossAxisUsed = pair.first
+        val itemShown = pair.second
 
-        if (crossAxisUsed == crossAxisAvailable) {
-            return mainAxisUsed
-        } else if (crossAxisUsed > crossAxisAvailable) {
+        if (crossAxisUsed > crossAxisAvailable || itemShown < maxItemsThatCanBeShown) {
             low = mid + 1
-        } else {
+            if (low > high) {
+                return low
+            }
+        } else if (crossAxisUsed < crossAxisAvailable) {
             high = mid - 1
+        } else {
+            return mainAxisUsed
         }
     }
 
@@ -633,8 +895,10 @@ private fun intrinsicCrossAxisSize(
     mainAxisAvailable: Int,
     mainAxisSpacing: Int,
     crossAxisSpacing: Int,
-    maxItemsInMainAxis: Int
-): Int {
+    maxItemsInMainAxis: Int,
+    maxLines: Int,
+    overflow: FlowLayoutOverflowState
+): IntIntPair {
     return intrinsicCrossAxisSize(
         children,
         { index, _ -> mainAxisSizes[index] },
@@ -642,7 +906,9 @@ private fun intrinsicCrossAxisSize(
         mainAxisAvailable,
         mainAxisSpacing,
         crossAxisSpacing,
-        maxItemsInMainAxis
+        maxItemsInMainAxis,
+        maxLines,
+        overflow
     )
 }
 
@@ -656,11 +922,26 @@ private fun intrinsicCrossAxisSize(
     mainAxisAvailable: Int,
     mainAxisSpacing: Int,
     crossAxisSpacing: Int,
-    maxItemsInMainAxis: Int
-): Int {
+    maxItemsInMainAxis: Int,
+    maxLines: Int,
+    overflow: FlowLayoutOverflowState
+): IntIntPair {
     if (children.isEmpty()) {
-        return 0
+        return IntIntPair(0, 0)
     }
+    val buildingBlocks = FlowLayoutBuildingBlocks(
+        maxItemsInMainAxis = maxItemsInMainAxis,
+        overflow = overflow,
+        maxLines = maxLines,
+        constraints = OrientationIndependentConstraints(
+            mainAxisMin = 0,
+            mainAxisMax = mainAxisAvailable,
+            crossAxisMin = 0,
+            crossAxisMax = Constraints.Infinity
+        ),
+        mainAxisSpacing = mainAxisSpacing,
+        crossAxisSpacing = crossAxisSpacing,
+    )
     var nextChild = children.getOrNull(0)
     var nextCrossAxisSize = nextChild?.crossAxisSize(0, mainAxisAvailable) ?: 0
     var nextMainAxisSize = nextChild?.mainAxisSize(0, nextCrossAxisSize) ?: 0
@@ -669,12 +950,36 @@ private fun intrinsicCrossAxisSize(
     var currentCrossAxisSize = 0
     var totalCrossAxisSize = 0
     var lastBreak = 0
+    var lineIndex = 0
 
-    children.fastForEachIndexed { index, _ ->
-        nextChild!!
+    var wrapInfo = buildingBlocks.getWrapInfo(
+        nextItemHasNext = children.size > 1,
+        nextIndexInLine = 0,
+        leftOver = IntIntPair(remaining, Constraints.Infinity),
+        nextSize = if (nextChild == null) null else IntIntPair(nextMainAxisSize, nextCrossAxisSize),
+        lineIndex = lineIndex,
+        totalCrossAxisSize = totalCrossAxisSize,
+        currentLineCrossAxisSize = currentCrossAxisSize,
+        isWrappingRound = false,
+        isEllipsisWrap = false
+    )
+
+    if (wrapInfo.isLastItemInContainer) {
+        val size = overflow.ellipsisSize(
+            hasNext = nextChild != null,
+            lineIndex = 0,
+            totalCrossAxisSize = 0,
+        )?.second ?: 0
+        val noOfItemsShown = 0
+        return IntIntPair(size, noOfItemsShown)
+    }
+
+    var noOfItemsShown = 0
+    for (index in children.indices) {
         val childCrossAxisSize = nextCrossAxisSize
         val childMainAxisSize = nextMainAxisSize
         remaining -= childMainAxisSize
+        noOfItemsShown = index + 1
         currentCrossAxisSize = maxOf(currentCrossAxisSize, childCrossAxisSize)
 
         // look ahead to simplify logic
@@ -683,20 +988,49 @@ private fun intrinsicCrossAxisSize(
         nextMainAxisSize = nextChild?.mainAxisSize(index + 1, nextCrossAxisSize)
             ?.plus(mainAxisSpacing) ?: 0
 
-        if (remaining < 0 || index + 1 == children.size ||
-            (index + 1) - lastBreak == maxItemsInMainAxis ||
-            remaining - nextMainAxisSize < 0
-        ) {
+        wrapInfo = buildingBlocks.getWrapInfo(
+            nextItemHasNext = index + 2 < children.size,
+            nextIndexInLine = (index + 1) - lastBreak,
+            leftOver = IntIntPair(remaining, Constraints.Infinity),
+            nextSize = if (nextChild == null) {
+                null
+            } else {
+                IntIntPair(nextMainAxisSize, nextCrossAxisSize)
+            },
+            lineIndex = lineIndex,
+            totalCrossAxisSize = totalCrossAxisSize,
+            currentLineCrossAxisSize = currentCrossAxisSize,
+            isWrappingRound = false,
+            isEllipsisWrap = false
+        )
+        if (wrapInfo.isLastItemInLine) {
             totalCrossAxisSize += currentCrossAxisSize + crossAxisSpacing
+            val ellipsisWrapInfo = buildingBlocks.getWrapEllipsisInfo(
+                wrapInfo,
+                hasNext = nextChild != null,
+                leftOverMainAxis = remaining,
+                lastContentLineIndex = lineIndex,
+                totalCrossAxisSize = totalCrossAxisSize,
+                nextIndexInLine = (index + 1) - lastBreak,
+            )
             currentCrossAxisSize = 0
             remaining = mainAxisAvailable
             lastBreak = index + 1
             nextMainAxisSize -= mainAxisSpacing
+            lineIndex++
+            if (wrapInfo.isLastItemInContainer) {
+                ellipsisWrapInfo?.ellipsisSize?.let {
+                    if (!ellipsisWrapInfo.placeEllipsisOnLastContentLine) {
+                        totalCrossAxisSize += it.second + crossAxisSpacing
+                    }
+                }
+                break
+            }
         }
     }
     // remove the last spacing for the last row or column
     totalCrossAxisSize -= crossAxisSpacing
-    return totalCrossAxisSize
+    return IntIntPair(totalCrossAxisSize, noOfItemsShown)
 }
 
 /**
@@ -705,19 +1039,38 @@ private fun intrinsicCrossAxisSize(
  * it moves to the next "line" and moves the next batch of items to a new list of items
  */
 internal fun MeasureScope.breakDownItems(
-    measureHelper: RowColumnMeasurementHelper,
     orientation: LayoutOrientation,
-    constraints: OrientationIndependentConstraints,
+    horizontalArrangement: Arrangement.Horizontal,
+    verticalArrangement: Arrangement.Vertical,
+    sizeMode: SizeMode,
+    crossAxisAlignment: CrossAxisAlignment,
+    measurablesIterator: Iterator<Measurable>,
+    constraints: Constraints,
     maxItemsInMainAxis: Int,
-): FlowResult {
+    maxLines: Int,
+    overflow: FlowLayoutOverflowState,
+): MeasureResult {
     val items = mutableVectorOf<RowColumnMeasureHelperResult>()
-    val mainAxisMax = constraints.mainAxisMax
-    val mainAxisMin = constraints.mainAxisMin
-    val crossAxisMax = constraints.crossAxisMax
-    val measurables = measureHelper.measurables
-    val placeables = measureHelper.placeables
+    val independentConstraints = OrientationIndependentConstraints(constraints, orientation)
+    val mainAxisMax = independentConstraints.mainAxisMax
+    val mainAxisMin = independentConstraints.mainAxisMin
+    val crossAxisMax = independentConstraints.crossAxisMax
+    val placeables = mutableIntObjectMapOf<Placeable?>()
+    val measurables = mutableListOf<Measurable>()
 
-    val spacing = ceil(measureHelper.arrangementSpacing.toPx()).toInt()
+    val mainAxisSpacingDp = if (orientation == LayoutOrientation.Horizontal) {
+        horizontalArrangement.spacing
+    } else {
+        verticalArrangement.spacing
+    }
+    val crossAxisSpacingDp = if (orientation == LayoutOrientation.Horizontal) {
+        verticalArrangement.spacing
+    } else {
+        horizontalArrangement.spacing
+    }
+
+    val spacing = ceil(mainAxisSpacingDp.toPx()).toInt()
+    val crossAxisSpacing = ceil(crossAxisSpacingDp.toPx()).toInt()
     val subsetConstraints = OrientationIndependentConstraints(
         mainAxisMin,
         mainAxisMax,
@@ -725,52 +1078,138 @@ internal fun MeasureScope.breakDownItems(
         crossAxisMax
     )
     // nextSize of the list, pre-calculated
-    var nextSize: Pair<Int, Int>? = measurables.getOrNull(0)?.measureAndCache(
-        subsetConstraints, orientation
-    ) { placeable ->
-        placeables[0] = placeable
+    var index = 0
+    var measurable: Measurable?
+    var nextSize = measurablesIterator.hasNext().run {
+        measurable = if (!this) null else measurablesIterator.safeNext()
+        measurable?.measureAndCache(subsetConstraints, orientation) { placeable ->
+            placeables[0] = placeable
+        }
     }
     var nextMainAxisSize: Int? = nextSize?.first
     var nextCrossAxisSize: Int? = nextSize?.second
 
     var startBreakLineIndex = 0
-    val endBreakLineList = arrayOfNulls<Int>(measurables.size)
-    val crossAxisSizes = arrayOfNulls<Int>(measurables.size)
-    var endBreakLineIndex = 0
+    val endBreakLineList = mutableIntListOf()
+    val crossAxisSizes = mutableIntListOf()
+    var lineIndex = 0
 
     var leftOver = mainAxisMax
+    var leftOverCrossAxis = crossAxisMax
+    val buildingBlocks = FlowLayoutBuildingBlocks(
+        maxItemsInMainAxis = maxItemsInMainAxis,
+        mainAxisSpacing = spacing,
+        crossAxisSpacing = crossAxisSpacing,
+        constraints = independentConstraints,
+        maxLines = maxLines,
+        overflow = overflow
+    )
+    var ellipsisWrapInfo: FlowLayoutBuildingBlocks.WrapEllipsisInfo? = null
+    var wrapInfo = buildingBlocks.getWrapInfo(
+        nextItemHasNext = measurablesIterator.hasNext(),
+        leftOver = IntIntPair(leftOver, leftOverCrossAxis),
+        totalCrossAxisSize = 0,
+        nextSize = nextSize,
+        currentLineCrossAxisSize = 0,
+        nextIndexInLine = 0,
+        isWrappingRound = false,
+        isEllipsisWrap = false,
+        lineIndex = 0
+    ).also { wrapInfo ->
+        if (wrapInfo.isLastItemInContainer) {
+            ellipsisWrapInfo = buildingBlocks.getWrapEllipsisInfo(
+                wrapInfo,
+                nextSize != null,
+                lastContentLineIndex = -1,
+                totalCrossAxisSize = 0,
+                leftOver,
+                nextIndexInLine = 0
+            )
+        }
+    }
+
     // figure out the mainAxisTotalSize which will be minMainAxis when measuring the row/column
     var mainAxisTotalSize = mainAxisMin
+    var crossAxisTotalSize = 0
     var currentLineMainAxisSize = 0
     var currentLineCrossAxisSize = 0
-    for (index in measurables.indices) {
+    while (!wrapInfo.isLastItemInContainer && measurable != null) {
         val itemMainAxisSize = nextMainAxisSize!!
         val itemCrossAxisSize = nextCrossAxisSize!!
         currentLineMainAxisSize += itemMainAxisSize
         currentLineCrossAxisSize = maxOf(currentLineCrossAxisSize, itemCrossAxisSize)
         leftOver -= itemMainAxisSize
-        nextSize = measurables.getOrNull(index + 1)?.measureAndCache(
-            subsetConstraints, orientation
-        ) { placeable ->
-            placeables[index + 1] = placeable
+        overflow.itemShown = index + 1
+        measurables.add(measurable!!)
+        nextSize = measurablesIterator.hasNext().run {
+            measurable = if (!this) null else measurablesIterator.safeNext()
+            measurable?.measureAndCache(subsetConstraints, orientation) { placeable ->
+                placeables[index + 1] = placeable
+            }
         }
         nextMainAxisSize = nextSize?.first?.plus(spacing)
-        nextCrossAxisSize = nextSize?.second ?: 0
-        if (index + 1 >= measurables.size ||
-            (index + 1) - startBreakLineIndex >= maxItemsInMainAxis ||
-            leftOver - (nextMainAxisSize ?: 0) < 0
-        ) {
+        nextCrossAxisSize = nextSize?.second
+
+        wrapInfo = buildingBlocks.getWrapInfo(
+            nextItemHasNext = measurablesIterator.hasNext(),
+            leftOver = IntIntPair(leftOver, leftOverCrossAxis),
+            totalCrossAxisSize = crossAxisTotalSize,
+            nextSize = if (nextSize == null) null else
+                IntIntPair(nextMainAxisSize!!, nextCrossAxisSize!!),
+            currentLineCrossAxisSize = currentLineCrossAxisSize,
+            nextIndexInLine = (index + 1) - startBreakLineIndex,
+            isWrappingRound = false,
+            isEllipsisWrap = false,
+            lineIndex = lineIndex
+        )
+        if (wrapInfo.isLastItemInLine) {
             mainAxisTotalSize = maxOf(mainAxisTotalSize, currentLineMainAxisSize)
             mainAxisTotalSize = minOf(mainAxisTotalSize, mainAxisMax)
+            crossAxisTotalSize += currentLineCrossAxisSize
+            ellipsisWrapInfo = buildingBlocks.getWrapEllipsisInfo(
+                wrapInfo,
+                nextSize != null,
+                lastContentLineIndex = lineIndex,
+                totalCrossAxisSize = crossAxisTotalSize,
+                leftOver,
+                (index + 1) - startBreakLineIndex
+            )
+            crossAxisSizes.add(currentLineCrossAxisSize)
+            leftOver = mainAxisMax
+            leftOverCrossAxis = crossAxisMax - crossAxisTotalSize - crossAxisSpacing
             startBreakLineIndex = index + 1
-            endBreakLineList[endBreakLineIndex] = index + 1
-            crossAxisSizes[endBreakLineIndex] = currentLineCrossAxisSize
-            endBreakLineIndex++
+            endBreakLineList.add(index + 1)
             currentLineMainAxisSize = 0
             currentLineCrossAxisSize = 0
-            leftOver = mainAxisMax
             // only add spacing for next items in the row or column, not the starting indexes
             nextMainAxisSize = nextMainAxisSize?.minus(spacing)
+            lineIndex++
+            crossAxisTotalSize += crossAxisSpacing
+        }
+        index++
+    }
+
+    val measureHelper = RowColumnMeasurementHelper(
+        orientation,
+        horizontalArrangement,
+        verticalArrangement,
+        sizeMode,
+        crossAxisAlignment,
+        RowColumnMeasurablesWrapper(
+            measurables,
+            placeables,
+            ellipsisWrapInfo?.ellipsis,
+            ellipsisWrapInfo?.placeEllipsisOnLastContentLine,
+        ),
+    )
+
+    ellipsisWrapInfo?.let {
+        lineIndex = endBreakLineList.lastIndex
+        if (it.placeEllipsisOnLastContentLine) {
+            val lastLineCrossAxis = crossAxisSizes[lineIndex]
+            crossAxisSizes[lineIndex] = max(lastLineCrossAxis, it.ellipsisSize.second)
+        } else {
+            crossAxisSizes.add(it.ellipsisSize.second)
         }
     }
 
@@ -778,19 +1217,17 @@ internal fun MeasureScope.breakDownItems(
         mainAxisMin = mainAxisTotalSize
     )
 
-    startBreakLineIndex = 0
-    var crossAxisTotalSize = 0
-
-    endBreakLineIndex = 0
-    var endIndex = endBreakLineList.getOrNull(endBreakLineIndex)
-    while (endIndex != null) {
-        var crossAxisSize = crossAxisSizes[endBreakLineIndex]
+    crossAxisTotalSize = 0
+    measureHelper.listWrapper.forEachLine(
+        endBreakLineList
+    ) { currentLineIndex, startIndex, endIndex ->
+        val crossAxisSize = crossAxisSizes[currentLineIndex]
         val result = measureHelper.measureWithoutPlacing(
             this,
             subsetBoxConstraints.copy(
-                crossAxisMax = crossAxisSize!!
+                crossAxisMax = crossAxisSize
             ).toBoxConstraints(orientation),
-            startBreakLineIndex,
+            startIndex,
             endIndex
         )
         crossAxisTotalSize += result.crossAxisSize
@@ -798,28 +1235,41 @@ internal fun MeasureScope.breakDownItems(
         items.add(
             result
         )
-        startBreakLineIndex = endIndex
-        endBreakLineIndex++
-        endIndex = endBreakLineList.getOrNull(endBreakLineIndex)
     }
 
-    crossAxisTotalSize = maxOf(crossAxisTotalSize, constraints.crossAxisMin)
-    mainAxisTotalSize = maxOf(mainAxisTotalSize, constraints.mainAxisMin)
-    return FlowResult(
+    crossAxisTotalSize = maxOf(crossAxisTotalSize, independentConstraints.crossAxisMin)
+    mainAxisTotalSize = maxOf(mainAxisTotalSize, independentConstraints.mainAxisMin)
+    val flowResult = FlowResult(
         mainAxisTotalSize,
         crossAxisTotalSize,
         items,
     )
+
+    if (flowResult.items.isEmpty()) {
+        return layout(
+        constraints.constrainWidth(0),
+        constraints.constrainHeight(0)) {}
+    }
+
+    return handleFlowResult(flowResult, constraints, measureHelper)
 }
 
-internal fun Measurable.mainAxisMin(orientation: LayoutOrientation, crossAxisSize: Int) =
+private fun Iterator<Measurable>.safeNext(): Measurable? {
+    return try {
+        next()
+    } catch (e: ArrayIndexOutOfBoundsException) {
+        null
+    }
+}
+
+internal fun IntrinsicMeasurable.mainAxisMin(orientation: LayoutOrientation, crossAxisSize: Int) =
     if (orientation == LayoutOrientation.Horizontal) {
         minIntrinsicWidth(crossAxisSize)
     } else {
         minIntrinsicHeight(crossAxisSize)
     }
 
-internal fun Measurable.crossAxisMin(orientation: LayoutOrientation, mainAxisSize: Int) =
+internal fun IntrinsicMeasurable.crossAxisMin(orientation: LayoutOrientation, mainAxisSize: Int) =
     if (orientation == LayoutOrientation.Horizontal) {
         minIntrinsicHeight(mainAxisSize)
     } else {
@@ -827,13 +1277,13 @@ internal fun Measurable.crossAxisMin(orientation: LayoutOrientation, mainAxisSiz
     }
 
 internal fun Placeable.mainAxisSize(orientation: LayoutOrientation) =
-    if (orientation == LayoutOrientation.Horizontal) width else height
+    if (orientation == LayoutOrientation.Horizontal) measuredWidth else measuredHeight
 
 internal fun Placeable.crossAxisSize(orientation: LayoutOrientation) =
-    if (orientation == LayoutOrientation.Horizontal) height else width
+    if (orientation == LayoutOrientation.Horizontal) measuredHeight else measuredWidth
 
-private val CROSS_AXIS_ALIGNMENT_TOP = CrossAxisAlignment.vertical(Alignment.Top)
-private val CROSS_AXIS_ALIGNMENT_START = CrossAxisAlignment.horizontal(Alignment.Start)
+internal val CROSS_AXIS_ALIGNMENT_TOP = CrossAxisAlignment.vertical(Alignment.Top)
+internal val CROSS_AXIS_ALIGNMENT_START = CrossAxisAlignment.horizontal(Alignment.Start)
 
 // We measure and cache to improve performance dramatically, instead of using intrinsics
 // This only works so far for fixed size items.
@@ -844,8 +1294,8 @@ private fun Measurable.measureAndCache(
     constraints: OrientationIndependentConstraints,
     orientation: LayoutOrientation,
     storePlaceable: (Placeable?) -> Unit
-): Pair<Int, Int> {
-    val itemSize: Pair<Int, Int> = if (
+): IntIntPair {
+    return if (
         rowColumnParentData.weight == 0f &&
         rowColumnParentData?.flowLayoutData?.fillCrossAxisFraction == null
     ) {
@@ -857,13 +1307,76 @@ private fun Measurable.measureAndCache(
         ).also(storePlaceable)
         val mainAxis = placeable.mainAxisSize(orientation)
         val crossAxis = placeable.crossAxisSize(orientation)
-        Pair(mainAxis, crossAxis)
+        IntIntPair(mainAxis, crossAxis)
     } else {
         val mainAxis = mainAxisMin(orientation, Constraints.Infinity)
         val crossAxis = crossAxisMin(orientation, mainAxis)
-        Pair(mainAxis, crossAxis)
+        IntIntPair(mainAxis, crossAxis)
     }
-    return itemSize
+}
+
+internal fun MeasureScope.handleFlowResult(
+    flowResult: FlowResult,
+    constraints: Constraints,
+    measureHelper: RowColumnMeasurementHelper
+): MeasureResult {
+    val orientation = measureHelper.orientation
+    val verticalArrangement = measureHelper.verticalArrangement
+    val horizontalArrangement = measureHelper.horizontalArrangement
+    val items = flowResult.items
+    val crossAxisSizes = IntArray(items.size) { index ->
+        items[index].crossAxisSize
+    }
+    // space in between children, except for the last child
+    val outPosition = IntArray(crossAxisSizes.size)
+    var totalCrossAxisSize = flowResult.crossAxisTotalSize
+    // cross axis arrangement
+    if (orientation == LayoutOrientation.Horizontal) {
+        with(requireNotNull(verticalArrangement) { "null verticalArrangement" }) {
+            val totalCrossAxisSpacing = spacing.roundToPx() * (items.size - 1)
+            totalCrossAxisSize += totalCrossAxisSpacing
+            arrange(
+                totalCrossAxisSize,
+                crossAxisSizes,
+                outPosition
+            )
+        }
+    } else {
+        with(requireNotNull(horizontalArrangement) { "null horizontalArrangement" }) {
+            val totalCrossAxisSpacing = spacing.roundToPx() * (items.size - 1)
+            totalCrossAxisSize += totalCrossAxisSpacing
+            arrange(
+                totalCrossAxisSize,
+                crossAxisSizes,
+                layoutDirection,
+                outPosition
+            )
+        }
+    }
+
+    var layoutWidth: Int
+    var layoutHeight: Int
+    if (orientation == LayoutOrientation.Horizontal) {
+        layoutWidth = flowResult.mainAxisTotalSize
+        layoutHeight = totalCrossAxisSize
+    } else {
+        layoutWidth = totalCrossAxisSize
+        layoutHeight = flowResult.mainAxisTotalSize
+    }
+    layoutWidth = constraints.constrainWidth(layoutWidth)
+    layoutHeight = constraints.constrainHeight(layoutHeight)
+
+    return layout(layoutWidth, layoutHeight) {
+        flowResult.items.forEachIndexed { currentRowOrColumnIndex,
+            measureResult ->
+            measureHelper.placeHelper(
+                this,
+                measureResult,
+                outPosition[currentRowOrColumnIndex],
+                this@handleFlowResult.layoutDirection
+            )
+        }
+    }
 }
 
 /**

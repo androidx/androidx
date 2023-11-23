@@ -55,17 +55,14 @@ internal data class RowColumnMeasurePolicy(
         measurables: List<Measurable>,
         constraints: Constraints
     ): MeasureResult {
-        val placeables = arrayOfNulls<Placeable?>(measurables.size)
         val rowColumnMeasureHelper =
             RowColumnMeasurementHelper(
                 orientation,
                 horizontalArrangement,
                 verticalArrangement,
-                arrangementSpacing,
                 crossAxisSize,
                 crossAxisAlignment,
-                measurables,
-                placeables
+                RowColumnMeasurablesWrapper(measurables)
             )
 
         val measureResult = rowColumnMeasureHelper
@@ -391,6 +388,9 @@ internal value class OrientationIndependentConstraints private constructor(
 }
 
 internal val IntrinsicMeasurable.rowColumnParentData: RowColumnParentData?
+    get() = parentData as? RowColumnParentData
+
+internal val Placeable.rowColumnParentData: RowColumnParentData?
     get() = parentData as? RowColumnParentData
 
 internal val RowColumnParentData?.weight: Float
