@@ -68,6 +68,7 @@ import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraMode;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.Identifier;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.impl.RestrictedCameraControl;
@@ -83,6 +84,8 @@ import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.streamsharing.StreamSharing;
 import androidx.core.util.Preconditions;
+
+import com.google.auto.value.AutoValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -107,6 +110,8 @@ public final class CameraUseCaseAdapter implements Camera {
     private final UseCaseConfigFactory mUseCaseConfigFactory;
 
     private static final String TAG = "CameraUseCaseAdapter";
+
+    private final CameraId mId;
 
     // UseCases from the app. This does not include internal UseCases created by CameraX.
     @GuardedBy("mLock")
@@ -171,51 +176,60 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull CameraCoordinator cameraCoordinator,
             @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager,
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
-        this(camera, cameraCoordinator, cameraDeviceSurfaceManager, useCaseConfigFactory,
-                CameraConfigs.defaultConfig());
+        this(camera,
+                new RestrictedCameraInfo(camera.getCameraInfoInternal(),
+                        CameraConfigs.defaultConfig()),
+                cameraCoordinator,
+                cameraDeviceSurfaceManager,
+                useCaseConfigFactory);
     }
 
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
      *
      * @param camera                     The camera that is wrapped.
+     * @param restrictedCameraInfo       The {@link RestrictedCameraInfo} that contains the extra
+     *                                   information to configure the {@link CameraInternal} when
+     *                                   attaching the uses cases of this adapter to the camera.
      * @param cameraCoordinator          Camera coordinator that exposes concurrent camera mode.
      * @param cameraDeviceSurfaceManager A class that checks for whether a specific camera
      *                                   can support the set of Surface with set resolutions.
      * @param useCaseConfigFactory       UseCase config factory that exposes configuration for
      *                                   each UseCase.
-     * @param cameraConfig               the CameraConfig to configure the {@link CameraInternal}
-     *                                   when attaching the uses cases of this adapter to the
-     *                                   camera.
      */
     public CameraUseCaseAdapter(@NonNull CameraInternal camera,
+            @NonNull RestrictedCameraInfo restrictedCameraInfo,
             @NonNull CameraCoordinator cameraCoordinator,
             @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager,
-            @NonNull UseCaseConfigFactory useCaseConfigFactory,
-            @NonNull CameraConfig cameraConfig) {
+            @NonNull UseCaseConfigFactory useCaseConfigFactory) {
         mCameraInternal = camera;
         mCameraCoordinator = cameraCoordinator;
         mCameraDeviceSurfaceManager = cameraDeviceSurfaceManager;
         mUseCaseConfigFactory = useCaseConfigFactory;
-        mCameraConfig = cameraConfig;
+        mCameraConfig = restrictedCameraInfo.getCameraConfig();
         SessionProcessor sessionProcessor = mCameraConfig.getSessionProcessor(null);
         // TODO(b/279996499): bind the same restricted CameraControl and CameraInfo to use cases.
         mAdapterCameraControl = new RestrictedCameraControl(
                 mCameraInternal.getCameraControlInternal(), sessionProcessor);
-        mAdapterCameraInfo =
-                new RestrictedCameraInfo(mCameraInternal.getCameraInfoInternal(), sessionProcessor);
-        mAdapterCameraInfo.setPostviewSupported(
-                mCameraConfig.isPostviewSupported());
-        mAdapterCameraInfo.setCaptureProcessProgressSupported(
-                mCameraConfig.isCaptureProcessProgressSupported());
+        mAdapterCameraInfo = restrictedCameraInfo;
+        mId = generateCameraId(mAdapterCameraInfo);
+    }
+
+    /**
+     * Generate a identifier for the {@link RestrictedCameraInfo}.
+     */
+    @NonNull
+    public static CameraId generateCameraId(@NonNull RestrictedCameraInfo cameraInfo) {
+        return CameraId.create(cameraInfo.getCameraId(),
+                cameraInfo.getCameraConfig().getCompatibilityId());
     }
 
     /**
      * Returns the identifier for this {@link CameraUseCaseAdapter}.
      */
     @NonNull
-    public String getCameraId() {
-        return mCameraInternal.getCameraInfoInternal().getCameraId();
+    public CameraId getCameraId() {
+        return mId;
     }
 
     /**
@@ -925,6 +939,30 @@ public final class CameraUseCaseAdapter implements Camera {
                 && dynamicRange.getEncoding() != ENCODING_UNSPECIFIED;
 
         return is10Bit || isHdr;
+    }
+
+    /**
+     * An identifier for a {@link CameraUseCaseAdapter}.
+     *
+     * <p>This identifies the actual camera instances that are wrapped by the
+     * CameraUseCaseAdapter and is used to determine if 2 different instances of
+     * CameraUseCaseAdapter are actually equivalent.
+     */
+    @AutoValue
+    public abstract static class CameraId {
+        /** Creates a identifier for a {@link CameraUseCaseAdapter}. */
+        @NonNull
+        public static CameraId create(@NonNull String cameraIdString,
+                @NonNull Identifier cameraConfigId) {
+            return new AutoValue_CameraUseCaseAdapter_CameraId(cameraIdString, cameraConfigId);
+        }
+
+        /** Gets the camera ID string. */
+        @NonNull
+        public abstract String getCameraIdString();
+        /** Gets the camera configuration. */
+        @NonNull
+        public abstract Identifier getCameraConfigId();
     }
 
     /**

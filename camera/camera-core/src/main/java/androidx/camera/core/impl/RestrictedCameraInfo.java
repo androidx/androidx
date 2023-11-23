@@ -67,12 +67,29 @@ public class RestrictedCameraInfo extends ForwardingCameraInfo {
     private final SessionProcessor mSessionProcessor;
     private boolean mIsPostviewSupported = false;
     private boolean mIsCaptureProcessProgressSupported = false;
+    @NonNull
+    private final CameraConfig mCameraConfig;
 
     public RestrictedCameraInfo(@NonNull CameraInfoInternal cameraInfo,
-            @Nullable SessionProcessor sessionProcessor) {
+            @NonNull CameraConfig cameraConfig) {
         super(cameraInfo);
         mCameraInfo = cameraInfo;
-        mSessionProcessor = sessionProcessor;
+        mCameraConfig = cameraConfig;
+        mSessionProcessor = cameraConfig.getSessionProcessor(null);
+
+        setPostviewSupported(cameraConfig.isPostviewSupported());
+        setCaptureProcessProgressSupported(cameraConfig.isCaptureProcessProgressSupported());
+    }
+
+    @NonNull
+    public CameraConfig getCameraConfig() {
+        return mCameraConfig;
+    }
+
+    @NonNull
+    @Override
+    public CameraInfoInternal getImplementation() {
+        return mCameraInfo;
     }
 
     /**
@@ -81,12 +98,6 @@ public class RestrictedCameraInfo extends ForwardingCameraInfo {
     @Nullable
     public SessionProcessor getSessionProcessor() {
         return mSessionProcessor;
-    }
-
-    @NonNull
-    @Override
-    public CameraInfoInternal getImplementation() {
-        return mCameraInfo;
     }
 
     @Override
