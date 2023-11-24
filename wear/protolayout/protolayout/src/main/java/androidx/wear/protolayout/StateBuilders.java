@@ -68,14 +68,12 @@ public final class StateBuilders {
         }
 
         /** Gets the ID of the clickable that was last clicked. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public String getLastClickableId() {
             return mImpl.getLastClickableId();
         }
 
         /** Gets any shared state between the provider and renderer. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public Map<AppDataKey<?>, DynamicDataValue<?>> getKeyToValueMapping() {
             Map<AppDataKey<?>, DynamicDataValue<?>> map = new HashMap<>();

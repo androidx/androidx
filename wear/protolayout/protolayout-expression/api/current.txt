@@ -8,9 +8,9 @@ package androidx.wear.protolayout.expression {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static final class AnimationParameterBuilders.AnimationParameters {
-    method @IntRange(from=0) @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public long getDelayMillis();
-    method @IntRange(from=0) @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public long getDurationMillis();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing? getEasing();
+    method @IntRange(from=0) public long getDelayMillis();
+    method @IntRange(from=0) public long getDurationMillis();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing? getEasing();
   }
 
   public static final class AnimationParameterBuilders.AnimationParameters.Builder {
@@ -22,15 +22,15 @@ package androidx.wear.protolayout.expression {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static final class AnimationParameterBuilders.AnimationSpec {
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters? getAnimationParameters();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable? getRepeatable();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters? getAnimationParameters();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable? getRepeatable();
   }
 
   public static final class AnimationParameterBuilders.AnimationSpec.Builder {
     ctor public AnimationParameterBuilders.AnimationSpec.Builder();
     method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec build();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setAnimationParameters(androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters);
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setRepeatable(androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable);
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec.Builder setRepeatable(androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static interface AnimationParameterBuilders.Easing {
@@ -38,15 +38,15 @@ package androidx.wear.protolayout.expression {
     method public static androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing fromByteArray(byte[]);
     method public default byte[] toEasingByteArray();
     field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing FAST_OUT_LINEAR_IN_EASING;
-    field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing FAST_OUT_SLOW_IN_EASING;
+    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing FAST_OUT_SLOW_IN_EASING;
     field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Easing LINEAR_OUT_SLOW_IN_EASING;
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static final class AnimationParameterBuilders.Repeatable {
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters? getForwardRepeatOverride();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public int getIterations();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public int getRepeatMode();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters? getReverseRepeatOverride();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters? getForwardRepeatOverride();
+    method public int getIterations();
+    method public int getRepeatMode();
+    method public androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationParameters? getReverseRepeatOverride();
     method public boolean hasInfiniteIteration();
     field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable INFINITE_REPEATABLE_WITH_RESTART;
     field public static final androidx.wear.protolayout.expression.AnimationParameterBuilders.Repeatable INFINITE_REPEATABLE_WITH_REVERSE;
@@ -390,8 +390,8 @@ package androidx.wear.protolayout.expression {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class VersionBuilders.VersionInfo {
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public int getMajor();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public int getMinor();
+    method public int getMajor();
+    method public int getMinor();
   }
 
   public static final class VersionBuilders.VersionInfo.Builder {

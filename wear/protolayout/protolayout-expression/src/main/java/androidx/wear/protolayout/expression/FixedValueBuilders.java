@@ -51,7 +51,6 @@ final class FixedValueBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         public int getValue() {
             return mImpl.getValue();
         }
@@ -163,7 +162,6 @@ final class FixedValueBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public String getValue() {
             return mImpl.getValue();
@@ -282,7 +280,6 @@ final class FixedValueBuilders {
          * node will have an invalid value delivered via {@link
          * DynamicTypeValueReceiver<T>#onInvalidate()}.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         public float getValue() {
             return mImpl.getValue();
         }
@@ -398,7 +395,6 @@ final class FixedValueBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         public boolean getValue() {
             return mImpl.getValue();
         }
@@ -511,7 +507,6 @@ final class FixedValueBuilders {
         }
 
         /** Gets the color value, in ARGB format. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @ColorInt
         public int getArgb() {
             return mImpl.getArgb();
@@ -624,7 +619,6 @@ final class FixedValueBuilders {
         }
 
         /** Gets the number of seconds that have elapsed since 00:00:00 UTC on 1 January 1970. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         public long getEpochSeconds() {
             return mImpl.getEpochSeconds();
         }
@@ -739,7 +733,6 @@ final class FixedValueBuilders {
         }
 
         /** Gets duration in seconds. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         public long getSeconds() {
             return mImpl.getSeconds();
         }
