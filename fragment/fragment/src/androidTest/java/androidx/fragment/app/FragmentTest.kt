@@ -26,7 +26,6 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
@@ -101,7 +100,6 @@ class FragmentTest {
 
     @LargeTest
     @Test
-    @SdkSuppress(minSdkVersion = 16) // waitForHalfFadeIn requires API 16
     fun testChildFragmentManagerGone() {
         val activity = activityRule.activity
         val fragmentA = FragmentA()
@@ -146,7 +144,6 @@ class FragmentTest {
 
     @LargeTest
     @Test
-    @SdkSuppress(minSdkVersion = 16) // waitForHalfFadeIn requires API 16
     fun testRemoveUnrelatedDuringAnimation() {
         val activity = activityRule.activity
         val unrelatedFragment = StrictFragment()

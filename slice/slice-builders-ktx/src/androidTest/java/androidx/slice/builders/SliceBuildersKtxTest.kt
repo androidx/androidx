@@ -27,11 +27,9 @@ import androidx.slice.builders.ListBuilder.ICON_IMAGE
 import androidx.slice.builders.ktx.test.R
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
-@SdkSuppress(minSdkVersion = 19)
 @MediumTest
 @Suppress("DEPRECATION")
 class SliceBuildersKtxTest {

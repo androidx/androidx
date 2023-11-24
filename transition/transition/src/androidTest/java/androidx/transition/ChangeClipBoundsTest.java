@@ -50,7 +50,6 @@ public class ChangeClipBoundsTest extends BaseTransitionTest {
         return new ChangeClipBounds();
     }
 
-    @SdkSuppress(minSdkVersion = 18)
     @Test
     public void testChangeClipBounds() throws Throwable {
         final View redSquare = spy(new View(rule.getActivity()));

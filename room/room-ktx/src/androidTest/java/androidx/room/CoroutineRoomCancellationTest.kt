@@ -20,7 +20,6 @@ import android.database.sqlite.SQLiteException
 import android.os.CancellationSignal
 import androidx.kruth.assertThat
 import androidx.sqlite.db.SupportSQLiteOpenHelper
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import java.util.concurrent.Callable
 import java.util.concurrent.CountDownLatch
@@ -38,7 +37,6 @@ import org.junit.Assert.fail
 import org.junit.Test
 
 @SmallTest
-@SdkSuppress(minSdkVersion = 16)
 class CoroutineRoomCancellationTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
