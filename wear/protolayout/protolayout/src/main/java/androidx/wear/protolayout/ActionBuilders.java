@@ -110,7 +110,6 @@ public final class ActionBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public String getValue() {
             return mImpl.getValue();
@@ -195,7 +194,6 @@ public final class ActionBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public int getValue() {
             return mImpl.getValue();
         }
@@ -279,7 +277,6 @@ public final class ActionBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public long getValue() {
             return mImpl.getValue();
         }
@@ -363,7 +360,6 @@ public final class ActionBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public double getValue() {
             return mImpl.getValue();
         }
@@ -448,7 +444,6 @@ public final class ActionBuilders {
         }
 
         /** Gets the value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public boolean getValue() {
             return mImpl.getValue();
         }
@@ -587,7 +582,6 @@ public final class ActionBuilders {
         }
 
         /** Gets the package name to send the intent to, for example, "com.example.weather". */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public String getPackageName() {
             return mImpl.getPackageName();
@@ -597,14 +591,12 @@ public final class ActionBuilders {
          * Gets the fully qualified class name (including the package) to send the intent to, for
          * example, "com.example.weather.WeatherOverviewActivity".
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public String getClassName() {
             return mImpl.getClassName();
         }
 
         /** Gets the extras to be included in the intent. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public Map<String, AndroidExtra> getKeyToExtraMapping() {
             Map<String, AndroidExtra> map = new HashMap<>();
@@ -720,7 +712,6 @@ public final class ActionBuilders {
         }
 
         /** Gets an action to launch an Android activity. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public AndroidActivity getAndroidActivity() {
             if (mImpl.hasAndroidActivity()) {
@@ -814,7 +805,6 @@ public final class ActionBuilders {
          * sent after this action is invoked by a {@link
          * androidx.wear.protolayout.ModifiersBuilders.Clickable}.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Nullable
         public State getRequestState() {
             if (mImpl.hasRequestState()) {

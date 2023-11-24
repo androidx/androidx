@@ -65,7 +65,6 @@ public final class ColorBuilders {
          * ignored. If the static value is not specified, zero (equivalent to {@link
          * Color#TRANSPARENT}) will be used instead.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @ColorInt
         public int getArgb() {
             return mImpl.getArgb();
@@ -76,7 +75,6 @@ public final class ColorBuilders {
          * required to be set to support older renderers that only read the static value. If {@code
          * dynamicValue} has an invalid result, the provided static value will be used instead.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public DynamicColor getDynamicValue() {
             if (mImpl.hasDynamicValue()) {
@@ -198,7 +196,6 @@ public final class ColorBuilders {
         }
 
         /** Gets the color for this stop. */
-        @RequiresSchemaVersion(major = 1, minor = 300)
         @NonNull
         public ColorProp getColor() {
             return ColorProp.fromProto(mImpl.getColor());
@@ -208,7 +205,6 @@ public final class ColorBuilders {
          * Gets the relative offset for this color, between 0 and 1. This determines where the color
          * is positioned relative to a gradient space.
          */
-        @RequiresSchemaVersion(major = 1, minor = 300)
         @Nullable
         public FloatProp getOffset() {
             if (mImpl.hasOffset()) {
@@ -373,7 +369,6 @@ public final class ColorBuilders {
          *
          * <p>If offset values are not set, the colors are evenly distributed in the gradient.
          */
-        @RequiresSchemaVersion(major = 1, minor = 300)
         @NonNull
         public List<ColorStop> getColorStops() {
             List<ColorStop> list = new ArrayList<>();
@@ -392,7 +387,6 @@ public final class ColorBuilders {
          * length span. Values greater than 360 degrees correspond to upper layers of the arc line
          * as it wraps over itself.
          */
-        @RequiresSchemaVersion(major = 1, minor = 300)
         @NonNull
         public DegreesProp getStartAngle() {
             if (mImpl.hasStartAngle()) {
@@ -411,7 +405,6 @@ public final class ColorBuilders {
          * length span. Values greater than 360 degrees correspond to upper layers of the arc line
          * as it wraps over itself.
          */
-        @RequiresSchemaVersion(major = 1, minor = 300)
         @NonNull
         public DegreesProp getEndAngle() {
             if (mImpl.hasEndAngle()) {

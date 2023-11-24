@@ -132,7 +132,6 @@ public final class TriggerBuilders {
         }
 
         /** Gets dynamic boolean used as trigger. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public DynamicBool getCondition() {
             if (mImpl.hasCondition()) {

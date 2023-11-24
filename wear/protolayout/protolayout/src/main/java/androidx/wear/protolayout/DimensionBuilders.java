@@ -137,7 +137,6 @@ public final class DimensionBuilders {
          * dynamic values for the corresponding field, this static value will be ignored. If the
          * static value is not specified, zero will be used instead.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Dimension(unit = DP)
         public float getValue() {
             return mImpl.getValue();
@@ -149,7 +148,6 @@ public final class DimensionBuilders {
          * {@code dynamicValue} has an invalid result, the provided static value will be used
          * instead.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public DynamicFloat getDynamicValue() {
             if (mImpl.hasDynamicValue()) {
@@ -307,7 +305,6 @@ public final class DimensionBuilders {
          * Constrains the layout so that components are not changing size or location regardless of
          * the dynamic value that is being provided.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("Unused")
         @Dimension(unit = DP)
         public float getValue() {
@@ -374,7 +371,6 @@ public final class DimensionBuilders {
         /**
          * Gets the horizontal alignment of the actual content within the space reserved by value.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @LayoutElementBuilders.HorizontalAlignment
         public int getHorizontalAlignment() {
             return mImpl.getHorizontalAlignmentForLayoutValue();
@@ -431,7 +427,6 @@ public final class DimensionBuilders {
         }
 
         /** Gets the vertical alignment of the actual content within the space reserved by value. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @LayoutElementBuilders.VerticalAlignment
         public int getVerticalAlignment() {
             return mImpl.getVerticalAlignmentForLayoutValue();
@@ -489,7 +484,6 @@ public final class DimensionBuilders {
         }
 
         /** Gets the value, in sp. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Dimension(unit = SP)
         public float getValue() {
             return mImpl.getValue();
@@ -565,7 +559,6 @@ public final class DimensionBuilders {
         }
 
         /** Gets the value, in em. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public float getValue() {
             return mImpl.getValue();
         }
@@ -644,7 +637,6 @@ public final class DimensionBuilders {
          * supports dynamic values for the corresponding field, this static value will be ignored.
          * If the static value is not specified, zero will be used instead.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public float getValue() {
             return mImpl.getValue();
         }
@@ -655,7 +647,6 @@ public final class DimensionBuilders {
          * If {@code dynamicValue} has an invalid result, the provided static value will be used
          * instead.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public DynamicFloat getDynamicValue() {
             if (mImpl.hasDynamicValue()) {
@@ -789,14 +780,12 @@ public final class DimensionBuilders {
          * Gets the fixed value to reserve the space when used on a layout-changing data bind. If
          * not set defaults to the static value of the associated {@link DegreesProp} field.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Dimension(unit = DP)
         public float getValue() {
             return mImpl.getValueForLayout();
         }
 
         /** Gets angular alignment of the actual content within the space reserved by value. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @LayoutElementBuilders.AngularAlignment
         public int getAngularAlignment() {
             return mImpl.getAngularAlignmentForLayoutValue();
@@ -892,7 +881,6 @@ public final class DimensionBuilders {
          * have equal weight. Where applicable, the width or height of the element is proportional
          * to the sum of the weights of its siblings.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public FloatProp getLayoutWeight() {
             if (mImpl.hasLayoutWeight()) {
@@ -1021,7 +1009,6 @@ public final class DimensionBuilders {
         }
 
         /** Gets the minimum size of this dimension. If not set, then there is no minimum size. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public DpProp getMinimumSize() {
             if (mImpl.hasMinimumSize()) {
@@ -1132,14 +1119,12 @@ public final class DimensionBuilders {
         }
 
         /** Gets the width to be used when calculating the aspect ratio to preserve. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @IntRange(from = 0)
         public int getAspectRatioWidth() {
             return mImpl.getAspectRatioWidth();
         }
 
         /** Gets the height to be used when calculating the aspect ratio ratio to preserve. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @IntRange(from = 0)
         public int getAspectRatioHeight() {
             return mImpl.getAspectRatioHeight();

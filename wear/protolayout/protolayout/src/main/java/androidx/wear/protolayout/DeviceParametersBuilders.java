@@ -85,14 +85,12 @@ public final class DeviceParametersBuilders {
         }
 
         /** Gets width of the device's screen in DP. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Dimension(unit = DP)
         public int getScreenWidthDp() {
             return mImpl.getScreenWidthDp();
         }
 
         /** Gets height of the device's screen in DP. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @Dimension(unit = DP)
         public int getScreenHeightDp() {
             return mImpl.getScreenHeightDp();
@@ -102,7 +100,6 @@ public final class DeviceParametersBuilders {
          * Gets density of the display. This value is the scaling factor to get from DP to Pixels
          * (px = dp * density).
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false)
         public float getScreenDensity() {
             return mImpl.getScreenDensity();
@@ -112,21 +109,18 @@ public final class DeviceParametersBuilders {
          * Gets current user preference for the scaling factor for fonts displayed on the display.
          * This value is used to get from SP to DP (dp = sp * font_scale).
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @FloatRange(from = 0.0, fromInclusive = false, toInclusive = false)
         public float getFontScale() {
             return mImpl.getFontScale();
         }
 
         /** Gets the platform of the device. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @DevicePlatform
         public int getDevicePlatform() {
             return mImpl.getDevicePlatform().getNumber();
         }
 
         /** Gets the shape of the device's screen. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @ScreenShape
         public int getScreenShape() {
             return mImpl.getScreenShape().getNumber();
@@ -137,7 +131,6 @@ public final class DeviceParametersBuilders {
          * that uses features not available on schema version 1.0 , this can be used to
          * conditionally choose which feature to use.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public VersionInfo getRendererSchemaVersion() {
             if (mImpl.hasRendererSchemaVersion()) {
@@ -148,7 +141,6 @@ public final class DeviceParametersBuilders {
         }
 
         /** Gets renderer supported {@link Capabilities}. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @ProtoLayoutExperimental
         @Nullable
         public Capabilities getCapabilities() {
@@ -314,7 +306,6 @@ public final class DeviceParametersBuilders {
          * on various factors. Any freshness request lower than the current limit will be replaced
          * by that limit. A value of 0 here signifies that the minimum freshness limit in unknown.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @ProtoLayoutExperimental
         public long getMinimumFreshnessLimitMillis() {
             return mImpl.getMinimumFreshnessLimitMillis();

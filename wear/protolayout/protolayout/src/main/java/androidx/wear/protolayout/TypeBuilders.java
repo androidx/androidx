@@ -55,14 +55,12 @@ public final class TypeBuilders {
          * Gets the text string to use as the pattern for the largest text that can be laid out.
          * Used to ensure that the layout is of a known size during the layout pass.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public String getPatternForLayout() {
             return mImpl.getValueForLayout();
         }
 
         /** Gets angular alignment of the actual content within the space reserved by value. */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @LayoutElementBuilders.TextAlignment
         public int getAlignment() {
             return mImpl.getTextAlignmentForLayoutValue();
@@ -146,7 +144,6 @@ public final class TypeBuilders {
         }
 
         /** Gets the static value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public int getValue() {
             return mImpl.getValue();
         }
@@ -225,7 +222,6 @@ public final class TypeBuilders {
          * values for the corresponding field, this static value will be ignored. If the static
          * value is not specified, {@code null} will be used instead.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         @NonNull
         public String getValue() {
             return mImpl.getValue();
@@ -236,7 +232,6 @@ public final class TypeBuilders {
          * required to be set to support older renderers that only read the static value. If {@code
          * dynamicValue} has an invalid result, the provided static value will be used instead.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public DynamicString getDynamicValue() {
             if (mImpl.hasDynamicValue()) {
@@ -366,7 +361,6 @@ public final class TypeBuilders {
          * values for the corresponding field, this static value will be ignored. If the static
          * value is not specified, zero will be used instead.
          */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public float getValue() {
             return mImpl.getValue();
         }
@@ -376,7 +370,6 @@ public final class TypeBuilders {
          * required to be set to support older renderers that only read the static value. If {@code
          * dynamicValue} has an invalid result, the provided static value will be used instead.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public DynamicFloat getDynamicValue() {
             if (mImpl.hasDynamicValue()) {
@@ -502,7 +495,6 @@ public final class TypeBuilders {
         }
 
         /** Gets the static value. */
-        @RequiresSchemaVersion(major = 1, minor = 0)
         public boolean getValue() {
             return mImpl.getValue();
         }
@@ -512,7 +504,6 @@ public final class TypeBuilders {
          * required to be set to support older renderers that only read the static value. If {@code
          * dynamicValue} has an invalid result, the provided static value will be used instead.
          */
-        @RequiresSchemaVersion(major = 1, minor = 200)
         @Nullable
         public DynamicBool getDynamicValue() {
             if (mImpl.hasDynamicValue()) {
