@@ -29,6 +29,9 @@ dependencies {
     implementation("androidx.collection:collection:1.2.0")
     implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
 
+    lintChecks(project(":wear:protolayout:protolayout-lint"))
+    lintPublish(project(":wear:protolayout:protolayout-lint"))
+
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
