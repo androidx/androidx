@@ -17,33 +17,36 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.createSkiaLayer
 import androidx.compose.ui.native.ComposeLayer
 import androidx.compose.ui.platform.MacosTextInputService
-import androidx.compose.ui.platform.Platform
+import androidx.compose.ui.platform.PlatformContext
+import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.WindowInfoImpl
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import kotlinx.cinterop.*
+import org.jetbrains.skiko.SkiaLayer
+import org.jetbrains.skiko.SkikoInput
 import platform.AppKit.*
 import platform.Foundation.*
-import kotlinx.cinterop.*
 
 internal actual class ComposeWindow actual constructor() {
     private val macosTextInputService = MacosTextInputService()
     private val _windowInfo = WindowInfoImpl().apply {
         isWindowFocused = true
     }
-    val platform: Platform = object : Platform by Platform.Empty {
-        override val windowInfo get() = _windowInfo
-        override val textInputService = macosTextInputService
-    }
-    val layer = ComposeLayer(
-        layer = createSkiaLayer(),
-        platform = platform,
-        input = macosTextInputService.input
+    private val platformContext: PlatformContext =
+        object : PlatformContext by PlatformContext.Empty {
+            override val windowInfo get() = _windowInfo
+            override val textInputService get() = macosTextInputService
+        }
+    private val layer = ComposeLayer(
+        layer = SkiaLayer(),
+        platformContext = platformContext,
+        input = SkikoInput.Empty
     )
 
-    val windowStyle =
+    private val windowStyle =
         NSWindowStyleMaskTitled or
         NSWindowStyleMaskMiniaturizable or
         NSWindowStyleMaskClosable or

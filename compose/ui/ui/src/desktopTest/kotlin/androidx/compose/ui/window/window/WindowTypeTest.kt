@@ -677,7 +677,7 @@ class WindowTypeTest {
                     modifier = Modifier.focusRequester(focusRequester)
                 )
 
-                LaunchedEffect(Unit) {
+                LaunchedEffect(focusRequester) {
                     focusRequester.requestFocus()
                 }
             }

@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.platform
 
+import androidx.compose.ui.scene.BaseComposeScene
+import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
@@ -33,10 +35,16 @@ class DesktopWindowInfoTest {
                 size = DpSize(123.dp, 321.dp)
             )
             Window(onCloseRequest = {}, state = state) {
-                val containerSize = window.scene.platform.windowInfo.containerSize
+                val containerSize = window.scene.windowInfo.containerSize
                 assertEquals(123, containerSize.width)
                 assertEquals(321, containerSize.height)
             }
         }
     }
 }
+
+private val ComposeScene.windowInfo: WindowInfo
+    get() {
+        this as BaseComposeScene
+        return composeSceneContext.platformContext.windowInfo
+    }

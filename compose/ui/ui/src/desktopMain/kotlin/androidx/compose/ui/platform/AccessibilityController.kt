@@ -28,7 +28,11 @@ import javax.accessibility.Accessible
 import javax.accessibility.AccessibleComponent
 import javax.accessibility.AccessibleContext.*
 import javax.accessibility.AccessibleState
+import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * This class provides a mapping from compose tree of [owner] to tree of [ComposeAccessible],
@@ -40,11 +44,12 @@ import kotlinx.coroutines.delay
  * @see ComposeSceneAccessible
  * @see ComposeAccessible
  */
-internal class AccessibilityControllerImpl(
-    private val owner: SemanticsOwner,
+internal class AccessibilityController(
+    val owner: SemanticsOwner,
     val desktopComponent: PlatformComponent,
+    coroutineContext: CoroutineContext,
     private val onFocusReceived: (ComposeAccessible) -> Unit
-) : AccessibilityController {
+) {
     private var currentNodesInvalidated = true
     var _currentNodes: Map<Int, ComposeAccessible> = emptyMap()
     val currentNodes: Map<Int, ComposeAccessible>
@@ -151,12 +156,21 @@ internal class AccessibilityControllerImpl(
         SyncLoopState.lastAccessTimeMillis = System.currentTimeMillis()
     }
 
-    override suspend fun syncLoop() {
-        while (true) {
-            if (currentNodesInvalidated && SyncLoopState.shouldSync) {
-                syncNodes()
+    private val job = Job()
+    private val coroutineScope = CoroutineScope(coroutineContext + job)
+
+    fun dispose() {
+        job.cancel()
+    }
+
+    fun syncLoop() {
+        coroutineScope.launch {
+            while (true) {
+                if (currentNodesInvalidated && SyncLoopState.shouldSync) {
+                    syncNodes()
+                }
+                delay(100)
             }
-            delay(100)
         }
     }
 
@@ -196,11 +210,7 @@ internal class AccessibilityControllerImpl(
         currentNodesInvalidated = false
     }
 
-    override fun onLayoutChange(layoutNode: LayoutNode) {
-        currentNodesInvalidated = true
-    }
-
-    override fun onSemanticsChange() {
+    fun onSemanticsChange() {
         currentNodesInvalidated = true
     }
 

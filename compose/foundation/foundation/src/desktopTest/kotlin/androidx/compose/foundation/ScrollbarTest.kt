@@ -53,6 +53,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -1216,7 +1217,7 @@ class ScrollbarTest {
     }
 
 
-    @OptIn(InternalTestApi::class)
+    @OptIn(InternalTestApi::class, InternalComposeUiApi::class)
     private fun ComposeTestRule.performMouseScroll(x: Int, y: Int, delta: Float) {
         (this as DesktopComposeTestRule).scene.sendPointerEvent(
             PointerEventType.Scroll,

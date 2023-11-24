@@ -737,4 +737,16 @@ class WindowTest {
         assertThat(window1?.isActive).isFalse()
         assertThat(window2?.isActive).isTrue()
     }
+
+    @Test
+    fun `compose empty window once`() = runApplicationTest {
+        var compositions = 0
+        launchTestApplication {
+            Window(onCloseRequest = ::exitApplication) {
+                compositions++
+            }
+        }
+        awaitIdle()
+        assertEquals(1, compositions)
+    }
 }

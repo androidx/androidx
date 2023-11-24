@@ -16,22 +16,9 @@
 
 package androidx.compose.ui
 
-import androidx.compose.ui.input.key.NativeKeyEvent
-import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.platform.InspectorInfo
 import kotlin.coroutines.cancellation.CancellationException
-import org.jetbrains.skiko.SkikoInputModifiers
-
-internal actual fun NativeKeyEvent.toPointerKeyboardModifiers(): PointerKeyboardModifiers {
-    return PointerKeyboardModifiers(
-        isCtrlPressed = modifiers.has(SkikoInputModifiers.CONTROL),
-        isShiftPressed = modifiers.has(SkikoInputModifiers.SHIFT),
-        isAltPressed = modifiers.has(SkikoInputModifiers.ALT),
-        isMetaPressed = modifiers.has(SkikoInputModifiers.META),
-        // TODO: add other modifiers when they are available in SkikoInputModifiers
-    )
-}
 
 // TODO: For non-JVM platforms, you can revive the kotlin-reflect implementation from
 //  https://android-review.googlesource.com/c/platform/frameworks/support/+/2441379

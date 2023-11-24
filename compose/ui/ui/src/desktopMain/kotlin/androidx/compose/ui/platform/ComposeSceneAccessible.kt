@@ -34,20 +34,14 @@ import javax.accessibility.*
  * Note about a11y for focus-based tools (e.g. VoiceOver).
  * Now focus-based tools are supported on [org.jetbrains.skiko.HardwareLayer] side.
  * When Compose's [androidx.compose.ui.semantics.SemanticsNode] is focused
- * [AccessibilityControllerImpl.onFocusReceived] is called and
+ * [AccessibilityController.onFocusReceived] is called and
  * [org.jetbrains.skiko.HardwareLayer] provides mapped [ComposeAccessible] to accessibility tool.
  *
- * @param ownersProvider provider of all the skia owners such as main window, popups etc.
- * in order from **last opened** to the **first opened**.
- * @param mainOwnerProvider provider of a main skia owner
- * those size, bounds, location are used for [androidx.compose.ui.ComposeScene] accessibility
- *
- * @see AccessibilityControllerImpl
+ * @see AccessibilityController
  * @see ComposeAccessible
  */
 internal class ComposeSceneAccessible(
-    private val ownersProvider: () -> List<SkiaBasedOwner>,
-    private val mainOwnerProvider: () -> SkiaBasedOwner?
+    private val accessibilityControllersProvider: () -> List<AccessibilityController>,
 ) : Accessible {
     private val a11yDisabled by lazy {
         System.getProperty("compose.accessibility.enable") == "false" ||
@@ -55,7 +49,7 @@ internal class ComposeSceneAccessible(
     }
 
     private val accessibleContext by lazy {
-        ComposeSceneAccessibleContext(ownersProvider, mainOwnerProvider)
+        ComposeSceneAccessibleContext()
     }
 
     override fun getAccessibleContext(): AccessibleContext? {
@@ -65,12 +59,15 @@ internal class ComposeSceneAccessible(
         return accessibleContext
     }
 
-    private class ComposeSceneAccessibleContext(
-        private val allOwners: () -> List<SkiaBasedOwner>,
-        private val mainOwner: () -> SkiaBasedOwner?,
-    ) : AccessibleContext(), AccessibleComponent {
+    private inner class ComposeSceneAccessibleContext : AccessibleContext(), AccessibleComponent {
+        private val accessibilityControllers: List<AccessibilityController>
+            get() = accessibilityControllersProvider()
+
+        private val accessibilityController: AccessibilityController?
+            get() = accessibilityControllers.firstOrNull()
+
         private fun getMainOwnerAccessibleRoot(): ComposeAccessible? {
-            return (mainOwner()?.accessibilityController as? AccessibilityControllerImpl)?.rootAccessible
+            return accessibilityController?.rootAccessible
         }
 
         /**
@@ -81,9 +78,7 @@ internal class ComposeSceneAccessible(
          * and finds the best [Accessible] under the pointer.
          */
         override fun getAccessibleAt(p: Point): Accessible? {
-            for (owner in allOwners()) {
-                val controller = owner.accessibilityController as? AccessibilityControllerImpl
-                    ?: continue
+            for (controller in accessibilityControllers) {
                 val rootAccessible = controller.rootAccessible
                 val context = rootAccessible.composeAccessibleContext
                 val accessibleOnPoint = context.getAccessibleAt(p) ?: continue
@@ -107,11 +102,11 @@ internal class ComposeSceneAccessible(
         }
 
         override fun getAccessibleChildrenCount(): Int {
-            return allOwners().size
+            return accessibilityControllers.size
         }
 
         override fun getAccessibleChild(i: Int): Accessible {
-            return (allOwners()[i].accessibilityController as AccessibilityControllerImpl).rootAccessible
+            return accessibilityControllers[i].rootAccessible
         }
 
         override fun getSize(): Dimension? {

@@ -199,16 +199,16 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     private fun createComposeBridge(): ComposeBridge {
         val renderOnGraphics = System.getProperty("compose.swing.render.on.graphics").toBoolean()
         val bridge: ComposeBridge = if (renderOnGraphics) {
+            // TODO: Add window transparent info
             SwingComposeBridge(skiaLayerAnalytics, layoutDirectionFor(this))
         } else {
             WindowComposeBridge(skiaLayerAnalytics, layoutDirectionFor(this))
         }
         return bridge.apply {
-            scene.releaseFocus()
+            scene.focusManager.releaseFocus()
             component.setSize(width, height)
             component.isFocusable = _isFocusable
             component.isRequestFocusEnabled = _isRequestFocusEnabled
@@ -219,14 +219,14 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
                     // The focus can be switched from the child component inside SwingPanel.
                     // In that case, SwingPanel will take care of it.
                     if (!isParentOf(e.oppositeComponent)) {
-                        bridge.scene.requestFocus()
+                        bridge.scene.focusManager.requestFocus()
                         when (e.cause) {
                             FocusEvent.Cause.TRAVERSAL_FORWARD -> {
-                                bridge.scene.moveFocus(FocusDirection.Next)
+                                bridge.scene.focusManager.moveFocus(FocusDirection.Next)
                             }
 
                             FocusEvent.Cause.TRAVERSAL_BACKWARD -> {
-                                bridge.scene.moveFocus(FocusDirection.Previous)
+                                bridge.scene.focusManager.moveFocus(FocusDirection.Previous)
                             }
 
                             else -> Unit
@@ -239,7 +239,6 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
         }
     }
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun removeNotify() {
         if (isDisposeOnRemove) {
             dispose()

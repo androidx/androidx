@@ -38,7 +38,7 @@ import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 
-internal class PlatformInput(private val component: PlatformComponent) :
+internal class DesktopTextInputService(private val component: PlatformComponent) :
     PlatformTextInputService {
     data class CurrentInput(
         var value: TextFieldValue,

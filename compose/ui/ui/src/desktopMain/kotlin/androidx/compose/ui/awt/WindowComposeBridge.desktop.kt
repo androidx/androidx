@@ -16,7 +16,6 @@
 
 package androidx.compose.ui.awt
 
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.unit.LayoutDirection
 import java.awt.Component
 import java.awt.Dimension
@@ -87,12 +86,7 @@ internal class WindowComposeBridge(
         get() = component.transparency
         set(value) {
             component.transparency = value
-            platform.dialogScrimBlendMode = if (value) {
-                // Use background alpha channel to respect transparent window shape.
-                BlendMode.SrcAtop
-            } else {
-                BlendMode.SrcOver
-            }
+            platformContext.isWindowTransparent = value
         }
 
     init {

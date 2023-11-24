@@ -32,6 +32,7 @@ import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
@@ -50,14 +51,14 @@ fun Events.assertReceived(type: PointerEventType, offset: Offset) =
     received().assertHas(type, offset)
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun Events.assertReceived(type: PointerEventType, vararg pointers: ComposeScene.Pointer) =
+fun Events.assertReceived(type: PointerEventType, vararg pointers: ComposeScenePointer) =
     received().assertHas(type, *pointers)
 
 fun Events.assertReceivedLast(type: PointerEventType, offset: Offset) =
     receivedLast().assertHas(type, offset)
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun Events.assertReceivedLast(type: PointerEventType, vararg pointers: ComposeScene.Pointer) =
+fun Events.assertReceivedLast(type: PointerEventType, vararg pointers: ComposeScenePointer) =
     receivedLast().assertHas(type, *pointers)
 
 fun PointerEvent.assertHas(type: PointerEventType, offset: Offset) {
@@ -66,10 +67,10 @@ fun PointerEvent.assertHas(type: PointerEventType, offset: Offset) {
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun PointerEvent.assertHas(type: PointerEventType, vararg pointers: ComposeScene.Pointer) {
+fun PointerEvent.assertHas(type: PointerEventType, vararg pointers: ComposeScenePointer) {
     assertThat(this.type).isEqualTo(type)
     val actualPointers = changes.map {
-        ComposeScene.Pointer(
+        ComposeScenePointer(
             it.id,
             it.position,
             it.pressed,
@@ -81,7 +82,7 @@ fun PointerEvent.assertHas(type: PointerEventType, vararg pointers: ComposeScene
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
-fun touch(x: Float, y: Float, pressed: Boolean, id: Int = 0) = ComposeScene.Pointer(
+fun touch(x: Float, y: Float, pressed: Boolean, id: Int = 0) = ComposeScenePointer(
     id = PointerId(id.toLong()),
     position = Offset(x, y),
     pressed = pressed,
@@ -207,13 +208,13 @@ fun Modifier.collectEvents(events: Events) = pointerInput(Unit) {
 @OptIn(ExperimentalComposeUiApi::class)
 fun ImageComposeScene.sendPointerEvent(
     type: PointerEventType,
-    vararg pointers: ComposeScene.Pointer
+    vararg pointers: ComposeScenePointer
 ) = sendPointerEvent(type, pointers = pointers.toList())
 
 @OptIn(ExperimentalComposeUiApi::class)
 internal fun event(
     type: PointerEventType,
-    vararg pointers: Pair<Int, ComposeScene.Pointer>
+    vararg pointers: Pair<Int, ComposeScenePointer>
 ) = PointerInputEvent(
     type,
     0,

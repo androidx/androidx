@@ -79,7 +79,7 @@ private typealias ActionKey = SemanticsPropertyKey<AccessibilityAction<() -> Boo
  */
 internal class ComposeAccessible(
     var semanticsNode: SemanticsNode,
-    val controller: AccessibilityControllerImpl? = null
+    val controller: AccessibilityController? = null
 ) : Accessible,
     // Must be a subclass of java.awt.Component because CAccessible only registers property
     // listeners with the accessible context if the Accessible is an instance of java.awt.Component

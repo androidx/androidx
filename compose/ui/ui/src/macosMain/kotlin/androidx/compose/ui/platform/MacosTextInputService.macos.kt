@@ -16,16 +16,13 @@
 
 package androidx.compose.ui.platform
 
-import androidx.compose.ui.text.input.CommitTextCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
-import org.jetbrains.skiko.SkikoInput
-import org.jetbrains.skiko.SkikoInputEvent
 
-internal class MacosTextInputService() : PlatformTextInputService {
+internal class MacosTextInputService : PlatformTextInputService {
 
     data class CurrentInput(
         var value: TextFieldValue,
@@ -63,9 +60,4 @@ internal class MacosTextInputService() : PlatformTextInputService {
             input.value = newValue
         }
     }
-
-    val input = object : SkikoInput {
-
-    }
-
 }

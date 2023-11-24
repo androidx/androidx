@@ -21,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
@@ -28,7 +29,8 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
@@ -103,6 +105,7 @@ inline fun <R> ImageComposeScene.use(
  * [rememberCoroutineScope]) and run recompositions.
  * @param content Composable content which needed to be rendered.
  */
+@OptIn(InternalComposeUiApi::class)
 class ImageComposeScene @ExperimentalComposeUiApi constructor(
     width: Int,
     height: Int,
@@ -129,13 +132,13 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
 
     private val surface = Surface.makeRasterN32Premul(width, height)
 
-    private val scene = ComposeScene(
+    private val scene = MultiLayerComposeScene(
         density = density,
         layoutDirection = layoutDirection,
-        coroutineContext = coroutineContext
-    ).apply {
-        constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
-        setContent(content = content)
+        coroutineContext = coroutineContext,
+    ).also {
+        it.size = IntSize(width, height)
+        it.setContent(content = content)
     }
 
     /**
@@ -167,10 +170,8 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
      * Constraints used to measure and layout content.
      */
     var constraints: Constraints
-        get() = scene.constraints
-        set(value) {
-            scene.constraints = value
-        }
+        get() = scene.size?.toConstraints() ?: Constraints()
+        set(value) { scene.size = value.toSize() }
 
     /**
      * Returns true if there are pending recompositions, renders or dispatched tasks.
@@ -193,8 +194,9 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
     /**
      * Returns the current content size
      */
-    @Deprecated("Will be removed in 1.7", replaceWith = ReplaceWith("calculateContentSize()"))
-    val contentSize: IntSize get() = scene.contentSize
+    @Deprecated("Use calculateContentSize() instead", replaceWith = ReplaceWith("calculateContentSize()"))
+    val contentSize: IntSize
+        get() = scene.calculateContentSize()
 
     /**
      * Returns the current content size in infinity constraints.
@@ -202,6 +204,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
      * @throws IllegalStateException when [ComposeScene] content has lazy layouts without maximum size bounds
      * (e.g. LazyColumn without maximum height).
      */
+    @ExperimentalComposeUiApi
     fun calculateContentSize(): IntSize {
         return scene.calculateContentSize()
     }
@@ -212,7 +215,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
      */
     fun render(nanoTime: Long = 0): Image {
         surface.canvas.clear(Color.TRANSPARENT)
-        scene.render(surface.canvas, nanoTime)
+        scene.render(surface.canvas.asComposeCanvas(), nanoTime)
         return surface.makeImageSnapshot()
     }
 
@@ -278,7 +281,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
     @ExperimentalComposeUiApi
     fun sendPointerEvent(
         eventType: PointerEventType,
-        pointers: List<ComposeScene.Pointer>,
+        pointers: List<ComposeScenePointer>,
         buttons: PointerButtons = PointerButtons(),
         keyboardModifiers: PointerKeyboardModifiers = PointerKeyboardModifiers(),
         scrollDelta: Offset = Offset(0f, 0f),
@@ -289,10 +292,18 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
         eventType, pointers, buttons, keyboardModifiers, scrollDelta, timeMillis, nativeEvent, button
     )
 
-
     /**
      * Send [KeyEvent] to the content.
      * @return true if the event was consumed by the content
      */
     fun sendKeyEvent(event: KeyEvent): Boolean = scene.sendKeyEvent(event)
 }
+
+private fun Constraints.toSize() =
+    if (maxWidth != Constraints.Infinity || maxHeight != Constraints.Infinity) {
+        IntSize(width = maxWidth, height = maxHeight)
+    } else {
+        null
+    }
+
+private fun IntSize.toConstraints() = Constraints(maxWidth = width, maxHeight = height)

@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui
+package androidx.compose.ui.input.pointer
 
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerId
-import androidx.compose.ui.input.pointer.PointerInputEvent
-import androidx.compose.ui.input.pointer.PointerInputEventData
-import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.util.fastAny
 
 /**

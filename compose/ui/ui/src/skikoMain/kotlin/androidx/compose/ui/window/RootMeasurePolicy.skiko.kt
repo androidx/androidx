@@ -16,23 +16,9 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCompositionContext
-import androidx.compose.ui.LocalComposeScene
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerInputEvent
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureScope
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.PlatformInsets
-import androidx.compose.ui.platform.SkiaBasedOwner
-import androidx.compose.ui.platform.setContent
-import androidx.compose.ui.requireCurrent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
@@ -44,61 +30,6 @@ import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMap
 import androidx.compose.ui.util.fastMaxBy
 import kotlin.math.min
-
-/**
- * Adding [content] as root layout to separate [androidx.compose.ui.node.Owner].
- */
-@Composable
-internal fun RootLayout(
-    modifier: Modifier,
-    focusable: Boolean,
-    onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
-    content: @Composable (SkiaBasedOwner) -> Unit
-) {
-    val scene = LocalComposeScene.requireCurrent()
-    val density = LocalDensity.current
-    val layoutDirection = LocalLayoutDirection.current
-    val parentComposition = rememberCompositionContext()
-    val (owner, composition) = remember {
-        val owner = SkiaBasedOwner(
-            scene = scene,
-            platform = scene.platform,
-            coroutineContext = parentComposition.effectCoroutineContext,
-            initDensity = density,
-            initLayoutDirection = layoutDirection,
-            focusable = focusable,
-            onOutsidePointerEvent = onOutsidePointerEvent,
-            onPointerUpdate = scene::onPointerUpdate,
-            modifier = modifier
-        )
-        scene.attach(owner)
-        owner to owner.setContent(parent = parentComposition) {
-            content(owner)
-        }
-    }
-    DisposableEffect(Unit) {
-        onDispose {
-            scene.detach(owner)
-            composition.dispose()
-            owner.dispose()
-        }
-    }
-    SideEffect {
-        owner.density = density
-        owner.layoutDirection = layoutDirection
-    }
-}
-
-@Composable
-internal fun EmptyLayout(
-    modifier: Modifier = Modifier
-) = Layout(
-    content = {},
-    modifier = modifier,
-    measurePolicy = { _, _ ->
-        layout(0, 0) {}
-    }
-)
 
 internal fun RootMeasurePolicy(
     platformInsets: PlatformInsets,

@@ -17,7 +17,8 @@
 package androidx.compose.ui.test.junit4
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ComposeScene
+import androidx.compose.ui.InternalComposeUiApi
+import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.test.DesktopComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.IdlingResource
@@ -57,6 +58,7 @@ class DesktopComposeTestRule private constructor(
         effectContext: CoroutineContext = EmptyCoroutineContext
     ) : this(DesktopComposeUiTest(effectContext = effectContext))
 
+    @InternalComposeUiApi
     var scene: ComposeScene
         get() = composeTest.scene
         set(value) {

@@ -321,6 +321,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             configureEach {
                 languageSettings.optIn("androidx.compose.ui.ExperimentalComposeUiApi")
+                languageSettings.optIn("androidx.compose.ui.InternalComposeUiApi")
             }
         }
     }

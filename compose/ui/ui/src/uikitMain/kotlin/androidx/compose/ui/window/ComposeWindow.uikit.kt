@@ -22,11 +22,11 @@ import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.LocalSystemTheme
 import androidx.compose.ui.SystemTheme
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.pointer.HistoricalChange
@@ -39,6 +39,10 @@ import androidx.compose.ui.interop.LocalUIViewController
 import androidx.compose.ui.interop.UIKitInteropContext
 import androidx.compose.ui.interop.UIKitInteropTransaction
 import androidx.compose.ui.platform.*
+import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.ComposeScene
+import androidx.compose.ui.scene.ComposeSceneContext
+import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.uikit.*
 import androidx.compose.ui.unit.*
@@ -108,6 +112,7 @@ fun ComposeUIViewController(
         setContent(content)
     }
 
+// FIXME: It's better to rename it now
 private class AttachedComposeContext(
     val scene: ComposeScene,
     val view: SkikoUIView,
@@ -239,7 +244,7 @@ internal actual class ComposeWindow : UIViewController {
             val keyboardInfo = userInfo[UIKeyboardFrameEndUserInfoKey] as NSValue
             val keyboardHeight = keyboardInfo.CGRectValue().useContents { size.height }
             if (configuration.onFocusBehavior == OnFocusBehavior.FocusableAboveKeyboard) {
-                val focusedRect = scene.mainOwner?.focusOwner?.getFocusRect()?.toDpRect(density)
+                val focusedRect = scene.focusManager.getFocusRect()?.toDpRect(density)
 
                 if (focusedRect != null) {
                     updateViewBounds(
@@ -443,10 +448,7 @@ internal actual class ComposeWindow : UIViewController {
         }
         _windowInfo.containerSize = size
         context.scene.density = density
-        context.scene.constraints = Constraints(
-            maxWidth = size.width,
-            maxHeight = size.height
-        )
+        context.scene.size = size
 
         context.view.needRedraw()
     }
@@ -621,19 +623,15 @@ internal actual class ComposeWindow : UIViewController {
 
         val inputTraits = inputServices.skikoUITextInputTraits
 
-        val platform = object : Platform by Platform.Empty {
+        val platformContext = object : PlatformContext by PlatformContext.Empty {
             override val windowInfo: WindowInfo
                 get() = _windowInfo
             override val textInputService: PlatformTextInputService = inputServices
-            override val viewConfiguration =
-                object : ViewConfiguration {
-                    override val longPressTimeoutMillis: Long get() = 500
-                    override val doubleTapTimeoutMillis: Long get() = 300
-                    override val doubleTapMinTimeMillis: Long get() = 40
+            override val viewConfiguration = object : ViewConfiguration by EmptyViewConfiguration {
 
-                    // this value is originating from iOS 16 drag behavior reverse engineering
-                    override val touchSlop: Float get() = with(density) { 10.dp.toPx() }
-                }
+                // this value is originating from iOS 16 drag behavior reverse engineering
+                override val touchSlop: Float get() = with(density) { 10.dp.toPx() }
+            }
             override val textToolbar = object : TextToolbar {
                 override fun showMenu(
                     rect: Rect,
@@ -676,9 +674,11 @@ internal actual class ComposeWindow : UIViewController {
             override val inputModeManager = DefaultInputModeManager(InputMode.Touch)
         }
 
-        val scene = ComposeScene(
+        val scene = MultiLayerComposeScene(
             coroutineContext = Dispatchers.Main,
-            platform = platform,
+            composeSceneContext = object : ComposeSceneContext {
+                override val platformContext get() = platformContext
+            },
             density = density,
             invalidate = skikoUIView::needRedraw,
         )
@@ -688,9 +688,13 @@ internal actual class ComposeWindow : UIViewController {
         skikoUIView.inputTraits = inputTraits
         skikoUIView.delegate = object : SkikoUIViewDelegate {
             override fun onKeyboardEvent(event: SkikoKeyboardEvent) {
-                scene.sendKeyEvent(KeyEvent(event))
+                val composeEvent = KeyEvent(event)
+                if (!inputServices.onPreviewKeyEvent(composeEvent)) {
+                    scene.sendKeyEvent(composeEvent)
+                }
             }
 
+            @Suppress("DEPRECATION")
             override fun pointInside(point: CValue<CGPoint>, event: UIEvent?): Boolean =
                 point.useContents {
                     val position = Offset(
@@ -712,7 +716,7 @@ internal actual class ComposeWindow : UIViewController {
 
                         val position = touch.offsetInView(view, density)
 
-                        ComposeScene.Pointer(
+                        ComposeScenePointer(
                             id = PointerId(id),
                             position = position,
                             pressed = touch.isPressed,
@@ -739,7 +743,7 @@ internal actual class ComposeWindow : UIViewController {
                 val nanos =
                     integral.roundToLong() * secondsToNanos + (fractional * 1e9).roundToLong()
 
-                scene.render(canvas, nanos)
+                scene.render(canvas.asComposeCanvas(), nanos)
             }
 
             override fun onAttachedToWindow() {
@@ -748,24 +752,20 @@ internal actual class ComposeWindow : UIViewController {
             }
         }
 
-        scene.setContent(
-            onPreviewKeyEvent = inputServices::onPreviewKeyEvent,
-            onKeyEvent = { false },
-            content = {
-                if (!isReadyToShowContent.value) return@setContent
-                CompositionLocalProvider(
-                    LocalLayerContainer provides view,
-                    LocalUIViewController provides this,
-                    LocalKeyboardOverlapHeight provides keyboardOverlapHeight,
-                    LocalSafeArea provides safeArea,
-                    LocalLayoutMargins provides layoutMargins,
-                    LocalInterfaceOrientation provides interfaceOrientation,
-                    LocalSystemTheme provides systemTheme.value,
-                    LocalUIKitInteropContext provides interopContext,
-                    content = content
-                )
-            },
-        )
+        scene.setContent {
+            if (!isReadyToShowContent.value) return@setContent
+            CompositionLocalProvider(
+                LocalLayerContainer provides view,
+                LocalUIViewController provides this,
+                LocalKeyboardOverlapHeight provides keyboardOverlapHeight,
+                LocalSafeArea provides safeArea,
+                LocalLayoutMargins provides layoutMargins,
+                LocalInterfaceOrientation provides interfaceOrientation,
+                LocalSystemTheme provides systemTheme.value,
+                LocalUIKitInteropContext provides interopContext,
+                content = content
+            )
+        }
 
         attachedComposeContext =
             AttachedComposeContext(scene, skikoUIView, interopContext).also {

@@ -28,11 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.KeyInputElement
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
@@ -41,6 +38,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformInsetsConfig
 import androidx.compose.ui.platform.ZeroInsetsConfig
+import androidx.compose.ui.scene.rememberComposeSceneLayer
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
@@ -388,38 +386,32 @@ fun Popup(
     onKeyEvent: ((KeyEvent) -> Boolean)? = null,
     content: @Composable () -> Unit
 ) {
-    var modifier = Modifier.semantics { popup() }
-    if (properties.dismissOnBackPress && onDismissRequest != null) {
-        modifier = modifier.onKeyEvent { event: KeyEvent ->
-            if (event.isDismissRequest()) {
+    val overriddenOnKeyEvent = if (properties.dismissOnBackPress && onDismissRequest != null) {
+        { event: KeyEvent ->
+            val consumed = onKeyEvent?.invoke(event) ?: false
+            if (!consumed && event.isDismissRequest()) {
                 onDismissRequest()
                 true
             } else {
-                false
+                consumed
             }
         }
-    }
-    if (onPreviewKeyEvent != null || onKeyEvent != null) {
-        modifier = modifier.then(
-            KeyInputElement(
-                onKeyEvent = onKeyEvent,
-                onPreKeyEvent = onPreviewKeyEvent
-            )
-        )
+    } else {
+        onKeyEvent
     }
     val onOutsidePointerEvent = if (properties.dismissOnClickOutside && onDismissRequest != null) {
-        { _: PointerInputEvent ->
-            onDismissRequest()
-        }
+        { _: Boolean -> onDismissRequest() }
     } else {
         null
     }
     PopupLayout(
         popupPositionProvider = popupPositionProvider,
         properties = properties,
-        modifier = modifier,
+        modifier = Modifier.semantics { popup() },
+        onPreviewKeyEvent = onPreviewKeyEvent,
+        onKeyEvent = overriddenOnKeyEvent,
         onOutsidePointerEvent = onOutsidePointerEvent,
-        content = content
+        content = content,
     )
 }
 
@@ -427,19 +419,22 @@ fun Popup(
 private fun PopupLayout(
     popupPositionProvider: PopupPositionProvider,
     properties: PopupProperties,
-    modifier: Modifier = Modifier,
-    onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
+    modifier: Modifier,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean)? = null,
+    onKeyEvent: ((KeyEvent) -> Boolean)? = null,
+    onOutsidePointerEvent: ((Boolean) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     val platformInsets = properties.insetsConfig.safeInsets
     var layoutParentBoundsInWindow: IntRect? by remember { mutableStateOf(null) }
     EmptyLayout(Modifier.parentBoundsInWindow { layoutParentBoundsInWindow = it })
-    RootLayout(
-        modifier = modifier,
-        focusable = properties.focusable,
-        onOutsidePointerEvent = onOutsidePointerEvent
-    ) { owner ->
-        val parentBounds = layoutParentBoundsInWindow ?: return@RootLayout
+    val layer = rememberComposeSceneLayer(
+        focusable = properties.focusable
+    )
+    layer.setKeyEventListener(onPreviewKeyEvent, onKeyEvent)
+    layer.setOutsidePointerEventListener(onOutsidePointerEvent)
+    layer.setContent {
+        val parentBounds = layoutParentBoundsInWindow ?: return@setContent
         val layoutDirection = LocalLayoutDirection.current
         val measurePolicy = rememberPopupMeasurePolicy(
             popupPositionProvider = popupPositionProvider,
@@ -448,16 +443,26 @@ private fun PopupLayout(
             layoutDirection = layoutDirection,
             parentBounds = parentBounds
         ) {
-            owner.bounds = it
+            layer.bounds = it
         }
         properties.insetsConfig.excludeSafeInsets {
             Layout(
                 content = content,
+                modifier = modifier,
                 measurePolicy = measurePolicy
             )
         }
     }
 }
+
+@Composable
+private fun EmptyLayout(modifier: Modifier = Modifier) = Layout(
+    content = {},
+    modifier = modifier,
+    measurePolicy = { _, _ ->
+        layout(0, 0) {}
+    }
+)
 
 private val PopupProperties.insetsConfig: InsetsConfig
     get() = if (usePlatformInsets) PlatformInsetsConfig else ZeroInsetsConfig

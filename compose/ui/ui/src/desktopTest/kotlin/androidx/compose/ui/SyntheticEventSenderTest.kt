@@ -22,6 +22,7 @@ import androidx.compose.ui.input.pointer.PointerEventType.Companion.Move
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Press
 import androidx.compose.ui.input.pointer.PointerEventType.Companion.Release
 import androidx.compose.ui.input.pointer.PointerInputEvent
+import androidx.compose.ui.input.pointer.SyntheticEventSender
 import kotlin.test.Test
 
 @OptIn(ExperimentalComposeUiApi::class)

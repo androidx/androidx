@@ -17,18 +17,20 @@
 package androidx.compose.ui.test
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.platform.InfiniteAnimationPolicy
-import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.WindowInfo
+import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.ComposeScene
+import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.test.junit4.ComposeRootRegistry
 import androidx.compose.ui.test.junit4.MainTestClockImpl
@@ -41,7 +43,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import kotlin.coroutines.CoroutineContext
@@ -90,7 +91,7 @@ private const val IDLING_RESOURCES_CHECK_INTERVAL_MS = 20L
  * `LaunchedEffect`s and `rememberCoroutineScope` will be derived from this context.
  */
 @ExperimentalTestApi
-@OptIn(ExperimentalCoroutinesApi::class, InternalTestApi::class)
+@OptIn(ExperimentalCoroutinesApi::class, InternalTestApi::class, InternalComposeUiApi::class)
 class SkikoComposeUiTest(
     width: Int = 1024,
     height: Int = 768,
@@ -110,31 +111,6 @@ class SkikoComposeUiTest(
         var onEditCommand: (List<EditCommand>) -> Unit,
         var onImeActionPerformed: (ImeAction) -> Unit,
     )
-
-    private val textInputService = object : PlatformTextInputService {
-        var session: Session? = null
-
-        override fun startInput(
-            value: TextFieldValue,
-            imeOptions: ImeOptions,
-            onEditCommand: (List<EditCommand>) -> Unit,
-            onImeActionPerformed: (ImeAction) -> Unit
-        ) {
-            session = Session(
-                imeOptions = imeOptions,
-                onEditCommand = onEditCommand,
-                onImeActionPerformed = onImeActionPerformed
-            )
-        }
-
-        override fun stopInput() {
-            session = null
-        }
-
-        override fun showSoftwareKeyboard() = Unit
-        override fun hideSoftwareKeyboard() = Unit
-        override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) = Unit
-    }
 
     private val composeRootRegistry = ComposeRootRegistry()
 
@@ -157,7 +133,9 @@ class SkikoComposeUiTest(
     private val coroutineContext =
         coroutineDispatcher + uncaughtExceptionHandler + infiniteAnimationPolicy
     private val surface = Surface.makeRasterN32Premul(width, height)
+    private val size = IntSize(width, height)
 
+    @InternalComposeUiApi
     lateinit var scene: ComposeScene
         internal set
 
@@ -188,7 +166,7 @@ class SkikoComposeUiTest(
 
     private fun render(timeMillis: Long) {
         scene.render(
-            surface.canvas,
+            surface.canvas.asComposeCanvas(),
             timeMillis * NanoSecondsPerMilliSecond
         )
     }
@@ -200,14 +178,13 @@ class SkikoComposeUiTest(
         }
     }
 
-    private fun createUi() = ComposeScene(
-        textInputService = textInputService,
+    private fun createUi() = MultiLayerComposeScene(
         density = density,
         coroutineContext = coroutineContext,
+        composeSceneContext = TestComposeSceneContext(),
         invalidate = { }
-    ).apply {
-        constraints = Constraints(maxWidth = surface.width, maxHeight = surface.height)
-        // TODO: Initialize WindowInfo once public way is available
+    ).also {
+        it.size = size
     }
 
     private fun shouldPumpTime(): Boolean {
@@ -303,22 +280,11 @@ class SkikoComposeUiTest(
 
     @OptIn(ExperimentalComposeUiApi::class)
     override fun setContent(composable: @Composable () -> Unit) {
-        // TODO: Remove override once it's properly initialized
-        val overriddenComposable: @Composable () -> Unit = {
-            val windowInfo = object : WindowInfo by LocalWindowInfo.current {
-                override val containerSize: IntSize
-                    get() = IntSize(surface.width, surface.height)
-            }
-            CompositionLocalProvider(
-                LocalWindowInfo provides windowInfo,
-                content = composable
-            )
-        }
         if (isOnUiThread()) {
-            scene.setContent(content = overriddenComposable)
+            scene.setContent(content = composable)
         } else {
             runOnUiThread {
-                scene.setContent(content = overriddenComposable)
+                scene.setContent(content = composable)
             }
 
             // Only wait for idleness if not on the UI thread. If we are on the UI thread, the
@@ -374,6 +340,54 @@ class SkikoComposeUiTest(
 
         override fun captureToImage(semanticsNode: SemanticsNode): ImageBitmap =
             this@SkikoComposeUiTest.captureToImage(semanticsNode)
+    }
+
+    private inner class TestWindowInfo : WindowInfo {
+        override val isWindowFocused: Boolean
+            get() = true
+
+        @ExperimentalComposeUiApi
+        override val containerSize: IntSize
+            get() = size
+    }
+
+    private inner class TestTextInputService : PlatformTextInputService {
+        var session: Session? = null
+
+        override fun startInput(
+            value: TextFieldValue,
+            imeOptions: ImeOptions,
+            onEditCommand: (List<EditCommand>) -> Unit,
+            onImeActionPerformed: (ImeAction) -> Unit
+        ) {
+            session = Session(
+                imeOptions = imeOptions,
+                onEditCommand = onEditCommand,
+                onImeActionPerformed = onImeActionPerformed
+            )
+        }
+
+        override fun stopInput() {
+            session = null
+        }
+
+        override fun showSoftwareKeyboard() = Unit
+        override fun hideSoftwareKeyboard() = Unit
+        override fun updateState(oldValue: TextFieldValue?, newValue: TextFieldValue) = Unit
+    }
+
+    private inner class TestContext : PlatformContext by PlatformContext.Empty {
+        override val windowInfo: WindowInfo =
+            TestWindowInfo()
+        override val textInputService: PlatformTextInputService =
+            TestTextInputService()
+
+        override val rootForTestListener: PlatformContext.RootForTestListener?
+            get() = composeRootRegistry
+    }
+
+    private inner class TestComposeSceneContext : ComposeSceneContext {
+        override val platformContext = TestContext()
     }
 }
 

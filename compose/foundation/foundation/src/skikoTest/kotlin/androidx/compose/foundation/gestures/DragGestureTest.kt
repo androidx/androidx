@@ -21,13 +21,15 @@ import androidx.compose.foundation.PointerMatcher
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.ImageComposeScene
+import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerButton
 import androidx.compose.ui.input.pointer.PointerButtons
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.platform.DefaultViewConfiguration
+import androidx.compose.ui.platform.PlatformContext
+import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.use
@@ -38,7 +40,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
-@Suppress("DEPRECATION")
 @OptIn(ExperimentalFoundationApi::class)
 class DragGestureTest {
 
@@ -461,4 +462,10 @@ class DragGestureTest {
             assertEquals(3, onDragCounter)
         }
     }
+}
+
+@OptIn(InternalComposeUiApi::class)
+private class DefaultViewConfiguration(private val density: Density) : ViewConfiguration by PlatformContext.Empty.viewConfiguration {
+    override val touchSlop: Float
+        get() = with(density) { PlatformContext.Empty.viewConfiguration.touchSlop.dp.toPx() }
 }

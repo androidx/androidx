@@ -14,14 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui
+package androidx.compose.ui.scene
 
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import java.awt.Toolkit
-import org.jetbrains.skiko.SkiaLayer
-
-internal actual fun createSkiaLayer(): SkiaLayer = SkiaLayer()
 
 private fun getLockingKeyStateSafe(
     mask: Int

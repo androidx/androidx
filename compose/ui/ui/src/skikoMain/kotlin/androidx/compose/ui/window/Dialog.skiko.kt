@@ -20,25 +20,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.ExperimentalComposeUiApi
-import androidx.compose.ui.LocalComposeScene
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.pointer.PointerButton
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.InsetsConfig
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformInsetsConfig
 import androidx.compose.ui.platform.ZeroInsetsConfig
-import androidx.compose.ui.requireCurrent
+import androidx.compose.ui.scene.rememberComposeSceneLayer
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntRect
@@ -136,17 +130,8 @@ actual fun Dialog(
     properties: DialogProperties,
     content: @Composable () -> Unit
 ) {
-    val blendMode = LocalComposeScene.requireCurrent().platform.dialogScrimBlendMode
-    var modifier = Modifier
-        .semantics { dialog() }
-        .drawBehind {
-            drawRect(
-                color = properties.scrimColor,
-                blendMode = blendMode
-            )
-        }
-    if (properties.dismissOnBackPress) {
-        modifier = modifier.onKeyEvent { event: KeyEvent ->
+    val onKeyEvent = if (properties.dismissOnBackPress) {
+        { event: KeyEvent ->
             if (event.isDismissRequest()) {
                 onDismissRequest()
                 true
@@ -154,10 +139,12 @@ actual fun Dialog(
                 false
             }
         }
+    } else {
+        null
     }
     val onOutsidePointerEvent = if (properties.dismissOnClickOutside) {
-        { event: PointerInputEvent ->
-            if (event.isDismissRequest()) {
+        { isDismissRequest: Boolean ->
+            if (isDismissRequest) {
                 onDismissRequest()
             }
         }
@@ -165,7 +152,8 @@ actual fun Dialog(
         null
     }
     DialogLayout(
-        modifier = modifier,
+        modifier = Modifier.semantics { dialog() },
+        onKeyEvent = onKeyEvent,
         onOutsidePointerEvent = onOutsidePointerEvent,
         properties = properties,
         content = content
@@ -176,24 +164,29 @@ actual fun Dialog(
 private fun DialogLayout(
     properties: DialogProperties,
     modifier: Modifier = Modifier,
-    onOutsidePointerEvent: ((PointerInputEvent) -> Unit)? = null,
+    onPreviewKeyEvent: ((KeyEvent) -> Boolean)? = null,
+    onKeyEvent: ((KeyEvent) -> Boolean)? = null,
+    onOutsidePointerEvent: ((Boolean) -> Unit)? = null,
     content: @Composable () -> Unit
 ) {
     val platformInsets = properties.insetsConfig.safeInsets
-    RootLayout(
-        modifier = modifier,
-        focusable = true,
-        onOutsidePointerEvent = onOutsidePointerEvent
-    ) { owner ->
+    val layer = rememberComposeSceneLayer(
+        focusable = true
+    )
+    layer.scrimColor = properties.scrimColor
+    layer.setKeyEventListener(onPreviewKeyEvent, onKeyEvent)
+    layer.setOutsidePointerEventListener(onOutsidePointerEvent)
+    layer.setContent {
         val measurePolicy = rememberDialogMeasurePolicy(
             properties = properties,
             platformInsets = platformInsets
         ) {
-            owner.bounds = it
+            layer.bounds = it
         }
         properties.insetsConfig.excludeSafeInsets {
             Layout(
                 content = content,
+                modifier = modifier,
                 measurePolicy = measurePolicy
             )
         }
@@ -220,13 +213,6 @@ private fun rememberDialogMeasurePolicy(
         position
     }
 }
-
-private fun PointerInputEvent.isMainAction() =
-    button == PointerButton.Primary ||
-        button == null && pointers.size == 1
-
-private fun PointerInputEvent.isDismissRequest() =
-    eventType == PointerEventType.Release && isMainAction()
 
 private fun KeyEvent.isDismissRequest() =
     type == KeyEventType.KeyDown && key == Key.Escape

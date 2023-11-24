@@ -26,11 +26,6 @@ import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.nativeKeyCode
 import androidx.compose.ui.input.key.nativeKeyLocation
-import androidx.compose.ui.input.pointer.PointerButton
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.platform.SkiaRootForTest
 import java.awt.Component
 import java.awt.event.InputEvent
 

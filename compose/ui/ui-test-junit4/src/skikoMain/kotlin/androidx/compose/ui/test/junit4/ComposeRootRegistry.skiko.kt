@@ -17,30 +17,29 @@
 package androidx.compose.ui.test.junit4
 
 import androidx.compose.ui.InternalComposeUiApi
-import androidx.compose.ui.platform.SkiaRootForTest
+import androidx.compose.ui.platform.PlatformContext
+import androidx.compose.ui.platform.PlatformRootForTest
 
 /**
- * Registry where all views implementing [SkiaRootForTest] should be registered while they
+ * Registry where all views implementing [PlatformRootForTest] should be registered while they
  * are attached to the window. This registry is used by the testing library to query the roots'
  * state.
  */
 @OptIn(InternalComposeUiApi::class)
-internal class ComposeRootRegistry {
+internal class ComposeRootRegistry : PlatformContext.RootForTestListener {
     private val lock = Any()
-    private val roots = mutableSetOf<SkiaRootForTest>()
+    private val roots = mutableSetOf<PlatformRootForTest>()
 
     /**
-     * Returns if the registry is setup to receive registrations from [SkiaRootForTest]s
+     * Returns if the registry is setup to receive registrations from [PlatformRootForTest]s
      */
-    val isSetUp: Boolean
-        get() = SkiaRootForTest.onRootCreatedCallback == ::onRootCreated
+    private var isTracking = false
 
     /**
-     * Sets up this registry to be notified of any [SkiaRootForTest] created
+     * Sets up this registry to be notified of any [PlatformRootForTest] created
      */
     private fun setupRegistry() {
-        SkiaRootForTest.onRootCreatedCallback = ::onRootCreated
-        SkiaRootForTest.onRootDisposedCallback = ::onRootDisposed
+        isTracking = true
     }
 
     /**
@@ -48,34 +47,33 @@ internal class ComposeRootRegistry {
      */
     private fun tearDownRegistry() {
         // Stop accepting new roots
-        SkiaRootForTest.onRootCreatedCallback = null
-        SkiaRootForTest.onRootDisposedCallback = null
+        isTracking = false
         synchronized(lock) {
             // Clear all references
             roots.clear()
         }
     }
 
-    private fun onRootCreated(root: SkiaRootForTest) {
+    override fun onRootForTestCreated(root: PlatformRootForTest) {
         synchronized(lock) {
-            if (isSetUp) {
+            if (isTracking) {
                 roots.add(root)
             }
         }
     }
 
-    private fun onRootDisposed(root: SkiaRootForTest) {
+    override fun onRootForTestDisposed(root: PlatformRootForTest) {
         synchronized(lock) {
-            if (isSetUp) {
+            if (isTracking) {
                 roots.remove(root)
             }
         }
     }
 
     /**
-     * Returns a copy of the set of all registered [SkiaRootForTest]s that can be interacted with.
+     * Returns a copy of the set of all registered [PlatformRootForTest]s that can be interacted with.
      */
-    fun getComposeRoots(): Set<SkiaRootForTest> {
+    fun getComposeRoots(): Set<PlatformRootForTest> {
         return synchronized(lock) { roots.toSet() }
     }
 

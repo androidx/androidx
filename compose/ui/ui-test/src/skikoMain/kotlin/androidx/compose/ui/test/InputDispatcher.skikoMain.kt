@@ -15,7 +15,6 @@
  */
 package androidx.compose.ui.test
 
-import androidx.compose.ui.ComposeScene
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.InternalComposeUiApi
 import androidx.compose.ui.geometry.Offset
@@ -27,14 +26,15 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.node.RootForTest
-import androidx.compose.ui.platform.SkiaRootForTest
+import androidx.compose.ui.platform.PlatformRootForTest
+import androidx.compose.ui.scene.ComposeScenePointer
 
 @OptIn(InternalComposeUiApi::class)
 internal actual fun createInputDispatcher(
     testContext: TestContext,
     root: RootForTest
 ): InputDispatcher {
-    return SkikoInputDispatcher(testContext, root as SkiaRootForTest)
+    return SkikoInputDispatcher(testContext, root as PlatformRootForTest)
 }
 
 private class TestInputEvent(
@@ -45,7 +45,7 @@ private class TestInputEvent(
 @OptIn(InternalComposeUiApi::class, ExperimentalComposeUiApi::class)
 internal class SkikoInputDispatcher(
     private val testContext: TestContext,
-    private val root: SkiaRootForTest
+    private val root: PlatformRootForTest
 ) : InputDispatcher(
     testContext,
     root,
@@ -53,7 +53,6 @@ internal class SkikoInputDispatcher(
     moveOnScroll = false,
 ) {
 
-    private val scene get() = root.scene
     private var currentClockTime = currentTime
     private var batchedEvents = mutableListOf<TestInputEvent>()
     private var modifiers = 0
@@ -61,7 +60,7 @@ internal class SkikoInputDispatcher(
     override fun PartialGesture.enqueueDown(pointerId: Int) {
         val timeMillis = currentTime
         val pointers = lastPositions.map {
-            ComposeScene.Pointer(
+            ComposeScenePointer(
                 id = PointerId(it.key.toLong()),
                 position = it.value,
                 pressed = true,
@@ -69,7 +68,7 @@ internal class SkikoInputDispatcher(
             )
         }
         enqueue(timeMillis) {
-            scene.sendPointerEvent(
+            root.sendPointerEvent(
                 PointerEventType.Press,
                 pointers = pointers,
                 timeMillis = timeMillis
@@ -79,7 +78,7 @@ internal class SkikoInputDispatcher(
     override fun PartialGesture.enqueueMove() {
         val timeMillis = currentTime
         val pointers = lastPositions.map {
-            ComposeScene.Pointer(
+            ComposeScenePointer(
                 id = PointerId(it.key.toLong()),
                 position = it.value,
                 pressed = true,
@@ -87,7 +86,7 @@ internal class SkikoInputDispatcher(
             )
         }
         enqueue(timeMillis) {
-            scene.sendPointerEvent(
+            root.sendPointerEvent(
                 PointerEventType.Move,
                 pointers = pointers,
                 timeMillis = timeMillis
@@ -106,7 +105,7 @@ internal class SkikoInputDispatcher(
     override fun PartialGesture.enqueueUp(pointerId: Int) {
         val timeMillis = currentTime
         val pointers = lastPositions.map {
-            ComposeScene.Pointer(
+            ComposeScenePointer(
                 id = PointerId(it.key.toLong()),
                 position = it.value,
                 pressed = pointerId != it.key,
@@ -114,7 +113,7 @@ internal class SkikoInputDispatcher(
             )
         }
         enqueue(timeMillis) {
-            scene.sendPointerEvent(
+            root.sendPointerEvent(
                 PointerEventType.Release,
                 pointers = pointers,
                 timeMillis = timeMillis
@@ -130,7 +129,7 @@ internal class SkikoInputDispatcher(
         val position = lastPosition
         val timeMillis = currentTime
         enqueue(timeMillis) {
-            scene.sendPointerEvent(
+            root.sendPointerEvent(
                 PointerEventType.Press,
                 position = position,
                 type = PointerType.Mouse,
@@ -144,7 +143,7 @@ internal class SkikoInputDispatcher(
         val position = lastPosition
         val timeMillis = currentTime
         enqueue(timeMillis) {
-            scene.sendPointerEvent(
+            root.sendPointerEvent(
                 PointerEventType.Move,
                 position = position,
                 type = PointerType.Mouse,
@@ -157,7 +156,7 @@ internal class SkikoInputDispatcher(
         val position = lastPosition
         val timeMillis = currentTime
         enqueue(timeMillis) {
-            scene.sendPointerEvent(
+            root.sendPointerEvent(
                 PointerEventType.Release,
                 position = position,
                 type = PointerType.Mouse,
@@ -171,7 +170,7 @@ internal class SkikoInputDispatcher(
         val position = lastPosition
         val timeMillis = currentTime
         enqueue(timeMillis) {
-            scene.sendPointerEvent(
+            root.sendPointerEvent(
                 PointerEventType.Enter,
                 position = position,
                 type = PointerType.Mouse,
@@ -184,7 +183,7 @@ internal class SkikoInputDispatcher(
         val position = lastPosition
         val timeMillis = currentTime
         enqueue(timeMillis) {
-            scene.sendPointerEvent(
+            root.sendPointerEvent(
                 PointerEventType.Exit,
                 position = position,
                 type = PointerType.Mouse,
@@ -202,7 +201,7 @@ internal class SkikoInputDispatcher(
         val position = lastPosition
         val timeMillis = currentTime
         enqueue(timeMillis) {
-            scene.sendPointerEvent(
+            root.sendPointerEvent(
                 PointerEventType.Scroll,
                 position = position,
                 type = PointerType.Mouse,
@@ -220,14 +219,14 @@ internal class SkikoInputDispatcher(
     override fun KeyInputState.enqueueDown(key: Key) {
         enqueue(currentTime) {
             updateModifiers(key = key, down = true)
-            scene.sendKeyEvent(keyEvent(key, KeyEventType.KeyDown, modifiers))
+            root.sendKeyEvent(keyEvent(key, KeyEventType.KeyDown, modifiers))
         }
     }
 
     override fun KeyInputState.enqueueUp(key: Key) {
         enqueue(currentTime) {
             updateModifiers(key = key, down = false)
-            scene.sendKeyEvent(keyEvent(key, KeyEventType.KeyUp, modifiers))
+            root.sendKeyEvent(keyEvent(key, KeyEventType.KeyUp, modifiers))
         }
     }
 
