@@ -36,7 +36,11 @@ abstract class AbstractComposePublishingTask : DefaultTask() {
     }
 
     fun publishMultiplatform(component: ComposeComponent) {
-        dependsOnComposeTask("${component.path}:publish${ComposePlatforms.KotlinMultiplatform.name}PublicationTo$repository")
+        // To make OEL publishing (for android artifacts) work properly with kotlin >= 1.9.0,
+        // we use decorated `KotlinMultiplatform` publication named - 'KotlinMultiplatformDecorated'.
+        // see AndroidXComposeMultiplatformExtensionImpl.publishAndroidxReference for details.
+        val kotlinCommonPublicationName = "${ComposePlatforms.KotlinMultiplatform.name}Decorated"
+        dependsOnComposeTask("${component.path}:publish${kotlinCommonPublicationName}PublicationTo$repository")
 
         for (platform in targetPlatforms) {
             if (platform !in component.supportedPlatforms) continue
