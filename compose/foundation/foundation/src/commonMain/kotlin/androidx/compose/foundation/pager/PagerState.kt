@@ -76,8 +76,8 @@ fun rememberPagerState(
     initialPageOffsetFraction: Float = 0f,
     pageCount: () -> Int
 ): PagerState {
-    return rememberSaveable(saver = PagerStateImpl.Saver) {
-        PagerStateImpl(
+    return rememberSaveable(saver = DefaultPagerState.Saver) {
+        DefaultPagerState(
             initialPage,
             initialPageOffsetFraction,
             pageCount
@@ -87,12 +87,31 @@ fun rememberPagerState(
     }
 }
 
+/**
+ * Creates a default [PagerState] to be used with a [Pager]
+ *
+ * Please refer to the sample to learn how to use this API.
+ * @sample androidx.compose.foundation.samples.PagerWithStateSample
+ *
+ * @param currentPage The pager that should be shown first.
+ * @param currentPageOffsetFraction The offset of the initial page as a fraction of the page size.
+ * This should vary between -0.5 and 0.5 and indicates how to offset the initial page from the
+ * snapped position.
+ * @param pageCount The amount of pages this Pager will have.
+ */
 @ExperimentalFoundationApi
-internal class PagerStateImpl(
-    initialPage: Int,
-    initialPageOffsetFraction: Float,
+fun PagerState(
+    currentPage: Int = 0,
+    currentPageOffsetFraction: Float = 0f,
+    pageCount: () -> Int
+): PagerState = DefaultPagerState(currentPage, currentPageOffsetFraction, pageCount)
+
+@ExperimentalFoundationApi
+private class DefaultPagerState(
+    currentPage: Int,
+    currentPageOffsetFraction: Float,
     updatedPageCount: () -> Int
-) : PagerState(initialPage, initialPageOffsetFraction) {
+) : PagerState(currentPage, currentPageOffsetFraction) {
 
     var pageCountState = mutableStateOf(updatedPageCount)
     override val pageCount: Int get() = pageCountState.value.invoke()
@@ -101,7 +120,7 @@ internal class PagerStateImpl(
         /**
          * To keep current page and current page offset saved
          */
-        val Saver: Saver<PagerStateImpl, *> = listSaver(
+        val Saver: Saver<DefaultPagerState, *> = listSaver(
             save = {
                 listOf(
                     it.currentPage,
@@ -110,9 +129,9 @@ internal class PagerStateImpl(
                 )
             },
             restore = {
-                PagerStateImpl(
-                    initialPage = it[0] as Int,
-                    initialPageOffsetFraction = it[1] as Float,
+                DefaultPagerState(
+                    currentPage = it[0] as Int,
+                    currentPageOffsetFraction = it[1] as Float,
                     updatedPageCount = { it[2] as Int }
                 )
             }

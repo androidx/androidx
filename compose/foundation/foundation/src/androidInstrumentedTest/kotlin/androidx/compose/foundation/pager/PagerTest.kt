@@ -167,7 +167,7 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
     fun pageCount_readBeforeCompositionIsAccurate() {
         // Arrange
         val pageCount = mutableStateOf(2)
-        val state = PagerStateImpl(0, 0f) { pageCount.value }
+        val state = PagerState(0, 0f) { pageCount.value }
         assertThat(state.pageCount).isEqualTo(pageCount.value)
         rule.setContent {
             HorizontalOrVerticalPager(
@@ -194,7 +194,7 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         // Arrange
         var recomposeCount = 0
         val pageCount = mutableStateOf(2)
-        val state = PagerStateImpl(0, 0f) { pageCount.value }
+        val state = PagerState(0, 0f) { pageCount.value }
         assertThat(state.pageCount).isEqualTo(pageCount.value)
 
         rule.setContent {
@@ -226,7 +226,7 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
     fun pageCountDecreased_currentPageIsAdjustedAccordingly() {
         // Arrange
         val pageCount = mutableStateOf(5)
-        val state = PagerStateImpl(0, 0f) { pageCount.value }
+        val state = PagerState(0, 0f) { pageCount.value }
         assertThat(state.pageCount).isEqualTo(pageCount.value)
 
         rule.setContent {
@@ -319,7 +319,7 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
     fun pagerStateChange_flingBehaviorShouldRecreate() {
         var previousFlingBehavior: SnapFlingBehavior? = null
         var latestFlingBehavior: SnapFlingBehavior? = null
-        val stateHolder = mutableStateOf(PagerStateImpl(0, 0.0f) { 10 })
+        val stateHolder = mutableStateOf(PagerState(0, 0.0f) { 10 })
         rule.setContent {
             HorizontalOrVerticalPager(
                 modifier = Modifier
@@ -339,7 +339,7 @@ class PagerTest(val config: ParamConfig) : BasePagerTest(config) {
         }
 
         rule.runOnIdle {
-            stateHolder.value = PagerStateImpl(0, 0.0f) { 20 }
+            stateHolder.value = PagerState(0, 0.0f) { 20 }
         }
 
         rule.waitForIdle()

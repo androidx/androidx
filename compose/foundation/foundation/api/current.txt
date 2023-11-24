@@ -1262,6 +1262,7 @@ package androidx.compose.foundation.pager {
   }
 
   public final class PagerStateKt {
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.pager.PagerState PagerState(optional int currentPage, optional float currentPageOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
     method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.pager.PagerState rememberPagerState(optional int initialPage, optional float initialPageOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
   }
 
