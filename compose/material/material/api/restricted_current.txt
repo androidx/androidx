@@ -652,6 +652,19 @@ package androidx.compose.material {
     property @Deprecated public final float factorAtMin;
   }
 
+  public final class RippleDefaults {
+    method public androidx.compose.material.ripple.RippleAlpha rippleAlpha(long contentColor, boolean lightTheme);
+    method public long rippleColor(long contentColor, boolean lightTheme);
+    field public static final androidx.compose.material.RippleDefaults INSTANCE;
+  }
+
+  public final class RippleKt {
+    method @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> getLocalUseFallbackRippleImplementation();
+    method @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(androidx.compose.ui.graphics.ColorProducer color, optional boolean bounded, optional float radius);
+    method @androidx.compose.runtime.Stable public static androidx.compose.foundation.IndicationNodeFactory ripple(optional boolean bounded, optional float radius, optional long color);
+    property @SuppressCompatibility @androidx.compose.material.ExperimentalMaterialApi public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Boolean> LocalUseFallbackRippleImplementation;
+  }
+
   public final class ScaffoldDefaults {
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getContentWindowInsets();
     property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.WindowInsets contentWindowInsets;
