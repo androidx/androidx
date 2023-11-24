@@ -236,15 +236,11 @@ fun NavigationRailItem(
         // The indicator has a width-expansion animation which interferes with the timing of the
         // ripple, which is why they are separate composables
         val indicatorRipple = @Composable {
-            @Suppress("DEPRECATION_ERROR")
             Box(
                 Modifier
                     .layoutId(IndicatorRippleLayoutIdTag)
                     .clip(indicatorShape)
-                    .indication(
-                        offsetInteractionSource,
-                        androidx.compose.material.ripple.rememberRipple()
-                    )
+                    .indication(offsetInteractionSource, rippleOrFallbackImplementation())
             )
         }
         val indicator = @Composable {

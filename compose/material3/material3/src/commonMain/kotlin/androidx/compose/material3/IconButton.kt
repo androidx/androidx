@@ -80,7 +80,6 @@ fun IconButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit
 ) {
-    @Suppress("DEPRECATION_ERROR")
     Box(
         modifier = modifier
             .minimumInteractiveComponentSize()
@@ -92,7 +91,7 @@ fun IconButton(
                 enabled = enabled,
                 role = Role.Button,
                 interactionSource = interactionSource,
-                indication = androidx.compose.material.ripple.rememberRipple(
+                indication = rippleOrFallbackImplementation(
                     bounded = false,
                     radius = IconButtonTokens.StateLayerSize / 2
                 )
@@ -142,7 +141,6 @@ fun IconToggleButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable () -> Unit
 ) {
-    @Suppress("DEPRECATION_ERROR")
     Box(
         modifier = modifier
             .minimumInteractiveComponentSize()
@@ -155,7 +153,7 @@ fun IconToggleButton(
                 enabled = enabled,
                 role = Role.Checkbox,
                 interactionSource = interactionSource,
-                indication = androidx.compose.material.ripple.rememberRipple(
+                indication = rippleOrFallbackImplementation(
                     bounded = false,
                     radius = IconButtonTokens.StateLayerSize / 2
                 )

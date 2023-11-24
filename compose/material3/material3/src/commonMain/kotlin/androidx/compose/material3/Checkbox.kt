@@ -145,14 +145,13 @@ fun TriStateCheckbox(
 ) {
     val toggleableModifier =
         if (onClick != null) {
-            @Suppress("DEPRECATION_ERROR")
             Modifier.triStateToggleable(
                 state = state,
                 onClick = onClick,
                 enabled = enabled,
                 role = Role.Checkbox,
                 interactionSource = interactionSource,
-                indication = androidx.compose.material.ripple.rememberRipple(
+                indication = rippleOrFallbackImplementation(
                     bounded = false,
                     radius = CheckboxTokens.StateLayerSize / 2
                 )
