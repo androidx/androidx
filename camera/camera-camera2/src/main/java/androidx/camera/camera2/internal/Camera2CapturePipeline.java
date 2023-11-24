@@ -47,6 +47,7 @@ import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.workaround.FlashAvailabilityChecker;
 import androidx.camera.camera2.internal.compat.workaround.OverrideAeModeForStillCapture;
+import androidx.camera.camera2.internal.compat.workaround.UseFlashModeTorchFor3aUpdate;
 import androidx.camera.camera2.internal.compat.workaround.UseTorchAsFlash;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ImageCapture;
@@ -199,7 +200,8 @@ class Camera2CapturePipeline {
         }
 
         if (flashMode == FLASH_MODE_SCREEN) {
-            pipeline.addTask(new ScreenFlashTask(mCameraControl, mExecutor, mScheduler));
+            pipeline.addTask(new ScreenFlashTask(mCameraControl, mExecutor, mScheduler,
+                    new UseFlashModeTorchFor3aUpdate(mCameraQuirk)));
         } else {
             if (mHasFlashUnit) {
                 if (isTorchAsFlash(flashType)) {
@@ -685,12 +687,15 @@ class Camera2CapturePipeline {
         private final Executor mExecutor;
         private final ScheduledExecutorService mScheduler;
         private final ImageCapture.ScreenFlashUiControl mScreenFlashUiControl;
+        private final UseFlashModeTorchFor3aUpdate mUseFlashModeTorchFor3aUpdate;
 
-        ScreenFlashTask(@NonNull Camera2CameraControlImpl cameraControl,
-                @NonNull Executor executor, @NonNull ScheduledExecutorService scheduler) {
+        ScreenFlashTask(@NonNull Camera2CameraControlImpl cameraControl, @NonNull Executor executor,
+                @NonNull ScheduledExecutorService scheduler,
+                @NonNull UseFlashModeTorchFor3aUpdate useFlashModeTorchFor3aUpdate) {
             mCameraControl = cameraControl;
             mExecutor = executor;
             mScheduler = scheduler;
+            mUseFlashModeTorchFor3aUpdate = useFlashModeTorchFor3aUpdate;
 
             mScreenFlashUiControl =
                     Objects.requireNonNull(mCameraControl.getScreenFlashUiControl());
@@ -728,11 +733,13 @@ class Camera2CapturePipeline {
                             true),
                     mExecutor
             ).transformAsync(
-                    // Won't have any effect if CONTROL_AE_MODE_ON_EXTERNAL_FLASH is supported
                     input -> CallbackToFutureAdapter.getFuture(
                             completer -> {
+                                if (!mUseFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()) {
+                                    completer.set(null);
+                                    return "EnableTorchInternal";
+                                }
                                 Logger.d(TAG, "ScreenFlashTask#preCapture: enable torch");
-                                // TODO: Enable torch only if actual flash unit doesn't exist
                                 mCameraControl.enableTorchInternal(true);
                                 completer.set(null);
                                 return "EnableTorchInternal";
@@ -763,7 +770,9 @@ class Camera2CapturePipeline {
         @Override
         public void postCapture() {
             Logger.d(TAG, "ScreenFlashTask#postCapture");
-            mCameraControl.enableTorchInternal(false);
+            if (mUseFlashModeTorchFor3aUpdate.shouldUseFlashModeTorch()) {
+                mCameraControl.enableTorchInternal(false);
+            }
             mCameraControl.getFocusMeteringControl().enableExternalFlashAeMode(false).addListener(
                     () -> Log.d(TAG, "enableExternalFlashAeMode disabled"), mExecutor
             );
