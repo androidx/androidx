@@ -30,7 +30,18 @@ import org.jetbrains.skiko.SkikoInput
 import platform.AppKit.*
 import platform.Foundation.*
 
-internal actual class ComposeWindow actual constructor() {
+fun Window(
+    title: String = "ComposeWindow",
+    content: @Composable () -> Unit,
+) {
+    ComposeWindow(
+        content = content,
+    )
+}
+
+private class ComposeWindow(
+    content: @Composable () -> Unit,
+) {
     private val macosTextInputService = MacosTextInputService()
     private val _windowInfo = WindowInfoImpl().apply {
         isWindowFocused = true
@@ -74,23 +85,11 @@ internal actual class ComposeWindow actual constructor() {
         _windowInfo.containerSize = size
         layer.setDensity(Density(scale))
         layer.setSize(size.width, size.height)
-    }
-
-    /**
-     * Sets Compose content of the ComposeWindow.
-     *
-     * @param content Composable content of the ComposeWindow.
-     */
-    actual fun setContent(
-        content: @Composable () -> Unit
-    ) {
-        layer.setContent(
-            content = content
-        )
+        layer.setContent(content = content)
     }
 
     // TODO: need to call .dispose() on window close.
-    actual fun dispose() {
+    fun dispose() {
         layer.dispose()
     }
 }

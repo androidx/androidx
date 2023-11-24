@@ -43,9 +43,11 @@ import org.w3c.dom.HTMLCanvasElement
 import org.w3c.dom.HTMLStyleElement
 import org.w3c.dom.HTMLTitleElement
 
-internal actual class ComposeWindow(val canvasId: String)  {
-
-    actual constructor(): this(defaultCanvasElementId)
+@OptIn(InternalComposeApi::class)
+private class ComposeWindow(
+    canvasId: String,
+    content: @Composable () -> Unit,
+)  {
 
     private val density: Density = Density(
         density = window.devicePixelRatio.toFloat(),
@@ -89,6 +91,14 @@ internal actual class ComposeWindow(val canvasId: String)  {
 
         _windowInfo.containerSize = IntSize(canvas.width, canvas.height)
         layer.setSize(canvas.width, canvas.height)
+
+        layer.setDensity(density)
+        layer.setContent {
+            CompositionLocalProvider(
+                LocalSystemTheme provides systemThemeObserver.currentSystemTheme.value,
+                content = content
+            )
+        }
     }
 
     fun resize(newSize: IntSize) {
@@ -106,26 +116,8 @@ internal actual class ComposeWindow(val canvasId: String)  {
         layer.layer.needRedraw()
     }
 
-    /**
-     * Sets Compose content of the ComposeWindow.
-     *
-     * @param content Composable content of the ComposeWindow.
-     */
-    @OptIn(InternalComposeApi::class)
-    actual fun setContent(
-        content: @Composable () -> Unit
-    ) {
-        layer.setDensity(density)
-        layer.setContent {
-            CompositionLocalProvider(
-                LocalSystemTheme provides systemThemeObserver.currentSystemTheme.value,
-                content = content
-            )
-        }
-    }
-
     // TODO: need to call .dispose() on window close.
-    actual fun dispose() {
+    fun dispose() {
         layer.dispose()
         systemThemeObserver.dispose()
     }
@@ -201,19 +193,20 @@ fun CanvasBasedWindow(
         }
     }
 
-    ComposeWindow(canvasId = canvasElementId).apply {
-        val composeWindow = this
-        setContent {
+    var composeWindow: ComposeWindow? = null
+    composeWindow = ComposeWindow(
+        canvasId = canvasElementId,
+        content = {
             content()
             LaunchedEffect(Unit) {
                 while (isActive) {
                     val newSize = actualRequestResize()
-                    composeWindow.resize(newSize)
+                    composeWindow?.resize(newSize)
                     delay(100) // throttle
                 }
             }
         }
-    }
+    )
 }
 
 private fun setCursor(elementId: String, value: String): Unit =
