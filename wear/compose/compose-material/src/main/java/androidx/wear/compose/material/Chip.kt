@@ -35,7 +35,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -204,7 +203,7 @@ public fun Chip(
                 enabled = enabled,
                 onClick = onClick,
                 role = role,
-                indication = rememberRipple(),
+                indication = rippleOrFallbackImplementation(),
                 interactionSource = interactionSource,
             )
             .padding(contentPadding),
@@ -707,6 +706,7 @@ public fun CompactChip(
         defaultCompactChipTapTargetPadding = ChipDefaults.CompactChipTapTargetPadding,
         defaultIconSpacing = ChipDefaults.IconSpacing,
         role = Role.Button,
+        ripple = rippleOrFallbackImplementation()
     )
 }
 

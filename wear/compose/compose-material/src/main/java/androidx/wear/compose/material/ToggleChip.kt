@@ -156,7 +156,8 @@ public fun ToggleChip(
     contentPadding = contentPadding,
     shape = shape,
     selectionControlHeight = TOGGLE_CONTROL_HEIGHT,
-    selectionControlWidth = TOGGLE_CONTROL_WIDTH
+    selectionControlWidth = TOGGLE_CONTROL_WIDTH,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**
@@ -275,7 +276,8 @@ public fun SplitToggleChip(
     checkedInteractionSource = checkedInteractionSource,
     clickInteractionSource = clickInteractionSource,
     contentPadding = contentPadding,
-    shape = shape
+    shape = shape,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**

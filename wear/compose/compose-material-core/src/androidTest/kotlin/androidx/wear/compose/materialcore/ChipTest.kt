@@ -736,6 +736,7 @@ class ChipTest {
         shape = shape,
         interactionSource = interactionSource,
         role = role,
+        ripple = EmptyIndication,
         content = content
     )
 
@@ -771,6 +772,7 @@ class ChipTest {
         border = border,
         defaultIconSpacing = defaultIconSpacing,
         role = role,
+        ripple = EmptyIndication
     )
 
     @Composable
@@ -809,6 +811,7 @@ class ChipTest {
         defaultCompactChipTapTargetPadding = defaultCompactChipTapTargetPadding,
         defaultIconSpacing = defaultIconSpacing,
         role = role,
+        ripple = EmptyIndication
     )
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)

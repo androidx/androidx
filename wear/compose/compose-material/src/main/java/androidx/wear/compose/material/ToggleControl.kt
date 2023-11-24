@@ -87,7 +87,8 @@ public fun Checkbox(
     drawBox = { drawScope, color, _, _ -> drawScope.drawBox(color) },
     progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
     width = WIDTH,
-    height = HEIGHT
+    height = HEIGHT,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**
@@ -155,7 +156,8 @@ public fun Switch(
     },
     progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
     width = WIDTH,
-    height = HEIGHT
+    height = HEIGHT,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**
@@ -209,7 +211,8 @@ public fun RadioButton(
     dotAlphaProgressDelay = FLASH,
     easing = STANDARD_IN,
     width = WIDTH,
-    height = HEIGHT
+    height = HEIGHT,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**

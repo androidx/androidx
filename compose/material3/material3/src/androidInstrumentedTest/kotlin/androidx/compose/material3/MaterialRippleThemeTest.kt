@@ -34,10 +34,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ripple.LocalRippleTheme
 import androidx.compose.material.ripple.RippleAlpha
-import androidx.compose.material.ripple.RippleTheme
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -85,6 +82,7 @@ import org.junit.runner.RunWith
     // color.
     maxSdkVersion = Build.VERSION_CODES.R
 )
+@Suppress("DEPRECATION_ERROR")
 class MaterialRippleThemeTest {
 
     @get:Rule
@@ -268,10 +266,12 @@ class MaterialRippleThemeTest {
         val expectedAlpha = 0.5f
         val rippleAlpha = RippleAlpha(expectedAlpha, expectedAlpha, expectedAlpha, expectedAlpha)
 
-        val rippleTheme = object : RippleTheme {
+        val rippleTheme = object : androidx.compose.material.ripple.RippleTheme {
+            @Deprecated("Super method deprecated")
             @Composable
             override fun defaultColor() = rippleColor
 
+            @Deprecated("Super method deprecated")
             @Composable
             override fun rippleAlpha() = rippleAlpha
         }
@@ -281,12 +281,14 @@ class MaterialRippleThemeTest {
         rule.setContent {
             scope = rememberCoroutineScope()
             MaterialTheme {
-                CompositionLocalProvider(LocalRippleTheme provides rippleTheme) {
+                CompositionLocalProvider(
+                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme
+                ) {
                     Surface(contentColor = contentColor) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             RippleBoxWithBackground(
                                 interactionSource,
-                                rememberRipple(),
+                                androidx.compose.material.ripple.rememberRipple(),
                                 bounded = true
                             )
                         }
@@ -318,10 +320,12 @@ class MaterialRippleThemeTest {
         val expectedAlpha = 0.5f
         val rippleAlpha = RippleAlpha(expectedAlpha, expectedAlpha, expectedAlpha, expectedAlpha)
 
-        val rippleTheme = object : RippleTheme {
+        val rippleTheme = object : androidx.compose.material.ripple.RippleTheme {
+            @Deprecated("Super method deprecated")
             @Composable
             override fun defaultColor() = rippleColor
 
+            @Deprecated("Super method deprecated")
             @Composable
             override fun rippleAlpha() = rippleAlpha
         }
@@ -331,12 +335,14 @@ class MaterialRippleThemeTest {
         rule.setContent {
             scope = rememberCoroutineScope()
             MaterialTheme {
-                CompositionLocalProvider(LocalRippleTheme provides rippleTheme) {
+                CompositionLocalProvider(
+                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme
+                ) {
                     Surface(contentColor = contentColor) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             RippleBoxWithBackground(
                                 interactionSource,
-                                rememberRipple(),
+                                androidx.compose.material.ripple.rememberRipple(),
                                 bounded = true
                             )
                         }
@@ -368,10 +374,12 @@ class MaterialRippleThemeTest {
         val expectedAlpha = 0.5f
         val rippleAlpha = RippleAlpha(expectedAlpha, expectedAlpha, expectedAlpha, expectedAlpha)
 
-        val rippleTheme = object : RippleTheme {
+        val rippleTheme = object : androidx.compose.material.ripple.RippleTheme {
+            @Deprecated("Super method deprecated")
             @Composable
             override fun defaultColor() = rippleColor
 
+            @Deprecated("Super method deprecated")
             @Composable
             override fun rippleAlpha() = rippleAlpha
         }
@@ -381,12 +389,14 @@ class MaterialRippleThemeTest {
         rule.setContent {
             scope = rememberCoroutineScope()
             MaterialTheme {
-                CompositionLocalProvider(LocalRippleTheme provides rippleTheme) {
+                CompositionLocalProvider(
+                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme
+                ) {
                     Surface(contentColor = contentColor) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             RippleBoxWithBackground(
                                 interactionSource,
-                                rememberRipple(),
+                                androidx.compose.material.ripple.rememberRipple(),
                                 bounded = true
                             )
                         }
@@ -418,9 +428,11 @@ class MaterialRippleThemeTest {
         val expectedAlpha = 0.5f
         val rippleAlpha = RippleAlpha(expectedAlpha, expectedAlpha, expectedAlpha, expectedAlpha)
 
-        val rippleTheme = object : RippleTheme {
+        val rippleTheme = object : androidx.compose.material.ripple.RippleTheme {
+            @Deprecated("Super method deprecated")
             @Composable
             override fun defaultColor() = rippleColor
+            @Deprecated("Super method deprecated")
             @Composable
             override fun rippleAlpha() = rippleAlpha
         }
@@ -430,12 +442,14 @@ class MaterialRippleThemeTest {
         rule.setContent {
             scope = rememberCoroutineScope()
             MaterialTheme {
-                CompositionLocalProvider(LocalRippleTheme provides rippleTheme) {
+                CompositionLocalProvider(
+                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme
+                ) {
                     Surface(contentColor = contentColor) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             RippleBoxWithBackground(
                                 interactionSource,
-                                rememberRipple(),
+                                androidx.compose.material.ripple.rememberRipple(),
                                 bounded = true
                             )
                         }
@@ -466,14 +480,18 @@ class MaterialRippleThemeTest {
     fun themeChangeDuringRipple_dragged() {
         val interactionSource = MutableInteractionSource()
 
-        fun createRippleTheme(color: Color, alpha: Float) = object : RippleTheme {
-            val rippleAlpha = RippleAlpha(alpha, alpha, alpha, alpha)
-            @Composable
-            override fun defaultColor() = color
+        fun createRippleTheme(color: Color, alpha: Float):
+            androidx.compose.material.ripple.RippleTheme =
+            object : androidx.compose.material.ripple.RippleTheme {
+                val rippleAlpha = RippleAlpha(alpha, alpha, alpha, alpha)
+                @Deprecated("Super method deprecated")
+                @Composable
+                override fun defaultColor() = color
 
-            @Composable
-            override fun rippleAlpha() = rippleAlpha
-        }
+                @Deprecated("Super method deprecated")
+                @Composable
+                override fun rippleAlpha() = rippleAlpha
+            }
 
         val initialColor = Color.Red
         val initialAlpha = 0.5f
@@ -485,12 +503,14 @@ class MaterialRippleThemeTest {
         rule.setContent {
             scope = rememberCoroutineScope()
             MaterialTheme {
-                CompositionLocalProvider(LocalRippleTheme provides rippleTheme) {
+                CompositionLocalProvider(
+                    androidx.compose.material.ripple.LocalRippleTheme provides rippleTheme
+                ) {
                     Surface(contentColor = Color.Black) {
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             RippleBoxWithBackground(
                                 interactionSource,
-                                rememberRipple(),
+                                androidx.compose.material.ripple.rememberRipple(),
                                 bounded = true
                             )
                         }
@@ -547,10 +567,12 @@ class MaterialRippleThemeTest {
         val rippleAlpha = RippleAlpha(alpha, alpha, alpha, alpha)
         val expectedRippleColor = Color.Red
 
-        val theme = object : RippleTheme {
+        val theme = object : androidx.compose.material.ripple.RippleTheme {
+            @Deprecated("Super method deprecated")
             @Composable
             override fun defaultColor() = LocalContentColor.current
 
+            @Deprecated("Super method deprecated")
             @Composable
             override fun rippleAlpha() = rippleAlpha
         }
@@ -560,10 +582,12 @@ class MaterialRippleThemeTest {
         rule.setContent {
             scope = rememberCoroutineScope()
             MaterialTheme {
-                CompositionLocalProvider(LocalRippleTheme provides theme) {
+                CompositionLocalProvider(
+                    androidx.compose.material.ripple.LocalRippleTheme provides theme
+                ) {
                     Surface(contentColor = Color.Black) {
                         // Create ripple where contentColor is black
-                        val ripple = rememberRipple()
+                        val ripple = androidx.compose.material.ripple.rememberRipple()
                         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                             Surface(contentColor = expectedRippleColor) {
                                 // Ripple is used where contentColor is red, so the instance
@@ -695,6 +719,7 @@ private fun RippleBoxWithBackground(
  * @param lightTheme whether the theme is light or dark
  * @param contentColor the contentColor that will be used for the ripple color
  */
+@Suppress("DEPRECATION_ERROR")
 private fun ComposeContentTestRule.setRippleContent(
     interactionSource: MutableInteractionSource,
     bounded: Boolean,
@@ -710,7 +735,11 @@ private fun ComposeContentTestRule.setRippleContent(
         MaterialTheme(colors) {
             Surface(contentColor = contentColor) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    RippleBoxWithBackground(interactionSource, rememberRipple(bounded), bounded)
+                    RippleBoxWithBackground(
+                        interactionSource,
+                        androidx.compose.material.ripple.rememberRipple(bounded),
+                        bounded
+                    )
                 }
             }
         }

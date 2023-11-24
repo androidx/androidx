@@ -43,7 +43,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.requiredSizeIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.progressSemantics
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.SliderTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -988,12 +987,13 @@ object SliderDefaults {
         }
         val shape = SliderTokens.HandleShape.value
 
+        @Suppress("DEPRECATION_ERROR")
         Spacer(
             modifier
                 .size(thumbSize)
                 .indication(
                     interactionSource = interactionSource,
-                    indication = rememberRipple(
+                    indication = androidx.compose.material.ripple.rememberRipple(
                         bounded = false,
                         radius = SliderTokens.StateLayerSize / 2
                     )

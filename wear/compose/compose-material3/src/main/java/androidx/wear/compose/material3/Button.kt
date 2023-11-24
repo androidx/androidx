@@ -36,7 +36,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
@@ -1240,7 +1239,7 @@ private fun Button(
                 enabled = enabled,
                 onClick = onClick,
                 role = Role.Button,
-                indication = rememberRipple(),
+                indication = rippleOrFallbackImplementation(),
                 interactionSource = interactionSource,
             )
             .padding(contentPadding),

@@ -93,6 +93,7 @@ fun IconButton(
         shape = shape,
         border = { rememberUpdatedState(border) },
         buttonSize = IconButtonDefaults.DefaultButtonSize,
+        ripple = rippleOrFallbackImplementation(),
         content = provideScopeContent(
             colors.contentColor(enabled = enabled),
             content
@@ -316,6 +317,7 @@ fun IconToggleButton(
         toggleButtonSize = IconButtonDefaults.DefaultButtonSize,
         interactionSource = interactionSource,
         shape = shape,
+        ripple = rippleOrFallbackImplementation(),
         content = provideScopeContent(
             colors.contentColor(enabled = enabled, checked = checked),
             content

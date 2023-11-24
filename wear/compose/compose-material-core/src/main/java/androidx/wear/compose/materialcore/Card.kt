@@ -19,6 +19,7 @@ package androidx.wear.compose.materialcore
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
@@ -34,7 +35,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,6 +79,7 @@ import androidx.compose.ui.unit.dp
  * appearance / behavior of this card in different [Interaction]s.
  * @param role The type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
+ * @param ripple Ripple used for this card
  * @param content A main slot for a content of this card
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -93,6 +94,7 @@ public fun Card(
     shape: Shape,
     interactionSource: MutableInteractionSource,
     role: Role?,
+    ripple: Indication,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(
@@ -108,7 +110,7 @@ public fun Card(
                 enabled = enabled,
                 onClick = onClick,
                 role = role,
-                indication = rememberRipple(),
+                indication = ripple,
                 interactionSource = interactionSource,
             )
             .then(
@@ -161,6 +163,7 @@ public fun Card(
  * appearance / behavior of this card in different [Interaction]s.
  * @param shape Defines the card's shape. It is strongly recommended to use the default as this
  * shape is a key characteristic of the Wear Material Theme
+ * @param ripple Ripple used for this card
  * @param appImage A slot for a small [Image] associated with the application.
  * @param appName A slot for displaying the application name, expected to be a single line of start
  * aligned text.
@@ -181,6 +184,7 @@ public fun AppCard(
     containerPainter: Painter,
     interactionSource: MutableInteractionSource,
     shape: Shape,
+    ripple: Indication,
     appImage: @Composable (RowScope.() -> Unit)?,
     appName: @Composable RowScope.() -> Unit,
     time: @Composable (RowScope.() -> Unit)?,
@@ -196,7 +200,8 @@ public fun AppCard(
         contentPadding = contentPadding,
         interactionSource = interactionSource,
         role = null,
-        shape = shape
+        shape = shape,
+        ripple = ripple
     ) {
         Column {
             Row(

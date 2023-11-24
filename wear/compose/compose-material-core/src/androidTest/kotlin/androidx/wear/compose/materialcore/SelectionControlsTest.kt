@@ -867,7 +867,8 @@ class SelectionControlsTest {
         progressAnimationSpec =
         tween(200, 0, CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
         width = width,
-        height = height
+        height = height,
+        ripple = EmptyIndication
     )
 
     @Composable
@@ -928,7 +929,8 @@ class SelectionControlsTest {
         progressAnimationSpec =
         tween(150, 0, CubicBezierEasing(0.0f, 0.0f, 0.2f, 1.0f)),
         width = width,
-        height = height
+        height = height,
+        ripple = EmptyIndication
     )
 
     @Composable
@@ -975,7 +977,8 @@ class SelectionControlsTest {
         dotAlphaProgressDelay = dotAlphaProgressDelay,
         easing = progressAnimationEasing,
         width = width,
-        height = height
+        height = height,
+        ripple = EmptyIndication
     )
 
     private fun setupCheckBoxWithCustomColors(checked: Boolean, enabled: Boolean) {

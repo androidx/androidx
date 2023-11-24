@@ -99,6 +99,7 @@ fun TextButton(
         shape = shape,
         border = { rememberUpdatedState(border) },
         buttonSize = TextButtonDefaults.DefaultButtonSize,
+        ripple = rippleOrFallbackImplementation(),
         content = provideScopeContent(
             colors.contentColor(enabled = enabled),
             TextButtonTokens.ContentFont.value,
@@ -168,6 +169,7 @@ fun TextToggleButton(
         toggleButtonSize = TextButtonDefaults.DefaultButtonSize,
         interactionSource = interactionSource,
         shape = shape,
+        ripple = rippleOrFallbackImplementation(),
         content = provideScopeContent(
             colors.contentColor(enabled = enabled, checked = checked),
             TextToggleButtonTokens.ContentFont.value,
