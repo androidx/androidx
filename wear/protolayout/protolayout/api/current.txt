@@ -938,12 +938,12 @@ package androidx.wear.protolayout {
   }
 
   @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public static final class ModifiersBuilders.DefaultContentTransitions {
-    method public static androidx.wear.protolayout.ModifiersBuilders.EnterTransition fadeIn();
-    method public static androidx.wear.protolayout.ModifiersBuilders.EnterTransition fadeInSlideIn(@SuppressCompatibility int);
-    method public static androidx.wear.protolayout.ModifiersBuilders.ExitTransition fadeOut();
-    method public static androidx.wear.protolayout.ModifiersBuilders.ExitTransition fadeOutSlideOut(@SuppressCompatibility int);
-    method public static androidx.wear.protolayout.ModifiersBuilders.EnterTransition slideIn(@SuppressCompatibility int);
-    method public static androidx.wear.protolayout.ModifiersBuilders.ExitTransition slideOut(@SuppressCompatibility int);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.ModifiersBuilders.EnterTransition fadeIn();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.ModifiersBuilders.EnterTransition fadeInSlideIn(@SuppressCompatibility int);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.ModifiersBuilders.ExitTransition fadeOut();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.ModifiersBuilders.ExitTransition fadeOutSlideOut(@SuppressCompatibility int);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.ModifiersBuilders.EnterTransition slideIn(@SuppressCompatibility int);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.ModifiersBuilders.ExitTransition slideOut(@SuppressCompatibility int);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class ModifiersBuilders.ElementMetadata {
@@ -1271,7 +1271,7 @@ package androidx.wear.protolayout {
   }
 
   public final class TriggerBuilders {
-    method public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnConditionMetTrigger(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnConditionMetTrigger(androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool);
     method public static androidx.wear.protolayout.TriggerBuilders.Trigger createOnLoadTrigger();
   }
 

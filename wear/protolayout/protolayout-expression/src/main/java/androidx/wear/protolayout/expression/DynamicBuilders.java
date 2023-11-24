@@ -1419,6 +1419,7 @@ public final class DynamicBuilders {
 
         /** Creates a constant-valued {@link DynamicInt32}. */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicInt32 constant(int constant) {
             return new FixedInt32.Builder().setValue(constant).build();
         }
@@ -1429,6 +1430,7 @@ public final class DynamicBuilders {
          * @param dynamicDataKey The source key to a {@link DynamicDataValue} with an int value.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicInt32 from(@NonNull DynamicDataKey<DynamicInt32> dynamicDataKey) {
             return new StateInt32Source.Builder()
                     .setSourceKey(dynamicDataKey.getKey())
@@ -1442,6 +1444,7 @@ public final class DynamicBuilders {
          * @param start The start value of the range.
          * @param end The end value of the range.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         static DynamicInt32 animate(int start, int end) {
             return new AnimatableFixedInt32.Builder().setFromValue(start).setToValue(end).build();
@@ -1455,6 +1458,7 @@ public final class DynamicBuilders {
          * @param end The end value of the range.
          * @param animationSpec The animation parameters.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         static DynamicInt32 animate(int start, int end, @NonNull AnimationSpec animationSpec) {
             return new AnimatableFixedInt32.Builder()
@@ -1471,6 +1475,7 @@ public final class DynamicBuilders {
          *
          * @param dynamicDataKey The source key to a {@link DynamicDataValue} with an int value.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         static DynamicInt32 animate(@NonNull DynamicDataKey<DynamicInt32> dynamicDataKey) {
             return new AnimatableDynamicInt32.Builder().setInput(from(dynamicDataKey)).build();
@@ -1484,6 +1489,7 @@ public final class DynamicBuilders {
          * @param dynamicDataKey The source key to a {@link DynamicDataValue} with an int value
          * @param animationSpec The animation parameters.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         static DynamicInt32 animate(
                 @NonNull DynamicDataKey<DynamicInt32> dynamicDataKey,
@@ -1501,6 +1507,7 @@ public final class DynamicBuilders {
          *
          * @param animationSpec The animation parameters.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicInt32 animate(@NonNull AnimationSpec animationSpec) {
             return new AnimatableDynamicInt32.Builder()
@@ -1514,6 +1521,7 @@ public final class DynamicBuilders {
          * and every time its value is changing, it animates from its current value to the new
          * value.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicInt32 animate() {
             return new AnimatableDynamicInt32.Builder().setInput(this).build();
@@ -1522,6 +1530,7 @@ public final class DynamicBuilders {
         /**
          * Convert the value represented by this {@link DynamicInt32} into a {@link DynamicFloat}.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicFloat asFloat() {
             return new Int32ToFloatOp.Builder().setInput(this).build();
@@ -1533,6 +1542,7 @@ public final class DynamicBuilders {
          * ConditionScopes.IfTrueScope#elseUse} depending on the value yielded from {@code
          * condition}.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         static ConditionScope<DynamicInt32, Integer> onCondition(@NonNull DynamicBool condition) {
             return new ConditionScopes.ConditionScope<>(
@@ -1560,6 +1570,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicInt32 plus(@NonNull DynamicInt32 other) {
@@ -1585,6 +1596,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicFloat} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicFloat plus(@NonNull DynamicFloat other) {
@@ -1609,6 +1621,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicInt32 plus(int other) {
@@ -1634,6 +1647,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicFloat} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicFloat plus(float other) {
@@ -1659,6 +1673,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicInt32 minus(@NonNull DynamicInt32 other) {
@@ -1684,6 +1699,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicFloat} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicFloat minus(@NonNull DynamicFloat other) {
@@ -1709,6 +1725,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicInt32 minus(int other) {
@@ -1734,6 +1751,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicFloat} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicFloat minus(float other) {
@@ -1759,6 +1777,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicInt32 times(@NonNull DynamicInt32 other) {
@@ -1784,6 +1803,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicFloat} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicFloat times(@NonNull DynamicFloat other) {
@@ -1809,6 +1829,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicInt32 times(int other) {
@@ -1834,6 +1855,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicFloat} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicFloat times(float other) {
@@ -1859,6 +1881,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicInt32 div(@NonNull DynamicInt32 other) {
@@ -1884,6 +1907,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicFloat} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicFloat div(@NonNull DynamicFloat other) {
@@ -1909,6 +1933,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicInt32 div(int other) {
@@ -1934,6 +1959,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicFloat} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicFloat div(float other) {
@@ -1959,6 +1985,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicInt32 rem(@NonNull DynamicInt32 other) {
@@ -1984,6 +2011,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicFloat} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicFloat rem(@NonNull DynamicFloat other) {
@@ -2009,6 +2037,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicInt32 rem(int other) {
@@ -2034,6 +2063,7 @@ public final class DynamicBuilders {
          *
          * @return a new instance of {@link DynamicFloat} containing the result of the operation.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @SuppressWarnings("KotlinOperator")
         @NonNull
         default DynamicFloat rem(float other) {
@@ -2048,6 +2078,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} and
          * {@code other} are equal, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool eq(@NonNull DynamicInt32 other) {
             return new ComparisonInt32Op.Builder()
@@ -2061,6 +2092,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} and
          * {@code other} are equal, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool eq(int other) {
             return new ComparisonInt32Op.Builder()
@@ -2074,6 +2106,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} and
          * {@code other} are not equal, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool ne(@NonNull DynamicInt32 other) {
             return new ComparisonInt32Op.Builder()
@@ -2087,6 +2120,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} and
          * {@code other} are not equal, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool ne(int other) {
             return new ComparisonInt32Op.Builder()
@@ -2100,6 +2134,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
          * less than {@code other}, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool lt(@NonNull DynamicInt32 other) {
             return new ComparisonInt32Op.Builder()
@@ -2113,6 +2148,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
          * less than {@code other}, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool lt(int other) {
             return new ComparisonInt32Op.Builder()
@@ -2126,6 +2162,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
          * less than or equal to {@code other}, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool lte(@NonNull DynamicInt32 other) {
             return new ComparisonInt32Op.Builder()
@@ -2139,6 +2176,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
          * less than or equal to {@code other}, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool lte(int other) {
             return new ComparisonInt32Op.Builder()
@@ -2152,6 +2190,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
          * greater than {@code other}, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool gt(@NonNull DynamicInt32 other) {
             return new ComparisonInt32Op.Builder()
@@ -2165,6 +2204,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
          * greater than {@code other}, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool gt(int other) {
             return new ComparisonInt32Op.Builder()
@@ -2178,6 +2218,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
          * greater than or equal to {@code other}, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool gte(@NonNull DynamicInt32 other) {
             return new ComparisonInt32Op.Builder()
@@ -2191,6 +2232,7 @@ public final class DynamicBuilders {
          * Returns a {@link DynamicBool} that is true if the value of this {@link DynamicInt32} is
          * greater than or equal to {@code other}, otherwise it's false.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicBool gte(int other) {
             return new ComparisonInt32Op.Builder()
@@ -2211,6 +2253,7 @@ public final class DynamicBuilders {
          *
          * The resulted {@link DynamicString} is subject to being truncated if it's too long.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicString format() {
             return new IntFormatter.Builder().build().getInt32FormatOp(this);
@@ -2232,6 +2275,7 @@ public final class DynamicBuilders {
          *
          * @param formatter The formatting parameter.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         default DynamicString format(@NonNull IntFormatter formatter) {
             return formatter.getInt32FormatOp(this);
@@ -2248,6 +2292,7 @@ public final class DynamicBuilders {
             }
 
             @NonNull
+            @RequiresSchemaVersion(major = 1, minor = 200)
             Int32FormatOp getInt32FormatOp(@NonNull DynamicInt32 dynamicInt32) {
                 return mInt32FormatOpBuilder.setInput(dynamicInt32).build();
             }
@@ -2278,6 +2323,7 @@ public final class DynamicBuilders {
                  * will not appear.
                  */
                 @NonNull
+                @RequiresSchemaVersion(major = 1, minor = 200)
                 public Builder setMinIntegerDigits(@IntRange(from = 0) int minIntegerDigits) {
                     mBuilder.setMinIntegerDigits(minIntegerDigits);
                     return this;
@@ -2298,6 +2344,7 @@ public final class DynamicBuilders {
                  * </pre>
                  */
                 @NonNull
+                @RequiresSchemaVersion(major = 1, minor = 200)
                 public Builder setGroupingUsed(boolean groupingUsed) {
                     mBuilder.setGroupingUsed(groupingUsed);
                     return this;
@@ -3157,6 +3204,7 @@ public final class DynamicBuilders {
          * subject to being truncated if it's too long.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicString constant(@NonNull String constant) {
             return new FixedString.Builder().setValue(constant).build();
         }
@@ -3168,6 +3216,7 @@ public final class DynamicBuilders {
          * @param dynamicDataKey The source key to a {@link DynamicDataValue} with a string value.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicString from(@NonNull DynamicDataKey<DynamicString> dynamicDataKey) {
             return new StateStringSource.Builder()
                     .setSourceKey(dynamicDataKey.getKey())
@@ -3184,6 +3233,7 @@ public final class DynamicBuilders {
          * @param condition The value used for evaluting this condition.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static ConditionScope<DynamicString, String> onCondition(@NonNull DynamicBool condition) {
             return new ConditionScopes.ConditionScope<>(
                     (trueValue, falseValue) ->
@@ -3203,6 +3253,7 @@ public final class DynamicBuilders {
          * @param other The right hand side operand of the concatenation.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicString concat(@NonNull DynamicString other) {
             return new DynamicBuilders.ConcatStringOp.Builder()
                     .setInputLhs(this)
@@ -3934,6 +3985,7 @@ public final class DynamicBuilders {
          * delivered through {@link DynamicTypeValueReceiver<T>#onInvalidate()}.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicFloat constant(float constant) {
             return new FixedFloat.Builder().setValue(constant).build();
         }
@@ -3944,6 +3996,7 @@ public final class DynamicBuilders {
          * @param dynamicDataKey The data source to a {@link DynamicDataValue} with a float value.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicFloat from(@NonNull DynamicDataKey<DynamicFloat> dynamicDataKey) {
             return new StateFloatSource.Builder()
                     .setSourceKey(dynamicDataKey.getKey())
@@ -3959,6 +4012,7 @@ public final class DynamicBuilders {
          * @param end The end value of the range.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicFloat animate(float start, float end) {
             return new AnimatableFixedFloat.Builder().setFromValue(start).setToValue(end).build();
         }
@@ -3972,6 +4026,7 @@ public final class DynamicBuilders {
          * @param animationSpec The animation parameters.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicFloat animate(float start, float end, @NonNull AnimationSpec animationSpec) {
             return new AnimatableFixedFloat.Builder()
                     .setFromValue(start)
@@ -3988,6 +4043,7 @@ public final class DynamicBuilders {
          * @param dynamicDataKey The data source to a {@link DynamicDataValue} with a float value.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicFloat animate(@NonNull DynamicDataKey<DynamicFloat> dynamicDataKey) {
             return new AnimatableDynamicFloat.Builder().setInput(from(dynamicDataKey)).build();
         }
@@ -4001,6 +4057,7 @@ public final class DynamicBuilders {
          * @param animationSpec The animation parameters.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicFloat animate(
                 @NonNull DynamicDataKey<DynamicFloat> dynamicDataKey,
                 @NonNull AnimationSpec animationSpec) {
@@ -4018,6 +4075,7 @@ public final class DynamicBuilders {
          * @param animationSpec The animation parameters.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat animate(@NonNull AnimationSpec animationSpec) {
             return new AnimatableDynamicFloat.Builder()
                     .setInput(this)
@@ -4031,6 +4089,7 @@ public final class DynamicBuilders {
          * value.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat animate() {
             return new AnimatableDynamicFloat.Builder().setInput(this).build();
         }
@@ -4045,6 +4104,7 @@ public final class DynamicBuilders {
          * through {@link DynamicTypeValueReceiver<T>#onInvalidate()}.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicInt32 asInt() {
             return new FloatToInt32Op.Builder()
                     .setRoundMode(DynamicBuilders.ROUND_MODE_FLOOR)
@@ -4069,6 +4129,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat plus(@NonNull DynamicFloat other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4094,6 +4155,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat plus(float other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4119,6 +4181,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat plus(@NonNull DynamicInt32 other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4144,6 +4207,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat minus(@NonNull DynamicFloat other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4169,6 +4233,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat minus(float other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4194,6 +4259,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat minus(@NonNull DynamicInt32 other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4219,6 +4285,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat times(@NonNull DynamicFloat other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4244,6 +4311,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat times(float other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4269,6 +4337,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat times(@NonNull DynamicInt32 other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4294,6 +4363,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat div(@NonNull DynamicFloat other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4319,6 +4389,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat div(float other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4344,6 +4415,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat div(@NonNull DynamicInt32 other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4369,6 +4441,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat rem(@NonNull DynamicFloat other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4394,6 +4467,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat rem(float other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4419,6 +4493,7 @@ public final class DynamicBuilders {
          */
         @SuppressWarnings("KotlinOperator")
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicFloat rem(@NonNull DynamicInt32 other) {
             return new ArithmeticFloatOp.Builder()
                     .setInputLhs(this)
@@ -4432,6 +4507,7 @@ public final class DynamicBuilders {
          * {@code other} are equal, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool eq(@NonNull DynamicFloat other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4445,6 +4521,7 @@ public final class DynamicBuilders {
          * {@code other} are equal, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool eq(float other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4458,6 +4535,7 @@ public final class DynamicBuilders {
          * {@code other} are not equal, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool ne(@NonNull DynamicFloat other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4471,6 +4549,7 @@ public final class DynamicBuilders {
          * {@code other} are not equal, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool ne(float other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4484,6 +4563,7 @@ public final class DynamicBuilders {
          * less than {@code other}, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool lt(@NonNull DynamicFloat other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4497,6 +4577,7 @@ public final class DynamicBuilders {
          * less than {@code other}, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool lt(float other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4510,6 +4591,7 @@ public final class DynamicBuilders {
          * less than or equal to {@code other}, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool lte(@NonNull DynamicFloat other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4523,6 +4605,7 @@ public final class DynamicBuilders {
          * less than or equal to {@code other}, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool lte(float other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4536,6 +4619,7 @@ public final class DynamicBuilders {
          * greater than {@code other}, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool gt(@NonNull DynamicFloat other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4549,6 +4633,7 @@ public final class DynamicBuilders {
          * greater than {@code other}, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool gt(float other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4562,6 +4647,7 @@ public final class DynamicBuilders {
          * greater than or equal to {@code other}, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool gte(@NonNull DynamicFloat other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4575,6 +4661,7 @@ public final class DynamicBuilders {
          * greater than or equal to {@code other}, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool gte(float other) {
             return new ComparisonFloatOp.Builder()
                     .setInputLhs(this)
@@ -4590,6 +4677,7 @@ public final class DynamicBuilders {
          * condition}.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static ConditionScope<DynamicFloat, Float> onCondition(@NonNull DynamicBool condition) {
             return new ConditionScopes.ConditionScope<>(
                     (trueValue, falseValue) ->
@@ -4613,6 +4701,7 @@ public final class DynamicBuilders {
          * The resulted {@link DynamicString} is subject to being truncated if it's too long.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicString format() {
             return new FloatFormatter.Builder().build().getFloatFormatOp(this);
         }
@@ -4634,6 +4723,7 @@ public final class DynamicBuilders {
          * @param formatter The formatting parameter.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicString format(@NonNull FloatFormatter formatter) {
             return formatter.getFloatFormatOp(this);
         }
@@ -4648,6 +4738,7 @@ public final class DynamicBuilders {
                 mFloatFormatOp = floatFormatOpBuilder.build();
             }
 
+            @RequiresSchemaVersion(major = 1, minor = 200)
             @NonNull
             FloatFormatOp getFloatFormatOp(@NonNull DynamicFloat dynamicFloat) {
                 return mFloatFormatOpBuilder.setInput(dynamicFloat).build();
@@ -4693,6 +4784,7 @@ public final class DynamicBuilders {
                  * fields.
                  */
                 @NonNull
+                @RequiresSchemaVersion(major = 1, minor = 200)
                 public Builder setMinFractionDigits(@IntRange(from = 0) int minFractionDigits) {
                     mBuilder.setMinFractionDigits(minFractionDigits);
                     return this;
@@ -4705,6 +4797,7 @@ public final class DynamicBuilders {
                  * fields.
                  */
                 @NonNull
+                @RequiresSchemaVersion(major = 1, minor = 200)
                 public Builder setMaxFractionDigits(@IntRange(from = 0) int maxFractionDigits) {
                     mBuilder.setMaxFractionDigits(maxFractionDigits);
                     return this;
@@ -4716,6 +4809,7 @@ public final class DynamicBuilders {
                  * will not appear.
                  */
                 @NonNull
+                @RequiresSchemaVersion(major = 1, minor = 200)
                 public Builder setMinIntegerDigits(@IntRange(from = 0) int minIntegerDigits) {
                     mBuilder.setMinIntegerDigits(minIntegerDigits);
                     return this;
@@ -4736,6 +4830,7 @@ public final class DynamicBuilders {
                  * </pre>
                  */
                 @NonNull
+                @RequiresSchemaVersion(major = 1, minor = 200)
                 public Builder setGroupingUsed(boolean groupingUsed) {
                     mBuilder.setGroupingUsed(groupingUsed);
                     return this;
@@ -5494,6 +5589,7 @@ public final class DynamicBuilders {
 
         /** Creates a constant-valued {@link DynamicBool}. */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicBool constant(boolean constant) {
             return new FixedBool.Builder().setValue(constant).build();
         }
@@ -5504,6 +5600,7 @@ public final class DynamicBuilders {
          * @param dynamicDataKey The key to a {@link DynamicDataValue} with a boolean value.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicBool from(@NonNull DynamicDataKey<DynamicBool> dynamicDataKey) {
             return new StateBoolSource.Builder()
                     .setSourceKey(dynamicDataKey.getKey())
@@ -5516,6 +5613,7 @@ public final class DynamicBuilders {
          * i.e. {code result = !this}
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool negate() {
             return new NotBoolOp.Builder().setInput(this).build();
         }
@@ -5527,6 +5625,7 @@ public final class DynamicBuilders {
          * @param input The right hand operand of the "and" operation.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool and(@NonNull DynamicBool input) {
             return new LogicalBoolOp.Builder()
                     .setInputLhs(this)
@@ -5542,6 +5641,7 @@ public final class DynamicBuilders {
          * @param input The right hand operand of the "or" operation.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool or(@NonNull DynamicBool input) {
             return new LogicalBoolOp.Builder()
                     .setInputLhs(this)
@@ -5555,6 +5655,7 @@ public final class DynamicBuilders {
          * {@code other} are equal, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool eq(@NonNull DynamicBool other) {
             return new LogicalBoolOp.Builder()
                     .setInputLhs(this)
@@ -5568,6 +5669,7 @@ public final class DynamicBuilders {
          * {@code other} are not equal, otherwise it's false.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicBool ne(@NonNull DynamicBool other) {
             return new LogicalBoolOp.Builder()
                     .setInputLhs(this)
@@ -6195,6 +6297,7 @@ public final class DynamicBuilders {
 
         /** Creates a constant-valued {@link DynamicColor}. */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicColor constant(@ColorInt int constant) {
             return new FixedColor.Builder().setArgb(constant).build();
         }
@@ -6205,6 +6308,7 @@ public final class DynamicBuilders {
          * @param dynamicDataKey The source key to a {@link DynamicDataValue} with a color value.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicColor from(@NonNull DynamicDataKey<DynamicColor> dynamicDataKey) {
             return new StateColorSource.Builder()
                     .setSourceKey(dynamicDataKey.getKey())
@@ -6220,6 +6324,7 @@ public final class DynamicBuilders {
          * @param end The end value of the range.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicColor animate(@ColorInt int start, @ColorInt int end) {
             return new AnimatableFixedColor.Builder().setFromArgb(start).setToArgb(end).build();
         }
@@ -6233,6 +6338,7 @@ public final class DynamicBuilders {
          * @param animationSpec The animation parameters.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicColor animate(
                 @ColorInt int start, @ColorInt int end, @NonNull AnimationSpec animationSpec) {
             return new AnimatableFixedColor.Builder()
@@ -6250,6 +6356,7 @@ public final class DynamicBuilders {
          * @param dynamicDataKey The source key to a {@link DynamicDataValue} with a color value.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicColor animate(@NonNull DynamicDataKey<DynamicColor> dynamicDataKey) {
             return new AnimatableDynamicColor.Builder().setInput(from(dynamicDataKey)).build();
         }
@@ -6263,6 +6370,7 @@ public final class DynamicBuilders {
          * @param animationSpec The animation parameters.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicColor animate(
                 @NonNull DynamicDataKey<DynamicColor> dynamicDataKey,
                 @NonNull AnimationSpec animationSpec) {
@@ -6280,6 +6388,7 @@ public final class DynamicBuilders {
          * @param animationSpec The animation parameters.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicColor animate(@NonNull AnimationSpec animationSpec) {
             return new AnimatableDynamicColor.Builder()
                     .setInput(this)
@@ -6293,6 +6402,7 @@ public final class DynamicBuilders {
          * value.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicColor animate() {
             return new AnimatableDynamicColor.Builder().setInput(this).build();
         }
@@ -6304,6 +6414,7 @@ public final class DynamicBuilders {
          * condition}.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static ConditionScope<DynamicColor, Integer> onCondition(@NonNull DynamicBool condition) {
             return new ConditionScopes.ConditionScope<>(
                     (trueValue, falseValue) ->
@@ -6661,6 +6772,7 @@ public final class DynamicBuilders {
          *     Instant} value.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         static DynamicInstant from(@NonNull DynamicDataKey<DynamicInstant> dynamicDataKey) {
             return new StateInstantSource.Builder()
                     .setSourceKey(dynamicDataKey.getKey())
@@ -6674,6 +6786,7 @@ public final class DynamicBuilders {
          * dropped.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicInstant withSecondsPrecision(@NonNull Instant instant) {
             return new FixedInstant.Builder().setEpochSeconds(instant.getEpochSecond()).build();
         }
@@ -6683,6 +6796,7 @@ public final class DynamicBuilders {
          * time.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicInstant platformTimeWithSecondsPrecision() {
             return new PlatformTimeSource.Builder().build();
         }
@@ -6701,6 +6815,7 @@ public final class DynamicBuilders {
          * @return a new instance of {@link DynamicDuration} containing the result of the operation.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicDuration durationUntil(@NonNull DynamicInstant to) {
             return new BetweenDuration.Builder()
                     .setStartInclusive(this)
@@ -6829,6 +6944,7 @@ public final class DynamicBuilders {
          */
         @RestrictTo(Scope.LIBRARY)
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         default DynamicZonedDateTime atZone(@NonNull ZoneId zoneId) {
             return new InstantToZonedDateTimeOp.Builder()
                     .setInstant(this)
@@ -6843,6 +6959,7 @@ public final class DynamicBuilders {
          * condition}.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static ConditionScope<DynamicInstant, Instant> onCondition(@NonNull DynamicBool condition) {
             return new ConditionScopes.ConditionScope<>(
                     (trueValue, falseValue) ->
@@ -6997,6 +7114,7 @@ public final class DynamicBuilders {
          * </pre>
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         default DynamicInt32 getYear() {
             return new GetZonedDateTimePartOp.Builder()
                     .setInput(this)
@@ -7015,6 +7133,7 @@ public final class DynamicBuilders {
          * </pre>
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         default DynamicInt32 getMonth() {
             return new GetZonedDateTimePartOp.Builder()
                     .setInput(this)
@@ -7033,6 +7152,7 @@ public final class DynamicBuilders {
          * </pre>
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         default DynamicInt32 getDayOfMonth() {
             return new GetZonedDateTimePartOp.Builder()
                     .setInput(this)
@@ -7052,6 +7172,7 @@ public final class DynamicBuilders {
          * </pre>
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         default DynamicInt32 getDayOfWeek() {
             return new GetZonedDateTimePartOp.Builder()
                     .setInput(this)
@@ -7070,6 +7191,7 @@ public final class DynamicBuilders {
          * </pre>
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         default DynamicInt32 getHour() {
             return new GetZonedDateTimePartOp.Builder()
                     .setInput(this)
@@ -7088,6 +7210,7 @@ public final class DynamicBuilders {
          * </pre>
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         default DynamicInt32 getMinute() {
             return new GetZonedDateTimePartOp.Builder()
                     .setInput(this)
@@ -7106,6 +7229,7 @@ public final class DynamicBuilders {
          * </pre>
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         default DynamicInt32 getSecond() {
             return new GetZonedDateTimePartOp.Builder()
                     .setInput(this)
@@ -7716,6 +7840,7 @@ public final class DynamicBuilders {
          *     Duration} value.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         static DynamicDuration from(@NonNull DynamicDataKey<DynamicDuration> dynamicDataKey) {
             return new StateDurationSource.Builder()
                     .setSourceKey(dynamicDataKey.getKey())
@@ -7729,6 +7854,7 @@ public final class DynamicBuilders {
          * be dropped.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicDuration withSecondsPrecision(@NonNull Duration duration) {
             return new FixedDuration.Builder().setSeconds(duration.getSeconds()).build();
         }
@@ -7750,6 +7876,7 @@ public final class DynamicBuilders {
          *     Integer#MAX_VALUE}.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicInt32 toIntDays() {
             return new GetDurationPartOp.Builder()
                     .setInput(this)
@@ -7773,6 +7900,7 @@ public final class DynamicBuilders {
          *     Integer#MAX_VALUE}.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicInt32 toIntHours() {
             return new GetDurationPartOp.Builder()
                     .setInput(this)
@@ -7796,6 +7924,7 @@ public final class DynamicBuilders {
          *     Integer#MAX_VALUE}.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicInt32 toIntMinutes() {
             return new GetDurationPartOp.Builder()
                     .setInput(this)
@@ -7819,6 +7948,7 @@ public final class DynamicBuilders {
          *     Integer#MAX_VALUE}.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicInt32 toIntSeconds() {
             return new GetDurationPartOp.Builder()
                     .setInput(this)
@@ -7843,6 +7973,7 @@ public final class DynamicBuilders {
          *     Integer#MAX_VALUE}.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicInt32 getIntDaysPart() {
             return new GetDurationPartOp.Builder()
                     .setInput(this)
@@ -7865,6 +7996,7 @@ public final class DynamicBuilders {
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicInt32 getHoursPart() {
             return new GetDurationPartOp.Builder()
                     .setInput(this)
@@ -7887,6 +8019,7 @@ public final class DynamicBuilders {
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicInt32 getMinutesPart() {
             return new GetDurationPartOp.Builder()
                     .setInput(this)
@@ -7909,6 +8042,7 @@ public final class DynamicBuilders {
          * @return a new instance of {@link DynamicInt32} containing the result of the operation.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         default DynamicInt32 getSecondsPart() {
             return new GetDurationPartOp.Builder()
                     .setInput(this)
@@ -7923,6 +8057,7 @@ public final class DynamicBuilders {
          * condition}.
          */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static ConditionScope<DynamicDuration, Duration> onCondition(
                 @NonNull DynamicBool condition) {
             return new ConditionScopes.ConditionScope<>(
