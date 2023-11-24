@@ -17,10 +17,7 @@
 package androidx.compose.material.ripple
 
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.unit.Dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth
@@ -43,7 +40,7 @@ class RippleContainerTest {
         val activity = rule.activity
         val container = RippleContainer(activity)
 
-        val instance = createRippleIndicationInstance(container)
+        val instance = TestRippleHostKey()
 
         with(container) {
             val hostView = instance.getRippleHostView()
@@ -57,8 +54,8 @@ class RippleContainerTest {
         val activity = rule.activity
         val container = RippleContainer(activity)
 
-        val instance1 = createRippleIndicationInstance(container)
-        val instance2 = createRippleIndicationInstance(container)
+        val instance1 = TestRippleHostKey()
+        val instance2 = TestRippleHostKey()
 
         with(container) {
             val hostView1 = instance1.getRippleHostView()
@@ -73,12 +70,12 @@ class RippleContainerTest {
         val activity = rule.activity
         val container = RippleContainer(activity)
 
-        val instance1 = createRippleIndicationInstance(container)
-        val instance2 = createRippleIndicationInstance(container)
-        val instance3 = createRippleIndicationInstance(container)
-        val instance4 = createRippleIndicationInstance(container)
-        val instance5 = createRippleIndicationInstance(container)
-        val instance6 = createRippleIndicationInstance(container)
+        val instance1 = TestRippleHostKey()
+        val instance2 = TestRippleHostKey()
+        val instance3 = TestRippleHostKey()
+        val instance4 = TestRippleHostKey()
+        val instance5 = TestRippleHostKey()
+        val instance6 = TestRippleHostKey()
 
         with(container) {
             // Assign the maximum number of host views
@@ -109,12 +106,12 @@ class RippleContainerTest {
         val activity = rule.activity
         val container = RippleContainer(activity)
 
-        val instance1 = createRippleIndicationInstance(container)
-        val instance2 = createRippleIndicationInstance(container)
-        val instance3 = createRippleIndicationInstance(container)
-        val instance4 = createRippleIndicationInstance(container)
-        val instance5 = createRippleIndicationInstance(container)
-        val instance6 = createRippleIndicationInstance(container)
+        val instance1 = TestRippleHostKey()
+        val instance2 = TestRippleHostKey()
+        val instance3 = TestRippleHostKey()
+        val instance4 = TestRippleHostKey()
+        val instance5 = TestRippleHostKey()
+        val instance6 = TestRippleHostKey()
 
         with(container) {
             // Assign some initial views
@@ -148,11 +145,7 @@ class RippleContainerTest {
     }
 }
 
-private fun createRippleIndicationInstance(container: RippleContainer) =
-    AndroidRippleIndicationInstance(
-        true,
-        Dp.Unspecified,
-        mutableStateOf(Color.Black),
-        mutableStateOf(RippleAlpha(1f, 1f, 1f, 1f)),
-        container
-    )
+private class TestRippleHostKey : RippleHostKey {
+    override fun onResetRippleHostView() {
+    }
+}

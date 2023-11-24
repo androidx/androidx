@@ -37,7 +37,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.MoreVert
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
@@ -277,7 +276,7 @@ public fun RevealScope.SwipeToRevealUndoAction(
         modifier = modifier
             .clickable(
                 interactionSource = interactionSource,
-                indication = rememberRipple(),
+                indication = rippleOrFallbackImplementation(),
                 role = Role.Button,
                 onClick = {
                     revealState.lastActionType = RevealActionType.UndoAction
@@ -546,7 +545,7 @@ private fun RevealScope.ActionCommon(
             .fillMaxSize()
             .clickable(
                 interactionSource = interactionSource,
-                indication = rememberRipple(),
+                indication = rippleOrFallbackImplementation(),
                 role = Role.Button,
                 onClick = {
                     revealState.lastActionType = actionType

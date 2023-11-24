@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.SwitchTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -222,13 +221,17 @@ private fun BoxScope.SwitchImpl(
 
     Box(modifier) {
         val resolvedThumbColor = colors.thumbColor(enabled, checked)
+        @Suppress("DEPRECATION_ERROR")
         Box(
             modifier = Modifier
                 .align(Alignment.CenterStart)
                 .offset { IntOffset(thumbOffset.roundToInt(), 0) }
                 .indication(
                     interactionSource = interactionSource,
-                    indication = rememberRipple(bounded = false, SwitchTokens.StateLayerSize / 2)
+                    indication = androidx.compose.material.ripple.rememberRipple(
+                        bounded = false,
+                        SwitchTokens.StateLayerSize / 2
+                    )
                 )
                 .requiredSize(thumbSizeDp)
                 .background(resolvedThumbColor, thumbShape),

@@ -33,7 +33,6 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
@@ -77,6 +76,7 @@ import kotlin.math.sin
  * @param drawBox Draws the checkbox.
  * @param width Width of the checkbox.
  * @param height Height of the checkbox.
+ * @param ripple Ripple used for the checkbox.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -91,7 +91,8 @@ fun Checkbox(
     progressAnimationSpec: TweenSpec<Float>,
     drawBox: FunctionDrawBox,
     width: Dp,
-    height: Dp
+    height: Dp,
+    ripple: Indication
 ) {
     val targetState = if (checked) SelectionStage.Checked else SelectionStage.Unchecked
     val transition = updateTransition(targetState, label = "checkboxTransition")
@@ -118,7 +119,7 @@ fun Checkbox(
                 enabled,
                 checked,
                 interactionSource,
-                rememberRipple(),
+                ripple,
                 width,
                 height
             )
@@ -168,6 +169,7 @@ fun Checkbox(
  * @param progressAnimationSpec Animation spec to animate the progress.
  * @param width Width of the switch.
  * @param height Height of the switch.
+ * @param ripple Ripple used for the switch.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -187,6 +189,7 @@ fun Switch(
     progressAnimationSpec: TweenSpec<Float>,
     width: Dp,
     height: Dp,
+    ripple: Indication
 ) {
     val targetState = if (checked) SelectionStage.Checked else SelectionStage.Unchecked
     val transition = updateTransition(targetState, label = "switchTransition")
@@ -215,7 +218,7 @@ fun Switch(
                 enabled,
                 checked,
                 interactionSource,
-                rememberRipple(),
+                ripple,
                 width,
                 height
             )
@@ -262,6 +265,7 @@ fun Switch(
  * @param easing Animation spec to animate the progress.
  * @param width Width of the radio button.
  * @param height Height of the radio button.
+ * @param ripple Ripple used for the radio button.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -278,7 +282,8 @@ fun RadioButton(
     dotAlphaProgressDelay: Int,
     easing: CubicBezierEasing,
     width: Dp,
-    height: Dp
+    height: Dp,
+    ripple: Indication
 ) {
     val targetState = if (selected) SelectionStage.Checked else SelectionStage.Unchecked
     val transition = updateTransition(targetState)
@@ -315,7 +320,7 @@ fun RadioButton(
                 this.role = Role.RadioButton
             }
             .maybeSelectable(
-                onClick, enabled, selected, interactionSource, rememberRipple(), width, height
+                onClick, enabled, selected, interactionSource, ripple, width, height
             )
             .drawWithCache
             {

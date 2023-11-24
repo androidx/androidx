@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
@@ -92,7 +91,7 @@ fun RadioButton(
                 enabled = enabled,
                 role = Role.RadioButton,
                 interactionSource = interactionSource,
-                indication = rememberRipple(
+                indication = rippleOrFallbackImplementation(
                     bounded = false,
                     radius = RadioButtonRippleRadius
                 )

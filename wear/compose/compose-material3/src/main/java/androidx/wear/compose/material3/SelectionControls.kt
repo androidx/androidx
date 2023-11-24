@@ -85,7 +85,8 @@ fun Checkbox(
     },
     progressAnimationSpec = PROGRESS_ANIMATION_SPEC,
     width = WIDTH,
-    height = HEIGHT
+    height = HEIGHT,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**
@@ -150,7 +151,8 @@ fun Switch(
     },
     progressAnimationSpec = SWITCH_PROGRESS_ANIMATION_SPEC,
     width = WIDTH,
-    height = HEIGHT
+    height = HEIGHT,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**
@@ -196,7 +198,8 @@ fun RadioButton(
     dotAlphaProgressDelay = SHORT_2,
     easing = STANDARD_DECELERATE,
     width = WIDTH,
-    height = HEIGHT
+    height = HEIGHT,
+    ripple = rippleOrFallbackImplementation()
 )
 
 /**

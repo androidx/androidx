@@ -17,12 +17,8 @@ package androidx.wear.compose.material3
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
-import androidx.compose.material.ripple.LocalRippleTheme
-import androidx.compose.material.ripple.RippleTheme
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.wear.compose.foundation.LocalSwipeToDismissBackgroundScrimColor
@@ -66,15 +62,17 @@ public fun MaterialTheme(
         // provided, and overwrite the values set in it.
         colorScheme.copy()
     }.apply { updateColorSchemeFrom(colorScheme) }
-    val rippleIndication = rememberRipple()
+    val rippleIndication = rippleOrFallbackImplementation()
     val selectionColors = rememberTextSelectionColors(rememberedColors)
+    @Suppress("DEPRECATION_ERROR")
     CompositionLocalProvider(
         LocalColorScheme provides rememberedColors,
         LocalShapes provides shapes,
         LocalTypography provides typography,
         LocalContentAlpha provides ContentAlpha.high,
         LocalIndication provides rippleIndication,
-        LocalRippleTheme provides MaterialRippleTheme,
+        // TODO: b/304985887 - remove after one stable release
+        androidx.compose.material.ripple.LocalRippleTheme provides CompatRippleTheme,
         LocalTextSelectionColors provides selectionColors,
         LocalSwipeToDismissBackgroundScrimColor provides rememberedColors.background,
         LocalSwipeToDismissContentScrimColor provides rememberedColors.background
@@ -98,19 +96,4 @@ public object MaterialTheme {
         @ReadOnlyComposable
         @Composable
         get() = LocalShapes.current
-}
-
-@Immutable
-private object MaterialRippleTheme : RippleTheme {
-    @Composable
-    override fun defaultColor() = RippleTheme.defaultRippleColor(
-        contentColor = LocalContentColor.current,
-        lightTheme = false
-    )
-
-    @Composable
-    override fun rippleAlpha() = RippleTheme.defaultRippleAlpha(
-        contentColor = LocalContentColor.current,
-        lightTheme = false
-    )
 }

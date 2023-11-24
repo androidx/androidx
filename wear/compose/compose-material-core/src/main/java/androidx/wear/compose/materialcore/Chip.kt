@@ -18,6 +18,7 @@ package androidx.wear.compose.materialcore
 
 import androidx.annotation.RestrictTo
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Indication
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
@@ -36,7 +37,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
@@ -77,6 +77,7 @@ import androidx.compose.ui.unit.Dp
  * appearance / behavior of this Chip in different [Interaction]s.
  * @param role The type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
+ * @param ripple Ripple used for this chip
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -90,6 +91,7 @@ fun Chip(
     shape: Shape,
     interactionSource: MutableInteractionSource,
     role: Role?,
+    ripple: Indication,
     content: @Composable RowScope.() -> Unit,
 ) {
     val borderStroke = border(enabled)?.value
@@ -111,7 +113,7 @@ fun Chip(
                 enabled = enabled,
                 onClick = onClick,
                 role = role,
-                indication = rememberRipple(),
+                indication = ripple,
                 interactionSource = interactionSource,
             )
             .padding(contentPadding),
@@ -164,6 +166,7 @@ fun Chip(
  * @param defaultIconSpacing Spacing between icon and label, if both are provided.
  * @param role Role semantics that accessibility services can use to provide more
  * context to users.
+ * @param ripple Ripple used for this chip
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -181,6 +184,7 @@ fun Chip(
     border: @Composable (enabled: Boolean) -> State<BorderStroke?>?,
     defaultIconSpacing: Dp,
     role: Role?,
+    ripple: Indication
 ) {
     Chip(
         modifier = modifier,
@@ -191,7 +195,8 @@ fun Chip(
         contentPadding = contentPadding,
         shape = shape,
         interactionSource = interactionSource,
-        role = role
+        role = role,
+        ripple = ripple
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -271,6 +276,7 @@ fun Chip(
  * @param defaultIconSpacing Spacing between icon and label, if both are provided
  * @param role Role semantics that accessibility services can use to provide more
  * context to users.
+ * @param ripple Ripple used for this chip
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @Composable
@@ -289,6 +295,7 @@ fun CompactChip(
     defaultCompactChipTapTargetPadding: PaddingValues,
     defaultIconSpacing: Dp,
     role: Role?,
+    ripple: Indication
 ) {
     if (label != null) {
         Chip(
@@ -305,7 +312,8 @@ fun CompactChip(
             shape = shape,
             border = border,
             defaultIconSpacing = defaultIconSpacing,
-            role = role
+            role = role,
+            ripple = ripple
         )
     } else {
         // Icon only compact chips have their own layout with a specific width and center aligned
@@ -322,6 +330,7 @@ fun CompactChip(
             shape = shape,
             interactionSource = interactionSource,
             role = role,
+            ripple = ripple
         ) {
             // Use a box to fill and center align the icon into the single slot of the Chip
             Box(modifier = Modifier

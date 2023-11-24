@@ -37,7 +37,6 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
@@ -262,7 +261,10 @@ private fun BoxScope.SwitchImpl(
             .offset { IntOffset(thumbValue().roundToInt(), 0) }
             .indication(
                 interactionSource = interactionSource,
-                indication = rememberRipple(bounded = false, radius = ThumbRippleRadius)
+                indication = rippleOrFallbackImplementation(
+                    bounded = false,
+                    radius = ThumbRippleRadius
+                )
             )
             .requiredSize(ThumbDiameter)
             .shadow(elevation, CircleShape, clip = false)

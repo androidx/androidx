@@ -39,7 +39,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.tokens.NavigationRailTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -237,11 +236,15 @@ fun NavigationRailItem(
         // The indicator has a width-expansion animation which interferes with the timing of the
         // ripple, which is why they are separate composables
         val indicatorRipple = @Composable {
+            @Suppress("DEPRECATION_ERROR")
             Box(
                 Modifier
                     .layoutId(IndicatorRippleLayoutIdTag)
                     .clip(indicatorShape)
-                    .indication(offsetInteractionSource, rememberRipple())
+                    .indication(
+                        offsetInteractionSource,
+                        androidx.compose.material.ripple.rememberRipple()
+                    )
             )
         }
         val indicator = @Composable {
