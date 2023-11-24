@@ -16,10 +16,12 @@
 
 package androidx.wear.protolayout;
 
+import static androidx.wear.protolayout.DimensionBuilders.sp;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
 
+import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -854,15 +856,15 @@ public final class LayoutElementBuilders {
              * words, the largest size from the specified preset sizes that can fit the most text
              * within the parent bounds will be used.
              *
-             * <p>The specified sizes don't have to be sorted, but they need to contain at least one
-             * positive value. The maximum number of sizes used is limited to 10.
+             * <p>The specified sizes don't have to be sorted, but they need to contain only
+             * positive values. The maximum number of sizes used is limited to 10.
              *
              * <p>Note that, if multiple sizes are set, the parent of the {@link Text} element this
              * corresponds to shouldn't have its width and height set to wrapped, as it can lead to
              * unexpected results.
              *
              * <p>If this {@link FontStyle} is set to any other element besides {@link Text} or that
-             * {@link Text} element has dynamic field, only the last added size will be use.
+             * {@link Text} element has dynamic field, only the last added size will be used.
              *
              * <p>Any previously added values with this method or {@link #setSize} will be cleared.
              *
@@ -871,28 +873,32 @@ public final class LayoutElementBuilders {
              * values to automatically scale text. Renderers who don't support this version will use
              * the last size among multiple values.
              *
-             * @throws IllegalArgumentException if the number of available sizes is larger than 10.
+             * @throws IllegalArgumentException if the number of available sizes is larger than 10
+             * or one of the sizes is not a positive value.
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
             @ProtoLayoutExperimental
-            public Builder setSizes(@NonNull SpProp... sizes) {
+            public Builder setSizes(
+                    @NonNull @IntRange(from = 1) @Dimension(unit = Dimension.SP) int... sizes) {
                 if (sizes.length > TEXT_SIZES_LIMIT) {
                     throw new IllegalArgumentException(
                             "Number of available sizes of the font style can't be larger than 10.");
                 }
 
                 mImpl.clearSize();
-                for (SpProp size : sizes) {
-                    if (size.getValue() <= 0) {
+                for (int size : sizes) {
+                    if (size <= 0) {
                         throw new IllegalArgumentException(
                                 "Available sizes of the font style must contain only positive "
                                         + "value.");
                     }
 
-                    mImpl.addSize(size.toProto());
+                    SpProp spPropSize = sp(size);
+                    mImpl.addSize(spPropSize.toProto());
                     mFingerprint.recordPropertyUpdate(
-                            1, checkNotNull(size.getFingerprint()).aggregateValueAsInt());
+                            1,
+                            checkNotNull(spPropSize.getFingerprint()).aggregateValueAsInt());
                 }
                 return this;
             }
@@ -5891,7 +5897,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder display1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 54 : 50));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 54 : 50));
         }
 
         /**
@@ -5905,7 +5911,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder display2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 44 : 40));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 44 : 40));
         }
 
         /**
@@ -5919,7 +5925,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder display3(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 34 : 30));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 34 : 30));
         }
 
         /**
@@ -5933,7 +5939,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder title1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 26 : 24));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 26 : 24));
         }
 
         /**
@@ -5947,7 +5953,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder title2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 22 : 20));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 22 : 20));
         }
 
         /**
@@ -5961,7 +5967,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder title3(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 18 : 16));
         }
 
         /**
@@ -5974,7 +5980,7 @@ public final class LayoutElementBuilders {
         @Deprecated
         public static FontStyle.Builder body1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 18 : 16));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 18 : 16));
         }
 
         /**
@@ -5987,7 +5993,7 @@ public final class LayoutElementBuilders {
         @Deprecated
         public static FontStyle.Builder body2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /**
@@ -6001,7 +6007,7 @@ public final class LayoutElementBuilders {
         public static FontStyle.Builder button(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
                     .setWeight(FONT_WEIGHT_BOLD)
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /**
@@ -6014,7 +6020,7 @@ public final class LayoutElementBuilders {
         @Deprecated
         public static FontStyle.Builder caption1(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 16 : 14));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 16 : 14));
         }
 
         /**
@@ -6027,7 +6033,7 @@ public final class LayoutElementBuilders {
         @Deprecated
         public static FontStyle.Builder caption2(@NonNull DeviceParameters deviceParameters) {
             return new FontStyle.Builder()
-                    .setSize(DimensionBuilders.sp(isLargeScreen(deviceParameters) ? 14 : 12));
+                    .setSize(sp(isLargeScreen(deviceParameters) ? 14 : 12));
         }
 
         private FontStyles() {}
