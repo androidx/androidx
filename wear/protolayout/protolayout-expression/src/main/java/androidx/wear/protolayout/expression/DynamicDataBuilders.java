@@ -130,42 +130,49 @@ public final class DynamicDataBuilders {
 
         /** Creates a boolean {@link DynamicDataValue}. */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicDataValue<DynamicBool> fromBool(boolean constant) {
             return new FixedBool.Builder().setValue(constant).build();
         }
 
         /** Creates a int {@link DynamicDataValue}. */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicDataValue<DynamicInt32> fromInt(int constant) {
             return new FixedInt32.Builder().setValue(constant).build();
         }
 
         /** Creates a float {@link DynamicDataValue}. */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicDataValue<DynamicFloat> fromFloat(float constant) {
             return new FixedFloat.Builder().setValue(constant).build();
         }
 
         /** Creates a color {@link DynamicDataValue}. */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicDataValue<DynamicColor> fromColor(@ColorInt int constant) {
             return new FixedColor.Builder().setArgb(constant).build();
         }
 
         /** Creates a string {@link DynamicDataValue}. */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 200)
         static DynamicDataValue<DynamicString> fromString(@NonNull String constant) {
             return new FixedString.Builder().setValue(constant).build();
         }
 
         /** Creates an {@link Instant} {@link DynamicDataValue}. */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         static DynamicDataValue<DynamicInstant> fromInstant(@NonNull Instant constant) {
             return new FixedInstant.Builder().setEpochSeconds(constant.getEpochSecond()).build();
         }
 
         /** Creates a {@link Duration} {@link DynamicDataValue}. */
         @NonNull
+        @RequiresSchemaVersion(major = 1, minor = 300)
         static DynamicDataValue<DynamicDuration> fromDuration(@NonNull Duration constant) {
             return new FixedDuration.Builder().setSeconds(constant.getSeconds()).build();
         }

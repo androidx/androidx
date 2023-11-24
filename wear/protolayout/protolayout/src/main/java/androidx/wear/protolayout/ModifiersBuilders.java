@@ -61,6 +61,7 @@ public final class ModifiersBuilders {
          * Fade in enter animation that fades in element when entering the layout, from fully
          * invisible to fully visible.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         private static final EnterTransition FADE_IN_ENTER_TRANSITION =
                 new EnterTransition.Builder().setFadeIn(FADE_IN_TRANSITION).build();
 
@@ -70,6 +71,7 @@ public final class ModifiersBuilders {
          *
          * @param direction The direction for sliding in transition.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         private static SlideInTransition slideInTransition(@SlideDirection int direction) {
             return new SlideInTransition.Builder().setDirection(direction).build();
         }
@@ -78,6 +80,7 @@ public final class ModifiersBuilders {
          * Enter content transition animation that fades in element when entering the layout, from
          * fully invisible to fully visible.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public static EnterTransition fadeIn() {
             return FADE_IN_ENTER_TRANSITION;
@@ -87,6 +90,7 @@ public final class ModifiersBuilders {
          * Enter content transition animation that slides in element when entering the layout into
          * its position from the parent edge in the given direction.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public static EnterTransition slideIn(@SlideDirection int slideDirection) {
             return new EnterTransition.Builder()
@@ -101,6 +105,7 @@ public final class ModifiersBuilders {
          *
          * @param slideDirection The direction for sliding in part of transition.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public static EnterTransition fadeInSlideIn(@SlideDirection int slideDirection) {
             return new EnterTransition.Builder()
@@ -120,6 +125,7 @@ public final class ModifiersBuilders {
          * Fade out exit animation that fades out element when exiting the layout, from fully
          * visible to fully invisible.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         private static final ExitTransition FADE_OUT_EXIT_TRANSITION =
                 new ExitTransition.Builder().setFadeOut(FADE_OUT_TRANSITION).build();
 
@@ -129,6 +135,7 @@ public final class ModifiersBuilders {
          *
          * @param direction The direction for sliding out transition.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         private static SlideOutTransition slideOutTransition(@SlideDirection int direction) {
             return new SlideOutTransition.Builder().setDirection(direction).build();
         }
@@ -137,6 +144,7 @@ public final class ModifiersBuilders {
          * Exit content transition animation that fades out element when exiting the layout, from
          * fully visible to fully invisible.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public static ExitTransition fadeOut() {
             return FADE_OUT_EXIT_TRANSITION;
@@ -146,6 +154,7 @@ public final class ModifiersBuilders {
          * Exit content transition animation that slides out element when exiting the layout from
          * its position to the parent edge in the given direction.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public static ExitTransition slideOut(@SlideDirection int slideDirection) {
             return new ExitTransition.Builder()
@@ -160,6 +169,7 @@ public final class ModifiersBuilders {
          *
          * @param slideDirection The direction for sliding in part of transition.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         @NonNull
         public static ExitTransition fadeOutSlideOut(@SlideDirection int slideDirection) {
             return new ExitTransition.Builder()
