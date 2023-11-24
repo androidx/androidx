@@ -344,7 +344,8 @@ public final class AnimationParameterBuilders {
          * <p>This is equivalent to the Compose {@code FastOutSlowInEasing}.
          */
         @RequiresSchemaVersion(major = 1, minor = 200)
-        @NonNull Easing FAST_OUT_SLOW_IN_EASING = cubicBezier(0.4f, 0.0f, 0.2f, 1.0f);
+        @NonNull
+        Easing FAST_OUT_SLOW_IN_EASING = cubicBezier(0.4f, 0.0f, 0.2f, 1.0f);
 
         /**
          * Incoming elements are animated using deceleration easing, which starts a transition at
@@ -352,7 +353,9 @@ public final class AnimationParameterBuilders {
          *
          * <p>This is equivalent to the Compose {@code LinearOutSlowInEasing}.
          */
-        @NonNull Easing LINEAR_OUT_SLOW_IN_EASING = cubicBezier(0.0f, 0.0f, 0.2f, 1.0f);
+        @RequiresSchemaVersion(major = 1, minor = 200)
+        @NonNull
+        Easing LINEAR_OUT_SLOW_IN_EASING = cubicBezier(0.0f, 0.0f, 0.2f, 1.0f);
 
         /**
          * Elements exiting a screen use acceleration easing, where they start at rest and end at
@@ -360,7 +363,9 @@ public final class AnimationParameterBuilders {
          *
          * <p>This is equivalent to the Compose {@code FastOutLinearInEasing}.
          */
-        @NonNull Easing FAST_OUT_LINEAR_IN_EASING = cubicBezier(0.4f, 0.0f, 1.0f, 1.0f);
+        @RequiresSchemaVersion(major = 1, minor = 200)
+        @NonNull
+        Easing FAST_OUT_LINEAR_IN_EASING = cubicBezier(0.4f, 0.0f, 1.0f, 1.0f);
 
         /** Get the protocol buffer representation of this object. */
         @RestrictTo(Scope.LIBRARY_GROUP)
@@ -585,10 +590,12 @@ public final class AnimationParameterBuilders {
         /**
          * An infinite {@link Repeatable} where animation restarts from the beginning when repeated.
          */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         public static final Repeatable INFINITE_REPEATABLE_WITH_RESTART =
                 new Repeatable.Builder().setRepeatMode(REPEAT_MODE_RESTART).build();
 
         /** An infinite {@link Repeatable} where animation is played in reverse when repeated. */
+        @RequiresSchemaVersion(major = 1, minor = 200)
         public static final Repeatable INFINITE_REPEATABLE_WITH_REVERSE =
                 new Repeatable.Builder().setRepeatMode(REPEAT_MODE_REVERSE).build();
 
