@@ -109,6 +109,10 @@ internal class RowColumnMeasurementHelper(
                 ++weightChildrenCount
             } else {
                 val mainAxisMax = constraints.mainAxisMax
+                val crossAxisMax = constraints.crossAxisMax
+                val crossAxisDesiredSize = if (crossAxisMax == Constraints.Infinity) 0 else ((
+                    parentData?.flowLayoutData?.fillCrossAxisFraction ?: 0f
+                    ) * crossAxisMax).toInt()
                 val placeable = placeables[i] ?: child.measure(
                     // Ask for preferred main axis size.
                     constraints.copy(
@@ -118,7 +122,9 @@ internal class RowColumnMeasurementHelper(
                         } else {
                             (mainAxisMax - fixedSpace).coerceAtLeast(0).toInt()
                         },
-                        crossAxisMin = 0
+                        crossAxisMin = crossAxisDesiredSize,
+                        crossAxisMax = if (crossAxisDesiredSize != 0)
+                            crossAxisDesiredSize else constraints.crossAxisMax
                     ).toBoxConstraints(orientation)
                 )
                 spaceAfterLastNoWeight = min(
@@ -159,6 +165,11 @@ internal class RowColumnMeasurementHelper(
                     val child = measurables[i]
                     val parentData = rowColumnParentData[i]
                     val weight = parentData.weight
+                    val crossAxisMax = constraints.crossAxisMax
+                    val crossAxisDesiredSize = if (crossAxisMax == Constraints.Infinity) 0 else
+                        ((parentData?.flowLayoutData?.fillCrossAxisFraction ?: 0f) *
+                            crossAxisMax
+                    ).toInt()
                     check(weight > 0) { "All weights <= 0 should have placeables" }
                     // After the weightUnitSpace rounding, the total space going to be occupied
                     // can be smaller or larger than remainingToTarget. Here we distribute the
@@ -177,8 +188,9 @@ internal class RowColumnMeasurementHelper(
                                 0
                             },
                             childMainAxisSize,
-                            0,
-                            constraints.crossAxisMax
+                            crossAxisMin = crossAxisDesiredSize,
+                            crossAxisMax = if (crossAxisDesiredSize != 0)
+                                crossAxisDesiredSize else constraints.crossAxisMax
                         ).toBoxConstraints(orientation)
                     )
                     weightedSpace += placeable.mainAxisSize()
