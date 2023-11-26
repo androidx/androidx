@@ -28,13 +28,10 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.tokens.AssistChipTokens
 import androidx.compose.material3.tokens.FilterChipTokens
 import androidx.compose.material3.tokens.InputChipTokens
@@ -56,12 +53,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
+import androidx.compose.ui.util.fastFirst
+import androidx.compose.ui.util.fastFirstOrNull
 
 /**
  * <a href="https://m3.material.io/components/chips/overview" class="external" target="_blank">Material Design assist chip</a>.
@@ -1778,31 +1781,80 @@ private fun ChipContent(
         LocalContentColor provides labelColor,
         LocalTextStyle provides labelTextStyle
     ) {
-        Row(
-            Modifier
-                .width(IntrinsicSize.Max)
+        Layout(
+            modifier = Modifier
                 .defaultMinSize(minHeight = minHeight)
                 .padding(paddingValues),
-            horizontalArrangement = Arrangement.Start,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            if (avatar != null) {
-                avatar()
-            } else if (leadingIcon != null) {
-                CompositionLocalProvider(
-                    LocalContentColor provides leadingIconColor, content = leadingIcon
+            content = {
+                if (avatar != null || leadingIcon != null) {
+                    Box(
+                        modifier = Modifier
+                            .layoutId(LeadingIconLayoutId),
+                        contentAlignment = Alignment.Center,
+                        content = {
+                            if (avatar != null) {
+                                avatar()
+                            } else if (leadingIcon != null) {
+                                CompositionLocalProvider(
+                                    LocalContentColor provides leadingIconColor,
+                                    content = leadingIcon
+                                )
+                            }
+                        }
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .layoutId(LabelLayoutId)
+                        .padding(HorizontalElementsPadding, 0.dp),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically,
+                    content = { label() }
                 )
+                if (trailingIcon != null) {
+                    Box(
+                        modifier = Modifier
+                            .layoutId(TrailingIconLayoutId),
+                        contentAlignment = Alignment.Center,
+                        content = {
+                            CompositionLocalProvider(
+                                LocalContentColor provides trailingIconColor,
+                                content = trailingIcon
+                            )
+                        }
+                    )
+                }
             }
-            Spacer(Modifier.width(HorizontalElementsPadding))
-            Row(
-                modifier = Modifier.weight(1f),
-                horizontalArrangement = Arrangement.Start,
-                verticalAlignment = Alignment.CenterVertically
-            ) { label() }
-            Spacer(Modifier.width(HorizontalElementsPadding))
-            if (trailingIcon != null) {
-                CompositionLocalProvider(
-                    LocalContentColor provides trailingIconColor, content = trailingIcon
+        ) { measurables, constraints ->
+            val leadingIconPlaceable: Placeable? =
+                measurables.fastFirstOrNull { it.layoutId == LeadingIconLayoutId }
+                    ?.measure(constraints.copy(minWidth = 0, minHeight = 0))
+            val leadingIconWidth = widthOrZero(leadingIconPlaceable)
+            val leadingIconHeight = heightOrZero(leadingIconPlaceable)
+
+            val trailingIconPlaceable: Placeable? =
+                measurables.fastFirstOrNull { it.layoutId == TrailingIconLayoutId }
+                    ?.measure(constraints.copy(minWidth = 0, minHeight = 0))
+            val trailingIconWidth = widthOrZero(trailingIconPlaceable)
+            val trailingIconHeight = heightOrZero(trailingIconPlaceable)
+
+            val labelPlaceable = measurables.fastFirst { it.layoutId == LabelLayoutId }
+                .measure(
+                    constraints.offset(horizontal = -(leadingIconWidth + trailingIconWidth))
+                )
+
+            val width = leadingIconWidth + labelPlaceable.width + trailingIconWidth
+            val height = maxOf(leadingIconHeight, labelPlaceable.height, trailingIconHeight)
+
+            layout(width, height) {
+                leadingIconPlaceable?.placeRelative(
+                    0,
+                    Alignment.CenterVertically.align(leadingIconHeight, height)
+                )
+                labelPlaceable.placeRelative(leadingIconWidth, 0)
+                trailingIconPlaceable?.placeRelative(
+                    leadingIconWidth + labelPlaceable.width,
+                    Alignment.CenterVertically.align(trailingIconHeight, height)
                 )
             }
         }
@@ -2435,3 +2487,7 @@ private val FilterChipPadding = PaddingValues(horizontal = HorizontalElementsPad
  * Returns the [PaddingValues] for the suggestion chip.
  */
 private val SuggestionChipPadding = PaddingValues(horizontal = HorizontalElementsPadding)
+
+private const val LeadingIconLayoutId = "leadingIcon"
+private const val LabelLayoutId = "label"
+private const val TrailingIconLayoutId = "trailingIcon"
