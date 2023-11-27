@@ -41,9 +41,11 @@ public class PredictionEstimator {
 
     private long mLastEventTime = -1;
     private final float mFrameTimeMs;
+    private final int mOffsetMs;
 
     public PredictionEstimator(@NonNull Context context) {
         mFrameTimeMs = getFastestFrameTimeMs(context);
+        mOffsetMs = Configuration.getInstance().predictionOffset();
     }
 
     /** Records the needed information from the event to calculate the prediction. */
@@ -54,12 +56,12 @@ public class PredictionEstimator {
     /** Return the estimated amount of prediction needed. */
     public int estimate() {
         if (mLastEventTime <= 0) {
-            return (int) mFrameTimeMs;
+            return ((int) mFrameTimeMs) + mOffsetMs;
         }
         // The amount of prediction is the estimated amount of time it will take to land the
         // information on the screen from now, plus the time since the last recorded MotionEvent
         int estimatedMs = (int) (SystemClock.uptimeMillis() - mLastEventTime + mFrameTimeMs);
-        return Math.min(MAX_PREDICTION_MS, estimatedMs);
+        return Math.min(MAX_PREDICTION_MS, estimatedMs + mOffsetMs);
     }
 
     private Display getDisplayForContext(Context context) {

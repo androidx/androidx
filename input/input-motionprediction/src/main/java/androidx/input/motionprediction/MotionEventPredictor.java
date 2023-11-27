@@ -23,7 +23,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.input.motionprediction.common.SystemProperty;
+import androidx.input.motionprediction.common.Configuration;
 import androidx.input.motionprediction.kalman.KalmanMotionEventPredictor;
 import androidx.input.motionprediction.system.SystemMotionEventPredictor;
 
@@ -73,7 +73,7 @@ public interface MotionEventPredictor {
     static MotionEventPredictor newInstance(@NonNull View view) {
         Context context = view.getContext();
         if (Build.VERSION.SDK_INT >= 34
-                && SystemProperty.getBoolean("debug.input.prefer_system_prediction")) {
+                && Configuration.getInstance().preferSystemPrediction()) {
             return SystemMotionEventPredictor.newInstance(context);
         } else {
             return new KalmanMotionEventPredictor(context);
