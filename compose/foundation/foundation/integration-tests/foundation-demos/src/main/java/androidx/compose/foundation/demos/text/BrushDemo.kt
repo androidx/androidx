@@ -34,8 +34,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RadialGradientShader
+import androidx.compose.ui.graphics.Shader
+import androidx.compose.ui.graphics.ShaderBrush
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.TileMode
 import androidx.compose.ui.text.ExperimentalTextApi
@@ -206,14 +211,22 @@ fun AnimatedBrush() {
             repeatMode = RepeatMode.Reverse
         )
     )
+    val brush = remember {
+        // postpone the state read to shader creation time which happens during draw.
+        ShaderBrush { size ->
+            RadialGradientShader(
+                center = size.center,
+                radius = radius,
+                colors = RainbowColors,
+                colorStops = RainbowStops,
+                tileMode = TileMode.Mirror
+            )
+        }
+    }
     Text(
         text = loremIpsum(wordCount = 29),
         style = TextStyle(
-            brush = Brush.radialGradient(
-                *RainbowStops.zip(RainbowColors).toTypedArray(),
-                radius = radius,
-                tileMode = TileMode.Mirror
-            ),
+            brush = brush,
             fontSize = 30.sp
         )
     )
@@ -264,3 +277,9 @@ private val RainbowColors = listOf(
     Color(0xff2aa8f2)
 )
 private val RainbowStops = listOf(0f, 0.2f, 0.4f, 0.6f, 0.8f, 1f)
+
+private fun ShaderBrush(block: (Size) -> Shader): ShaderBrush {
+    return object : ShaderBrush() {
+        override fun createShader(size: Size): Shader = block(size)
+    }
+}
