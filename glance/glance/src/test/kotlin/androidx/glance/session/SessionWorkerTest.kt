@@ -75,8 +75,8 @@ class SessionWorkerTest {
             val result = worker.doWork()
             assertThat(result).isEqualTo(Result.success())
         }
-        sessionManager.startSession(context)
-        sessionManager.closeSession()
+        sessionManager.scope.startSession(context)
+        sessionManager.scope.closeSession()
     }
 
     @Test
@@ -86,7 +86,7 @@ class SessionWorkerTest {
             assertThat(result).isEqualTo(Result.success())
         }
 
-        val root = sessionManager.startSession(context) {
+        val root = sessionManager.scope.startSession(context) {
             Box {
                 Text("Hello World")
             }
@@ -94,7 +94,7 @@ class SessionWorkerTest {
         val box = assertIs<EmittableBox>(root.children.single())
         val text = assertIs<EmittableText>(box.children.single())
         assertThat(text.text).isEqualTo("Hello World")
-        sessionManager.closeSession()
+        sessionManager.scope.closeSession()
     }
 
     @Test
@@ -103,10 +103,10 @@ class SessionWorkerTest {
             val result = worker.doWork()
             assertThat(result).isEqualTo(Result.success())
         }
-        sessionManager.startSession(context).first()
-        val session = assertIs<TestSession>(sessionManager.getSession(SESSION_KEY))
+        sessionManager.scope.startSession(context).first()
+        val session = assertIs<TestSession>(sessionManager.scope.getSession(SESSION_KEY))
         assertThat(session.provideGlanceCalled).isEqualTo(1)
-        sessionManager.closeSession()
+        sessionManager.scope.closeSession()
     }
 
     @Test
@@ -117,7 +117,7 @@ class SessionWorkerTest {
         }
 
         val state = mutableStateOf("Hello World")
-        val uiFlow = sessionManager.startSession(context) {
+        val uiFlow = sessionManager.scope.startSession(context) {
                 Text(state.value)
         }
         uiFlow.first().getOrThrow().let { root ->
@@ -130,7 +130,7 @@ class SessionWorkerTest {
             val text = assertIs<EmittableText>(root.children.single())
             assertThat(text.text).isEqualTo("Hello Earth")
         }
-        sessionManager.closeSession()
+        sessionManager.scope.closeSession()
     }
 
     @Test
@@ -141,14 +141,14 @@ class SessionWorkerTest {
         }
 
         val state = mutableStateOf("Hello World")
-        val uiFlow = sessionManager.startSession(context) {
+        val uiFlow = sessionManager.scope.startSession(context) {
             Text(state.value)
         }
         uiFlow.first().getOrThrow().let { root ->
             val text = assertIs<EmittableText>(root.children.single())
             assertThat(text.text).isEqualTo("Hello World")
         }
-        val session = assertIs<TestSession>(sessionManager.getSession(SESSION_KEY))
+        val session = assertIs<TestSession>(sessionManager.scope.getSession(SESSION_KEY))
         session.sendEvent {
             state.value = "Hello Earth"
         }
@@ -156,7 +156,7 @@ class SessionWorkerTest {
             val text = assertIs<EmittableText>(root.children.single())
             assertThat(text.text).isEqualTo("Hello Earth")
         }
-        sessionManager.closeSession()
+        sessionManager.scope.closeSession()
     }
 
     @Test
@@ -167,7 +167,7 @@ class SessionWorkerTest {
         }
 
         val state = mutableStateOf("Hello World")
-        val uiFlow = sessionManager.startDelayedProcessingSession(context) {
+        val uiFlow = sessionManager.scope.startDelayedProcessingSession(context) {
             Text(state.value)
         }
         uiFlow.first().getOrThrow().let { root ->
@@ -183,9 +183,9 @@ class SessionWorkerTest {
             assertThat(text.text).isEqualTo("Hello Earth")
         }
 
-        val session = assertIs<TestSession>(sessionManager.getSession(SESSION_KEY))
+        val session = assertIs<TestSession>(sessionManager.scope.getSession(SESSION_KEY))
         assertThat(session.processEmittableTreeCancelCount).isEqualTo(1)
-        sessionManager.closeSession()
+        sessionManager.scope.closeSession()
     }
 
     @Test
@@ -197,7 +197,7 @@ class SessionWorkerTest {
 
         val cause = Throwable()
         val exception = Exception("message", cause)
-        val result = sessionManager.startSession(context) {
+        val result = sessionManager.scope.startSession(context) {
             throw exception
         }.first().exceptionOrNull()
         assertThat(result).hasCauseThat().isEqualTo(cause)
@@ -214,7 +214,7 @@ class SessionWorkerTest {
         val runError = mutableStateOf(false)
         val cause = Throwable()
         val exception = Exception("message", cause)
-        val resultFlow = sessionManager.startSession(context) {
+        val resultFlow = sessionManager.scope.startSession(context) {
             if (runError.value) {
                 throw exception
             } else {
@@ -245,7 +245,7 @@ class SessionWorkerTest {
 
         val cause = Throwable()
         val exception = Exception("message", cause)
-        val result = sessionManager.startSession(context) {
+        val result = sessionManager.scope.startSession(context) {
             SideEffect { throw exception }
         }.first().exceptionOrNull()
         assertThat(result).hasCauseThat().isEqualTo(cause)
@@ -261,7 +261,7 @@ class SessionWorkerTest {
 
         val cause = Throwable()
         val exception = Exception("message", cause)
-        val result = sessionManager.startSession(context) {
+        val result = sessionManager.scope.startSession(context) {
             LaunchedEffect(true) { throw exception }
         }.first().exceptionOrNull()
         assertThat(result).hasCauseThat().isEqualTo(cause)
@@ -282,7 +282,7 @@ class SessionWorkerTest {
             }
         }
 
-        sessionManager.startSession(context).first()
+        sessionManager.scope.startSession(context).first()
         workerJob.cancel()
     }
 
@@ -294,54 +294,60 @@ class SessionWorkerTest {
             assertThat(worker.effectJob?.isCancelled).isTrue()
         }
 
-        sessionManager.startSession(context).first()
-        sessionManager.closeSession()
+        sessionManager.scope.startSession(context).first()
+        sessionManager.scope.closeSession()
     }
 }
 
 private const val SESSION_KEY = "123"
 
 class TestSessionManager : SessionManager {
-    private val sessions = mutableMapOf<String, Session>()
+    val scope = TestSessionManagerScope()
+    // No locking needed, tests are run on single threaded environment and is only user of this
+    // SessionManager.
+    override suspend fun <T> runWithLock(block: suspend SessionManagerScope.() -> T): T =
+        scope.block()
 
-    suspend fun startSession(
-        context: Context,
-        content: @GlanceComposable @Composable () -> Unit = {}
-    ) = MutableSharedFlow<kotlin.Result<EmittableWithChildren>>().also { flow ->
-        startSession(context, TestSession(resultFlow = flow, content = content))
-    }
+    class TestSessionManagerScope : SessionManagerScope {
+        private val sessions = mutableMapOf<String, Session>()
+        suspend fun startSession(
+            context: Context,
+            content: @GlanceComposable @Composable () -> Unit = {}
+        ) = MutableSharedFlow<kotlin.Result<EmittableWithChildren>>().also { flow ->
+            startSession(context, TestSession(resultFlow = flow, content = content))
+        }
 
-    suspend fun startDelayedProcessingSession(
-        context: Context,
-        content: @GlanceComposable @Composable () -> Unit = {}
-    ) = MutableSharedFlow<kotlin.Result<EmittableWithChildren>>().also { flow ->
-        startSession(
-            context,
-            TestSession(
-                resultFlow = flow,
-                content = content,
-                processEmittableTreeHasInfiniteDelay = true,
+        suspend fun startDelayedProcessingSession(
+            context: Context,
+            content: @GlanceComposable @Composable () -> Unit = {}
+        ) = MutableSharedFlow<kotlin.Result<EmittableWithChildren>>().also { flow ->
+            startSession(
+                context,
+                TestSession(
+                    resultFlow = flow,
+                    content = content,
+                    processEmittableTreeHasInfiniteDelay = true,
+                )
             )
-        )
-    }
+        }
 
-    suspend fun closeSession() {
-        closeSession(SESSION_KEY)
-    }
+        suspend fun closeSession() {
+            closeSession(SESSION_KEY)
+        }
 
-    override suspend fun startSession(context: Context, session: Session) {
-        sessions[session.key] = session
-    }
+        override suspend fun startSession(context: Context, session: Session) {
+            sessions[session.key] = session
+        }
 
-    override suspend fun closeSession(key: String) {
-        sessions[key]?.close()
-    }
+        override suspend fun closeSession(key: String) {
+            sessions[key]?.close()
+        }
 
-    override suspend fun isSessionRunning(context: Context, key: String): Boolean {
-        TODO("Not yet implemented")
+        override suspend fun isSessionRunning(context: Context, key: String): Boolean {
+            TODO("Not yet implemented")
+        }
+        override fun getSession(key: String): Session? = sessions[key]
     }
-
-    override fun getSession(key: String): Session? = sessions[key]
 }
 
 class TestSession(
