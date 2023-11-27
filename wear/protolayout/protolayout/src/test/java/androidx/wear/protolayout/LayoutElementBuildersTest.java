@@ -323,7 +323,7 @@ public class LayoutElementBuildersTest {
         int[] expectedSizes = {size1, size2, lastSize};
         LayoutElementBuilders.FontStyle fontStyle =
                 new LayoutElementBuilders.FontStyle.Builder()
-                        .setSizes(sp(size1), sp(size2), sp(lastSize))
+                        .setSizes(size1, size2, lastSize)
                         .build();
 
         LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
@@ -367,7 +367,7 @@ public class LayoutElementBuildersTest {
         LayoutElementBuilders.FontStyle fontStyle =
                 new LayoutElementBuilders.FontStyle.Builder()
                         .setSize(sp(20))
-                        .setSizes(sp(size1), sp(size2))
+                        .setSizes(size1, size2)
                         .build();
 
         LayoutElementProto.FontStyle fontStyleProto = fontStyle.toProto();
@@ -385,21 +385,30 @@ public class LayoutElementBuildersTest {
 
     @Test
     public void testFontStyleSetSize_tooManySizes_throws() {
-        DimensionBuilders.SpProp[] sizes =
-                new DimensionBuilders.SpProp
-                        [LayoutElementBuilders.FontStyle.Builder.TEXT_SIZES_LIMIT + 1];
+        int[] sizes =
+                new int[LayoutElementBuilders.FontStyle.Builder.TEXT_SIZES_LIMIT + 1];
         assertThrows(
                 IllegalArgumentException.class,
                 () -> new LayoutElementBuilders.FontStyle.Builder().setSizes(sizes).build());
     }
 
     @Test
-    public void testFontStyleSetSize_allNegativeOrZero_throws() {
+    public void testFontStyleSetSize_atLeastOneNegative_throws() {
         assertThrows(
                 IllegalArgumentException.class,
                 () ->
                         new LayoutElementBuilders.FontStyle.Builder()
-                                .setSizes(sp(-1), sp(0))
+                                .setSizes(-1, 5, 1)
+                                .build());
+    }
+
+    @Test
+    public void testFontStyleSetSize_atLeastOneZero_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        new LayoutElementBuilders.FontStyle.Builder()
+                                .setSizes(1, 2, 0)
                                 .build());
     }
 
