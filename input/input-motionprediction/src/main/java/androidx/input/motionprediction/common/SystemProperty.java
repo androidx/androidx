@@ -29,7 +29,8 @@ import java.lang.reflect.Method;
  */
 @RestrictTo(LIBRARY)
 public class SystemProperty {
-    private static final boolean PROPERTY_DEFAULT = false;
+    private static final boolean BOOLEAN_PROPERTY_DEFAULT = false;
+    private static final int INT_PROPERTY_DEFAULT = 0;
 
     private SystemProperty() {
         // This class is non-instantiable.
@@ -50,12 +51,42 @@ public class SystemProperty {
                     String.class,
                     boolean.class);
             @SuppressLint("BanUncheckedReflection")
-            Boolean result = (Boolean) getMethod.invoke(systemProperties, name, PROPERTY_DEFAULT);
+            Boolean result = (Boolean) getMethod.invoke(
+                    systemProperties,
+                    name,
+                    BOOLEAN_PROPERTY_DEFAULT);
             if (result != null) {
                 return result.booleanValue();
             }
         } catch (Exception e) {
         }
-        return false;
+        return BOOLEAN_PROPERTY_DEFAULT;
+    }
+
+    /**
+     * Reads a system property and returns its integer value.
+     *
+     * @param name the name of the system property
+     * @return the integer value of the property if defined, zero otherwise
+     */
+    public static int getInt(@NonNull String name) {
+        try {
+            @SuppressLint("PrivateApi")
+            Class<?> systemProperties = Class.forName("android.os.SystemProperties");
+            Method getMethod = systemProperties.getMethod(
+                    "getInt",
+                    String.class,
+                    int.class);
+            @SuppressLint("BanUncheckedReflection")
+            Integer result = (Integer) getMethod.invoke(
+                    systemProperties,
+                    name,
+                    INT_PROPERTY_DEFAULT);
+            if (result != null) {
+                return result.intValue();
+            }
+        } catch (Exception e) {
+        }
+        return INT_PROPERTY_DEFAULT;
     }
 }
