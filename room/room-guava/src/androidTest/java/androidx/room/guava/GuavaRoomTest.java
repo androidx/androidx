@@ -25,7 +25,6 @@ import androidx.room.DatabaseConfiguration;
 import androidx.room.InvalidationTracker;
 import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
-import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -38,7 +37,6 @@ import java.util.concurrent.Executor;
 public class GuavaRoomTest {
 
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     public void queryIsCancelled() {
         Executor executor = runnable -> { /* nothing to do */ };
 
