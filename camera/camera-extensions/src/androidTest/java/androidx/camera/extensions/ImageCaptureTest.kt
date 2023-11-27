@@ -17,10 +17,13 @@
 package androidx.camera.extensions
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.ImageFormat
 import android.graphics.SurfaceTexture
 import android.util.Size
+import android.view.Surface
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -47,6 +50,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
+import org.junit.Assert.assertTrue
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -216,14 +220,16 @@ class ImageCaptureTest(
 
     private suspend fun bindAndTakePicture(
         onImageCaptureCallback: ImageCapture.OnImageCapturedCallback,
+        targetRotation: Int? = null,
         enablePostview: Boolean = false
-    ) {
+    ): Camera {
         // To test bind/unbind and take picture.
-        val imageCapture = ImageCapture.Builder()
-            .setPostviewEnabled(enablePostview)
-            .build()
+        val imageCapture = ImageCapture.Builder().apply {
+            targetRotation?.let { setTargetRotation(it) }
+            setPostviewEnabled(enablePostview)
+        }.build()
         val preview = Preview.Builder().build()
-        withContext(Dispatchers.Main) {
+        return withContext(Dispatchers.Main) {
             // To set the update listener and Preview will change to active state.
             preview.setSurfaceProvider(
                 SurfaceTextureProvider.createSurfaceTextureProvider(
@@ -243,7 +249,7 @@ class ImageCaptureTest(
                     })
             )
 
-            cameraProvider.bindToLifecycle(
+            val camera = cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 extensionsCameraSelector,
                 preview,
@@ -254,19 +260,22 @@ class ImageCaptureTest(
                 CameraXExecutors.mainThreadExecutor(),
                 onImageCaptureCallback
             )
+            camera
         }
     }
 
     private suspend fun bindAndTakePicture(
         onImageSavedCallback: ImageCapture.OnImageSavedCallback,
+        targetRotation: Int? = null,
         enablePostview: Boolean = false
-    ) {
+    ): Camera {
         // To test bind/unbind and take picture.
-        val imageCapture = ImageCapture.Builder()
-            .setPostviewEnabled(enablePostview)
-            .build()
+        val imageCapture = ImageCapture.Builder().apply {
+            targetRotation?.let { setTargetRotation(it) }
+            setPostviewEnabled(enablePostview)
+        }.build()
         val preview = Preview.Builder().build()
-        withContext(Dispatchers.Main) {
+        return withContext(Dispatchers.Main) {
             // To set the update listener and Preview will change to active state.
             preview.setSurfaceProvider(
                 SurfaceTextureProvider.createSurfaceTextureProvider(
@@ -286,7 +295,7 @@ class ImageCaptureTest(
                     })
             )
 
-            cameraProvider.bindToLifecycle(
+            val camera = cameraProvider.bindToLifecycle(
                 fakeLifecycleOwner,
                 extensionsCameraSelector,
                 preview,
@@ -302,6 +311,7 @@ class ImageCaptureTest(
                 CameraXExecutors.mainThreadExecutor(),
                 onImageSavedCallback
             )
+            camera
         }
     }
 
@@ -385,10 +395,11 @@ class ImageCaptureTest(
 
         val captureStartedDeferred = CompletableDeferred<Boolean>()
         val captureSuccessDeferred = CompletableDeferred<ImageProxy>()
-        val PostviewDeferred = CompletableDeferred<ImageProxy>()
+        val PostviewDeferred = CompletableDeferred<Bitmap>()
         var hasError = false
+        val targetRotation = Surface.ROTATION_0
 
-        bindAndTakePicture(object : ImageCapture.OnImageCapturedCallback() {
+        val camera = bindAndTakePicture(object : ImageCapture.OnImageCapturedCallback() {
             override fun onError(exception: ImageCaptureException) {
                 hasError = true
             }
@@ -398,19 +409,21 @@ class ImageCaptureTest(
             override fun onCaptureSuccess(image: ImageProxy) {
                 captureSuccessDeferred.complete(image)
             }
-            override fun onPostviewImageAvailable(image: ImageProxy) {
-                PostviewDeferred.complete(image)
+            override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
+                PostviewDeferred.complete(bitmap)
             }
-        }, enablePostview = true)
+        }, enablePostview = true, targetRotation = targetRotation)
+        val rotationDegree = camera.cameraInfo.getSensorRotationDegrees(targetRotation)
+        val isFlipped = (rotationDegree % 180) != 0
 
         assertThat(withTimeoutOrNull(5000) { captureStartedDeferred.await() }).isTrue()
 
-        withTimeoutOrNull(5000) { PostviewDeferred.await() }.use {
+        withTimeoutOrNull(5000) { PostviewDeferred.await() }.let {
             assertThat(it).isNotNull()
-            assertThat(it!!.format).isEqualTo(ImageFormat.JPEG)
-            if (isRotationOptionSupportedDevice()) {
-                val exif = ExifUtil.getExif(it)
-                assertThat(exif!!.rotation).isEqualTo(it.imageInfo.rotationDegrees)
+            if (isFlipped) {
+                assertTrue(it!!.width <= it.height)
+            } else {
+                assertTrue(it!!.height <= it.width)
             }
         }
 
@@ -432,10 +445,11 @@ class ImageCaptureTest(
 
         val captureStartedDeferred = CompletableDeferred<Boolean>()
         val imageSavedDeferred = CompletableDeferred<ImageCapture.OutputFileResults>()
-        val PostviewDeferred = CompletableDeferred<ImageProxy>()
+        val PostviewDeferred = CompletableDeferred<Bitmap>()
         var hasError = false
+        val targetRotation = Surface.ROTATION_0
 
-        bindAndTakePicture(object : ImageCapture.OnImageSavedCallback {
+        val camera = bindAndTakePicture(object : ImageCapture.OnImageSavedCallback {
             override fun onError(exception: ImageCaptureException) {
                 hasError = true
             }
@@ -446,19 +460,21 @@ class ImageCaptureTest(
             override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                 imageSavedDeferred.complete(outputFileResults)
             }
-            override fun onPostviewImageAvailable(image: ImageProxy) {
-                PostviewDeferred.complete(image)
+            override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
+                PostviewDeferred.complete(bitmap)
             }
         }, enablePostview = true)
+        val rotationDegree = camera.cameraInfo.getSensorRotationDegrees(targetRotation)
+        val isFlipped = (rotationDegree % 180) != 0
 
         assertThat(withTimeoutOrNull(5000) { captureStartedDeferred.await() }).isTrue()
 
-        withTimeoutOrNull(5000) { PostviewDeferred.await() }.use {
+        withTimeoutOrNull(5000) { PostviewDeferred.await() }.let {
             assertThat(it).isNotNull()
-            assertThat(it!!.format).isEqualTo(ImageFormat.JPEG)
-            if (isRotationOptionSupportedDevice()) {
-                val exif = ExifUtil.getExif(it)
-                assertThat(exif!!.rotation).isEqualTo(it.imageInfo.rotationDegrees)
+            if (isFlipped) {
+                assertTrue(it!!.width <= it.height)
+            } else {
+                assertTrue(it!!.height <= it.width)
             }
         }
 

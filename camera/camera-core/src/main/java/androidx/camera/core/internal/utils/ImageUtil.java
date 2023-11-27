@@ -114,6 +114,17 @@ public final class ImageUtil {
     }
 
     /**
+     * Rotates the bitmap by the given rotation degrees.
+     */
+    @NonNull
+    public static Bitmap rotateBitmap(@NonNull Bitmap bitmap, int rotationDegrees) {
+        Matrix matrix = new Matrix();
+        matrix.postRotate(rotationDegrees);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix,
+                true);
+    }
+
+    /**
      * Creates a direct {@link ByteBuffer} and copy the content of the {@link Bitmap}.
      */
     @NonNull

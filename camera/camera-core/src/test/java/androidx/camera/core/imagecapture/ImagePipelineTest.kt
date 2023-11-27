@@ -137,7 +137,7 @@ class ImagePipelineTest {
         imagePipeline.close()
         imagePipeline =
             ImagePipeline(imageCaptureConfig, SIZE,
-                /*cameraEffect=*/null, /*isVirtualCamera=*/true, /*postviewSize*/ null)
+                /*cameraEffect=*/null, /*isVirtualCamera=*/true)
 
         // Act & assert: send and receive ImageProxy.
         sendInMemoryRequest_receivesImageProxy()
@@ -155,8 +155,7 @@ class ImagePipelineTest {
                 imageCaptureConfig,
                 SIZE,
                 GrayscaleImageEffect(),
-                false,
-                /*postviewSize*/ null
+                false
             ).processingNode.mImageProcessor
         ).isNotNull()
     }
@@ -260,10 +259,29 @@ class ImagePipelineTest {
     }
 
     @Test
-    fun createSessionConfigBuilderWithPostviewEnabled() {
+    fun createSessionConfigBuilderWithYuvPostviewEnabled() {
         // Arrange.
         val postviewSize = Size(640, 480)
-        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, null, false, postviewSize)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, null, false,
+            postviewSize, ImageFormat.YUV_420_888)
+
+        // Act: create SessionConfig
+        val sessionConfig = imagePipeline.createSessionConfigBuilder(SIZE).build()
+
+        // Assert: SessionConfig contains the postview output config.
+        assertThat(sessionConfig.postviewOutputConfig).isNotNull()
+        assertThat(sessionConfig.postviewOutputConfig!!.surface.prescribedSize)
+            .isEqualTo(postviewSize)
+        assertThat(sessionConfig.postviewOutputConfig!!.surface.prescribedStreamFormat)
+            .isEqualTo(ImageFormat.YUV_420_888)
+    }
+
+    @Test
+    fun createSessionConfigBuilderWithJpegPostviewEnabled() {
+        // Arrange.
+        val postviewSize = Size(640, 480)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, null, false,
+            postviewSize, ImageFormat.JPEG)
 
         // Act: create SessionConfig
         val sessionConfig = imagePipeline.createSessionConfigBuilder(SIZE).build()
@@ -280,7 +298,8 @@ class ImagePipelineTest {
     fun createCameraRequestWithPostviewEnabled() {
         // Arrange.
         val postviewSize = Size(640, 480)
-        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, null, false, postviewSize)
+        imagePipeline = ImagePipeline(imageCaptureConfig, SIZE, null, false,
+            postviewSize, ImageFormat.YUV_420_888)
 
         // Act: create requests
         val result =

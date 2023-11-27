@@ -16,6 +16,8 @@
 
 package androidx.camera.core.imagecapture;
 
+import android.graphics.Bitmap;
+
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.camera.core.ImageCapture;
@@ -70,9 +72,9 @@ interface TakePictureCallback {
     void onFinalResult(@NonNull ImageProxy imageProxy);
 
     /**
-     * Invoked when the postview image is available.
+     * Invoked when the postview bitmap is available.
      */
-    void onPostviewImageAvailable(@NonNull ImageProxy imageProxy);
+    void onPostviewBitmapAvailable(@NonNull Bitmap bitmap);
 
     /**
      * Invoked when camera fails to return the image.

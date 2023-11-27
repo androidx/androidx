@@ -18,6 +18,7 @@ package androidx.camera.core.imagecapture;
 
 import static java.util.Objects.requireNonNull;
 
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
@@ -149,8 +150,8 @@ class ProcessingRequest {
         mCallback.onFinalResult(outputFileResults);
     }
 
-    void onPostviewImageAvailable(@NonNull ImageProxy imageProxy) {
-        mCallback.onPostviewImageAvailable(imageProxy);
+    void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
+        mCallback.onPostviewBitmapAvailable(bitmap);
     }
 
     /**

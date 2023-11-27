@@ -135,7 +135,7 @@ class ProcessingNodeTest {
         shadowOf(getMainLooper()).idle()
 
         // Assert: postview image is received.
-        assertThat(callback.onPostviewImageAvailable).isNotNull()
+        assertThat(callback.onPostviewBitmapAvailable).isNotNull()
     }
 
     @Test
@@ -161,7 +161,7 @@ class ProcessingNodeTest {
         shadowOf(getMainLooper()).idle()
 
         // Assert: the postview image is not received.
-        assertThat(callback.onPostviewImageAvailable).isNull()
+        assertThat(callback.onPostviewBitmapAvailable).isNull()
     }
 
     @Test

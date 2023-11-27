@@ -59,6 +59,7 @@ import static java.util.Objects.requireNonNull;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.location.Location;
@@ -1174,6 +1175,7 @@ public final class ImageCapture extends UseCase {
         boolean isPostviewEnabled =
                 getCurrentConfig().retrieveOption(OPTION_POSTVIEW_ENABLED, false);
         Size postViewSize = null;
+        int postviewFormat = ImageFormat.YUV_420_888;
 
         if (isPostviewEnabled) {
             SessionProcessor sessionProcessor = getSessionProcessor();
@@ -1183,9 +1185,14 @@ public final class ImageCapture extends UseCase {
                                 null);
                 Map<Integer, List<Size>> map =
                         sessionProcessor.getSupportedPostviewSize(resolution);
-                List<Size> sizes = map.get(ImageFormat.JPEG);
+                // Prefer YUV because it takes less time to decode to bitmap.
+                List<Size> sizes = map.get(ImageFormat.YUV_420_888);
+                if (sizes == null || sizes.isEmpty()) {
+                    sizes = map.get(ImageFormat.JPEG);
+                    postviewFormat = ImageFormat.JPEG;
+                }
 
-                if (sizes != null) {
+                if (sizes != null && !sizes.isEmpty()) {
                     if (postviewSizeSelector != null) {
                         Collections.sort(sizes, new CompareSizesByArea(true));
                         CameraInternal camera = getCamera();
@@ -1215,7 +1222,7 @@ public final class ImageCapture extends UseCase {
         }
 
         mImagePipeline = new ImagePipeline(config, resolution, getEffect(), isVirtualCamera,
-                postViewSize);
+                postViewSize, postviewFormat);
 
         if (mTakePictureManager == null) {
             // mTakePictureManager is reused when the Surface is reset.
@@ -1541,8 +1548,7 @@ public final class ImageCapture extends UseCase {
          * @param image the postview {@link ImageProxy}
          */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        default void onPostviewImageAvailable(@NonNull ImageProxy image) {
-            image.close();
+        default void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
         }
     }
 
@@ -1648,8 +1654,7 @@ public final class ImageCapture extends UseCase {
          * @param image the postview {@link ImageProxy}
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
-        public void onPostviewImageAvailable(@NonNull ImageProxy image) {
-            image.close();
+        public void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
         }
     }
 
@@ -2534,7 +2539,7 @@ public final class ImageCapture extends UseCase {
 
         /**
          * Enables the postview which allows you to get the unprocessed image before the processing
-          * is done during the <code>takePicture</code> call.
+         * is done during the <code>takePicture</code> call.
          *
          * <p>By default the largest available postview size that are smaller or equal to the
          * ImagaeCapture size will be used to configure the postview. The {@link ResolutionSelector}

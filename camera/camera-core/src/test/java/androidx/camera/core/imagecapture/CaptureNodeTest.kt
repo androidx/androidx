@@ -16,8 +16,8 @@
 
 package androidx.camera.core.imagecapture
 
-import android.graphics.ImageFormat
 import android.graphics.ImageFormat.JPEG
+import android.graphics.ImageFormat.YUV_420_888
 import android.os.Build
 import android.os.Looper.getMainLooper
 import android.util.Size
@@ -55,7 +55,7 @@ class CaptureNodeTest {
 
     @Before
     fun setUp() {
-        captureNodeIn = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null, null)
+        captureNodeIn = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null)
         captureNodeOut = captureNode.transform(captureNodeIn)
         captureNodeOut.imageEdge.setListener {
             imagePropagated.add(it)
@@ -77,7 +77,7 @@ class CaptureNodeTest {
         val imageReaderProvider = ImageReaderProxyProvider { _, _, _, _, _ ->
             imageReader
         }
-        val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, imageReaderProvider, null)
+        val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, imageReaderProvider)
         // Act: transform.
         val node = CaptureNode()
         node.transform(input)
@@ -171,12 +171,13 @@ class CaptureNodeTest {
     }
 
     @Test
-    fun transformWithPostviewSize() {
+    fun transformWithPostviewSizeAndYuv() {
         // Arrange: set the postviewSize to the CaptureNode.In
         val postviewSize = Size(640, 480)
 
         val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null,
-            postviewSize)
+            postviewSize, YUV_420_888
+        )
 
         // Act: transform.
         val node = CaptureNode()
@@ -185,7 +186,26 @@ class CaptureNodeTest {
         // Assert: postview surface is created
         assertThat(input.postviewSurface).isNotNull()
         assertThat(input.postviewSurface!!.prescribedSize).isEqualTo(postviewSize)
-        assertThat(input.postviewSurface!!.prescribedStreamFormat).isEqualTo(ImageFormat.JPEG)
+        assertThat(input.postviewSurface!!.prescribedStreamFormat).isEqualTo(YUV_420_888)
+        node.release()
+    }
+
+    @Test
+    fun transformWithPostviewSizeAndJpeg() {
+        // Arrange: set the postviewSize to the CaptureNode.In
+        val postviewSize = Size(640, 480)
+
+        val input = CaptureNode.In.of(Size(10, 10), JPEG, JPEG, false, null,
+            postviewSize, JPEG)
+
+        // Act: transform.
+        val node = CaptureNode()
+        node.transform(input)
+
+        // Assert: postview surface is created
+        assertThat(input.postviewSurface).isNotNull()
+        assertThat(input.postviewSurface!!.prescribedSize).isEqualTo(postviewSize)
+        assertThat(input.postviewSurface!!.prescribedStreamFormat).isEqualTo(JPEG)
         node.release()
     }
 }

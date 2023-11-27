@@ -21,6 +21,7 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.Objects.requireNonNull;
 
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.os.Build;
@@ -212,14 +213,14 @@ public abstract class TakePictureRequest {
     }
 
     /**
-     * Delivers postview image result to the app.
+     * Delivers postview bitmap result to the app.
      */
-    void onPostviewImageAvailable(@NonNull ImageProxy imageProxy) {
+    void onPostviewBitmapAvailable(@NonNull Bitmap bitmap) {
         getAppExecutor().execute(() -> {
             if (getOnDiskCallback() != null) {
-                getOnDiskCallback().onPostviewImageAvailable(imageProxy);
+                getOnDiskCallback().onPostviewBitmapAvailable(bitmap);
             } else if (getInMemoryCallback() != null) {
-                getInMemoryCallback().onPostviewImageAvailable(imageProxy);
+                getInMemoryCallback().onPostviewBitmapAvailable(bitmap);
             }
         });
     }
