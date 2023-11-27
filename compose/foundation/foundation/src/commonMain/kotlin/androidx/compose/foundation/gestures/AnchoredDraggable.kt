@@ -18,6 +18,7 @@ package androidx.compose.foundation.gestures
 
 import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
@@ -214,7 +215,9 @@ interface AnchoredDragScope {
  * @param velocityThreshold The velocity threshold (in px per second) that the end velocity has to
  * exceed in order to animate to the next state, even if the [positionalThreshold] has not been
  * reached.
- * @param animationSpec The default animation that will be used to animate to a new state.
+ * @param snapAnimationSpec The default animation spec that will be used to animate to a new state.
+ * @param decayAnimationSpec The animation spec that will be used when flinging with a large enough
+ * velocity to reach or cross the target state.
  * @param confirmValueChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Stable
@@ -223,7 +226,8 @@ class AnchoredDraggableState<T>(
     initialValue: T,
     internal val positionalThreshold: (totalDistance: Float) -> Float,
     internal val velocityThreshold: () -> Float,
-    val animationSpec: AnimationSpec<Float>,
+    val snapAnimationSpec: AnimationSpec<Float>,
+    val decayAnimationSpec: DecayAnimationSpec<Float>,
     internal val confirmValueChange: (newValue: T) -> Boolean = { true }
 ) {
 
@@ -232,7 +236,10 @@ class AnchoredDraggableState<T>(
      *
      * @param initialValue The initial value of the state.
      * @param anchors The anchors of the state. Use [updateAnchors] to update the anchors later.
-     * @param animationSpec The default animation that will be used to animate to a new state.
+     * @param snapAnimationSpec The default animation spec that will be used to animate to a new
+     * state.
+     * @param decayAnimationSpec The animation spec that will be used when flinging with a large
+     * enough velocity to reach or cross the target state.
      * @param confirmValueChange Optional callback invoked to confirm or veto a pending state
      * change.
      * @param positionalThreshold The positional threshold, in px, to be used when calculating the
@@ -250,13 +257,15 @@ class AnchoredDraggableState<T>(
         anchors: DraggableAnchors<T>,
         positionalThreshold: (totalDistance: Float) -> Float,
         velocityThreshold: () -> Float,
-        animationSpec: AnimationSpec<Float>,
+        snapAnimationSpec: AnimationSpec<Float>,
+        decayAnimationSpec: DecayAnimationSpec<Float>,
         confirmValueChange: (newValue: T) -> Boolean = { true }
     ) : this(
         initialValue,
         positionalThreshold,
         velocityThreshold,
-        animationSpec,
+        snapAnimationSpec,
+        decayAnimationSpec,
         confirmValueChange
     ) {
         this.anchors = anchors
@@ -628,7 +637,8 @@ class AnchoredDraggableState<T>(
          */
         @ExperimentalFoundationApi
         fun <T : Any> Saver(
-            animationSpec: AnimationSpec<Float>,
+            snapAnimationSpec: AnimationSpec<Float>,
+            decayAnimationSpec: DecayAnimationSpec<Float>,
             positionalThreshold: (distance: Float) -> Float,
             velocityThreshold: () -> Float,
             confirmValueChange: (T) -> Boolean = { true },
@@ -637,7 +647,8 @@ class AnchoredDraggableState<T>(
             restore = {
                 AnchoredDraggableState(
                     initialValue = it,
-                    animationSpec = animationSpec,
+                    snapAnimationSpec = snapAnimationSpec,
+                    decayAnimationSpec = decayAnimationSpec,
                     confirmValueChange = confirmValueChange,
                     positionalThreshold = positionalThreshold,
                     velocityThreshold = velocityThreshold
@@ -685,7 +696,7 @@ suspend fun <T> AnchoredDraggableState<T>.animateTo(
         val targetOffset = anchors.positionOf(latestTarget)
         if (!targetOffset.isNaN()) {
             var prev = if (offset.isNaN()) 0f else offset
-            animate(prev, targetOffset, velocity, animationSpec) { value, velocity ->
+            animate(prev, targetOffset, velocity, snapAnimationSpec) { value, velocity ->
                 // Our onDrag coerces the value within the bounds, but an animation may
                 // overshoot, for example a spring animation or an overshooting interpolator
                 // We respect the user's intention and allow the overshoot, but still use

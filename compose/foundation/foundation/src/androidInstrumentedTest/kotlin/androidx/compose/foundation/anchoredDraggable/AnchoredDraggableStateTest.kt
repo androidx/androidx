@@ -16,9 +16,12 @@
 
 package androidx.compose.foundation.anchoredDraggable
 
+import androidx.compose.animation.SplineBasedFloatDecayAnimationSpec
+import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.FloatSpringSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.anchoredDraggable.AnchoredDraggableTestValue.A
@@ -96,7 +99,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -143,7 +147,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -211,9 +216,10 @@ class AnchoredDraggableStateTest {
         val frameLengthMillis = 16L
         val state = AnchoredDraggableState(
             initialValue = A,
-            animationSpec = tween(animationDuration, easing = LinearEasing),
+            snapAnimationSpec = tween(animationDuration, easing = LinearEasing),
             positionalThreshold = { distance -> distance * 0.5f },
-            velocityThreshold = defaultVelocityThreshold
+            velocityThreshold = defaultVelocityThreshold,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         lateinit var scope: CoroutineScope
         rule.setContent {
@@ -277,7 +283,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         rule.setContent {
             WithTouchSlop(touchSlop = 0f) {
@@ -339,7 +346,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -387,7 +395,8 @@ class AnchoredDraggableStateTest {
             initialValue = initialState,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = animationSpec
+            snapAnimationSpec = animationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         lateinit var scope: CoroutineScope
 
@@ -407,7 +416,7 @@ class AnchoredDraggableStateTest {
         restorationTester.emulateSavedInstanceStateRestore()
 
         assertThat(state.currentValue).isEqualTo(initialState)
-        assertThat(state.animationSpec).isEqualTo(animationSpec)
+        assertThat(state.snapAnimationSpec).isEqualTo(animationSpec)
 
         scope.launch {
             state.animateTo(B)
@@ -428,7 +437,8 @@ class AnchoredDraggableStateTest {
                     initialValue = B,
                     positionalThreshold = defaultPositionalThreshold,
                     velocityThreshold = defaultVelocityThreshold,
-                    animationSpec = defaultAnimationSpec
+                    snapAnimationSpec = defaultAnimationSpec,
+                    decayAnimationSpec = defaultDecayAnimationSpec
                 )
             }
             LaunchedEffect(state.targetValue) {
@@ -476,7 +486,8 @@ class AnchoredDraggableStateTest {
                     initialValue = B,
                     positionalThreshold = defaultPositionalThreshold,
                     velocityThreshold = defaultVelocityThreshold,
-                    animationSpec = defaultAnimationSpec
+                    snapAnimationSpec = defaultAnimationSpec,
+                    decayAnimationSpec = defaultDecayAnimationSpec
                 )
             }
             LaunchedEffect(state.progress) {
@@ -523,7 +534,8 @@ class AnchoredDraggableStateTest {
             initialValue = B,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         var offset: Float? = null
         rule.setContent {
@@ -575,7 +587,8 @@ class AnchoredDraggableStateTest {
                     initialValue = B,
                     positionalThreshold = defaultPositionalThreshold,
                     velocityThreshold = defaultVelocityThreshold,
-                    animationSpec = defaultAnimationSpec
+                    snapAnimationSpec = defaultAnimationSpec,
+                    decayAnimationSpec = defaultDecayAnimationSpec
                 )
             }
             LaunchedEffect(Unit) {
@@ -607,7 +620,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = animationSpec
+            snapAnimationSpec = animationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         lateinit var scope: CoroutineScope
 
@@ -654,7 +668,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         assertThat(state.anchors.size).isEqualTo(0)
         assertThat(state.currentValue).isEqualTo(A)
@@ -668,7 +683,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         assertThat(state.anchors.size).isEqualTo(0)
         assertThat(state.currentValue).isEqualTo(A)
@@ -682,7 +698,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
 
         assertThat(anchoredDraggableState.currentValue).isEqualTo(A)
@@ -710,7 +727,8 @@ class AnchoredDraggableStateTest {
             initialValue = 1,
             defaultPositionalThreshold,
             defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
 
         val anchorUpdates = Channel<DraggableAnchors<Int>>()
@@ -748,7 +766,8 @@ class AnchoredDraggableStateTest {
             initialValue = 1,
             defaultPositionalThreshold,
             defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
 
         val anchorUpdates = Channel<DraggableAnchors<Int>>()
@@ -785,7 +804,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             defaultPositionalThreshold,
             defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         anchoredDraggableState.updateAnchors(
             DraggableAnchors {
@@ -831,7 +851,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             defaultPositionalThreshold,
             defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         val cancellationSignal = CompletableDeferred(false)
         val anchoredDragUpdates = Channel<Unit>()
@@ -856,7 +877,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -883,7 +905,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -907,7 +930,8 @@ class AnchoredDraggableStateTest {
             initialValue = A,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -942,7 +966,8 @@ class AnchoredDraggableStateTest {
             anchors = anchors,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         assertThat(state.anchors).isEqualTo(anchors)
         assertThat(state.offset).isEqualTo(initialValueOffset)
@@ -956,7 +981,8 @@ class AnchoredDraggableStateTest {
             anchors = anchors,
             positionalThreshold = defaultPositionalThreshold,
             velocityThreshold = defaultVelocityThreshold,
-            animationSpec = defaultAnimationSpec
+            snapAnimationSpec = defaultAnimationSpec,
+            decayAnimationSpec = defaultDecayAnimationSpec
         )
         assertThat(state.anchors).isEqualTo(anchors)
         assertThat(state.offset).isNaN()
@@ -970,13 +996,14 @@ class AnchoredDraggableStateTest {
                 initialValue = B,
                 positionalThreshold = defaultPositionalThreshold,
                 velocityThreshold = defaultVelocityThreshold,
-                animationSpec = defaultAnimationSpec,
+                snapAnimationSpec = defaultAnimationSpec,
                 confirmValueChange = {
                     if (shouldBlockValueC)
                         it != C // block state value C
                     else
                         true
-                }
+                },
+                decayAnimationSpec = defaultDecayAnimationSpec
             )
             val anchors = DraggableAnchors {
                 A at 0f
@@ -1028,4 +1055,7 @@ class AnchoredDraggableStateTest {
     private val defaultVelocityThreshold: () -> Float = { with(rule.density) { 125.dp.toPx() } }
 
     private val defaultAnimationSpec = tween<Float>()
+
+    private val defaultDecayAnimationSpec: DecayAnimationSpec<Float> =
+        SplineBasedFloatDecayAnimationSpec(rule.density).generateDecayAnimationSpec()
 }

@@ -16,6 +16,9 @@
 
 package androidx.compose.foundation.anchoredDraggable
 
+import androidx.compose.animation.SplineBasedFloatDecayAnimationSpec
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.animation.core.generateDecayAnimationSpec
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -81,7 +84,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -152,7 +156,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -223,7 +228,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -275,7 +281,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         val anchors = DraggableAnchors {
             A at 0f
@@ -329,7 +336,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { distance -> distance * positionalThreshold },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -391,7 +399,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -471,7 +480,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -552,7 +562,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { positionalThresholdPx },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -636,7 +647,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { positionalThresholdPx },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -720,7 +732,8 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 positionalThreshold = DefaultPositionalThreshold,
                 velocityThreshold = { velocityPx / 2f },
-                animationSpec = tween()
+                snapAnimationSpec = tween(),
+                decayAnimationSpec = DefaultDecayAnimationSpec
             )
             state.updateAnchors(
                 DraggableAnchors {
@@ -744,7 +757,8 @@ class AnchoredDraggableGestureTest {
                 initialValue = A,
                 velocityThreshold = { velocityPx },
                 positionalThreshold = { Float.POSITIVE_INFINITY },
-                animationSpec = tween()
+                snapAnimationSpec = tween(),
+                decayAnimationSpec = DefaultDecayAnimationSpec
             )
             state.updateAnchors(
                 DraggableAnchors {
@@ -767,7 +781,8 @@ class AnchoredDraggableGestureTest {
                 initialValue = B,
                 velocityThreshold = { velocityPx },
                 positionalThreshold = { 0f },
-                animationSpec = tween()
+                snapAnimationSpec = tween(),
+                decayAnimationSpec = DefaultDecayAnimationSpec
             )
             state.updateAnchors(
                 DraggableAnchors {
@@ -801,7 +816,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -853,7 +869,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             velocityThreshold = { with(rule.density) { velocityThreshold.toPx() } },
             positionalThreshold = { Float.POSITIVE_INFINITY },
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         rule.setContent {
             Box(Modifier.fillMaxSize()) {
@@ -908,7 +925,8 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = DefaultPositionalThreshold,
             velocityThreshold = { 0f },
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         state.updateAnchors(anchors)
         rule.setContent {
@@ -964,8 +982,9 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * 0.5f },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween(),
-            anchors = anchors
+            snapAnimationSpec = tween(),
+            anchors = anchors,
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         lateinit var scope: CoroutineScope
         rule.setContent {
@@ -1024,8 +1043,9 @@ class AnchoredDraggableGestureTest {
             initialValue = A,
             positionalThreshold = { totalDistance -> totalDistance * 0.5f },
             velocityThreshold = DefaultVelocityThreshold,
-            animationSpec = tween(),
-            anchors = anchors
+            snapAnimationSpec = tween(),
+            anchors = anchors,
+            decayAnimationSpec = DefaultDecayAnimationSpec
         )
         lateinit var scope: CoroutineScope
         rule.setContent {
@@ -1077,6 +1097,9 @@ class AnchoredDraggableGestureTest {
     }
 
     private val DefaultVelocityThreshold: () -> Float = { with(rule.density) { 125.dp.toPx() } }
+
+    private val DefaultDecayAnimationSpec: DecayAnimationSpec<Float> =
+        SplineBasedFloatDecayAnimationSpec(rule.density).generateDecayAnimationSpec()
 }
 
 private val NoOpDensity = object : Density {
