@@ -18,7 +18,6 @@ package androidx.credentials
 
 import android.app.Activity
 import android.os.Looper
-import androidx.annotation.RequiresApi
 import androidx.credentials.exceptions.ClearCredentialException
 import androidx.credentials.exceptions.ClearCredentialProviderConfigurationException
 import androidx.credentials.exceptions.CreateCredentialException
@@ -44,8 +43,7 @@ import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
-@RequiresApi(16)
-@SdkSuppress(minSdkVersion = 16, maxSdkVersion = android.os.Build.VERSION_CODES.TIRAMISU)
+@SdkSuppress(maxSdkVersion = android.os.Build.VERSION_CODES.TIRAMISU)
 class CredentialManagerPreUTest {
     private val context = InstrumentationRegistry.getInstrumentation().context
 

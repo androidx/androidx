@@ -52,7 +52,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.ext.truth.os.BundleSubject.assertThat
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.TestNavigator
 import androidx.testutils.test
 import androidx.testutils.withActivity
@@ -1025,7 +1024,6 @@ class NavControllerTest {
 
     @LargeTest
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     fun testNavigateViaImplicitDeepLink() {
         val intent = Intent(
             Intent.ACTION_VIEW,
@@ -1119,7 +1117,6 @@ class NavControllerTest {
 
     @LargeTest
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     fun testExplicitDeepLinkNavigateUpOffOtherTaskStack() {
         val navDeepLinkBuilder = NavDeepLinkBuilder(
             ApplicationProvider.getApplicationContext()
@@ -1492,7 +1489,6 @@ class NavControllerTest {
 
     @LargeTest
     @Test
-    @SdkSuppress(minSdkVersion = 17)
     fun testExplicitDeepLinkSeparateNavGraph() {
         val navDeepLinkBuilder = NavDeepLinkBuilder(
             ApplicationProvider.getApplicationContext()

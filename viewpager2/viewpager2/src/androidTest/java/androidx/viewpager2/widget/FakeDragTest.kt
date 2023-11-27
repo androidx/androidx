@@ -26,7 +26,6 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD
 import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.LocaleTestUtils
 import androidx.viewpager2.widget.BaseTest.Context.SwipeMethod
 import androidx.viewpager2.widget.FakeDragTest.Event.OnPageScrollStateChangedEvent
@@ -343,7 +342,6 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
      * onPageScrollStateChanged(0)
      */
     @Test
-    @SdkSuppress(minSdkVersion = 16)
     fun test_performA11yActionDuringFakeDrag() {
         startManualDragDuringFakeDrag(.9f, 1000, interpolator = fastDecelerateInterpolator) {
             test.runOnUiThreadSync {
