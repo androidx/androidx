@@ -16,10 +16,6 @@
 
 package androidx.compose.foundation.text2.input.internal
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.keyframes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
@@ -29,7 +25,6 @@ import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.text2.input.internal.selection.TextFieldSelectionState
 import androidx.compose.foundation.text2.input.internal.selection.textFieldMagnifierNode
 import androidx.compose.runtime.snapshotFlow
-import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -52,6 +47,7 @@ import androidx.compose.ui.node.SemanticsModifierNode
 import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.node.invalidateMeasurement
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextPainter
@@ -68,7 +64,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 /**
  * Modifier element for the core functionality of [BasicTextField2] that is passed as inner
@@ -141,7 +136,7 @@ internal class TextFieldCoreModifierNode(
      * another half a second when TextField is focused and editable. Initial value should be 0f
      * so that when cursor needs to be drawn for the first time, change to 1f invalidates draw.
      */
-    private val cursorAlpha = Animatable(0f)
+    private val cursorAnimation = CursorAnimationState()
 
     /**
      * Whether to show cursor at all when TextField has focus. This depends on enabled, read only,
@@ -214,7 +209,7 @@ internal class TextFieldCoreModifierNode(
         if (!showCursor) {
             changeObserverJob?.cancel()
             changeObserverJob = null
-            coroutineScope.launch { cursorAlpha.snapTo(0f) }
+            cursorAnimation.cancelAndHide()
         } else if (!wasFocused ||
             previousTextFieldState != textFieldState ||
             !previousShowCursor
@@ -222,15 +217,17 @@ internal class TextFieldCoreModifierNode(
             // this node is writeable, focused and gained that focus just now.
             // start the state value observation
             changeObserverJob = coroutineScope.launch {
-                // Animate the cursor even when animations are disabled by the system.
-                withContext(FixedMotionDurationScale) {
-                    snapshotFlow { textFieldState.text }
-                        .collectLatest {
-                            // ensure that the value is always 1f _this_ frame by calling snapTo
-                            cursorAlpha.snapTo(1f)
-                            // then start the cursor blinking on animation clock (500ms on to start)
-                            cursorAlpha.animateTo(0f, cursorAnimationSpec)
-                        }
+                snapshotFlow {
+                    // Read the text state, so the animation restarts when the text or cursor
+                    // position change.
+                    textFieldState.text
+                    // Only animate the cursor when its window is actually focused. This also
+                    // disables the cursor animation when the screen is off.
+                    currentValueOf(LocalWindowInfo).isWindowFocused
+                }.collectLatest { isWindowFocused ->
+                    if (isWindowFocused) {
+                        cursorAnimation.snapToVisibleAndAnimate()
+                    }
                 }
             }
         }
@@ -488,12 +485,9 @@ internal class TextFieldCoreModifierNode(
     private fun DrawScope.drawCursor() {
         // Only draw cursor if it can be shown and its alpha is higher than 0f
         // Alpha is checked before showCursor purposefully to make sure that we read
-        // cursorAlpha.value in draw phase. So, when the alpha value changes, draw phase
-        // invalidates.
-        if (cursorAlpha.value <= 0f || !showCursor) return
-
-        val cursorAlphaValue = cursorAlpha.value.coerceIn(0f, 1f)
-        if (cursorAlphaValue == 0f) return
+        // cursorAlpha in draw phase. So, when the alpha value changes, draw phase invalidates.
+        val cursorAlphaValue = cursorAnimation.cursorAlpha
+        if (cursorAlphaValue == 0f || !showCursor) return
 
         val cursorRect = textFieldSelectionState.cursorRect
 
@@ -516,16 +510,6 @@ internal class TextFieldCoreModifierNode(
     }
 }
 
-private val cursorAnimationSpec: AnimationSpec<Float> = infiniteRepeatable(
-    animation = keyframes {
-        durationMillis = 1000
-        1f at 0
-        1f at 499
-        0f at 500
-        0f at 999
-    }
-)
-
 private val DefaultCursorThickness = 2.dp
 
 /**
@@ -533,11 +517,6 @@ private val DefaultCursorThickness = 2.dp
  */
 private val Brush.isSpecified: Boolean
     get() = !(this is SolidColor && this.value.isUnspecified)
-
-private object FixedMotionDurationScale : MotionDurationScale {
-    override val scaleFactor: Float
-        get() = 1f
-}
 
 /**
  * Finds the rectangle area that corresponds to the visible cursor.
