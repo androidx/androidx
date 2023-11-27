@@ -42,7 +42,7 @@ class UnnecessaryLambdaCreationDetectorTest(
         private val stub = kotlinAndBytecodeStub(
             filename = "Stub.kt",
             filepath = "test",
-            checksum = 0xdbff73f0,
+            checksum = 0x8a5a4526,
             source = """
                 package test
 
@@ -67,29 +67,29 @@ class UnnecessaryLambdaCreationDetectorTest(
             """,
             """
             META-INF/main.kotlin_module:
-            H4sIAAAAAAAAAGNgYGBmYGBgBGJWKM3AJcbFUpJaXCLEFlxSmuQNpEOAPO8S
-            JQYtBgBDd0xtMAAAAA==
+            H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgEuNiKUktLhFiCy4pTfIG0iFAnneJ
+            EoMWAwBxHEvpMAAAAA==
             """,
             """
             test/StubKt.class:
-            H4sIAAAAAAAAAJ1UW08TQRT+ZnvZpRRZKigtCqhVCl621GuEmBgTQmNFI4gP
-            PE23Cw5tZ83utOGR+OJv8MnEf+Cb+mAIvvmjjGe2FLlUUZvsnJlzvu9858yl
-            3398+QrgFu4x9CsvVM6yalUfKxOMwd7kbe40uNxwnlY3PZe8MQZrvSVdJXzJ
-            ECtMrzJkHvnN137Iqw1vYT90qVCp+6ohpLPZbjpdSuh0EcU5TS2dhJrvxl9I
-            oeYeRKTLFS5rgS9qW44bKXtO0JJKND3nVyVzVELFDzacTU9VAy4oKZfSV7wj
-            sOSrpVajQSjT9aXypLKQZhg/UI0gdyB5wylLFRBfuKGJUwwj7ivPre8leMYD
-            3vQIyDBVqBzdr7kDnmWdZIMaSMPGUAqDyBzW69G9iWGGpJBtv+4xDBemjyuk
-            cQZn+zGCUYbJk7acYbQsCeD1OrHzeZFfz/8+zsoM2eeeWBderVd8cX7l/vH6
-            HvzPCY9HpfxBa6hLeuIpXuOKU2tGsx2jq8z0kKBy63pikH9L6FmRZrVZhvc7
-            28Opne2UYRuRGTU6nxXPjdk72zmjyEpDtpEbyMQzNC/Gdj8kKbho5ibsxG+j
-            u2+tb58Y0afspAZdTFo727Y5egI6aVsavfvGMFMJa/ddqch0mSVGfSDTbfLg
-            AbIVurL6jd6oK4b4I79GN2OwQme21GpWvWBFb5Tm+i5vrPJA6PWes29ZbEiu
-            WgHNx553nkxZtkUoKPzw1+tgyB+N7t/zQ7DUst8KXG9B6OzZPc7qsXyYhYE4
-            9C+OLBJIUndFWmXR+bGPeiAYopAeszBhEVzD5omuvadmMgOfcHrmM7IMLzXH
-            iDgpskkaB9CPEq3THTTZHNmbEa6P/uM62VNkb9Nn0mYSQVcxti+1SFCDrN2R
-            is33FLPo9Q7SM9ZiZ6K1hXM4H8nafylrZzFOtNg/yQ6T7Mgh2cmeshOHZA3c
-            iUYHd8kukPcCHcLFNcTKuFRGnkZcLuMKpsooYHoNLMQMrq6hL4QZ4lqIdIjr
-            IVIhxkKMh7gRIvETuPI3KzoGAAA=
+            H4sIAAAAAAAA/51UXU8TQRQ9s4XuUoosFZQWxa8iBT+21G8hJoaEsLGiAcQH
+            nqbbBYe2s2Z32vhIfPE3+GTiP/BNfTAE3/xRxjtbiiBV1CZ7Z+bec+bcO3em
+            375//gLgJu4x9Cs/Us6KalYeKROMwd7iLe7Uudx0nlS2fI+8CQZroyk9JQLJ
+            kChMrTFk5oPGyyDilbq/sB+6VCjXAlUX0tlqNZwOJXI6iOKsppaOQ8114s+k
+            ULMPYtJEmctqGIjqK8eLlX0nbEolGr7zM5NZSqEchJvOlq8qIRe0KZcyULwt
+            sBSopWa9TijTC6TypbKQZhg/kI0gdyh53XGlCokvvMjECYYR74Xv1fY2eMpD
+            3vAJyDBZKP96XrMHPCt6k00qIA0bQykMInNYr0v1JoYZkkK2gprPMFyYOqqQ
+            ximc7scIRhnOH3fkDKOuJIDfrWNn8yK/kf99nLkM2WVfbAi/2i2+OLd6/2h+
+            D/6nw+NxKn/QGuqQHvuKV7niVJrRaCXoKjNt+rQB5VzTE4OCr4SeFWlWnWF4
+            t7M9nNrZThm2EQ+jRvuzenJj9s52ziiy0pBt5AYyPRmaFxO775MUXDRz5+ze
+            30Z331hfPzKiT9pJDbqYtHa2bXP0GHTStjR697Vhpnqt3belItNplpiuINOp
+            9GAX2SrdW/1Qr9cUQ898UKXrMVimxi01GxU/XNWnpbmBx+trPBR6vefsWxGb
+            kqtmSPOx5fa7cWVLRILCD38+EYb8r9H9y34IlloJmqHnLwi9e3aPs3ZkP8zA
+            QI9uC9ksepGk6mZolUX7xz7ELSuR1SFtszBhEVzD5oiuvSemMwMfcXL6E7IM
+            zzXHiDkpGpNkB9CPG7ROt9E05uI/OI3rw6293VM03qbPpMMkgs5ibF9qkaAG
+            jXZbKjHXVcyiJzxIb1mLnYrXFs7gbCxr/6WsncU40RL/JDtMsiOHZM93lT13
+            SNbAndgWcZfGBfJeoCZcXEfCxSUXeRcTuOxiEgUXU5heB4twBVfX0RfBjHAt
+            QjrC9QipCGMRxiM4EXp/AGJveMs/BgAA
             """
         )
 

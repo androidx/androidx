@@ -79,6 +79,7 @@ class AutoboxingStateCreationDetectorTest(
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -115,6 +116,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -151,6 +153,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -187,6 +190,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -223,6 +227,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -256,37 +261,38 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
     @Test
     fun testStateDelegate_withInferredType_andInternalSetter_thatCouldBeMutablePrimitiveStateOf() {
         lint().files(
-                primitiveStateStub,
-                Stubs.Composable,
-                Stubs.SnapshotState,
-                kotlin(
-                    """
-                    package androidx.compose.runtime.lint.test
+            primitiveStateStub,
+            Stubs.Composable,
+            Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
+            kotlin(
+                """
+                package androidx.compose.runtime.lint.test
 
-                    import androidx.compose.runtime.*
-                    import $fqType
+                import androidx.compose.runtime.*
+                import $fqType
 
-                    class Test(initialValue: $type = $stateValue) {
-                        var state by mutableStateOf(initialValue)
-                            private set
-                    }
-                """
-                )
-            ).run().expect(
-                """
-src/androidx/compose/runtime/lint/test/Test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
-                        var state by mutableStateOf(initialValue)
-                                     ~~~~~~~~~~~~~~
-0 errors, 0 warnings
-            """
-            ).expectFixDiffs(
-                """
-Fix for src/androidx/compose/runtime/lint/test/Test.kt line 7: Replace with mutable${type}StateOf:
-@@ -8 +8
--                         var state by mutableStateOf(initialValue)
-+                         var state by mutable${type}StateOf(initialValue)
+                class Test(initialValue: $type = $stateValue) {
+                    var state by mutableStateOf(initialValue)
+                        private set
+                }
             """
             )
+        ).run().expect(
+                """
+src/androidx/compose/runtime/lint/test/Test.kt:8: Information: Prefer mutable${type}StateOf instead of mutableStateOf [AutoboxingStateCreation]
+                    var state by mutableStateOf(initialValue)
+                                 ~~~~~~~~~~~~~~
+0 errors, 0 warnings
+            """
+        ).expectFixDiffs(
+                """
+Fix for src/androidx/compose/runtime/lint/test/Test.kt line 8: Replace with mutable${type}StateOf:
+@@ -8 +8
+-                     var state by mutableStateOf(initialValue)
++                     var state by mutable${type}StateOf(initialValue)
+            """
+        )
     }
 
     @Test
@@ -295,6 +301,7 @@ Fix for src/androidx/compose/runtime/lint/test/Test.kt line 7: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -331,6 +338,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -353,6 +361,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -389,6 +398,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -411,6 +421,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -433,6 +444,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
@@ -455,6 +467,7 @@ Fix for src/androidx/compose/runtime/lint/test/test.kt line 8: Replace with muta
             primitiveStateStub,
             Stubs.Composable,
             Stubs.SnapshotState,
+            Stubs.StateFactoryMarker,
             kotlin(
                 """
                     package androidx.compose.runtime.lint.test
