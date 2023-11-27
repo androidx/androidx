@@ -28,8 +28,9 @@ public class Configuration {
     private static volatile Configuration sInstance = null;
     private static final Object sLock = new Object();
 
-    private boolean mPreferSystemPrediction;
-    private int mPredictionOffset;
+    private final boolean mPredictLift;
+    private final boolean mPreferSystemPrediction;
+    private final int mPredictionOffset;
 
     /**
      * Returns the configuration for prediction in this system.
@@ -52,6 +53,7 @@ public class Configuration {
         mPreferSystemPrediction = SystemProperty
                 .getBoolean("debug.input.androidx_prefer_system_prediction");
         mPredictionOffset = SystemProperty.getInt("debug.input.androidx_prediction_offset");
+        mPredictLift = SystemProperty.getBoolean("debug.input.androidx_predict_lift");
     }
 
     /**
@@ -70,5 +72,14 @@ public class Configuration {
      */
     public int predictionOffset() {
         return mPredictionOffset;
+    }
+
+    /**
+     * Returns whether or not the pressure should be used to adjust the distance of the prediction
+     *
+     * @return true if the pressure should be used to determine the prediction length
+     */
+    public boolean predictLift() {
+        return mPredictLift;
     }
 }
