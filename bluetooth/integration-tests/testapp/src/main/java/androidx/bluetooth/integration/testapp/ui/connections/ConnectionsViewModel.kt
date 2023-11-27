@@ -101,8 +101,12 @@ class ConnectionsViewModel @Inject constructor(
                     Log.d(TAG, "bluetoothLe.connectGatt result: services() = $services")
 
                     deviceConnection.status = Status.CONNECTED
-                    deviceConnection.services = services
-                    updateUi()
+                    launch {
+                        servicesFlow.collect {
+                            deviceConnection.services = it
+                            updateUi()
+                        }
+                    }
 
                     deviceConnection.onCharacteristicActionClick =
                         object : OnCharacteristicActionClick {
@@ -111,14 +115,6 @@ class ConnectionsViewModel @Inject constructor(
                                 characteristic: GattCharacteristic,
                                 action: @OnCharacteristicActionClick.Action Int
                             ) {
-                                Log.d(
-                                    TAG,
-                                    "onClick() called with: " +
-                                        "deviceConnection = $deviceConnection, " +
-                                        "characteristic = $characteristic, " +
-                                        "action = $action"
-                                )
-
                                 when (action) {
                                     OnCharacteristicActionClick.READ -> readCharacteristic(
                                         this@connectGatt,
