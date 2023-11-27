@@ -31,25 +31,29 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 /**
- * Detects scaling transformation gestures using the supplied {@link MotionEvent}s.
- * The {@link OnScaleGestureListener} callback will notify users when a particular
+ * Detects scaling transformation gestures that interprets zooming events using the supplied
+ * {@link MotionEvent}s.
+ *
+ * <p>The {@link OnZoomGestureListener} callback will notify users when a particular
  * gesture event has occurred.
  *
- * This class should only be used with {@link MotionEvent}s reported via touch.
+ * <p>This class should only be used with {@link MotionEvent}s reported via touch.
  *
- * To use this class:
+ * <p>To use this class:
  * <ul>
- *  <li>Create an instance of the {@code ScaleGestureDetector} for your
+ *  <li>Create an instance of the {@code ZoomGestureDetector} for your
  *      {@link View}
  *  <li>In the {@link View#onTouchEvent(MotionEvent)} method ensure you call
  *          {@link #onTouchEvent(MotionEvent)}. The methods defined in your
  *          callback will be executed when the events occur.
  * </ul>
  */
+// TODO(b/314701735): update the documentation with examples using camera classes.
+// TODO(b/314701401): convert to kotlin implementation.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-public class ScaleGestureDetector {
-    private static final String TAG = "ScaleGestureDetector";
+public class ZoomGestureDetector {
+    private static final String TAG = "ZoomGestureDetector";
     // The default minimum span that the detector interprets a zooming event with. It's set to 0
     // to give the most responsiveness.
     // TODO(b/314702145): define a different span if appropriate.
@@ -60,16 +64,16 @@ public class ScaleGestureDetector {
      * If you want to listen for all the different gestures then implement
      * this interface.
      *
-     * An application will receive events in the following order:
+     * <p>An application will receive events in the following order:
      * <ul>
-     *  <li>One {@link OnScaleGestureListener#onScaleBegin(ScaleGestureDetector)}
-     *  <li>Zero or more {@link OnScaleGestureListener#onScale(ScaleGestureDetector)}
-     *  <li>One {@link OnScaleGestureListener#onScaleEnd(ScaleGestureDetector)}
+     *  <li>One {@link OnZoomGestureListener#onZoomBegin(ZoomGestureDetector)}
+     *  <li>Zero or more {@link OnZoomGestureListener#onZoom(ZoomGestureDetector)}
+     *  <li>One {@link OnZoomGestureListener#onZoomEnd(ZoomGestureDetector)}
      * </ul>
      */
-    public interface OnScaleGestureListener {
+    public interface OnZoomGestureListener {
         /**
-         * Responds to scaling events for a gesture in progress.
+         * Responds to zooming events for a gesture in progress.
          * Reported by pointer motion.
          *
          * @param detector The detector reporting the event - use this to
@@ -81,12 +85,12 @@ public class ScaleGestureDetector {
          *          only wants to update scaling factors if the change is
          *          greater than 0.01.
          */
-        default boolean onScale(@NonNull ScaleGestureDetector detector) {
+        default boolean onZoom(@NonNull ZoomGestureDetector detector) {
             return false;
         }
 
         /**
-         * Responds to the beginning of a scaling gesture. Reported by
+         * Responds to the beginning of a zooming gesture. Reported by
          * new pointers going down.
          *
          * @param detector The detector reporting the event - use this to
@@ -94,37 +98,37 @@ public class ScaleGestureDetector {
          * @return Whether or not the detector should continue recognizing
          *          this gesture. For example, if a gesture is beginning
          *          with a focal point outside of a region where it makes
-         *          sense, onScaleBegin() may return false to ignore the
+         *          sense, onZoomBegin() may return false to ignore the
          *          rest of the gesture.
          */
-        default boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
+        default boolean onZoomBegin(@NonNull ZoomGestureDetector detector) {
             return true;
         }
 
         /**
-         * Responds to the end of a scale gesture. Reported by existing
+         * Responds to the end of a zoom gesture. Reported by existing
          * pointers going up.
          *
-         * Once a scale has ended, {@link ScaleGestureDetector#getFocusX()}
-         * and {@link ScaleGestureDetector#getFocusY()} will return focal point
+         * <p>Once a zoom has ended, {@link ZoomGestureDetector#getFocusX()}
+         * and {@link ZoomGestureDetector#getFocusY()} will return focal point
          * of the pointers remaining on the screen.
          *
          * @param detector The detector reporting the event - use this to
          *          retrieve extended info about event state.
          */
-        default void onScaleEnd(@NonNull ScaleGestureDetector detector) {
+        default void onZoomEnd(@NonNull ZoomGestureDetector detector) {
             // Intentionally empty
         }
     }
 
     private final Context mContext;
-    private final OnScaleGestureListener mListener;
+    private final OnZoomGestureListener mListener;
 
     private float mFocusX;
     private float mFocusY;
 
-    private boolean mQuickScaleEnabled;
-    private boolean mStylusScaleEnabled;
+    private boolean mQuickZoomEnabled;
+    private boolean mStylusZoomEnabled;
 
     private float mCurrSpan;
     private float mPrevSpan;
@@ -142,20 +146,20 @@ public class ScaleGestureDetector {
 
     private final Handler mHandler;
 
-    private float mAnchoredScaleStartX;
-    private float mAnchoredScaleStartY;
-    private int mAnchoredScaleMode = ANCHORED_SCALE_MODE_NONE;
+    private float mAnchoredZoomStartX;
+    private float mAnchoredZoomStartY;
+    private int mAnchoredZoomMode = ANCHORED_ZOOM_MODE_NONE;
 
     private static final float SCALE_FACTOR = .5f;
-    private static final int ANCHORED_SCALE_MODE_NONE = 0;
-    private static final int ANCHORED_SCALE_MODE_DOUBLE_TAP = 1;
-    private static final int ANCHORED_SCALE_MODE_STYLUS = 2;
+    private static final int ANCHORED_ZOOM_MODE_NONE = 0;
+    private static final int ANCHORED_ZOOM_MODE_DOUBLE_TAP = 1;
+    private static final int ANCHORED_ZOOM_MODE_STYLUS = 2;
     private GestureDetector mGestureDetector;
 
     private boolean mEventBeforeOrAboveStartingGestureEvent;
 
     /**
-     * Creates a ScaleGestureDetector with the supplied listener.
+     * Creates a ZoomGestureDetector with the supplied listener.
      * You may only use this constructor from a {@link android.os.Looper Looper} thread.
      *
      * @param context the application's context
@@ -164,13 +168,13 @@ public class ScaleGestureDetector {
      *
      * @throws NullPointerException if {@code listener} is null.
      */
-    public ScaleGestureDetector(@NonNull Context context,
-            @NonNull OnScaleGestureListener listener) {
+    public ZoomGestureDetector(@NonNull Context context,
+            @NonNull OnZoomGestureListener listener) {
         this(context, null, listener);
     }
 
     /**
-     * Creates a ScaleGestureDetector with the supplied listener.
+     * Creates a ZoomGestureDetector with the supplied listener.
      * @see android.os.Handler#Handler()
      *
      * @param context the application's context
@@ -180,19 +184,19 @@ public class ScaleGestureDetector {
      *
      * @throws NullPointerException if {@code listener} is null.
      */
-    public ScaleGestureDetector(@NonNull Context context, @Nullable Handler handler,
-            @NonNull OnScaleGestureListener listener) {
+    public ZoomGestureDetector(@NonNull Context context, @Nullable Handler handler,
+            @NonNull OnZoomGestureListener listener) {
         this(context, ViewConfiguration.get(context).getScaledTouchSlop() * 2,
                 DEFAULT_MIN_SPAN, handler, listener);
     }
 
     /**
-     * Creates a ScaleGestureDetector with span slop and min span.
+     * Creates a ZoomGestureDetector with span slop and min span.
      *
      * @param context the application's context.
-     * @param spanSlop the threshold for interpreting a touch movement as scaling.
-     * @param minSpan the minimum threshold of scaling span. The span could be
-     *                overridden by other usages to specify a different scaling span, for instance,
+     * @param spanSlop the threshold for interpreting a touch movement as zooming.
+     * @param minSpan the minimum threshold of zooming span. The span could be
+     *                overridden by other usages to specify a different zooming span, for instance,
      *                if you need pinch gestures to continue closer together than the default.
      * @param listener the listener invoked for all the callbacks, this must not be null.
      * @param handler the handler to use for running deferred listener events.
@@ -200,27 +204,27 @@ public class ScaleGestureDetector {
      * @throws NullPointerException if {@code listener} is null.
      */
     @SuppressLint("ExecutorRegistration")
-    public ScaleGestureDetector(@NonNull Context context, int spanSlop,
+    public ZoomGestureDetector(@NonNull Context context, int spanSlop,
             int minSpan, @Nullable Handler handler,
-            @NonNull OnScaleGestureListener listener) {
+            @NonNull OnZoomGestureListener listener) {
         mContext = context;
         mListener = listener;
         mSpanSlop = spanSlop;
         mMinSpan = minSpan;
         mHandler = handler;
-        // Quick scale is enabled by default after JB_MR2
+        // Quick zoom is enabled by default after JB_MR2
         final int targetSdkVersion = context.getApplicationInfo().targetSdkVersion;
         if (targetSdkVersion > Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            setQuickScaleEnabled(true);
+            setQuickZoomEnabled(true);
         }
-        // Stylus scale is enabled by default after LOLLIPOP_MR1
+        // Stylus zoom is enabled by default after LOLLIPOP_MR1
         if (targetSdkVersion > Build.VERSION_CODES.LOLLIPOP_MR1) {
-            setStylusScaleEnabled(true);
+            setStylusZoomEnabled(true);
         }
     }
 
     /**
-     * Accepts MotionEvents and dispatches events to a {@link OnScaleGestureListener}
+     * Accepts MotionEvents and dispatches events to a {@link OnZoomGestureListener}
      * when appropriate.
      *
      * <p>Applications should pass a complete and consistent event stream to this method.
@@ -237,7 +241,7 @@ public class ScaleGestureDetector {
         final int action = event.getActionMasked();
 
         // Forward the event to check for double tap gesture
-        if (mQuickScaleEnabled) {
+        if (mQuickZoomEnabled) {
             mGestureDetector.onTouchEvent(event);
         }
 
@@ -245,25 +249,25 @@ public class ScaleGestureDetector {
         final boolean isStylusButtonDown =
                 (event.getButtonState() & MotionEvent.BUTTON_STYLUS_PRIMARY) != 0;
 
-        final boolean anchoredScaleCancelled =
-                mAnchoredScaleMode == ANCHORED_SCALE_MODE_STYLUS && !isStylusButtonDown;
+        final boolean anchoredZoomCancelled =
+                mAnchoredZoomMode == ANCHORED_ZOOM_MODE_STYLUS && !isStylusButtonDown;
         final boolean streamComplete = action == MotionEvent.ACTION_UP
                 || action == MotionEvent.ACTION_CANCEL
-                || anchoredScaleCancelled;
+                || anchoredZoomCancelled;
 
         if (action == MotionEvent.ACTION_DOWN || streamComplete) {
             // Reset any scale in progress with the listener.
             // If it's an ACTION_DOWN we're beginning a new event stream.
             // This means the app probably didn't give us all the events. Shame on it.
             if (mInProgress) {
-                mListener.onScaleEnd(this);
+                mListener.onZoomEnd(this);
                 mInProgress = false;
                 mInitialSpan = 0;
-                mAnchoredScaleMode = ANCHORED_SCALE_MODE_NONE;
-            } else if (inAnchoredScaleMode() && streamComplete) {
+                mAnchoredZoomMode = ANCHORED_ZOOM_MODE_NONE;
+            } else if (inAnchoredZoomMode() && streamComplete) {
                 mInProgress = false;
                 mInitialSpan = 0;
-                mAnchoredScaleMode = ANCHORED_SCALE_MODE_NONE;
+                mAnchoredZoomMode = ANCHORED_ZOOM_MODE_NONE;
             }
 
             if (streamComplete) {
@@ -271,19 +275,19 @@ public class ScaleGestureDetector {
             }
         }
 
-        if (!mInProgress && mStylusScaleEnabled && !inAnchoredScaleMode()
+        if (!mInProgress && mStylusZoomEnabled && !inAnchoredZoomMode()
                 && !streamComplete && isStylusButtonDown) {
-            // Start of a button scale gesture
-            mAnchoredScaleStartX = event.getX();
-            mAnchoredScaleStartY = event.getY();
-            mAnchoredScaleMode = ANCHORED_SCALE_MODE_STYLUS;
+            // Start of a button zoom gesture
+            mAnchoredZoomStartX = event.getX();
+            mAnchoredZoomStartY = event.getY();
+            mAnchoredZoomMode = ANCHORED_ZOOM_MODE_STYLUS;
             mInitialSpan = 0;
         }
 
         final boolean configChanged = action == MotionEvent.ACTION_DOWN
                 || action == MotionEvent.ACTION_POINTER_UP
                 || action == MotionEvent.ACTION_POINTER_DOWN
-                || anchoredScaleCancelled;
+                || anchoredZoomCancelled;
 
         final boolean pointerUp = action == MotionEvent.ACTION_POINTER_UP;
         final int skipIndex = pointerUp ? event.getActionIndex() : -1;
@@ -293,11 +297,11 @@ public class ScaleGestureDetector {
         final int div = pointerUp ? count - 1 : count;
         final float focusX;
         final float focusY;
-        if (inAnchoredScaleMode()) {
+        if (inAnchoredZoomMode()) {
             // In anchored scale mode, the focal pt is always where the double tap
             // or button down gesture started
-            focusX = mAnchoredScaleStartX;
-            focusY = mAnchoredScaleStartY;
+            focusX = mAnchoredZoomStartX;
+            focusY = mAnchoredZoomStartY;
             if (event.getY() < focusY) {
                 mEventBeforeOrAboveStartingGestureEvent = true;
             } else {
@@ -332,7 +336,7 @@ public class ScaleGestureDetector {
         final float spanX = devX * 2;
         final float spanY = devY * 2;
         final float span;
-        if (inAnchoredScaleMode()) {
+        if (inAnchoredZoomMode()) {
             span = spanY;
         } else {
             span = (float) Math.hypot(spanX, spanY);
@@ -340,12 +344,12 @@ public class ScaleGestureDetector {
 
         // Dispatch begin/end events as needed.
         // If the configuration changes, notify the app to reset its current state by beginning
-        // a fresh scale event stream.
+        // a fresh zoom event stream.
         final boolean wasInProgress = mInProgress;
         mFocusX = focusX;
         mFocusY = focusY;
-        if (!inAnchoredScaleMode() && mInProgress && (span < mMinSpan || configChanged)) {
-            mListener.onScaleEnd(this);
+        if (!inAnchoredZoomMode() && mInProgress && (span < mMinSpan || configChanged)) {
+            mListener.onZoomEnd(this);
             mInProgress = false;
             mInitialSpan = span;
         }
@@ -355,14 +359,14 @@ public class ScaleGestureDetector {
             mInitialSpan = mPrevSpan = mCurrSpan = span;
         }
 
-        final int minSpan = inAnchoredScaleMode() ? mSpanSlop : mMinSpan;
+        final int minSpan = inAnchoredZoomMode() ? mSpanSlop : mMinSpan;
         if (!mInProgress && span >=  minSpan
                 && (wasInProgress || Math.abs(span - mInitialSpan) > mSpanSlop)) {
             mPrevSpanX = mCurrSpanX = spanX;
             mPrevSpanY = mCurrSpanY = spanY;
             mPrevSpan = mCurrSpan = span;
             mPrevTime = mCurrTime;
-            mInProgress = mListener.onScaleBegin(this);
+            mInProgress = mListener.onZoomBegin(this);
         }
 
         // Handle motion; focal point and span/scale factor are changing.
@@ -374,7 +378,7 @@ public class ScaleGestureDetector {
             boolean updatePrev = true;
 
             if (mInProgress) {
-                updatePrev = mListener.onScale(this);
+                updatePrev = mListener.onZoom(this);
             }
 
             if (updatePrev) {
@@ -388,27 +392,29 @@ public class ScaleGestureDetector {
         return true;
     }
 
-    private boolean inAnchoredScaleMode() {
-        return mAnchoredScaleMode != ANCHORED_SCALE_MODE_NONE;
+    private boolean inAnchoredZoomMode() {
+        return mAnchoredZoomMode != ANCHORED_ZOOM_MODE_NONE;
     }
 
     /**
-     * Set whether the associated {@link OnScaleGestureListener} should receive onScale callbacks
-     * when the user performs a doubleTap followed by a swipe. Note that this is enabled by default
-     * if the app targets API 19 and newer.
-     * @param scales true to enable quick scaling, false to disable
+     * Set whether the associated {@link OnZoomGestureListener} should receive onZoom callbacks
+     * when the user performs a doubleTap followed by a swipe.
+     *
+     * <p>If not set, this is enabled by default.
+     *
+     * @param enabled {@code true} to enable quick zooming, {@code false} to disable.
      */
-    public void setQuickScaleEnabled(boolean scales) {
-        mQuickScaleEnabled = scales;
-        if (mQuickScaleEnabled && mGestureDetector == null) {
+    public void setQuickZoomEnabled(boolean enabled) {
+        mQuickZoomEnabled = enabled;
+        if (mQuickZoomEnabled && mGestureDetector == null) {
             GestureDetector.SimpleOnGestureListener gestureListener =
                     new GestureDetector.SimpleOnGestureListener() {
                         @Override
                         public boolean onDoubleTap(MotionEvent e) {
                             // Double tap: start watching for a swipe
-                            mAnchoredScaleStartX = e.getX();
-                            mAnchoredScaleStartY = e.getY();
-                            mAnchoredScaleMode = ANCHORED_SCALE_MODE_DOUBLE_TAP;
+                            mAnchoredZoomStartX = e.getX();
+                            mAnchoredZoomStartY = e.getY();
+                            mAnchoredZoomMode = ANCHORED_ZOOM_MODE_DOUBLE_TAP;
                             return true;
                         }
                     };
@@ -417,34 +423,37 @@ public class ScaleGestureDetector {
     }
 
     /**
-     * Return whether the quick scale gesture, in which the user performs a double tap followed by a
-     * swipe, should perform scaling. {@see #setQuickScaleEnabled(boolean)}.
-     */
-    public boolean isQuickScaleEnabled() {
-        return mQuickScaleEnabled;
-    }
-
-    /**
-     * Sets whether the associates {@link OnScaleGestureListener} should receive
-     * onScale callbacks when the user uses a stylus and presses the button.
-     * Note that this is enabled by default if the app targets API 23 and newer.
+     * Return whether the quick zoom gesture, in which the user performs a double tap followed by a
+     * swipe, should perform zooming.
      *
-     * @param scales true to enable stylus scaling, false to disable.
+     * @see #setQuickZoomEnabled(boolean)
      */
-    public void setStylusScaleEnabled(boolean scales) {
-        mStylusScaleEnabled = scales;
+    public boolean isQuickZoomEnabled() {
+        return mQuickZoomEnabled;
     }
 
     /**
-     * Return whether the stylus scale gesture, in which the user uses a stylus and presses the
-     * button, should perform scaling. {@see #setStylusScaleEnabled(boolean)}
+     * Sets whether the associates {@link OnZoomGestureListener} should receive
+     * onZoom callbacks when the user uses a stylus and presses the button.
+     *
+     * <p>If not set, this is enabled by default.
+     *
+     * @param enabled {@code true} to enable stylus zooming, {@code false} to disable.
      */
-    public boolean isStylusScaleEnabled() {
-        return mStylusScaleEnabled;
+    public void setStylusZoomEnabled(boolean enabled) {
+        mStylusZoomEnabled = enabled;
     }
 
     /**
-     * Returns {@code true} if a scale gesture is in progress.
+     * Return whether the stylus zoom gesture, in which the user uses a stylus and presses the
+     * button, should perform zooming. {@see #setStylusScaleEnabled(boolean)}
+     */
+    public boolean isStylusZoomEnabled() {
+        return mStylusZoomEnabled;
+    }
+
+    /**
+     * Returns {@code true} if a zoom gesture is in progress.
      */
     public boolean isInProgress() {
         return mInProgress;
@@ -455,7 +464,7 @@ public class ScaleGestureDetector {
      * If a gesture is in progress, the focal point is between
      * each of the pointers forming the gesture.
      *
-     * If {@link #isInProgress()} would return false, the result of this
+     * <p>If {@link #isInProgress()} would return false, the result of this
      * function is undefined.
      *
      * @return X coordinate of the focal point in pixels.
@@ -469,7 +478,7 @@ public class ScaleGestureDetector {
      * If a gesture is in progress, the focal point is between
      * each of the pointers forming the gesture.
      *
-     * If {@link #isInProgress()} would return false, the result of this
+     * <p>If {@link #isInProgress()} would return false, the result of this
      * function is undefined.
      *
      * @return Y coordinate of the focal point in pixels.
@@ -539,14 +548,14 @@ public class ScaleGestureDetector {
     }
 
     /**
-     * Return the scaling factor from the previous scale event to the current
+     * Return the scaling factor from the previous zoom event to the current
      * event. This value is defined as
      * ({@link #getCurrentSpan()} / {@link #getPreviousSpan()}).
      *
      * @return The current scaling factor.
      */
     public float getScaleFactor() {
-        if (inAnchoredScaleMode()) {
+        if (inAnchoredZoomMode()) {
             // Drag is moving up; the further away from the gesture
             // start, the smaller the span should be, the closer,
             // the larger the span, and therefore the larger the scale
@@ -563,9 +572,9 @@ public class ScaleGestureDetector {
 
     /**
      * Return the time difference in milliseconds between the previous
-     * accepted scaling event and the current scaling event.
+     * accepted zooming event and the current zooming event.
      *
-     * @return Time difference since the last scaling event in milliseconds.
+     * @return Time difference since the last zooming event in milliseconds.
      */
     public long getTimeDelta() {
         return mCurrTime - mPrevTime;
