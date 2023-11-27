@@ -36,6 +36,7 @@ import androidx.wear.protolayout.expression.DynamicDataBuilders;
 import androidx.wear.protolayout.expression.PlatformDataValues;
 import androidx.wear.protolayout.expression.PlatformHealthSources;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.AnimatableFixedInt32Node;
+import androidx.wear.protolayout.expression.pipeline.Int32Nodes.ArithmeticInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.DynamicAnimatedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.FixedInt32Node;
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.GetDurationPartOpNode;
@@ -43,7 +44,9 @@ import androidx.wear.protolayout.expression.pipeline.Int32Nodes.LegacyPlatformIn
 import androidx.wear.protolayout.expression.pipeline.Int32Nodes.StateInt32SourceNode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.AnimationSpec;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
+import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticOpType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DurationPartType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.GetDurationPartOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.GetZonedDateTimePartOp;
@@ -93,6 +96,66 @@ public class Int32NodesTest {
         node.init();
 
         assertThat(results).containsExactly(56);
+    }
+
+    @Test
+    public void testArithmeticOperation_validResult_invalidateNotCalled() {
+        List<Integer> results = new ArrayList<>();
+        List<Boolean> invalidList = new ArrayList<>();
+
+        DynamicProto.ArithmeticInt32Op protoNode =
+                DynamicProto.ArithmeticInt32Op.newBuilder()
+                        .setOperationType(ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE)
+                        .build();
+
+        ArithmeticInt32Node node =
+                new ArithmeticInt32Node(protoNode, new AddToListCallback<>(results, invalidList));
+
+        int numerator = 4;
+        FixedInt32 lhsProtoNode = FixedInt32.newBuilder().setValue(numerator).build();
+        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsIncomingCallback());
+
+        int denominator = 2;
+        FixedInt32 rhsProtoNode = FixedInt32.newBuilder().setValue(denominator).build();
+        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsIncomingCallback());
+        lhsNode.preInit();
+        rhsNode.preInit();
+
+        lhsNode.init();
+        rhsNode.init();
+
+        assertThat(results).containsExactly(2);
+        assertThat(invalidList).isEmpty();
+    }
+
+    @Test
+    public void testArithmeticOperation_arithmeticExceptionThrown_invalidate() {
+        List<Integer> results = new ArrayList<>();
+        List<Boolean> invalidList = new ArrayList<>();
+
+        DynamicProto.ArithmeticInt32Op protoNode =
+                DynamicProto.ArithmeticInt32Op.newBuilder()
+                        .setOperationType(ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE)
+                        .build();
+
+        ArithmeticInt32Node node =
+                new ArithmeticInt32Node(protoNode, new AddToListCallback<>(results, invalidList));
+
+        int numerator = 0;
+        FixedInt32 lhsProtoNode = FixedInt32.newBuilder().setValue(numerator).build();
+        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsIncomingCallback());
+
+        int denominator = 0;
+        FixedInt32 rhsProtoNode = FixedInt32.newBuilder().setValue(denominator).build();
+        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsIncomingCallback());
+        lhsNode.preInit();
+        rhsNode.preInit();
+
+        lhsNode.init();
+        rhsNode.init();
+
+        assertThat(results).isEmpty();
+        assertThat(invalidList).containsExactly(true);
     }
 
     @Test

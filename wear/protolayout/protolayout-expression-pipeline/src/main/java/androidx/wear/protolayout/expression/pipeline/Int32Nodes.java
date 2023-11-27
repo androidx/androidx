@@ -150,7 +150,7 @@ class Int32Nodes {
                             }
                         } catch (ArithmeticException ex) {
                             Log.e(TAG, "ArithmeticException in ArithmeticInt32Node", ex);
-                            return 0;
+                            return null;
                         }
 
                         Log.e(TAG, "Unknown operation type in ArithmeticInt32Node");
