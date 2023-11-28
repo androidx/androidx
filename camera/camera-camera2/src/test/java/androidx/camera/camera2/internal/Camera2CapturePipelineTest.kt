@@ -36,6 +36,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat
 import androidx.camera.camera2.internal.compat.quirk.AutoFlashUnderExposedQuirk
 import androidx.camera.camera2.internal.compat.quirk.CameraQuirks
+import androidx.camera.camera2.internal.compat.quirk.TorchFlashRequiredFor3aUpdateQuirk
 import androidx.camera.camera2.internal.compat.quirk.UseTorchAsFlashQuirk
 import androidx.camera.camera2.internal.compat.workaround.OverrideAeModeForStillCapture
 import androidx.camera.core.ImageCapture
@@ -53,6 +54,7 @@ import androidx.camera.core.impl.CameraControlInternal
 import androidx.camera.core.impl.CaptureConfig
 import androidx.camera.core.impl.DeferrableSurface
 import androidx.camera.core.impl.ImmediateSurface
+import androidx.camera.core.impl.Quirk
 import androidx.camera.core.impl.Quirks
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -359,8 +361,21 @@ class Camera2CapturePipelineTest {
         screenFlash_screenFlashUiControlInvokedProperly(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
     }
 
-    private fun screenFlash_screenFlashUiControlInvokedProperly(imageCaptureMode: Int) {
-        val cameraControl = createCameraControl().apply {
+    @Test
+    fun maxQuality_screenFlashCapture_withFlashModeTorchQuirk_screenFlashTaskInvokedProperly() {
+        screenFlash_screenFlashUiControlInvokedProperly(
+            ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY,
+            addFlashModeTorchQuirk = true
+        )
+    }
+
+    private fun screenFlash_screenFlashUiControlInvokedProperly(
+        imageCaptureMode: Int,
+        addFlashModeTorchQuirk: Boolean = false
+    ) {
+        val cameraControl = createCameraControl(
+            addTorchFlashRequiredFor3aUpdateQuirk = addFlashModeTorchQuirk
+        ).apply {
             // Arrange.
             flashMode = FLASH_MODE_SCREEN
 
@@ -395,6 +410,20 @@ class Camera2CapturePipelineTest {
                     period = 50,
                     resultParameters = mapOf(CaptureResult.CONTROL_AE_MODE
                         to CaptureResult.CONTROL_AE_MODE_ON_EXTERNAL_FLASH),
+                    requestCountLatch = it
+                )
+                it.await(1, TimeUnit.SECONDS)
+            }
+        }
+
+        if (addFlashModeTorchQuirk) {
+            // Submit a repeating request for FLASH_MODE_TORCH
+            CountDownLatch(5).let {
+                cameraControl.simulateRepeatingResult(
+                    initialDelay = 100,
+                    period = 50,
+                    resultParameters = mapOf(CaptureResult.FLASH_MODE
+                        to CaptureResult.FLASH_MODE_TORCH),
                     requestCountLatch = it
                 )
                 it.await(1, TimeUnit.SECONDS)
@@ -1177,12 +1206,23 @@ class Camera2CapturePipelineTest {
         cameraId: String = CAMERA_ID_0,
         quirks: Quirks? = null,
         updateCallback: CameraControlInternal.ControlUpdateCallback = immediateCompleteCapture,
+        addTorchFlashRequiredFor3aUpdateQuirk: Boolean = false,
     ): Camera2CameraControlImpl {
         val cameraManager = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
         val characteristics = cameraManager.getCameraCharacteristics(cameraId)
         val characteristicsCompat = CameraCharacteristicsCompat
             .toCameraCharacteristicsCompat(characteristics, cameraId)
-        val cameraQuirk = quirks ?: CameraQuirks.get(cameraId, characteristicsCompat)
+        var cameraQuirk = quirks ?: CameraQuirks.get(cameraId, characteristicsCompat)
+
+        if (addTorchFlashRequiredFor3aUpdateQuirk) {
+            cameraQuirk = Quirks(cameraQuirk.getAll(Quirk::class.java).apply {
+                add(
+                    TorchFlashRequiredFor3aUpdateQuirk(
+                        characteristicsCompat
+                    )
+                )
+            })
+        }
 
         return Camera2CameraControlImpl(
             characteristicsCompat,

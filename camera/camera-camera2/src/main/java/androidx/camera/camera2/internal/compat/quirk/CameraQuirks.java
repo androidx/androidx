@@ -97,6 +97,9 @@ public class CameraQuirks {
         if (IncorrectCaptureStateQuirk.load(cameraCharacteristicsCompat)) {
             quirks.add(new IncorrectCaptureStateQuirk());
         }
+        if (TorchFlashRequiredFor3aUpdateQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new TorchFlashRequiredFor3aUpdateQuirk(cameraCharacteristicsCompat));
+        }
 
         return new Quirks(quirks);
     }
