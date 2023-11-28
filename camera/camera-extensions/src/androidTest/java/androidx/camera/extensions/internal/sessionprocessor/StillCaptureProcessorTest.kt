@@ -263,7 +263,7 @@ class StillCaptureProcessorTest {
     }
 
     @Test
-    fun canStartCaptureWithPostviewWithRotation(): Unit = runBlocking {
+    fun canStartCaptureWithPostview(): Unit = runBlocking {
         Assume.assumeTrue(
             ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4) &&
                 ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
@@ -281,20 +281,18 @@ class StillCaptureProcessorTest {
         )
 
         val postviewImageReader = ImageReaderProxys.createIsolatedReader(
-            WIDTH, HEIGHT, ImageFormat.JPEG, 2)
+            WIDTH, HEIGHT, ImageFormat.YUV_420_888, 2)
         val postviewOutputSurface = OutputSurface.create(
             postviewImageReader.surface!!,
-            Size(WIDTH, HEIGHT), ImageFormat.JPEG
+            Size(WIDTH, HEIGHT), ImageFormat.YUV_420_888
         )
 
-        val rotationDegrees = 270
         stillCaptureProcessor = StillCaptureProcessor(
             fakeCaptureProcessorImpl,
             imageReaderJpeg.surface!!,
             Size(WIDTH, HEIGHT),
             postviewOutputSurface
         )
-        stillCaptureProcessor.setRotationDegrees(rotationDegrees)
 
         val captureSession = Camera2Util.openCaptureSession(
             cameraDevice!!.unwrap(), listOf(cameraYuvImageReader!!.surface), backgroundHandler
@@ -318,9 +316,7 @@ class StillCaptureProcessorTest {
             }
 
             val postviewImage = postviewDeferred.await()
-            assertThat(postviewImage.format).isEqualTo(ImageFormat.JPEG)
-            val exif = Exif.createFromImageProxy(postviewImage)
-            assertThat(exif.rotation).isEqualTo(rotationDegrees)
+            assertThat(postviewImage.format).isEqualTo(ImageFormat.YUV_420_888)
         }
 
         postviewImageReader.close()

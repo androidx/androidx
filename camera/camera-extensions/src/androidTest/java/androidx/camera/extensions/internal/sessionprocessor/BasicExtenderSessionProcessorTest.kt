@@ -662,10 +662,8 @@ class BasicExtenderSessionProcessorTest(
         fakeCaptureExtenderImpl.postviewSupportedSizes = postviewSizes
 
         // 2. Act and Assert
-        // BasiccVendorExtender is supposed to convert the YUV supported sizes into JPEG supported
-        // size.s
         assertThat(basicExtenderSessionProcessor.getSupportedPostviewSize(Size(1920, 1080))
-            .get(ImageFormat.JPEG)).containsExactly(Size(1920, 1080), Size(640, 480))
+            .get(ImageFormat.YUV_420_888)).containsExactly(Size(1920, 1080), Size(640, 480))
     }
 
     private suspend fun initBasicExtenderSessionProcessor(): AutoCloseable {

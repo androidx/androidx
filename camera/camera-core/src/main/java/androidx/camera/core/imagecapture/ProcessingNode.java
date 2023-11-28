@@ -74,6 +74,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
     private Operation<Packet<byte[]>, Packet<Bitmap>> mJpegBytes2CroppedBitmap;
     private Operation<Packet<ImageProxy>, ImageProxy> mJpegImage2Result;
     private Operation<Packet<byte[]>, Packet<ImageProxy>> mJpegBytes2Image;
+    private Operation<Packet<ImageProxy>, Bitmap> mImage2Bitmap;
     private Operation<Packet<Bitmap>, Packet<Bitmap>> mBitmapEffect;
 
     /**
@@ -132,6 +133,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         mBitmap2JpegBytes = new Bitmap2JpegBytes();
         mJpegBytes2Disk = new JpegBytes2Disk();
         mJpegImage2Result = new JpegImage2Result();
+        mImage2Bitmap = new Image2Bitmap();
         if (inputEdge.getInputFormat() == YUV_420_888 || mImageProcessor != null) {
             // Convert JPEG bytes to ImageProxy for:
             // - YUV input: YUV -> JPEG -> ImageProxy
@@ -179,8 +181,8 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
         ProcessingRequest request = inputPacket.getProcessingRequest();
         try {
             Packet<ImageProxy> image = mInput2Packet.apply(inputPacket);
-            ImageProxy result =  mJpegImage2Result.apply(image);
-            mainThreadExecutor().execute(() -> request.onPostviewImageAvailable(result));
+            Bitmap bitmap = mImage2Bitmap.apply(image);
+            mainThreadExecutor().execute(() -> request.onPostviewBitmapAvailable(bitmap));
         } catch (Exception e) {
             inputPacket.getImageProxy().close();
             Logger.e(TAG, "process postview input packet failed.", e);
