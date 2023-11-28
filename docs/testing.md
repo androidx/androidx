@@ -7,6 +7,35 @@ change is uploaded. It also contains a number of sample applications that are
 useful for demonstrating how to use features as well as performing manual
 testing.
 
+## Motivation
+
+Jetpack libraries are developed with the intention that they are functionally
+stable and production-ready as of the first public `alpha01` release, and that
+they remain production-ready at tip-of-tree thereafter.
+
+For this reason, we emphasize that continuous integration testing -- both pre-
+and post-submit -- is the ultimate source of truth for library correctness. If
+tests are failing at head, the library is not only at risk of blocking public
+releases but at risk of breaking production Google apps that rely on its
+tip-of-tree builds.
+
+### API level coverage in CI
+
+Generally, we aim to test Jetpack libraries against (1) the earliest supported
+API level, (2) the latest stable API level, (3) API levels with major changes,
+(4) API levels with high concentration of devices in the field, and (5) the next
+pre-release API level.
+
+In practice, this is limited by device and emulator availability and
+reliability. As of November 2023, we run tests on the following API levels:
+
+-   API level 21: the lowest API level supported by Firebase Test Lab (FTL)
+-   API level 26: the lowest supported ARM-based emulator FTL runner, which has
+    much greater performance and stability
+-   API level 28: provides coverage between 26 and 30
+-   API levels 30, 31, 33: the latest supported API levels, which represent the
+    majority of devices in the field
+
 ## Adding tests {#adding}
 
 For an example of how to set up simple unit and integration tests in a new
