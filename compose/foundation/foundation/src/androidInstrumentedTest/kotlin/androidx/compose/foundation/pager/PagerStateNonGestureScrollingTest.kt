@@ -58,7 +58,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
     @Test
     fun pagerStateNotAttached_shouldReturnDefaultValues_andChangeAfterAttached() = runBlocking {
         // Arrange
-        val state = PagerStateImpl(5, 0.2f) { DefaultPageCount }
+        val state = PagerState(5, 0.2f) { DefaultPageCount }
 
         Truth.assertThat(state.currentPage).isEqualTo(5)
         Truth.assertThat(state.currentPageOffsetFraction).isEqualTo(0.2f)
@@ -179,9 +179,11 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
                 dataset.value.size
             }, pageContent = {
                 val item = dataset.value[it]
-                Box(modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(item.item))
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .testTag(item.item)
+                )
             })
 
         Truth.assertThat(dataset.value[pagerState.currentPage].item).isEqualTo("B")
@@ -382,7 +384,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
     fun currentPage_shouldUpdateWithSnapPositionInLayout() {
         // snap position is 200dp from edge of Pager
         val customSnapPosition = SnapPosition { _, _, _, _, _ ->
-             with(rule.density) {
+            with(rule.density) {
                 200.dp.roundToPx()
             }
         }
@@ -465,7 +467,7 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         rule.runOnIdle {
             // find page whose offset is closest to the centre
             val candidatePage = pagerState.layoutInfo.visiblePagesInfo.fastMaxBy {
-                -(abs(it.offset - pagerSize/2))
+                -(abs(it.offset - pagerSize / 2))
             }
 
             // check we moved
