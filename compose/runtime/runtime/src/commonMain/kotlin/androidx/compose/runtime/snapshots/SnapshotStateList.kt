@@ -101,6 +101,10 @@ class SnapshotStateList<T> : MutableList<T>, StateObject, RandomAccess {
         }
         return SubList(this, fromIndex, toIndex)
     }
+    @Suppress("UNCHECKED_CAST")
+    override fun toString(): String = (firstStateRecord as StateListStateRecord<T>).withCurrent {
+        "SnapshotStateList(value=${it.list})@${hashCode()}"
+    }
 
     override fun add(element: T) = conditionalUpdate { it.add(element) }
     override fun add(index: Int, element: T) = update { it.add(index, element) }
