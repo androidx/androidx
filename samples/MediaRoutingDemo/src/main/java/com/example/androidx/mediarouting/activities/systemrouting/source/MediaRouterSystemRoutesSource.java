@@ -22,7 +22,6 @@ import android.media.MediaRouter;
 import androidx.annotation.NonNull;
 
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem;
-import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteUtils;
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRoutesSourceItem;
 
 import java.util.ArrayList;
@@ -86,12 +85,10 @@ public final class MediaRouterSystemRoutesSource extends SystemRoutesSource {
 
         for (int i = 0; i < count; i++) {
             MediaRouter.RouteInfo info = mMediaRouter.getRouteAt(i);
-
-            if (!SystemRouteUtils.isSystemMediaRouterRoute(info)) {
-                continue;
+            if (info.getPlaybackType() == MediaRouter.RouteInfo.PLAYBACK_TYPE_LOCAL) {
+                // We are only interested in system routes.
+                out.add(createRouteItemFor(info));
             }
-
-            out.add(createRouteItemFor(info));
         }
 
         return out;
