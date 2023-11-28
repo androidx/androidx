@@ -276,6 +276,13 @@ class RecorderTest(
     fun tearDown() {
         for (recording in recordingsToStop) {
             recording.stop()
+            try {
+                // Wait for recording done to avoid overlapping to next recording test.
+                // Overlapping recording tests may lead to uncertainty and flaky-ness.
+                recording.listener.verifyFinalize(inOrder = false)
+            } catch (e: AssertionError) {
+                // Ignored.
+            }
         }
 
         if (this::cameraUseCaseAdapter.isInitialized) {
@@ -739,6 +746,8 @@ class RecorderTest(
 
     @Test
     fun stop_WhenUseCaseDetached() {
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
         // Arrange.
         val recording = createRecordingProcess()
 

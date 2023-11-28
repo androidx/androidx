@@ -27,6 +27,7 @@ import android.os.ParcelFileDescriptor
 import android.provider.MediaStore
 import android.util.Log
 import androidx.annotation.MainThread
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.impl.AndroidUtil.skipVideoRecordingTestIfNotSupportedByEmulator
@@ -48,6 +49,7 @@ import androidx.camera.video.VideoRecordEvent
 import androidx.camera.video.VideoRecordEvent.Finalize.ERROR_SOURCE_INACTIVE
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks
 import androidx.camera.video.internal.compat.quirk.MediaStoreVideoCannotWrite
+import androidx.camera.video.internal.compat.quirk.StopCodecAfterSurfaceRemovalCrashMediaServerQuirk
 import androidx.camera.view.CameraController.IMAGE_ANALYSIS
 import androidx.camera.view.CameraController.VIDEO_CAPTURE
 import androidx.camera.view.video.AudioConfig
@@ -65,6 +67,7 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import org.junit.After
 import org.junit.Assume
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.BeforeClass
 import org.junit.Rule
@@ -217,7 +220,7 @@ class VideoCaptureDeviceTest(
 
     @Test
     fun canRecordToMediaStore() {
-        Assume.assumeTrue(
+        assumeTrue(
             "Ignore the test since the MediaStore.Video has compatibility issues.",
             DeviceQuirks.get(MediaStoreVideoCannotWrite::class.java) == null
         )
@@ -296,6 +299,8 @@ class VideoCaptureDeviceTest(
 
     @Test
     fun canRecordToFile_whenLifecycleStops() {
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
         // Arrange.
         val file = createTempFile()
         val outputOptions = FileOutputOptions.Builder(file).build()
@@ -319,6 +324,8 @@ class VideoCaptureDeviceTest(
 
     @Test
     fun canRecordToFile_whenTargetQualityChanged() {
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
         // Arrange.
         val file = createTempFile()
         val outputOptions = FileOutputOptions.Builder(file).build()
@@ -342,6 +349,8 @@ class VideoCaptureDeviceTest(
 
     @Test
     fun canRecordToFile_whenEnabledUseCasesChanged() {
+        assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk()
+
         // Arrange.
         val file = createTempFile()
         val outputOptions = FileOutputOptions.Builder(file).build()
@@ -681,4 +690,14 @@ class VideoCaptureDeviceTest(
             Build.MODEL.contains("Cuttlefish") && Build.VERSION.SDK_INT == 30
         )
     }
+}
+
+@RequiresApi(21)
+fun assumeStopCodecAfterSurfaceRemovalCrashMediaServerQuirk() {
+    // Skip for b/293978082. For tests that will unbind the VideoCapture before stop the recording,
+    // they should be skipped since media server will crash if the codec surface has been removed
+    // before MediaCodec.stop() is called.
+    assumeTrue(
+        DeviceQuirks.get(StopCodecAfterSurfaceRemovalCrashMediaServerQuirk::class.java) == null
+    )
 }

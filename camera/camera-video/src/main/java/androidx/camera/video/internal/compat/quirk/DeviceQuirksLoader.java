@@ -98,6 +98,9 @@ public class DeviceQuirksLoader {
         if (CodecStuckOnFlushQuirk.load()) {
             quirks.add(new CodecStuckOnFlushQuirk());
         }
+        if (StopCodecAfterSurfaceRemovalCrashMediaServerQuirk.load()) {
+            quirks.add(new StopCodecAfterSurfaceRemovalCrashMediaServerQuirk());
+        }
 
         return quirks;
     }
