@@ -113,7 +113,33 @@ class SemanticsTests {
     }
 
     @Test
-    fun isTraversalGroupProperty() {
+    fun paneTitleProperty_unmergedConfig() {
+        val paneTitleString = "test PaneTitle string"
+
+        rule.setContent {
+            Surface {
+                Box(
+                    Modifier
+                        .testTag(TestTag)
+                        .semantics { paneTitle = paneTitleString }
+                ) {}
+            }
+        }
+
+        rule.onNodeWithTag(TestTag)
+            .assert(
+                SemanticsMatcher("unmerged paneTitle property") {
+                    it.unmergedConfig.getOrNull(SemanticsProperties.PaneTitle) == paneTitleString
+                }
+            )
+
+        rule.onNodeWithTag(TestTag)
+            .assert(SemanticsMatcher.expectValue(
+                SemanticsProperties.PaneTitle, paneTitleString))
+    }
+
+    @Test
+    fun isTraversalGroupProperty_unmergedConfig() {
         rule.setContent {
             Surface(
                 Modifier.testTag(TestTag)
@@ -123,12 +149,19 @@ class SemanticsTests {
         }
 
         rule.onNodeWithTag(TestTag)
+            .assert(
+                SemanticsMatcher("unmerged traversalGroup property") {
+                    it.unmergedConfig.getOrNull(SemanticsProperties.IsTraversalGroup) == true
+                }
+            )
+
+        rule.onNodeWithTag(TestTag)
             .assert(SemanticsMatcher.expectValue(
                 SemanticsProperties.IsTraversalGroup, true))
     }
 
     @Test
-    fun traversalIndexProperty() {
+    fun traversalIndexProperty_unmergedConfig() {
         rule.setContent {
             Surface {
                 Box(Modifier
@@ -140,6 +173,13 @@ class SemanticsTests {
             }
         }
 
+        rule.onNodeWithTag(TestTag)
+            .assert(
+                SemanticsMatcher("unmerged traversalIndex property") {
+                    // Using unmerged config here since `traversalIndex` doesn't depend on `config`
+                    it.unmergedConfig.getOrNull(SemanticsProperties.TraversalIndex) == 0f
+                }
+            )
         rule.onNodeWithTag(TestTag)
             .assert(SemanticsMatcher.expectValue(
                 SemanticsProperties.TraversalIndex, 0f))
@@ -182,7 +222,7 @@ class SemanticsTests {
         rule.onNodeWithTag(TestTag)
             .assert(
                 SemanticsMatcher("container property") {
-                    it.config.getOrNull(SemanticsProperties.IsContainer) == true
+                    it.unmergedConfig.getOrNull(SemanticsProperties.IsContainer) == true
                 }
             )
         rule.onNodeWithTag(TestTag)
