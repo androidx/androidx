@@ -43,7 +43,7 @@ class MultipleAwaitPointerEventScopesDetectorTest : LintDetectorTest() {
     private val ForEachGestureStub: TestFile = bytecodeStub(
         filename = "ForEachGesture.kt",
         filepath = "androidx/compose/foundation/gestures",
-        checksum = 0xf41a4b04,
+        checksum = 0x1be9b2ef,
         """
             package androidx.compose.foundation.gestures
             import androidx.compose.ui.input.pointer.PointerInputScope
@@ -52,37 +52,35 @@ class MultipleAwaitPointerEventScopesDetectorTest : LintDetectorTest() {
                 block()
             }
             """,
+"""
+        META-INF/main.kotlin_module:
+        H4sIAAAAAAAA/2VMQQoCMRAbUQR7EOkDBMWThzl7F1dkL4J+oGzr7oDOlHYK
+        Pt/KejOQEBISAJgCwKRyAT+Yg9k59knIv7GTV5Qc8CGFvVMSxj5kLSlku2ok
+        nVw3nMegVXM0m79lISSORTEKsYZk17eSY2BP3F/H6PLtG3pWW0+WZqb10c7v
+        VVvdwh4+IfeLY6cAAAA=
+        """,
         """
-                META-INF/main.kotlin_module:
-                H4sIAAAAAAAAAH2NSwrCMBCGR0SErCToVrC4UsghtFakG0EvEJqxBmomJBOo
-                tzfS7gQXw//6YABgCgCTfPNRQaDYamcCWdOrhl6eIqoHJWc0W3KqxcgpYJSr
-                Muj2PKQSGRumULNcVBROunmOS26Wd+1/OLEXxb83nX5TYjk7UJ/ho9j8wMkq
-                63xi5ck6xiDXtxQ9OmNdex2qy3evbJdtzQXs4AM20YY08QAAAA==
-                """,
+        androidx/compose/foundation/gestures/ForEachGestureKt.class:
+        H4sIAAAAAAAA/7VUzU8bRxT/zdr4C0jMBlIgjUOK2/ARsoaGNq2jqBEx7aqO
+        QTGkqjhU4/XiDLZnrN1Zi944Veq/0UPPUU9tDxXKsX9U1Te2IYBpkCL1sLO/
+        9zHv/d57M/P3P3/+BeAhigzrXNYDJeqHjqfaHRX6zr6KZJ1roaTT8EMdBX7o
+        bKqgxL1XX/flb3USjCF7wLvcaXHZcLZqB75H2hjDtf1zvgw/L5SHckTCEbIT
+        aaejhNR+4Gz3/65RVj3V8YvlptItIZ2DbtvZj6RnCBGRAVo7tXsqUJEWklhu
+        KEkg6nEvLpYv0isyNvW/cHm88l5RV64o4fGpw64UuvikuDxc0pOr+jAU5LK+
+        IF9WQcM58HUt4IJK41IqzftlVqJWi9daPrnNv8tNaeNJXrl3dyuJDENCyK5q
+        0ul4tDDMZ1hzCekxjGF8FKO4xrA43ANqdkAUhRc67ik0BzfLcLPh642tF1u7
+        O26l9EN1t7pdqjwrPWOYXLg0kY0bGUxgkmH0TC+TuMmQcivVnaeVjRLD+LlG
+        j2EaM2l8gFkKm9evRJi/eDHW3+vUMIzUWsprMsxddUWIb95EbvlGPrPhv+4M
+        w8SJy3Nfc3oFOOmsdjdGzwUzS9osYGBNAywyHgqDCoTqqwz7x0e5zPFRxspa
+        GWva6sHpPrSyA+H4aLZIeNYqsCWrYK3dy8Zm51PMjtsk2Rk71UOsMGIn7Pg0
+        KyQK8Te/JKxU8ps3P31lUDZlsq0xQ8Q+IXy27NyJsnSofZq8kifWnR97LZw4
+        /6A9aGqG+Iaq01TGq5p7zee8s2MOPcP1MvWpErVrfjDQ2GXl8dZLHggjD5Tp
+        qmhI3h/srRcRNbXtu7IrQkHmp2/vCd21i9ZtHvC2T1M+55apqijw/E1hos8M
+        9rwciodVWIijP5UZjCBB0hpJHmIwk5laXrr/B67H8P3vmPoV8dff/YZbr8kQ
+        w6e0JsC2k7TlIeEMhTKaSSSxTmiuHwAf4nYvwRRyuENpDJrDXfL+zBwC8v68
+        Hwkp+j+i70aMhHSP09vVwhe9dRVf0n+TtB8R3/k9xFzkXXzs4hPcc7GARRdL
+        WN4DC3EfK3tIhxgJ8SDE7RC5EE6Iuz2xECLxLyV8urHMBgAA
         """
-                androidx/compose/foundation/gestures/ForEachGestureKt.class:
-                H4sIAAAAAAAAALVVz08bRxT+Zm1ss0BiNpACaRwS3IYfIWtoadM6Qo2ISVZ1
-                DIohVcWhGq8XZ7C9Y+3OWuSGcqjUf6OHnqOe0h4qRG/9o6q+sQ0BTIIUqZY8
-                870337z55s2b2X/+/fMvAF/iW4YV7lcDKar7tiubLRl69q6M/CpXQvp2zQtV
-                FHihvS6DAndfPuna36skGEN6j7e53eB+zd6o7HkueWMMV3bPcBl+mS32rREJ
-                W/itSNktKXzlBfZmt3e0s+zKlpcv1qVqCN/eazft3ch3tSAS0kPLJ+OuDGSk
-                hE8q16RPIOpoz88Vz8vLMzb+v2h5uPhRURcv2cLDE8K2L1R+Nb/Qv6XVy/LQ
-                F+SivCBblEHN3vNUJeCCtsZ9Xyre3WYpajR4peERbeZDNKk0k1iZD2crCZMh
-                Ify2rFN1PJjt19PvuUD0MIYxMoQhXGGY688BJTsgicINbecE6sJNM1yveWpt
-                4/nG9pZTKvxU3i5vFkqPC48ZxmYvXMjCNROjGGMYOpXLJK4zpJxSeetRaa3A
-                MHIm0cOYwOQgPsEUhc2qlyLMnr8YKx9VNQwDlYZ06wzTl10R0pvVkRuetk9N
-                eN+dYRg9pjzzFKdXgJPPaLZj9Fww3SQZWF0Dg/z7QqMcoeoSQ3h4kDEPD0wj
-                bZjGhNGBE11opHvG4cHUKuEpI8fmjZyxfDcdm5pJMStukWWZVqqDWG7ASljx
-                CZZL5OJHvyaMVPLp0c/f/f2WHR5oM506em3ETSM1qZdeZqQN1rHw09vPHDsL
-                +8qjCpD+8ejWq04qR88+bPfriiG+Jqt0OiNlxd36M97a0sXPcLVI+SpFzYoX
-                9DxWUbq88YIHQts952BZ1HzePeAbzyNKbtNz/LYIBQ0/endf6M6dH93kAW96
-                dNpnaGZZRoHrrQsdfbI350VfPCzBQBz6RzQMIEHWElkuYtDHNL4wf+8PXI3h
-                x7cY/w3xNz/8jhtvaCCGZWoTYJtJmvIFYZNCac8YkvSRAKa7AfApbnYWGEcG
-                t2gZjaZxm9gruiKI/VU3ElLUf03/azEyBjua3rUGHnTaHL6hfp28d0jvzA5i
-                DrIOPqMWnzu4i1kHc5jfAQuxgHs7GAwxEGIxxM0QmRD3Q9zumHaIxH8TzBqW
-                1AYAAA==
-                """
-
     )
 
     private val stubs = arrayOf(
