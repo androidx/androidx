@@ -18,6 +18,7 @@ package androidx.compose.animation.core
 
 import androidx.collection.FloatFloatPair
 import androidx.compose.ui.graphics.PathSegment
+import androidx.compose.ui.util.fastCoerceIn
 import kotlin.math.abs
 import kotlin.math.acos
 import kotlin.math.cbrt
@@ -138,9 +139,9 @@ private fun evaluateQuadratic(
     p2: Float,
     t: Float
 ): Float {
-    val by = 2.0 * (p1 - p0)
-    val ay = p2 - 2.0 * p1 + p0
-    return ((ay * t + by) * t + p0).toFloat()
+    val by = 2.0f * (p1 - p0)
+    val ay = p2 - 2.0f * p1 + p0
+    return (ay * t + by) * t + p0
 }
 
 private fun evaluateCubic(
@@ -150,10 +151,10 @@ private fun evaluateCubic(
     p3: Float,
     t: Float
 ): Float {
-    val a = p3 + 3.0 * (p1 - p2) - p0
-    val b = 3.0 * (p2 - 2.0 * p1 + p0)
-    val c = 3.0 * (p1 - p0)
-    return (((a * t + b) * t + c) * t + p0).toFloat()
+    val a = p3 + 3.0f * (p1 - p2) - p0
+    val b = 3.0f * (p2 - 2.0f * p1 + p0)
+    val c = 3.0f * (p1 - p0)
+    return ((a * t + b) * t + c) * t + p0
 }
 
 /**
@@ -167,10 +168,10 @@ internal fun evaluateCubic(
     p2: Float,
     t: Float
 ): Float {
-    val a = 1.0 / 3.0 + (p1 - p2)
-    val b = (p2 - 2.0 * p1)
+    val a = 1.0f / 3.0f + (p1 - p2)
+    val b = (p2 - 2.0f * p1)
     val c = p1
-    return 3.0f * (((a * t + b) * t + c) * t).toFloat()
+    return 3.0f * ((a * t + b) * t + c) * t
 }
 
 /**
@@ -271,10 +272,10 @@ internal fun findFirstCubicRoot(
     // The math used to find the roots is explained in "Solving the Cubic Equation":
     // http://www.trans4mind.com/personal_development/mathematics/polynomials/cubicAlgebra.htm
 
-    var a = 3.0 * p0 - 6.0 * p1 + 3.0 * p2
-    var b = -3.0 * p0 + 3.0 * p1
+    var a = 3.0 * (p0 - 2.0 * p1 + p2)
+    var b = 3.0 * (p1 - p0)
     var c = p0.toDouble()
-    val d = -p0 + 3.0 * p1 - 3.0 * p2 + p3
+    val d = -p0 + 3.0 * (p1 - p2) + p3
 
     // Not a cubic
     if (d.closeTo(0.0)) {
@@ -300,42 +301,40 @@ internal fun findFirstCubicRoot(
     b /= d
     c /= d
 
-    val o = (3.0 * b - a * a) / 3.0
-    val o3 = o / 3.0
-    val q = (2.0 * a * a * a - 9.0 * a * b + 27.0 * c) / 27.0
-    val q2 = q / 2.0
+    val o3 = (3.0 * b - a * a) / 9.0
+    val q2 = (2.0 * a * a * a - 9.0 * a * b + 27.0 * c) / 54.0
     val discriminant = q2 * q2 + o3 * o3 * o3
+    val a3 = a / 3.0
 
     if (discriminant < 0.0) {
-        val mp3 = -o / 3.0
-        val mp33 = mp3 * mp3 * mp3
+        val mp33 = -(o3 * o3 * o3)
         val r = sqrt(mp33)
-        val t = -q / (2.0 * r)
-        val cosPhi = min(1.0, max(-1.0, t))
+        val t = -q2 / r
+        val cosPhi = t.fastCoerceIn(-1.0, 1.0)
         val phi = acos(cosPhi)
         val t1 = 2.0 * cbrt(r)
 
-        var root = clampValidRootInUnitRange((t1 * cos(phi / 3.0) - a / 3.0).toFloat())
+        var root = clampValidRootInUnitRange((t1 * cos(phi / 3.0) - a3).toFloat())
         if (!root.isNaN()) return root
 
-        root = clampValidRootInUnitRange((t1 * cos((phi + Tau) / 3.0) - a / 3.0).toFloat())
+        root = clampValidRootInUnitRange((t1 * cos((phi + Tau) / 3.0) - a3).toFloat())
         if (!root.isNaN()) return root
 
-        return clampValidRootInUnitRange((t1 * cos((phi + 2.0 * Tau) / 3.0) - a / 3.0).toFloat())
+        return clampValidRootInUnitRange((t1 * cos((phi + 2.0 * Tau) / 3.0) - a3).toFloat())
     } else if (discriminant == 0.0) { // TODO: closeTo(0.0)?
-        val u1 = if (q2 < 0.0) cbrt(-q2) else -cbrt(q2)
+        val u1 = -cbrt(q2)
 
-        val root = clampValidRootInUnitRange((2.0 * u1 - a / 3.0).toFloat())
+        val root = clampValidRootInUnitRange((2.0 * u1 - a3).toFloat())
         if (!root.isNaN()) return root
 
-        return clampValidRootInUnitRange((-u1 - a / 3.0).toFloat())
+        return clampValidRootInUnitRange((-u1 - a3).toFloat())
     }
 
     val sd = sqrt(discriminant)
     val u1 = cbrt(-q2 + sd)
     val v1 = cbrt(q2 + sd)
 
-    return clampValidRootInUnitRange((u1 - v1 - a / 3.0).toFloat())
+    return clampValidRootInUnitRange((u1 - v1 - a3).toFloat())
 }
 
 /**
@@ -423,14 +422,14 @@ private fun findDerivativeRoots(
             // Quadratic derivative of a cubic function
             // We do the computation inline to avoid using arrays of other data
             // structures to return the result
-            val d0 = 3 * (points[2] - points[0])
-            val d1 = 3 * (points[4] - points[2])
-            val d2 = 3 * (points[6] - points[4])
+            val d0 = 3.0f * (points[2] - points[0])
+            val d1 = 3.0f * (points[4] - points[2])
+            val d2 = 3.0f * (points[6] - points[4])
             val count = findQuadraticRoots(d0, d1, d2, roots, index)
 
             // Compute the second derivative as a line
-            val dd0 = 2 * (d1 - d0)
-            val dd1 = 2 * (d2 - d1)
+            val dd0 = 2.0f * (d1 - d0)
+            val dd1 = 2.0f * (d2 - d1)
             count + findLineRoot(dd0, dd1, roots, index + count)
         }
 
@@ -489,8 +488,7 @@ private inline fun clampValidRootInUnitRange(r: Float): Float = if (r < 0.0f) {
  * range are considered to be in the [0..1] range and clamped appropriately. Returns 0 if
  * no value was written, 1 otherwise.
  */
-@Suppress("NOTHING_TO_INLINE")
-private inline fun writeValidRootInUnitRange(r: Float, roots: FloatArray, index: Int): Int {
+private fun writeValidRootInUnitRange(r: Float, roots: FloatArray, index: Int): Int {
     val v = clampValidRootInUnitRange(r)
     roots[index] = v
     return if (v.isNaN()) 0 else 1
