@@ -16,6 +16,7 @@
 
 package androidx.graphics.lowlatency
 
+import android.app.Activity
 import android.app.UiAutomation
 import android.graphics.Canvas
 import android.graphics.Color
@@ -981,18 +982,20 @@ class CanvasFrontBufferedRendererTest {
         }
         try {
             var supportsWideColorGamut = false
+            val createLatch = CountDownLatch(1)
             val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
-                    supportsWideColorGamut = it.window.isWideColorGamut
+                    supportsWideColorGamut = supportsWideColorGamut(it)
                     surfaceView = it.getSurfaceView()
                     renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks).apply {
                         configureRenderer.invoke(this)
                     }
+                    createLatch.countDown()
                 }
+            assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
             if (supportsWideColorGamut) {
                 scenario.moveToState(Lifecycle.State.RESUMED)
-
                 assertTrue(multiBufferLatch.await(3000, TimeUnit.MILLISECONDS))
 
                 renderer?.renderFrontBufferedLayer(Any())
@@ -1013,6 +1016,16 @@ class CanvasFrontBufferedRendererTest {
             }
         } finally {
             renderer.blockingRelease()
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun supportsWideColorGamut(activity: Activity): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            activity.display?.isWideColorGamut == true
+        } else {
+            activity.windowManager.defaultDisplay.isWideColorGamut
         }
     }
 
@@ -1087,15 +1100,18 @@ class CanvasFrontBufferedRendererTest {
         }
         try {
             var supportsWideColorGamut = false
+            val createLatch = CountDownLatch(1)
             val scenario = ActivityScenario.launch(SurfaceViewTestActivity::class.java)
                 .moveToState(Lifecycle.State.CREATED)
                 .onActivity {
-                    supportsWideColorGamut = it.window.isWideColorGamut
+                    supportsWideColorGamut = supportsWideColorGamut(it)
                     surfaceView = it.getSurfaceView()
                     renderer = CanvasFrontBufferedRenderer(surfaceView!!, callbacks).apply {
                         configureRenderer.invoke(this)
                     }
+                    createLatch.countDown()
                 }
+            assertTrue(createLatch.await(3000, TimeUnit.MILLISECONDS))
             if (supportsWideColorGamut) {
                 scenario.moveToState(Lifecycle.State.RESUMED)
 
