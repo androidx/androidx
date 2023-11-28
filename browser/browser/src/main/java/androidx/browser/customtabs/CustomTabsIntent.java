@@ -1257,7 +1257,8 @@ public final class CustomTabsIntent {
          * @param enabled Whether the maximization button is enabled.
          * @see CustomTabsIntent#EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION
          */
-        @NonNull Builder setActivitySideSheetEnableMaximization(boolean enabled) {
+        @NonNull
+        public Builder setActivitySideSheetMaximizationEnabled(boolean enabled) {
             mIntent.putExtra(EXTRA_ACTIVITY_SIDE_SHEET_ENABLE_MAXIMIZATION, enabled);
             return this;
         }
