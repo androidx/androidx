@@ -28,7 +28,7 @@ dependencies {
     implementation(project(":wear:protolayout:protolayout-proto"))
     implementation(project(":wear:tiles:tiles"))
 
-    api("androidx.wear:wear-tooling-preview:1.0.0-alpha01")
+    api("androidx.wear:wear-tooling-preview:1.0.0")
     api("androidx.annotation:annotation:1.6.0")
 }
 
