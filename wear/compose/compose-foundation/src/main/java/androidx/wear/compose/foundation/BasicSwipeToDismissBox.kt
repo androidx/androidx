@@ -197,10 +197,16 @@ fun BasicSwipeToDismissBox(
                             Canvas(Modifier.fillMaxSize()) {
                                 val color = if (isBackground) {
                                     backgroundScrimColor
-                                        .copy(alpha = MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress))
+                                        .copy(
+                                            alpha = (MAX_BACKGROUND_SCRIM_ALPHA * (1 - progress))
+                                                .coerceIn(0f, 1f)
+                                        )
                                 } else {
                                     contentScrimColor
-                                        .copy(alpha = min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f))
+                                        .copy(
+                                            alpha = min(MAX_CONTENT_SCRIM_ALPHA, progress / 2f)
+                                                .coerceIn(0f, 1f)
+                                        )
                                 }
                                 drawRect(color = color)
                             }
