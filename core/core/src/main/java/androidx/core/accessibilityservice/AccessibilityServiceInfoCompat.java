@@ -195,11 +195,7 @@ public final class AccessibilityServiceInfoCompat {
     @Nullable
     public static String loadDescription(
             @NonNull AccessibilityServiceInfo info, @NonNull PackageManager packageManager) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return info.loadDescription(packageManager);
-        } else {
-            return info.getDescription();
-        }
+        return info.loadDescription(packageManager);
     }
 
     /**

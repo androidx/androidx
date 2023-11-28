@@ -6960,12 +6960,12 @@ public class NotificationCompat {
             if (wearableBundle != null) {
                 final ArrayList<Parcelable> parcelables =
                         wearableBundle.getParcelableArrayList(KEY_ACTIONS);
-                if (Build.VERSION.SDK_INT >= 16 && parcelables != null) {
+                if (parcelables != null) {
                     Action[] actions = new Action[parcelables.size()];
                     for (int i = 0; i < actions.length; i++) {
                         if (Build.VERSION.SDK_INT >= 20) {
                             actions[i] = Api20Impl.getActionCompatFromAction(parcelables, i);
-                        } else if (Build.VERSION.SDK_INT >= 16) {
+                        } else {
                             actions[i] = NotificationCompatJellybean.getActionFromBundle(
                                     (Bundle) parcelables.get(i));
                         }
@@ -7010,20 +7010,16 @@ public class NotificationCompat {
             Bundle wearableBundle = new Bundle();
 
             if (!mActions.isEmpty()) {
-                if (Build.VERSION.SDK_INT >= 16) {
-                    ArrayList<Parcelable> parcelables = new ArrayList<>(mActions.size());
-                    for (Action action : mActions) {
-                        if (Build.VERSION.SDK_INT >= 20) {
-                            parcelables.add(
-                                    WearableExtender.getActionFromActionCompat(action));
-                        } else if (Build.VERSION.SDK_INT >= 16) {
-                            parcelables.add(NotificationCompatJellybean.getBundleForAction(action));
-                        }
+                ArrayList<Parcelable> parcelables = new ArrayList<>(mActions.size());
+                for (Action action : mActions) {
+                    if (Build.VERSION.SDK_INT >= 20) {
+                        parcelables.add(
+                                WearableExtender.getActionFromActionCompat(action));
+                    } else {
+                        parcelables.add(NotificationCompatJellybean.getBundleForAction(action));
                     }
-                    wearableBundle.putParcelableArrayList(KEY_ACTIONS, parcelables);
-                } else {
-                    wearableBundle.putParcelableArrayList(KEY_ACTIONS, null);
                 }
+                wearableBundle.putParcelableArrayList(KEY_ACTIONS, parcelables);
             }
             if (mFlags != DEFAULT_FLAGS) {
                 wearableBundle.putInt(KEY_FLAGS, mFlags);
@@ -9196,13 +9192,7 @@ public class NotificationCompat {
      */
     @Nullable
     public static Bundle getExtras(@NonNull Notification notification) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return notification.extras;
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return NotificationCompatJellybean.getExtras(notification);
-        } else {
-            return null;
-        }
+        return notification.extras;
     }
 
     /**
@@ -9210,13 +9200,7 @@ public class NotificationCompat {
      * manner. Actions were supported from JellyBean (Api level 16) forwards.
      */
     public static int getActionCount(@NonNull Notification notification) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return notification.actions != null ? notification.actions.length : 0;
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return NotificationCompatJellybean.getActionCount(notification);
-        } else {
-            return 0;
-        }
+        return notification.actions != null ? notification.actions.length : 0;
     }
 
     /**
@@ -9239,10 +9223,8 @@ public class NotificationCompat {
             }
             return NotificationCompatJellybean.readAction(action.icon, action.title,
                     action.actionIntent, actionExtras);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return NotificationCompatJellybean.getAction(notification, actionIndex);
         } else {
-            return null;
+            return NotificationCompatJellybean.getAction(notification, actionIndex);
         }
     }
 
@@ -9428,13 +9410,8 @@ public class NotificationCompat {
     public static boolean getLocalOnly(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 20) {
             return (notification.flags & Notification.FLAG_LOCAL_ONLY) != 0;
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            return notification.extras.getBoolean(NotificationCompatExtras.EXTRA_LOCAL_ONLY);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return NotificationCompatJellybean.getExtras(notification).getBoolean(
-                    NotificationCompatExtras.EXTRA_LOCAL_ONLY);
         } else {
-            return false;
+            return notification.extras.getBoolean(NotificationCompatExtras.EXTRA_LOCAL_ONLY);
         }
     }
 
@@ -9445,13 +9422,8 @@ public class NotificationCompat {
     public static @Nullable String getGroup(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 20) {
             return Api20Impl.getGroup(notification);
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            return notification.extras.getString(NotificationCompatExtras.EXTRA_GROUP_KEY);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return NotificationCompatJellybean.getExtras(notification).getString(
-                    NotificationCompatExtras.EXTRA_GROUP_KEY);
         } else {
-            return null;
+            return notification.extras.getString(NotificationCompatExtras.EXTRA_GROUP_KEY);
         }
     }
 
@@ -9527,13 +9499,8 @@ public class NotificationCompat {
     public static boolean isGroupSummary(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 20) {
             return (notification.flags & Notification.FLAG_GROUP_SUMMARY) != 0;
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            return notification.extras.getBoolean(NotificationCompatExtras.EXTRA_GROUP_SUMMARY);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return NotificationCompatJellybean.getExtras(notification).getBoolean(
-                    NotificationCompatExtras.EXTRA_GROUP_SUMMARY);
         } else {
-            return false;
+            return notification.extras.getBoolean(NotificationCompatExtras.EXTRA_GROUP_SUMMARY);
         }
     }
 
@@ -9552,13 +9519,8 @@ public class NotificationCompat {
     public static @Nullable String getSortKey(@NonNull Notification notification) {
         if (Build.VERSION.SDK_INT >= 20) {
             return Api20Impl.getSortKey(notification);
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            return notification.extras.getString(NotificationCompatExtras.EXTRA_SORT_KEY);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return NotificationCompatJellybean.getExtras(notification).getString(
-                    NotificationCompatExtras.EXTRA_SORT_KEY);
         } else {
-            return null;
+            return notification.extras.getString(NotificationCompatExtras.EXTRA_SORT_KEY);
         }
     }
 

@@ -776,12 +776,7 @@ public final class ViewPropertyAnimatorCompat {
             final @Nullable ViewPropertyAnimatorListener listener) {
         final View view;
         if ((view = mView.get()) != null) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                setListenerInternal(view, listener);
-            } else {
-                view.setTag(LISTENER_TAG_ID, listener);
-                setListenerInternal(view, new ViewPropertyAnimatorListenerApi14(this));
-            }
+            setListenerInternal(view, listener);
         }
         return this;
     }

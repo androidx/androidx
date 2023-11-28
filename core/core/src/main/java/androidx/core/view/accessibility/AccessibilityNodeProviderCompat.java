@@ -125,12 +125,8 @@ public class AccessibilityNodeProviderCompat {
     public AccessibilityNodeProviderCompat() {
         if (Build.VERSION.SDK_INT >= 26) {
             mProvider = new AccessibilityNodeProviderApi26(this);
-        } else if (Build.VERSION.SDK_INT >= 19) {
-            mProvider = new AccessibilityNodeProviderApi19(this);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            mProvider = new AccessibilityNodeProviderApi16(this);
         } else {
-            mProvider = null;
+            mProvider = new AccessibilityNodeProviderApi19(this);
         }
     }
 

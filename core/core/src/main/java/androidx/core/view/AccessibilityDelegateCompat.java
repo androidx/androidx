@@ -30,7 +30,6 @@ import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityNodeProvider;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
@@ -325,11 +324,9 @@ public class AccessibilityDelegateCompat {
      */
     @Nullable
     public AccessibilityNodeProviderCompat getAccessibilityNodeProvider(@NonNull View host) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Object provider = Api16Impl.getAccessibilityNodeProvider(mOriginalDelegate, host);
-            if (provider != null) {
-                return new AccessibilityNodeProviderCompat(provider);
-            }
+        Object provider = mOriginalDelegate.getAccessibilityNodeProvider(host);
+        if (provider != null) {
+            return new AccessibilityNodeProviderCompat(provider);
         }
         return null;
     }
@@ -364,8 +361,8 @@ public class AccessibilityDelegateCompat {
                 break;
             }
         }
-        if (!success && Build.VERSION.SDK_INT >= 16) {
-            success = Api16Impl.performAccessibilityAction(mOriginalDelegate, host, action, args);
+        if (!success) {
+            success = mOriginalDelegate.performAccessibilityAction(host, action, args);
         }
         if (!success && action == R.id.accessibility_action_clickable_span && args != null) {
             success = performClickableSpanAction(
@@ -410,24 +407,5 @@ public class AccessibilityDelegateCompat {
         List<AccessibilityActionCompat> actions = (List<AccessibilityActionCompat>)
                 view.getTag(R.id.tag_accessibility_actions);
         return actions == null ? Collections.emptyList() : actions;
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static AccessibilityNodeProvider getAccessibilityNodeProvider(
-                AccessibilityDelegate accessibilityDelegate, View host) {
-            return accessibilityDelegate.getAccessibilityNodeProvider(host);
-        }
-
-        @DoNotInline
-        static boolean performAccessibilityAction(AccessibilityDelegate accessibilityDelegate,
-                View host, int action, Bundle args) {
-            return accessibilityDelegate.performAccessibilityAction(host, action, args);
-        }
     }
 }

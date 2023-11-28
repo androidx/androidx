@@ -2357,12 +2357,8 @@ public class AccessibilityNodeInfoCompat {
      * @see #setSource(View, int)
      */
     public static AccessibilityNodeInfoCompat obtain(View root, int virtualDescendantId) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return AccessibilityNodeInfoCompat.wrapNonNullInstance(
-                    AccessibilityNodeInfo.obtain(root, virtualDescendantId));
-        } else {
-            return null;
-        }
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(
+                AccessibilityNodeInfo.obtain(root, virtualDescendantId));
     }
 
     /**
@@ -2420,9 +2416,7 @@ public class AccessibilityNodeInfoCompat {
         // Store the ID anyway, since we may need it for equality checks.
         mVirtualDescendantId = virtualDescendantId;
 
-        if (Build.VERSION.SDK_INT >= 16) {
-            mInfo.setSource(root, virtualDescendantId);
-        }
+        mInfo.setSource(root, virtualDescendantId);
     }
 
     /**
@@ -2437,11 +2431,7 @@ public class AccessibilityNodeInfoCompat {
      * @see #FOCUS_ACCESSIBILITY
      */
     public AccessibilityNodeInfoCompat findFocus(int focus) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.findFocus(focus));
-        } else {
-            return null;
-        }
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.findFocus(focus));
     }
 
     /**
@@ -2459,11 +2449,7 @@ public class AccessibilityNodeInfoCompat {
      * @return The node info for the view that can take accessibility focus.
      */
     public AccessibilityNodeInfoCompat focusSearch(int direction) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.focusSearch(direction));
-        } else {
-            return null;
-        }
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.focusSearch(direction));
     }
 
     /**
@@ -2546,9 +2532,7 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual child.
      */
     public void addChild(View root, int virtualDescendantId) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            mInfo.addChild(root, virtualDescendantId);
-        }
+        mInfo.addChild(root, virtualDescendantId);
     }
 
     /**
@@ -2714,11 +2698,7 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called outside of an AccessibilityService.
      */
     public boolean performAction(int action, Bundle arguments) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return mInfo.performAction(action, arguments);
-        } else {
-            return false;
-        }
+        return mInfo.performAction(action, arguments);
     }
 
     /**
@@ -2734,9 +2714,7 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setMovementGranularities(int granularities) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            mInfo.setMovementGranularities(granularities);
-        }
+        mInfo.setMovementGranularities(granularities);
     }
 
     /**
@@ -2745,11 +2723,7 @@ public class AccessibilityNodeInfoCompat {
      * @return The bit mask with granularities.
      */
     public int getMovementGranularities() {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return mInfo.getMovementGranularities();
-        } else {
-            return 0;
-        }
+        return mInfo.getMovementGranularities();
     }
 
     /**
@@ -2856,9 +2830,7 @@ public class AccessibilityNodeInfoCompat {
         // Store the ID anyway, since we may need it for equality checks.
         mParentVirtualDescendantId = virtualDescendantId;
 
-        if (Build.VERSION.SDK_INT >= 16) {
-            mInfo.setParent(root, virtualDescendantId);
-        }
+        mInfo.setParent(root, virtualDescendantId);
     }
 
     /**
@@ -3077,11 +3049,7 @@ public class AccessibilityNodeInfoCompat {
      * @return Whether the node is visible to the user.
      */
     public boolean isVisibleToUser() {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return mInfo.isVisibleToUser();
-        } else {
-            return false;
-        }
+        return mInfo.isVisibleToUser();
     }
 
     /**
@@ -3097,9 +3065,7 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setVisibleToUser(boolean visibleToUser) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            mInfo.setVisibleToUser(visibleToUser);
-        }
+        mInfo.setVisibleToUser(visibleToUser);
     }
 
     /**
@@ -3108,11 +3074,7 @@ public class AccessibilityNodeInfoCompat {
      * @return True if the node is accessibility focused.
      */
     public boolean isAccessibilityFocused() {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return mInfo.isAccessibilityFocused();
-        } else {
-            return false;
-        }
+        return mInfo.isAccessibilityFocused();
     }
 
     /**
@@ -3128,9 +3090,7 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setAccessibilityFocused(boolean focused) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            mInfo.setAccessibilityFocused(focused);
-        }
+        mInfo.setAccessibilityFocused(focused);
     }
 
     /**
