@@ -425,49 +425,41 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         updateParameters(mSessionOptions, mStillCaptureOptions);
         mSessionProcessor.startCapture(captureConfig.isPostviewEnabled(),
                 new SessionProcessor.CaptureCallback() {
-            @Override
-            public void onCaptureStarted(int captureSequenceId, long timestamp) {
-                mExecutor.execute(() -> {
-                    for (CameraCaptureCallback cameraCaptureCallback :
-                            captureConfig.getCameraCaptureCallbacks()) {
-                        cameraCaptureCallback.onCaptureStarted();
+                    @Override
+                    public void onCaptureStarted(int captureSequenceId, long timestamp) {
+                        for (CameraCaptureCallback cameraCaptureCallback :
+                                captureConfig.getCameraCaptureCallbacks()) {
+                            cameraCaptureCallback.onCaptureStarted();
+                        }
                     }
-                });
-            }
 
-            @Override
-            public void onCaptureFailed(
-                    int captureSequenceId) {
-                mExecutor.execute(() -> {
-                    for (CameraCaptureCallback cameraCaptureCallback :
-                            captureConfig.getCameraCaptureCallbacks()) {
-                        cameraCaptureCallback.onCaptureFailed(new CameraCaptureFailure(
-                                CameraCaptureFailure.Reason.ERROR));
+                    @Override
+                    public void onCaptureFailed(
+                            int captureSequenceId) {
+                        for (CameraCaptureCallback cameraCaptureCallback :
+                                captureConfig.getCameraCaptureCallbacks()) {
+                            cameraCaptureCallback.onCaptureFailed(new CameraCaptureFailure(
+                                    CameraCaptureFailure.Reason.ERROR));
+                        }
                     }
-                });
-            }
 
-            @Override
-            public void onCaptureSequenceCompleted(int captureSequenceId) {
-                mExecutor.execute(() -> {
-                    for (CameraCaptureCallback cameraCaptureCallback :
-                            captureConfig.getCameraCaptureCallbacks()) {
-                        cameraCaptureCallback.onCaptureCompleted(
-                                new CameraCaptureResult.EmptyCameraCaptureResult());
+                    @Override
+                    public void onCaptureSequenceCompleted(int captureSequenceId) {
+                        for (CameraCaptureCallback cameraCaptureCallback :
+                                captureConfig.getCameraCaptureCallbacks()) {
+                            cameraCaptureCallback.onCaptureCompleted(
+                                    new CameraCaptureResult.EmptyCameraCaptureResult());
+                        }
                     }
-                });
-            }
 
-            @Override
-            public void onCaptureProcessProgressed(int progress) {
-                mExecutor.execute(() -> {
-                    for (CameraCaptureCallback cameraCaptureCallback :
-                            captureConfig.getCameraCaptureCallbacks()) {
-                        cameraCaptureCallback.onCaptureProcessProgressed(progress);
+                    @Override
+                    public void onCaptureProcessProgressed(int progress) {
+                        for (CameraCaptureCallback cameraCaptureCallback :
+                                captureConfig.getCameraCaptureCallbacks()) {
+                            cameraCaptureCallback.onCaptureProcessProgressed(progress);
+                        }
                     }
                 });
-            }
-        });
     }
 
     /**

@@ -110,6 +110,7 @@ public class ProcessingNode implements Node<ProcessingNode.In, Void> {
                 inputPacket -> {
                     if (inputPacket.getProcessingRequest().isAborted()) {
                         // No-ops if the request is aborted.
+                        inputPacket.getImageProxy().close();
                         return;
                     }
                     mBlockingExecutor.execute(() -> processInputPacket(inputPacket));

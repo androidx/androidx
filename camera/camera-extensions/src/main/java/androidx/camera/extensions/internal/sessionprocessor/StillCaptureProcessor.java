@@ -185,7 +185,7 @@ class StillCaptureProcessor {
                                 }
                             }
                         }
-                    }, CameraXExecutors.ioExecutor());
+                    }, CameraXExecutors.directExecutor());
 
 
             mCaptureProcessorImpl.onResolutionUpdate(surfaceSize, postviewOutputSurface.getSize());
@@ -289,7 +289,7 @@ class StillCaptureProcessor {
                                                                     progress);
                                                 }
 
-                                            }, CameraXExecutors.ioExecutor());
+                                            }, CameraXExecutors.directExecutor());
                                 } else if (ExtensionVersion.isMinimumCompatibleVersion(
                                         Version.VERSION_1_3)
                                         && ClientVersion.isMinimumCompatibleVersion(
@@ -311,7 +311,7 @@ class StillCaptureProcessor {
                                                     onCaptureResultCallback
                                                             .onCaptureProcessProgressed(progress);
                                                 }
-                                            }, CameraXExecutors.ioExecutor());
+                                            }, CameraXExecutors.directExecutor());
                                 } else {
                                     mCaptureProcessorImpl.process(convertedResult);
                                 }
