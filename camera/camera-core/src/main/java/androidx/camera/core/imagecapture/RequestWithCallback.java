@@ -143,6 +143,7 @@ class RequestWithCallback implements TakePictureCallback {
     public void onFinalResult(@NonNull ImageProxy imageProxy) {
         checkMainThread();
         if (mIsAborted) {
+            imageProxy.close();
             // Do not deliver result if the request has been aborted.
             return;
         }
@@ -166,6 +167,7 @@ class RequestWithCallback implements TakePictureCallback {
         checkMainThread();
         if (mIsAborted) {
             // Do not deliver result if the request has been aborted.
+            imageProxy.close();
             return;
         }
 

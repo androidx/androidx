@@ -103,7 +103,12 @@ class SingleBundlingNode implements BundlingNode {
     @MainThread
     private void matchPostviewImageWithRequest(@NonNull ImageProxy imageProxy) {
         checkMainThread();
-        checkState(mPendingRequest != null);
+        // if the final image arrives earlier than the post image, mPendingRequest will be set to
+        // null in matchImageWithRequest. In this case, we will ignore the postview processing.
+        if (mPendingRequest == null) {
+            imageProxy.close();
+            return;
+        }
         mOutputEdge.getPostviewEdge().accept(
                 ProcessingNode.InputPacket.of(mPendingRequest, imageProxy));
     }
