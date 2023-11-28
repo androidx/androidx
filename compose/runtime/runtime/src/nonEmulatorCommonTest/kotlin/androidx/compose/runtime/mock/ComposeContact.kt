@@ -17,6 +17,7 @@
 package androidx.compose.runtime.mock
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.NonSkippableComposable
 
 // <linear>
 //  <text text="Name: ${contact.name}" />
@@ -79,6 +80,7 @@ fun MockViewValidator.contacts(contacts: Collection<Contact>, selected: Contact?
 // </linear>
 @Suppress("ComposableNaming")
 @Composable
+@NonSkippableComposable
 fun SelectContact(model: ContactModel) {
     Linear {
         Linear {

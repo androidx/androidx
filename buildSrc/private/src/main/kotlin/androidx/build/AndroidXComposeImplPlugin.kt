@@ -45,6 +45,8 @@ const val composeReportsOption =
     "plugin:androidx.compose.compiler.plugins.kotlin:reportsDestination"
 const val zipComposeReportsTaskName = "zipComposeCompilerReports"
 const val zipComposeMetricsTaskName = "zipComposeCompilerMetrics"
+const val composeStrongSkippingOption =
+    "plugin:androidx.compose.compiler.plugins.kotlin:experimentalStrongSkipping"
 
 /** Plugin to apply common configuration for Compose projects. */
 class AndroidXComposeImplPlugin : Plugin<Project> {
@@ -241,6 +243,10 @@ private fun configureComposeCompilerPlugin(project: Project, extension: AndroidX
             // doFirst which happens after Gradle task input snapshotting. AGP does the same.
             compile.doFirst {
                 compile.kotlinOptions.freeCompilerArgs += "-Xplugin=${kotlinPlugin.first()}"
+
+                // Enable Compose strong skipping mode
+                compile.kotlinOptions.freeCompilerArgs +=
+                    listOf("-P", "$composeStrongSkippingOption=true")
 
                 if (shouldPublish) {
                     compile.kotlinOptions.freeCompilerArgs += listOf("-P", composeSourceOption)
