@@ -44,6 +44,7 @@ import androidx.camera.extensions.impl.ProcessResultImpl;
 import androidx.camera.extensions.internal.ClientVersion;
 import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.Version;
+import androidx.core.util.Preconditions;
 
 import org.jetbrains.annotations.TestOnly;
 
@@ -78,14 +79,9 @@ class StillCaptureProcessor {
     final CaptureResultImageMatcher mCaptureResultImageMatcher = new CaptureResultImageMatcher();
     @NonNull
     final ImageReaderProxy mProcessedYuvImageReader;
-    @Nullable
-    private ImageReaderProxy mPostviewYuvImageReader;
     private boolean mIsPostviewConfigured;
     @NonNull
     YuvToJpegConverter mYuvToJpegConverter;
-    @Nullable
-    YuvToJpegConverter mYuvToJpegConverterPostview;
-
     final Object mLock = new Object();
     @GuardedBy("mLock")
     @NonNull
@@ -166,33 +162,10 @@ class StillCaptureProcessor {
         if (postviewOutputSurface != null
                 && ClientVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
                 && ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)) {
-            mPostviewYuvImageReader = ImageReaderProxys.createIsolatedReader(
-                    postviewOutputSurface.getSize().getWidth(),
-                    postviewOutputSurface.getSize().getHeight(),
-                    ImageFormat.YUV_420_888, MAX_IMAGES);
-            mPostviewYuvImageReader.setOnImageAvailableListener(
-                    imageReader -> {
-                        synchronized (mLock) {
-                            if (mIsClosed) {
-                                Logger.d(TAG, "Ignore JPEG processing in closed state");
-                                return;
-                            }
-                            ImageProxy imageProxy = imageReader.acquireNextImage();
-                            if (imageProxy != null) {
-                                try {
-                                    mYuvToJpegConverterPostview.writeYuvImage(imageProxy);
-                                } catch (YuvToJpegConverter.ConversionFailedException e) {
-                                }
-                            }
-                        }
-                    }, CameraXExecutors.directExecutor());
-
-
+            Preconditions.checkArgument(
+                    postviewOutputSurface.getImageFormat() == ImageFormat.YUV_420_888);
             mCaptureProcessorImpl.onResolutionUpdate(surfaceSize, postviewOutputSurface.getSize());
-            mCaptureProcessorImpl.onPostviewOutputSurface(mPostviewYuvImageReader.getSurface());
-
-            mYuvToJpegConverterPostview =
-                    new YuvToJpegConverter(90, postviewOutputSurface.getSurface());
+            mCaptureProcessorImpl.onPostviewOutputSurface(postviewOutputSurface.getSurface());
 
         } else {
             mCaptureProcessorImpl.onResolutionUpdate(surfaceSize);
@@ -348,17 +321,11 @@ class StillCaptureProcessor {
 
     void setJpegQuality(@IntRange(from = 0, to = 100) int quality) {
         mYuvToJpegConverter.setJpegQuality(quality);
-        if (mYuvToJpegConverterPostview != null) {
-            mYuvToJpegConverterPostview.setJpegQuality(quality);
-        }
     }
 
     void setRotationDegrees(
             @ImageOutputConfig.RotationDegreesValue int rotationDegrees) {
         mYuvToJpegConverter.setRotationDegrees(rotationDegrees);
-        if (mYuvToJpegConverterPostview != null) {
-            mYuvToJpegConverterPostview.setRotationDegrees(rotationDegrees);
-        }
     }
 
     /**
@@ -374,10 +341,6 @@ class StillCaptureProcessor {
             mCaptureResultImageMatcher.clearImageReferenceListener();
             mCaptureResultImageMatcher.clear();
             mProcessedYuvImageReader.close();
-            if (mPostviewYuvImageReader != null) {
-                mPostviewYuvImageReader.clearOnImageAvailableListener();
-                mPostviewYuvImageReader.close();
-            }
         }
     }
 }

@@ -177,7 +177,7 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
                     createImageReaderProxy(inputEdge.getImageReaderProxyProvider(),
                             inputEdge.getPostviewSize().getWidth(),
                             inputEdge.getPostviewSize().getHeight(),
-                            ImageFormat.JPEG);
+                            inputEdge.getPostviewImageFormat());
             postviewImageReader.setOnImageAvailableListener(imageReader -> {
                 try {
                     ImageProxy image = imageReader.acquireLatestImage();
@@ -191,7 +191,8 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
 
             mSafeCloseImageReaderForPostview = new SafeCloseImageReaderProxy(postviewImageReader);
             inputEdge.setPostviewSurface(
-                    postviewImageReader.getSurface(), inputEdge.getPostviewSize());
+                    postviewImageReader.getSurface(),
+                    inputEdge.getPostviewSize(), inputEdge.getPostviewImageFormat());
         }
 
         inputEdge.getRequestEdge().setListener(requestConsumer);
@@ -393,6 +394,11 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         abstract Size getPostviewSize();
 
         /**
+         * The image format of the postview.
+         */
+        abstract int getPostviewImageFormat();
+
+        /**
          * Edge that accepts {@link ProcessingRequest}.
          */
         @NonNull
@@ -428,8 +434,8 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
             mSurface = new ImmediateSurface(surface, getSize(), getInputFormat());
         }
 
-        void setPostviewSurface(@NonNull Surface surface, @NonNull Size size) {
-            mPostviewSurface = new ImmediateSurface(surface, size, ImageFormat.JPEG);
+        void setPostviewSurface(@NonNull Surface surface, @NonNull Size size, int imageFormat) {
+            mPostviewSurface = new ImmediateSurface(surface, size, imageFormat);
         }
 
         /**
@@ -448,10 +454,19 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
 
         @NonNull
         static In of(Size size, int inputFormat, int outputFormat, boolean isVirtualCamera,
-                @Nullable ImageReaderProxyProvider imageReaderProxyProvider,
-                @Nullable Size postviewSize) {
+                @Nullable ImageReaderProxyProvider imageReaderProxyProvider) {
             return new AutoValue_CaptureNode_In(size, inputFormat, outputFormat, isVirtualCamera,
-                    imageReaderProxyProvider, postviewSize, new Edge<>(), new Edge<>());
+                    imageReaderProxyProvider, null, ImageFormat.YUV_420_888,
+                    new Edge<>(), new Edge<>());
+        }
+
+        @NonNull
+        static In of(Size size, int inputFormat, int outputFormat, boolean isVirtualCamera,
+                @Nullable ImageReaderProxyProvider imageReaderProxyProvider,
+                @Nullable Size postviewSize, int postviewImageFormat) {
+            return new AutoValue_CaptureNode_In(size, inputFormat, outputFormat, isVirtualCamera,
+                    imageReaderProxyProvider, postviewSize, postviewImageFormat,
+                    new Edge<>(), new Edge<>());
         }
     }
 

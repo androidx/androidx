@@ -16,24 +16,29 @@
 
 package androidx.camera.core;
 
-import androidx.annotation.RestrictTo;
-
 /**
  * ImageCaptureCapabilities is used to query {@link ImageCapture} use case capabilities on the
  * device.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface ImageCaptureCapabilities {
     /**
-     * Returns if the takePicture() call in {@link ImageCapture} is capable of outputting post
-     * view images ahead of final images. If supported, apps can enable the postview using
+     * Returns if the takePicture() call in {@link ImageCapture} is capable of outputting
+     * postview images.
+     *
+     * <p>A postview image is a low-quality image that's produced earlier during image capture
+     * than the final high-quality image, and can be used as a thumbnail or placeholder until the
+     * final image is ready.
+     *
+     * If supported, apps can enable the postview using
      * {@link ImageCapture.Builder#setPostviewEnabled(boolean)}.
      */
     boolean isPostviewSupported();
 
     /**
      * Returns if the takePicture() call in {@link ImageCapture} is capable of notifying the
-     * onCaptureProcessProgressed callback to the apps.
+     * {@link ImageCapture.OnImageSavedCallback#onCaptureProcessProgressed(int)} or
+     * {@link ImageCapture.OnImageCapturedCallback#onCaptureProcessProgressed(int)} callback to
+     * the apps.
      */
     boolean isCaptureProcessProgressSupported();
 }
