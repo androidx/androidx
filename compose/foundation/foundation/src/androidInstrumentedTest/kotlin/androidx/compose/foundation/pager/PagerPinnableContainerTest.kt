@@ -312,10 +312,10 @@ class PagerPinnableContainerTest {
     @Test
     fun unpinnedWhenPagerStateChanges() {
         var state by mutableStateOf(
-            PagerStateImpl(
-                initialPage = 2,
-                initialPageOffsetFraction = 0f,
-                updatedPageCount = { 100 })
+            PagerState(
+                currentPage = 2,
+                currentPageOffsetFraction = 0f,
+                pageCount = { 100 })
         )
         // Arrange.
         rule.setContent {
@@ -349,10 +349,10 @@ class PagerPinnableContainerTest {
 
         rule.runOnIdle {
             assertThat(composed).contains(2)
-            state = PagerStateImpl(
-                initialPage = 0,
-                initialPageOffsetFraction = 0f,
-                updatedPageCount = { 100 })
+            state = PagerState(
+                currentPage = 0,
+                currentPageOffsetFraction = 0f,
+                pageCount = { 100 })
         }
 
         rule.waitUntil {
@@ -367,10 +367,10 @@ class PagerPinnableContainerTest {
     @Test
     fun pinAfterPagerStateChange() {
         var state by mutableStateOf(
-            PagerStateImpl(
-                initialPage = 0,
-                initialPageOffsetFraction = 0f,
-                updatedPageCount = { 100 })
+            PagerState(
+                currentPage = 0,
+                currentPageOffsetFraction = 0f,
+                pageCount = { 100 })
         )
         // Arrange.
         rule.setContent {
@@ -387,10 +387,10 @@ class PagerPinnableContainerTest {
         }
 
         rule.runOnIdle {
-            state = PagerStateImpl(
-                initialPage = 0,
-                initialPageOffsetFraction = 0f,
-                updatedPageCount = { 100 })
+            state = PagerState(
+                currentPage = 0,
+                currentPageOffsetFraction = 0f,
+                pageCount = { 100 })
         }
 
         rule.runOnIdle {
