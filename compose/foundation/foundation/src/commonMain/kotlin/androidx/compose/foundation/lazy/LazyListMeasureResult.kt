@@ -19,9 +19,7 @@ package androidx.compose.foundation.lazy
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.util.fastFirst
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastLastOrNull
 
 /**
  * The result of the measure pass for lazy list layout.
@@ -86,8 +84,12 @@ internal class LazyListMeasureResult(
         ) {
             return false
         }
-        val first = visibleItemsInfo.fastFirst { !it.nonScrollableItem }
-        val last = visibleItemsInfo.fastLastOrNull { !it.nonScrollableItem }!!
+        val first = visibleItemsInfo.first()
+        val last = visibleItemsInfo.last()
+        if (first.nonScrollableItem || last.nonScrollableItem) {
+            // non scrollable items like headers require special handling in the measurement.
+            return false
+        }
         val canApply = if (delta < 0) {
             // scrolling forward
             val deltaToFirstItemChange =
