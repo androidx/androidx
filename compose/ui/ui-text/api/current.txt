@@ -941,12 +941,6 @@ package androidx.compose.ui.text.font {
 
 package androidx.compose.ui.text.input {
 
-  public final class AndroidImeOptions implements androidx.compose.ui.text.input.PlatformImeOptions {
-    ctor public AndroidImeOptions(optional String? privateImeOptions);
-    method public String? getPrivateImeOptions();
-    property public final String? privateImeOptions;
-  }
-
   public final class BackspaceCommand implements androidx.compose.ui.text.input.EditCommand {
     ctor public BackspaceCommand();
     method public void applyTo(androidx.compose.ui.text.input.EditingBuffer buffer);
@@ -1139,7 +1133,10 @@ package androidx.compose.ui.text.input {
     property public final char mask;
   }
 
-  public sealed interface PlatformImeOptions {
+  @androidx.compose.runtime.Immutable public final class PlatformImeOptions {
+    ctor public PlatformImeOptions(optional String? privateImeOptions);
+    method public String? getPrivateImeOptions();
+    property public final String? privateImeOptions;
   }
 
   public interface PlatformTextInputService {

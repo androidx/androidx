@@ -16,11 +16,11 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.ui.text.input.AndroidImeOptions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PlatformImeOptions
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -31,7 +31,7 @@ class KeyboardOptionsTest {
 
     @Test
     fun test_toImeOption() {
-        val platformImeOptions = AndroidImeOptions("privateImeOptions")
+        val platformImeOptions = PlatformImeOptions("privateImeOptions")
 
         val keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
