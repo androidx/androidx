@@ -453,7 +453,7 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
             val frontBufferSurfaceControl = mFrontBufferSurfaceControl
             val parentSurfaceControl = mParentSurfaceControl
             val multiBufferedCanvasRenderer = mMultiBufferedCanvasRenderer
-            val colorSpace = mColorSpace
+            val targetColorSpace = mColorSpace
             mHandlerThread.execute {
                 multiBufferedCanvasRenderer?.let { multiBufferRenderer ->
                     with(multiBufferRenderer) {
@@ -469,7 +469,7 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
                                     setBufferTransform(inverse)
                                 }
                             }
-                            .setColorSpace(colorSpace)
+                            .setColorSpace(targetColorSpace)
                             .draw(mHandlerThread) { result ->
                                 setParentSurfaceControlBuffer(
                                     frontBufferSurfaceControl,
@@ -525,7 +525,7 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
             val multiBufferedCanvasRenderer = mMultiBufferedCanvasRenderer
             val inverse = mInverse
             val transform = mTransform
-            val colorSpace = mColorSpace
+            val targetColorSpace = mColorSpace
             mHandlerThread.execute {
                 multiBufferedCanvasRenderer?.let { multiBufferedRenderer ->
                     with(multiBufferedRenderer) {
@@ -542,7 +542,7 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
                                     setBufferTransform(inverse)
                                 }
                             }
-                            .setColorSpace(colorSpace)
+                            .setColorSpace(targetColorSpace)
                             .draw(mHandlerThread) { result ->
                                 setParentSurfaceControlBuffer(
                                     frontBufferSurfaceControl,
