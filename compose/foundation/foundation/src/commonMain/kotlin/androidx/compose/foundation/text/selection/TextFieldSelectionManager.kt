@@ -648,9 +648,17 @@ internal class TextFieldSelectionManager(
     }
 
     internal fun getHandlePosition(isStartHandle: Boolean): Offset {
+        val textLayoutResult = state?.layoutResult?.value ?: return Offset.Unspecified
+
+        // If layout and value are out of sync, return unspecified.
+        // This will be called again once they are in sync.
+        val transformedText = transformedText ?: return Offset.Unspecified
+        val layoutInputText = textLayoutResult.layoutInput.text.text
+        if (transformedText.text != layoutInputText) return Offset.Unspecified
+
         val offset = if (isStartHandle) value.selection.start else value.selection.end
         return getSelectionHandleCoordinates(
-            textLayoutResult = state?.layoutResult!!.value,
+            textLayoutResult = textLayoutResult,
             offset = offsetMapping.originalToTransformed(offset),
             isStart = isStartHandle,
             areHandlesCrossed = value.selection.reversed

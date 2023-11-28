@@ -68,6 +68,8 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
@@ -94,6 +96,7 @@ import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.isNotFocused
 import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
@@ -1479,6 +1482,40 @@ class TextFieldTest : FocusedWindowTest {
         val actual = textNode.fetchSemanticsNode().config
             .getOrNull(SemanticsProperties.TextSelectionRange)
         assertThat(actual).isEqualTo(TextRange(0))
+    }
+
+    // Regression test for b/311834126
+    @Test
+    fun whenPastingTextThatIncreasesEndOffset_noCrashAndCursorAtEndOfPastedText() {
+        val longText = "Text".repeat(4)
+        val shortText = "Text".repeat(2)
+
+        var tfv by mutableStateOf(TextFieldValue(shortText))
+        lateinit var clipboardManager: ClipboardManager
+        rule.setTextFieldTestContent {
+            clipboardManager = LocalClipboardManager.current
+            BasicTextField(
+                value = tfv,
+                onValueChange = { tfv = it },
+                modifier = Modifier.testTag(Tag)
+            )
+        }
+        clipboardManager.setText(AnnotatedString(longText))
+        rule.waitForIdle()
+
+        val node = rule.onNodeWithTag(Tag)
+        node.performTouchInput { longClick(center) }
+        rule.waitForIdle()
+
+        node.performSemanticsAction(SemanticsActions.PasteText) { it() }
+        rule.waitForIdle()
+
+        val expectedTfv = TextFieldValue(
+            text = longText,
+            selection = TextRange(longText.length)
+        )
+        assertThat(tfv.text).isEqualTo(expectedTfv.text)
+        assertThat(tfv.selection).isEqualTo(expectedTfv.selection)
     }
 
     @Test
