@@ -400,6 +400,7 @@ dependencies {
     docs(project(":wear:wear-phone-interactions"))
     samples(project(":wear:wear-phone-interactions-samples"))
     docs(project(":wear:wear-remote-interactions"))
+    samples(project(":wear:wear-remote-interactions-samples"))
     docs(project(":webkit:webkit"))
     docs(project(":window:window"))
     stubs(fileTree(dir: "../window/stubs/", include: ["window-sidecar-release.aar"]))

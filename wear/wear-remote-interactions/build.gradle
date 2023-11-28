@@ -47,6 +47,11 @@ dependencies {
     implementation("androidx.annotation:annotation:1.2.0")
     implementation(libs.playServicesBasement)
     implementation(libs.playServicesWearable, { exclude group: "androidx.core"})
+
+    // Includes the wear-sdk jar
+    compileOnly files("../../wear/wear_sdk/wear-sdk.jar")
+    testImplementation(files("../../wear/wear_sdk/wear-sdk.jar"))
+    samples(project(":wear:wear-remote-interactions-samples"))
 }
 
 android {
