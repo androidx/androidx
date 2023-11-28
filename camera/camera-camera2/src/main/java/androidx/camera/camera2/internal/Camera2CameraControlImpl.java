@@ -736,12 +736,24 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
      * <p><pre>If preferredMode is not supported, fallback with the following priority (highest to
      * lowest).
      * 1) {@link CaptureRequest#CONTROL_AE_MODE_ON}
-     * 2) {@link CaptureRequest#CONTROL_AE_MODE_OFF)}
+     * 2) {@link CaptureRequest#CONTROL_AE_MODE_OFF}
      * </pre>
      */
     @ExecutedBy("mExecutor")
     int getSupportedAeMode(int preferredMode) {
-        int[] modes = mCameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES);
+        return getSupportedAeMode(mCameraCharacteristics, preferredMode);
+    }
+
+    /**
+     * Returns a supported AE mode which will be preferredMode if it is supported.
+     *
+     * @see #getSupportedAeMode(int preferredMode)
+     */
+    public static int getSupportedAeMode(
+            @NonNull CameraCharacteristicsCompat cameraCharacteristics,
+            int preferredMode
+    ) {
+        int[] modes = cameraCharacteristics.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES);
 
         if (modes == null) {
             return CaptureRequest.CONTROL_AE_MODE_OFF;
@@ -791,7 +803,7 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     }
 
     @ExecutedBy("mExecutor")
-    private boolean isModeInList(int mode, int[] modeList) {
+    private static boolean isModeInList(int mode, int[] modeList) {
         for (int m : modeList) {
             if (mode == m) {
                 return true;
