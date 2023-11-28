@@ -451,45 +451,45 @@ src/androidx/compose/lint/Foo.kt:4: Error: return type Set<$longType> of getFoo:
         val SimpleValueClass = kotlinAndBytecodeStub(
             filename = "SimpleValueClass.kt",
             filepath = "test",
-            checksum = 0xc2548512,
+            checksum = 0x8b98db3a,
             source = """
                 package test
 
                 @JvmInline
                 value class SimpleValueClass(val value: Int)
             """.trimIndent(),
-            """
+        """
             META-INF/main.kotlin_module:
-            H4sIAAAAAAAA/2NgYGBmYGBgBGIOBihQYtBiAABw+ypgGAAAAA==
+            H4sIAAAAAAAA/2NgYGBmYGBgBGJOBijgkucSTcxLKcrPTKnQS87PLcgvTtXL
+            ycwrEWILSS0u8S5RYtBiAAC6aGYHOQAAAA==
             """,
             """
             test/SimpleValueClass.class:
-            H4sIAAAAAAAA/31U31MbVRT+7s2vzWaBTaBAFtT+0DbhR5NirVUKUtDapaGt
-            UKMUfVjCTlhINpjdZOob44v+BT74ouOLfeBBZxTQzjhI3/ybHMdzN5uEWTLO
-            ZPbee+75zvnOd87N3//+8SeAm/ic4YJrOm5uzaruVcyiUWmYSxXDcWJgDOqO
-            0TRyFcMu5x5t7pglN4YQg1Q2Xc+RIZTJ6gyRZuvEdAUxSHFwxBnC7rblMIwU
-            esafZehza2tu3bLL0+KOiGT0bKGbsXVHfiNB22LDqmyZ9RgGGKJ3LNty5z0q
-            RQVJpGSoGCRUMGPGYzkn4QKhjL09095imM6cz3iehJ9wVsEIRkX8NMN4L7Zn
-            HceE47hwXPp/x1eF42uka1sPhqFMDyUUXMJl4XuFxDXq5byCPvTLpPZVEnPb
-            cLaXalumL2aY6FFrkt0ouu2aZaHaBKVqeyuYQlbGJKYVZMSOI8eQML9oGBXH
-            DzWc0QvBQZjNPmWQG/Zm7ZnnpeBNRAX6Jo1Dzd026wyp8yhSvhVadLtXUAU3
-            MCPivNsqoSgjLLqplmq249YbJbdW92lJ7dwMmuhF7zETI3FHBLxL89lkUM6U
-            lieuGV0XpfC9G+IzQ9UWdmtuxbJzO81qbrlZ1W06mMQ82b5YMV1jy3ANsvFq
-            M0TviImPJD6gLLtkf2aJEyXgWxT495P9yzIf5TJXT/Zl+nFVkrkUoTVBa5TW
-            flpD0unXC6Mn+zM8zxZTqajKNZ4PvTxmJ/unP0bDUliNLGuqRMb4jKTKWniU
-            5dn9l9+GvNuEqiyrap+AkI15tn5CqOoA2dSOLammVpOt0HSWiI4WlqJq7PQb
-            xlu5vuJhYpM+fR4dFAWQKFSW+sCr/nHF+LJcrzXE4xkMqn1916W2ibliGCiQ
-            bA8b1U2z/sTYrJhiHmolo1I06pY4+8a+Ndco7a4Ye/5ZXqs16iXzniUO6dWG
-            7VpVs2g5Ft3ete2aa7gWjQKNCafJEMRS4j+HdqLTEUTJ8gmdcqITtEYmfoV8
-            QBuOT+kb9YyDWPcAngMStAPi4jH54LfJW9ylX0BdP8JQavgQmnaIV9TsIS4e
-            4vWfvczdIGm84XFg4on6Qa76DCTB4BjXghipk5geno+50matHeP6QQAQ6SSZ
-            6pQZSJIPYrpJ6F35mEdUnZhObfIv8O8QCR1MnoAf4q05bfx7cQy39HpK3xh4
-            /B/0t0IOk5FgPg2xu0VSCQK38Y4fXPRFeMUFocljzHYZteBxn5HYeXCViyfq
-            w+d9uDxxhLmJsd8g/9Kzd61YcieW7A0Bo5jzHTEv+tpwLagKb42MmsZ7WPC9
-            r5Em4i7+AnxdO8JisF9xLHmgpPirC/arPWWsx2Sl8T4+CNSX0MZ+QCz8E8Kh
-            rtgREnvhrFYJ3POlTuBDrz6ODc+9iM9o3aXdfVp1gi5vIKTjgY6CjhU8pC0e
-            6XiMjzbAHKxibQNDDhQHTxzEvO+8g6yDiIOog9ue5Ra9KwczDqYcZBxc8ox9
-            DvodfPwfuO9oETMIAAA=
+            H4sIAAAAAAAA/31U31MbVRT+7s0m2Ww2sAktkAW1P7RN+NGkWGuVghS0djEU
+            hRql+LKEHVhINpjdZPrIm/4FPviiow++8KAzCoydcRDf/Jscx3M3m4RZMs5k
+            9t577vnO+c53zs3f//7+B4B7+ILhqme5XmHdrh1UrbJZbVpLVdN142AM2p7Z
+            MgtV09kprG7tWRUvjgiDvGN5viNDJJc3GKKt9okZKuKQE+BIMEjeru0yjJT6
+            xp9lSHn1da9hOzvT4o6I5Ix8qZexfUd+I2HbYtOubluNOAYZYg9tx/bmfSpl
+            FWlkFGgYIlQ4Y85nOSfjKqHMgwPL2WaYzl3OeJlEkHBWxQhGRfwsw3g/thcd
+            x4TjuHBc+n/HV4Xja6RrRw+GK7k+Sqi4jhvC9yaJazZ2iipSGFBI7Vsk5q7p
+            7i7Vt61ATInoUWvSvSiG41k7QrUJStXxVjGFvIJJTKvIiR1HgSFpfdk0q24Q
+            ajhnlMKDMJt/zqA0na36C99LxZuICfQ9Goe6t2s1GDKXUaR8O7Todr+gKu5i
+            RsR5t11CWYEkuqlV6o7rNZoVr94IaMmd3Ay66EX/MRMj8VAEfETz2WJQL5RW
+            JK45wxCl8IO74jND1Zb2617Vdgp7rVphuVUzHDpYxDzduVixPHPb9Eyy8Vor
+            Qu+IiU9CfEBZ9sn+whYnSsC3KfCPZ4c3FD7KFa6dHSr045qscDlKa5LWGK0D
+            tHL5/KuF0bPDGV5ki4OZmMZ1Xoyc/xCTZEmLLuuaTOfEjKwpujTKiuzJX9+0
+            b5OauqxpKeFNNubbBgihaYNk07q2tJZZS3ejysREl+SYFj//mnFBlcqnAobC
+            It7Z96gbYlwYBkukxtNmbctqPDO3qpZoc71iVstmwxbnwJha98zK/op5EJyV
+            9XqzUbEe2+KQXWs6nl2zyrZr0+0jx6l7pmdTh6n7nBouWGTEXwntRAOjiJGl
+            TKeCEJjW6MSvUI5ow/EZfWO+UcLnPsB3QJJ21BXxRgLw2+Qt7rIvoW2c4Epm
+            +Bi6foxXtPwxrh3j9Z/9zL0gWbzhc2Di5QVBbgUMZMHgFLfDGLmbmN5TgLnZ
+            Ya2f4s5RCBDtJpnqlhlKUgxjeknouQSYVapODJ0++Sf4t4hGjibPwI/x1pw+
+            /p04Sm29NugbB0/8g4F2yGEyEiygIXb3SSpB4AHeCYKLvgivhCA0eYrZHqM2
+            PBEwEjsfrnHx8gL4fABXJk4wNzH2G5Rf+vauHUvpxlL8IWAUc74r5rVAG66H
+            VeHtkdGyeA8Lgfdt0kTcJV6Cb+gnWAz3K4ElH5QW/2DhfnWmjPWZrCzexweh
+            +pL62PeISz9BivTEjpLYCxe1SuJxIHUSH/r1cTz33T/FJq27tHtCq0HQ5U1E
+            DHxkoGRgBU9pi1UDH+OTTTAXa1jfxJAL1cUzF3H/O+8i7yLqIubigW+5T+/K
+            xYyLKRc5F9d9Y8rFwH8DJohDBwgAAA==
             """
         )
     }
