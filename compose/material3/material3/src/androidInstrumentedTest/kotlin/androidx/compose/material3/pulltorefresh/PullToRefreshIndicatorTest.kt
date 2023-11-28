@@ -20,8 +20,9 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -118,7 +119,11 @@ class PullToRefreshIndicatorTest {
 
     @Test
     fun indicatorRespects_changingOffset() {
+        val containerSize = 30.dp
         val verticalOffsetDp = mutableStateOf(0.dp)
+        val expectedOffset = derivedStateOf {
+            verticalOffsetDp.value - (containerSize + SpinnerSize) / 2
+        }
         rule.setContent {
             val density = LocalDensity.current
             Box(Modifier.fillMaxSize()) {
@@ -141,14 +146,15 @@ class PullToRefreshIndicatorTest {
                             TODO("Not yet implemented")
                         }
                     },
-                    modifier = Modifier.heightIn(min = 30.dp).testTag(INDICATOR_TAG)
+                    modifier = Modifier.size(containerSize).testTag(INDICATOR_TAG)
                 )
             }
         }
+        rule.waitForIdle()
         rule
             .onNodeWithTag(INDICATOR_TAG)
             .onChild()
-            .assertTopPositionInRootIsEqualTo(verticalOffsetDp.value - 30.dp)
+            .assertTopPositionInRootIsEqualTo(expectedOffset.value)
 
         verticalOffsetDp.value = 100.dp
         rule.waitForIdle()
@@ -156,7 +162,7 @@ class PullToRefreshIndicatorTest {
         rule
             .onNodeWithTag(INDICATOR_TAG)
             .onChild()
-            .assertTopPositionInRootIsEqualTo(verticalOffsetDp.value - 30.dp)
+            .assertTopPositionInRootIsEqualTo(expectedOffset.value)
     }
 
     // Regression test for b/271777421

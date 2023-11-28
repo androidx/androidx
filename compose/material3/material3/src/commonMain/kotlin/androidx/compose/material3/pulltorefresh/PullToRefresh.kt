@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularIndicatorDiameter
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
@@ -123,7 +122,7 @@ fun PullToRefreshContainer(
     CompositionLocalProvider(LocalContentColor provides contentColor) {
         Box(
             modifier = modifier
-                .size(CircularIndicatorDiameter)
+                .size(SpinnerContainerSize)
                 .graphicsLayer {
                     translationY = state.verticalOffset - size.height
                 }
@@ -469,7 +468,7 @@ private fun DrawScope.drawCircularIndicator(
         size = arcBounds.size,
         style = Stroke(
             width = strokeWidth.toPx(),
-            cap = StrokeCap.Square
+            cap = StrokeCap.Butt
         )
     )
 }
@@ -512,25 +511,23 @@ private fun DrawScope.drawArrow(
 ) {
     arrow.reset()
     arrow.moveTo(0f, 0f) // Move to left corner
-    arrow.lineTo(x = ArrowWidth.toPx() * values.scale, y = 0f) // Line to right corner
-
     // Line to tip of arrow
     arrow.lineTo(
         x = ArrowWidth.toPx() * values.scale / 2,
         y = ArrowHeight.toPx() * values.scale
     )
+    arrow.lineTo(x = ArrowWidth.toPx() * values.scale, y = 0f) // Line to right corner
 
     val radius = min(bounds.width, bounds.height) / 2f
     val inset = ArrowWidth.toPx() * values.scale / 2f
     arrow.translate(
         Offset(
             x = radius + bounds.center.x - inset,
-            y = bounds.center.y + strokeWidth.toPx() / 2f
+            y = bounds.center.y - strokeWidth.toPx()
         )
     )
-    arrow.close()
-    rotate(degrees = values.endAngle) {
-        drawPath(path = arrow, color = color, alpha = alpha)
+    rotate(degrees = values.endAngle - strokeWidth.toPx()) {
+        drawPath(path = arrow, color = color, alpha = alpha, style = Stroke(strokeWidth.toPx()))
     }
 }
 
@@ -539,8 +536,9 @@ private const val CrossfadeDurationMs = MotionTokens.DurationShort2.toInt()
 
 /** The default stroke width for [Indicator] */
 private val StrokeWidth = 2.5.dp
-private val ArcRadius = 7.5.dp
-private val SpinnerSize = 20.dp // (ArcRadius + PullRefreshIndicatorDefaults.StrokeWidth).times(2)
+private val ArcRadius = 5.5.dp
+internal val SpinnerSize = 16.dp // (ArcRadius + PullRefreshIndicatorDefaults.StrokeWidth).times(2)
+internal val SpinnerContainerSize = 40.dp
 private val Elevation = ElevationTokens.Level2
 private val ArrowWidth = 10.dp
 private val ArrowHeight = 5.dp
