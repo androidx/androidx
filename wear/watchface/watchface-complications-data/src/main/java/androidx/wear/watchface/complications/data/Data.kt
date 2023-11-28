@@ -325,8 +325,8 @@ internal constructor(
         placeholder?.tapAction,
         cachedWireComplicationData,
         dataSource = null,
-        persistencePolicy =
-            placeholder?.persistencePolicy ?: ComplicationPersistencePolicies.CACHING_ALLOWED,
+        persistencePolicy = placeholder?.persistencePolicy
+                ?: ComplicationPersistencePolicies.CACHING_ALLOWED,
         displayPolicy = placeholder?.displayPolicy ?: ComplicationDisplayPolicies.ALWAYS_DISPLAY,
         dynamicValueInvalidationFallback = placeholder,
     ) {
@@ -1041,6 +1041,9 @@ internal constructor(
          *   don't support [dynamicValue], which should be in the range [[min]] .. [[max]]. The
          *   semantic meaning of value can be specified via [setValueType].
          *
+         *   This is only relevant before [Build.VERSION_CODES.UPSIDE_DOWN_CAKE], use the
+         *   no-fallback constructor if you target an equal or higher API level.
+         *
          *   IMPORTANT: This is only used when the system does not support [dynamicValue] _at all_.
          *   See [setDynamicValueInvalidationFallback] for the situation where [dynamicValue] cannot
          *   be evaluated, e.g. when a data source is not available.
@@ -1060,7 +1063,30 @@ internal constructor(
             min: Float,
             max: Float,
             contentDescription: ComplicationText
-        ) : this(fallbackValue, dynamicValue, min, max, contentDescription)
+        ) : this(value = fallbackValue, dynamicValue, min = min, max = max, contentDescription)
+
+        /**
+         * Creates a [Builder] for a [RangedValueComplicationData] with a [DynamicFloat] value, and
+         * no `fallbackValue` for API levels known to support dynamic values.
+         *
+         * @param dynamicValue The [DynamicFloat] of the ranged complication which will be evaluated
+         *   into a value dynamically, and should be in the range [[min]] .. [[max]]. The semantic
+         *   meaning of value can be specified via [setValueType].
+         * @param min The minimum value. For [TYPE_PERCENTAGE] this must be 0f.
+         * @param max The maximum value. This must be less than [Float.MAX_VALUE]. For
+         *   [TYPE_PERCENTAGE] this must be 0f.
+         * @param contentDescription Defines localized text that briefly describes content of the
+         *   complication. This property is used primarily for accessibility. Since some
+         *   complications do not have textual representation this attribute can be used for
+         *   providing such. Please do not include the word 'complication' in the description.
+         */
+        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        public constructor(
+            dynamicValue: DynamicFloat,
+            min: Float,
+            max: Float,
+            contentDescription: ComplicationText
+        ) : this(value = min, dynamicValue, min = min, max = max, contentDescription)
 
         private var tapAction: PendingIntent? = null
         private var validTimeRange: TimeRange? = null
@@ -1165,7 +1191,7 @@ internal constructor(
     override fun getContentDescription(context: Context): TimeDependentText? =
         _contentDescription?.emptyToNull()?.toWireComplicationText()
             ?: ComplicationTextTemplate.Builder().addTextAndTitle(text, title).buildOrNull()
-            ?: WireComplicationText(context.getString(R.string.a11y_template_range, value, max))
+                ?: WireComplicationText(context.getString(R.string.a11y_template_range, value, max))
 
     /** The content description field for accessibility. */
     val contentDescription: ComplicationText? = _contentDescription ?: ComplicationText.EMPTY
@@ -1391,6 +1417,9 @@ internal constructor(
          * @param fallbackValue The fallback value of the goal complication which will be used on
          *   systems that don't support [dynamicValue], and should be >= 0.
          *
+         *   This is only relevant before [Build.VERSION_CODES.UPSIDE_DOWN_CAKE], use the
+         *   no-fallback constructor if you target an equal or higher API level.
+         *
          *   IMPORTANT: This is only used when the system does not support [dynamicValue] _at all_.
          *   See [setDynamicValueInvalidationFallback] for the situation where the [dynamicValue]
          *   cannot be evaluated, e.g. when a data source is not available.
@@ -1497,7 +1526,7 @@ internal constructor(
     override fun getContentDescription(context: Context): TimeDependentText? =
         _contentDescription?.emptyToNull()?.toWireComplicationText()
             ?: ComplicationTextTemplate.Builder().addTextAndTitle(text, title).buildOrNull()
-            ?: WireComplicationText(
+                ?: WireComplicationText(
                 context.getString(R.string.a11y_template_range, value, targetValue)
             )
 
