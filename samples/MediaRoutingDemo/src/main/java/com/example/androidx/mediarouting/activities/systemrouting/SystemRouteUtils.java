@@ -19,7 +19,6 @@ package com.example.androidx.mediarouting.activities.systemrouting;
 import android.media.MediaRouter;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
 /**
  * Utils for {@link SystemRouteItem}.
@@ -33,30 +32,7 @@ public final class SystemRouteUtils {
     /**
      * Checks whether {@link MediaRouter.RouteInfo} is a system route or not.
      */
-    @RequiresApi(16)
     public static boolean isSystemMediaRouterRoute(@NonNull MediaRouter.RouteInfo routeInfo) {
         return routeInfo.getClass() == MediaRouter.RouteInfo.class;
     }
-
-    /**
-     * Converts {@link SystemRoutesSourceItem.Type} to a human-readable string.
-     */
-    @NonNull
-    public static String getDescriptionForSource(@SystemRoutesSourceItem.Type int type) {
-        switch (type) {
-            case SystemRoutesSourceItem.ROUTE_SOURCE_MEDIA_ROUTER:
-                return "Legacy MediaRouter";
-            case SystemRoutesSourceItem.ROUTE_SOURCE_MEDIA_ROUTER2:
-                return "MediaRouter2";
-            case SystemRoutesSourceItem.ROUTE_SOURCE_BLUETOOTH_MANAGER:
-                return "BluetoothManager";
-            case SystemRoutesSourceItem.ROUTE_SOURCE_ANDROIDX_ROUTER:
-                return "AndroidX MediaRouter";
-            case SystemRoutesSourceItem.ROUTE_SOURCE_AUDIO_MANAGER:
-                return "AudioManager";
-            default:
-                throw new IllegalArgumentException("Unknown system route type: " + type);
-        }
-    }
-
 }

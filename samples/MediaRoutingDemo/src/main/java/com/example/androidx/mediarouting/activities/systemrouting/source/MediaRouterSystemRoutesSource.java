@@ -18,12 +18,8 @@ package com.example.androidx.mediarouting.activities.systemrouting.source;
 
 import android.content.Context;
 import android.media.MediaRouter;
-import android.os.Build;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteItem;
 import com.example.androidx.mediarouting.activities.systemrouting.SystemRouteUtils;
@@ -33,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 /** Implements {@link SystemRoutesSource} using {@link MediaRouter}. */
-@RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
 public final class MediaRouterSystemRoutesSource extends SystemRoutesSource {
 
     @NonNull
@@ -79,8 +74,7 @@ public final class MediaRouterSystemRoutesSource extends SystemRoutesSource {
     @NonNull
     @Override
     public SystemRoutesSourceItem getSourceItem() {
-        return new SystemRoutesSourceItem.Builder(SystemRoutesSourceItem.ROUTE_SOURCE_MEDIA_ROUTER)
-                .build();
+        return new SystemRoutesSourceItem(/* name= */ "Legacy MediaRouter");
     }
 
     @NonNull
@@ -109,27 +103,11 @@ public final class MediaRouterSystemRoutesSource extends SystemRoutesSource {
                 new SystemRouteItem.Builder(/* id= */ routeInfo.getName().toString())
                         .setName(routeInfo.getName().toString());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            CharSequence description = Api18Impl.getDescription(routeInfo);
-
-            if (description != null) {
-                builder.setDescription(String.valueOf(description));
-            }
+        CharSequence description = routeInfo.getDescription();
+        if (description != null) {
+            builder.setDescription(String.valueOf(description));
         }
 
         return builder.build();
-    }
-
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    static class Api18Impl {
-        private Api18Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        @Nullable
-        static CharSequence getDescription(MediaRouter.RouteInfo routeInfo) {
-            return routeInfo.getDescription();
-        }
     }
 }
