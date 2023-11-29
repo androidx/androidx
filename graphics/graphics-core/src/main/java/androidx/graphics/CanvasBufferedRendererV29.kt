@@ -155,7 +155,7 @@ internal class CanvasBufferedRendererV29(
                                     CanvasBufferedRenderer.RenderResult(
                                         buffer,
                                         fence,
-                                        if (result != 0) ERROR_UNKNOWN else SUCCESS
+                                        if (isSuccess(result)) SUCCESS else ERROR_UNKNOWN
                                     )
                                 )
                                 if (mMaxBuffers == 1) {
@@ -170,6 +170,14 @@ internal class CanvasBufferedRendererV29(
             Log.v(TAG, "mHardwareRenderer is null")
         }
     }
+
+    /**
+     * Helper method to determine if [HardwareRenderer.FrameRenderRequest.syncAndDraw] was
+     * successful. In this case we wait for the next buffer even if we miss the vsync.
+     */
+    private fun isSuccess(result: Int) =
+        result == HardwareRenderer.SYNC_OK ||
+        result == HardwareRenderer.SYNC_FRAME_DROPPED
 
     private fun updateTransform(transform: Int): Matrix {
         mBufferTransform = transform

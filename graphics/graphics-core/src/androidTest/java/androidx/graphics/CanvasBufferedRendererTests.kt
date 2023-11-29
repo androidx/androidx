@@ -138,12 +138,16 @@ class CanvasBufferedRendererTests {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testPreservationEnabledPreservesContents() =
-        verifyPreservedBuffer(CanvasBufferedRenderer.DEFAULT_IMPL)
+        repeat(20) {
+            verifyPreservedBuffer(CanvasBufferedRenderer.DEFAULT_IMPL)
+        }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testPreservationEnabledPreservesContentsWithRedrawStrategy() =
-        verifyPreservedBuffer(CanvasBufferedRenderer.USE_V29_IMPL_WITH_REDRAW)
+        repeat(20) {
+            verifyPreservedBuffer(CanvasBufferedRenderer.USE_V29_IMPL_WITH_REDRAW)
+        }
 
     @RequiresApi(Build.VERSION_CODES.Q)
     private fun verifyPreservedBuffer(
