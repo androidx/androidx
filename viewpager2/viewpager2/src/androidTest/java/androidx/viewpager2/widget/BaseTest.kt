@@ -20,7 +20,6 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import android.view.View
-import android.view.View.OVER_SCROLL_NEVER
 import android.view.ViewConfiguration
 import android.view.accessibility.AccessibilityNodeInfo
 import androidx.core.view.ViewCompat
@@ -124,11 +123,6 @@ open class BaseTest {
             viewPager.setSystemExclusionRectsForEspressoSwipes(requestLayout = true)
         }
         onView(withId(R.id.view_pager)).check(matches(isDisplayed()))
-
-        // animations getting in the way on API < 16
-        if (Build.VERSION.SDK_INT < 16) {
-            viewPager.recyclerView.overScrollMode = OVER_SCROLL_NEVER
-        }
 
         return Context(activityTestRule)
     }

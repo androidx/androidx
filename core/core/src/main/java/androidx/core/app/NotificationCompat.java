@@ -2219,10 +2219,6 @@ public class NotificationCompat {
          */
         @SuppressLint("BuilderSetStyle")  // This API is copied from Notification.Builder
         public @Nullable RemoteViews createBigContentView() {
-            // Before Jellybean, there was no "big" notification view
-            if (Build.VERSION.SDK_INT < 16) {
-                return null;
-            }
             // If the user setCustomBigContentView(), return it if appropriate for the style.
             if (mBigContentView != null && useExistingRemoteView()) {
                 return mBigContentView;

@@ -16,8 +16,6 @@
 
 package androidx.core.app;
 
-import static android.os.Build.VERSION.SDK_INT;
-
 import static androidx.core.util.Preconditions.checkNotNull;
 
 import android.app.Activity;
@@ -246,12 +244,6 @@ public final class ShareCompat {
                 + shareIntent.getContext().getClass().getName());
         provider.setShareIntent(shareIntent.getIntent());
         item.setActionProvider(provider);
-
-        if (SDK_INT < 16) {
-            if (!item.hasSubMenu()) {
-                item.setIntent(shareIntent.createChooserIntent());
-            }
-        }
     }
 
     /**

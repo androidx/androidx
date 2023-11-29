@@ -686,12 +686,6 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
         // Add an action so that we start getting the view
         builder.addAction(new NotificationCompat.Action(null, "action", null));
 
-        // Before Jellybean, there was no big view; expect null
-        if (Build.VERSION.SDK_INT < 16) {
-            assertNull(builder.createHeadsUpContentView());
-            return;
-        }
-
         // Expect the standard big notification template
         RemoteViews standardView = builder.createBigContentView();
         assertNotNull(standardView);
