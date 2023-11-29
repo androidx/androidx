@@ -20,6 +20,11 @@ import android.bluetooth.le.ScanCallback as FwkScanCallback
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
+/**
+ * Exception indicating a failure to start a scan operation.
+ *
+ * @property errorCode the error code for indicating the reason why the exception is thrown.
+ */
 class ScanException(errorCode: Int) : BluetoothException(errorCode) {
 
     companion object {
@@ -56,6 +61,7 @@ class ScanException(errorCode: Int) : BluetoothException(errorCode) {
     )
     annotation class ScanFail
 
+    /** The error code associated with this exception. */
     override val errorCode: @ScanFail Int = when (errorCode) {
         FwkScanCallback.SCAN_FAILED_APPLICATION_REGISTRATION_FAILED ->
             APPLICATION_REGISTRATION_FAILED
