@@ -81,6 +81,7 @@ androidXMultiplatform {
             dependsOn(jvmMain)
             dependencies {
                 api(libs.kotlinCoroutinesAndroid)
+                api(project(":annotation:annotation-experimental"))
             }
         }
 

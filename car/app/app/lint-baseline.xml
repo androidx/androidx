@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="MissingPermission"
+        message="Missing permissions required by LocationManager.removeUpdates: 1..22;android.permission.ACCESS_COARSE_LOCATION or 1..22;android.permission.ACCESS_FINE_LOCATION"
+        errorLine1="        locationManager.removeUpdates(mLocationListener);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/AppManager.java"/>
+    </issue>
 
     <issue
         id="NewApi"
@@ -17,6 +26,33 @@
         errorLine2="                                                                              ~~~">
         <location
             file="src/test/java/androidx/car/app/CarContextTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.app.Notification#getChannelId`"
+        errorLine1="        assertThat(changed.getChannelId()).isEqualTo(EXTENDED_CHANNEL);"
+        errorLine2="                           ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.app.Notification#getChannelId`"
+        errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `android.app.Notification#getChannelId`"
+        errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
+        errorLine2="                          ~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
     </issue>
 
     <issue
@@ -57,15 +93,6 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 21): `java.time.Duration#ofMillis`"
-        errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
-        errorLine2="                         ~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
         message="Call requires API level 26 (current min is 21): `java.time.Duration#getSeconds`"
         errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
         errorLine2="                                                                            ~~~~~~~~~~">
@@ -125,6 +152,78 @@
         errorLine2="                                                                            ~~~~~~~~~~">
         <location
             file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 26 (current min is 21): `java.time.Duration#ofMillis`"
+        errorLine1="                Duration.ofMillis(timeZone.getOffset(timeSinceEpochMillis)).getSeconds();"
+        errorLine2="                         ~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/model/DateTimeWithZoneTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `java.util.Collection#stream`"
+        errorLine1="                .stream()"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `java.util.stream.Stream#mapToLong`"
+        errorLine1="                .mapToLong(List::size)"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 24 (current min is 21): `java.util.stream.LongStream#sum`"
+        errorLine1="                .sum()).isEqualTo(6);"
+        errorLine2="                 ~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Class requires API level 28 (current min is 21): `android.content.pm.SigningInfo`"
+        errorLine1="        packageInfo.signingInfo = mock(SigningInfo.class);"
+        errorLine2="                                       ~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 21): `android.content.pm.PackageInfo#signingInfo`"
+        errorLine1="        packageInfo.signingInfo = mock(SigningInfo.class);"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 28 (current min is 21): `android.content.pm.SigningInfo#getSigningCertificateHistory`"
+        errorLine1="        when(packageInfo.signingInfo.getSigningCertificateHistory()).thenReturn(signatures);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Field requires API level 28 (current min is 21): `android.content.pm.PackageInfo#signingInfo`"
+        errorLine1="        when(packageInfo.signingInfo.getSigningCertificateHistory()).thenReturn(signatures);"
+        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
     </issue>
 
     <issue
@@ -227,156 +326,12 @@
     </issue>
 
     <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.Notification#getChannelId`"
-        errorLine1="        assertThat(changed.getChannelId()).isEqualTo(EXTENDED_CHANNEL);"
-        errorLine2="                           ~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.Notification#getChannelId`"
-        errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
-        errorLine2="                          ~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 26 (current min is 21): `android.app.Notification#getChannelId`"
-        errorLine1="        assertThat(output.getChannelId()).isEqualTo(DEFAULT_CHANNEL);"
-        errorLine2="                          ~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/notification/CarNotificationManagerTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `java.util.Collection#stream`"
-        errorLine1="                .stream()"
-        errorLine2="                 ~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `java.util.stream.Stream#mapToLong`"
-        errorLine1="                .mapToLong(List::size)"
-        errorLine2="                 ~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 24 (current min is 21): `java.util.stream.LongStream#sum`"
-        errorLine1="                .sum()).isEqualTo(6);"
-        errorLine2="                 ~~~">
-        <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 28 (current min is 21): `android.content.pm.PackageInfo#signingInfo`"
-        errorLine1="        packageInfo.signingInfo = mock(SigningInfo.class);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Class requires API level 28 (current min is 21): `android.content.pm.SigningInfo`"
-        errorLine1="        packageInfo.signingInfo = mock(SigningInfo.class);"
-        errorLine2="                                       ~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Field requires API level 28 (current min is 21): `android.content.pm.PackageInfo#signingInfo`"
-        errorLine1="        when(packageInfo.signingInfo.getSigningCertificateHistory()).thenReturn(signatures);"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 28 (current min is 21): `android.content.pm.SigningInfo#getSigningCertificateHistory`"
-        errorLine1="        when(packageInfo.signingInfo.getSigningCertificateHistory()).thenReturn(signatures);"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/test/java/androidx/car/app/validation/HostValidatorTestApi28.java"/>
-    </issue>
-
-    <issue
         id="WrongConstant"
         message="Must be one of: CarAppApiLevels.UNKNOWN, CarAppApiLevels.LEVEL_1, CarAppApiLevels.LEVEL_2, CarAppApiLevels.LEVEL_3, CarAppApiLevels.LEVEL_4, CarAppApiLevels.LEVEL_5, CarAppApiLevels.LEVEL_6, CarAppApiLevels.LEVEL_7"
         errorLine1="        mCarAppApiLevel = handshakeInfo.getHostCarAppApiLevel();"
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/car/app/CarContext.java"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="This annotation does not apply for type java.util.List&lt;androidx.car.app.hardware.climate.CarClimateFeature>; expected int"
-        errorLine1="    @ClimateProfileRequest.ClimateProfileFeature"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/climate/RegisterClimateStateRequest.java"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="This annotation does not apply for type java.util.List&lt;androidx.car.app.hardware.climate.CarClimateFeature>; expected int"
-        errorLine1="    @ClimateProfileRequest.ClimateProfileFeature"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/climate/RegisterClimateStateRequest.java"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="This annotation does not apply for type java.util.List&lt;androidx.car.app.hardware.climate.CarClimateFeature>; expected int"
-        errorLine1="    @ClimateProfileRequest.ClimateProfileFeature"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/hardware/climate/RegisterClimateStateRequest.java"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
-        errorLine1="class PersonsEqualityHelper {"
-        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/messaging/model/PersonsEqualityHelper.java"/>
-    </issue>
-
-    <issue
-        id="SupportAnnotationUsage"
-        message="This annotation does not apply for type androidx.car.app.model.Row.Builder; expected int or long"
-        errorLine1="        @IntRange(from = 0)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/model/Row.java"/>
-    </issue>
-
-    <issue
-        id="UnsafeOptInUsageError"
-        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
-        errorLine1="            } else if (rowObj instanceof ConversationItem) {"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/car/app/model/constraints/RowListConstraints.java"/>
     </issue>
 
     <issue
@@ -407,12 +362,84 @@
     </issue>
 
     <issue
-        id="MissingPermission"
-        message="Missing permissions required by LocationManager.removeUpdates: 1..22;android.permission.ACCESS_COARSE_LOCATION or 1..22;android.permission.ACCESS_FINE_LOCATION"
-        errorLine1="        locationManager.removeUpdates(mLocationListener);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="class PersonsEqualityHelper {"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/car/app/AppManager.java"/>
+            file="src/main/java/androidx/car/app/messaging/model/PersonsEqualityHelper.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
+        errorLine1="    private final List&lt;CarZone> mCarZones;"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/hardware/common/CarValue.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
+        errorLine1="    private final Badge mBadge;"
+        errorLine2="                  ~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/model/GridItem.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
+        errorLine1="        Badge mBadge;"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/model/GridItem.java"/>
+    </issue>
+
+    <issue
+        id="UnsafeOptInUsageError"
+        message="This declaration is opt-in and its usage should be marked with `@androidx.car.app.annotations.ExperimentalCarApi` or `@OptIn(markerClass = androidx.car.app.annotations.ExperimentalCarApi.class)`"
+        errorLine1="            } else if (rowObj instanceof ConversationItem) {"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/model/constraints/RowListConstraints.java"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="This annotation does not apply for type java.util.List&lt;androidx.car.app.hardware.climate.CarClimateFeature>; expected int"
+        errorLine1="    @ClimateProfileRequest.ClimateProfileFeature"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/hardware/climate/RegisterClimateStateRequest.java"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="This annotation does not apply for type java.util.List&lt;androidx.car.app.hardware.climate.CarClimateFeature>; expected int"
+        errorLine1="    @ClimateProfileRequest.ClimateProfileFeature"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/hardware/climate/RegisterClimateStateRequest.java"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="This annotation does not apply for type java.util.List&lt;androidx.car.app.hardware.climate.CarClimateFeature>; expected int"
+        errorLine1="    @ClimateProfileRequest.ClimateProfileFeature"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/hardware/climate/RegisterClimateStateRequest.java"/>
+    </issue>
+
+    <issue
+        id="SupportAnnotationUsage"
+        message="This annotation does not apply for type androidx.car.app.model.Row.Builder; expected int or long"
+        errorLine1="        @IntRange(from = 0)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/car/app/model/Row.java"/>
     </issue>
 
 </issues>

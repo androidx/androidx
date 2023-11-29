@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="BanSynchronizedMethods"
@@ -8,6 +8,24 @@
         errorLine2="    ^">
         <location
             file="src/main/java/com/example/android/support/text/emoji/Config.java"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    static synchronized void load(final Context context) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/com/example/android/support/text/emoji/EmojiRepo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.support.text.emoji.ConfigLayout is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
     </issue>
 
     <issue
@@ -83,15 +101,6 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class com.example.android.support.text.emoji.ConfigLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
-        errorLine2="        ~~~~~">
-        <location
-            file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public CustomTextView(Context context) {"
@@ -116,15 +125,6 @@
         errorLine2="                          ~~~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/CustomTextView.java"/>
-    </issue>
-
-    <issue
-        id="BanSynchronizedMethods"
-        message="Use of synchronized methods is not recommended"
-        errorLine1="    static synchronized void load(final Context context) {"
-        errorLine2="    ^">
-        <location
-            file="src/main/java/com/example/android/support/text/emoji/EmojiRepo.java"/>
     </issue>
 
     <issue

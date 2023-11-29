@@ -1,5 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            noop.setCompoundDrawableTintList(csl);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 23; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemoExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemoExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.CoreActivityExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.CoreActivityExt is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            setActionBar(new Toolbar(this));"
+        errorLine2="                         ~~~~~~~~~~~">
+        <location
+            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
+    </issue>
 
     <issue
         id="UseAndroidAlpha"
@@ -47,42 +119,6 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            noop.setCompoundDrawableTintList(csl);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 23; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            setActionBar(new Toolbar(this));"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemo is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            setActionBar(new Toolbar(this));"
-        errorLine2="                         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemo.java"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
@@ -92,46 +128,10 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemoExt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            setActionBar(new Toolbar(this));"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.AppCompatLintDemoExt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            setActionBar(new Toolbar(this));"
-        errorLine2="                         ~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/AppCompatLintDemoExt.java"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public void onCreate(Bundle savedInstanceState) {"
         errorLine2="                         ~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.CoreActivityExt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            setActionBar(new Toolbar(this));"
-        errorLine2="            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class com.example.android.appcompat.CoreActivityExt is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            setActionBar(new Toolbar(this));"
-        errorLine2="                         ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/appcompat/CoreActivityExt.java"/>
     </issue>

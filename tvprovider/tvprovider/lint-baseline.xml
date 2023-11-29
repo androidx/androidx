@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="BanThreadSleep"
@@ -8,6 +8,69 @@
         errorLine2="                       ~~~~~">
         <location
             file="src/androidTest/java/androidx/tvprovider/media/tv/PreviewChannelHelperTest.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return TvContract.buildRecordedProgramUri(recordedProgramId);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return TvContract.isChannelUri(uri);"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return TvContract.isChannelUriForTunerInput(uri);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return TvContract.isChannelUriForPassthroughInput(uri);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 24; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            return TvContract.isProgramUri(uri);"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
+    </issue>
+
+    <issue
+        id="ClassVerificationFailure"
+        message="This call references a method added in API level 26; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
+        errorLine1="            TvContract.requestChannelBrowsable(context, channelId);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
+    </issue>
+
+    <issue
+        id="PrivateConstructorForUtilityClass"
+        message="Utility class is missing private constructor"
+        errorLine1="public class ChannelLogoUtils {"
+        errorLine2="             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/ChannelLogoUtils.java"/>
     </issue>
 
     <issue
@@ -1298,15 +1361,6 @@
     </issue>
 
     <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class is missing private constructor"
-        errorLine1="public class ChannelLogoUtils {"
-        errorLine2="             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/ChannelLogoUtils.java"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static &lt;T> T[] concatAll(T[] first, T[]... rest) {"
@@ -2036,15 +2090,6 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return TvContract.buildRecordedProgramUri(recordedProgramId);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static Uri buildPreviewProgramUri(long previewProgramId) {"
@@ -2099,28 +2144,10 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return TvContract.isChannelUri(uri);"
-        errorLine2="                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static boolean isChannelUriForTunerInput(Uri uri) {"
         errorLine2="                                                    ~~~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return TvContract.isChannelUriForTunerInput(uri);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
@@ -2135,28 +2162,10 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return TvContract.isChannelUriForPassthroughInput(uri);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
-    </issue>
-
-    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static boolean isProgramUri(Uri uri) {"
         errorLine2="                                       ~~~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 24; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return TvContract.isProgramUri(uri);"
-        errorLine2="                              ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>
@@ -2175,15 +2184,6 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public static void requestChannelBrowsable(Context context, long channelId) {"
         errorLine2="                                               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 26; however, the containing class androidx.tvprovider.media.tv.TvContractCompat is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            TvContract.requestChannelBrowsable(context, channelId);"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"/>
     </issue>

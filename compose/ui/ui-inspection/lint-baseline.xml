@@ -1,5 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field anchorLookup with type Map&lt;Integer, Object>: replace with IntObjectMap"
+        errorLine1="    private val anchorLookup = mutableMapOf&lt;Int, Any>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/util/AnchorMap.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field idLookup with type IdentityHashMap&lt;Object, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val idLookup = IdentityHashMap&lt;Any, Int>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/util/AnchorMap.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field viewsToSkip with type List&lt;Long>: replace with LongList"
+        errorLine1="    val viewsToSkip: List&lt;Long> ="
+        errorLine2="                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/compose/AndroidComposeViewWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Long> of getViewsToSkip: replace with LongList"
+        errorLine1="    val viewsToSkip: List&lt;Long> ="
+        errorLine2="                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/compose/AndroidComposeViewWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Long, InspectorNode> of getLookup: replace with LongObjectMap"
+        errorLine1="        val lookup: Map&lt;Long, InspectorNode>"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable var785951a with type Map&lt;Long, ? extends InspectorNode>: replace with LongObjectMap"
+        errorLine1="            get() = _lookup ?: trees.flatMap { it.nodes }"
+        errorLine2="                    ^">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field _lookup with type Map&lt;Long, InspectorNode>: replace with LongObjectMap"
+        errorLine1="        private var _lookup: Map&lt;Long, InspectorNode>? = null"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor CacheTree has parameter viewsToSkip with type List&lt;Long>: replace with LongList"
+        errorLine1="        val viewsToSkip: List&lt;Long>"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field viewsToSkip with type List&lt;Long>: replace with LongList"
+        errorLine1="        val viewsToSkip: List&lt;Long>"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Long> of getViewsToSkip: replace with LongList"
+        errorLine1="        val viewsToSkip: List&lt;Long>"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
 
     <issue
         id="PrimitiveInCollection"
@@ -48,74 +138,11 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field _lookup with type Map&lt;Long, InspectorNode>: replace with LongObjectMap"
-        errorLine1="        private var _lookup: Map&lt;Long, InspectorNode>? = null"
-        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="method asIntArray has parameter $this$asIntArray with type List&lt;Integer>: replace with IntList"
+        errorLine1="fun List&lt;Int>.asIntArray() ="
+        errorLine2="    ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type Map&lt;Long, InspectorNode> of getLookup: replace with LongObjectMap"
-        errorLine1="        val lookup: Map&lt;Long, InspectorNode>"
-        errorLine2="            ~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable var785951a with type Map&lt;Long, ? extends InspectorNode>: replace with LongObjectMap"
-        errorLine1="            get() = _lookup ?: trees.flatMap { it.nodes }"
-        errorLine2="                    ^">
-        <location
-            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field viewsToSkip with type List&lt;Long>: replace with LongList"
-        errorLine1="        val viewsToSkip: List&lt;Long>"
-        errorLine2="                         ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Long> of getViewsToSkip: replace with LongList"
-        errorLine1="        val viewsToSkip: List&lt;Long>"
-        errorLine2="                         ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="constructor CacheTree has parameter viewsToSkip with type List&lt;Long>: replace with LongList"
-        errorLine1="        val viewsToSkip: List&lt;Long>"
-        errorLine2="                         ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field viewsToSkip with type List&lt;Long>: replace with LongList"
-        errorLine1="    val viewsToSkip: List&lt;Long> ="
-        errorLine2="                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/inspection/compose/AndroidComposeViewWrapper.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Long> of getViewsToSkip: replace with LongList"
-        errorLine1="    val viewsToSkip: List&lt;Long> ="
-        errorLine2="                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/inspection/compose/AndroidComposeViewWrapper.kt"/>
+            file="src/main/java/androidx/compose/ui/inspection/util/IntArray.kt"/>
     </issue>
 
     <issue
@@ -197,33 +224,6 @@
         errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/compose/ui/inspection/proto/StringTable.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field anchorLookup with type Map&lt;Integer, Object>: replace with IntObjectMap"
-        errorLine1="    private val anchorLookup = mutableMapOf&lt;Int, Any>()"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/inspection/util/AnchorMap.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field idLookup with type IdentityHashMap&lt;Object, Integer>: replace with ObjectIntMap"
-        errorLine1="    private val idLookup = IdentityHashMap&lt;Any, Int>()"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/inspection/util/AnchorMap.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method asIntArray has parameter $this$asIntArray with type List&lt;Integer>: replace with IntList"
-        errorLine1="fun List&lt;Int>.asIntArray() ="
-        errorLine2="    ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/compose/ui/inspection/util/IntArray.kt"/>
     </issue>
 
 </issues>

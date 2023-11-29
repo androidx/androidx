@@ -1,101 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
 
     <issue
         id="ResourceType"
         message="Expected resource of type styleable"
         errorLine1="    static final int[] TRANSITION_TARGET = {"
         errorLine2="                                           ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] TRANSITION_MANAGER = {"
-        errorLine2="                                            ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] TRANSITION = {"
-        errorLine2="                                    ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] CHANGE_BOUNDS = {"
-        errorLine2="                                       ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] VISIBILITY_TRANSITION = {"
-        errorLine2="                                               ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] FADE = {"
-        errorLine2="                              ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] CHANGE_TRANSFORM = {"
-        errorLine2="                                          ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] SLIDE = {"
-        errorLine2="                               ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] TRANSITION_SET = {"
-        errorLine2="                                        ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] ARC_MOTION = {"
-        errorLine2="                                    ^">
-        <location
-            file="src/main/java/androidx/transition/Styleable.java"/>
-    </issue>
-
-    <issue
-        id="ResourceType"
-        message="Expected resource of type styleable"
-        errorLine1="    static final int[] PATTERN_PATH_MOTION = {"
-        errorLine2="                                             ^">
         <location
             file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
@@ -148,6 +58,15 @@
     <issue
         id="ResourceType"
         message="Expected resource of type styleable"
+        errorLine1="    static final int[] TRANSITION_MANAGER = {"
+        errorLine2="                                            ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
         errorLine1="        int TO_SCENE = 1;"
         errorLine2="                       ~">
         <location
@@ -159,6 +78,15 @@
         message="Expected resource of type styleable"
         errorLine1="        int TRANSITION = 2;"
         errorLine2="                         ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] TRANSITION = {"
+        errorLine2="                                    ^">
         <location
             file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
@@ -193,8 +121,71 @@
     <issue
         id="ResourceType"
         message="Expected resource of type styleable"
+        errorLine1="    static final int[] CHANGE_BOUNDS = {"
+        errorLine2="                                       ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] VISIBILITY_TRANSITION = {"
+        errorLine2="                                               ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] FADE = {"
+        errorLine2="                              ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] CHANGE_TRANSFORM = {"
+        errorLine2="                                          ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
         errorLine1="        int REPARENT_WITH_OVERLAY = 1;"
         errorLine2="                                    ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] SLIDE = {"
+        errorLine2="                               ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] TRANSITION_SET = {"
+        errorLine2="                                        ^">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] ARC_MOTION = {"
+        errorLine2="                                    ^">
         <location
             file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>
@@ -213,6 +204,15 @@
         message="Expected resource of type styleable"
         errorLine1="        int MAXIMUM_ANGLE = 2;"
         errorLine2="                            ~">
+        <location
+            file="src/main/java/androidx/transition/Styleable.java"/>
+    </issue>
+
+    <issue
+        id="ResourceType"
+        message="Expected resource of type styleable"
+        errorLine1="    static final int[] PATTERN_PATH_MOTION = {"
+        errorLine2="                                             ^">
         <location
             file="src/main/java/androidx/transition/Styleable.java"/>
     </issue>

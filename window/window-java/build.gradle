@@ -34,7 +34,8 @@ dependencies {
     api(libs.kotlinStdlib)
     api(libs.kotlinCoroutinesCore)
     api(project(":window:window"))
-    implementation("androidx.core:core:1.3.2")
+    implementation("androidx.core:core:1.8.0")
+    implementation("androidx.annotation:annotation:1.7.0")
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)

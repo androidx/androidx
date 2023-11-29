@@ -1,5 +1,95 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
+<issues format="6" by="lint 8.3.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-beta01)" variant="all" version="8.3.0-beta01">
+
+    <issue
+        id="LambdaLast"
+        message="Functional interface parameters (such as parameter 1, &quot;listener&quot;, in androidx.media.AudioFocusRequestCompat.Builder.setOnAudioFocusChangeListener) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
+        errorLine1="                @NonNull OnAudioFocusChangeListener listener, @NonNull Handler handler) {"
+        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AudioAttributesImpl mImpl;"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder(AudioAttributesCompat aa) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public AudioAttributesCompat build() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setUsage(@AttributeUsage int usage) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setContentType(@AttributeContentType int contentType) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setFlags(int flags) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setLegacyStreamType(int streamType) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public AudioAttributes mAudioAttributes;"
+        errorLine2="           ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public AudioFocusRequestCompat build() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
@@ -211,505 +301,235 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
-        errorLine2="                              ~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Object getMediaDescription() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static MediaDescriptionCompat fromMediaDescription(Object descriptionObj) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static MediaDescriptionCompat fromMediaDescription(Object descriptionObj) {"
-        errorLine2="                                                              ~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setMediaId(@Nullable String mediaId) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setTitle(@Nullable CharSequence title) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setSubtitle(@Nullable CharSequence subtitle) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setDescription(@Nullable CharSequence description) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setIconBitmap(@Nullable Bitmap icon) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setIconUri(@Nullable Uri iconUri) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setExtras(@Nullable Bundle extras) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setMediaUri(@Nullable Uri mediaUri) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public MediaDescriptionCompat build() {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public boolean containsKey(String key) {"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public CharSequence getText(@TextKey String key) {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public CharSequence getText(@TextKey String key) {"
+        errorLine1="    public static boolean areSameOptions(Bundle options1, Bundle options2) {"
         errorLine2="                                         ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserCompatUtils.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public String getString(@TextKey String key) {"
-        errorLine2="           ~~~~~~">
+        errorLine1="    public static boolean areSameOptions(Bundle options1, Bundle options2) {"
+        errorLine2="                                                          ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserCompatUtils.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public String getString(@TextKey String key) {"
-        errorLine2="                                     ~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public long getLong(@LongKey String key) {"
-        errorLine2="                                 ~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public RatingCompat getRating(@RatingKey String key) {"
-        errorLine2="           ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public RatingCompat getRating(@RatingKey String key) {"
+        errorLine1="    public static boolean hasDuplicatedItems(Bundle options1, Bundle options2) {"
         errorLine2="                                             ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserCompatUtils.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Bitmap getBitmap(@BitmapKey String key) {"
-        errorLine2="           ~~~~~~">
+        errorLine1="    public static boolean hasDuplicatedItems(Bundle options1, Bundle options2) {"
+        errorLine2="                                                              ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserCompatUtils.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Bitmap getBitmap(@BitmapKey String key) {"
+        errorLine1="    public void attachToBaseContext(Context base) {"
+        errorLine2="                                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public IBinder onBind(Intent intent) {"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onSubscribe(String id, Bundle option) {"
+        errorLine2="                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void onSubscribe(String id, Bundle option) {"
         errorLine2="                                       ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public MediaDescriptionCompat getDescription() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
+        errorLine1="    public void onUnsubscribe(String id) {"
         errorLine2="                              ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Set&lt;String> keySet() {"
-        errorLine2="           ~~~~~~~~~~~">
+        errorLine1="    public void onLoadItem(String itemId, @NonNull Result&lt;MediaBrowserCompat.MediaItem> result) {"
+        errorLine2="                           ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Bundle getBundle() {"
-        errorLine2="           ~~~~~~">
+        errorLine1="    public void onSearch(@NonNull String query, Bundle extras,"
+        errorLine2="                                                ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static MediaMetadataCompat fromMediaMetadata(Object metadataObj) {"
-        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public void onCustomAction(@NonNull String action, Bundle extras,"
+        errorLine2="                                                       ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static MediaMetadataCompat fromMediaMetadata(Object metadataObj) {"
-        errorLine2="                                                        ~~~~~~">
+        errorLine1="    public void setSessionToken(MediaSessionCompat.Token token) {"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Object getMediaMetadata() {"
-        errorLine2="           ~~~~~~">
+        errorLine1="    public final Bundle getBrowserRootHints() {"
+        errorLine2="                 ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder(MediaMetadataCompat source) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        public String getRootId() {"
+        errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder(MediaMetadataCompat source, int maxBitmapSize) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        errorLine1="        public Bundle getExtras() {"
+        errorLine2="               ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putText(@TextKey String key, CharSequence value) {"
-        errorLine2="               ~~~~~~~">
+        errorLine1="    public static KeyEvent handleIntent(MediaSessionCompat mediaSessionCompat, Intent intent) {"
+        errorLine2="                  ~~~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putText(@TextKey String key, CharSequence value) {"
-        errorLine2="                                        ~~~~~~">
+        errorLine1="    public static KeyEvent handleIntent(MediaSessionCompat mediaSessionCompat, Intent intent) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putText(@TextKey String key, CharSequence value) {"
-        errorLine2="                                                    ~~~~~~~~~~~~">
+        errorLine1="    public static KeyEvent handleIntent(MediaSessionCompat mediaSessionCompat, Intent intent) {"
+        errorLine2="                                                                               ~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putString(@TextKey String key, String value) {"
-        errorLine2="               ~~~~~~~">
+        errorLine1="    public static PendingIntent buildMediaButtonPendingIntent(Context context,"
+        errorLine2="                  ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putString(@TextKey String key, String value) {"
-        errorLine2="                                          ~~~~~~">
+        errorLine1="    public static PendingIntent buildMediaButtonPendingIntent(Context context,"
+        errorLine2="                                                              ~~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putString(@TextKey String key, String value) {"
-        errorLine2="                                                      ~~~~~~">
+        errorLine1="    public static PendingIntent buildMediaButtonPendingIntent(Context context,"
+        errorLine2="                  ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putLong(@LongKey String key, long value) {"
-        errorLine2="               ~~~~~~~">
+        errorLine1="    public static PendingIntent buildMediaButtonPendingIntent(Context context,"
+        errorLine2="                                                              ~~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putLong(@LongKey String key, long value) {"
-        errorLine2="                                        ~~~~~~">
+        errorLine1="            ComponentName mbrComponent, @MediaKeyAction long action) {"
+        errorLine2="            ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putRating(@RatingKey String key, RatingCompat value) {"
-        errorLine2="               ~~~~~~~">
+        errorLine1="    public static ComponentName getMediaButtonReceiverComponent(Context context) {"
+        errorLine2="                  ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putRating(@RatingKey String key, RatingCompat value) {"
-        errorLine2="                                            ~~~~~~">
+        errorLine1="    public static ComponentName getMediaButtonReceiverComponent(Context context) {"
+        errorLine2="                                                                ~~~~~~~">
         <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putRating(@RatingKey String key, RatingCompat value) {"
-        errorLine2="                                                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putBitmap(@BitmapKey String key, Bitmap value) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putBitmap(@BitmapKey String key, Bitmap value) {"
-        errorLine2="                                            ~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder putBitmap(@BitmapKey String key, Bitmap value) {"
-        errorLine2="                                                        ~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public MediaMetadataCompat build() {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
-        errorLine2="                              ~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static RatingCompat newUnratedRating(@Style int ratingStyle) {"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static RatingCompat newHeartRating(boolean hasHeart) {"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static RatingCompat newThumbRating(boolean thumbIsUp) {"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static RatingCompat newStarRating(@StarStyle int starRatingStyle,"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static RatingCompat newPercentageRating(float percent) {"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static RatingCompat fromRating(Object ratingObj) {"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static RatingCompat fromRating(Object ratingObj) {"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public Object getRating() {"
-        errorLine2="           ~~~~~~">
-        <location
-            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
     <issue
@@ -1142,6 +962,429 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Object getMediaDescription() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static MediaDescriptionCompat fromMediaDescription(Object descriptionObj) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static MediaDescriptionCompat fromMediaDescription(Object descriptionObj) {"
+        errorLine2="                                                              ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setMediaId(@Nullable String mediaId) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setTitle(@Nullable CharSequence title) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setSubtitle(@Nullable CharSequence subtitle) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setDescription(@Nullable CharSequence description) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setIconBitmap(@Nullable Bitmap icon) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setIconUri(@Nullable Uri iconUri) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setExtras(@Nullable Bundle extras) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder setMediaUri(@Nullable Uri mediaUri) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public MediaDescriptionCompat build() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public boolean containsKey(String key) {"
+        errorLine2="                               ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public CharSequence getText(@TextKey String key) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public CharSequence getText(@TextKey String key) {"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getString(@TextKey String key) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public String getString(@TextKey String key) {"
+        errorLine2="                                     ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public long getLong(@LongKey String key) {"
+        errorLine2="                                 ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RatingCompat getRating(@RatingKey String key) {"
+        errorLine2="           ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public RatingCompat getRating(@RatingKey String key) {"
+        errorLine2="                                             ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Bitmap getBitmap(@BitmapKey String key) {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Bitmap getBitmap(@BitmapKey String key) {"
+        errorLine2="                                       ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public MediaDescriptionCompat getDescription() {"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
+        errorLine2="                              ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Set&lt;String> keySet() {"
+        errorLine2="           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Bundle getBundle() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static MediaMetadataCompat fromMediaMetadata(Object metadataObj) {"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public static MediaMetadataCompat fromMediaMetadata(Object metadataObj) {"
+        errorLine2="                                                        ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    public Object getMediaMetadata() {"
+        errorLine2="           ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder(MediaMetadataCompat source) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder(MediaMetadataCompat source, int maxBitmapSize) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putText(@TextKey String key, CharSequence value) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putText(@TextKey String key, CharSequence value) {"
+        errorLine2="                                        ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putText(@TextKey String key, CharSequence value) {"
+        errorLine2="                                                    ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putString(@TextKey String key, String value) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putString(@TextKey String key, String value) {"
+        errorLine2="                                          ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putString(@TextKey String key, String value) {"
+        errorLine2="                                                      ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putLong(@LongKey String key, long value) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putLong(@LongKey String key, long value) {"
+        errorLine2="                                        ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putRating(@RatingKey String key, RatingCompat value) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putRating(@RatingKey String key, RatingCompat value) {"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putRating(@RatingKey String key, RatingCompat value) {"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putBitmap(@BitmapKey String key, Bitmap value) {"
+        errorLine2="               ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putBitmap(@BitmapKey String key, Bitmap value) {"
+        errorLine2="                                            ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public Builder putBitmap(@BitmapKey String key, Bitmap value) {"
+        errorLine2="                                                        ~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public MediaMetadataCompat build() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaMetadataCompat.java"/>
     </issue>
 
     <issue
@@ -1768,6 +2011,213 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="                android.media.session.MediaSessionManager.RemoteUserInfo remoteUserInfo) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/MediaSessionManager.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public static MediaSessionCompat.Token getMediaSession(Notification notification) {"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public static MediaSessionCompat.Token getMediaSession(Notification notification) {"
+        errorLine2="                                                               ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public MediaStyle(androidx.core.app.NotificationCompat.Builder builder) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public MediaStyle setShowActionsInCompactView(int...actions) {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public MediaStyle setShowActionsInCompactView(int...actions) {"
+        errorLine2="                                                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public MediaStyle setMediaSession(MediaSessionCompat.Token token) {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public MediaStyle setMediaSession(MediaSessionCompat.Token token) {"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public MediaStyle setShowCancelButton(boolean show) {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public MediaStyle setCancelButtonIntent(PendingIntent pendingIntent) {"
+        errorLine2="               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public MediaStyle setCancelButtonIntent(PendingIntent pendingIntent) {"
+        errorLine2="                                                ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void apply(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public void apply(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="        public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {"
+        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public ParcelableVolumeInfo(Parcel from) {"
         errorLine2="                                ~~~~~~">
         <location
@@ -2101,244 +2551,82 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public AudioAttributesImpl mImpl;"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder(AudioAttributesCompat aa) {"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public AudioAttributesCompat build() {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setUsage(@AttributeUsage int usage) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setContentType(@AttributeContentType int contentType) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setFlags(int flags) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Builder setLegacyStreamType(int streamType) {"
-        errorLine2="               ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public AudioAttributes mAudioAttributes;"
-        errorLine2="           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"/>
-    </issue>
-
-    <issue
-        id="LambdaLast"
-        message="Functional interface parameters (such as parameter 1, &quot;listener&quot;, in androidx.media.AudioFocusRequestCompat.Builder.setOnAudioFocusChangeListener) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
-        errorLine1="                @NonNull OnAudioFocusChangeListener listener, @NonNull Handler handler) {"
-        errorLine2="                                                              ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public AudioFocusRequestCompat build() {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean areSameOptions(Bundle options1, Bundle options2) {"
-        errorLine2="                                         ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserCompatUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean areSameOptions(Bundle options1, Bundle options2) {"
-        errorLine2="                                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserCompatUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean hasDuplicatedItems(Bundle options1, Bundle options2) {"
-        errorLine2="                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserCompatUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static boolean hasDuplicatedItems(Bundle options1, Bundle options2) {"
-        errorLine2="                                                              ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserCompatUtils.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void attachToBaseContext(Context base) {"
-        errorLine2="                                    ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public IBinder onBind(Intent intent) {"
-        errorLine2="           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onSubscribe(String id, Bundle option) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onSubscribe(String id, Bundle option) {"
-        errorLine2="                                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onUnsubscribe(String id) {"
+        errorLine1="    public void writeToParcel(Parcel dest, int flags) {"
         errorLine2="                              ~~~~~~">
         <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onLoadItem(String itemId, @NonNull Result&lt;MediaBrowserCompat.MediaItem> result) {"
-        errorLine2="                           ~~~~~~">
+        errorLine1="    public static RatingCompat newUnratedRating(@Style int ratingStyle) {"
+        errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onSearch(@NonNull String query, Bundle extras,"
-        errorLine2="                                                ~~~~~~">
+        errorLine1="    public static RatingCompat newHeartRating(boolean hasHeart) {"
+        errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void onCustomAction(@NonNull String action, Bundle extras,"
-        errorLine2="                                                       ~~~~~~">
+        errorLine1="    public static RatingCompat newThumbRating(boolean thumbIsUp) {"
+        errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public void setSessionToken(MediaSessionCompat.Token token) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public static RatingCompat newStarRating(@StarStyle int starRatingStyle,"
+        errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public final Bundle getBrowserRootHints() {"
-        errorLine2="                 ~~~~~~">
+        errorLine1="    public static RatingCompat newPercentageRating(float percent) {"
+        errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public String getRootId() {"
-        errorLine2="               ~~~~~~">
+        errorLine1="    public static RatingCompat fromRating(Object ratingObj) {"
+        errorLine2="                  ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public Bundle getExtras() {"
-        errorLine2="               ~~~~~~">
+        errorLine1="    public static RatingCompat fromRating(Object ratingObj) {"
+        errorLine2="                                          ~~~~~~">
         <location
-            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"/>
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
     </issue>
 
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="                android.media.session.MediaSessionManager.RemoteUserInfo remoteUserInfo) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public Object getRating() {"
+        errorLine2="           ~~~~~~">
         <location
-            file="src/main/java/androidx/media/MediaSessionManager.java"/>
+            file="src/main/java/android/support/v4/media/RatingCompat.java"/>
     </issue>
 
     <issue
@@ -2366,294 +2654,6 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/media/VolumeProviderCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public static MediaSessionCompat.Token getMediaSession(Notification notification) {"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public static MediaSessionCompat.Token getMediaSession(Notification notification) {"
-        errorLine2="                                                               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public MediaStyle(androidx.core.app.NotificationCompat.Builder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public MediaStyle setShowActionsInCompactView(int...actions) {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public MediaStyle setShowActionsInCompactView(int...actions) {"
-        errorLine2="                                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public MediaStyle setMediaSession(MediaSessionCompat.Token token) {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public MediaStyle setMediaSession(MediaSessionCompat.Token token) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public MediaStyle setShowCancelButton(boolean show) {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public MediaStyle setCancelButtonIntent(PendingIntent pendingIntent) {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public MediaStyle setCancelButtonIntent(PendingIntent pendingIntent) {"
-        errorLine2="                                                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void apply(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public void apply(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public RemoteViews makeContentView(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public RemoteViews makeBigContentView(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="                                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="        public RemoteViews makeHeadsUpContentView(NotificationBuilderWithBuilderAccessor builder) {"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/app/NotificationCompat.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static KeyEvent handleIntent(MediaSessionCompat mediaSessionCompat, Intent intent) {"
-        errorLine2="                  ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static KeyEvent handleIntent(MediaSessionCompat mediaSessionCompat, Intent intent) {"
-        errorLine2="                                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static KeyEvent handleIntent(MediaSessionCompat mediaSessionCompat, Intent intent) {"
-        errorLine2="                                                                               ~~~~~~">
-        <location
-            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static PendingIntent buildMediaButtonPendingIntent(Context context,"
-        errorLine2="                  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static PendingIntent buildMediaButtonPendingIntent(Context context,"
-        errorLine2="                                                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static PendingIntent buildMediaButtonPendingIntent(Context context,"
-        errorLine2="                  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static PendingIntent buildMediaButtonPendingIntent(Context context,"
-        errorLine2="                                                              ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="            ComponentName mbrComponent, @MediaKeyAction long action) {"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static ComponentName getMediaButtonReceiverComponent(Context context) {"
-        errorLine2="                  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    public static ComponentName getMediaButtonReceiverComponent(Context context) {"
-        errorLine2="                                                                ~~~~~~~">
-        <location
-            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"/>
     </issue>
 
 </issues>
