@@ -156,9 +156,6 @@ abstract class ClosedCaptionWidget extends ViewGroup implements SubtitleTrack.Re
      * Manages whether this renderer is listening for caption style changes.
      */
     private void manageChangeListener() {
-        if (VERSION.SDK_INT < 19) {
-            return;
-        }
         final boolean needsListener =
                 ViewCompat.isAttachedToWindow(this) && getVisibility() == View.VISIBLE;
         if (mHasChangeListener != needsListener) {

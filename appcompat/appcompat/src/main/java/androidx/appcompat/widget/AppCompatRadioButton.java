@@ -115,14 +115,6 @@ public class AppCompatRadioButton extends RadioButton implements TintableCompoun
         setButtonDrawable(AppCompatResources.getDrawable(getContext(), resId));
     }
 
-    @Override
-    public int getCompoundPaddingLeft() {
-        final int value = super.getCompoundPaddingLeft();
-        return mCompoundButtonHelper != null
-                ? mCompoundButtonHelper.getCompoundPaddingLeft(value)
-                : value;
-    }
-
     /**
      * This should be accessed from {@link androidx.core.widget.CompoundButtonCompat}
      */

@@ -211,7 +211,6 @@ public abstract class SliceProvider extends ContentProvider implements
 
     @Override
     public final boolean onCreate() {
-        if (Build.VERSION.SDK_INT < 19) return false;
         return onCreateSliceProvider();
     }
 
@@ -243,7 +242,6 @@ public abstract class SliceProvider extends ContentProvider implements
     @Nullable
     @Override
     public final String getType(@NonNull Uri uri) {
-        if (Build.VERSION.SDK_INT < 19) return null;
         if (DEBUG) Log.d(TAG, "getFormat " + uri);
         return SLICE_TYPE;
     }
@@ -272,7 +270,7 @@ public abstract class SliceProvider extends ContentProvider implements
     @Nullable
     @Override
     public Bundle call(@NonNull String method, @Nullable String arg, @Nullable Bundle extras) {
-        if (Build.VERSION.SDK_INT < 19 || Build.VERSION.SDK_INT >= 28) return null;
+        if (Build.VERSION.SDK_INT >= 28) return null;
         if (extras == null) return null;
         return getSliceProviderCompat().call(method, arg, extras);
     }

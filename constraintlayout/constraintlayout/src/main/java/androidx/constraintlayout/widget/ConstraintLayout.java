@@ -1327,11 +1327,6 @@ public class ConstraintLayout extends ViewGroup {
             int resolvedGuideBegin = layoutParams.mResolvedGuideBegin;
             int resolvedGuideEnd = layoutParams.mResolvedGuideEnd;
             float resolvedGuidePercent = layoutParams.mResolvedGuidePercent;
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                resolvedGuideBegin = layoutParams.guideBegin;
-                resolvedGuideEnd = layoutParams.guideEnd;
-                resolvedGuidePercent = layoutParams.guidePercent;
-            }
             if (resolvedGuidePercent != UNSET) {
                 guideline.setGuidePercent(resolvedGuidePercent);
             } else if (resolvedGuideBegin != UNSET) {
@@ -1348,33 +1343,6 @@ public class ConstraintLayout extends ViewGroup {
             int resolveGoneLeftMargin = layoutParams.mResolveGoneLeftMargin;
             int resolveGoneRightMargin = layoutParams.mResolveGoneRightMargin;
             float resolvedHorizontalBias = layoutParams.mResolvedHorizontalBias;
-
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                // Pre JB MR1, left/right should take precedence, unless they are
-                // not defined and somehow a corresponding start/end constraint exists
-                resolvedLeftToLeft = layoutParams.leftToLeft;
-                resolvedLeftToRight = layoutParams.leftToRight;
-                resolvedRightToLeft = layoutParams.rightToLeft;
-                resolvedRightToRight = layoutParams.rightToRight;
-                resolveGoneLeftMargin = layoutParams.goneLeftMargin;
-                resolveGoneRightMargin = layoutParams.goneRightMargin;
-                resolvedHorizontalBias = layoutParams.horizontalBias;
-
-                if (resolvedLeftToLeft == UNSET && resolvedLeftToRight == UNSET) {
-                    if (layoutParams.startToStart != UNSET) {
-                        resolvedLeftToLeft = layoutParams.startToStart;
-                    } else if (layoutParams.startToEnd != UNSET) {
-                        resolvedLeftToRight = layoutParams.startToEnd;
-                    }
-                }
-                if (resolvedRightToLeft == UNSET && resolvedRightToRight == UNSET) {
-                    if (layoutParams.endToStart != UNSET) {
-                        resolvedRightToLeft = layoutParams.endToStart;
-                    } else if (layoutParams.endToEnd != UNSET) {
-                        resolvedRightToRight = layoutParams.endToEnd;
-                    }
-                }
-            }
 
             // Circular constraint
             if (layoutParams.circleConstraint != UNSET) {

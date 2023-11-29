@@ -26,7 +26,6 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.Build;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.LinearInterpolator;
@@ -92,11 +91,6 @@ public class ChangeBoundsTest extends BaseTransitionTest {
 
     @Test
     public void testSuppressLayoutWhileAnimating() throws Throwable {
-        if (Build.VERSION.SDK_INT < 18) {
-            // prior Android 4.3 suppressLayout port has another implementation which is
-            // harder to test
-            return;
-        }
         final TestSuppressLayout suppressLayout = new TestSuppressLayout(rule.getActivity());
         final View testView = new View(rule.getActivity());
         rule.runOnUiThread(new Runnable() {
