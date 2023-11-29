@@ -29,11 +29,11 @@ import androidx.glance.layout.EmittableBox
 import androidx.glance.text.EmittableText
 import androidx.glance.text.Text
 import androidx.test.core.app.ApplicationProvider
-import androidx.work.Data
 import androidx.work.ListenableWorker.Result
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
+import androidx.work.workDataOf
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
 import kotlin.time.Duration
@@ -58,7 +58,7 @@ class SessionWorkerTest {
     fun setUp() {
         context = ApplicationProvider.getApplicationContext()
         worker = TestListenableWorkerBuilder<SessionWorker>(context)
-            .setInputData(Data(mapOf(sessionManager.keyParam to SESSION_KEY)))
+            .setInputData(workDataOf(sessionManager.keyParam to SESSION_KEY))
             .setWorkerFactory(object : WorkerFactory() {
                 override fun createWorker(
                     appContext: Context,

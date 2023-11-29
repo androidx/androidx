@@ -1,4 +1,6 @@
 // Baseline format: 1.0
+ChangedType: androidx.work.Data#getKeyValueMap():
+    Method androidx.work.Data.getKeyValueMap has changed return type from java.util.Map<java.lang.String,java.lang.Object> to java.util.Map<java.lang.String,java.lang.Object>
 ChangedType: androidx.work.WorkQuery#getIds():
     Method androidx.work.WorkQuery.getIds has changed return type from java.util.List<java.util.UUID!> to java.util.List<java.util.UUID>
 ChangedType: androidx.work.WorkQuery#getStates():

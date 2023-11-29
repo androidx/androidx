@@ -136,25 +136,27 @@ package androidx.work {
   }
 
   public final class Data {
-    ctor public Data(androidx.work.Data);
-    method @androidx.room.TypeConverter public static androidx.work.Data fromByteArray(byte[]);
-    method public boolean getBoolean(String, boolean);
-    method public boolean[]? getBooleanArray(String);
-    method public byte getByte(String, byte);
-    method public byte[]? getByteArray(String);
-    method public double getDouble(String, double);
-    method public double[]? getDoubleArray(String);
-    method public float getFloat(String, float);
-    method public float[]? getFloatArray(String);
-    method public int getInt(String, int);
-    method public int[]? getIntArray(String);
-    method public java.util.Map<java.lang.String!,java.lang.Object!> getKeyValueMap();
-    method public long getLong(String, long);
-    method public long[]? getLongArray(String);
-    method public String? getString(String);
-    method public String![]? getStringArray(String);
-    method public <T> boolean hasKeyWithValueOfType(String, Class<T!>);
+    ctor public Data(androidx.work.Data other);
+    method @androidx.room.TypeConverter public static androidx.work.Data fromByteArray(byte[] bytes);
+    method public boolean getBoolean(String key, boolean defaultValue);
+    method public boolean[]? getBooleanArray(String key);
+    method public byte getByte(String key, byte defaultValue);
+    method public byte[]? getByteArray(String key);
+    method public double getDouble(String key, double defaultValue);
+    method public double[]? getDoubleArray(String key);
+    method public float getFloat(String key, float defaultValue);
+    method public float[]? getFloatArray(String key);
+    method public int getInt(String key, int defaultValue);
+    method public int[]? getIntArray(String key);
+    method public java.util.Map<java.lang.String,java.lang.Object> getKeyValueMap();
+    method public long getLong(String key, long defaultValue);
+    method public long[]? getLongArray(String key);
+    method public String? getString(String key);
+    method public String![]? getStringArray(String key);
+    method public <T> boolean hasKeyWithValueOfType(String key, Class<T> klass);
     method public byte[] toByteArray();
+    property public final java.util.Map<java.lang.String,java.lang.Object> keyValueMap;
+    field public static final androidx.work.Data.Companion Companion;
     field public static final androidx.work.Data EMPTY;
     field public static final int MAX_DATA_BYTES = 10240; // 0x2800
   }
@@ -162,22 +164,26 @@ package androidx.work {
   public static final class Data.Builder {
     ctor public Data.Builder();
     method public androidx.work.Data build();
-    method public androidx.work.Data.Builder putAll(androidx.work.Data);
-    method public androidx.work.Data.Builder putAll(java.util.Map<java.lang.String!,java.lang.Object!>);
-    method public androidx.work.Data.Builder putBoolean(String, boolean);
-    method public androidx.work.Data.Builder putBooleanArray(String, boolean[]);
-    method public androidx.work.Data.Builder putByte(String, byte);
-    method public androidx.work.Data.Builder putByteArray(String, byte[]);
-    method public androidx.work.Data.Builder putDouble(String, double);
-    method public androidx.work.Data.Builder putDoubleArray(String, double[]);
-    method public androidx.work.Data.Builder putFloat(String, float);
-    method public androidx.work.Data.Builder putFloatArray(String, float[]);
-    method public androidx.work.Data.Builder putInt(String, int);
-    method public androidx.work.Data.Builder putIntArray(String, int[]);
-    method public androidx.work.Data.Builder putLong(String, long);
-    method public androidx.work.Data.Builder putLongArray(String, long[]);
-    method public androidx.work.Data.Builder putString(String, String?);
-    method public androidx.work.Data.Builder putStringArray(String, String![]);
+    method public androidx.work.Data.Builder putAll(androidx.work.Data data);
+    method public androidx.work.Data.Builder putAll(java.util.Map<java.lang.String,?> values);
+    method public androidx.work.Data.Builder putBoolean(String key, boolean value);
+    method public androidx.work.Data.Builder putBooleanArray(String key, boolean[] value);
+    method public androidx.work.Data.Builder putByte(String key, byte value);
+    method public androidx.work.Data.Builder putByteArray(String key, byte[] value);
+    method public androidx.work.Data.Builder putDouble(String key, double value);
+    method public androidx.work.Data.Builder putDoubleArray(String key, double[] value);
+    method public androidx.work.Data.Builder putFloat(String key, float value);
+    method public androidx.work.Data.Builder putFloatArray(String key, float[] value);
+    method public androidx.work.Data.Builder putInt(String key, int value);
+    method public androidx.work.Data.Builder putIntArray(String key, int[] value);
+    method public androidx.work.Data.Builder putLong(String key, long value);
+    method public androidx.work.Data.Builder putLongArray(String key, long[] value);
+    method public androidx.work.Data.Builder putString(String key, String? value);
+    method public androidx.work.Data.Builder putStringArray(String key, String![] value);
+  }
+
+  public static final class Data.Companion {
+    method @androidx.room.TypeConverter public androidx.work.Data fromByteArray(byte[] bytes);
   }
 
   public final class DataKt {
