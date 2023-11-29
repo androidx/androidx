@@ -20,6 +20,11 @@ import android.bluetooth.le.AdvertiseCallback as FwkAdvertiseCallback
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 
+/**
+ * Exception indicating a failure to start an advertise operation.
+ *
+ * @property errorCode the error code for indicating the reason why the exception is thrown.
+ */
 class AdvertiseException(errorCode: Int) : BluetoothException(errorCode) {
 
     companion object {
@@ -52,6 +57,7 @@ class AdvertiseException(errorCode: Int) : BluetoothException(errorCode) {
     )
     annotation class AdvertiseFail
 
+    /** The error code associated with this exception. */
     override val errorCode: @AdvertiseFail Int = when (errorCode) {
         FwkAdvertiseCallback.ADVERTISE_FAILED_DATA_TOO_LARGE -> DATA_TOO_LARGE
 
