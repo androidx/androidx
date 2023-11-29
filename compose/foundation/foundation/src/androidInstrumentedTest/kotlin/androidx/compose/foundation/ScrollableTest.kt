@@ -252,6 +252,29 @@ class ScrollableTest {
         }
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun scrollable_horizontalScroll_mouseWheel_badMotionEvent() {
+        var total = 0f
+        val controller = ScrollableState(
+            consumeScrollDelta = {
+                total += it
+                it
+            }
+        )
+        setScrollableContent {
+            Modifier.scrollable(
+                state = controller,
+                orientation = Orientation.Horizontal
+            )
+        }
+        rule.onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Float.NaN, ScrollWheel.Horizontal)
+        }
+
+        assertThat(total).isEqualTo(0)
+    }
+
     /*
      * Note: For keyboard scrolling to work (that is, scrolling based on the page up/down keys),
      * at least one child within the scrollable must be focusable. (This matches the behavior in
@@ -511,6 +534,29 @@ class ScrollableTest {
         rule.runOnIdle {
             assertThat(total).isLessThan(0.01f)
         }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun scrollable_verticalScroll_mouseWheel_badMotionEvent() {
+        var total = 0f
+        val controller = ScrollableState(
+            consumeScrollDelta = {
+                total += it
+                it
+            }
+        )
+        setScrollableContent {
+            Modifier.scrollable(
+                state = controller,
+                orientation = Orientation.Vertical
+            )
+        }
+        rule.onNodeWithTag(scrollableBoxTag).performMouseInput {
+            this.scroll(Float.NaN, ScrollWheel.Vertical)
+        }
+
+        assertThat(total).isEqualTo(0)
     }
 
     /*
