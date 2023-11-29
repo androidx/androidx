@@ -36,7 +36,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.WithTouchSlop
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -1090,6 +1093,94 @@ class AnchoredDraggableGestureTest {
         rule.waitForIdle()
 
         assertThat(state.targetValue).isEqualTo(C) // Animation will continue to C
+    }
+
+    @Test
+    fun anchoredDraggable_updatesState() {
+        val positionalThreshold = 0.5f
+        val state1 = AnchoredDraggableState(
+            initialValue = A,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 250f
+                C at 500f
+            },
+            positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+            velocityThreshold = DefaultVelocityThreshold,
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
+        )
+        val state2 = AnchoredDraggableState(
+            initialValue = B,
+            anchors = DraggableAnchors {
+                A at 0f
+                B at 250f
+            },
+            positionalThreshold = { totalDistance -> totalDistance * positionalThreshold },
+            velocityThreshold = DefaultVelocityThreshold,
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = DefaultDecayAnimationSpec
+        )
+
+        var state by mutableStateOf(state1)
+
+        rule.setContent {
+            WithTouchSlop(0f) {
+                Box(Modifier.fillMaxSize()) {
+                    Box(
+                        Modifier
+                            .requiredSize(AnchoredDraggableBoxSize)
+                            .testTag(AnchoredDraggableTestTag)
+                            .anchoredDraggable(
+                                state = state,
+                                orientation = Orientation.Horizontal
+                            )
+                            .offset {
+                                IntOffset(
+                                    state
+                                        .requireOffset()
+                                        .roundToInt(), 0
+                                )
+                            }
+                            .background(Color.Red)
+                    )
+                }
+            }
+        }
+
+        val positionOfA = state.anchors.positionOf(A)
+        val positionOfB = state.anchors.positionOf(B)
+        val distance = abs(positionOfA - positionOfB)
+
+        // dragging across the positional threshold to settle at anchor B
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
+            .performTouchInput {
+                down(Offset(0f, 0f))
+                moveBy(Offset(x = distance * positionalThreshold * 1.1f, y = 0f))
+                up()
+            }
+        rule.waitForIdle()
+
+        // assert that changes reflected on state1
+        assertThat(state1.requireOffset()).isEqualTo(positionOfB)
+
+        // attaching state2 instead of state1
+        state = state2
+        rule.waitForIdle()
+
+        // dragging across the positional threshold to settle at anchor A
+        rule.onNodeWithTag(AnchoredDraggableTestTag)
+            .performTouchInput {
+                down(Offset(0f, 0f))
+                moveBy(Offset(x = -distance * positionalThreshold * 1.1f, y = 0f))
+                up()
+            }
+        rule.waitForIdle()
+
+        // assert that no more changes reflected on state1
+        assertThat(state1.requireOffset()).isEqualTo(positionOfB)
+        // assert that changes reflected on state2
+        assertThat(state2.requireOffset()).isEqualTo(positionOfA)
     }
 
     private val DefaultPositionalThreshold: (totalDistance: Float) -> Float = {

@@ -26,6 +26,7 @@ import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
+import androidx.compose.foundation.gestures.DragEvent.DragDelta
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Stable
@@ -38,9 +39,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.unit.Velocity
 import kotlin.math.abs
 import kotlin.math.sign
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
@@ -142,6 +149,27 @@ fun <T : Any> DraggableAnchors(
 ): DraggableAnchors<T> = MapDraggableAnchors(DraggableAnchorsConfig<T>().apply(builder).anchors)
 
 /**
+ * Scope used for suspending anchored drag blocks. Allows to set [AnchoredDraggableState.offset] to
+ * a new value.
+ *
+ * @see [AnchoredDraggableState.anchoredDrag] to learn how to start the anchored drag and get the
+ * access to this scope.
+ */
+@ExperimentalFoundationApi
+interface AnchoredDragScope {
+    /**
+     * Assign a new value for an offset value for [AnchoredDraggableState].
+     *
+     * @param newOffset new value for [AnchoredDraggableState.offset].
+     * @param lastKnownVelocity last known velocity (if known)
+     */
+    fun dragTo(
+        newOffset: Float,
+        lastKnownVelocity: Float = 0f
+    )
+}
+
+/**
  * Enable drag gestures between a set of predefined values.
  *
  * When a drag is detected, the offset of the [AnchoredDraggableState] will be updated with the drag
@@ -171,36 +199,145 @@ fun <T> Modifier.anchoredDraggable(
     reverseDirection: Boolean = false,
     interactionSource: MutableInteractionSource? = null,
     startDragImmediately: Boolean = state.isAnimationRunning
-) = draggable(
-    state = state.draggableState,
+): Modifier = this then AnchoredDraggableElement(
+    state = state,
     orientation = orientation,
     enabled = enabled,
-    interactionSource = interactionSource,
     reverseDirection = reverseDirection,
-    startDragImmediately = startDragImmediately,
-    onDragStopped = { velocity -> launch { state.settle(velocity) } }
+    interactionSource = interactionSource,
+    startDragImmediately = startDragImmediately
 )
 
-/**
- * Scope used for suspending anchored drag blocks. Allows to set [AnchoredDraggableState.offset] to
- * a new value.
- *
- * @see [AnchoredDraggableState.anchoredDrag] to learn how to start the anchored drag and get the
- * access to this scope.
- */
 @ExperimentalFoundationApi
-interface AnchoredDragScope {
-    /**
-     * Assign a new value for an offset value for [AnchoredDraggableState].
-     *
-     * @param newOffset new value for [AnchoredDraggableState.offset].
-     * @param lastKnownVelocity last known velocity (if known)
-     */
-    fun dragTo(
-        newOffset: Float,
-        lastKnownVelocity: Float = 0f
-    )
+private class AnchoredDraggableElement<T>(
+    private val state: AnchoredDraggableState<T>,
+    private val orientation: Orientation,
+    private val enabled: Boolean,
+    private val reverseDirection: Boolean,
+    private val interactionSource: MutableInteractionSource?,
+    private val startDragImmediately: Boolean
+) : ModifierNodeElement<AnchoredDraggableNode<T>>() {
+    override fun create(): AnchoredDraggableNode<T> {
+        return AnchoredDraggableNode(
+            state,
+            orientation,
+            enabled,
+            reverseDirection,
+            interactionSource,
+            { startDragImmediately }
+        )
+    }
+
+    override fun update(node: AnchoredDraggableNode<T>) {
+        node.update(
+            state,
+            orientation,
+            enabled,
+            reverseDirection,
+            interactionSource,
+            { startDragImmediately }
+        )
+    }
+
+    override fun hashCode(): Int {
+        var result = state.hashCode()
+        result = 31 * result + orientation.hashCode()
+        result = 31 * result + enabled.hashCode()
+        result = 31 * result + reverseDirection.hashCode()
+        result = 31 * result + interactionSource.hashCode()
+        result = 31 * result + startDragImmediately.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+
+        if (other !is AnchoredDraggableElement<*>) return false
+
+        if (state != other.state) return false
+        if (orientation != other.orientation) return false
+        if (enabled != other.enabled) return false
+        if (reverseDirection != other.reverseDirection) return false
+        if (interactionSource != other.interactionSource) return false
+        if (startDragImmediately != other.startDragImmediately) return false
+
+        return true
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "anchoredDraggable"
+        properties["state"] = state
+        properties["orientation"] = orientation
+        properties["enabled"] = enabled
+        properties["reverseDirection"] = reverseDirection
+        properties["interactionSource"] = interactionSource
+        properties["startDragImmediately"] = startDragImmediately
+    }
 }
+
+@ExperimentalFoundationApi
+private class AnchoredDraggableNode<T>(
+    private var state: AnchoredDraggableState<T>,
+    private var orientation: Orientation,
+    enabled: Boolean,
+    reverseDirection: Boolean,
+    interactionSource: MutableInteractionSource?,
+    startDragImmediately: () -> Boolean
+) : AbstractDraggableNode(
+    canDrag = AlwaysDrag,
+    enabled = enabled,
+    interactionSource = interactionSource,
+    startDragImmediately = startDragImmediately,
+    reverseDirection = reverseDirection
+) {
+
+    override suspend fun drag(forEachDelta: suspend ((dragDelta: DragDelta) -> Unit) -> Unit) {
+        state.anchoredDrag(MutatePriority.Default) {
+            forEachDelta { dragDelta ->
+                dragTo(state.newOffsetForDelta(dragDelta.delta.toFloat(orientation)))
+            }
+        }
+    }
+
+    override val pointerDirectionConfig: PointerDirectionConfig
+        get() = orientation.toPointerDirectionConfig()
+
+    override suspend fun CoroutineScope.onDragStarted(startedPosition: Offset) {}
+
+    override suspend fun CoroutineScope.onDragStopped(velocity: Velocity) {
+        state.settle(velocity.toFloat(orientation))
+    }
+
+    fun update(
+        state: AnchoredDraggableState<T>,
+        orientation: Orientation,
+        enabled: Boolean,
+        reverseDirection: Boolean,
+        interactionSource: MutableInteractionSource?,
+        startDragImmediately: () -> Boolean
+    ) {
+        var resetPointerInputHandling = false
+
+        if (this.state != state) {
+            this.state = state
+            resetPointerInputHandling = true
+        }
+        if (this.orientation != orientation) {
+            this.orientation = orientation
+            resetPointerInputHandling = true
+        }
+
+        update(
+            enabled = enabled,
+            interactionSource = interactionSource,
+            startDragImmediately = startDragImmediately,
+            reverseDirection = reverseDirection,
+            isResetPointerInputHandling = resetPointerInputHandling,
+        )
+    }
+}
+
+private val AlwaysDrag: (PointerInputChange) -> Boolean = { true }
 
 /**
  * State of the [anchoredDraggable] modifier.
@@ -276,30 +413,6 @@ class AnchoredDraggableState<T>(
     }
 
     private val dragMutex = MutatorMutex()
-
-    internal val draggableState = object : DraggableState {
-
-        private val dragScope = object : DragScope {
-            override fun dragBy(pixels: Float) {
-                with(anchoredDragScope) {
-                    dragTo(newOffsetForDelta(pixels))
-                }
-            }
-        }
-
-        override suspend fun drag(
-            dragPriority: MutatePriority,
-            block: suspend DragScope.() -> Unit
-        ) {
-            this@AnchoredDraggableState.anchoredDrag(dragPriority) {
-                with(dragScope) { block() }
-            }
-        }
-
-        override fun dispatchRawDelta(delta: Float) {
-            this@AnchoredDraggableState.dispatchRawDelta(delta)
-        }
-    }
 
     /**
      * The current value of the [AnchoredDraggableState].
@@ -868,6 +981,12 @@ private class MapDraggableAnchors<T>(private val anchors: Map<T, Float>) : Dragg
 
     override fun toString() = "MapDraggableAnchors($anchors)"
 }
+
+private fun Velocity.toFloat(orientation: Orientation) =
+    if (orientation == Orientation.Vertical) this.y else this.x
+
+private fun Offset.toFloat(orientation: Orientation) =
+    if (orientation == Orientation.Vertical) this.y else this.x
 
 private const val DEBUG = false
 private inline fun debugLog(generateMsg: () -> String) {
