@@ -17,9 +17,9 @@
 package androidx.compose.ui.graphics.colorspace
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.util.fastCbrt
 import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.packFloats
-import kotlin.math.cbrt
 
 /**
  * Implementation of the Oklab color space. Oklab uses
@@ -106,9 +106,9 @@ internal class Oklab(
         var v1 = mul3x3Float3_1(M1, x, y, z)
         var v2 = mul3x3Float3_2(M1, x, y, z)
 
-        v0 = cbrt(v0)
-        v1 = cbrt(v1)
-        v2 = cbrt(v2)
+        v0 = fastCbrt(v0)
+        v1 = fastCbrt(v1)
+        v2 = fastCbrt(v2)
 
         val v01 = mul3x3Float3_0(M2, v0, v1, v2)
         val v11 = mul3x3Float3_1(M2, v0, v1, v2)
@@ -120,9 +120,9 @@ internal class Oklab(
     override fun fromXyz(v: FloatArray): FloatArray {
         mul3x3Float3(M1, v)
 
-        v[0] = cbrt(v[0])
-        v[1] = cbrt(v[1])
-        v[2] = cbrt(v[2])
+        v[0] = fastCbrt(v[0])
+        v[1] = fastCbrt(v[1])
+        v[2] = fastCbrt(v[2])
 
         mul3x3Float3(M2, v)
         return v

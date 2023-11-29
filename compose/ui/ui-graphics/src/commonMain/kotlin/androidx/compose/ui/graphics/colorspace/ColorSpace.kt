@@ -705,7 +705,8 @@ internal fun mul3x3Float3(
  * @param r2: The third element of the vector
  * @return The first element of the resulting multiplication.
  */
-internal fun mul3x3Float3_0(
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun mul3x3Float3_0(
     lhs: FloatArray,
     r0: Float,
     r1: Float,
@@ -723,7 +724,8 @@ internal fun mul3x3Float3_0(
  * @param r2: The third element of the vector
  * @return The second element of the resulting multiplication.
  */
-internal fun mul3x3Float3_1(
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun mul3x3Float3_1(
     lhs: FloatArray,
     r0: Float,
     r1: Float,
@@ -741,7 +743,8 @@ internal fun mul3x3Float3_1(
  * @param r2: The third element of the vector
  * @return The third element of the resulting multiplication.
  */
-internal fun mul3x3Float3_2(
+@Suppress("NOTHING_TO_INLINE")
+internal inline fun mul3x3Float3_2(
     lhs: FloatArray,
     r0: Float,
     r1: Float,
