@@ -132,7 +132,6 @@ import android.telephony.SubscriptionManager;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.WindowManager;
@@ -174,12 +173,8 @@ import java.util.concurrent.Executor;
 public class ContextCompat {
     private static final String TAG = "ContextCompat";
 
-    private static final Object sLock = new Object();
-
     // Lock that provides similar functionality to ContextImpl.mSync.
     private static final Object sSync = new Object();
-
-    private static TypedValue sTempValue;
 
     /**
      * This class should not be instantiated, but the constructor must be
@@ -274,11 +269,7 @@ public class ContextCompat {
      */
     public static boolean startActivities(@NonNull Context context, @NonNull Intent[] intents,
             @Nullable Bundle options) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.startActivities(context, intents, options);
-        } else {
-            context.startActivities(intents);
-        }
+        context.startActivities(intents, options);
         return true;
     }
 
@@ -301,11 +292,7 @@ public class ContextCompat {
      */
     public static void startActivity(@NonNull Context context, @NonNull Intent intent,
             @Nullable Bundle options) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.startActivity(context, intent, options);
-        } else {
-            context.startActivity(intent);
-        }
+        context.startActivity(intent, options);
     }
 
     /**
@@ -508,22 +495,8 @@ public class ContextCompat {
     public static Drawable getDrawable(@NonNull Context context, @DrawableRes int id) {
         if (Build.VERSION.SDK_INT >= 21) {
             return Api21Impl.getDrawable(context, id);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            return context.getResources().getDrawable(id);
         } else {
-            // Prior to JELLY_BEAN, Resources.getDrawable() would not correctly
-            // retrieve the final configuration density when the resource ID
-            // is a reference another Drawable resource. As a workaround, try
-            // to resolve the drawable reference manually.
-            final int resolvedId;
-            synchronized (sLock) {
-                if (sTempValue == null) {
-                    sTempValue = new TypedValue();
-                }
-                context.getResources().getValue(id, sTempValue, true);
-                resolvedId = sTempValue.resourceId;
-            }
-            return context.getResources().getDrawable(resolvedId);
+            return context.getResources().getDrawable(id);
         }
     }
 
@@ -1080,23 +1053,6 @@ public class ContextCompat {
             SERVICES.put(WifiP2pManager.class, WIFI_P2P_SERVICE);
             SERVICES.put(WifiManager.class, WIFI_SERVICE);
             SERVICES.put(WindowManager.class, WINDOW_SERVICE);
-        }
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void startActivities(Context obj, Intent[] intents, Bundle options) {
-            obj.startActivities(intents, options);
-        }
-
-        @DoNotInline
-        static void startActivity(Context obj, Intent intent, Bundle options) {
-            obj.startActivity(intent, options);
         }
     }
 

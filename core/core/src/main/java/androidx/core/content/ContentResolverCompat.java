@@ -16,17 +16,13 @@
 
 package androidx.core.content;
 
-import static android.os.Build.VERSION.SDK_INT;
-
 import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.CancellationSignal;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.os.OperationCanceledException;
 
 /**
@@ -127,42 +123,18 @@ public final class ContentResolverCompat {
             @NonNull Uri uri, @Nullable String[] projection, @Nullable String selection,
             @Nullable String[] selectionArgs, @Nullable String sortOrder,
             @Nullable CancellationSignal cancellationSignal) {
-        if (SDK_INT >= 16) {
-            try {
-                return Api16Impl.query(resolver, uri, projection, selection, selectionArgs,
-                        sortOrder, cancellationSignal);
-            } catch (Exception e) {
-                if (e instanceof android.os.OperationCanceledException) {
-                    // query() can throw a framework OperationCanceledException if it has been
-                    // canceled. We catch that and throw the support version instead.
-                    throw new OperationCanceledException();
-                } else {
-                    // If it's not a framework OperationCanceledException, re-throw the exception
-                    throw e;
-                }
-            }
-        } else {
-            // Note that the cancellation signal cannot cancel the query in progress
-            // prior to Jellybean so we cancel it preemptively here if needed.
-            if (cancellationSignal != null) {
-                cancellationSignal.throwIfCanceled();
-            }
-            return resolver.query(uri, projection, selection, selectionArgs, sortOrder);
-        }
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static Cursor query(ContentResolver contentResolver, Uri uri, String[] projection,
-                String selection, String[] selectionArgs, String sortOrder,
-                CancellationSignal cancellationSignal) {
-            return contentResolver.query(uri, projection, selection, selectionArgs, sortOrder,
+        try {
+            return resolver.query(uri, projection, selection, selectionArgs, sortOrder,
                     cancellationSignal);
+        } catch (Exception e) {
+            if (e instanceof android.os.OperationCanceledException) {
+                // query() can throw a framework OperationCanceledException if it has been
+                // canceled. We catch that and throw the support version instead.
+                throw new OperationCanceledException();
+            } else {
+                // If it's not a framework OperationCanceledException, re-throw the exception
+                throw e;
+            }
         }
     }
 }

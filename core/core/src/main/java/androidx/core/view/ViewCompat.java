@@ -20,7 +20,6 @@ import static android.view.View.VISIBLE;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
@@ -512,11 +511,6 @@ public class ViewCompat {
     public static final int SCROLL_INDICATOR_END = 0x20;
 
     private static final AtomicInteger sNextGeneratedId = new AtomicInteger(1);
-
-    private static Field sMinWidthField;
-    private static boolean sMinWidthFieldFetched;
-    private static Field sMinHeightField;
-    private static boolean sMinHeightFieldFetched;
 
     private static Method sDispatchStartTemporaryDetach;
     private static Method sDispatchFinishTemporaryDetach;
@@ -1271,10 +1265,7 @@ public class ViewCompat {
      * @return true if the view has transient state
      */
     public static boolean hasTransientState(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.hasTransientState(view);
-        }
-        return false;
+        return view.hasTransientState();
     }
 
     /**
@@ -1285,9 +1276,7 @@ public class ViewCompat {
      * @param hasTransientState true if this view has transient state
      */
     public static void setHasTransientState(@NonNull View view, boolean hasTransientState) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.setHasTransientState(view, hasTransientState);
-        }
+        view.setHasTransientState(hasTransientState);
     }
 
     /**
@@ -1300,11 +1289,7 @@ public class ViewCompat {
      * @param view View to invalidate
      */
     public static void postInvalidateOnAnimation(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.postInvalidateOnAnimation(view);
-        } else {
-            view.postInvalidate();
-        }
+        view.postInvalidateOnAnimation();
     }
 
     /**
@@ -1322,11 +1307,7 @@ public class ViewCompat {
      */
     public static void postInvalidateOnAnimation(@NonNull View view, int left, int top,
             int right, int bottom) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.postInvalidateOnAnimation(view, left, top, right, bottom);
-        } else {
-            view.postInvalidate(left, top, right, bottom);
-        }
+        view.postInvalidateOnAnimation(left, top, right, bottom);
     }
 
     /**
@@ -1340,11 +1321,7 @@ public class ViewCompat {
      * @param action The Runnable that will be executed.
      */
     public static void postOnAnimation(@NonNull View view, @NonNull Runnable action) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.postOnAnimation(view, action);
-        } else {
-            view.postDelayed(action, ValueAnimator.getFrameDelay());
-        }
+        view.postOnAnimation(action);
     }
 
     /**
@@ -1363,11 +1340,7 @@ public class ViewCompat {
     @SuppressLint("LambdaLast")
     public static void postOnAnimationDelayed(@NonNull View view, @NonNull Runnable action,
             long delayMillis) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.postOnAnimationDelayed(view, action, delayMillis);
-        } else {
-            view.postDelayed(action, ValueAnimator.getFrameDelay() + delayMillis);
-        }
+        view.postOnAnimationDelayed(action, delayMillis);
     }
 
     /**
@@ -1385,10 +1358,7 @@ public class ViewCompat {
      */
     @ImportantForAccessibility
     public static int getImportantForAccessibility(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getImportantForAccessibility(view);
-        }
-        return IMPORTANT_FOR_ACCESSIBILITY_AUTO;
+        return view.getImportantForAccessibility();
     }
 
     /**
@@ -1413,18 +1383,7 @@ public class ViewCompat {
     @UiThread
     public static void setImportantForAccessibility(@NonNull View view,
             @ImportantForAccessibility int mode) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            Api16Impl.setImportantForAccessibility(view, mode);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            // IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS is not available
-            // on this platform so replace with IMPORTANT_FOR_ACCESSIBILITY_NO
-            // which is closer semantically.
-            if (mode == IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
-                mode = IMPORTANT_FOR_ACCESSIBILITY_NO;
-            }
-            //noinspection WrongConstant
-            Api16Impl.setImportantForAccessibility(view, mode);
-        }
+        view.setImportantForAccessibility(mode);
     }
 
     /**
@@ -1493,10 +1452,7 @@ public class ViewCompat {
      */
     public static boolean performAccessibilityAction(@NonNull View view, int action,
             @Nullable Bundle arguments) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.performAccessibilityAction(view, action, arguments);
-        }
-        return false;
+        return view.performAccessibilityAction(action, arguments);
     }
 
     /**
@@ -1817,11 +1773,9 @@ public class ViewCompat {
      */
     @Nullable
     public static AccessibilityNodeProviderCompat getAccessibilityNodeProvider(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            AccessibilityNodeProvider provider = Api16Impl.getAccessibilityNodeProvider(view);
-            if (provider != null) {
-                return new AccessibilityNodeProviderCompat(provider);
-            }
+        AccessibilityNodeProvider provider = view.getAccessibilityNodeProvider();
+        if (provider != null) {
+            return new AccessibilityNodeProviderCompat(provider);
         }
         return null;
     }
@@ -2024,10 +1978,7 @@ public class ViewCompat {
      */
     @Nullable
     public static ViewParent getParentForAccessibility(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getParentForAccessibility(view);
-        }
-        return view.getParent();
+        return view.getParentForAccessibility();
     }
 
     /**
@@ -2392,30 +2343,7 @@ public class ViewCompat {
     @SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
     // Reflective access to private field, unboxing result of reflective get()
     public static int getMinimumWidth(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getMinimumWidth(view);
-        } else {
-            if (!sMinWidthFieldFetched) {
-                try {
-                    sMinWidthField = View.class.getDeclaredField("mMinWidth");
-                    sMinWidthField.setAccessible(true);
-                } catch (NoSuchFieldException e) {
-                    // Couldn't find the field. Abort!
-                }
-                sMinWidthFieldFetched = true;
-            }
-
-            if (sMinWidthField != null) {
-                try {
-                    return (int) sMinWidthField.get(view);
-                } catch (Exception e) {
-                    // Field get failed. Oh well...
-                }
-            }
-        }
-
-        // We failed, return 0
-        return 0;
+        return view.getMinimumWidth();
     }
 
     /**
@@ -2428,30 +2356,7 @@ public class ViewCompat {
     @SuppressWarnings({"JavaReflectionMemberAccess", "ConstantConditions"})
     // Reflective access to private field, unboxing result of reflective get()
     public static int getMinimumHeight(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getMinimumHeight(view);
-        } else {
-            if (!sMinHeightFieldFetched) {
-                try {
-                    sMinHeightField = View.class.getDeclaredField("mMinHeight");
-                    sMinHeightField.setAccessible(true);
-                } catch (NoSuchFieldException e) {
-                    // Couldn't find the field. Abort!
-                }
-                sMinHeightFieldFetched = true;
-            }
-
-            if (sMinHeightField != null) {
-                try {
-                    return (int) sMinHeightField.get(view);
-                } catch (Exception e) {
-                    // Field get failed. Oh well...
-                }
-            }
-        }
-
-        // We failed, return 0
-        return 0;
+        return view.getMinimumHeight();
     }
 
     /**
@@ -2849,10 +2754,7 @@ public class ViewCompat {
      */
     @Deprecated
     public static int getWindowSystemUiVisibility(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getWindowSystemUiVisibility(view);
-        }
-        return 0;
+        return view.getWindowSystemUiVisibility();
     }
 
     /**
@@ -2864,8 +2766,8 @@ public class ViewCompat {
     public static void requestApplyInsets(@NonNull View view) {
         if (Build.VERSION.SDK_INT >= 20) {
             Api20Impl.requestApplyInsets(view);
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.requestFitSystemWindows(view);
+        } else {
+            view.requestFitSystemWindows();
         }
     }
 
@@ -2911,10 +2813,7 @@ public class ViewCompat {
      * @param view view for which to get the state.
      */
     public static boolean getFitsSystemWindows(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getFitsSystemWindows(view);
-        }
-        return false;
+        return view.getFitsSystemWindows();
     }
 
     /**
@@ -3401,10 +3300,7 @@ public class ViewCompat {
      * @return true if the content in this view might overlap, false otherwise.
      */
     public static boolean hasOverlappingRendering(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.hasOverlappingRendering(view);
-        }
-        return true;
+        return view.hasOverlappingRendering();
     }
 
     /**
@@ -3430,11 +3326,7 @@ public class ViewCompat {
      * @param background the drawable to use as view background.
      */
     public static void setBackground(@NonNull View view, @Nullable Drawable background) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.setBackground(view, background);
-        } else {
-            view.setBackgroundDrawable(background);
-        }
+        view.setBackground(background);
     }
 
     /**
@@ -3475,7 +3367,7 @@ public class ViewCompat {
                     if (background.isStateful()) {
                         background.setState(view.getDrawableState());
                     }
-                    Api16Impl.setBackground(view, background);
+                    view.setBackground(background);
                 }
             }
         } else if (view instanceof TintableBackgroundView) {
@@ -3523,7 +3415,7 @@ public class ViewCompat {
                     if (background.isStateful()) {
                         background.setState(view.getDrawableState());
                     }
-                    Api16Impl.setBackground(view, background);
+                    view.setBackground(background);
                 }
             }
         } else if (view instanceof TintableBackgroundView) {
@@ -5082,7 +4974,7 @@ public class ViewCompat {
         @RequiresApi(19)
         private void unregisterForLayoutCallback(View view) {
             ViewTreeObserver observer = view.getViewTreeObserver();
-            Api16Impl.removeOnGlobalLayoutListener(observer, this);
+            observer.removeOnGlobalLayoutListener(this);
         }
     }
 
@@ -5867,109 +5759,6 @@ public class ViewCompat {
         @DoNotInline
         static boolean isPaddingRelative(View view) {
             return view.isPaddingRelative();
-        }
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static boolean hasTransientState(View view) {
-            return view.hasTransientState();
-        }
-
-        @DoNotInline
-        static void setHasTransientState(View view, boolean hasTransientState) {
-            view.setHasTransientState(hasTransientState);
-        }
-
-        @DoNotInline
-        static void postInvalidateOnAnimation(View view) {
-            view.postInvalidateOnAnimation();
-        }
-
-        @DoNotInline
-        static void postInvalidateOnAnimation(View view, int left, int top, int right, int bottom) {
-            view.postInvalidateOnAnimation(left, top, right, bottom);
-        }
-
-        @DoNotInline
-        static void postOnAnimation(View view, Runnable action) {
-            view.postOnAnimation(action);
-        }
-
-        @DoNotInline
-        static void postOnAnimationDelayed(View view, Runnable action, long delayMillis) {
-            view.postOnAnimationDelayed(action, delayMillis);
-        }
-
-        @DoNotInline
-        static int getImportantForAccessibility(View view) {
-            return view.getImportantForAccessibility();
-        }
-
-        @DoNotInline
-        static void setImportantForAccessibility(View view, int mode) {
-            view.setImportantForAccessibility(mode);
-        }
-
-        @DoNotInline
-        static AccessibilityNodeProvider getAccessibilityNodeProvider(View view) {
-            return view.getAccessibilityNodeProvider();
-        }
-
-        @DoNotInline
-        static ViewParent getParentForAccessibility(View view) {
-            return view.getParentForAccessibility();
-        }
-
-        @DoNotInline
-        static int getMinimumWidth(View view) {
-            return view.getMinimumWidth();
-        }
-
-        @DoNotInline
-        static int getMinimumHeight(View view) {
-            return view.getMinimumHeight();
-        }
-
-        @DoNotInline
-        static int getWindowSystemUiVisibility(View view) {
-            return view.getWindowSystemUiVisibility();
-        }
-
-        @DoNotInline
-        static void requestFitSystemWindows(View view) {
-            view.requestFitSystemWindows();
-        }
-
-        @DoNotInline
-        static boolean getFitsSystemWindows(View view) {
-            return view.getFitsSystemWindows();
-        }
-
-        @DoNotInline
-        static boolean performAccessibilityAction(View view, int action, Bundle arguments) {
-            return view.performAccessibilityAction(action, arguments);
-        }
-
-        @DoNotInline
-        static boolean hasOverlappingRendering(View view) {
-            return view.hasOverlappingRendering();
-        }
-
-        @DoNotInline
-        static void setBackground(View view, Drawable background) {
-            view.setBackground(background);
-        }
-
-        @DoNotInline
-        static void removeOnGlobalLayoutListener(ViewTreeObserver viewTreeObserver,
-                ViewTreeObserver.OnGlobalLayoutListener victim) {
-            viewTreeObserver.removeOnGlobalLayoutListener(victim);
         }
     }
 

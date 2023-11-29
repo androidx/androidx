@@ -427,7 +427,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                     action.getShowsUserInterface());
             Api20Impl.addExtras(actionBuilder, actionExtras);
             Api20Impl.addAction(mBuilder, Api20Impl.build(actionBuilder));
-        } else if (Build.VERSION.SDK_INT >= 16) {
+        } else {
             mActionExtrasList.add(
                     NotificationCompatJellybean.writeActionAndGetExtras(mBuilder, action));
         }
