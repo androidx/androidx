@@ -24,6 +24,7 @@ import androidx.bluetooth.ScanResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.util.UUID
 import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,7 +47,7 @@ class ScannerViewModel @Inject constructor(
         private const val TAG = "ScannerViewModel"
     }
 
-    private val scanResultsMap = mutableMapOf<String, ScanResult>()
+    private val scanResultsMap = mutableMapOf<UUID, ScanResult>()
 
     var scanJob: Job? = null
 
@@ -64,7 +65,7 @@ class ScannerViewModel @Inject constructor(
                     it.copy(isScanning = true, resultMessage = "Scan started")
                 }
             }
-            .filterNot { scanResultsMap.containsKey(it.deviceAddress.address) }
+            .filterNot { scanResultsMap.containsKey(it.device.id) }
             .catch { throwable ->
                 Log.e(TAG, "bluetoothLe.scan() catch", throwable)
 
@@ -98,7 +99,7 @@ class ScannerViewModel @Inject constructor(
             }
             .onEach { scanResult ->
                 Log.d(TAG, "bluetoothLe.scan() onEach: $scanResult")
-                scanResultsMap[scanResult.deviceAddress.address] = scanResult
+                scanResultsMap[scanResult.device.id] = scanResult
                 _uiState.update {
                     it.copy(scanResults = scanResultsMap.values.toList())
                 }

@@ -17,10 +17,12 @@
 package androidx.bluetooth
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice as FwkBluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.os.Build
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeNotNull
@@ -52,6 +54,7 @@ class BluetoothDeviceTest {
     private val bluetoothManager: BluetoothManager? =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
     private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager?.adapter
+    private val bluetoothLe = BluetoothLe(context)
 
     @Before
     fun setUp() {
@@ -65,5 +68,61 @@ class BluetoothDeviceTest {
 
         assertThat(fwkBluetoothDevice.bondState).isEqualTo(bluetoothDevice.bondState)
         assertThat(fwkBluetoothDevice.name).isEqualTo(bluetoothDevice.name)
+    }
+
+    @Test
+    fun equalIdWithEqualAddress() {
+        val address = "00:01:02:03:04:05"
+        val fwkBluetoothDevice1 = bluetoothAdapter!!.getRemoteDevice(address)
+        val fwkBluetoothDevice2 = bluetoothAdapter.getRemoteDevice(address)
+
+        val bluetoothDevice1 = BluetoothDevice(fwkBluetoothDevice1)
+        val bluetoothDevice2 = BluetoothDevice(fwkBluetoothDevice2)
+
+        assertThat(bluetoothDevice1.id).isEqualTo(bluetoothDevice2.id)
+    }
+
+    @Test
+    fun differentIdWithDifferentAddress() {
+        val address1 = "00:01:02:03:04:05"
+        val address2 = "05:04:03:02:01:00"
+        val fwkBluetoothDevice1 = bluetoothAdapter!!.getRemoteDevice(address1)
+        val fwkBluetoothDevice2 = bluetoothAdapter.getRemoteDevice(address2)
+
+        val bluetoothDevice1 = BluetoothDevice(fwkBluetoothDevice1)
+        val bluetoothDevice2 = BluetoothDevice(fwkBluetoothDevice2)
+
+        assertThat(bluetoothDevice1.id).isNotEqualTo(bluetoothDevice2.id)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun differentIdWithSameAddressDifferentAddressType() {
+        val address = "00:01:02:03:04:05"
+        val fwkBluetoothDevice1 = bluetoothAdapter!!
+            .getRemoteLeDevice(address, FwkBluetoothDevice.ADDRESS_TYPE_PUBLIC)
+        val fwkBluetoothDevice2 = bluetoothAdapter
+            .getRemoteLeDevice(address, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
+
+        val bluetoothDevice1 = BluetoothDevice(fwkBluetoothDevice1)
+        val bluetoothDevice2 = BluetoothDevice(fwkBluetoothDevice2)
+
+        assertThat(bluetoothDevice1.id).isNotEqualTo(bluetoothDevice2.id)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun differentIdDifferentRandomAddressType() {
+        val address1 = "57:96:C7:1A:45:9C"
+        val address2 = "00:11:02:03:04:C0"
+        val fwkBluetoothDevice1 = bluetoothAdapter!!
+            .getRemoteLeDevice(address1, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
+        val fwkBluetoothDevice2 = bluetoothAdapter
+            .getRemoteLeDevice(address2, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
+
+        val bluetoothDevice1 = BluetoothDevice(fwkBluetoothDevice1)
+        val bluetoothDevice2 = BluetoothDevice(fwkBluetoothDevice2)
+
+        assertThat(bluetoothDevice1.id).isNotEqualTo(bluetoothDevice2.id)
     }
 }
