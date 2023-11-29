@@ -36,6 +36,13 @@ class BluetoothLe(context: Context) {
     companion object {
         /** Advertise started successfully. */
         const val ADVERTISE_STARTED: Int = 10100
+
+        internal lateinit var packageName: String
+            private set
+    }
+
+    init {
+        packageName = context.applicationContext.packageName
     }
 
     @Target(
