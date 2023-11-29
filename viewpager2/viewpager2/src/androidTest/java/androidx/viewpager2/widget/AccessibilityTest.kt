@@ -57,10 +57,8 @@ class AccessibilityTest(private val config: TestConfig) : BaseTest() {
             localeUtil.resetLocale()
             localeUtil.setLocale(LocaleTestUtils.RTL_LANGUAGE)
         }
-        if (Build.VERSION.SDK_INT >= 18) {
-            // Make sure accessibility is enabled (side effect of creating a UI Automator instance)
-            uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        }
+        // Make sure accessibility is enabled (side effect of creating a UI Automator instance)
+        uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     }
 
     override fun tearDown() {

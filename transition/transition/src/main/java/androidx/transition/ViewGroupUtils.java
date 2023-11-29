@@ -44,10 +44,7 @@ class ViewGroupUtils {
      * Backward-compatible {@link ViewGroup#getOverlay()}.
      */
     static ViewGroupOverlayImpl getOverlay(@NonNull ViewGroup group) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return new ViewGroupOverlayApi18(group);
-        }
-        return ViewGroupOverlayApi14.createFrom(group);
+        return new ViewGroupOverlayApi18(group);
     }
 
     /**
@@ -56,14 +53,11 @@ class ViewGroupUtils {
     static void suppressLayout(@NonNull ViewGroup group, boolean suppress) {
         if (Build.VERSION.SDK_INT >= 29) {
             Api29Impl.suppressLayout(group, suppress);
-        } else if (Build.VERSION.SDK_INT >= 18) {
-            hiddenSuppressLayout(group, suppress);
         } else {
-            ViewGroupUtilsApi14.suppressLayout(group, suppress);
+            hiddenSuppressLayout(group, suppress);
         }
     }
 
-    @RequiresApi(18)
     @SuppressLint("NewApi") // Lint doesn't know about the hidden method.
     private static void hiddenSuppressLayout(@NonNull ViewGroup group, boolean suppress) {
         if (sTryHiddenSuppressLayout) {

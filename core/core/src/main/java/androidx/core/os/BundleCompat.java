@@ -21,7 +21,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
-import android.util.Log;
 import android.util.SparseArray;
 
 import androidx.annotation.DoNotInline;
@@ -29,8 +28,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 /**
@@ -192,11 +189,7 @@ public final class BundleCompat {
      */
     @Nullable
     public static IBinder getBinder(@NonNull Bundle bundle, @Nullable String key) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return Api18Impl.getBinder(bundle, key);
-        } else {
-            return BeforeApi18Impl.getBinder(bundle, key);
-        }
+        return bundle.getBinder(key);
     }
 
     /**
@@ -209,11 +202,7 @@ public final class BundleCompat {
      */
     public static void putBinder(@NonNull Bundle bundle, @Nullable String key,
             @Nullable IBinder binder) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            Api18Impl.putBinder(bundle, key, binder);
-        } else {
-            BeforeApi18Impl.putBinder(bundle, key, binder);
-        }
+        bundle.putBinder(key, binder);
     }
 
     @RequiresApi(33)
@@ -244,86 +233,6 @@ public final class BundleCompat {
         static <T> SparseArray<T> getSparseParcelableArray(@NonNull Bundle in, @Nullable String key,
                 @NonNull Class<? extends T> clazz) {
             return in.getSparseParcelableArray(key, clazz);
-        }
-    }
-
-    @RequiresApi(18)
-    static class Api18Impl {
-        private Api18Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static IBinder getBinder(Bundle bundle, String key) {
-            return bundle.getBinder(key);
-        }
-
-        @DoNotInline
-        static void putBinder(Bundle bundle, String key, IBinder value) {
-            bundle.putBinder(key, value);
-        }
-    }
-
-    @SuppressLint("BanUncheckedReflection") // Only called prior to API 18
-    static class BeforeApi18Impl {
-        private static final String TAG = "BundleCompat";
-
-        private static Method sGetIBinderMethod;
-        private static boolean sGetIBinderMethodFetched;
-
-        private static Method sPutIBinderMethod;
-        private static boolean sPutIBinderMethodFetched;
-
-        private BeforeApi18Impl() {
-            // This class is not instantiable.
-        }
-
-        @SuppressWarnings("JavaReflectionMemberAccess")
-        public static IBinder getBinder(Bundle bundle, String key) {
-            if (!sGetIBinderMethodFetched) {
-                try {
-                    sGetIBinderMethod = Bundle.class.getMethod("getIBinder", String.class);
-                    sGetIBinderMethod.setAccessible(true);
-                } catch (NoSuchMethodException e) {
-                    Log.i(TAG, "Failed to retrieve getIBinder method", e);
-                }
-                sGetIBinderMethodFetched = true;
-            }
-
-            if (sGetIBinderMethod != null) {
-                try {
-                    return (IBinder) sGetIBinderMethod.invoke(bundle, key);
-                } catch (InvocationTargetException | IllegalAccessException
-                         | IllegalArgumentException e) {
-                    Log.i(TAG, "Failed to invoke getIBinder via reflection", e);
-                    sGetIBinderMethod = null;
-                }
-            }
-            return null;
-        }
-
-        @SuppressWarnings("JavaReflectionMemberAccess")
-        public static void putBinder(Bundle bundle, String key, IBinder binder) {
-            if (!sPutIBinderMethodFetched) {
-                try {
-                    sPutIBinderMethod =
-                            Bundle.class.getMethod("putIBinder", String.class, IBinder.class);
-                    sPutIBinderMethod.setAccessible(true);
-                } catch (NoSuchMethodException e) {
-                    Log.i(TAG, "Failed to retrieve putIBinder method", e);
-                }
-                sPutIBinderMethodFetched = true;
-            }
-
-            if (sPutIBinderMethod != null) {
-                try {
-                    sPutIBinderMethod.invoke(bundle, key, binder);
-                } catch (InvocationTargetException | IllegalAccessException
-                         | IllegalArgumentException e) {
-                    Log.i(TAG, "Failed to invoke putIBinder via reflection", e);
-                    sPutIBinderMethod = null;
-                }
-            }
         }
     }
 }

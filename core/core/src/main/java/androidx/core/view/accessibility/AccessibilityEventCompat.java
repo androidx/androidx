@@ -18,6 +18,7 @@ package androidx.core.view.accessibility;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.view.View;
 import android.view.accessibility.AccessibilityEvent;
@@ -450,6 +451,7 @@ public final class AccessibilityEventCompat {
      *         <li>{@link AccessibilityEvent#CONTENT_CHANGE_TYPE_UNDEFINED}
      *         </ul>
      */
+    @SuppressLint("WrongConstant")
     @ContentChangeType
     public static int getContentChangeTypes(@NonNull AccessibilityEvent event) {
         if (Build.VERSION.SDK_INT >= 19) {
