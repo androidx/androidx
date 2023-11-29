@@ -66,7 +66,9 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastCoerceIn
+import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
@@ -89,7 +91,6 @@ enum class DrawerValue {
 /**
  * Possible values of [BottomDrawerState].
  */
-@ExperimentalMaterialApi
 enum class BottomDrawerValue {
     /**
      * The state of the bottom drawer when it is closed.
@@ -256,57 +257,28 @@ class DrawerState(
  *
  * @param initialValue The initial value of the state.
  * @param density The density that this state can use to convert values to and from dp.
+ * @param animationSpec The animation spec to be used for animations.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
-@Suppress("NotCloseable", "Deprecation")
-@ExperimentalMaterialApi
-fun BottomDrawerState(
+@OptIn(ExperimentalMaterialApi::class)
+@Suppress("NotCloseable")
+class BottomDrawerState(
     initialValue: BottomDrawerValue,
     density: Density,
-    confirmStateChange: (BottomDrawerValue) -> Boolean = { true }
-) = BottomDrawerState(
-    initialValue = initialValue,
-    confirmStateChange = confirmStateChange
-).also {
-    it.density = density
-}
-
-/**
- * State of the [BottomDrawer] composable.
- *
- * @param initialValue The initial value of the state.
- * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
- */
-@Suppress("NotCloseable")
-@ExperimentalMaterialApi
-class BottomDrawerState @Deprecated(
-    "This constructor is deprecated. Density must be provided by the component. Please " +
-        "use the constructor that provides a [Density].",
-    ReplaceWith(
-        """
-            BottomDrawerState(
-                initialValue = initialValue,
-                density =,
-                confirmStateChange = confirmStateChange
-            )
-            """
-    )
-) constructor(
-    initialValue: BottomDrawerValue,
-    confirmStateChange: (BottomDrawerValue) -> Boolean = { true }
+    confirmStateChange: (BottomDrawerValue) -> Boolean = { true },
+    animationSpec: AnimationSpec<Float> = AnimationSpec
 ) {
     internal val anchoredDraggableState = AnchoredDraggableState(
         initialValue = initialValue,
-        animationSpec = AnimationSpec,
+        animationSpec = animationSpec,
         confirmValueChange = confirmStateChange,
-        positionalThreshold = { with(requireDensity()) { DrawerPositionalThreshold.toPx() } },
-        velocityThreshold = { with(requireDensity()) { DrawerVelocityThreshold.toPx() } },
+        positionalThreshold = { with(density) { DrawerPositionalThreshold.toPx() } },
+        velocityThreshold = { with(density) { DrawerVelocityThreshold.toPx() } },
     )
 
     /**
-     * The target value. This is the closest value to the current offset (taking into account
-     * positional thresholds). If no interactions like animations or drags are in progress, this
-     * will be the current value.
+     * The target value the state will settle at once the current interaction ends, or the
+     * [currentValue] if there is no interaction in progress.
      */
     val targetValue: BottomDrawerValue
         get() = anchoredDraggableState.targetValue
@@ -314,7 +286,6 @@ class BottomDrawerState @Deprecated(
     /**
      * The current offset, or [Float.NaN] if it has not been initialized yet.
      */
-    @Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
     val offset: Float
         get() = anchoredDraggableState.offset
 
@@ -324,15 +295,6 @@ class BottomDrawerState @Deprecated(
      * The current value of the [BottomDrawerState].
      */
     val currentValue: BottomDrawerValue get() = anchoredDraggableState.currentValue
-
-    /**
-     * The fraction of the progress, within [0f..1f] bounds, or 1f if the [AnchoredDraggableState]
-     * is in a settled state.
-     */
-    @get:FloatRange(from = 0.0, to = 1.0)
-    @ExperimentalMaterialApi
-    val progress: Float
-        get() = anchoredDraggableState.progress
 
     /**
      * Whether the drawer is open, either in opened or expanded state.
@@ -351,6 +313,41 @@ class BottomDrawerState @Deprecated(
      */
     val isExpanded: Boolean
         get() = anchoredDraggableState.currentValue == Expanded
+
+    /**
+     * The fraction of the progress, within [0f..1f] bounds, or 1f if the [AnchoredDraggableState]
+     * is in a settled state.
+     */
+    @Deprecated(
+        message = "Please use the progress function to query progress explicitly between targets.",
+        replaceWith = ReplaceWith("progress(from = , to = )")
+    ) // TODO: Remove in the future b/323882175
+    @get:FloatRange(from = 0.0, to = 1.0)
+    @ExperimentalMaterialApi
+    val progress: Float
+        get() = anchoredDraggableState.progress
+
+    /**
+     * The fraction of the offset between [from] and [to], as a fraction between [0f..1f], or 1f if
+     * [from] is equal to [to].
+     *
+     * @param from The starting value used to calculate the distance
+     * @param to The end value used to calculate the distance
+     */
+    @FloatRange(from = 0.0, to = 1.0)
+    fun progress(
+        from: BottomDrawerValue,
+        to: BottomDrawerValue
+    ): Float {
+        val fromOffset = anchoredDraggableState.anchors.positionOf(from)
+        val toOffset = anchoredDraggableState.anchors.positionOf(to)
+        val currentOffset = anchoredDraggableState.offset.coerceIn(
+            min(fromOffset, toOffset), // fromOffset might be > toOffset
+            max(fromOffset, toOffset)
+        )
+        val fraction = (currentOffset - fromOffset) / (toOffset - fromOffset)
+        return if (fraction.isNaN()) 1f else abs(fraction)
+    }
 
     /**
      * Open the drawer with animation and suspend until it if fully opened or animation has been
@@ -403,36 +400,17 @@ class BottomDrawerState @Deprecated(
 
     internal var density: Density? = null
 
-    private fun requireDensity() = requireNotNull(density) {
-        "The density on BottomDrawerState ($this) was not set. Did you use BottomDrawer" +
-            " with the BottomDrawer composable?"
-    }
-
     companion object {
         /**
          * The default [Saver] implementation for [BottomDrawerState].
          */
-        fun Saver(density: Density, confirmStateChange: (BottomDrawerValue) -> Boolean) =
-            Saver<BottomDrawerState, BottomDrawerValue>(
+        fun Saver(
+            density: Density,
+            confirmStateChange: (BottomDrawerValue) -> Boolean,
+            animationSpec: AnimationSpec<Float>
+        ) = Saver<BottomDrawerState, BottomDrawerValue>(
                 save = { it.anchoredDraggableState.currentValue },
-                restore = { BottomDrawerState(it, density, confirmStateChange) }
-            )
-
-        /**
-         * The default [Saver] implementation for [BottomDrawerState].
-         */
-        @Deprecated(
-            message = "This function is deprecated. Please use the overload where Density is" +
-                " provided.",
-            replaceWith = ReplaceWith(
-                "Saver(density, confirmValueChange)"
-            )
-        )
-        @Suppress("Deprecation")
-        fun Saver(confirmStateChange: (BottomDrawerValue) -> Boolean) =
-            Saver<BottomDrawerState, BottomDrawerValue>(
-                save = { it.anchoredDraggableState.currentValue },
-                restore = { BottomDrawerState(it, confirmStateChange) }
+                restore = { BottomDrawerState(it, density, confirmStateChange, animationSpec) }
             )
     }
 }
@@ -457,17 +435,21 @@ fun rememberDrawerState(
  * Create and [remember] a [BottomDrawerState].
  *
  * @param initialValue The initial value of the state.
+ * @param animationSpec The animation spec to be used for animations.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Composable
-@ExperimentalMaterialApi
 fun rememberBottomDrawerState(
     initialValue: BottomDrawerValue,
-    confirmStateChange: (BottomDrawerValue) -> Boolean = { true }
+    confirmStateChange: (BottomDrawerValue) -> Boolean = { true },
+    animationSpec: AnimationSpec<Float> = AnimationSpec,
 ): BottomDrawerState {
     val density = LocalDensity.current
-    return rememberSaveable(density, saver = BottomDrawerState.Saver(density, confirmStateChange)) {
-        BottomDrawerState(initialValue, density, confirmStateChange)
+    return rememberSaveable(
+        density,
+        saver = BottomDrawerState.Saver(density, confirmStateChange, animationSpec)
+    ) {
+        BottomDrawerState(initialValue, density, confirmStateChange, animationSpec)
     }
 }
 
@@ -634,8 +616,8 @@ fun ModalDrawer(
  * @param content content of the rest of the UI
  *
  */
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-@ExperimentalMaterialApi
 fun BottomDrawer(
     drawerContent: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
@@ -648,16 +630,9 @@ fun BottomDrawer(
     scrimColor: Color = DrawerDefaults.scrimColor,
     content: @Composable () -> Unit
 ) {
-    // b/278692145 Remove this once deprecated methods without density are removed
-    val density = LocalDensity.current
-    SideEffect {
-        drawerState.density = density
-    }
     val scope = rememberCoroutineScope()
-
     BoxWithConstraints(modifier.fillMaxSize()) {
         val fullHeight = constraints.maxHeight.toFloat()
-        // TODO(b/178630869) Proper landscape support
         val isLandscape = constraints.maxWidth > constraints.maxHeight
         val drawerConstraints = with(LocalDensity.current) {
             Modifier
@@ -714,7 +689,8 @@ fun BottomDrawer(
                         // the current (initial) value, prefer that
                         val hasAnchors = drawerState.anchoredDraggableState.anchors.size > 0
                         val newTarget = if (!hasAnchors &&
-                            newAnchors.hasAnchorFor(drawerState.currentValue)) {
+                            newAnchors.hasAnchorFor(drawerState.currentValue)
+                        ) {
                             drawerState.currentValue
                         } else {
                             when (drawerState.targetValue) {
