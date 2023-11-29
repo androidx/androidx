@@ -548,12 +548,10 @@ class AppCompatTextHelper {
             applyCompoundDrawableTint(compoundDrawables[2], mDrawableRightTint);
             applyCompoundDrawableTint(compoundDrawables[3], mDrawableBottomTint);
         }
-        if (Build.VERSION.SDK_INT >= 17) {
-            if (mDrawableStartTint != null || mDrawableEndTint != null) {
-                final Drawable[] compoundDrawables = Api17Impl.getCompoundDrawablesRelative(mView);
-                applyCompoundDrawableTint(compoundDrawables[0], mDrawableStartTint);
-                applyCompoundDrawableTint(compoundDrawables[2], mDrawableEndTint);
-            }
+        if (mDrawableStartTint != null || mDrawableEndTint != null) {
+            final Drawable[] compoundDrawables = Api17Impl.getCompoundDrawablesRelative(mView);
+            applyCompoundDrawableTint(compoundDrawables[0], mDrawableStartTint);
+            applyCompoundDrawableTint(compoundDrawables[2], mDrawableEndTint);
         }
     }
 

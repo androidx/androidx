@@ -157,9 +157,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             mContentView = b.mContentView;
             mBigContentView = b.mBigContentView;
         }
-        if (Build.VERSION.SDK_INT >= 17) {
-            Api17Impl.setShowWhen(mBuilder, b.mShowWhen);
-        }
+        mBuilder.setShowWhen(b.mShowWhen);
         if (Build.VERSION.SDK_INT >= 19) {
             if (Build.VERSION.SDK_INT < 21) {
                 final List<String> people = combineLists(getPeople(b.mPersonList), b.mPeople);
@@ -593,23 +591,6 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         static Notification build(Notification.Builder builder) {
             return builder.build();
         }
-    }
-
-    /**
-     * A class for wrapping calls to {@link NotificationCompatBuilder} methods which
-     * were added in API 17; these calls must be wrapped to avoid performance issues.
-     * See the UnsafeNewApiCall lint rule for more details.
-     */
-    @RequiresApi(17)
-    static class Api17Impl {
-        private Api17Impl() {
-        }
-
-        @DoNotInline
-        static Notification.Builder setShowWhen(Notification.Builder builder, boolean show) {
-            return builder.setShowWhen(show);
-        }
-
     }
 
     /**

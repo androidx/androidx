@@ -37,14 +37,8 @@ public class MarginLayoutParamsCompatTest {
                 MarginLayoutParamsCompat.getLayoutDirection(mlp));
 
         MarginLayoutParamsCompat.setLayoutDirection(mlp, ViewCompat.LAYOUT_DIRECTION_RTL);
-        if (Build.VERSION.SDK_INT >= 17) {
-            assertEquals("RTL layout direction", ViewCompat.LAYOUT_DIRECTION_RTL,
-                    MarginLayoutParamsCompat.getLayoutDirection(mlp));
-        } else {
-            assertEquals("Still LTR layout direction on older devices",
-                    ViewCompat.LAYOUT_DIRECTION_LTR,
-                    MarginLayoutParamsCompat.getLayoutDirection(mlp));
-        }
+        assertEquals("RTL layout direction", ViewCompat.LAYOUT_DIRECTION_RTL,
+                MarginLayoutParamsCompat.getLayoutDirection(mlp));
 
         MarginLayoutParamsCompat.setLayoutDirection(mlp, ViewCompat.LAYOUT_DIRECTION_LTR);
         assertEquals("Back to LTR layout direction", ViewCompat.LAYOUT_DIRECTION_LTR,

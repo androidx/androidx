@@ -22,7 +22,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.os.Build;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
@@ -32,10 +31,8 @@ import android.widget.PopupWindow;
 import android.widget.PopupWindow.OnDismissListener;
 
 import androidx.annotation.AttrRes;
-import androidx.annotation.DoNotInline;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
@@ -233,11 +230,7 @@ public class MenuPopupHelper implements MenuHelper {
         final Display display = windowManager.getDefaultDisplay();
         final Point displaySize = new Point();
 
-        if (Build.VERSION.SDK_INT >= 17) {
-            Api17Impl.getRealSize(display, displaySize);
-        } else {
-            display.getSize(displaySize);
-        }
+        display.getRealSize(displaySize);
 
         final int smallestWidth = Math.min(displaySize.x, displaySize.y);
         final int minSmallestWidthCascading = mContext.getResources().getDimensionPixelSize(
@@ -350,17 +343,5 @@ public class MenuPopupHelper implements MenuHelper {
      */
     public ListView getListView() {
         return getPopup().getListView();
-    }
-
-    @RequiresApi(17)
-    static class Api17Impl {
-        private Api17Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void getRealSize(Display display, Point outSize) {
-            display.getRealSize(outSize);
-        }
     }
 }
