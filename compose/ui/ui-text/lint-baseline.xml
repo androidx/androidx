@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 29 (current min is 21): `android.graphics.Paint#getBlendMode`"
-        errorLine1="        assertThat(paragraph.textPaint.blendMode).isEqualTo(BlendMode.SrcOver)"
-        errorLine2="                                       ~~~~~~~~~">
-        <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/AndroidParagraphTest.kt"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="NewApi"
@@ -40,10 +31,10 @@
     <issue
         id="NewApi"
         message="Call requires API level 29 (current min is 21): `android.graphics.Paint#getBlendMode`"
-        errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.SrcOver)"
-        errorLine2="                             ~~~~~~~~~">
+        errorLine1="        assertThat(paragraph.textPaint.blendMode).isEqualTo(BlendMode.SrcOver)"
+        errorLine2="                                       ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/platform/AndroidTextPaintTest.kt"/>
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/AndroidParagraphTest.kt"/>
     </issue>
 
     <issue
@@ -51,6 +42,15 @@
         message="Cast from `BlendMode` to `Comparable` requires API level 29 (current min is 21)"
         errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.SrcOver)"
         errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/platform/AndroidTextPaintTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
+        message="Call requires API level 29 (current min is 21): `android.graphics.Paint#getBlendMode`"
+        errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.SrcOver)"
+        errorLine2="                             ~~~~~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/platform/AndroidTextPaintTest.kt"/>
     </issue>
@@ -66,6 +66,15 @@
 
     <issue
         id="NewApi"
+        message="Cast from `BlendMode` to `Comparable` requires API level 29 (current min is 21)"
+        errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.DstOver)"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/platform/AndroidTextPaintTest.kt"/>
+    </issue>
+
+    <issue
+        id="NewApi"
         message="Call requires API level 29 (current min is 21): `android.graphics.Paint#getBlendMode`"
         errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.DstOver)"
         errorLine2="                             ~~~~~~~~~">
@@ -74,12 +83,93 @@
     </issue>
 
     <issue
-        id="NewApi"
-        message="Cast from `BlendMode` to `Comparable` requires API level 29 (current min is 21)"
-        errorLine1="        assertThat(textPaint.blendMode).isEqualTo(BlendMode.DstOver)"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~">
+        id="PrimitiveInCollection"
+        message="field paragraphEnds with type List&lt;Integer>: replace with IntList"
+        errorLine1="    private val paragraphEnds: List&lt;Int>"
+        errorLine2="                               ~~~~~~~~~">
         <location
-            file="src/androidInstrumentedTest/kotlin/androidx/compose/ui/text/platform/AndroidTextPaintTest.kt"/>
+            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/LayoutHelper.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable lineFeeds with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val lineFeeds = mutableListOf&lt;Int>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/LayoutHelper.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of breakInWords: replace with IntList"
+        errorLine1="    private fun breakInWords(layoutHelper: LayoutHelper): List&lt;Int> {"
+        errorLine2="                                                          ~~~~~~~~~">
+        <location
+            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable words with type List&lt;? extends Integer>: replace with IntList"
+        errorLine1="        val words = breakWithBreakIterator(text, BreakIterator.getLineInstance(Locale.getDefault()))"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable set with type TreeSet&lt;Integer>: replace with IntSet"
+        errorLine1="        val set = TreeSet&lt;Int>().apply {"
+        errorLine2="        ^">
+        <location
+            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of breakWithBreakIterator: replace with IntList"
+        errorLine1="    private fun breakWithBreakIterator(text: CharSequence, breaker: BreakIterator): List&lt;Int> {"
+        errorLine2="                                                                                    ~~~~~~~~~">
+        <location
+            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable res with type List&lt;Integer>: replace with IntList"
+        errorLine1="        val res = mutableListOf(0)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Integer> of breakOffsets: replace with IntList"
+        errorLine1="    fun breakOffsets(layoutHelper: LayoutHelper, segmentType: SegmentType): List&lt;Int> {"
+        errorLine2="                                                                            ~~~~~~~~~">
+        <location
+            file="${:compose:ui:ui-text*debug*MAIN*sourceProvider*0*javaDir*4}/androidx/compose/ui/text/android/animation/SegmentBreaker.android.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable list with type List&lt;? extends Float>: replace with FloatList"
+        errorLine1="        @Suppress(&quot;UNCHECKED_CAST&quot;)"
+        errorLine2="        ^">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/Savers.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;FontStyle> of values: replace with IntList"
+        errorLine1="        fun values(): List&lt;FontStyle> = listOf(Normal, Italic)"
+        errorLine2="                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/text/font/FontStyle.kt"/>
     </issue>
 
     <issue
@@ -93,11 +183,11 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="return type List&lt;FontStyle> of values: replace with IntList"
-        errorLine1="        fun values(): List&lt;FontStyle> = listOf(Normal, Italic)"
+        message="return type List&lt;TextAlign> of values: replace with IntList"
+        errorLine1="        fun values(): List&lt;TextAlign> = listOf(Left, Right, Center, Justify, Start, End)"
         errorLine2="                      ~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/ui/text/font/FontStyle.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/ui/text/style/TextAlign.kt"/>
     </issue>
 
     <issue
@@ -125,96 +215,6 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/jvmMain/kotlin/androidx/compose/ui/text/JvmAnnotatedString.jvm.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field paragraphEnds with type List&lt;Integer>: replace with IntList"
-        errorLine1="    private val paragraphEnds: List&lt;Int>"
-        errorLine2="                               ~~~~~~~~~">
-        <location
-            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/LayoutHelper.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable lineFeeds with type List&lt;Integer>: replace with IntList"
-        errorLine1="        val lineFeeds = mutableListOf&lt;Int>()"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/LayoutHelper.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable list with type List&lt;? extends Float>: replace with FloatList"
-        errorLine1="        @Suppress(&quot;UNCHECKED_CAST&quot;)"
-        errorLine2="        ^">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/text/Savers.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of breakInWords: replace with IntList"
-        errorLine1="    private fun breakInWords(layoutHelper: LayoutHelper): List&lt;Int> {"
-        errorLine2="                                                          ~~~~~~~~~">
-        <location
-            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable words with type List&lt;? extends Integer>: replace with IntList"
-        errorLine1="        val words = breakWithBreakIterator(text, BreakIterator.getLineInstance(Locale.getDefault()))"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable set with type TreeSet&lt;Integer>: replace with IntSet"
-        errorLine1="        val set = TreeSet&lt;Int>().apply {"
-        errorLine2="        ^">
-        <location
-            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of breakWithBreakIterator: replace with IntList"
-        errorLine1="    private fun breakWithBreakIterator(text: CharSequence, breaker: BreakIterator): List&lt;Int> {"
-        errorLine2="                                                                                    ~~~~~~~~~">
-        <location
-            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="variable res with type List&lt;Integer>: replace with IntList"
-        errorLine1="        val res = mutableListOf(0)"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;Integer> of breakOffsets: replace with IntList"
-        errorLine1="    fun breakOffsets(layoutHelper: LayoutHelper, segmentType: SegmentType): List&lt;Int> {"
-        errorLine2="                                                                            ~~~~~~~~~">
-        <location
-            file="../../../text/text/src/main/java/androidx/compose/ui/text/android/animation/SegmentBreaker.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="return type List&lt;TextAlign> of values: replace with IntList"
-        errorLine1="        fun values(): List&lt;TextAlign> = listOf(Left, Right, Center, Justify, Start, End)"
-        errorLine2="                      ~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/text/style/TextAlign.kt"/>
     </issue>
 
 </issues>
