@@ -18,11 +18,14 @@ package androidx.privacysandbox.sdkruntime.core.controller.impl
 
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
+import android.os.Bundle
 import android.os.IBinder
 import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_NOT_FOUND
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCompat
@@ -37,6 +40,13 @@ internal open class PlatformImpl(
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {
 
     private val appOwnedSdkProvider = AppOwnedSdkProvider.create(controller)
+
+    override suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat {
+        throw LoadSdkCompatException(
+            LOAD_SDK_NOT_FOUND,
+            "Loading SDK not supported on this device"
+        )
+    }
 
     override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
         return controller
