@@ -64,7 +64,6 @@ import androidx.compose.ui.viewinterop.InteropViewFactoryHolder
 /**
  * Enable to log changes to the LayoutNode tree.  This logging is quite chatty.
  */
-@Suppress("ConstPropertyName")
 private const val DebugChanges = false
 
 private val DefaultDensity = Density(1f)
@@ -1061,7 +1060,11 @@ internal class LayoutNode(
     private fun invalidateFocusOnDetach() {
         nodes.tailToHead(FocusTarget) {
             if (it.focusState.isFocused) {
-                requireOwner().focusOwner.clearFocus(force = true, refreshFocusEvents = false)
+                requireOwner().focusOwner.clearFocus(
+                    force = true,
+                    refreshFocusEvents = false,
+                    clearOwnerFocus = true
+                )
                 it.scheduleInvalidationForFocusEvents()
             }
         }
@@ -1373,6 +1376,7 @@ internal class LayoutNode(
         /**
          * Constant used by [placeOrder].
          */
+        @Suppress("ConstPropertyName")
         internal const val NotPlacedPlaceOrder = Int.MAX_VALUE
 
         /**

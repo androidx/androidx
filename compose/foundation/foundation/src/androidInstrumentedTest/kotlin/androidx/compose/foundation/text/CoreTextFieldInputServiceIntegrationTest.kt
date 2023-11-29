@@ -19,6 +19,7 @@ package androidx.compose.foundation.text
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.setFocusableContent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -370,7 +371,7 @@ class CoreTextFieldInputServiceIntegrationTest {
         lateinit var textLayoutResult: TextLayoutResult
         val focusRequester = FocusRequester()
 
-        setContent {
+        setContent(extraItemForInitialFocus = false) {
             CoreTextField(
                 value = value,
                 modifier = Modifier.focusRequester(focusRequester),
@@ -400,7 +401,7 @@ class CoreTextFieldInputServiceIntegrationTest {
         lateinit var textLayoutResult: TextLayoutResult
         val focusRequester = FocusRequester()
 
-        setContent {
+        setContent(extraItemForInitialFocus = false) {
             Box(Modifier.offset { offset }) {
                 CoreTextField(
                     value = value,
@@ -440,7 +441,7 @@ class CoreTextFieldInputServiceIntegrationTest {
         var value by mutableStateOf(TextFieldValue(""))
         lateinit var textLayoutResult: TextLayoutResult
 
-        setContent {
+        setContent(extraItemForInitialFocus = false) {
             CoreTextField(
                 value = value,
                 modifier = Modifier.testTag(tag),
@@ -494,7 +495,7 @@ class CoreTextFieldInputServiceIntegrationTest {
         val focusRequester = FocusRequester()
         val matrix = Matrix()
 
-        setContent {
+        setContent(extraItemForInitialFocus = false) {
             Box(Modifier.offset { offset }) {
                 CoreTextField(value = value,
                     modifier = Modifier.focusRequester(focusRequester),
@@ -539,8 +540,11 @@ class CoreTextFieldInputServiceIntegrationTest {
         }
     }
 
-    private fun setContent(content: @Composable () -> Unit) {
-        rule.setContent {
+    private fun setContent(
+        extraItemForInitialFocus: Boolean = true,
+        content: @Composable () -> Unit
+    ) {
+        rule.setFocusableContent(extraItemForInitialFocus) {
             focusManager = LocalFocusManager.current
             CompositionLocalProvider(
                 LocalTextInputService provides textInputService,

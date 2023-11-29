@@ -76,7 +76,6 @@ import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
 import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.SemanticsOwner
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.text.platform.FontLoader
@@ -92,7 +91,6 @@ private typealias Command = () -> Unit
 
 @OptIn(
     ExperimentalComposeUiApi::class,
-    ExperimentalTextApi::class,
     InternalCoreApi::class,
     InternalComposeUiApi::class
 )
@@ -100,7 +98,7 @@ internal class SkiaBasedOwner(
     private val platformInputService: PlatformInput,
     private val component: PlatformComponent,
     density: Density = Density(1f, 1f),
-    coroutineContext: CoroutineContext,
+    override val coroutineContext: CoroutineContext,
     val isPopup: Boolean = false,
     val isFocusable: Boolean = true,
     val onDismissRequest: (() -> Unit)? = null,
@@ -126,12 +124,12 @@ internal class SkiaBasedOwner(
 
     private val semanticsModifier = EmptySemanticsElement
 
-    override val focusOwner: FocusOwner = FocusOwnerImpl {
-        registerOnEndApplyChangesListener(it)
-    }.apply {
-        // TODO(demin): support RTL [onRtlPropertiesChanged]
-        layoutDirection = LayoutDirection.Ltr
-    }
+    override val focusOwner: FocusOwner = FocusOwnerImpl(
+        onRequestApplyChangesListener = ::registerOnEndApplyChangesListener,
+        onRequestFocusForOwner = { _, _ -> true }, // TODO request focus from framework.
+        onClearFocusForOwner = {}, // TODO clear focus from framework.
+        layoutDirection = { layoutDirection } // TODO(demin): support RTL [onRtlPropertiesChanged].
+    )
 
     // TODO: Set the input mode. For now we don't support touch mode, (always in Key mode).
     private val _inputModeManager = InputModeManagerImpl(
@@ -188,8 +186,6 @@ internal class SkiaBasedOwner(
             .onKeyEvent(onKeyEvent)
     }
 
-    override val coroutineContext: CoroutineContext = coroutineContext
-
     override val rootForTest = this
 
     override val snapshotObserver = OwnerSnapshotObserver { command ->
@@ -204,7 +200,8 @@ internal class SkiaBasedOwner(
         snapshotObserver.startObserving()
         root.attach(this)
         focusOwner.focusTransactionManager.withNewTransaction {
-            focusOwner.takeFocus()
+            // TODO instead of taking focus here, call this when the owner gets focused.
+            focusOwner.takeFocus(Enter, previouslyFocusedRect = null)
         }
     }
 

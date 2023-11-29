@@ -17,13 +17,18 @@
 package androidx.compose.ui.focus
 
 import android.view.View
+import android.view.View.FOCUS_DOWN
+import android.view.View.FOCUS_UP
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -63,19 +68,16 @@ class OwnerFocusTest {
         }
     }
 
-    @Ignore("Enable this test after the owner propagates focus to the hierarchy (b/152535715)")
     @Test
     fun whenOwnerGainsFocus_focusModifiersAreUpdated() {
         // Arrange.
         lateinit var ownerView: View
         lateinit var focusState: FocusState
-        val focusRequester = FocusRequester()
-        rule.setFocusableContent {
+        rule.setFocusableContent(extraItemForInitialFocus = false) {
             ownerView = LocalView.current
             Box(
                 modifier = Modifier
                     .onFocusChanged { focusState = it }
-                    .focusRequester(focusRequester)
                     .focusTarget()
             )
         }
@@ -88,6 +90,106 @@ class OwnerFocusTest {
         // Assert.
         rule.runOnIdle {
             assertThat(focusState.isFocused).isTrue()
+        }
+    }
+
+    @Test
+    fun callingRequestFocusDownWhenOwnerAlreadyHasFocus() {
+        // Arrange.
+        lateinit var ownerView: View
+        lateinit var focusState1: FocusState
+        lateinit var focusState2: FocusState
+        lateinit var focusState3: FocusState
+        val focusRequester = FocusRequester()
+        rule.setFocusableContent(extraItemForInitialFocus = false) {
+            ownerView = LocalView.current
+            Column {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .onFocusChanged { focusState1 = it }
+                        .focusTarget()
+                )
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { focusState2 = it }
+                        .focusTarget()
+                )
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .onFocusChanged { focusState3 = it }
+                        .focusTarget()
+                )
+            }
+        }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+        }
+
+        // Act.
+        val focusRequested = rule.runOnIdle {
+            ownerView.requestFocus(FOCUS_DOWN)
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(focusRequested).isTrue()
+            assertThat(focusState1.isFocused).isFalse()
+            assertThat(focusState2.isFocused).isTrue()
+            assertThat(focusState3.isFocused).isFalse()
+        }
+    }
+
+    @Test
+    fun callingRequestFocusUpWhenOwnerAlreadyHasFocus() {
+        // Arrange.
+        lateinit var ownerView: View
+        lateinit var focusState1: FocusState
+        lateinit var focusState2: FocusState
+        lateinit var focusState3: FocusState
+        val focusRequester = FocusRequester()
+        rule.setFocusableContent(extraItemForInitialFocus = false) {
+            ownerView = LocalView.current
+            Column {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .onFocusChanged { focusState1 = it }
+                        .focusTarget()
+                )
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .focusRequester(focusRequester)
+                        .onFocusChanged { focusState2 = it }
+                        .focusTarget()
+                )
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .onFocusChanged { focusState3 = it }
+                        .focusTarget()
+                )
+            }
+        }
+        rule.runOnIdle {
+            focusRequester.requestFocus()
+        }
+
+        // Act.
+        val focusRequested = rule.runOnIdle {
+            ownerView.requestFocus(FOCUS_UP)
+        }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(focusRequested).isTrue()
+            assertThat(focusState1.isFocused).isFalse()
+            assertThat(focusState2.isFocused).isTrue()
+            assertThat(focusState3.isFocused).isFalse()
         }
     }
 
@@ -129,6 +231,7 @@ class OwnerFocusTest {
             ownerView = LocalView.current
             Box(
                 modifier = Modifier
+                    .size(10.dp)
                     .onFocusChanged { focusState = it }
                     .focusRequester(focusRequester)
                     .focusTarget()
@@ -176,6 +279,25 @@ class OwnerFocusTest {
         // Assert.
         rule.runOnIdle {
             assertThat(focusState.isFocused).isTrue()
+        }
+    }
+
+    @Test
+    fun viewDoesNotTakeFocus_whenThereAreNoFocusableItems() {
+        // Arrange.
+        lateinit var ownerView: View
+        rule.setFocusableContent(extraItemForInitialFocus = false) {
+            ownerView = LocalView.current
+            Box {}
+        }
+
+        // Act.
+        val success = rule.runOnIdle { ownerView.requestFocus() }
+
+        // Assert.
+        rule.runOnIdle {
+            assertThat(success).isFalse()
+            assertThat(ownerView.isFocused).isFalse()
         }
     }
 

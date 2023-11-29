@@ -26,6 +26,7 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.setFocusableContent
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.getValue
@@ -548,7 +549,7 @@ class SelectableTest {
         lateinit var focusManager: FocusManager
         lateinit var inputModeManager: InputModeManager
 
-        rule.setContent {
+        rule.setFocusableContent {
             scope = rememberCoroutineScope()
             focusManager = LocalFocusManager.current
             inputModeManager = LocalInputModeManager.current

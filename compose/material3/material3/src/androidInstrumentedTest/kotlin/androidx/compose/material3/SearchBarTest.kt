@@ -17,6 +17,7 @@
 package androidx.compose.material3
 
 import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,6 +70,9 @@ class SearchBarTest {
             Box(Modifier.fillMaxSize()) {
                 val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
                 var active by remember { mutableStateOf(false) }
+
+                // Extra item for initial focus.
+                Box(Modifier.size(10.dp).focusable())
 
                 SearchBar(
                     modifier = Modifier.testTag(SearchBarTestTag),
@@ -248,6 +252,9 @@ class SearchBarTest {
             Column(Modifier.fillMaxSize()) {
                 val dispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
                 var active by remember { mutableStateOf(false) }
+
+                // Extra item for initial focus.
+                Box(Modifier.size(10.dp).focusable())
 
                 DockedSearchBar(
                     modifier = Modifier.testTag(SearchBarTestTag),
