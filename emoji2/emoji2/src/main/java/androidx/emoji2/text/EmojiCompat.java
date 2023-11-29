@@ -463,8 +463,7 @@ public class EmojiCompat {
         if (config.mInitCallbacks != null && !config.mInitCallbacks.isEmpty()) {
             mInitCallbacks.addAll(config.mInitCallbacks);
         }
-        mHelper = Build.VERSION.SDK_INT < 19 ? new CompatInternal(this) : new CompatInternal19(
-                this);
+        mHelper = new CompatInternal(this);
         loadMetadata();
     }
 
@@ -1646,64 +1645,7 @@ public class EmojiCompat {
         }
     }
 
-    /**
-     * Internal helper class to behave no-op for certain functions.
-     */
-    private static class CompatInternal {
-        final EmojiCompat mEmojiCompat;
-
-        CompatInternal(EmojiCompat emojiCompat) {
-            mEmojiCompat = emojiCompat;
-        }
-
-        void loadMetadata() {
-            // Moves into LOAD_STATE_SUCCESS state immediately.
-            mEmojiCompat.onMetadataLoadSuccess();
-        }
-
-        boolean hasEmojiGlyph(@NonNull final CharSequence sequence) {
-            // Since no metadata is loaded, EmojiCompat cannot detect or render any emojis.
-            return false;
-        }
-
-        boolean hasEmojiGlyph(@NonNull final CharSequence sequence, final int metadataVersion) {
-            // Since no metadata is loaded, EmojiCompat cannot detect or render any emojis.
-            return false;
-        }
-
-        int getEmojiStart(@NonNull final CharSequence cs, @IntRange(from = 0) final int offset) {
-            // Since no metadata is loaded, EmojiCompat cannot detect any emojis.
-            return -1;
-        }
-
-        int getEmojiEnd(@NonNull final CharSequence cs, @IntRange(from = 0) final int offset) {
-            // Since no metadata is loaded, EmojiCompat cannot detect any emojis.
-            return -1;
-        }
-
-        CharSequence process(@NonNull final CharSequence charSequence,
-                @IntRange(from = 0) final int start, @IntRange(from = 0) final int end,
-                @IntRange(from = 0) final int maxEmojiCount, boolean replaceAll) {
-            // Returns the given charSequence as it is.
-            return charSequence;
-        }
-
-        void updateEditorInfoAttrs(@NonNull final EditorInfo outAttrs) {
-            // Does not add any EditorInfo attributes.
-        }
-
-        String getAssetSignature() {
-            return "";
-        }
-
-        @CodepointSequenceMatchResult
-        public int getEmojiMatch(CharSequence sequence, int metadataVersion) {
-            return EMOJI_UNSUPPORTED;
-        }
-    }
-
-    @RequiresApi(19)
-    private static final class CompatInternal19 extends CompatInternal {
+    private static final class CompatInternal {
         /**
          * Responsible to process a CharSequence and add the spans. @{code Null} until the time the
          * metadata is loaded.
@@ -1714,13 +1656,12 @@ public class EmojiCompat {
          * Keeps the information about emojis. Null until the time the data is loaded.
          */
         private volatile MetadataRepo mMetadataRepo;
+        private final EmojiCompat mEmojiCompat;
 
-
-        CompatInternal19(EmojiCompat emojiCompat) {
-            super(emojiCompat);
+        CompatInternal(EmojiCompat emojiCompat) {
+            mEmojiCompat = emojiCompat;
         }
 
-        @Override
         void loadMetadata() {
             try {
                 final MetadataRepoLoaderCallback callback = new MetadataRepoLoaderCallback() {
@@ -1761,45 +1702,37 @@ public class EmojiCompat {
             mEmojiCompat.onMetadataLoadSuccess();
         }
 
-        @Override
         boolean hasEmojiGlyph(@NonNull CharSequence sequence) {
             return mProcessor.getEmojiMatch(sequence) == EMOJI_SUPPORTED;
         }
 
-        @Override
         boolean hasEmojiGlyph(@NonNull CharSequence sequence, int metadataVersion) {
             int emojiMatch = mProcessor.getEmojiMatch(sequence, metadataVersion);
             return emojiMatch == EMOJI_SUPPORTED;
         }
 
-        @Override
         public int getEmojiMatch(CharSequence sequence, int metadataVersion) {
             return mProcessor.getEmojiMatch(sequence, metadataVersion);
         }
 
-        @Override
         int getEmojiStart(@NonNull final CharSequence sequence, final int offset) {
             return mProcessor.getEmojiStart(sequence, offset);
         }
 
-        @Override
         int getEmojiEnd(@NonNull final CharSequence sequence, final int offset) {
             return mProcessor.getEmojiEnd(sequence, offset);
         }
 
-        @Override
         CharSequence process(@NonNull CharSequence charSequence, int start, int end,
                 int maxEmojiCount, boolean replaceAll) {
             return mProcessor.process(charSequence, start, end, maxEmojiCount, replaceAll);
         }
 
-        @Override
         void updateEditorInfoAttrs(@NonNull EditorInfo outAttrs) {
             outAttrs.extras.putInt(EDITOR_INFO_METAVERSION_KEY, mMetadataRepo.getMetadataVersion());
             outAttrs.extras.putBoolean(EDITOR_INFO_REPLACE_ALL_KEY, mEmojiCompat.mReplaceAll);
         }
 
-        @Override
         String getAssetSignature() {
             final String sha = mMetadataRepo.getMetadataList().sourceSha();
             return sha == null ? "" : sha;

@@ -15,7 +15,6 @@
  */
 package androidx.emoji2.viewsintegration;
 
-import android.os.Build;
 import android.text.InputFilter;
 import android.text.method.PasswordTransformationMethod;
 import android.text.method.TransformationMethod;
@@ -95,9 +94,7 @@ public final class EmojiTextViewHelper {
      */
     public EmojiTextViewHelper(@NonNull TextView textView, boolean expectInitializedEmojiCompat) {
         Preconditions.checkNotNull(textView, "textView cannot be null");
-        if (Build.VERSION.SDK_INT < 19) {
-            mHelper = new HelperInternal();
-        } else if (!expectInitializedEmojiCompat) {
+        if (!expectInitializedEmojiCompat) {
             mHelper = new SkippingHelper19(textView);
         } else {
             mHelper = new HelperInternal19(textView);

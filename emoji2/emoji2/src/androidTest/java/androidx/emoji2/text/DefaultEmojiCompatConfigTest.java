@@ -72,9 +72,6 @@ public class DefaultEmojiCompatConfigTest {
 
     @SuppressWarnings("deprecation")
     private boolean providerOnSystem() {
-        if (Build.VERSION.SDK_INT < 19) {
-            return false;
-        }
         List<ResolveInfo> result = ApplicationProvider.getApplicationContext()
                 .getPackageManager().queryIntentContentProviders(generateIntent(), 0);
         for (ResolveInfo resolveInfo : result) {

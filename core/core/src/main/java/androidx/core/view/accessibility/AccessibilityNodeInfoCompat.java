@@ -2607,9 +2607,6 @@ public class AccessibilityNodeInfoCompat {
     }
 
     private List<Integer> extrasIntList(String key) {
-        if (Build.VERSION.SDK_INT < 19) {
-            return new ArrayList<Integer>();
-        }
         ArrayList<Integer> list = Api19Impl.getExtras(mInfo)
                 .getIntegerArrayList(key);
         if (list == null) {

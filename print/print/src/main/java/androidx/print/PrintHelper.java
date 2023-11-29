@@ -259,7 +259,7 @@ public final class PrintHelper {
      */
     public void printBitmap(@NonNull final String jobName, @NonNull final Bitmap bitmap,
             @Nullable final OnPrintFinishCallback callback) {
-        if (Build.VERSION.SDK_INT < 19 || bitmap == null) {
+        if (bitmap == null) {
             return;
         }
 
@@ -357,10 +357,6 @@ public final class PrintHelper {
     public void printBitmap(@NonNull final String jobName, @NonNull final Uri imageFile,
             @Nullable final OnPrintFinishCallback callback)
             throws FileNotFoundException {
-        if (Build.VERSION.SDK_INT < 19) {
-            return;
-        }
-
         PrintDocumentAdapter printDocumentAdapter = new PrintUriAdapter(jobName, imageFile,
                 callback, mScaleMode);
 
