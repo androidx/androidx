@@ -1093,9 +1093,13 @@ internal abstract class NodeCoordinator(
 
     fun shouldSharePointerInputWithSiblings(): Boolean {
         val start = headNode(Nodes.PointerInput.includeSelfInTraversal) ?: return false
-        start.visitLocalDescendants(Nodes.PointerInput) {
-            if (it.sharePointerInputWithSiblings()) return true
+
+        if (start.isAttached) {
+            start.visitLocalDescendants(Nodes.PointerInput) {
+                if (it.sharePointerInputWithSiblings()) return true
+            }
         }
+
         return false
     }
 
