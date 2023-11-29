@@ -49,6 +49,7 @@ import androidx.camera.video.internal.VideoValidatedEncoderProfilesProxy;
 import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
+import androidx.camera.video.internal.workaround.QualityAddedEncoderProfilesProvider;
 import androidx.camera.video.internal.workaround.QualityResolutionModifiedEncoderProfilesProvider;
 import androidx.camera.video.internal.workaround.QualityValidatedEncoderProfilesProvider;
 
@@ -105,6 +106,11 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
                 "Not a supported video capabilities source: " + videoCapabilitiesSource);
         EncoderProfilesProvider encoderProfilesProvider = cameraInfo.getEncoderProfilesProvider();
 
+        Quirks deviceQuirks = DeviceQuirks.getAll();
+        // Add extra supported quality.
+        encoderProfilesProvider = new QualityAddedEncoderProfilesProvider(encoderProfilesProvider,
+                deviceQuirks, cameraInfo, videoEncoderInfoFinder);
+
         if (videoCapabilitiesSource == VIDEO_CAPABILITIES_SOURCE_CODEC_CAPABILITIES) {
             encoderProfilesProvider = new QualityExploredEncoderProfilesProvider(
                     encoderProfilesProvider,
@@ -115,7 +121,6 @@ public final class RecorderVideoCapabilities implements VideoCapabilities {
         }
 
         // Modify qualities' matching resolution to the value supported by camera.
-        Quirks deviceQuirks = DeviceQuirks.getAll();
         encoderProfilesProvider = new QualityResolutionModifiedEncoderProfilesProvider(
                 encoderProfilesProvider, deviceQuirks);
 
