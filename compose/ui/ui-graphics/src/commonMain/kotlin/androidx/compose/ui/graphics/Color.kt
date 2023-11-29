@@ -162,8 +162,7 @@ value class Color(val value: ULong) {
             return if ((value and 0x3fUL) == 0UL) {
                 ((value shr 48) and 0xffUL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 48) and 0xffffUL).toShort())
-                    .toFloat()
+                halfToFloat(((value shr 48) and 0xffffUL).toShort())
             }
         }
 
@@ -185,8 +184,7 @@ value class Color(val value: ULong) {
             return if ((value and 0x3fUL) == 0UL) {
                 ((value shr 40) and 0xffUL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 32) and 0xffffUL).toShort())
-                    .toFloat()
+                halfToFloat(((value shr 32) and 0xffffUL).toShort())
             }
         }
 
@@ -208,8 +206,7 @@ value class Color(val value: ULong) {
             return if ((value and 0x3fUL) == 0UL) {
                 ((value shr 32) and 0xffUL).toFloat() / 255.0f
             } else {
-                Float16(((value shr 16) and 0xffffUL).toShort())
-                    .toFloat()
+                halfToFloat(((value shr 16) and 0xffffUL).toShort())
             }
         }
 
@@ -395,7 +392,7 @@ value class Color(val value: ULong) {
 
 /**
  * Create a [Color] by passing individual [red], [green], [blue], [alpha], and [colorSpace]
- * components. The default [color space][ColorSpace] is [SRGB][ColorSpaces.Srgb] and
+ * components. The default [color space][ColorSpace] is [sRGB][ColorSpaces.Srgb] and
  * the default [alpha] is `1.0` (opaque). [colorSpace] must have a [ColorSpace.componentCount] of
  * 3.
  */
@@ -407,7 +404,7 @@ fun Color(
     alpha: Float = 1f,
     colorSpace: ColorSpace = ColorSpaces.Srgb
 ): Color {
-    require(
+    requirePrecondition(
         red in colorSpace.getMinValue(0)..colorSpace.getMaxValue(0) &&
             green in colorSpace.getMinValue(1)..colorSpace.getMaxValue(1) &&
             blue in colorSpace.getMinValue(2)..colorSpace.getMaxValue(2) &&
@@ -419,41 +416,37 @@ fun Color(
     if (colorSpace.isSrgb) {
         val argb = (
             ((alpha * 255.0f + 0.5f).toInt() shl 24) or
-                ((red * 255.0f + 0.5f).toInt() shl 16) or
-                ((green * 255.0f + 0.5f).toInt() shl 8) or
-                (blue * 255.0f + 0.5f).toInt()
-            )
+            ((red * 255.0f + 0.5f).toInt() shl 16) or
+            ((green * 255.0f + 0.5f).toInt() shl 8) or
+            (blue * 255.0f + 0.5f).toInt()
+        )
         return Color(value = (argb.toULong() and 0xffffffffUL) shl 32)
     }
 
-    require(colorSpace.componentCount == 3) {
+    requirePrecondition(colorSpace.componentCount == 3) {
         "Color only works with ColorSpaces with 3 components"
     }
 
     val id = colorSpace.id
-    require(id != ColorSpace.MinId) {
+    requirePrecondition(id != ColorSpace.MinId) {
         "Unknown color space, please use a color space in ColorSpaces"
     }
 
-    val r = Float16(red)
-    val g = Float16(green)
-    val b = Float16(blue)
+    val r = floatToHalf(red)
+    val g = floatToHalf(green)
+    val b = floatToHalf(blue)
 
     val a = (max(0.0f, min(alpha, 1.0f)) * 1023.0f + 0.5f).toInt()
 
     // Suppress sign extension
     return Color(
         value = (
-            ((r.halfValue.toULong() and 0xffffUL) shl 48) or (
-                (g.halfValue.toULong() and 0xffffUL) shl 32
-                ) or (
-                (b.halfValue.toULong() and 0xffffUL) shl 16
-                ) or (
-                (a.toULong() and 0x3ffUL) shl 6
-                ) or (
-                id.toULong() and 0x3fUL
-                )
-            )
+            ((r.toULong() and 0xffffUL) shl 48) or
+            ((g.toULong() and 0xffffUL) shl 32) or
+            ((b.toULong() and 0xffffUL) shl 16) or
+            ((a.toULong() and 0x03ffUL) shl 6) or
+            (id.toULong() and 0x003fUL)
+        )
     )
 }
 
