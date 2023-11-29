@@ -61,9 +61,6 @@ import kotlin.math.min
  * When a Modifier [RowScope.weight] is provided, it scales the item
  * based on the number items that fall on the row it was placed in.
  *
- * Example:
- * @sample androidx.compose.foundation.layout.samples.SimpleFlowRowWithWeights
- *
  * Note that if two or more Text components are placed in a [Row], normally they should be aligned
  * by their first baselines. [FlowRow] as a general purpose container does not do it automatically
  * so developers need to handle this manually. This is achieved by adding a
@@ -135,9 +132,6 @@ fun FlowRow(
  *
  * When a Modifier [ColumnScope.weight] is provided, it scales the item
  * based on the number items that fall on the column it was placed in.
- *
- * Example:
- * @sample androidx.compose.foundation.layout.samples.SimpleFlowColumnWithWeights
  *
  * @param modifier The modifier to be applied to the Row.
  * @param verticalArrangement The vertical arrangement of the layout's children.
