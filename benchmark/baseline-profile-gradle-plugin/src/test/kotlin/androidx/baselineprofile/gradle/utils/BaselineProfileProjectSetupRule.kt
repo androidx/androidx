@@ -235,9 +235,11 @@ class BaselineProfileProjectSetupRule(
             )
         } else if (consumer.isLibraryModule == true /* and version is not at least AGP 8.3.0 */) {
             if (variantName != "main") {
-                throw IllegalArgumentException("""
+                throw IllegalArgumentException(
+                    """
                     Invalid variant name `$variantName` for library pre-agp 8.3.0. Only main is supported.
-                """.trimIndent())
+                """.trimIndent()
+                )
             }
             File(
                 consumer.rootDir,
@@ -330,9 +332,8 @@ class AppTargetModule(
     override val name: String,
 ) : Module {
 
-    fun setup() {
-        setBuildGradle(
-            """
+    fun setup(
+        buildGradleContent: String = """
                 plugins {
                     id("com.android.application")
                     id("androidx.baselineprofile.apptarget")
@@ -341,7 +342,8 @@ class AppTargetModule(
                     namespace 'com.example.namespace'
                 }
             """.trimIndent()
-        )
+    ) {
+        setBuildGradle(buildGradleContent)
     }
 }
 

@@ -55,3 +55,7 @@ internal const val KOTLIN_MULTIPLATFORM_PLUGIN_ID = "org.jetbrains.kotlin.multip
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES = "androidx.benchmark.enabledRules"
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES_BASELINE_PROFILE = "baselineprofile"
 internal const val INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK = "macrobenchmark"
+
+// This should be aligned with `androidx.benchmark.Arguments#targetPackageName`
+internal const val INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME =
+    "androidx.benchmark.targetPackageName"

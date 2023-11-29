@@ -21,6 +21,7 @@ import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.TestVariant
 import org.gradle.api.GradleException
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 
 internal fun Project.agpVersion(): AndroidPluginVersion {
     return project
@@ -49,6 +50,9 @@ internal enum class AgpFeature(
     ),
     LIBRARY_MODULE_SUPPORTS_BASELINE_PROFILE_SOURCE_SETS(
         AndroidPluginVersion(8, 3, 0).alpha(15)
+    ),
+    TEST_VARIANT_TESTED_APKS(
+        AndroidPluginVersion(8, 3, 0).alpha(10)
     )
 }
 
@@ -59,6 +63,28 @@ internal enum class AgpFeature(
  */
 internal object InstrumentationTestRunnerArgumentsAgp82 {
     fun set(variant: TestVariant, arguments: List<Pair<String, String>>) {
-        arguments.forEach { (k, v) -> variant.instrumentationRunnerArguments.put(k, v) }
+        arguments.forEach { (k, v) -> set(variant, k, v) }
+    }
+
+    fun set(variant: TestVariant, key: String, value: String) {
+        variant.instrumentationRunnerArguments.put(key, value)
+    }
+
+    fun set(variant: TestVariant, key: String, value: Provider<String>) {
+        variant.instrumentationRunnerArguments.put(key, value)
+    }
+}
+
+/**
+ * This class should be referenced only in AGP 8.3, as the utilized api doesn't exist in
+ * previous versions. Keeping it as a separate class instead of accessing the api directly
+ * allows previous version of AGP to be compatible with this code base.
+ */
+@Suppress("UnstableApiUsage")
+internal object TestedApksAgp83 {
+    fun getTargetAppApplicationId(variant: TestVariant): Provider<String> {
+        return variant.testedApks.map {
+            variant.artifacts.getBuiltArtifactsLoader().load(it)?.applicationId ?: ""
+        }
     }
 }
