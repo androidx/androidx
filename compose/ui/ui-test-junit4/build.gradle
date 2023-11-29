@@ -69,8 +69,6 @@ androidXMultiplatform {
                 implementation("androidx.lifecycle:lifecycle-runtime:2.5.1")
                 implementation("androidx.test:core:1.5.0")
                 implementation("androidx.test:monitor:1.6.1")
-		        implementation("androidx.test.espresso:espresso-core:3.3.0")
-                implementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
             }
         }
 

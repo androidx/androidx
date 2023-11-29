@@ -22,6 +22,20 @@ package androidx.compose.ui.test {
     method public static androidx.compose.ui.test.SemanticsNodeInteraction requestFocus(androidx.compose.ui.test.SemanticsNodeInteraction);
   }
 
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public sealed interface AndroidComposeUiTest<A extends androidx.activity.ComponentActivity> extends androidx.compose.ui.test.ComposeUiTest {
+    method public A? getActivity();
+    property public abstract A? activity;
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public abstract class AndroidComposeUiTestEnvironment<A extends androidx.activity.ComponentActivity> {
+    ctor public AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext);
+    method protected abstract A? getActivity();
+    method public final androidx.compose.ui.test.AndroidComposeUiTest<A> getTest();
+    method public final <R> R runTest(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,? extends R> block);
+    property protected abstract A? activity;
+    property public final androidx.compose.ui.test.AndroidComposeUiTest<A> test;
+  }
+
   public final class AndroidImageHelpers_androidKt {
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static androidx.compose.ui.graphics.ImageBitmap captureToImage(androidx.compose.ui.test.SemanticsNodeInteraction);
   }
@@ -73,6 +87,37 @@ package androidx.compose.ui.test {
 
   public final class ComposeTimeoutException extends java.lang.Throwable {
     ctor public ComposeTimeoutException(String? message);
+  }
+
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public sealed interface ComposeUiTest extends androidx.compose.ui.test.SemanticsNodeInteractionsProvider {
+    method public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public androidx.compose.ui.unit.Density getDensity();
+    method public androidx.compose.ui.test.MainTestClock getMainClock();
+    method public void registerIdlingResource(androidx.compose.ui.test.IdlingResource idlingResource);
+    method public <T> T runOnIdle(kotlin.jvm.functions.Function0<? extends T> action);
+    method public <T> T runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method public void unregisterIdlingResource(androidx.compose.ui.test.IdlingResource idlingResource);
+    method public void waitForIdle();
+    method public void waitUntil(optional long timeoutMillis, kotlin.jvm.functions.Function0<java.lang.Boolean> condition);
+    property public abstract androidx.compose.ui.unit.Density density;
+    property public abstract androidx.compose.ui.test.MainTestClock mainClock;
+  }
+
+  public final class ComposeUiTestKt {
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runComposeUiTest(optional kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilAtLeastOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher matcher, optional long timeoutMillis);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilDoesNotExist(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher matcher, optional long timeoutMillis);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilExactlyOneExists(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher matcher, optional long timeoutMillis);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void waitUntilNodeCount(androidx.compose.ui.test.ComposeUiTest, androidx.compose.ui.test.SemanticsMatcher matcher, int count, optional long timeoutMillis);
+  }
+
+  public final class ComposeUiTest_androidKt {
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static inline <A extends androidx.activity.ComponentActivity> androidx.compose.ui.test.AndroidComposeUiTestEnvironment<A> AndroidComposeUiTestEnvironment(optional kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function0<? extends A> activityProvider);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static <A extends androidx.activity.ComponentActivity> void runAndroidComposeUiTest(Class<A> activityClass, optional kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static inline <reified A extends androidx.activity.ComponentActivity> void runAndroidComposeUiTest(optional kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.AndroidComposeUiTest<A>,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runComposeUiTest(optional kotlin.coroutines.CoroutineContext effectContext, kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit> block);
+    method @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public static void runEmptyComposeUiTest(kotlin.jvm.functions.Function1<? super androidx.compose.ui.test.ComposeUiTest,kotlin.Unit> block);
   }
 
   @SuppressCompatibility @kotlin.RequiresOptIn(message="This testing API is experimental and is likely to be changed or removed entirely") @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) public @interface ExperimentalTestApi {
@@ -435,6 +480,12 @@ package androidx.compose.ui.test {
     property public final String description;
   }
 
+  @SuppressCompatibility @androidx.compose.ui.test.ExperimentalTestApi public final class StateRestorationTester {
+    ctor public StateRestorationTester(androidx.compose.ui.test.ComposeUiTest composeTest);
+    method public void emulateSaveAndRestore();
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+  }
+
   public final class TestContext {
   }
 
@@ -510,6 +561,14 @@ package androidx.compose.ui.test.internal {
 
   @SuppressCompatibility @androidx.compose.ui.test.InternalTestApi public abstract class DelayPropagatingContinuationInterceptorWrapper extends kotlin.coroutines.AbstractCoroutineContextElement implements kotlin.coroutines.ContinuationInterceptor kotlinx.coroutines.Delay {
     ctor public DelayPropagatingContinuationInterceptorWrapper(kotlin.coroutines.ContinuationInterceptor? wrappedInterceptor);
+  }
+
+}
+
+package androidx.compose.ui.test.junit4.android {
+
+  public final class ComposeNotIdleException extends java.lang.Exception {
+    ctor public ComposeNotIdleException(String? message, Throwable? cause);
   }
 
 }
