@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteException
@@ -117,6 +118,7 @@ class AutoClosingRoomOpenHelperTest {
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(0)
     }
 
+    @SuppressLint("BanThreadSleep")
     @RequiresApi(Build.VERSION_CODES.N)
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
@@ -145,6 +147,7 @@ class AutoClosingRoomOpenHelperTest {
         }
     }
 
+    @SuppressLint("BanThreadSleep")
     @RequiresApi(Build.VERSION_CODES.N)
     @FlakyTest(bugId = 190607416)
     @Test
@@ -176,6 +179,7 @@ class AutoClosingRoomOpenHelperTest {
         assertThat(countingCallback.onCreateCalls).isEqualTo(1)
     }
 
+    @SuppressLint("BanThreadSleep")
     @Ignore // b/266993269
     @RequiresApi(Build.VERSION_CODES.N)
     @Test
@@ -192,6 +196,7 @@ class AutoClosingRoomOpenHelperTest {
         assertThat(autoClosingRoomOpenHelper.autoCloser.refCountForTest).isEqualTo(0)
     }
 
+    @SuppressLint("BanThreadSleep")
     @RequiresApi(Build.VERSION_CODES.N)
     @Test
     fun testStatementReturnedByCompileStatement_reOpensDatabase() {

@@ -15,8 +15,11 @@
  */
 package androidx.room
 
+import android.annotation.SuppressLint
 import android.database.Cursor
 import android.database.sqlite.SQLiteException
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.arch.core.executor.ArchTaskExecutor
 import androidx.arch.core.executor.JunitTaskExecutorRule
 import androidx.kruth.assertThat
@@ -97,6 +100,7 @@ class InvalidationTrackerTest {
         reset(mSqliteDb)
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     @Before
     fun setLocale() {
         Locale.setDefault(Locale.forLanguageTag("tr-TR"))
@@ -485,6 +489,7 @@ class InvalidationTrackerTest {
          * Tries to trigger garbage collection by allocating in the heap until an element is
          * available in the given reference queue.
          */
+        @SuppressLint("BanThreadSleep")
         private fun forceGc(queue: ReferenceQueue<Any?>) {
             val continueTriggeringGc = AtomicBoolean(true)
             val t = Thread {

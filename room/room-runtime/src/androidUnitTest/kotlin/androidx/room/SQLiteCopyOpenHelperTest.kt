@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.AssetManager
 import android.os.Build
@@ -211,6 +212,7 @@ class SQLiteCopyOpenHelperTest {
             onAssetOpen()
             return@thenAnswer object : InputStream() {
                 val delegate by lazy { FileInputStream(copyFromFile) }
+                @SuppressLint("BanThreadSleep")
                 override fun read(): Int {
                     Thread.sleep(10) // simulate slow reading, as if this was a big file
                     return delegate.read()

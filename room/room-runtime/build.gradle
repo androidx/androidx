@@ -14,22 +14,25 @@
  * limitations under the License.
  */
 
+import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("kotlin-android")
     id("androidx.stableaidl")
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled true
+    }
     buildFeatures {
         aidl = true
     }
     buildTypes.all {
         consumerProguardFiles "proguard-rules.pro"
-
         stableAidl {
             version 1
         }
@@ -37,44 +40,77 @@ android {
     namespace "androidx.room"
 }
 
+androidXMultiplatform {
+    mac()
+    linux()
+    ios()
+    android()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(project(":room:room-common"))
+                api(projectOrArtifact(":annotation:annotation"))
+                implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
+            }
+        }
+        androidMain {
+            dependsOn(commonMain)
+            dependencies {
+                api(project(":sqlite:sqlite-framework"))
+                api(project(":sqlite:sqlite"))
+                implementation("androidx.arch.core:core-runtime:2.2.0")
+                compileOnly("androidx.collection:collection:1.2.0")
+                compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
+                compileOnly("androidx.paging:paging-common:2.0.0")
+            }
+        }
+        androidUnitTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation("androidx.arch.core:core-testing:2.2.0")
+                implementation(libs.junit)
+                implementation(libs.mockitoCore4)
+                implementation(libs.mockitoKotlin4)
+                implementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
+                implementation(libs.testRunner) // Needed for @FlakyTest and @Ignore
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.testExtJunit)
+                implementation(libs.testCore)
+                implementation(libs.testRunner)
+                implementation(libs.espressoCore)
+                implementation(libs.mockitoCore)
+                implementation(libs.dexmakerMockito)
+                implementation(project(":internal-testutils-truth")) // for assertThrows
+                implementation(project(":kruth:kruth"))
+                implementation("androidx.arch.core:core-testing:2.2.0")
+            }
+        }
+    }
+}
+
 dependencies {
-    api(project(":room:room-common"))
-    api(project(":sqlite:sqlite-framework"))
-    api(project(":sqlite:sqlite"))
-    implementation("androidx.arch.core:core-runtime:2.2.0")
-    compileOnly("androidx.collection:collection:1.2.0")
-    compileOnly("androidx.paging:paging-common:2.0.0")
-    compileOnly("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
-    implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
-    compileOnly libs.kotlinStdlib // Due to :annotation-experimental
     lintChecks(project(":room:room-runtime-lint"))
-
-    testImplementation("androidx.arch.core:core-testing:2.2.0")
-    testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.mockitoKotlin4)
-    testImplementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
-    testImplementation(libs.kotlinStdlib)
-    testImplementation(libs.kotlinTest)
-    testImplementation(project(":kruth:kruth"))
-    testImplementation(libs.testRunner) // Needed for @FlakyTest and @Ignore
-
-    androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.espressoCore)
-    androidTestImplementation(libs.kotlinStdlib)
-    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
-    androidTestImplementation(project(":kruth:kruth"))
-    androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
-
 }
 
 androidx {
     name = "Room-Runtime"
+    type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Room-Runtime"
