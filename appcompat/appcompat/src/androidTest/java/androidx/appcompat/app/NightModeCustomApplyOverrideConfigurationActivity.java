@@ -59,11 +59,7 @@ public class NightModeCustomApplyOverrideConfigurationActivity extends NightMode
         if (locale != null) {
             // Configuration.setLocale is added after 17 and Configuration.locale is deprecated
             // after 24
-            if (Build.VERSION.SDK_INT >= 17) {
-                config.setLocale(locale);
-            } else {
-                config.locale = locale;
-            }
+            config.setLocale(locale);
         }
         return config;
     }

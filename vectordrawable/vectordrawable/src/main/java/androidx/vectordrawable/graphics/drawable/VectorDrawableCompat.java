@@ -918,12 +918,8 @@ public class VectorDrawableCompat extends VectorDrawableCommon {
 
     // We don't support RTL auto mirroring since the getLayoutDirection() is for API 17+.
     private boolean needMirroring() {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return isAutoMirrored()
-                    && DrawableCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
-        } else {
-            return false;
-        }
+        return isAutoMirrored()
+                && DrawableCompat.getLayoutDirection(this) == ViewCompat.LAYOUT_DIRECTION_RTL;
     }
 
     // Extra override functions for delegation for SDK >= 7.

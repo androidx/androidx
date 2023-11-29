@@ -25,7 +25,6 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import android.location.Location;
-import android.os.Build;
 import android.os.SystemClock;
 
 import androidx.test.filters.SmallTest;
@@ -40,16 +39,10 @@ public class LocationCompatTest {
     @Test
     public void testGetElapsedRealtimeNanos() {
         long locationElapsedRealtimeNs;
-        if (Build.VERSION.SDK_INT >= 17) {
-            locationElapsedRealtimeNs = SystemClock.elapsedRealtimeNanos();
-        } else {
-            locationElapsedRealtimeNs = MILLISECONDS.toNanos(SystemClock.elapsedRealtime());
-        }
+        locationElapsedRealtimeNs = SystemClock.elapsedRealtimeNanos();
 
         Location location = new Location("");
-        if (Build.VERSION.SDK_INT >= 17) {
-            location.setElapsedRealtimeNanos(locationElapsedRealtimeNs);
-        }
+        location.setElapsedRealtimeNanos(locationElapsedRealtimeNs);
         location.setTime(System.currentTimeMillis());
 
         assertTrue(NANOSECONDS.toMillis(Math.abs(
@@ -62,9 +55,7 @@ public class LocationCompatTest {
         long locationElapsedRealtimeMs = SystemClock.elapsedRealtime();
 
         Location location = new Location("");
-        if (Build.VERSION.SDK_INT >= 17) {
-            location.setElapsedRealtimeNanos(MILLISECONDS.toNanos(locationElapsedRealtimeMs));
-        }
+        location.setElapsedRealtimeNanos(MILLISECONDS.toNanos(locationElapsedRealtimeMs));
         location.setTime(System.currentTimeMillis());
 
         assertTrue(Math.abs(
