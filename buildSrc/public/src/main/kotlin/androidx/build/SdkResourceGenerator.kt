@@ -61,7 +61,7 @@ abstract class SdkResourceGenerator : DefaultTask() {
     @get:Input val agpDependency: String = AGP_LATEST
 
     @get:Input
-    val navigationRuntime: String = "androidx.navigation:navigation-runtime:2.4.0-alpha01"
+    val navigationRuntime: String = "androidx.navigation:navigation-runtime:2.4.0"
 
     @get:Input abstract val kotlinStdlib: Property<String>
 
