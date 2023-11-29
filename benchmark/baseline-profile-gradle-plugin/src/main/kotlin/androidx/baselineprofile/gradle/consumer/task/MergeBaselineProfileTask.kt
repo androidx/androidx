@@ -20,6 +20,7 @@ import androidx.baselineprofile.gradle.consumer.RuleType
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
 import androidx.baselineprofile.gradle.utils.maybeRegister
 import java.io.File
+import kotlin.io.path.Path
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -262,7 +263,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                         logger.warn(
                             """
                             A baseline profile was generated for the variant `${variantName.get()}`:
-                            file:///$absolutePath
+                            ${Path(absolutePath).toUri()}
                         """.trimIndent()
                         )
                     }
@@ -312,7 +313,7 @@ abstract class MergeBaselineProfileTask : DefaultTask() {
                         logger.warn(
                             """
                             A startup profile was generated for the variant `${variantName.get()}`:
-                            file:///$absolutePath
+                            ${Path(absolutePath).toUri()}
                         """.trimIndent()
                         )
                     }
