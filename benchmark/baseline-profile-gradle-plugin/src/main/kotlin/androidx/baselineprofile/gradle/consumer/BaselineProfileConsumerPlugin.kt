@@ -210,7 +210,19 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // artifact per task, specific for that variant.
         // When mergeIntoMain is not specified, it's by default true for libraries and false
         // for apps.
-        val mergeIntoMain = variantConfiguration.mergeIntoMain ?: isLibraryModule()
+
+        // Warning: support for baseline profile source sets in library module was added with
+        // agp 8.3.0 alpha 15 (b/309858620). Therefore, before then, we can only always merge into
+        // main and always output only in src/main/baseline-prof.txt.
+        val forceOutputInSrcMain =
+            isLibraryModule() &&
+                !supportsFeature(AgpFeature.LIBRARY_MODULE_SUPPORTS_BASELINE_PROFILE_SOURCE_SETS)
+
+        val mergeIntoMain = if (forceOutputInSrcMain) {
+            true
+        } else {
+            variantConfiguration.mergeIntoMain ?: isLibraryModule()
+        }
 
         // Determines the target name for the Android target in kotlin multiplatform projects.
         // Note that KotlinMultiPlatformUtils references the kmp extension that exists only if the
@@ -284,13 +296,21 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
         // of the merge task in the src folder.
         val lastTaskProvider = if (variantConfiguration.saveInSrc) {
 
-            val baselineProfileOutputDir = perVariantBaselineProfileExtensionManager
-                .variant(variant)
-                .baselineProfileOutputDir
-            val srcOutputDir = project
+            // Here we determine where the final baseline profile file should be placed.
+            // Before AGP 8.3.0 alpha 15, libraries don't support source sets so we can only
+            // output in src/main/baseline-prof.txt. Variable `shouldOutputInSrcMain` defined
+            // above, controls this behavior. Note that `mergeAwareVariantOutput` is always `main`
+            // when `shouldOutputInSrcMain` is true
+            var srcOutputDir = project
                 .layout
                 .projectDirectory
-                .dir("src/$mergeAwareVariantOutput/$baselineProfileOutputDir/")
+                .dir("src/$mergeAwareVariantOutput/")
+            if (!forceOutputInSrcMain) {
+                val baselineProfileOutputDir = perVariantBaselineProfileExtensionManager
+                    .variant(variant)
+                    .baselineProfileOutputDir
+                srcOutputDir = srcOutputDir.dir("$baselineProfileOutputDir/")
+            }
 
             // This task copies the baseline profile generated from the merge task.
             // Note that we're reutilizing the [MergeBaselineProfileTask] because
@@ -307,12 +327,15 @@ private class BaselineProfileConsumerAgpPlugin(private val project: Project) : A
                 isLastTask = true
             )
 
-            // Applies the source path for this variant
-            srcOutputDir.asFile.apply {
-                mkdirs()
-                variant
-                    .sources
-                    .baselineProfiles?.addStaticSourceDirectory(absolutePath)
+            // Applies the source path for this variant. Note that this doesn't apply when the
+            // output is src/main/baseline-prof.txt.
+            if (!forceOutputInSrcMain) {
+                srcOutputDir.asFile.apply {
+                    mkdirs()
+                    variant
+                        .sources
+                        .baselineProfiles?.addStaticSourceDirectory(absolutePath)
+                }
             }
 
             // If this is an application, we need to ensure that:
