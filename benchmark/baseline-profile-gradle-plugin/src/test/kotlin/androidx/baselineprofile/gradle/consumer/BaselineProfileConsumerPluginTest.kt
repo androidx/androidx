@@ -35,6 +35,7 @@ import androidx.baselineprofile.gradle.utils.requireInOrder
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import java.io.File
+import kotlin.io.path.Path
 import org.junit.Assume.assumeTrue
 import org.junit.Rule
 import org.junit.Test
@@ -67,6 +68,8 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
         projectSetup.consumer.rootDir,
         "src/$variantName/$EXPECTED_PROFILE_FOLDER/startup-prof.txt"
     )
+
+    private fun File.toUri() = Path(canonicalPath).toUri()
 
     private fun mergedArtProfile(variantName: String): File {
         // Task name folder in path was first observed in the update to AGP 8.3.0-alpha10.
@@ -111,7 +114,7 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
         gradleRunner.build("generateBaselineProfile") {
             val notFound = it.lines().requireInOrder(
                 "A baseline profile was generated for the variant `release`:",
-                "file:///${baselineProfileFile("main").canonicalPath}"
+                "${baselineProfileFile("main").toUri()}"
             )
             assertThat(notFound).isEmpty()
         }
@@ -154,9 +157,9 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
         gradleRunner.build("generateBaselineProfile") {
             val notFound = it.lines().requireInOrder(
                 "A baseline profile was generated for the variant `release`:",
-                "file:///${baselineProfileFile("release").canonicalPath}",
+                "${baselineProfileFile("release").toUri()}",
                 "A startup profile was generated for the variant `release`:",
-                "file:///${startupProfileFile("release").canonicalPath}"
+                "${startupProfileFile("release").toUri()}"
             )
             assertThat(notFound).isEmpty()
         }
@@ -237,9 +240,9 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
 
                 val notFound = it.lines().requireInOrder(
                     "A baseline profile was generated for the variant `$variantName`:",
-                    "file:///${baselineProfileFile(variantName).canonicalPath}",
+                    "${baselineProfileFile(variantName).toUri()}",
                     "A startup profile was generated for the variant `$variantName`:",
-                    "file:///${startupProfileFile(variantName).canonicalPath}"
+                    "${startupProfileFile(variantName).toUri()}"
                 )
 
                 assertWithMessage(
