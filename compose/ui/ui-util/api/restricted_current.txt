@@ -67,6 +67,7 @@ package androidx.compose.ui.util {
   }
 
   public final class MathHelpersKt {
+    method public static float fastCbrt(float x);
     method public static inline double fastCoerceAtLeast(double, double minimumValue);
     method public static inline float fastCoerceAtLeast(float, float minimumValue);
     method public static inline double fastCoerceAtMost(double, double maximumValue);

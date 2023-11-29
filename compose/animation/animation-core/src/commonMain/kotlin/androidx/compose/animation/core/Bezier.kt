@@ -18,10 +18,10 @@ package androidx.compose.animation.core
 
 import androidx.collection.FloatFloatPair
 import androidx.compose.ui.graphics.PathSegment
+import androidx.compose.ui.util.fastCbrt
 import androidx.compose.ui.util.fastCoerceIn
 import kotlin.math.abs
 import kotlin.math.acos
-import kotlin.math.cbrt
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
@@ -312,7 +312,7 @@ internal fun findFirstCubicRoot(
         val t = -q2 / r
         val cosPhi = t.fastCoerceIn(-1.0, 1.0)
         val phi = acos(cosPhi)
-        val t1 = 2.0 * cbrt(r)
+        val t1 = 2.0f * fastCbrt(r.toFloat())
 
         var root = clampValidRootInUnitRange((t1 * cos(phi / 3.0) - a3).toFloat())
         if (!root.isNaN()) return root
@@ -322,17 +322,17 @@ internal fun findFirstCubicRoot(
 
         return clampValidRootInUnitRange((t1 * cos((phi + 2.0 * Tau) / 3.0) - a3).toFloat())
     } else if (discriminant == 0.0) { // TODO: closeTo(0.0)?
-        val u1 = -cbrt(q2)
+        val u1 = -fastCbrt(q2.toFloat())
 
-        val root = clampValidRootInUnitRange((2.0 * u1 - a3).toFloat())
+        val root = clampValidRootInUnitRange(2.0f * u1 - a3.toFloat())
         if (!root.isNaN()) return root
 
-        return clampValidRootInUnitRange((-u1 - a3).toFloat())
+        return clampValidRootInUnitRange(-u1 - a3.toFloat())
     }
 
     val sd = sqrt(discriminant)
-    val u1 = cbrt(-q2 + sd)
-    val v1 = cbrt(q2 + sd)
+    val u1 = fastCbrt((-q2 + sd).toFloat())
+    val v1 = fastCbrt((q2 + sd).toFloat())
 
     return clampValidRootInUnitRange((u1 - v1 - a3).toFloat())
 }

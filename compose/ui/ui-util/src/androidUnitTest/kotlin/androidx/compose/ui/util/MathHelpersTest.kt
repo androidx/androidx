@@ -17,13 +17,15 @@
 package androidx.compose.ui.util
 
 import com.google.common.truth.Truth.assertThat
+import kotlin.math.abs
+import kotlin.math.cbrt
+import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
 class MathHelpersTest {
-
     // `f = 16777216f` is the first value where `f + 1 == f` due to float imprecision, so that's
     // where testing floating point errors becomes interesting
     val testStart = 16777216L
@@ -95,6 +97,39 @@ class MathHelpersTest {
             assertThat(lerp(from, to, 0.50f)).isEqualTo((2 * multiplier).toLong())
             assertThat(lerp(from, to, 0.75f)).isEqualTo((3 * multiplier).toLong())
             assertThat(lerp(from, to, 1.00f)).isEqualTo((4 * multiplier).toLong())
+        }
+    }
+
+    @Test
+    fun testNegativeFastCbrt() {
+        for (i in 0..65_536) {
+            val v = i / 8_192.0f // v is in the range 0f..8f
+            // We do an == test ourselves to avoid any fuzzy float comparison
+            assertTrue(-fastCbrt(v) == fastCbrt(-v))
+        }
+    }
+
+    @Test
+    fun testNonFiniteFastCbrt() {
+        assertTrue(fastCbrt(Float.NaN).isNaN())
+        assertTrue(fastCbrt(Float.POSITIVE_INFINITY).isNaN())
+        assertTrue(fastCbrt(Float.NEGATIVE_INFINITY).isNaN())
+    }
+
+    @Test
+    fun testZeroFastCbrt() {
+        val zeroError = 8.35E-7f
+        assertTrue(fastCbrt(0.0f) <= zeroError)
+        assertTrue(fastCbrt(-0.0f) >= -zeroError)
+    }
+
+    @Test
+    fun testFastCbrtError() {
+        val maxError = 1.76E-6f
+        for (i in 0..65_536) {
+            val v = i / 8_192.0f // v is in the range 0f..8f
+            val error = abs(fastCbrt(v) - cbrt(v))
+            assertTrue(error <= maxError)
         }
     }
 }
