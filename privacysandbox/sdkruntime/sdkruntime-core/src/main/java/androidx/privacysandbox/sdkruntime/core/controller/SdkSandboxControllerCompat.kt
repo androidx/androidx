@@ -19,12 +19,14 @@ package androidx.privacysandbox.sdkruntime.core.controller
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
 import android.os.Build
+import android.os.Bundle
 import android.os.IBinder
 import androidx.annotation.Keep
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.AppOwnedSdkSandboxInterfaceCompat
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
 import androidx.privacysandbox.sdkruntime.core.Versions
@@ -52,6 +54,20 @@ import org.jetbrains.annotations.TestOnly
 class SdkSandboxControllerCompat internal constructor(
     private val controllerImpl: SandboxControllerImpl
 ) {
+
+    /**
+     * Load SDK in a SDK sandbox java process or locally.
+     *
+     * The caller may only load SDKs the client app depends on into the SDK sandbox.
+     *
+     * @param sdkName name of the SDK to be loaded.
+     * @param params additional parameters to be passed to the SDK in the form of a [Bundle]
+     *  as agreed between the client and the SDK.
+     * @return [SandboxedSdkCompat] from SDK on a successful run.
+     * @throws [LoadSdkCompatException] on fail.
+     */
+    suspend fun loadSdk(sdkName: String, params: Bundle) =
+        controllerImpl.loadSdk(sdkName, params)
 
     /**
      * Fetches information about Sdks that are loaded in the sandbox or locally.
@@ -102,6 +118,9 @@ class SdkSandboxControllerCompat internal constructor(
 
     @RestrictTo(LIBRARY_GROUP)
     interface SandboxControllerImpl {
+
+        suspend fun loadSdk(sdkName: String, params: Bundle): SandboxedSdkCompat
+
         fun getSandboxedSdks(): List<SandboxedSdkCompat>
 
         fun getAppOwnedSdkSandboxInterfaces(): List<AppOwnedSdkSandboxInterfaceCompat>

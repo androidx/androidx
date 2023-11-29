@@ -30,12 +30,14 @@ import android.window.OnBackInvokedDispatcher
 import androidx.annotation.RequiresExtension
 import androidx.lifecycle.Lifecycle
 import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
+import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.activity.ActivityHolder
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.internal.runner.junit4.statement.UiThreadStatement
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -72,7 +74,24 @@ class SdkSandboxControllerCompatSandboxedTest {
         Assert.assertThrows(UnsupportedOperationException::class.java) {
             controllerCompat.unregisterSdkSandboxActivityHandler(handlerCompat)
         }
+        Assert.assertThrows(LoadSdkCompatException::class.java) {
+            runBlocking {
+                controllerCompat.loadSdk("SDK", Bundle())
+            }
+        }
         verifyZeroInteractions(context)
+    }
+
+    @Test
+    fun loadSdk_throwsLoadSdkCompatException() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val controllerCompat = SdkSandboxControllerCompat.from(context)
+
+        Assert.assertThrows(LoadSdkCompatException::class.java) {
+            runBlocking {
+                controllerCompat.loadSdk("SDK", Bundle())
+            }
+        }
     }
 
     @Test
