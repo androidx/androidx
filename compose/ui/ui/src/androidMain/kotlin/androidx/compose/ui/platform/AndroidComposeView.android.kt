@@ -22,7 +22,6 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Looper
 import android.os.SystemClock
-import android.util.Log
 import android.util.LongSparseArray
 import android.util.SparseArray
 import android.view.DragEvent
@@ -80,6 +79,7 @@ import androidx.compose.ui.draganddrop.DragAndDropNode
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusDirection.Companion.Down
+import androidx.compose.ui.focus.FocusDirection.Companion.Enter
 import androidx.compose.ui.focus.FocusDirection.Companion.Exit
 import androidx.compose.ui.focus.FocusDirection.Companion.Left
 import androidx.compose.ui.focus.FocusDirection.Companion.Next
@@ -88,6 +88,11 @@ import androidx.compose.ui.focus.FocusDirection.Companion.Right
 import androidx.compose.ui.focus.FocusDirection.Companion.Up
 import androidx.compose.ui.focus.FocusOwner
 import androidx.compose.ui.focus.FocusOwnerImpl
+import androidx.compose.ui.focus.requestFocus
+import androidx.compose.ui.focus.supportsWrapAroundFocus
+import androidx.compose.ui.focus.toAndroidFocusDirection
+import androidx.compose.ui.focus.toFocusDirection
+import androidx.compose.ui.focus.toLayoutDirection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Canvas
@@ -95,19 +100,21 @@ import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.setFrom
+import androidx.compose.ui.graphics.toAndroidRect
+import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.PlatformHapticFeedback
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
 import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.InputModeManagerImpl
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.Key.Companion.Back
 import androidx.compose.ui.input.key.Key.Companion.DirectionCenter
 import androidx.compose.ui.input.key.Key.Companion.DirectionDown
 import androidx.compose.ui.input.key.Key.Companion.DirectionLeft
 import androidx.compose.ui.input.key.Key.Companion.DirectionRight
 import androidx.compose.ui.input.key.Key.Companion.DirectionUp
-import androidx.compose.ui.input.key.Key.Companion.Enter
 import androidx.compose.ui.input.key.Key.Companion.Escape
 import androidx.compose.ui.input.key.Key.Companion.NumPadEnter
 import androidx.compose.ui.input.key.Key.Companion.PageDown
@@ -220,11 +227,14 @@ internal class AndroidComposeView(
 
     private val semanticsModifier = EmptySemanticsElement
 
-    override val focusOwner: FocusOwner = FocusOwnerImpl { registerOnEndApplyChangesListener(it) }
-
-    private val dragAndDropModifierOnDragListener = DragAndDropModifierOnDragListener(
-        ::startDrag
+    override val focusOwner: FocusOwner = FocusOwnerImpl(
+        onRequestApplyChangesListener = ::registerOnEndApplyChangesListener,
+        onRequestFocusForOwner = ::onRequestFocusForOwner,
+        onClearFocusForOwner = ::onClearFocusForOwner,
+        layoutDirection = ::layoutDirection
     )
+
+    private val dragAndDropModifierOnDragListener = DragAndDropModifierOnDragListener(::startDrag)
 
     override val dragAndDropManager: DragAndDropManager = dragAndDropModifierOnDragListener
 
@@ -238,8 +248,10 @@ internal class AndroidComposeView(
         val focusDirection = getFocusDirection(it)
         if (focusDirection == null || it.type != KeyDown) return@onKeyEvent false
 
-        // Consume the key event if we moved focus.
-        focusOwner.moveFocus(focusDirection)
+        // Consume the key event if we moved focus or if focus search or requestFocus is cancelled.
+        focusOwner.focusSearch(focusDirection, null) { focusTargetNode ->
+            focusTargetNode.requestFocus(focusDirection) ?: true
+        } ?: true
     }
 
     private val rotaryInputModifier = Modifier.onRotaryScrollEvent {
@@ -256,8 +268,8 @@ internal class AndroidComposeView(
         it.modifier = Modifier
             .then(semanticsModifier)
             .then(rotaryInputModifier)
-            .then(focusOwner.modifier)
             .then(keyInputModifier)
+            .then(focusOwner.modifier)
             .then(dragAndDropModifierOnDragListener.modifier)
     }
 
@@ -460,7 +472,11 @@ internal class AndroidComposeView(
 
     // Backed by mutableStateOf so that the ambient provider recomposes when it changes
     override var layoutDirection by mutableStateOf(
-        context.resources.configuration.localeLayoutDirection
+        // We don't use the attached View's layout direction here since that layout direction may not
+        // be resolved since composables may be composed without attaching to the RootViewImpl.
+        // In Jetpack Compose, use the locale layout direction (i.e. layoutDirection came from
+        // configuration) as a default layout direction.
+        toLayoutDirection(context.resources.configuration.layoutDirection) ?: LayoutDirection.Ltr
     )
         private set
 
@@ -646,14 +662,65 @@ internal class AndroidComposeView(
         showLayoutBounds = getIsShowingLayoutBounds()
     }
 
+    override fun focusSearch(direction: Int): View? = if (focusOwner.rootState.hasFocus) {
+        // When the compose hierarchy is focused, it intercepts the key events that trigger focus
+        // search. So focus search should never find a compose hierarchy that has focus.
+        //
+        // However there is a case where we don't consume the key events. When all the components
+        // have been visited, and/or focus can't be moved within the compose hierarchy, the key
+        // events are returned to the framework so it can perform a search among other views. This
+        // focus search could land back on this view.
+        //
+        // Ideally just returning "this" to focus search should cause it to call requestFocus with
+        // the previously focused rect, and we would find the next item. However the framework does
+        // not call request focus on this view because it already has focus.
+        //
+        // To fix this issue, we manually clear focus and return this. The view with default focus
+        // might be assigned focus for a while, but requestFocus will be called which will then
+        // transfer focus to this view.
+        //
+        // There is an additional special case here. Focus wraps around only for 1D focus search
+        // and not for 2D focus search. So we clear focus only if focus search was triggered by
+        // a 1D focus search.
+        if (supportsWrapAroundFocus(direction)) clearFocus()
+        this
+    } else {
+        // TODO(b/261190892) run a mixed focus search that searches between composables and
+        //  child views and chooses an appropriate result.
+        //  We give the embedded children a chance to take focus before the compose view.
+        super.focusSearch(direction) ?: this
+    }
+
+    override fun requestFocus(direction: Int, previouslyFocusedRect: Rect?): Boolean {
+        if (focusOwner.rootState.hasFocus) return true
+        return focusOwner.takeFocus(
+            focusDirection = toFocusDirection(direction) ?: Enter,
+            previouslyFocusedRect = previouslyFocusedRect?.toComposeRect()
+        )
+    }
+
+    private fun onRequestFocusForOwner(
+        focusDirection: FocusDirection?,
+        previouslyFocusedRect: androidx.compose.ui.geometry.Rect?
+    ): Boolean {
+        return super.requestFocus(
+            focusDirection?.toAndroidFocusDirection() ?: FOCUS_DOWN,
+            @Suppress("DEPRECATION")
+            previouslyFocusedRect?.toAndroidRect()
+        )
+    }
+
+    private fun onClearFocusForOwner() {
+        if (isFocused || hasFocus()) {
+            super.clearFocus()
+        }
+    }
+
     override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
-        Log.d(FocusTag, "Owner FocusChanged($gainFocus)")
-       focusOwner.focusTransactionManager.withExistingTransaction(
-           onCancelled = { if (gainFocus) clearFocus() else requestFocus() }
-       ) {
-           if (gainFocus) focusOwner.takeFocus() else focusOwner.releaseFocus()
-       }
+        if (!gainFocus) {
+            focusOwner.releaseFocus()
+        }
     }
 
     override fun onWindowFocusChanged(hasWindowFocus: Boolean) {
@@ -1227,7 +1294,7 @@ internal class AndroidComposeView(
             // focus.
             DirectionUp, PageUp -> Up
             DirectionDown, PageDown -> Down
-            DirectionCenter, Enter, NumPadEnter -> FocusDirection.Enter
+            DirectionCenter, Key.Enter, NumPadEnter -> Enter
             Back, Escape -> Exit
             else -> null
         }
@@ -1808,10 +1875,7 @@ internal class AndroidComposeView(
         // If we get such a call, don't try to write to a property delegate
         // that hasn't been initialized yet.
         if (superclassInitComplete) {
-            layoutDirectionFromInt(layoutDirection).let {
-                this.layoutDirection = it
-                focusOwner.layoutDirection = it
-            }
+            this.layoutDirection = toLayoutDirection(layoutDirection) ?: LayoutDirection.Ltr
         }
     }
 
@@ -1975,7 +2039,6 @@ internal class AndroidComposeView(
     override fun shouldDelayChildPressedState(): Boolean = false
 
     companion object {
-        private const val FocusTag = "Compose Focus"
         private const val MaximumLayerCacheSize = 10
         private var systemPropertiesClass: Class<*>? = null
         private var getBooleanMethod: Method? = null
@@ -2031,25 +2094,6 @@ internal class AndroidComposeView(
             return true
         }
     }
-}
-
-/**
- * Return the layout direction set by the [Locale][java.util.Locale].
- *
- * A convenience getter that translates [Configuration.getLayoutDirection] result into
- * [LayoutDirection] instance.
- */
-internal val Configuration.localeLayoutDirection: LayoutDirection
-    // We don't use the attached View's layout direction here since that layout direction may not
-    // be resolved since the composables may be composed without attaching to the RootViewImpl.
-    // In Jetpack Compose, use the locale layout direction (i.e. layoutDirection came from
-    // configuration) as a default layout direction.
-    get() = layoutDirectionFromInt(layoutDirection)
-
-private fun layoutDirectionFromInt(layoutDirection: Int): LayoutDirection = when (layoutDirection) {
-    android.util.LayoutDirection.LTR -> LayoutDirection.Ltr
-    android.util.LayoutDirection.RTL -> LayoutDirection.Rtl
-    else -> LayoutDirection.Ltr
 }
 
 /**

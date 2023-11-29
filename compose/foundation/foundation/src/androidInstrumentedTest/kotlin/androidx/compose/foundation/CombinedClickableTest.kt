@@ -1298,7 +1298,7 @@ class CombinedClickableTest {
         val focusRequester = FocusRequester()
         lateinit var focusManager: FocusManager
         lateinit var inputModeManager: InputModeManager
-        rule.setContent {
+        rule.setFocusableContent {
             scope = rememberCoroutineScope()
             focusManager = LocalFocusManager.current
             inputModeManager = LocalInputModeManager.current

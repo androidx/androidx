@@ -26,7 +26,8 @@ import androidx.compose.ui.node.visitSelfAndChildren
  * onApplyChangesListener when nodes are scheduled for invalidation.
  */
 internal class FocusInvalidationManager(
-    private val onRequestApplyChangesListener: (() -> Unit) -> Unit
+    private val onRequestApplyChangesListener: (() -> Unit) -> Unit,
+    private val invalidateOwnerFocusState: () -> Unit
 ) {
     private var focusTargetNodes = mutableSetOf<FocusTargetNode>()
     private var focusEventNodes = mutableSetOf<FocusEventModifierNode>()
@@ -137,6 +138,8 @@ internal class FocusInvalidationManager(
         }
         focusTargetNodes.clear()
         focusTargetsWithInvalidatedFocusEvents.clear()
+
+        invalidateOwnerFocusState()
 
          check(focusPropertiesNodes.isEmpty()) { "Unprocessed FocusProperties nodes" }
          check(focusEventNodes.isEmpty()) { "Unprocessed FocusEvent nodes" }

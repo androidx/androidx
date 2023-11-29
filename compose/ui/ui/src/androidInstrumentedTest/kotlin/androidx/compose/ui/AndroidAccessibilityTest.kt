@@ -2399,12 +2399,17 @@ class AndroidAccessibilityTest {
         // Arrange.
         val focusRequester = FocusRequester()
         setContent {
-            Box(
-                Modifier
-                    .testTag(tag)
-                    .focusRequester(focusRequester)
-                    .focusable()) {
-                BasicText("focusable")
+            Row {
+                // Initially focused item.
+                Box(Modifier.size(10.dp).focusable())
+                Box(
+                    Modifier
+                        .testTag(tag)
+                        .focusRequester(focusRequester)
+                        .focusable()
+                ) {
+                    BasicText("focusable")
+                }
             }
         }
         rule.runOnIdle { focusRequester.requestFocus() }
@@ -2550,11 +2555,15 @@ class AndroidAccessibilityTest {
     fun testTextField_testFocusClearFocusAction() {
         // Arrange.
         setContent {
-            BasicTextField(
-                modifier = Modifier.testTag(tag),
-                value = "value",
-                onValueChange = {}
-            )
+            Row {
+                // Initially focused item.
+                Box(Modifier.size(10.dp).focusable())
+                BasicTextField(
+                    modifier = Modifier.testTag(tag),
+                    value = "value",
+                    onValueChange = {}
+                )
+            }
         }
         val textFieldId = rule.onNodeWithTag(tag)
             .assert(expectValue(Focused, false))

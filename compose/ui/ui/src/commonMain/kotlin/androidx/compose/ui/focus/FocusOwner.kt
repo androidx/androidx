@@ -20,7 +20,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
-import androidx.compose.ui.unit.LayoutDirection
 
 /**
  * The focus owner provides some internal APIs that are not exposed by focus manager.
@@ -34,11 +33,6 @@ internal interface FocusOwner : FocusManager {
     val modifier: Modifier
 
     /**
-     * The owner sets the layoutDirection that is then used during focus search.
-     */
-    var layoutDirection: LayoutDirection
-
-    /**
      * This manager provides a way to ensure that only one focus transaction is running at a time.
      * We use this to prevent re-entrant focus operations. Starting a new transaction automatically
      * cancels the previous transaction and reverts any focus state changes made during that
@@ -47,12 +41,52 @@ internal interface FocusOwner : FocusManager {
     val focusTransactionManager: FocusTransactionManager
 
     /**
+     * This function is called to ask the owner to request focus from the framework.
+     * eg. If a composable calls requestFocus and the root view does not have focus, this function
+     * can be used to request focus for the view.
+     *
+     * @param focusDirection If this focus request was triggered by a call to moveFocus or using the
+     * keyboard, provide the owner with the direction of focus change.
+     *
+     * @param previouslyFocusedRect The bounds of the currently focused item.
+     *
+     * @return true if the owner successfully requested focus from the framework. False otherwise.
+     */
+    fun requestFocusForOwner(focusDirection: FocusDirection?, previouslyFocusedRect: Rect?): Boolean
+
+    /**
+     * This function searches the compose hierarchy for the next focus target based on the supplied
+     * parameters.
+     *
+     * @param focusDirection the direction to search for the focus target.
+     *
+     * @param focusedRect the bounds of the currently focused item.
+     *
+     * @param onFound This lambda is called with the focus search result.
+     *
+     * @return true, if a suitable [FocusTargetNode] was found, false if no [FocusTargetNode] was
+     * found, and null if the focus search was cancelled.
+     */
+    fun focusSearch(
+        focusDirection: FocusDirection,
+        focusedRect: Rect?,
+        onFound: (FocusTargetNode) -> Boolean
+    ): Boolean?
+
+    /**
      * The [Owner][androidx.compose.ui.node.Owner] calls this function when it gains focus. This
      * informs the [focus manager][FocusOwnerImpl] that the
      * [Owner][androidx.compose.ui.node.Owner] gained focus, and that it should propagate this
      * focus to one of the focus modifiers in the component hierarchy.
+     *
+     * @param focusDirection the direction to search for the focus target.
+     *
+     * @param previouslyFocusedRect the bounds of the currently focused item.
+     *
+     * @return true, if a suitable [FocusTargetNode] was found and it took focus, false if no
+     * [FocusTargetNode] was found or if the focus search was cancelled.
      */
-    fun takeFocus()
+    fun takeFocus(focusDirection: FocusDirection, previouslyFocusedRect: Rect?): Boolean
 
     /**
      * The [Owner][androidx.compose.ui.node.Owner] calls this function when it loses focus. This
@@ -71,10 +105,13 @@ internal interface FocusOwner : FocusManager {
      * @param refreshFocusEvents: Whether we should send an event up the hierarchy to update
      * the associated onFocusEvent nodes.
      *
+     * @param clearOwnerFocus whether we should also clear focus from the owner. This is usually
+     * true, unless focus is being temporarily cleared (eg. to implement focus wrapping).
+     *
      * This could be used to clear focus when a user clicks on empty space outside a focusable
      * component.
      */
-    fun clearFocus(force: Boolean, refreshFocusEvents: Boolean)
+    fun clearFocus(force: Boolean, refreshFocusEvents: Boolean, clearOwnerFocus: Boolean)
 
     /**
      * Searches for the currently focused item, and returns its coordinates as a rect.
@@ -110,4 +147,9 @@ internal interface FocusOwner : FocusManager {
      * Schedule a FocusProperties node to be invalidated after onApplyChanges.
      */
     fun scheduleInvalidation(node: FocusPropertiesModifierNode)
+
+    /**
+     * The focus state of the root focus node.
+     */
+    val rootState: FocusState
 }
