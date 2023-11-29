@@ -22,6 +22,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,12 +45,14 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTopPositionInRootIsEqualTo
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
@@ -618,6 +621,201 @@ class ButtonTest {
             }
         )
     }
+
+    @Test
+    fun gives_compact_button_correct_text_style() {
+        var actualLabelTextStyle = TextStyle.Default
+        var expectedTextStyle = TextStyle.Default
+
+        rule.setContentWithTheme {
+            expectedTextStyle = MaterialTheme.typography.labelSmall
+            CompactButton(
+                onClick = {},
+                label = {
+                    actualLabelTextStyle = LocalTextStyle.current
+                }
+            )
+        }
+        assertEquals(expectedTextStyle, actualLabelTextStyle)
+    }
+
+    @Test
+    public fun icon_only_compact_button_has_correct_default_width_and_height() {
+        val iconTag = "TestIcon"
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactButton(
+                    onClick = {},
+                    modifier = Modifier.testTag(TEST_TAG),
+                    icon = { TestImage(iconTag) }
+                )
+            }
+
+        rule.onRoot().assertWidthIsEqualTo(ButtonDefaults.IconOnlyCompactButtonWidth)
+            .assertHeightIsEqualTo(ButtonDefaults.CompactButtonHeight)
+    }
+
+    @Test
+    public fun label_only_compact_button_has_correct_default_height() {
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactButton(
+                    onClick = {},
+                    modifier = Modifier.testTag(TEST_TAG),
+                    label = { Text("Test") }
+                )
+            }
+
+        rule.onRoot().assertHeightIsEqualTo(ButtonDefaults.CompactButtonHeight)
+    }
+
+    @Test
+    public fun no_content_compact_button_has_correct_default_width_and_height() {
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactButton(
+                    onClick = {},
+                    modifier = Modifier.testTag(TEST_TAG),
+                )
+            }
+
+        rule.onRoot().assertWidthIsEqualTo(ButtonDefaults.IconOnlyCompactButtonWidth)
+            .assertHeightIsEqualTo(ButtonDefaults.CompactButtonHeight)
+    }
+
+    @Test
+    public fun icon_only_compact_button_can_have_width_overridden() {
+        val iconTag = "TestIcon"
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactButton(
+                    onClick = {},
+                    modifier = Modifier
+                        .testTag(TEST_TAG)
+                        .width(100.dp),
+                    icon = { TestImage(iconTag) }
+                )
+            }
+
+        rule.onRoot().assertWidthIsEqualTo(100.dp)
+    }
+
+    @Test
+    fun has_icon_in_correct_location_in_compact_button() {
+        val iconTag = "TestIcon"
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactButton(
+                    onClick = {},
+                    label = { Text("Blue green orange") },
+                    icon = { TestImage(iconTag) },
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        val itemBounds = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(iconTag, useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+
+        rule.onNodeWithContentDescription(iconTag, useUnmergedTree = true)
+            .assertTopPositionInRootIsEqualTo(
+                (itemBounds.height - iconBounds.height) / 2 +
+                    ButtonDefaults.CompactButtonTapTargetPadding.calculateTopPadding()
+            )
+    }
+
+    @Test
+    fun has_icon_in_correct_location_when_icon_only_compact_button() {
+        val iconTag = "TestIcon"
+        rule
+            .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
+                CompactButton(
+                    onClick = {},
+                    icon = { TestImage(iconTag) },
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        val itemBounds = rule.onNodeWithTag(TEST_TAG).getUnclippedBoundsInRoot()
+        val iconBounds = rule.onNodeWithTag(iconTag, useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+
+        rule.onNodeWithContentDescription(iconTag, useUnmergedTree = true)
+            .assertTopPositionInRootIsEqualTo(
+                (itemBounds.height - iconBounds.height) / 2 +
+                    ButtonDefaults.CompactButtonTapTargetPadding.calculateTopPadding()
+            )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    public fun gives_enabled_compact_button_correct_colors() {
+        rule.verifyCompactButtonColors(
+            status = Status.Enabled,
+            colors = { ButtonDefaults.filledButtonColors() }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    public fun gives_disabled_compact_button_correct_colors() {
+        rule.verifyCompactButtonColors(
+            status = Status.Disabled,
+            colors = { ButtonDefaults.filledButtonColors() }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    public fun gives_enabled_filled_tonal_compact_button_correct_colors() {
+        rule.verifyCompactButtonColors(
+            status = Status.Enabled,
+            colors = { ButtonDefaults.filledTonalButtonColors() }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    public fun gives_disabled_filled_tonal_compact_button_correct_colors() {
+        rule.verifyCompactButtonColors(
+            status = Status.Disabled,
+            colors = { ButtonDefaults.filledTonalButtonColors() }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    public fun gives_enabled_outlined_compact_button_correct_colors() {
+        rule.verifyCompactButtonColors(
+            status = Status.Enabled,
+            colors = { ButtonDefaults.outlinedButtonColors() }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    public fun gives_disabled_outlined_compact_button_correct_colors() {
+        rule.verifyCompactButtonColors(
+            status = Status.Disabled,
+            colors = { ButtonDefaults.outlinedButtonColors() }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    public fun gives_enabled_child_compact_button_correct_colors() {
+        rule.verifyCompactButtonColors(
+            status = Status.Enabled,
+            colors = { ButtonDefaults.childButtonColors() }
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    @Test
+    public fun gives_disabled_child_compact_button_correct_colors() {
+        rule.verifyCompactButtonColors(
+            status = Status.Disabled,
+            colors = { ButtonDefaults.childButtonColors() }
+        )
+    }
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -755,6 +953,50 @@ private fun ComposeContentTestRule.isShape(
             backgroundColor = background,
             shapeOverlapPixelCount = 2.0f,
             shape = expectedShape,
+        )
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun ComposeContentTestRule.verifyCompactButtonColors(
+    status: Status,
+    colors: @Composable () -> ButtonColors
+) {
+    val testBackgroundColor = Color.White
+    var containerColor = Color.Transparent
+    var labelColor = Color.Transparent
+    var iconColor = Color.Transparent
+    var actualLabelColor = Color.Transparent
+    var actualIconColor = Color.Transparent
+
+    setContentWithTheme {
+        containerColor = ((colors().containerPainter(status.enabled()).value as ColorPainter).color)
+            .compositeOver(testBackgroundColor)
+        labelColor = colors().contentColor(status.enabled()).value
+        iconColor = colors().iconColor(status.enabled()).value
+
+        Box(
+            Modifier
+                .fillMaxSize()
+                .background(testBackgroundColor)
+        ) {
+            CompactButton(
+                onClick = {},
+                colors = colors(),
+                enabled = status.enabled(),
+                modifier = Modifier.testTag(TEST_TAG),
+                label = { actualLabelColor = LocalContentColor.current },
+                icon = { actualIconColor = LocalContentColor.current }
+            )
+        }
+    }
+
+    assertEquals(actualLabelColor, labelColor)
+    assertEquals(actualIconColor, iconColor)
+
+    onNodeWithTag(TEST_TAG)
+        .captureToImage()
+        .assertContainsColor(
+            if (containerColor != Color.Transparent) containerColor else testBackgroundColor,
         )
 }
 
