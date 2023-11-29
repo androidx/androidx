@@ -62,6 +62,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -3973,6 +3974,46 @@ class CompositionTests {
         advance()
 
         assertEquals(1, consumer.invokeCount)
+    }
+
+    // regression test from b/232007227 with forEach
+    @Test
+    fun slotsAreUsedCorrectly_forEach() = compositionTest {
+        class Car(val model: String)
+        class Person(val name: String, val car: MutableStateFlow<Car>)
+
+        val people = mutableListOf<MutableStateFlow<Person?>>(
+            MutableStateFlow(Person("Ford", MutableStateFlow(Car("Model T")))),
+            MutableStateFlow(Person("Musk", MutableStateFlow(Car("Model 3"))))
+        )
+        compose {
+            people.forEach {
+                val person = it.collectAsState().value
+                Text(person?.name ?: "No person")
+                if (person != null) {
+                    val car = person.car.collectAsState().value
+                    Text("    ${car.model}")
+                }
+            }
+        }
+
+        validate {
+            people.forEach {
+                val person = it.value
+                Text(person?.name ?: "No person")
+                if (person != null) {
+                    val car = person.car.value
+                    Text("    ${car.model}")
+                }
+            }
+        }
+
+        advanceTimeBy(16_000L)
+        people[0].value = null
+        advanceTimeBy(16_000L)
+
+        expectChanges()
+        revalidate()
     }
 
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
