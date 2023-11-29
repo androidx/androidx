@@ -39,6 +39,7 @@ import androidx.camera.extensions.impl.advanced.BokehAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.HdrAdvancedExtenderImpl;
 import androidx.camera.extensions.impl.advanced.NightAdvancedExtenderImpl;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
+import androidx.camera.extensions.internal.compat.workaround.ImageAnalysisAvailability;
 import androidx.camera.extensions.internal.sessionprocessor.AdvancedSessionProcessor;
 import androidx.core.util.Preconditions;
 
@@ -57,6 +58,7 @@ public class AdvancedVendorExtender implements VendorExtender {
             new ExtensionDisabledValidator();
     private final AdvancedExtenderImpl mAdvancedExtenderImpl;
     private String mCameraId;
+    private final @ExtensionMode.Mode int mMode;
 
     public AdvancedVendorExtender(@ExtensionMode.Mode int mode) {
         try {
@@ -80,6 +82,7 @@ public class AdvancedVendorExtender implements VendorExtender {
                 default:
                     throw new IllegalArgumentException("Should not active ExtensionMode.NONE");
             }
+            mMode = mode;
         } catch (NoClassDefFoundError e) {
             throw new IllegalArgumentException("AdvancedExtenderImpl does not exist");
         }
@@ -88,6 +91,7 @@ public class AdvancedVendorExtender implements VendorExtender {
     @VisibleForTesting
     AdvancedVendorExtender(AdvancedExtenderImpl advancedExtenderImpl) {
         mAdvancedExtenderImpl = advancedExtenderImpl;
+        mMode = ExtensionMode.NONE;
     }
 
     @Override
@@ -152,6 +156,11 @@ public class AdvancedVendorExtender implements VendorExtender {
     @Override
     public Size[] getSupportedYuvAnalysisResolutions() {
         Preconditions.checkNotNull(mCameraId, "VendorExtender#init() must be called first");
+        ImageAnalysisAvailability imageAnalysisAvailability = new ImageAnalysisAvailability();
+        if (!imageAnalysisAvailability.isAvailable(mCameraId, mMode)) {
+            return new Size[0];
+        }
+
         List<Size> yuvList = mAdvancedExtenderImpl.getSupportedYuvAnalysisResolutions(mCameraId);
         return yuvList == null ? new Size[0] : yuvList.toArray(new Size[0]);
     }

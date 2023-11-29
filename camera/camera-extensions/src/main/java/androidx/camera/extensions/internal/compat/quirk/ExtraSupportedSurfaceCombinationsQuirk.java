@@ -20,7 +20,7 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.Quirk;
-import androidx.camera.extensions.internal.compat.workaround.ImageAnalysisAvailability;
+import androidx.camera.extensions.internal.compat.workaround.BasicExtenderSurfaceCombinationAvailability;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -36,7 +36,7 @@ import java.util.Set;
  *                  + PRIV/PREVIEW + YUV/MAXIMUM and YUV/640x480 + YUV/PREVIEW + YUV/MAXIMUM
  *                  configurations.
  *     Device(s): Some Samsung devices
- *     @see ImageAnalysisAvailability
+ *     @see BasicExtenderSurfaceCombinationAvailability
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtraSupportedSurfaceCombinationsQuirk implements Quirk {
