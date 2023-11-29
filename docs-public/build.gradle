@@ -422,8 +422,7 @@ dependencies {
     docs("androidx.wear.watchface:watchface-guava:1.2.0")
     samples("androidx.wear.watchface:watchface-samples:1.2.0")
     docs("androidx.wear.watchface:watchface-style:1.2.0")
-    // TODO(b/294531403): Turn on apiSince for wear when it releases as alpha
-    docsWithoutApiSince("androidx.wear:wear:1.4.0-alpha01")
+    docs("androidx.wear:wear:1.4.0-alpha01")
     stubs(fileTree(dir: "../wear/wear_stubs/", include: ["com.google.android.wearable-stubs.jar"]))
     docs("androidx.wear:wear-input:1.2.0-alpha02")
     samples("androidx.wear:wear-input-samples:1.2.0-alpha01")
