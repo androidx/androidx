@@ -124,15 +124,10 @@ value class Offset internal constructor(internal val packedValue: Long) {
 
     @Stable
     fun isValid(): Boolean {
-        val x = (packedValue shr 32) and FloatNonFiniteMask
-        // Only check y if x didn't fail
-        checkPrecondition(
-            x <= FloatInfinityBase &&
-            (packedValue and FloatNonFiniteMask) <= FloatInfinityBase
-        ) {
-            "Offset argument contained a NaN value."
-        }
-        return true
+        val convertX = (packedValue shr 32) and FloatNonFiniteMask
+        val convertY = packedValue and FloatNonFiniteMask
+
+        return (convertX <= FloatInfinityBase) && (convertY <= FloatInfinityBase)
     }
 
     /**

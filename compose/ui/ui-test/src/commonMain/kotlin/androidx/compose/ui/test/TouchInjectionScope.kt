@@ -210,7 +210,15 @@ interface TouchInjectionScope : InjectionScope {
      */
     fun updatePointerBy(pointerId: Int, delta: Offset) {
         // Ignore currentPosition of null here, let updatePointerTo generate the error
-        val position = (currentPosition(pointerId) ?: Offset.Zero) + delta
+        val currentPosition = currentPosition(pointerId) ?: Offset.Zero
+
+        val position = if (currentPosition.isValid() && delta.isValid()) {
+            currentPosition + delta
+        } else {
+            // Allows invalid position to still pass back through Compose (for testing)
+            Offset.Unspecified
+        }
+
         updatePointerTo(pointerId, position)
     }
 

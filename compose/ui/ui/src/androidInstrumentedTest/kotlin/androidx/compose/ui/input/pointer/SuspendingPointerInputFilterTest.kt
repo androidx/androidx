@@ -929,4 +929,130 @@ class SuspendingPointerInputFilterTest {
         rule.onNodeWithTag(tag)
             .assertHeightIsEqualTo(10.dp)
     }
+
+    // Tests pointerInput with bad pointer data
+    @Test
+    fun pointerInput_badSinglePointer_composeIgnores() {
+        val events = mutableListOf<PointerEventType>()
+        val tag = "input rect"
+        rule.setContent {
+            Box(
+                Modifier.fillMaxSize()
+                    .testTag(tag)
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                events += event.type
+                            }
+                        }
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset.Zero) // Compose handles
+            // Adds pointer (extra finger) with bad data. Because the bad x/y are part of the
+            // MotionEvent, Compose won't process the entire event or any following events
+            // until the bad data is removed.
+            down(1, Offset(Float.NaN, Float.NaN)) // Compose ignores (adds bad data)
+            moveBy(0, Offset(10f, 10f)) // Compose ignores
+            up() // Compose ignores
+        }
+        assertThat(events).hasSize(1)
+        assertThat(events).containsExactly(PointerEventType.Press)
+    }
+
+    @Test
+    fun pointerInput_badSinglePointerRemove_composeOnlyHandlesEventsWhenBadDataRemoved() {
+        val events = mutableListOf<PointerEventType>()
+        val tag = "input rect"
+        rule.setContent {
+            Box(
+                Modifier.fillMaxSize()
+                    .testTag(tag)
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                events += event.type
+                            }
+                        }
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset.Zero) // Compose handles
+            // Adds pointer (extra finger) with bad data. Because the bad x/y are part of the
+            // MotionEvent, Compose won't process the entire event or any following events
+            // until the bad data is removed.
+            down(1, Offset(Float.NaN, Float.NaN)) // Compose ignores (adds bad data)
+            moveBy(0, Offset(10f, 10f)) // Compose ignores
+            moveBy(0, Offset(10f, 10f)) // Compose ignores
+
+            // Remove bad pointer, now Compose will handle events again.
+            up(1)
+            // Compose handles everything after this
+            moveBy(0, Offset(10f, 10f))
+            up()
+        }
+        assertThat(events).hasSize(3)
+        assertThat(events).containsExactly(
+            PointerEventType.Press,
+            PointerEventType.Move,
+            PointerEventType.Release
+        )
+    }
+
+    @Test
+    fun pointerInput_badMultiplePointers_composeIgnores() {
+        val events = mutableListOf<PointerEventType>()
+        val tag = "input rect"
+        rule.setContent {
+            Box(
+                Modifier.fillMaxSize()
+                    .testTag(tag)
+                    .pointerInput(Unit) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                events += event.type
+                            }
+                        }
+                    }
+            )
+        }
+
+        rule.onNodeWithTag(tag).performTouchInput {
+            down(Offset.Zero)
+            // Adds pointer (extra finger) with bad data. Because the bad x/y are part of the
+            // MotionEvent, Compose won't process the entire event or any following events
+            // until the bad data is removed.
+            down(1, Offset(Float.NaN, Float.NaN)) // Compose ignores (adds bad data)
+            down(2, Offset(Float.NaN, Float.NaN)) // Compose ignores (adds bad data)
+            down(3, Offset(20f, 20f)) // Ignored by Compose
+            moveBy(3, Offset(10f, 10f)) // Ignored by Compose
+            moveBy(3, Offset(10f, 10f)) // Ignored by Compose
+            moveBy(3, Offset(10f, 10f)) // Ignored by Compose
+
+            // Remove bad pointers
+            up(1)
+            up(2)
+
+            // Now that bad pointers are gone, Compose properly handles all of these:
+            moveBy(3, Offset(10f, 10f))
+            moveBy(0, Offset(10f, 10f))
+            up() // defaults to id=0
+            up(3)
+        }
+        assertThat(events).hasSize(5)
+        assertThat(events).containsExactly(
+            PointerEventType.Press,
+            PointerEventType.Move,
+            PointerEventType.Move,
+            PointerEventType.Release,
+            PointerEventType.Release
+        )
+    }
 }
