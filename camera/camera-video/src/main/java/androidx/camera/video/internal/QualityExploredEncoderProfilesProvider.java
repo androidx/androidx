@@ -160,7 +160,8 @@ public class QualityExploredEncoderProfilesProvider implements EncoderProfilesPr
                 VideoEncoderConfig encoderConfig = toVideoEncoderConfig(baseVideoProfile);
                 VideoEncoderInfo encoderInfo = mVideoEncoderInfoFinder.apply(encoderConfig);
                 // Check if size is valid for the Encoder.
-                if (!encoderInfo.isSizeSupported(size.getWidth(), size.getHeight())) {
+                if (encoderInfo == null
+                        || !encoderInfo.isSizeSupported(size.getWidth(), size.getHeight())) {
                     continue;
                 }
                 // Add the encoderProfiles to the candidates of base EncoderProfiles.
