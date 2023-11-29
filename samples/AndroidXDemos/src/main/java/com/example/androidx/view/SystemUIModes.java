@@ -16,8 +16,6 @@
 
 package com.example.androidx.view;
 
-import static android.os.Build.VERSION.SDK_INT;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -332,9 +330,7 @@ public class SystemUIModes extends AppCompatActivity
             public boolean onCreateActionMode(ActionMode mode, Menu menu) {
                 mode.setTitle("My Action Mode!");
                 mode.setSubtitle(null);
-                if (SDK_INT >= 16) {
-                    mode.setTitleOptionalHint(false);
-                }
+                mode.setTitleOptionalHint(false);
                 menu.add("Sort By Size").setIcon(android.R.drawable.ic_menu_sort_by_size);
                 menu.add("Sort By Alpha").setIcon(android.R.drawable.ic_menu_sort_alphabetically);
                 return true;

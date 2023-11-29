@@ -21,7 +21,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
-import android.os.Build;
 import android.text.StaticLayout;
 import android.text.method.SingleLineTransformationMethod;
 import android.util.AttributeSet;
@@ -85,10 +84,7 @@ public class AppCompatTextViewAutoSizeTest extends
         final AppCompatTextView textView = (AppCompatTextView) mActivity
                 .getLayoutInflater().inflate(R.layout.textview_autosize_maxlines, null);
         assertTrue(textView instanceof CustomTextViewWithTransformationMethod);
-        // Method added in API 16.
-        if (Build.VERSION.SDK_INT >= 16) {
-            assertEquals(1, textView.getMaxLines());
-        }
+        assertEquals(1, textView.getMaxLines());
         assertEquals(TextViewCompat.AUTO_SIZE_TEXT_TYPE_UNIFORM, textView.getAutoSizeTextType());
         assertTrue(textView.getTransformationMethod() instanceof SingleLineTransformationMethod);
     }

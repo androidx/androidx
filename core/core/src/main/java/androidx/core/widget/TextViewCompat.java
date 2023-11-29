@@ -43,7 +43,6 @@ import android.text.TextDirectionHeuristic;
 import android.text.TextDirectionHeuristics;
 import android.text.TextPaint;
 import android.text.method.PasswordTransformationMethod;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -68,7 +67,6 @@ import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -80,8 +78,6 @@ import java.util.Locale;
  * Helper for accessing features in {@link TextView}.
  */
 public final class TextViewCompat {
-    private static final String LOG_TAG = "TextViewCompat";
-
     /**
      * The TextView does not auto-size text (default).
      */
@@ -98,40 +94,8 @@ public final class TextViewCompat {
     @Retention(RetentionPolicy.SOURCE)
     public @interface AutoSizeTextType {}
 
-    private static Field sMaximumField;
-    private static boolean sMaximumFieldFetched;
-    private static Field sMaxModeField;
-    private static boolean sMaxModeFieldFetched;
-
-    private static Field sMinimumField;
-    private static boolean sMinimumFieldFetched;
-    private static Field sMinModeField;
-    private static boolean sMinModeFieldFetched;
-
-    private static final int LINES = 1;
-
     // Hide constructor
     private TextViewCompat() {}
-
-    private static Field retrieveField(String fieldName) {
-        Field field = null;
-        try {
-            field = TextView.class.getDeclaredField(fieldName);
-            field.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            Log.e(LOG_TAG, "Could not retrieve " + fieldName + " field.");
-        }
-        return field;
-    }
-
-    private static int retrieveIntFromField(Field field, TextView textView) {
-        try {
-            return field.getInt(textView);
-        } catch (IllegalAccessException e) {
-            Log.d(LOG_TAG, "Could not retrieve value of " + field.getName() + " field.");
-        }
-        return -1;
-    }
 
     /**
      * Sets the Drawables (if any) to appear to the start of, above, to the end
@@ -238,25 +202,7 @@ public final class TextViewCompat {
      * height was set in pixels instead.
      */
     public static int getMaxLines(@NonNull TextView textView) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getMaxLines(textView);
-        }
-
-        if (!sMaxModeFieldFetched) {
-            sMaxModeField = retrieveField("mMaxMode");
-            sMaxModeFieldFetched = true;
-        }
-        if (sMaxModeField != null && retrieveIntFromField(sMaxModeField, textView) == LINES) {
-            // If the max mode is using lines, we can grab the maximum value
-            if (!sMaximumFieldFetched) {
-                sMaximumField = retrieveField("mMaximum");
-                sMaximumFieldFetched = true;
-            }
-            if (sMaximumField != null) {
-                return retrieveIntFromField(sMaximumField, textView);
-            }
-        }
-        return -1;
+        return textView.getMaxLines();
     }
 
     /**
@@ -264,25 +210,7 @@ public final class TextViewCompat {
      * height was set in pixels instead.
      */
     public static int getMinLines(@NonNull TextView textView) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getMinLines(textView);
-        }
-
-        if (!sMinModeFieldFetched) {
-            sMinModeField = retrieveField("mMinMode");
-            sMinModeFieldFetched = true;
-        }
-        if (sMinModeField != null && retrieveIntFromField(sMinModeField, textView) == LINES) {
-            // If the min mode is using lines, we can grab the maximum value
-            if (!sMinimumFieldFetched) {
-                sMinimumField = retrieveField("mMinimum");
-                sMinimumFieldFetched = true;
-            }
-            if (sMinimumField != null) {
-                return retrieveIntFromField(sMinimumField, textView);
-            }
-        }
-        return -1;
+        return textView.getMinLines();
     }
 
     /**
@@ -736,10 +664,7 @@ public final class TextViewCompat {
 
         final Paint.FontMetricsInt fontMetrics = textView.getPaint().getFontMetricsInt();
         final int fontMetricsTop;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN
-                // The includeFontPadding attribute was introduced
-                // in SDK16, and it is true by default.
-                || Api16Impl.getIncludeFontPadding(textView)) {
+        if (textView.getIncludeFontPadding()) {
             fontMetricsTop = fontMetrics.top;
         } else {
             fontMetricsTop = fontMetrics.ascent;
@@ -778,10 +703,7 @@ public final class TextViewCompat {
 
         final Paint.FontMetricsInt fontMetrics = textView.getPaint().getFontMetricsInt();
         final int fontMetricsBottom;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN
-                // The includeFontPadding attribute was introduced
-                // in SDK16, and it is true by default.
-                || Api16Impl.getIncludeFontPadding(textView)) {
+        if (textView.getIncludeFontPadding()) {
             fontMetricsBottom = fontMetrics.bottom;
         } else {
             fontMetricsBottom = fontMetrics.descent;
@@ -1170,28 +1092,6 @@ public final class TextViewCompat {
         @DoNotInline
         static int getTextDirection(View view) {
             return view.getTextDirection();
-        }
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static int getMaxLines(TextView textView) {
-            return textView.getMaxLines();
-        }
-
-        @DoNotInline
-        static int getMinLines(TextView textView) {
-            return textView.getMinLines();
-        }
-
-        @DoNotInline
-        static boolean getIncludeFontPadding(TextView textView) {
-            return textView.getIncludeFontPadding();
         }
     }
 

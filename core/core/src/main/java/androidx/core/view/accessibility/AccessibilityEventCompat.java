@@ -468,9 +468,7 @@ public final class AccessibilityEventCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public static void setMovementGranularity(@NonNull AccessibilityEvent event, int granularity) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.setMovementGranularity(event, granularity);
-        }
+        event.setMovementGranularity(granularity);
     }
 
     /**
@@ -479,11 +477,7 @@ public final class AccessibilityEventCompat {
      * @return The granularity.
      */
     public static int getMovementGranularity(@NonNull AccessibilityEvent event) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getMovementGranularity(event);
-        } else {
-            return 0;
-        }
+        return event.getMovementGranularity();
     }
 
     /**
@@ -505,9 +499,7 @@ public final class AccessibilityEventCompat {
      * @see AccessibilityNodeInfoCompat#performAction(int)
      */
     public static void setAction(@NonNull AccessibilityEvent event, int action) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.setAction(event, action);
-        }
+        event.setAction(action);
     }
 
     /**
@@ -516,11 +508,7 @@ public final class AccessibilityEventCompat {
      * @return The action.
      */
     public static int getAction(@NonNull AccessibilityEvent event) {
-        if (Build.VERSION.SDK_INT >= 16) {
-            return Api16Impl.getAction(event);
-        } else {
-            return 0;
-        }
+        return event.getAction();
     }
 
     /**
@@ -603,33 +591,6 @@ public final class AccessibilityEventCompat {
         @DoNotInline
         static int getContentChangeTypes(AccessibilityEvent accessibilityEvent) {
             return accessibilityEvent.getContentChangeTypes();
-        }
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setMovementGranularity(AccessibilityEvent accessibilityEvent, int granularity) {
-            accessibilityEvent.setMovementGranularity(granularity);
-        }
-
-        @DoNotInline
-        static int getMovementGranularity(AccessibilityEvent accessibilityEvent) {
-            return accessibilityEvent.getMovementGranularity();
-        }
-
-        @DoNotInline
-        static void setAction(AccessibilityEvent accessibilityEvent, int action) {
-            accessibilityEvent.setAction(action);
-        }
-
-        @DoNotInline
-        static int getAction(AccessibilityEvent accessibilityEvent) {
-            return accessibilityEvent.getAction();
         }
     }
 }
