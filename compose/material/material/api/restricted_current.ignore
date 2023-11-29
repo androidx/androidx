@@ -1,3 +1,13 @@
 // Baseline format: 1.0
-DefaultValueChange: androidx.compose.material.SnackbarHostState#showSnackbar(String, String, androidx.compose.material.SnackbarDuration, kotlin.coroutines.Continuation<? super androidx.compose.material.SnackbarResult>) parameter #3:
-    Attempted to remove default value from parameter arg4 in androidx.compose.material.SnackbarHostState.showSnackbar
+ChangedSuperclass: androidx.compose.material.BackdropScaffoldState:
+    Class androidx.compose.material.BackdropScaffoldState superclass changed from androidx.compose.material.SwipeableState to java.lang.Object
+
+
+ChangedType: androidx.compose.material.BackdropScaffoldState#getCurrentValue():
+    Method androidx.compose.material.BackdropScaffoldState.getCurrentValue has changed return type from T (extends java.lang.Object) to androidx.compose.material.BackdropValue
+ChangedType: androidx.compose.material.BackdropScaffoldState#getTargetValue():
+    Method androidx.compose.material.BackdropScaffoldState.getTargetValue has changed return type from T (extends java.lang.Object) to androidx.compose.material.BackdropValue
+
+
+ParameterNameChange: androidx.compose.material.BackdropScaffoldState#BackdropScaffoldState(androidx.compose.material.BackdropValue, androidx.compose.animation.core.AnimationSpec<java.lang.Float>, kotlin.jvm.functions.Function1<? super androidx.compose.material.BackdropValue,java.lang.Boolean>, androidx.compose.material.SnackbarHostState) parameter #2:
+    Attempted to change parameter name from confirmStateChange to confirmValueChange in constructor androidx.compose.material.BackdropScaffoldState
