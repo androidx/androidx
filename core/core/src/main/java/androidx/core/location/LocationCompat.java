@@ -16,14 +16,12 @@
 
 package androidx.core.location;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.concurrent.TimeUnit.NANOSECONDS;
 
 import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Build.VERSION;
 import android.os.Bundle;
-import android.os.SystemClock;
 
 import androidx.annotation.DoNotInline;
 import androidx.annotation.FloatRange;
@@ -111,11 +109,7 @@ public final class LocationCompat {
      * location derivation is different from the system clock, the results may be inaccurate.
      */
     public static long getElapsedRealtimeNanos(@NonNull Location location) {
-        if (VERSION.SDK_INT >= 17) {
-            return Api17Impl.getElapsedRealtimeNanos(location);
-        } else {
-            return MILLISECONDS.toNanos(getElapsedRealtimeMillis(location));
-        }
+        return location.getElapsedRealtimeNanos();
     }
 
     /**
@@ -124,21 +118,7 @@ public final class LocationCompat {
      * @see #getElapsedRealtimeNanos(Location)
      */
     public static long getElapsedRealtimeMillis(@NonNull Location location) {
-        if (VERSION.SDK_INT >= 17) {
-            return NANOSECONDS.toMillis(Api17Impl.getElapsedRealtimeNanos(location));
-        } else {
-            long timeDeltaMs = System.currentTimeMillis() - location.getTime();
-            long elapsedRealtimeMs = SystemClock.elapsedRealtime();
-            if (timeDeltaMs < 0) {
-                // don't return an elapsed realtime from the future
-                return elapsedRealtimeMs;
-            } else if (timeDeltaMs > elapsedRealtimeMs) {
-                // don't return an elapsed realtime from before boot
-                return 0;
-            } else {
-                return elapsedRealtimeMs - timeDeltaMs;
-            }
-        }
+        return NANOSECONDS.toMillis(location.getElapsedRealtimeNanos());
     }
 
     /**
@@ -969,18 +949,6 @@ public final class LocationCompat {
         @DoNotInline
         static boolean isMock(Location location) {
             return location.isFromMockProvider();
-        }
-    }
-
-    @RequiresApi(17)
-    private static class Api17Impl {
-
-        private Api17Impl() {
-        }
-
-        @DoNotInline
-        static long getElapsedRealtimeNanos(Location location) {
-            return location.getElapsedRealtimeNanos();
         }
     }
 

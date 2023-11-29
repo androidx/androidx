@@ -475,7 +475,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // Workaround for incorrect default fontScale on earlier SDKs.
             overrideConfig.fontScale = 0f;
             Configuration referenceConfig =
-                    Api17Impl.createConfigurationContext(baseContext, overrideConfig)
+                    baseContext.createConfigurationContext(overrideConfig)
                             .getResources().getConfiguration();
             // Revert the uiMode change so that the diff doesn't include uiMode.
             Configuration baseConfig = baseContext.getResources().getConfiguration();
@@ -2687,11 +2687,9 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     void setConfigurationLocales(Configuration conf, @NonNull LocaleListCompat locales) {
         if (Build.VERSION.SDK_INT >= 24) {
             Api24Impl.setLocales(conf, locales);
-        } else if (Build.VERSION.SDK_INT >= 17) {
-            Api17Impl.setLocale(conf, locales.get(0));
-            Api17Impl.setLayoutDirection(conf, locales.get(0));
         } else {
-            conf.locale = locales.get(0);
+            conf.setLocale(locales.get(0));
+            conf.setLayoutDirection(locales.get(0));
         }
     }
 
@@ -2795,9 +2793,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
         if (newLocales != null && !currentLocales.equals(newLocales)) {
             configChanges |= ActivityInfo.CONFIG_LOCALE;
-            if (Build.VERSION.SDK_INT >= 17) {
-                configChanges |= ActivityInfo.CONFIG_LAYOUT_DIRECTION;
-            }
+            configChanges |= ActivityInfo.CONFIG_LAYOUT_DIRECTION;
         }
 
         if (DEBUG) {
@@ -2836,9 +2832,8 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             // layout direction after recreating in Android S.
             if (Build.VERSION.SDK_INT >= 31
                     && (configChanges & ActivityInfo.CONFIG_LAYOUT_DIRECTION) != 0) {
-                Api17Impl.setLayoutDirection(
-                        ((Activity) mHost).getWindow().getDecorView(),
-                        Api17Impl.getLayoutDirection(overrideConfig));
+                View view = ((Activity) mHost).getWindow().getDecorView();
+                view.setLayoutDirection(overrideConfig.getLayoutDirection());
             }
             ActivityCompat.recreate((Activity) mHost);
             handled = true;
@@ -3908,51 +3903,13 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             delta.smallestScreenWidthDp = change.smallestScreenWidthDp;
         }
 
-        if (Build.VERSION.SDK_INT >= 17) {
-            Api17Impl.generateConfigDelta_densityDpi(base, change, delta);
+        if (base.densityDpi != change.densityDpi) {
+            delta.densityDpi = change.densityDpi;
         }
 
         // Assets sequence and window configuration are not supported.
 
         return delta;
-    }
-
-    @RequiresApi(17)
-    static class Api17Impl {
-        private Api17Impl() { }
-
-        static void generateConfigDelta_densityDpi(@NonNull Configuration base,
-                @NonNull Configuration change, @NonNull Configuration delta) {
-            if (base.densityDpi != change.densityDpi) {
-                delta.densityDpi = change.densityDpi;
-            }
-        }
-
-        @DoNotInline
-        static Context createConfigurationContext(@NonNull Context context,
-                @NonNull Configuration overrideConfiguration) {
-            return context.createConfigurationContext(overrideConfiguration);
-        }
-
-        @DoNotInline
-        static void setLayoutDirection(Configuration configuration, Locale loc) {
-            configuration.setLayoutDirection(loc);
-        }
-
-        @DoNotInline
-        static void setLayoutDirection(View view, int layoutDirection) {
-            view.setLayoutDirection(layoutDirection);
-        }
-
-        @DoNotInline
-        static void setLocale(Configuration configuration, Locale loc) {
-            configuration.setLocale(loc);
-        }
-
-        @DoNotInline
-        static int getLayoutDirection(Configuration configuration) {
-            return configuration.getLayoutDirection();
-        }
     }
 
     @RequiresApi(21)

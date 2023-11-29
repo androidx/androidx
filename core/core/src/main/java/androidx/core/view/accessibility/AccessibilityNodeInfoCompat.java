@@ -4155,9 +4155,7 @@ public class AccessibilityNodeInfoCompat {
      * @param labeled The view for which this info serves as a label.
      */
     public void setLabelFor(View labeled) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            mInfo.setLabelFor(labeled);
-        }
+        mInfo.setLabelFor(labeled);
     }
 
     /**
@@ -4175,9 +4173,7 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setLabelFor(View root, int virtualDescendantId) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            mInfo.setLabelFor(root, virtualDescendantId);
-        }
+        mInfo.setLabelFor(root, virtualDescendantId);
     }
 
     /**
@@ -4187,11 +4183,7 @@ public class AccessibilityNodeInfoCompat {
      * @return The labeled info.
      */
     public AccessibilityNodeInfoCompat getLabelFor() {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getLabelFor());
-        } else {
-            return null;
-        }
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getLabelFor());
     }
 
     /**
@@ -4201,9 +4193,7 @@ public class AccessibilityNodeInfoCompat {
      * @param label The view that labels this node's source.
      */
     public void setLabeledBy(View label) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            mInfo.setLabeledBy(label);
-        }
+        mInfo.setLabeledBy(label);
     }
 
     /**
@@ -4226,9 +4216,7 @@ public class AccessibilityNodeInfoCompat {
      * @param virtualDescendantId The id of the virtual descendant.
      */
     public void setLabeledBy(View root, int virtualDescendantId) {
-        if (Build.VERSION.SDK_INT >= 17) {
-            mInfo.setLabeledBy(root, virtualDescendantId);
-        }
+        mInfo.setLabeledBy(root, virtualDescendantId);
     }
 
     /**
@@ -4238,11 +4226,7 @@ public class AccessibilityNodeInfoCompat {
      * @return The label.
      */
     public AccessibilityNodeInfoCompat getLabeledBy() {
-        if (Build.VERSION.SDK_INT >= 17) {
-            return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getLabeledBy());
-        } else {
-            return null;
-        }
+        return AccessibilityNodeInfoCompat.wrapNonNullInstance(mInfo.getLabeledBy());
     }
 
     /**
