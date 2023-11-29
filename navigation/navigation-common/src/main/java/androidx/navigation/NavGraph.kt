@@ -384,7 +384,7 @@ public open class NavGraph(navGraphNavigator: Navigator<out NavGraph>) :
         return super.equals(other) &&
             nodes.size == other.nodes.size &&
             startDestinationId == other.startDestinationId &&
-            nodes.valueIterator().asSequence().all { it == nodes.get(it.id) }
+            nodes.valueIterator().asSequence().all { it == other.nodes.get(it.id) }
     }
 
     override fun hashCode(): Int {
