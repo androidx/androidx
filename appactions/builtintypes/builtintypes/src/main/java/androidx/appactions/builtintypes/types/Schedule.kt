@@ -201,7 +201,7 @@ public interface Schedule : Intangible {
     get() = null
 
   /** Converts this [Schedule] to its builder with all the properties copied over. */
-  public override fun toBuilder(): Builder<*>
+  override fun toBuilder(): Builder<*>
 
   public companion object {
     /** Returns a default implementation of [Builder]. */
@@ -216,7 +216,7 @@ public interface Schedule : Intangible {
    */
   public interface Builder<Self : Builder<Self>> : Intangible.Builder<Self> {
     /** Returns a built [Schedule]. */
-    public override fun build(): Schedule
+    override fun build(): Schedule
 
     /** Appends [DayOfWeek] as a value to `byDays`. */
     public fun addByDay(dayOfWeek: DayOfWeek): Self = addByDay(ByDay(dayOfWeek))
@@ -340,8 +340,8 @@ public interface Schedule : Intangible {
  * )
  * class MySchedule internal constructor(
  *   schedule: Schedule,
- *   val foo: String,
- *   val bars: List<Int>,
+ *   @Document.StringProperty val foo: String,
+ *   @Document.LongProperty val bars: List<Int>,
  * ) : AbstractSchedule<
  *   MySchedule,
  *   MySchedule.Builder
@@ -361,6 +361,7 @@ public interface Schedule : Intangible {
  *       .addBars(bars)
  *   }
  *
+ *   @Document.BuilderProducer
  *   class Builder :
  *     AbstractSchedule.Builder<
  *       Builder,
@@ -376,21 +377,21 @@ public abstract class AbstractSchedule<
   Builder : AbstractSchedule.Builder<Builder, Self>
 >
 internal constructor(
-  public final override val namespace: String,
-  public final override val byDays: List<ByDay>,
-  public final override val byMonths: List<Long>,
-  public final override val byMonthDays: List<Long>,
-  public final override val byMonthWeeks: List<Long>,
-  public final override val endDate: EndDate?,
-  public final override val endTime: EndTime?,
-  public final override val exceptDate: ExceptDate?,
-  @get:Suppress("AutoBoxing") public final override val repeatCount: Long?,
-  public final override val repeatFrequency: RepeatFrequency?,
-  public final override val scheduleTimezone: String?,
-  public final override val startDate: StartDate?,
-  public final override val startTime: StartTime?,
-  public final override val identifier: String,
-  public final override val name: Name?,
+  final override val namespace: String,
+  final override val byDays: List<ByDay>,
+  final override val byMonths: List<Long>,
+  final override val byMonthDays: List<Long>,
+  final override val byMonthWeeks: List<Long>,
+  final override val endDate: EndDate?,
+  final override val endTime: EndTime?,
+  final override val exceptDate: ExceptDate?,
+  @get:Suppress("AutoBoxing") final override val repeatCount: Long?,
+  final override val repeatFrequency: RepeatFrequency?,
+  final override val scheduleTimezone: String?,
+  final override val startDate: StartDate?,
+  final override val startTime: StartTime?,
+  final override val identifier: String,
+  final override val name: Name?,
 ) : Schedule {
   /**
    * Human readable name for the concrete [Self] class.
@@ -430,7 +431,7 @@ internal constructor(
   /** Returns a concrete [Builder] with the additional, non-[Schedule] properties copied over. */
   protected abstract fun toBuilderWithAdditionalPropertiesOnly(): Builder
 
-  public final override fun toBuilder(): Builder =
+  final override fun toBuilder(): Builder =
     toBuilderWithAdditionalPropertiesOnly()
       .setNamespace(namespace)
       .addByDays(byDays)
@@ -448,7 +449,7 @@ internal constructor(
       .setIdentifier(identifier)
       .setName(name)
 
-  public final override fun equals(other: Any?): Boolean {
+  final override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || this::class.java != other::class.java) return false
     other as Self
@@ -471,7 +472,7 @@ internal constructor(
     return true
   }
 
-  public final override fun hashCode(): Int =
+  final override fun hashCode(): Int =
     Objects.hash(
       namespace,
       byDays,
@@ -491,7 +492,7 @@ internal constructor(
       additionalProperties
     )
 
-  public final override fun toString(): String {
+  final override fun toString(): String {
     val attributes = mutableMapOf<String, String>()
     if (namespace.isNotEmpty()) {
       attributes["namespace"] = namespace
@@ -548,11 +549,13 @@ internal constructor(
    *
    * Allows for extension like:
    * ```kt
+   * @Document(...)
    * class MySchedule :
    *   : AbstractSchedule<
    *     MySchedule,
    *     MySchedule.Builder>(...) {
    *
+   *   @Document.BuilderProducer
    *   class Builder
    *   : AbstractSchedule.Builder<
    *       Builder,
@@ -656,7 +659,7 @@ internal constructor(
      */
     @Suppress("BuilderSetStyle") protected abstract fun buildFromSchedule(schedule: Schedule): Built
 
-    public final override fun build(): Built =
+    final override fun build(): Built =
       buildFromSchedule(
         ScheduleImpl(
           namespace,
@@ -677,123 +680,123 @@ internal constructor(
         )
       )
 
-    public final override fun setNamespace(namespace: String): Self {
+    final override fun setNamespace(namespace: String): Self {
       this.namespace = namespace
       return this as Self
     }
 
-    public final override fun addByDay(byDay: ByDay): Self {
+    final override fun addByDay(byDay: ByDay): Self {
       byDays += byDay
       return this as Self
     }
 
-    public final override fun addByDays(values: Iterable<ByDay>): Self {
+    final override fun addByDays(values: Iterable<ByDay>): Self {
       byDays += values
       return this as Self
     }
 
-    public final override fun clearByDays(): Self {
+    final override fun clearByDays(): Self {
       byDays.clear()
       return this as Self
     }
 
-    public final override fun addByMonth(integer: Long): Self {
+    final override fun addByMonth(integer: Long): Self {
       byMonths += integer
       return this as Self
     }
 
-    public final override fun addByMonths(values: Iterable<Long>): Self {
+    final override fun addByMonths(values: Iterable<Long>): Self {
       byMonths += values
       return this as Self
     }
 
-    public final override fun clearByMonths(): Self {
+    final override fun clearByMonths(): Self {
       byMonths.clear()
       return this as Self
     }
 
-    public final override fun addByMonthDay(integer: Long): Self {
+    final override fun addByMonthDay(integer: Long): Self {
       byMonthDays += integer
       return this as Self
     }
 
-    public final override fun addByMonthDays(values: Iterable<Long>): Self {
+    final override fun addByMonthDays(values: Iterable<Long>): Self {
       byMonthDays += values
       return this as Self
     }
 
-    public final override fun clearByMonthDays(): Self {
+    final override fun clearByMonthDays(): Self {
       byMonthDays.clear()
       return this as Self
     }
 
-    public final override fun addByMonthWeek(integer: Long): Self {
+    final override fun addByMonthWeek(integer: Long): Self {
       byMonthWeeks += integer
       return this as Self
     }
 
-    public final override fun addByMonthWeeks(values: Iterable<Long>): Self {
+    final override fun addByMonthWeeks(values: Iterable<Long>): Self {
       byMonthWeeks += values
       return this as Self
     }
 
-    public final override fun clearByMonthWeeks(): Self {
+    final override fun clearByMonthWeeks(): Self {
       byMonthWeeks.clear()
       return this as Self
     }
 
-    public final override fun setEndDate(endDate: EndDate?): Self {
+    final override fun setEndDate(endDate: EndDate?): Self {
       this.endDate = endDate
       return this as Self
     }
 
-    public final override fun setEndTime(endTime: EndTime?): Self {
+    final override fun setEndTime(endTime: EndTime?): Self {
       this.endTime = endTime
       return this as Self
     }
 
-    public final override fun setExceptDate(exceptDate: ExceptDate?): Self {
+    final override fun setExceptDate(exceptDate: ExceptDate?): Self {
       this.exceptDate = exceptDate
       return this as Self
     }
 
-    public final override fun setRepeatCount(@Suppress("AutoBoxing") integer: Long?): Self {
+    final override fun setRepeatCount(@Suppress("AutoBoxing") integer: Long?): Self {
       this.repeatCount = integer
       return this as Self
     }
 
-    public final override fun setRepeatFrequency(repeatFrequency: RepeatFrequency?): Self {
+    final override fun setRepeatFrequency(repeatFrequency: RepeatFrequency?): Self {
       this.repeatFrequency = repeatFrequency
       return this as Self
     }
 
-    public final override fun setScheduleTimezone(text: String?): Self {
+    final override fun setScheduleTimezone(text: String?): Self {
       this.scheduleTimezone = text
       return this as Self
     }
 
-    public final override fun setStartDate(startDate: StartDate?): Self {
+    final override fun setStartDate(startDate: StartDate?): Self {
       this.startDate = startDate
       return this as Self
     }
 
-    public final override fun setStartTime(startTime: StartTime?): Self {
+    final override fun setStartTime(startTime: StartTime?): Self {
       this.startTime = startTime
       return this as Self
     }
 
-    public final override fun setIdentifier(text: String): Self {
+    final override fun setIdentifier(text: String): Self {
       this.identifier = text
       return this as Self
     }
 
-    public final override fun setName(name: Name?): Self {
+    final override fun setName(name: Name?): Self {
       this.name = name
       return this as Self
     }
 
     @Suppress("BuilderSetStyle")
-    public final override fun equals(other: Any?): Boolean {
+    final override fun equals(other: Any?): Boolean {
       if (this === other) return true
       if (other == null || this::class.java != other::class.java) return false
       other as Self
@@ -817,7 +820,7 @@ internal constructor(
     }
 
     @Suppress("BuilderSetStyle")
-    public final override fun hashCode(): Int =
+    final override fun hashCode(): Int =
       Objects.hash(
         namespace,
         byDays,
@@ -838,7 +841,7 @@ internal constructor(
       )
 
     @Suppress("BuilderSetStyle")
-    public final override fun toString(): String {
+    final override fun toString(): String {
       val attributes = mutableMapOf<String, String>()
       if (namespace.isNotEmpty()) {
         attributes["namespace"] = namespace
