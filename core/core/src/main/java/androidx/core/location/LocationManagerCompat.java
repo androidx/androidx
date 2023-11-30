@@ -281,7 +281,7 @@ public final class LocationManagerCompat {
         LocationListenerTransport transport = new LocationListenerTransport(
                 new LocationListenerKey(provider, listener), executor);
 
-        if (VERSION.SDK_INT >= 19 && Api19Impl.tryRequestLocationUpdates(
+        if (Api19Impl.tryRequestLocationUpdates(
                 locationManager, provider, locationRequest, transport)) {
             return;
         }
@@ -328,7 +328,7 @@ public final class LocationManagerCompat {
             return;
         }
 
-        if (VERSION.SDK_INT >= 19 && Api19Impl.tryRequestLocationUpdates(
+        if (Api19Impl.tryRequestLocationUpdates(
                     locationManager, provider, locationRequest, listener, looper)) {
             return;
         }
@@ -1316,7 +1316,6 @@ public final class LocationManagerCompat {
         }
     }
 
-    @RequiresApi(19)
     static class Api19Impl {
         private static Class<?> sLocationRequestClass;
         private static Method sRequestLocationUpdatesLooperMethod;
@@ -1325,79 +1324,79 @@ public final class LocationManagerCompat {
             // This class is not instantiable.
         }
 
+        @SuppressLint("BanUncheckedReflection")
         @SuppressWarnings("JavaReflectionMemberAccess")
         @RequiresPermission(anyOf = {ACCESS_COARSE_LOCATION, ACCESS_FINE_LOCATION})
         @DoNotInline
         static boolean tryRequestLocationUpdates(LocationManager locationManager,
                 String provider, LocationRequestCompat locationRequest,
                 LocationListenerTransport transport) {
-            if (VERSION.SDK_INT >= 19) { // Satisfy reflection lint check
-                try {
-                    if (sLocationRequestClass == null) {
-                        sLocationRequestClass = Class.forName("android.location.LocationRequest");
-                    }
-                    if (sRequestLocationUpdatesLooperMethod == null) {
-                        sRequestLocationUpdatesLooperMethod =
-                                LocationManager.class.getDeclaredMethod(
-                                        "requestLocationUpdates",
-                                        sLocationRequestClass, LocationListener.class,
-                                        Looper.class);
-                        sRequestLocationUpdatesLooperMethod.setAccessible(true);
-                    }
-
-                    LocationRequest request = locationRequest.toLocationRequest(provider);
-                    if (request != null) {
-                        synchronized (sLocationListeners) {
-                            sRequestLocationUpdatesLooperMethod.invoke(locationManager, request,
-                                    transport, Looper.getMainLooper());
-                            registerLocationListenerTransport(locationManager, transport);
-                            return true;
-                        }
-                    }
-                } catch (NoSuchMethodException
-                        | InvocationTargetException
-                        | IllegalAccessException
-                        | ClassNotFoundException
-                        | UnsupportedOperationException e) {
-                    // ignored
+            // Satisfy reflection lint check
+            try {
+                if (sLocationRequestClass == null) {
+                    sLocationRequestClass = Class.forName("android.location.LocationRequest");
                 }
+                if (sRequestLocationUpdatesLooperMethod == null) {
+                    sRequestLocationUpdatesLooperMethod =
+                            LocationManager.class.getDeclaredMethod(
+                                    "requestLocationUpdates",
+                                    sLocationRequestClass, LocationListener.class,
+                                    Looper.class);
+                    sRequestLocationUpdatesLooperMethod.setAccessible(true);
+                }
+
+                LocationRequest request = locationRequest.toLocationRequest(provider);
+                if (request != null) {
+                    synchronized (sLocationListeners) {
+                        sRequestLocationUpdatesLooperMethod.invoke(locationManager, request,
+                                transport, Looper.getMainLooper());
+                        registerLocationListenerTransport(locationManager, transport);
+                        return true;
+                    }
+                }
+            } catch (NoSuchMethodException
+                    | InvocationTargetException
+                    | IllegalAccessException
+                    | ClassNotFoundException
+                    | UnsupportedOperationException e) {
+                // ignored
             }
             return false;
         }
 
+        @SuppressLint("BanUncheckedReflection")
         @SuppressWarnings("JavaReflectionMemberAccess")
         @DoNotInline
         static boolean tryRequestLocationUpdates(LocationManager locationManager, String provider,
                 LocationRequestCompat locationRequest, LocationListenerCompat listener,
                 Looper looper) {
-            if (VERSION.SDK_INT >= 19) { // Satisfy reflection lint check
-                try {
-                    if (sLocationRequestClass == null) {
-                        sLocationRequestClass = Class.forName("android.location.LocationRequest");
-                    }
-
-                    if (sRequestLocationUpdatesLooperMethod == null) {
-                        sRequestLocationUpdatesLooperMethod =
-                                LocationManager.class.getDeclaredMethod(
-                                        "requestLocationUpdates",
-                                        sLocationRequestClass, LocationListener.class,
-                                        Looper.class);
-                        sRequestLocationUpdatesLooperMethod.setAccessible(true);
-                    }
-
-                    LocationRequest request = locationRequest.toLocationRequest(provider);
-                    if (request != null) {
-                        sRequestLocationUpdatesLooperMethod.invoke(
-                                locationManager, request, listener, looper);
-                        return true;
-                    }
-                } catch (NoSuchMethodException
-                        | InvocationTargetException
-                        | IllegalAccessException
-                        | ClassNotFoundException
-                        | UnsupportedOperationException e) {
-                    // ignored
+            // Satisfy reflection lint check
+            try {
+                if (sLocationRequestClass == null) {
+                    sLocationRequestClass = Class.forName("android.location.LocationRequest");
                 }
+
+                if (sRequestLocationUpdatesLooperMethod == null) {
+                    sRequestLocationUpdatesLooperMethod =
+                            LocationManager.class.getDeclaredMethod(
+                                    "requestLocationUpdates",
+                                    sLocationRequestClass, LocationListener.class,
+                                    Looper.class);
+                    sRequestLocationUpdatesLooperMethod.setAccessible(true);
+                }
+
+                LocationRequest request = locationRequest.toLocationRequest(provider);
+                if (request != null) {
+                    sRequestLocationUpdatesLooperMethod.invoke(
+                            locationManager, request, listener, looper);
+                    return true;
+                }
+            } catch (NoSuchMethodException
+                    | InvocationTargetException
+                    | IllegalAccessException
+                    | ClassNotFoundException
+                    | UnsupportedOperationException e) {
+                // ignored
             }
             return false;
         }

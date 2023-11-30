@@ -33,7 +33,6 @@ import android.os.CancellationSignal;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.text.TextUtils;
 
 import androidx.core.os.ExecutorCompat;
 import androidx.test.core.app.ApplicationProvider;
@@ -63,13 +62,9 @@ public class LocationManagerCompatTest {
         boolean isLocationEnabled;
         if (VERSION.SDK_INT >= 28) {
             isLocationEnabled = mLocationManager.isLocationEnabled();
-        } else if (VERSION.SDK_INT >= 19) {
+        } else {
             isLocationEnabled = Settings.Secure.getInt(mContext.getContentResolver(), LOCATION_MODE,
                     LOCATION_MODE_OFF) != LOCATION_MODE_OFF;
-        } else {
-            isLocationEnabled = !TextUtils.isEmpty(
-                    Settings.Secure.getString(mContext.getContentResolver(),
-                            Settings.Secure.LOCATION_PROVIDERS_ALLOWED));
         }
 
         assertEquals(isLocationEnabled, LocationManagerCompat.isLocationEnabled(mLocationManager));

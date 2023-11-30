@@ -441,7 +441,7 @@ public abstract class Visibility extends Transition {
                             startView);
 
                     animator.addListener(listener);
-                    AnimatorUtils.addPauseListener(animator, listener);
+                    animator.addPauseListener(listener);
                     getRootTransition().addListener(listener);
                 }
             }
@@ -610,8 +610,7 @@ public abstract class Visibility extends Transition {
         }
     }
 
-    private class OverlayListener extends AnimatorListenerAdapter implements TransitionListener,
-            AnimatorUtils.AnimatorPauseListenerCompat {
+    private class OverlayListener extends AnimatorListenerAdapter implements TransitionListener {
         private final ViewGroup mOverlayHost;
         private final View mOverlayView;
         private final View mStartView;

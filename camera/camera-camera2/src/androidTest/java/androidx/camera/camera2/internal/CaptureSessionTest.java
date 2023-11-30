@@ -24,7 +24,6 @@ import static android.hardware.DataSpace.TRANSFER_HLG;
 import static android.hardware.DataSpace.TRANSFER_SMPTE_170M;
 import static android.hardware.DataSpace.TRANSFER_SRGB;
 import static android.hardware.DataSpace.TRANSFER_UNSPECIFIED;
-import static android.os.Build.VERSION.SDK_INT;
 
 import static androidx.camera.core.DynamicRange.HLG_10_BIT;
 
@@ -114,9 +113,7 @@ import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestRule;
-import org.junit.runner.Description;
 import org.junit.runner.RunWith;
-import org.junit.runners.model.Statement;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
@@ -194,26 +191,9 @@ public final class CaptureSessionTest {
 
     @Rule
     public TestRule getUseCameraRule() {
-        if (SDK_INT >= 19) {
-            return CameraUtil.grantCameraPermissionAndPreTest(
-                    new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
-            );
-        } else {
-            // Camera2Config.defaultConfig() requires API 19, so returning
-            // a noop rule so it doesn't crash when run on API <19
-            return new NoopRule();
-        }
-    }
-
-    public static class NoopRule implements TestRule {
-        @NonNull
-        @Override
-        public Statement apply(@NonNull Statement base, @NonNull Description description) {
-            return new Statement() {
-                @Override
-                public void evaluate() {}
-            };
-        }
+        return CameraUtil.grantCameraPermissionAndPreTest(
+                new CameraUtil.PreTestCameraIdList(Camera2Config.defaultConfig())
+        );
     }
 
     @BeforeClass

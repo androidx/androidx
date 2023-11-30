@@ -517,9 +517,7 @@ public class DrawableContainerCompat extends Drawable implements Drawable.Callba
             if (Build.VERSION.SDK_INT >= 23) {
                 DrawableCompat.setLayoutDirection(d, DrawableCompat.getLayoutDirection(this));
             }
-            if (Build.VERSION.SDK_INT >= 19) {
-                DrawableCompat.setAutoMirrored(d, mDrawableContainerState.mAutoMirrored);
-            }
+            DrawableCompat.setAutoMirrored(d, mDrawableContainerState.mAutoMirrored);
             final Rect hotspotBounds = mHotspotBounds;
             if (Build.VERSION.SDK_INT >= 21 && hotspotBounds != null) {
                 DrawableCompat.setHotspotBounds(d, hotspotBounds.left, hotspotBounds.top,

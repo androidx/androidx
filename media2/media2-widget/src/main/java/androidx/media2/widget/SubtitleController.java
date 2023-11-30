@@ -20,7 +20,6 @@ import android.content.Context;
 import android.media.MediaFormat;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.TrackInfo;
-import android.os.Build.VERSION;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -100,30 +99,24 @@ class SubtitleController {
 
         mRenderers = new ArrayList<Renderer>();
         mTracks = new ArrayList<SubtitleTrack>();
-        if (VERSION.SDK_INT >= 19) {
-            mCaptioningManager =
-                    (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
-            mCaptioningChangeListener =
-                new CaptioningManager.CaptioningChangeListener() {
-                    @Override
-                    public void onEnabledChanged(boolean enabled) {
-                        selectDefaultTrack();
-                    }
+        mCaptioningManager =
+                (CaptioningManager) context.getSystemService(Context.CAPTIONING_SERVICE);
+        mCaptioningChangeListener = new CaptioningManager.CaptioningChangeListener() {
+                @Override
+                public void onEnabledChanged(boolean enabled) {
+                    selectDefaultTrack();
+                }
 
-                    @Override
-                    public void onLocaleChanged(Locale locale) {
-                        selectDefaultTrack();
-                    }
-            };
-        }
+                @Override
+                public void onLocaleChanged(Locale locale) {
+                    selectDefaultTrack();
+                }
+        };
     }
 
     @Override
     protected void finalize() throws Throwable {
-        if (VERSION.SDK_INT >= 19) {
-            CaptioningManagerHelper.Api19Impl.removeCaptioningChangeListener(mCaptioningManager,
-                    mCaptioningChangeListener);
-        }
+        mCaptioningManager.removeCaptioningChangeListener(mCaptioningChangeListener);
         super.finalize();
     }
 
@@ -228,14 +221,12 @@ class SubtitleController {
         SubtitleTrack bestTrack = null;
         int bestScore = -1;
 
-        Locale selectedLocale = VERSION.SDK_INT >= 19
-                ? CaptioningManagerHelper.Api19Impl.getLocale(mCaptioningManager) : null;
+        Locale selectedLocale = mCaptioningManager.getLocale();
         Locale locale = selectedLocale;
         if (locale == null) {
             locale = Locale.getDefault();
         }
-        boolean selectForced = VERSION.SDK_INT >= 19
-                ? !CaptioningManagerHelper.Api19Impl.isEnabled(mCaptioningManager) : true;
+        boolean selectForced = !mCaptioningManager.isEnabled();
 
         synchronized (mTracksLock) {
             for (SubtitleTrack track: mTracks) {
@@ -302,8 +293,7 @@ class SubtitleController {
             }
             // If track selection is explicit, but visibility
             // is not, it falls back to the captioning setting
-            boolean captionIsEnabledOnSystem = VERSION.SDK_INT >= 19
-                    ? CaptioningManagerHelper.Api19Impl.isEnabled(mCaptioningManager) : false;
+            boolean captionIsEnabledOnSystem = mCaptioningManager.isEnabled();
             if (captionIsEnabledOnSystem
                     || (mSelectedTrack != null && MediaFormatUtil.getInteger(
                             mSelectedTrack.getFormat(),
@@ -337,10 +327,7 @@ class SubtitleController {
         mTracks.clear();
         mTrackIsExplicit = false;
         mVisibilityIsExplicit = false;
-        if (VERSION.SDK_INT >= 19) {
-            CaptioningManagerHelper.Api19Impl.removeCaptioningChangeListener(mCaptioningManager,
-                    mCaptioningChangeListener);
-        }
+        mCaptioningManager.removeCaptioningChangeListener(mCaptioningChangeListener);
     }
 
     /**
@@ -357,9 +344,9 @@ class SubtitleController {
                     SubtitleTrack track = renderer.createTrack(format);
                     if (track != null) {
                         synchronized (mTracksLock) {
-                            if (mTracks.size() == 0 && VERSION.SDK_INT >= 19) {
-                                CaptioningManagerHelper.Api19Impl.addCaptioningChangeListener(
-                                        mCaptioningManager, mCaptioningChangeListener);
+                            if (mTracks.size() == 0) {
+                                mCaptioningManager.addCaptioningChangeListener(
+                                        mCaptioningChangeListener);
                             }
                             mTracks.add(track);
                         }

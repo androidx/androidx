@@ -41,7 +41,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
 import android.window.OnBackInvokedCallback;
 import android.window.OnBackInvokedDispatcher;
@@ -193,9 +192,6 @@ public class DrawerLayout extends ViewGroup implements Openable {
     static final int[] LAYOUT_ATTRS = new int[] {
             android.R.attr.layout_gravity
     };
-
-    /** Whether we can use NO_HIDE_DESCENDANTS accessibility importance. */
-    static final boolean CAN_HIDE_DESCENDANTS = Build.VERSION.SDK_INT >= 19;
 
     /** Whether the drawer shadow comes from setting elevation on the drawer. */
     private static final boolean SET_DRAWER_SHADOW_FROM_ELEVATION =
@@ -2181,11 +2177,6 @@ public class DrawerLayout extends ViewGroup implements Openable {
                     ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
         }
 
-        // We only need a delegate here if the framework doesn't understand
-        // NO_HIDE_DESCENDANTS importance.
-        if (!CAN_HIDE_DESCENDANTS) {
-            ViewCompat.setAccessibilityDelegate(child, mChildAccessibilityDelegate);
-        }
     }
 
     static boolean includeChildForAccessibility(View child) {
@@ -2461,25 +2452,7 @@ public class DrawerLayout extends ViewGroup implements Openable {
 
         @Override
         public void onInitializeAccessibilityNodeInfo(View host, AccessibilityNodeInfoCompat info) {
-            if (CAN_HIDE_DESCENDANTS) {
-                super.onInitializeAccessibilityNodeInfo(host, info);
-            } else {
-                // Obtain a node for the host, then manually generate the list
-                // of children to only include non-obscured views.
-                final AccessibilityNodeInfoCompat superNode =
-                        AccessibilityNodeInfoCompat.obtain(info);
-                super.onInitializeAccessibilityNodeInfo(host, superNode);
-
-                info.setSource(host);
-                final ViewParent parent = ViewCompat.getParentForAccessibility(host);
-                if (parent instanceof View) {
-                    info.setParent((View) parent);
-                }
-                copyNodeInfoNoChildren(info, superNode);
-                superNode.recycle();
-
-                addChildrenForAccessibility(info, (ViewGroup) host);
-            }
+            super.onInitializeAccessibilityNodeInfo(host, info);
 
             info.setClassName(ACCESSIBILITY_CLASS_NAME);
 
@@ -2521,15 +2494,6 @@ public class DrawerLayout extends ViewGroup implements Openable {
             }
 
             return super.dispatchPopulateAccessibilityEvent(host, event);
-        }
-
-        @Override
-        public boolean onRequestSendAccessibilityEvent(ViewGroup host, View child,
-                AccessibilityEvent event) {
-            if (CAN_HIDE_DESCENDANTS || includeChildForAccessibility(child)) {
-                return super.onRequestSendAccessibilityEvent(host, child, event);
-            }
-            return false;
         }
 
         private void addChildrenForAccessibility(AccessibilityNodeInfoCompat info, ViewGroup v) {

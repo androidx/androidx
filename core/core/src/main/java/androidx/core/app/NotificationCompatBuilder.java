@@ -158,13 +158,11 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             mBigContentView = b.mBigContentView;
         }
         mBuilder.setShowWhen(b.mShowWhen);
-        if (Build.VERSION.SDK_INT >= 19) {
-            if (Build.VERSION.SDK_INT < 21) {
-                final List<String> people = combineLists(getPeople(b.mPersonList), b.mPeople);
-                if (people != null && !people.isEmpty()) {
-                    mExtras.putStringArray(Notification.EXTRA_PEOPLE,
-                            people.toArray(new String[people.size()]));
-                }
+        if (Build.VERSION.SDK_INT < 21) {
+            final List<String> people = combineLists(getPeople(b.mPersonList), b.mPeople);
+            if (people != null && !people.isEmpty()) {
+                mExtras.putStringArray(Notification.EXTRA_PEOPLE,
+                        people.toArray(new String[people.size()]));
             }
         }
         if (Build.VERSION.SDK_INT >= 20) {
@@ -227,7 +225,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             }
         }
         if (Build.VERSION.SDK_INT >= 24) {
-            Api19Impl.setExtras(mBuilder, b.mExtras);
+            mBuilder.setExtras(b.mExtras);
             Api24Impl.setRemoteInputHistory(mBuilder, b.mRemoteInputHistory);
             if (b.mContentView != null) {
                 Api24Impl.setCustomContentView(mBuilder, b.mContentView);
@@ -455,7 +453,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
 
             return notification;
         } else if (Build.VERSION.SDK_INT >= 21) {
-            Api19Impl.setExtras(mBuilder, mExtras);
+            mBuilder.setExtras(mExtras);
             Notification notification = Api16Impl.build(mBuilder);
             if (mContentView != null) {
                 notification.contentView = mContentView;
@@ -483,7 +481,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             }
             return notification;
         } else if (Build.VERSION.SDK_INT >= 20) {
-            Api19Impl.setExtras(mBuilder, mExtras);
+            mBuilder.setExtras(mExtras);
             Notification notification = Api16Impl.build(mBuilder);
             if (mContentView != null) {
                 notification.contentView = mContentView;
@@ -508,7 +506,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             }
 
             return notification;
-        } else if (Build.VERSION.SDK_INT >= 19) {
+        } else {
             SparseArray<Bundle> actionExtrasMap =
                     NotificationCompatJellybean.buildActionExtrasMap(mActionExtrasList);
             if (actionExtrasMap != null) {
@@ -516,7 +514,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 mExtras.putSparseParcelableArray(
                         NotificationCompatExtras.EXTRA_ACTION_EXTRAS, actionExtrasMap);
             }
-            Api19Impl.setExtras(mBuilder, mExtras);
+            mBuilder.setExtras(mExtras);
             Notification notification = Api16Impl.build(mBuilder);
             if (mContentView != null) {
                 notification.contentView = mContentView;
@@ -525,34 +523,6 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                 notification.bigContentView = mBigContentView;
             }
             return notification;
-        } else if (Build.VERSION.SDK_INT >= 16) {
-            Notification notification = Api16Impl.build(mBuilder);
-            // Merge in developer provided extras, but let the values already set
-            // for keys take precedence.
-            Bundle extras = NotificationCompat.getExtras(notification);
-            Bundle mergeBundle = new Bundle(mExtras);
-            for (String key : mExtras.keySet()) {
-                if (extras.containsKey(key)) {
-                    mergeBundle.remove(key);
-                }
-            }
-            extras.putAll(mergeBundle);
-            SparseArray<Bundle> actionExtrasMap =
-                    NotificationCompatJellybean.buildActionExtrasMap(mActionExtrasList);
-            if (actionExtrasMap != null) {
-                // Add the action extras sparse array if any action was added with extras.
-                NotificationCompat.getExtras(notification).putSparseParcelableArray(
-                        NotificationCompatExtras.EXTRA_ACTION_EXTRAS, actionExtrasMap);
-            }
-            if (mContentView != null) {
-                notification.contentView = mContentView;
-            }
-            if (mBigContentView != null) {
-                notification.bigContentView = mBigContentView;
-            }
-            return notification;
-        } else {
-            return mBuilder.getNotification();
         }
     }
 
@@ -590,21 +560,6 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         @DoNotInline
         static Notification build(Notification.Builder builder) {
             return builder.build();
-        }
-    }
-
-    /**
-     * A class for wrapping calls to {@link NotificationCompatBuilder} methods which
-     * were added in API 19; these calls must be wrapped to avoid performance issues.
-     * See the UnsafeNewApiCall lint rule for more details.
-     */
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() { }
-
-        @DoNotInline
-        static Notification.Builder setExtras(Notification.Builder builder, Bundle extras) {
-            return builder.setExtras(extras);
         }
     }
 

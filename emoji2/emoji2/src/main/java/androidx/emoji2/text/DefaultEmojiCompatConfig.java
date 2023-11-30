@@ -241,8 +241,6 @@ public final class DefaultEmojiCompatConfig {
         private static DefaultEmojiCompatConfigHelper getHelperForApi() {
             if (Build.VERSION.SDK_INT >= 28) {
                 return new DefaultEmojiCompatConfigHelper_API28();
-            } else if (Build.VERSION.SDK_INT >= 19) {
-                return new DefaultEmojiCompatConfigHelper_API19();
             } else {
                 return new DefaultEmojiCompatConfigHelper();
             }
@@ -250,30 +248,17 @@ public final class DefaultEmojiCompatConfig {
     }
 
     /**
-     * Helper to lookup signatures in package manager.
-     *
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static class DefaultEmojiCompatConfigHelper {
         /**
-         * Get the signing signatures for a package in package manager.
-         */
-        @SuppressWarnings("deprecation") // replaced in API 28
-        @NonNull
-        public Signature[] getSigningSignatures(@NonNull PackageManager packageManager,
-                @NonNull String providerPackage) throws PackageManager.NameNotFoundException {
-            PackageInfo packageInfoForSignatures = packageManager.getPackageInfo(providerPackage,
-                    PackageManager.GET_SIGNATURES);
-            return packageInfoForSignatures.signatures;
-        }
-
-        /**
          * Get the content provider by intent.
          */
         @NonNull
+        @SuppressWarnings("deprecation")
         public List<ResolveInfo> queryIntentContentProviders(@NonNull PackageManager packageManager,
                 @NonNull Intent intent, int flags) {
-            return Collections.emptyList();
+            return packageManager.queryIntentContentProviders(intent, flags);
         }
 
         /**
@@ -283,30 +268,19 @@ public final class DefaultEmojiCompatConfig {
          */
         @Nullable
         public ProviderInfo getProviderInfo(@NonNull ResolveInfo resolveInfo) {
-            throw new IllegalStateException("Unable to get provider info prior to API 19");
-        }
-    }
-
-    /**
-     * Actually do lookups > API 19
-     *
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @RequiresApi(19)
-    public static class DefaultEmojiCompatConfigHelper_API19
-            extends DefaultEmojiCompatConfigHelper {
-        @NonNull
-        @Override
-        @SuppressWarnings("deprecation")
-        public List<ResolveInfo> queryIntentContentProviders(@NonNull PackageManager packageManager,
-                @NonNull Intent intent, int flags) {
-            return packageManager.queryIntentContentProviders(intent, flags);
-        }
-
-        @Nullable
-        @Override
-        public ProviderInfo getProviderInfo(@NonNull ResolveInfo resolveInfo) {
             return resolveInfo.providerInfo;
+        }
+
+        /**
+         * Get the signing signatures for a package in package manager.
+         */
+        @SuppressWarnings("deprecation") // using deprecated API to match exact behavior in core
+        @NonNull
+        public Signature[] getSigningSignatures(@NonNull PackageManager packageManager,
+                @NonNull String providerPackage) throws PackageManager.NameNotFoundException {
+            PackageInfo packageInfoForSignatures = packageManager.getPackageInfo(providerPackage,
+                    PackageManager.GET_SIGNATURES);
+            return packageInfoForSignatures.signatures;
         }
     }
 
@@ -316,7 +290,7 @@ public final class DefaultEmojiCompatConfig {
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @RequiresApi(28)
     public static class DefaultEmojiCompatConfigHelper_API28
-            extends DefaultEmojiCompatConfigHelper_API19 {
+            extends DefaultEmojiCompatConfigHelper {
         @SuppressWarnings("deprecation") // using deprecated API to match exact behavior in core
         @Override
         @NonNull

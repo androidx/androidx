@@ -17,7 +17,6 @@
 package androidx.core.app;
 
 import android.app.ActivityManager;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 
@@ -37,9 +36,6 @@ public final class ActivityManagerCompat {
      * off certain features that require more RAM.
      */
     public static boolean isLowRamDevice(@NonNull ActivityManager activityManager) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return activityManager.isLowRamDevice();
-        }
-        return false;
+        return activityManager.isLowRamDevice();
     }
 }
