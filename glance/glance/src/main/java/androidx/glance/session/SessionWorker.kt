@@ -101,12 +101,14 @@ internal class SessionWorker(
                     if (DEBUG) Log.d(TAG, "Received idle event, session timeout $timeLeft")
                 }
             ) {
-                val session = sessionManager.getSession(key) ?: if (params.runAttemptCount == 0) {
+                val session = sessionManager.runWithLock {
+                    getSession(key)
+                } ?: if (params.runAttemptCount == 0) {
                     error("No session available for key $key")
                 } else {
-                    // If this is a retry because the process was restarted (e.g. on app upgrade or
-                    // reinstall), the Session object won't be available because it's not persistable
-                    // at the moment.
+                    // If this is a retry because the process was restarted (e.g. on app upgrade
+                    // or reinstall), the Session object won't be available because it's not
+                    // persistable.
                     Log.w(
                         TAG,
                         "SessionWorker attempted restart but Session is not available for $key"
@@ -114,14 +116,18 @@ internal class SessionWorker(
                     return@observeIdleEvents Result.success()
                 }
 
-                runSession(
-                    applicationContext,
-                    session,
-                    timeouts,
-                    effectJobFactory = {
-                        Job().also { effectJob = it }
-                    }
-                )
+                try {
+                    runSession(
+                        applicationContext,
+                        session,
+                        timeouts,
+                        effectJobFactory = {
+                            Job().also { effectJob = it }
+                        }
+                    )
+                } finally {
+                    session.close()
+                }
                 Result.success()
             }
         } ?: Result.success(Data.Builder().putBoolean(TimeoutExitReason, true).build())
