@@ -75,6 +75,9 @@ android {
         }
     }
     compileOptions {
+        // For testing Java records
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
         coreLibraryDesugaringEnabled true
     }
     namespace "androidx.room.integration.testapp"

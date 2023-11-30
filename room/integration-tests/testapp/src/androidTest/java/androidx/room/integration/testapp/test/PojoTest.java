@@ -23,17 +23,18 @@ import android.content.Context;
 
 import androidx.room.Room;
 import androidx.room.integration.testapp.TestDatabase;
+import androidx.room.integration.testapp.dao.RecordEntityDao;
 import androidx.room.integration.testapp.dao.UserDao;
 import androidx.room.integration.testapp.database.ProductDao;
 import androidx.room.integration.testapp.database.Review;
 import androidx.room.integration.testapp.database.SampleDatabase;
 import androidx.room.integration.testapp.vo.AvgWeightByAge;
+import androidx.room.integration.testapp.vo.RecordEntity;
 import androidx.room.integration.testapp.vo.User;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -43,17 +44,13 @@ import java.util.List;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public class PojoTest {
-    private UserDao mUserDao;
-
-    @Before
-    public void createDb() {
-        Context context = ApplicationProvider.getApplicationContext();
-        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
-        mUserDao = db.getUserDao();
-    }
 
     @Test
     public void weightsByAge() {
+        Context context = ApplicationProvider.getApplicationContext();
+        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
+        UserDao userDao = db.getUserDao();
+
         User[] users = TestUtil.createUsersArray(3, 5, 7, 10);
         users[0].setAge(10);
         users[0].setWeight(20);
@@ -67,8 +64,8 @@ public class PojoTest {
         users[3].setAge(35);
         users[3].setWeight(55);
 
-        mUserDao.insertAll(users);
-        assertThat(mUserDao.weightByAge(), is(
+        userDao.insertAll(users);
+        assertThat(userDao.weightByAge(), is(
                 Arrays.asList(
                         new AvgWeightByAge(35, 55),
                         new AvgWeightByAge(10, 25),
@@ -86,5 +83,16 @@ public class PojoTest {
         List<Review> result = dao.getProductReviews(0);
         assertThat(result.size(), is(1));
         db.close();
+    }
+
+    @Test
+    public void recordEntity() {
+        Context context = ApplicationProvider.getApplicationContext();
+        TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class).build();
+        RecordEntityDao recordDao = db.getRecordEntityDao();
+        recordDao.insert(new RecordEntity(1, "I am a RECORD"));
+        List<RecordEntity> result = recordDao.getAll();
+        assertThat(result.size(), is(1));
+        assertThat(result.get(0).data(), is("I am a RECORD"));
     }
 }
