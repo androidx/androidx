@@ -103,7 +103,7 @@ internal class SingleBufferedCanvasRenderer<T>(
                     }
                     preserveContents(true)
                     setColorSpace(this@SingleBufferedCanvasRenderer.colorSpace)
-                    draw(executor) { result ->
+                    drawAsync(executor) { result ->
                         requestComplete.invoke(result.hardwareBuffer, result.fence)
                     }
                 }

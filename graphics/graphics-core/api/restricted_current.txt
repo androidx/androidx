@@ -13,6 +13,7 @@ package androidx.graphics {
     method public void setLightSourceAlpha(float ambientShadowAlpha, float spotShadowAlpha);
     method public void setLightSourceGeometry(float lightX, float lightY, float lightZ, float lightRadius);
     property public final int bufferFormat;
+    property public final boolean isClosed;
     property public final int maxBuffers;
     property public final long usageFlags;
   }
@@ -26,7 +27,8 @@ package androidx.graphics {
   }
 
   public final class CanvasBufferedRenderer.RenderRequest {
-    method public void draw(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.graphics.CanvasBufferedRenderer.RenderResult> callback);
+    method public suspend Object? draw(optional boolean waitForFence, kotlin.coroutines.Continuation<? super androidx.graphics.CanvasBufferedRenderer.RenderResult>);
+    method public void drawAsync(java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.graphics.CanvasBufferedRenderer.RenderResult> callback);
     method public androidx.graphics.CanvasBufferedRenderer.RenderRequest preserveContents(boolean preserve);
     method public androidx.graphics.CanvasBufferedRenderer.RenderRequest setBufferTransform(int bufferTransform);
     method public androidx.graphics.CanvasBufferedRenderer.RenderRequest setColorSpace(android.graphics.ColorSpace? colorSpace);

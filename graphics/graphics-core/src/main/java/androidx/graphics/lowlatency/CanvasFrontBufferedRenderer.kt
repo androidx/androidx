@@ -470,7 +470,7 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
                                 }
                             }
                             .setColorSpace(targetColorSpace)
-                            .draw(mHandlerThread) { result ->
+                            .drawAsync(mHandlerThread) { result ->
                                 setParentSurfaceControlBuffer(
                                     frontBufferSurfaceControl,
                                     parentSurfaceControl,
@@ -543,7 +543,7 @@ class CanvasFrontBufferedRenderer<T> @JvmOverloads constructor(
                                 }
                             }
                             .setColorSpace(targetColorSpace)
-                            .draw(mHandlerThread) { result ->
+                            .drawAsync(mHandlerThread) { result ->
                                 setParentSurfaceControlBuffer(
                                     frontBufferSurfaceControl,
                                     parentSurfaceControl,

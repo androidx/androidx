@@ -53,6 +53,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import kotlin.math.abs
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -72,16 +73,16 @@ class CanvasBufferedRendererTests {
     fun testRenderAfterCloseReturnsError() = hardwareBufferRendererTest { renderer ->
         renderer.close()
         assertThrows(IllegalStateException::class.java) {
-            renderer.obtainRenderRequest().draw(mExecutor) { _ -> /* NO-OP */ }
+            renderer.obtainRenderRequest().drawAsync(mExecutor) { _ -> /* NO-OP */ }
         }
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testIsClosed() = hardwareBufferRendererTest { renderer ->
-        assertFalse(renderer.isClosed())
+        assertFalse(renderer.isClosed)
         renderer.close()
-        assertTrue(renderer.isClosed())
+        assertTrue(renderer.isClosed)
     }
 
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
@@ -106,7 +107,7 @@ class CanvasBufferedRendererTests {
         var bitmap: Bitmap? = null
         renderer.obtainRenderRequest()
             .preserveContents(true)
-            .draw(mExecutor) { result ->
+            .drawAsync(mExecutor) { result ->
                 assertEquals(SUCCESS, result.status)
                 result.fence?.awaitForever()
                 bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
@@ -122,7 +123,7 @@ class CanvasBufferedRendererTests {
         latch = CountDownLatch(1)
         renderer.obtainRenderRequest()
             .preserveContents(false)
-            .draw(mExecutor) { result ->
+            .drawAsync(mExecutor) { result ->
                 assertEquals(SUCCESS, result.status)
                 result.fence?.awaitForever()
                 bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
@@ -208,7 +209,7 @@ class CanvasBufferedRendererTests {
             var bitmap: Bitmap? = null
             renderer.obtainRenderRequest()
                 .preserveContents(true)
-                .draw(executor) { result ->
+                .drawAsync(executor) { result ->
                     assertEquals(SUCCESS, result.status)
                     result.fence?.awaitForever()
                     bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
@@ -224,7 +225,7 @@ class CanvasBufferedRendererTests {
             val secondRenderLatch = CountDownLatch(1)
             renderer.obtainRenderRequest()
                 .preserveContents(true)
-                .draw(executor) { result ->
+                .drawAsync(executor) { result ->
                     assertEquals(SUCCESS, result.status)
                     result.fence?.awaitForever()
                     bitmap = Bitmap.wrapHardwareBuffer(result.hardwareBuffer, null)
@@ -250,15 +251,84 @@ class CanvasBufferedRendererTests {
         val colorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
         val latch = CountDownLatch(1)
         var hardwareBuffer: HardwareBuffer? = null
-        renderer.obtainRenderRequest().setColorSpace(colorSpace).draw(mExecutor) { renderResult ->
-            renderResult.fence?.awaitForever()
-            hardwareBuffer = renderResult.hardwareBuffer
-            latch.countDown()
-        }
+        renderer.obtainRenderRequest()
+            .setColorSpace(colorSpace)
+            .drawAsync(mExecutor) { renderResult ->
+                renderResult.fence?.awaitForever()
+                hardwareBuffer = renderResult.hardwareBuffer
+                latch.countDown()
+            }
 
         assertTrue(latch.await(3000, TimeUnit.MILLISECONDS))
 
         val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer!!, colorSpace)!!
+            .copy(Bitmap.Config.ARGB_8888, false)
+
+        assertEquals(TEST_WIDTH, bitmap.width)
+        assertEquals(TEST_HEIGHT, bitmap.height)
+        assertEquals(0xFF0000FF.toInt(), bitmap.getPixel(0, 0))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    @Test
+    fun testDrawSync() = hardwareBufferRendererTest { renderer ->
+        val contentRoot = RenderNode("content").apply {
+            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
+            record { canvas -> canvas.drawColor(Color.BLUE) }
+        }
+        renderer.setContentRoot(contentRoot)
+
+        val colorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
+
+        var renderResult: CanvasBufferedRenderer.RenderResult?
+        runBlocking {
+            renderResult = renderer.obtainRenderRequest().setColorSpace(colorSpace).draw()
+        }
+        assertNotNull(renderResult)
+        assertEquals(SUCCESS, renderResult!!.status)
+        val fence = renderResult?.fence
+        if (fence != null) {
+            // by default drawSync will automatically wait on the fence and close it leaving
+            // it in the invalid state
+            assertFalse(fence.isValid())
+        }
+
+        val hardwareBuffer = renderResult!!.hardwareBuffer
+
+        val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)!!
+            .copy(Bitmap.Config.ARGB_8888, false)
+
+        assertEquals(TEST_WIDTH, bitmap.width)
+        assertEquals(TEST_HEIGHT, bitmap.height)
+        assertEquals(0xFF0000FF.toInt(), bitmap.getPixel(0, 0))
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun testDrawSyncWithoutBlockingFence() = hardwareBufferRendererTest { renderer ->
+        val contentRoot = RenderNode("content").apply {
+            setPosition(0, 0, TEST_WIDTH, TEST_HEIGHT)
+            record { canvas -> canvas.drawColor(Color.BLUE) }
+        }
+        renderer.setContentRoot(contentRoot)
+
+        val colorSpace = ColorSpace.get(ColorSpace.Named.SRGB)
+
+        var renderResult: CanvasBufferedRenderer.RenderResult?
+        runBlocking {
+            renderResult = renderer.obtainRenderRequest().setColorSpace(colorSpace).draw(false)
+        }
+        assertNotNull(renderResult)
+        assertEquals(SUCCESS, renderResult!!.status)
+        val fence = renderResult?.fence
+        assertNotNull(fence)
+        assertTrue(fence!!.isValid())
+        fence.awaitForever()
+        fence.close()
+
+        val hardwareBuffer = renderResult!!.hardwareBuffer
+
+        val bitmap = Bitmap.wrapHardwareBuffer(hardwareBuffer, colorSpace)!!
             .copy(Bitmap.Config.ARGB_8888, false)
 
         assertEquals(TEST_WIDTH, bitmap.width)
@@ -342,7 +412,7 @@ class CanvasBufferedRendererTests {
         renderer.obtainRenderRequest()
             .setColorSpace(colorSpace)
             .preserveContents(true)
-            .draw(mExecutor) { renderResult ->
+            .drawAsync(mExecutor) { renderResult ->
             renderResult.fence?.awaitForever()
             hardwareBuffer = renderResult.hardwareBuffer
             latch.countDown()
@@ -361,7 +431,7 @@ class CanvasBufferedRendererTests {
         renderer.obtainRenderRequest()
             .setColorSpace(colorSpace)
             .preserveContents(true)
-            .draw(mExecutor) { renderResult ->
+            .drawAsync(mExecutor) { renderResult ->
                 renderResult.fence?.awaitForever()
                 hardwareBuffer = renderResult.hardwareBuffer
                 latch2.countDown()
@@ -535,7 +605,7 @@ class CanvasBufferedRendererTests {
             renderer.obtainRenderRequest()
                 .setColorSpace(colorSpace)
                 .setBufferTransform(42)
-                .draw(mExecutor) { renderResult ->
+                .drawAsync(mExecutor) { renderResult ->
                     renderResult.fence?.awaitForever()
                     latch.countDown()
                 }
@@ -602,7 +672,7 @@ class CanvasBufferedRendererTests {
         renderer.obtainRenderRequest()
             .setColorSpace(colorSpace)
             .setBufferTransform(transform)
-            .draw(mExecutor) { renderResult ->
+            .drawAsync(mExecutor) { renderResult ->
                 renderStatus = renderResult.status
                 renderResult.fence?.awaitForever()
                 hardwareBuffer = renderResult.hardwareBuffer
@@ -704,7 +774,7 @@ class CanvasBufferedRendererTests {
             val latch2 = CountDownLatch(1)
             val latch3 = CountDownLatch(1)
             var hardwareBuffer: HardwareBuffer? = null
-            renderer.obtainRenderRequest().draw(executor) { result ->
+            renderer.obtainRenderRequest().drawAsync(executor) { result ->
                 result.fence?.awaitForever()
                 result.fence?.close()
                 hardwareBuffer = result.hardwareBuffer
@@ -717,7 +787,7 @@ class CanvasBufferedRendererTests {
             canvas.drawColor(Color.BLUE)
             renderNode.endRecording()
 
-            renderer.obtainRenderRequest().draw(executor) { _ ->
+            renderer.obtainRenderRequest().drawAsync(executor) { _ ->
                 latch2.countDown()
             }
 
@@ -727,7 +797,7 @@ class CanvasBufferedRendererTests {
             canvas.drawColor(Color.GREEN)
             renderNode.endRecording()
 
-            renderer.obtainRenderRequest().draw(executor) { _ ->
+            renderer.obtainRenderRequest().drawAsync(executor) { _ ->
                 latch3.countDown()
             }
 
@@ -845,7 +915,7 @@ class CanvasBufferedRendererTests {
                 renderNode.endRecording()
 
                 val latch = CountDownLatch(1)
-                hbr.obtainRenderRequest().draw(executor) { result ->
+                hbr.obtainRenderRequest().drawAsync(executor) { result ->
                     hbr.releaseBuffer(result.hardwareBuffer, result.fence)
                     latch.countDown()
                 }
@@ -920,7 +990,7 @@ class CanvasBufferedRendererTests {
                         .setColorSpace(colorSpace)
                         .preserveContents(true)
                         .setBufferTransform(transform)
-                        .draw(executor) { renderResult ->
+                        .drawAsync(executor) { renderResult ->
                             renderResult.fence?.awaitForever()
                             hardwareBuffer = renderResult.hardwareBuffer
                             latch.countDown()
