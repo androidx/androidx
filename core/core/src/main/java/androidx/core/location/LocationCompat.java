@@ -497,16 +497,7 @@ public final class LocationCompat {
      * @see android.location.LocationManager#addTestProvider
      */
     public static boolean isMock(@NonNull Location location) {
-        if (VERSION.SDK_INT >= 18) {
-            return Api18Impl.isMock(location);
-        } else {
-            Bundle extras = location.getExtras();
-            if (extras == null) {
-                return false;
-            }
-
-            return extras.getBoolean(EXTRA_IS_MOCK, false);
-        }
+        return location.isFromMockProvider();
     }
 
     /**
@@ -517,9 +508,9 @@ public final class LocationCompat {
      * boolean extra with the key {@link #EXTRA_IS_MOCK} to mark the location as mock. Be aware that
      * this will overwrite any prior extra value under the same key.
      */
+    @SuppressLint("BanUncheckedReflection")
     public static void setMock(@NonNull Location location, boolean mock) {
-        if (VERSION.SDK_INT >= 18) {
-            try {
+        try {
                 getSetIsFromMockProviderMethod().invoke(location, mock);
             } catch (NoSuchMethodException e) {
                 Error error = new NoSuchMethodError();
@@ -532,25 +523,6 @@ public final class LocationCompat {
             } catch (InvocationTargetException e) {
                 throw new RuntimeException(e);
             }
-        } else {
-            Bundle extras = location.getExtras();
-            if (extras == null) {
-                if (mock) {
-                    extras = new Bundle();
-                    extras.putBoolean(EXTRA_IS_MOCK, true);
-                    location.setExtras(extras);
-                }
-            } else {
-                if (mock) {
-                    extras.putBoolean(EXTRA_IS_MOCK, true);
-                } else {
-                    extras.remove(EXTRA_IS_MOCK);
-                    if (extras.isEmpty()) {
-                        location.setExtras(null);
-                    }
-                }
-            }
-        }
     }
 
     @RequiresApi(34)
@@ -937,18 +909,6 @@ public final class LocationCompat {
                 error.initCause(e);
                 throw error;
             }
-        }
-    }
-
-    @RequiresApi(18)
-    private static class Api18Impl {
-
-        private Api18Impl() {
-        }
-
-        @DoNotInline
-        static boolean isMock(Location location) {
-            return location.isFromMockProvider();
         }
     }
 

@@ -54,7 +54,6 @@ import static androidx.media2.test.service.MediaTestUtils.assertEqualLibraryPara
 
 import android.app.Service;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.HandlerThread;
 import android.util.Log;
@@ -124,11 +123,7 @@ public class MockMediaLibraryService extends MediaLibraryService {
             sAssertLibraryParams = false;
             sExpectedParams = null;
         }
-        if (Build.VERSION.SDK_INT >= 18) {
-            mHandler.getLooper().quitSafely();
-        } else {
-            mHandler.getLooper().quit();
-        }
+        mHandler.getLooper().quitSafely();
         mHandler = null;
         TestServiceRegistry.getInstance().cleanUp();
     }

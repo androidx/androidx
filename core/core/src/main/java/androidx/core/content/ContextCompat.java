@@ -907,12 +907,12 @@ public class ContextCompat {
 
         // The Android framework supports per-app locales on API 33, so we assume the
         // configuration has been updated after API 32.
-        if (Build.VERSION.SDK_INT <= 32 && Build.VERSION.SDK_INT >= 17) {
+        if (Build.VERSION.SDK_INT <= 32) {
             if (!locales.isEmpty()) {
                 Configuration newConfig = new Configuration(
                         context.getResources().getConfiguration());
                 ConfigurationCompat.setLocales(newConfig, locales);
-                return Api17Impl.createConfigurationContext(context, newConfig);
+                return context.createConfigurationContext(newConfig);
             }
         }
         return context;
@@ -1006,24 +1006,18 @@ public class ContextCompat {
                 SERVICES.put(TelecomManager.class, TELECOM_SERVICE);
                 SERVICES.put(TvInputManager.class, TV_INPUT_SERVICE);
             }
-            if (Build.VERSION.SDK_INT >= 19) {
-                SERVICES.put(AppOpsManager.class, APP_OPS_SERVICE);
-                SERVICES.put(CaptioningManager.class, CAPTIONING_SERVICE);
-                SERVICES.put(ConsumerIrManager.class, CONSUMER_IR_SERVICE);
-                SERVICES.put(PrintManager.class, PRINT_SERVICE);
-            }
-            if (Build.VERSION.SDK_INT >= 18) {
-                SERVICES.put(BluetoothManager.class, BLUETOOTH_SERVICE);
-            }
-            if (Build.VERSION.SDK_INT >= 17) {
-                SERVICES.put(DisplayManager.class, DISPLAY_SERVICE);
-                SERVICES.put(UserManager.class, USER_SERVICE);
-            }
-            if (Build.VERSION.SDK_INT >= 16) {
-                SERVICES.put(InputManager.class, INPUT_SERVICE);
-                SERVICES.put(MediaRouter.class, MEDIA_ROUTER_SERVICE);
-                SERVICES.put(NsdManager.class, NSD_SERVICE);
-            }
+
+            SERVICES.put(AppOpsManager.class, APP_OPS_SERVICE);
+            SERVICES.put(CaptioningManager.class, CAPTIONING_SERVICE);
+            SERVICES.put(ConsumerIrManager.class, CONSUMER_IR_SERVICE);
+            SERVICES.put(PrintManager.class, PRINT_SERVICE);
+            SERVICES.put(BluetoothManager.class, BLUETOOTH_SERVICE);
+            SERVICES.put(DisplayManager.class, DISPLAY_SERVICE);
+            SERVICES.put(UserManager.class, USER_SERVICE);
+
+            SERVICES.put(InputManager.class, INPUT_SERVICE);
+            SERVICES.put(MediaRouter.class, MEDIA_ROUTER_SERVICE);
+            SERVICES.put(NsdManager.class, NSD_SERVICE);
             SERVICES.put(AccessibilityManager.class, ACCESSIBILITY_SERVICE);
             SERVICES.put(AccountManager.class, ACCOUNT_SERVICE);
             SERVICES.put(ActivityManager.class, ACTIVITY_SERVICE);
@@ -1053,18 +1047,6 @@ public class ContextCompat {
             SERVICES.put(WifiP2pManager.class, WIFI_P2P_SERVICE);
             SERVICES.put(WifiManager.class, WIFI_SERVICE);
             SERVICES.put(WindowManager.class, WINDOW_SERVICE);
-        }
-    }
-
-    @RequiresApi(17)
-    static class Api17Impl {
-        private Api17Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static Context createConfigurationContext(Context obj, Configuration config) {
-            return obj.createConfigurationContext(config);
         }
     }
 

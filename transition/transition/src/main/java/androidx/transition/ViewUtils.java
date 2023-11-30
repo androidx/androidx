@@ -87,20 +87,14 @@ class ViewUtils {
      * Backward-compatible {@link View#getOverlay()}.
      */
     static ViewOverlayImpl getOverlay(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return new ViewOverlayApi18(view);
-        }
-        return ViewOverlayApi14.createFrom(view);
+        return new ViewOverlayApi18(view);
     }
 
     /**
      * Backward-compatible {@link View#getWindowId()}.
      */
     static @NonNull WindowIdImpl getWindowId(@NonNull View view) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return new WindowIdApi18(view);
-        }
-        return new WindowIdApi14(view.getWindowToken());
+        return new WindowIdApi18(view);
     }
 
     static void setTransitionAlpha(@NonNull View view, float alpha) {

@@ -17,7 +17,6 @@
 package androidx.media2.test.service.tests;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.HandlerThread;
 
@@ -79,11 +78,7 @@ abstract class MediaSessionTestBase extends MediaTestBase {
             if (sHandler == null) {
                 return;
             }
-            if (Build.VERSION.SDK_INT >= 18) {
-                sHandler.getLooper().quitSafely();
-            } else {
-                sHandler.getLooper().quit();
-            }
+            sHandler.getLooper().quitSafely();
             sHandler = null;
             sHandlerExecutor = null;
         }
