@@ -48,7 +48,6 @@ import androidx.health.services.client.impl.response.PassiveMonitoringGoalRespon
 import androidx.health.services.client.impl.response.PassiveMonitoringUpdateResponse
 import androidx.health.services.client.proto.DataProto
 import androidx.health.services.client.proto.DataProto.ComparisonType.COMPARISON_TYPE_GREATER_THAN
-import androidx.health.services.client.proto.DataProto.HealthEvent.HealthEventType.HEALTH_EVENT_TYPE_FALL_DETECTED
 import androidx.health.services.client.proto.DataProto.PassiveGoal.TriggerFrequency.TRIGGER_FREQUENCY_ONCE
 import androidx.health.services.client.proto.DataProto.UserActivityState.USER_ACTIVITY_STATE_PASSIVE
 import androidx.health.services.client.proto.ResponsesProto
@@ -290,7 +289,7 @@ class ServiceBackedPassiveMonitoringClientTest {
             HealthEventResponse(
                 ResponsesProto.HealthEventResponse.newBuilder().setHealthEvent(
                     DataProto.HealthEvent.newBuilder()
-                        .setType(HEALTH_EVENT_TYPE_FALL_DETECTED)
+                        .setHealthEventTypeId(FALL_DETECTED.id)
                         .build()
                 ).build()
             )
