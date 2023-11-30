@@ -23,6 +23,7 @@ import androidx.benchmark.macro.StartupMode
 import androidx.benchmark.macro.TraceSectionMetric
 import androidx.benchmark.macro.junit4.MacrobenchmarkRule
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.testutils.measureStartup
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
@@ -33,6 +34,7 @@ import org.junit.runners.Parameterized
 
 @OptIn(ExperimentalMetricApi::class)
 @LargeTest
+@SdkSuppress(minSdkVersion = 30) // required for perfetto sdk capture
 @RunWith(Parameterized::class)
 class TrivialStartupPerfettoSdkBenchmark(
     private val startupMode: StartupMode,
