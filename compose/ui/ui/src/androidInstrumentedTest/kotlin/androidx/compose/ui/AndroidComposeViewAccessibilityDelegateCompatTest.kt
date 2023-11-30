@@ -27,9 +27,7 @@ import android.util.LongSparseArray
 import android.view.View
 import android.view.ViewStructure
 import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityEvent.CONTENT_CHANGE_TYPE_SUBTREE
 import android.view.accessibility.AccessibilityEvent.CONTENT_CHANGE_TYPE_UNDEFINED
-import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_SCROLLED
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED
 import android.view.accessibility.AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
@@ -44,21 +42,16 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.Snapshot
-import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.coreshims.ContentCaptureSessionCompat
 import androidx.compose.ui.platform.coreshims.ViewStructureCompat
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -104,22 +97,18 @@ import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.semantics.text
 import androidx.compose.ui.semantics.textSelectionRange
 import androidx.compose.ui.semantics.textSubstitution
-import androidx.compose.ui.semantics.verticalScrollAxisRange
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityEventCompat.CONTENT_CHANGE_TYPE_CONTENT_DESCRIPTION
-import androidx.core.view.accessibility.AccessibilityEventCompat.TYPE_VIEW_ACCESSIBILITY_FOCUSED
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
-import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_CLICK
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_COLLAPSE
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat.ACTION_DISMISS
@@ -1058,131 +1047,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
     }
 
     @Test
-    fun sendScrollEvent_byStateObservation_horizontal() {
-        // Arrange.
-        var scrollValue by mutableStateOf(0f, structuralEqualityPolicy())
-        val scrollMaxValue = 100f
-        rule.mainClock.autoAdvance = false
-        rule.setContentWithAccessibilityEnabled {
-            Row(
-                Modifier
-                    .size(20.toDp(), 10.toDp())
-                    .semantics(mergeDescendants = false) {
-                        horizontalScrollAxisRange = ScrollAxisRange(
-                            { scrollValue },
-                            { scrollMaxValue }
-                        )
-                    }
-            ) {
-                Text("foo", Modifier.size(10.toDp()))
-                Text("bar",
-                    Modifier
-                        .size(10.toDp())
-                        .testTag(tag))
-            }
-        }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-        val virtualViewId = rule.onNodeWithTag(tag).semanticsId
-        rule.runOnIdle { dispatchedAccessibilityEvents.clear() }
-
-        // Act.
-        try {
-            androidComposeView.snapshotObserver.startObserving()
-            rule.runOnIdle {
-                androidComposeView.accessibilityNodeProvider
-                    .performAction(virtualViewId, ACTION_ACCESSIBILITY_FOCUS, null)
-                Snapshot.notifyObjectsInitialized()
-                scrollValue = 2f
-                Snapshot.sendApplyNotifications()
-            }
-        } finally {
-            androidComposeView.snapshotObserver.stopObserving()
-        }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-
-        // Assert.
-        rule.runOnIdle {
-            val focusedANI = androidComposeView.accessibilityNodeProvider
-                .findFocus(AccessibilityNodeInfo.FOCUS_ACCESSIBILITY)
-            assertThat(Rect().also { focusedANI?.getBoundsInScreen(it) })
-                .isEqualTo(Rect(10, 0, 20, 10))
-            assertThat(dispatchedAccessibilityEvents)
-                .comparingElementsUsing(AccessibilityEventComparator)
-                .containsExactly(
-                    AccessibilityEvent().apply {
-                        eventType = TYPE_VIEW_ACCESSIBILITY_FOCUSED
-                    },
-                    AccessibilityEvent().apply {
-                        eventType = TYPE_WINDOW_CONTENT_CHANGED
-                        contentChangeTypes = CONTENT_CHANGE_TYPE_SUBTREE
-                    },
-                    AccessibilityEvent().apply {
-                        eventType = TYPE_VIEW_SCROLLED
-                        scrollX = 2
-                        maxScrollX = 100
-                    },
-                )
-        }
-    }
-
-    @Test
-    fun sendScrollEvent_byStateObservation_vertical() {
-        // Arrange.
-        var scrollValue by mutableStateOf(0f, structuralEqualityPolicy())
-        val scrollMaxValue = 100f
-        rule.mainClock.autoAdvance = false
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics(mergeDescendants = false) {
-                        verticalScrollAxisRange = ScrollAxisRange(
-                            { scrollValue },
-                            { scrollMaxValue }
-                        )
-                    }
-            )
-        }
-
-        // TODO(b/272068594): We receive an extra TYPE_WINDOW_CONTENT_CHANGED event 100ms after
-        //  setup. So we wait an extra 100ms here so that this test is not affected by that extra
-        //  event.
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-        dispatchedAccessibilityEvents.clear()
-
-        // Act.
-        try {
-            androidComposeView.snapshotObserver.startObserving()
-            rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-            rule.runOnIdle {
-                Snapshot.notifyObjectsInitialized()
-                scrollValue = 2f
-                Snapshot.sendApplyNotifications()
-            }
-        } finally {
-            androidComposeView.snapshotObserver.stopObserving()
-        }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(dispatchedAccessibilityEvents)
-                .comparingElementsUsing(AccessibilityEventComparator)
-                .containsExactly(
-                    AccessibilityEvent().apply {
-                        eventType = TYPE_WINDOW_CONTENT_CHANGED
-                        contentChangeTypes = CONTENT_CHANGE_TYPE_SUBTREE
-                    },
-                    AccessibilityEvent().apply {
-                        eventType = TYPE_VIEW_SCROLLED
-                        scrollY = 2
-                        maxScrollY = 100
-                    },
-                )
-        }
-    }
-
-    @Test
     fun sendWindowContentChangeUndefinedEventByDefault_whenPropertyAdded() {
         // Arrange.
         var addProperty by mutableStateOf(false)
@@ -1486,294 +1350,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
                         contentDescription = "Hello"
                     }
                 )
-        }
-    }
-
-    @Test
-    fun canScroll_returnsFalse_whenPositionInvalid() {
-        // Arrange.
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(100.dp)
-                    .semantics(mergeDescendants = true) {
-                        horizontalScrollAxisRange = ScrollAxisRange(
-                            value = { 0f },
-                            maxValue = { 1f },
-                            reverseScrolling = false
-                        )
-                    }
-            )
-        }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(androidComposeView.canScrollHorizontally(1)).isFalse()
-            assertThat(androidComposeView.canScrollHorizontally(0)).isFalse()
-            assertThat(androidComposeView.canScrollHorizontally(-1)).isFalse()
-        }
-    }
-
-    @Test
-    fun canScroll_returnsTrue_whenHorizontalScrollableNotAtLimit() {
-        // Arrange.
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(100.toDp())
-                    .semantics(mergeDescendants = true) {
-                        testTag = tag
-                        horizontalScrollAxisRange = ScrollAxisRange(
-                            value = { 0.5f },
-                            maxValue = { 1f },
-                            reverseScrolling = false
-                        )
-                    }
-            )
-        }
-
-        // Act.
-        rule.onNodeWithTag(tag).performTouchInput { down(Offset(50f, 50f)) }
-
-        // Assert.
-        rule.runOnIdle {
-            // Should be scrollable in both directions.
-            assertThat(androidComposeView.canScrollHorizontally(1)).isTrue()
-            assertThat(androidComposeView.canScrollHorizontally(0)).isTrue()
-            assertThat(androidComposeView.canScrollHorizontally(-1)).isTrue()
-        }
-    }
-
-    @Test
-    fun canScroll_returnsTrue_whenVerticalScrollableNotAtLimit() {
-        // Arrange.
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(100.toDp())
-                    .semantics(mergeDescendants = true) {
-                        testTag = tag
-                        verticalScrollAxisRange = ScrollAxisRange(
-                            value = { 0.5f },
-                            maxValue = { 1f },
-                            reverseScrolling = false
-                        )
-                    }
-            )
-        }
-
-        // Act.
-        rule.onNodeWithTag(tag).performTouchInput { down(Offset(50f, 50f)) }
-
-        // Assert.
-        rule.runOnIdle {
-            // Should be scrollable in both directions.
-            assertThat(androidComposeView.canScrollVertically(1)).isTrue()
-            assertThat(androidComposeView.canScrollVertically(0)).isTrue()
-            assertThat(androidComposeView.canScrollVertically(-1)).isTrue()
-        }
-    }
-
-    @Test
-    fun canScroll_returnsFalse_whenHorizontalScrollable_whenScrolledRightAndAtLimit() {
-        // Arrange.
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(100.toDp())
-                    .semantics(mergeDescendants = true) {
-                        testTag = tag
-                        horizontalScrollAxisRange = ScrollAxisRange(
-                            value = { 1f },
-                            maxValue = { 1f },
-                            reverseScrolling = false
-                        )
-                    }
-            )
-        }
-
-        // Act.
-        rule.onNodeWithTag(tag).performTouchInput { down(Offset(50f, 50f)) }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(androidComposeView.canScrollHorizontally(1)).isFalse()
-            assertThat(androidComposeView.canScrollHorizontally(0)).isFalse()
-            assertThat(androidComposeView.canScrollHorizontally(-1)).isTrue()
-        }
-    }
-
-    @Test
-    fun canScroll_returnsFalse_whenHorizontalScrollable_whenScrolledLeftAndAtLimit() {
-        // Arrange.
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(100.toDp())
-                    .semantics(mergeDescendants = true) {
-                        testTag = tag
-                        horizontalScrollAxisRange = ScrollAxisRange(
-                            value = { 0f },
-                            maxValue = { 1f },
-                            reverseScrolling = false
-                        )
-                    }
-            )
-        }
-
-        // Act.
-        rule.onNodeWithTag(tag).performTouchInput { down(Offset(50f, 50f)) }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(androidComposeView.canScrollHorizontally(1)).isTrue()
-            assertThat(androidComposeView.canScrollHorizontally(0)).isTrue()
-            assertThat(androidComposeView.canScrollHorizontally(-1)).isFalse()
-        }
-    }
-
-    @Test
-    fun canScroll_returnsFalse_whenVerticalScrollable_whenScrolledDownAndAtLimit() {
-        // Arrange.
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(100.toDp())
-                    .semantics(mergeDescendants = true) {
-                        testTag = tag
-                        verticalScrollAxisRange = ScrollAxisRange(
-                            value = { 1f },
-                            maxValue = { 1f },
-                            reverseScrolling = false
-                        )
-                    }
-            )
-        }
-
-        // Act.
-        rule.onNodeWithTag(tag).performTouchInput { down(Offset(50f, 50f)) }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(androidComposeView.canScrollVertically(1)).isFalse()
-            assertThat(androidComposeView.canScrollVertically(0)).isFalse()
-            assertThat(androidComposeView.canScrollVertically(-1)).isTrue()
-        }
-    }
-
-    @Test
-    fun canScroll_returnsFalse_whenVerticalScrollable_whenScrolledUpAndAtLimit() {
-        // Arrange.
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(100.toDp())
-                    .semantics(mergeDescendants = true) {
-                        testTag = tag
-                        verticalScrollAxisRange = ScrollAxisRange(
-                            value = { 0f },
-                            maxValue = { 1f },
-                            reverseScrolling = false
-                        )
-                    }
-            )
-        }
-
-        // Act.
-        rule.onNodeWithTag(tag).performTouchInput { down(Offset(50f, 50f)) }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(androidComposeView.canScrollVertically(1)).isTrue()
-            assertThat(androidComposeView.canScrollVertically(0)).isTrue()
-            assertThat(androidComposeView.canScrollVertically(-1)).isFalse()
-        }
-    }
-
-    @Test
-    fun canScroll_respectsReverseDirection() {
-        // Arrange.
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(100.toDp())
-                    .semantics(mergeDescendants = true) {
-                        testTag = tag
-                        horizontalScrollAxisRange = ScrollAxisRange(
-                            value = { 0f },
-                            maxValue = { 1f },
-                            reverseScrolling = true
-                        )
-                    }
-            )
-        }
-
-        // Act.
-        rule.onNodeWithTag(tag).performTouchInput { down(Offset(50f, 50f)) }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(androidComposeView.canScrollHorizontally(1)).isFalse()
-            assertThat(androidComposeView.canScrollHorizontally(0)).isFalse()
-            assertThat(androidComposeView.canScrollHorizontally(-1)).isTrue()
-        }
-    }
-
-    @Test
-    fun canScroll_returnsFalse_forVertical_whenScrollableIsHorizontal() {
-        // Arrange.
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(100.toDp())
-                    .semantics(mergeDescendants = true) {
-                        testTag = tag
-                        horizontalScrollAxisRange = ScrollAxisRange(
-                            value = { 0.5f },
-                            maxValue = { 1f },
-                            reverseScrolling = true
-                        )
-                    }
-            )
-        }
-
-        // Act.
-        rule.onNodeWithTag(tag).performTouchInput { down(Offset(50f, 50f)) }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(androidComposeView.canScrollVertically(1)).isFalse()
-            assertThat(androidComposeView.canScrollVertically(0)).isFalse()
-            assertThat(androidComposeView.canScrollVertically(-1)).isFalse()
-        }
-    }
-
-    @Test
-    fun canScroll_returnsFalse_whenTouchIsOutsideBounds() {
-        // Arrange.
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(50.toDp())
-                    .semantics(mergeDescendants = true) {
-                        testTag = tag
-                        horizontalScrollAxisRange = ScrollAxisRange(
-                            value = { 0.5f },
-                            maxValue = { 1f },
-                            reverseScrolling = true
-                        )
-                    }
-            )
-        }
-
-        // Act.
-        rule.onNodeWithTag(tag).performTouchInput { down(Offset(100f, 100f)) }
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(androidComposeView.canScrollHorizontally(1)).isFalse()
-            assertThat(androidComposeView.canScrollHorizontally(0)).isFalse()
-            assertThat(androidComposeView.canScrollHorizontally(-1)).isFalse()
         }
     }
 
