@@ -85,7 +85,7 @@ import androidx.compose.ui.util.floatFromBits
  *
  * This table shows that numbers higher than 1024 lose all fractional precision.
  */
-@kotlin.jvm.JvmInline
+@JvmInline
 internal value class Float16(val halfValue: Short) : Comparable<Float16> {
 
     /**
@@ -94,11 +94,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      *
      * @param value The value to be represented by the `Float16`
      */
-    constructor(value: Float) : this(
-        floatToHalf(
-            value
-        )
-    )
+    constructor(value: Float) : this(floatToHalf(value))
 
     /**
      * Constructs a newly allocated `Float16` object that
@@ -115,9 +111,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * @return The half-precision float value represented by this object
      * converted to type `Byte`
      */
-    fun toByte(): Byte {
-        return toFloat().toInt().toByte()
-    }
+    fun toByte(): Byte = toFloat().toInt().toByte()
 
     /**
      * Returns the value of this `Float16` as a `Short` after
@@ -126,9 +120,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * @return The half-precision float value represented by this object
      * converted to type `Short`
      */
-    fun toShort(): Short {
-        return toFloat().toInt().toShort()
-    }
+    fun toShort(): Short = toFloat().toInt().toShort()
 
     /**
      * Returns the value of this `Float16` as a `Int` after
@@ -137,9 +129,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * @return The half-precision float value represented by this object
      * converted to type `Int`
      */
-    fun toInt(): Int {
-        return toFloat().toInt()
-    }
+    fun toInt(): Int = toFloat().toInt()
 
     /**
      * Returns the value of this `Float16` as a `Long` after
@@ -148,9 +138,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * @return The half-precision float value represented by this object
      * converted to type `Long`
      */
-    fun toLong(): Long {
-        return toFloat().toLong()
-    }
+    fun toLong(): Long = toFloat().toLong()
 
     /**
      * Returns the value of this `Float16` as a `Float` after
@@ -161,9 +149,9 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      */
     fun toFloat(): Float {
         val bits = halfValue.toInt() and 0xffff
-        val s = bits and FP16_SIGN_MASK
-        val e = bits.ushr(FP16_EXPONENT_SHIFT) and FP16_EXPONENT_MASK
-        val m = bits and FP16_SIGNIFICAND_MASK
+        val s = bits and Fp16SignMask
+        val e = bits.ushr(Fp16ExponentShift) and Fp16ExponentMask
+        val m = bits and Fp16SignificandMask
 
         var outE = 0
         var outM = 0
@@ -171,8 +159,8 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
         if (e == 0) { // Denormal or 0
             if (m != 0) {
                 // Convert denorm fp16 into normalized fp32
-                var o = floatFromBits(FP32_DENORMAL_MAGIC + m)
-                o -= FP32_DENORMAL_FLOAT
+                var o = floatFromBits(Fp32DenormalMagic + m)
+                o -= Fp32DenormalFloat
                 return if (s == 0) o else -o
             }
         } else {
@@ -180,14 +168,14 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
             if (e == 0x1f) { // Infinite or NaN
                 outE = 0xff
                 if (outM != 0) { // SNaNs are quieted
-                    outM = outM or FP32_QNAN_MASK
+                    outM = outM or Fp32QNaNMask
                 }
             } else {
-                outE = e - FP16_EXPONENT_BIAS + FP32_EXPONENT_BIAS
+                outE = e - Fp16ExponentBias + Fp32ExponentBias
             }
         }
 
-        val out = s shl 16 or (outE shl FP32_EXPONENT_SHIFT) or outM
+        val out = s shl 16 or (outE shl Fp32ExponentShift) or outM
         return floatFromBits(out)
     }
 
@@ -198,9 +186,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * @return The half-precision float value represented by this object
      * converted to type `Double`
      */
-    fun toDouble(): Double {
-        return toFloat().toDouble()
-    }
+    fun toDouble(): Double = toFloat().toDouble()
 
     /**
      * Returns a representation of the half-precision float value
@@ -212,12 +198,10 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      *
      * @return The bits that represent the half-precision float value
      */
-    fun toBits(): Int {
-        return if (isNaN()) {
-            NaN.halfValue.toInt()
-        } else {
-            halfValue.toInt() and 0xffff
-        }
+    fun toBits(): Int = if (isNaN()) {
+        NaN.halfValue.toInt()
+    } else {
+        halfValue.toInt() and 0xffff
     }
 
     /**
@@ -226,9 +210,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      *
      * @return The bits that represent the half-precision float value
      */
-    fun toRawBits(): Int {
-        return halfValue.toInt() and 0xffff
-    }
+    fun toRawBits(): Int = halfValue.toInt() and 0xffff
 
     /**
      * Returns a string representation of the specified half-precision
@@ -236,26 +218,24 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      *
      * @return A string representation of this `Float16` object
      */
-    override fun toString(): String {
-        return toFloat().toString()
-    }
+    override fun toString(): String = toFloat().toString()
 
     /**
      * Compares to another half-precision float value. The following
      * conditions apply during the comparison:
      *
      *  * [NaN] is considered by this method to be equal to itself and greater
-     * than all other half-precision float values (including `#PositiveInfinity`)
+     * than all other half-precision float values (including [PositiveInfinity])
      *  * [PositiveZero] is considered by this method to be greater than
      * [NegativeZero].
      *
      * @param other The half-precision float value to compare to the half-precision value
      * represented by this `Float16` object
      *
-     * @return The value `0` if `this` is numerically equal to `h`; a
-     * value less than `0` if `this` is numerically less than `h`;
+     * @return The value `0` if `this` is numerically equal to [other]; a
+     * value less than `0` if `this` is numerically less than [other];
      * and a value greater than `0` if `this` is numerically greater
-     * than `h`
+     * than [other]
      */
     override operator fun compareTo(other: Float16): Int {
         if (isNaN()) {
@@ -263,9 +243,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
         } else if (other.isNaN()) {
             return -1
         }
-        return toCompareValue(halfValue).compareTo(
-            toCompareValue(other.halfValue)
-        )
+        return toCompareValue(halfValue).compareTo(toCompareValue(other.halfValue))
     }
 
     /**
@@ -291,9 +269,9 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
     fun withSign(sign: Float16): Float16 =
         Float16(
             (
-                sign.halfValue.toInt() and FP16_SIGN_MASK or
-                    (halfValue.toInt() and FP16_COMBINED)
-                ).toShort()
+                sign.halfValue.toInt() and Fp16SignMask or
+                    (halfValue.toInt() and Fp16Combined)
+            ).toShort()
         )
 
     /**
@@ -307,7 +285,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * the result is positive infinity (see [PositiveInfinity])
      */
     fun absoluteValue(): Float16 {
-        return Float16((halfValue.toInt() and FP16_COMBINED).toShort())
+        return Float16((halfValue.toInt() and Fp16Combined).toShort())
     }
 
     /**
@@ -330,7 +308,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
         var result = bits
 
         if (e < 0x3c00) {
-            result = result and FP16_SIGN_MASK
+            result = result and Fp16SignMask
             result = result or (0x3c00 and if (e >= 0x3800) 0xffff else 0x0)
         } else if (e < 0x6400) {
             e = 25 - (e shr 10)
@@ -362,7 +340,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
         var result = bits
 
         if (e < 0x3c00) {
-            result = result and FP16_SIGN_MASK
+            result = result and Fp16SignMask
             result = result or (0x3c00 and -((bits shr 15).inv() and if (e != 0) 1 else 0))
         } else if (e < 0x6400) {
             e = 25 - (e shr 10)
@@ -394,7 +372,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
         var result = bits
 
         if (e < 0x3c00) {
-            result = result and FP16_SIGN_MASK
+            result = result and Fp16SignMask
             result = result or (0x3c00 and if (bits > 0x8000) 0xffff else 0x0)
         } else if (e < 0x6400) {
             e = 25 - (e shr 10)
@@ -425,7 +403,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
         var result = bits
 
         if (e < 0x3c00) {
-            result = result and FP16_SIGN_MASK
+            result = result and Fp16SignMask
         } else if (e < 0x6400) {
             e = 25 - (e shr 10)
             val mask = (1 shl e) - 1
@@ -443,19 +421,15 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * returns [MinExponent] - 1.
      */
     val exponent: Int
-        get() {
-            return (halfValue.toInt().ushr(FP16_EXPONENT_SHIFT) and FP16_EXPONENT_MASK) -
-                FP16_EXPONENT_BIAS
-        }
+        get() = (halfValue.toInt().ushr(Fp16ExponentShift) and Fp16ExponentMask) -
+            Fp16ExponentBias
 
     /**
      * The significand, or mantissa, used in the representation
      * of this half-precision float value.
      */
     val significand: Int
-        get() {
-            return halfValue.toInt() and FP16_SIGNIFICAND_MASK
-        }
+        get() = halfValue.toInt() and Fp16SignificandMask
 
     /**
      * Returns true if this `Float16` value represents a Not-a-Number,
@@ -463,9 +437,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      *
      * @return True if the value is a NaN, false otherwise
      */
-    fun isNaN(): Boolean {
-        return halfValue.toInt() and FP16_COMBINED > FP16_EXPONENT_MAX
-    }
+    fun isNaN(): Boolean = halfValue.toInt() and Fp16Combined > Fp16ExponentMax
 
     /**
      * Returns true if the half-precision float value represents
@@ -474,9 +446,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * @return True if the value is positive infinity or negative infinity,
      * false otherwise
      */
-    fun isInfinite(): Boolean {
-        return halfValue.toInt() and FP16_COMBINED == FP16_EXPONENT_MAX
-    }
+    fun isInfinite(): Boolean = halfValue.toInt() and Fp16Combined == Fp16ExponentMax
 
     /**
      * Returns false if the half-precision float value represents
@@ -485,9 +455,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * @return False if the value is positive infinity or negative infinity,
      * true otherwise
      */
-    fun isFinite(): Boolean {
-        return halfValue.toInt() and FP16_COMBINED != FP16_EXPONENT_MAX
-    }
+    fun isFinite(): Boolean = halfValue.toInt() and Fp16Combined != Fp16ExponentMax
 
     /**
      * Returns true if the half-precision float value is normalized
@@ -499,8 +467,8 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
      * @return True if the value is normalized, false otherwise
      */
     fun isNormalized(): Boolean {
-        return halfValue.toInt() and FP16_EXPONENT_MAX != 0 &&
-            halfValue.toInt() and FP16_EXPONENT_MAX != FP16_EXPONENT_MAX
+        return halfValue.toInt() and Fp16ExponentMax != 0 &&
+            halfValue.toInt() and Fp16ExponentMax != Fp16ExponentMax
     }
 
     /**
@@ -532,9 +500,9 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
         val o = StringBuilder()
 
         val bits = halfValue.toInt() and 0xffff
-        val s = bits.ushr(FP16_SIGN_SHIFT)
-        val e = bits.ushr(FP16_EXPONENT_SHIFT) and FP16_EXPONENT_MASK
-        val m = bits and FP16_SIGNIFICAND_MASK
+        val s = bits.ushr(Fp16SignShift)
+        val e = bits.ushr(Fp16ExponentShift) and Fp16ExponentMask
+        val m = bits and Fp16SignificandMask
 
         if (e == 0x1f) { // Infinite or NaN
             if (m == 0) {
@@ -559,7 +527,7 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
                 val significand = m.toString(16)
                 o.append(significand.replaceFirst("0{2,}$".toRegex(), ""))
                 o.append('p')
-                o.append((e - FP16_EXPONENT_BIAS).toString())
+                o.append((e - Fp16ExponentBias).toString())
             }
         }
 
@@ -623,78 +591,118 @@ internal value class Float16(val halfValue: Short) : Comparable<Float16> {
          * Positive 0 of type half-precision float.
          */
         val PositiveZero = Float16(0x0000.toShort())
+    }
+}
 
-        private val One = Float16(1f)
-        private val NegativeOne = Float16(-1f)
+private val One = Float16(1f)
+private val NegativeOne = Float16(-1f)
 
-        private const val FP16_SIGN_SHIFT = 15
-        private const val FP16_SIGN_MASK = 0x8000
-        private const val FP16_EXPONENT_SHIFT = 10
-        private const val FP16_EXPONENT_MASK = 0x1f
-        private const val FP16_SIGNIFICAND_MASK = 0x3ff
-        private const val FP16_EXPONENT_BIAS = 15
-        private const val FP16_COMBINED = 0x7fff
-        private const val FP16_EXPONENT_MAX = 0x7c00
+private const val Fp16SignShift = 15
+private const val Fp16SignMask = 0x8000
+private const val Fp16ExponentShift = 10
+private const val Fp16ExponentMask = 0x1f
+private const val Fp16SignificandMask = 0x3ff
+private const val Fp16ExponentBias = 15
+private const val Fp16Combined = 0x7fff
+private const val Fp16ExponentMax = 0x7c00
 
-        private const val FP32_SIGN_SHIFT = 31
-        private const val FP32_EXPONENT_SHIFT = 23
-        private const val FP32_EXPONENT_MASK = 0xff
-        private const val FP32_SIGNIFICAND_MASK = 0x7fffff
-        private const val FP32_EXPONENT_BIAS = 127
-        private const val FP32_QNAN_MASK = 0x400000
+private const val Fp32SignShift = 31
+private const val Fp32ExponentShift = 23
+private const val Fp32ExponentMask = 0xff
+private const val Fp32SignificandMask = 0x7fffff
+private const val Fp32ExponentBias = 127
+private const val Fp32QNaNMask = 0x400000
 
-        private const val FP32_DENORMAL_MAGIC = 126 shl 23
-        private val FP32_DENORMAL_FLOAT = floatFromBits(FP32_DENORMAL_MAGIC)
+private const val Fp32DenormalMagic = 126 shl 23
+private val Fp32DenormalFloat = floatFromBits(Fp32DenormalMagic)
 
-        private fun toCompareValue(value: Short): Int {
-            return if (value.toInt() and FP16_SIGN_MASK != 0) {
-                0x8000 - (value.toInt() and 0xffff)
+@Suppress("NOTHING_TO_INLINE")
+private inline fun toCompareValue(value: Short): Int {
+    return if (value.toInt() and Fp16SignMask != 0) {
+        0x8000 - (value.toInt() and 0xffff)
+    } else {
+        value.toInt() and 0xffff
+    }
+}
+
+/**
+ * Convert a single-precision float to a half-precision float, stored as
+ * [Short] data type to hold its 16 bits.
+ */
+internal fun floatToHalf(f: Float): Short {
+    val bits = f.toRawBits()
+    val s = bits.ushr(Fp32SignShift)
+    var e = bits.ushr(Fp32ExponentShift) and Fp32ExponentMask
+    var m = bits and Fp32SignificandMask
+
+    var outE = 0
+    var outM = 0
+
+    if (e == 0xff) { // Infinite or NaN
+        outE = 0x1f
+        outM = if (m != 0) 0x200 else 0
+    } else {
+        e = e - Fp32ExponentBias + Fp16ExponentBias
+        if (e >= 0x1f) { // Overflow
+            outE = 0x31
+        } else if (e <= 0) { // Underflow
+            if (e < -10) {
+                // The absolute fp32 value is less than MIN_VALUE, flush to +/-0
             } else {
-                value.toInt() and 0xffff
+                // The fp32 value is a normalized float less than MIN_NORMAL,
+                // we convert to a denorm fp16
+                m = m or 0x800000 shr 1 - e
+                if (m and 0x1000 != 0) m += 0x2000
+                outM = m shr 13
             }
-        }
-
-        private fun floatToHalf(f: Float): Short {
-            val bits = f.toRawBits()
-            val s = bits.ushr(FP32_SIGN_SHIFT)
-            var e = bits.ushr(FP32_EXPONENT_SHIFT) and FP32_EXPONENT_MASK
-            var m = bits and FP32_SIGNIFICAND_MASK
-
-            var outE = 0
-            var outM = 0
-
-            if (e == 0xff) { // Infinite or NaN
-                outE = 0x1f
-                outM = if (m != 0) 0x200 else 0
-            } else {
-                e = e - FP32_EXPONENT_BIAS + FP16_EXPONENT_BIAS
-                if (e >= 0x1f) { // Overflow
-                    outE = 0x31
-                } else if (e <= 0) { // Underflow
-                    if (e < -10) {
-                        // The absolute fp32 value is less than MIN_VALUE, flush to +/-0
-                    } else {
-                        // The fp32 value is a normalized float less than MIN_NORMAL,
-                        // we convert to a denorm fp16
-                        m = m or 0x800000 shr 1 - e
-                        if (m and 0x1000 != 0) m += 0x2000
-                        outM = m shr 13
-                    }
-                } else {
-                    outE = e
-                    outM = m shr 13
-                    if (m and 0x1000 != 0) {
-                        // Round to nearest "0.5" up
-                        var out = outE shl FP16_EXPONENT_SHIFT or outM
-                        out++
-                        return (out or (s shl FP16_SIGN_SHIFT)).toShort()
-                    }
-                }
+        } else {
+            outE = e
+            outM = m shr 13
+            if (m and 0x1000 != 0) {
+                // Round to nearest "0.5" up
+                var out = outE shl Fp16ExponentShift or outM
+                out++
+                return (out or (s shl Fp16SignShift)).toShort()
             }
-
-            return (s shl FP16_SIGN_SHIFT or (outE shl FP16_EXPONENT_SHIFT) or outM).toShort()
         }
     }
+
+    return (s shl Fp16SignShift or (outE shl Fp16ExponentShift) or outM).toShort()
+}
+
+/**
+ * Convert a half-precision float to a single-precision float.
+ */
+internal fun halfToFloat(h: Short): Float {
+    val bits = h.toInt() and 0xffff
+    val s = bits and Fp16SignMask
+    val e = bits.ushr(Fp16ExponentShift) and Fp16ExponentMask
+    val m = bits and Fp16SignificandMask
+
+    var outE = 0
+    var outM = 0
+
+    if (e == 0) { // Denormal or 0
+        if (m != 0) {
+            // Convert denorm fp16 into normalized fp32
+            var o = floatFromBits(Fp32DenormalMagic + m)
+            o -= Fp32DenormalFloat
+            return if (s == 0) o else -o
+        }
+    } else {
+        outM = m shl 13
+        if (e == 0x1f) { // Infinite or NaN
+            outE = 0xff
+            if (outM != 0) { // SNaNs are quieted
+                outM = outM or Fp32QNaNMask
+            }
+        } else {
+            outE = e - Fp16ExponentBias + Fp32ExponentBias
+        }
+    }
+
+    val out = s shl 16 or (outE shl Fp32ExponentShift) or outM
+    return floatFromBits(out)
 }
 
 /**
@@ -712,7 +720,6 @@ internal fun min(x: Float16, y: Float16): Float16 {
     if (x.isNaN() || y.isNaN()) {
         return Float16.NaN
     }
-
     return if (x <= y) x else y
 }
 
