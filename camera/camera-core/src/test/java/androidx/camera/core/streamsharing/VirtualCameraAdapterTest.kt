@@ -155,6 +155,8 @@ class VirtualCameraAdapterTest {
         assertThat(getUseCaseSurface(preview)).isNotNull()
         // Cleanup.
         preview.unbindFromCamera(parentCamera)
+        surfaceTexture.release()
+        surface.release()
     }
 
     private fun getUseCaseSurface(useCase: UseCase): DeferrableSurface? {
@@ -251,7 +253,7 @@ class VirtualCameraAdapterTest {
         // Arrange.
         val cropRect = Rect(10, 10, 410, 310)
         val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_90).build()
-        val imageCapture = ImageCapture.Builder().build()
+        val imageCapture = ImageCapture.Builder().setTargetRotation(Surface.ROTATION_0).build()
         adapter = VirtualCameraAdapter(
             parentCamera, setOf(preview, child2, imageCapture), useCaseConfigFactory
         ) { _, _ ->
@@ -260,7 +262,8 @@ class VirtualCameraAdapterTest {
 
         // Act.
         val outConfigs = adapter.getChildrenOutConfigs(
-            createSurfaceEdge(cropRect = cropRect)
+            createSurfaceEdge(cropRect = cropRect, rotationDegrees = 90),
+            Surface.ROTATION_90
         )
 
         // Assert: preview config
@@ -268,19 +271,23 @@ class VirtualCameraAdapterTest {
         assertThat(previewOutConfig.format).isEqualTo(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
         assertThat(previewOutConfig.targets).isEqualTo(PREVIEW)
         assertThat(previewOutConfig.cropRect).isEqualTo(cropRect)
+        // Preview's target rotation matches the parent's, so it only applies the 90° rotation.
         assertThat(previewOutConfig.size).isEqualTo(Size(300, 400))
-        assertThat(previewOutConfig.rotationDegrees).isEqualTo(270)
+        assertThat(previewOutConfig.rotationDegrees).isEqualTo(90)
         assertThat(previewOutConfig.mirroring).isFalse()
         // Assert: ImageCapture config
         val imageOutConfig = outConfigs[imageCapture]!!
         assertThat(imageOutConfig.format).isEqualTo(ImageFormat.JPEG)
         assertThat(imageOutConfig.targets).isEqualTo(IMAGE_CAPTURE)
+        // ImageCapture's target rotation does not match the parent's, so it applies the delta on
+        // top of the 90° rotation.
+        assertThat(imageOutConfig.size).isEqualTo(Size(400, 300))
+        assertThat(imageOutConfig.rotationDegrees).isEqualTo(180)
         // Assert: child2
         val outConfig2 = outConfigs[child2]!!
         assertThat(outConfig2.format).isEqualTo(INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE)
         assertThat(outConfig2.targets).isEqualTo(VIDEO_CAPTURE)
         assertThat(outConfig2.cropRect).isEqualTo(cropRect)
-        assertThat(outConfig2.size).isEqualTo(Size(400, 300))
         assertThat(outConfig2.mirroring).isTrue()
     }
 

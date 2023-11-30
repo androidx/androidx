@@ -27,6 +27,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_VIDEO_STABILIZATION
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
 import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
+import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.streamsharing.DynamicRangeUtils.resolveDynamicRange;
 import static androidx.camera.core.streamsharing.ResolutionUtils.getMergedResolutions;
 import static androidx.core.util.Preconditions.checkState;
@@ -36,6 +37,7 @@ import static java.util.Objects.requireNonNull;
 import android.graphics.ImageFormat;
 import android.os.Build;
 import android.util.Size;
+import android.view.Surface;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
@@ -52,6 +54,7 @@ import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -208,21 +211,26 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
      * Gets {@link OutConfig} for children {@link UseCase} based on the input edge.
      */
     @NonNull
-    Map<UseCase, OutConfig> getChildrenOutConfigs(@NonNull SurfaceEdge cameraEdge) {
+    Map<UseCase, OutConfig> getChildrenOutConfigs(@NonNull SurfaceEdge cameraEdge,
+            @ImageOutputConfig.RotationValue int parentTargetRotation) {
         Map<UseCase, OutConfig> outConfigs = new HashMap<>();
+        int parentRotationDegrees = mParentCamera.getCameraInfo().getSensorRotationDegrees(
+                parentTargetRotation);
         for (UseCase useCase : mChildren) {
             // TODO(b/264936115): This is a temporary solution where children use the parent
             //  stream without changing it. Later we will update it to allow
             //  cropping/down-sampling to better match children UseCase config.
-            int rotationDegrees = getChildRotationDegrees(useCase);
+            int childRotationDegrees = getChildRotationDegrees(useCase);
             requireNonNull(mChildrenVirtualCameras.get(useCase))
-                    .setRotationDegrees(rotationDegrees);
+                    .setRotationDegrees(childRotationDegrees);
+            int childParentDelta = within360(
+                    cameraEdge.getRotationDegrees() + childRotationDegrees - parentRotationDegrees);
             outConfigs.put(useCase, OutConfig.of(
                     getChildTargetType(useCase),
                     getChildFormat(useCase),
                     cameraEdge.getCropRect(),
-                    getRotatedSize(cameraEdge.getCropRect(), rotationDegrees),
-                    rotationDegrees,
+                    getRotatedSize(cameraEdge.getCropRect(), childParentDelta),
+                    childParentDelta,
                     useCase.isMirroringRequired(mParentCamera)));
         }
         return outConfigs;
@@ -329,13 +337,10 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
 
     @IntRange(from = 0, to = 359)
     private int getChildRotationDegrees(@NonNull UseCase child) {
-        if (child instanceof Preview) {
-            // Rotate the buffer for Preview because SurfaceView cannot handle rotation.
-            return mParentCamera.getCameraInfo().getSensorRotationDegrees(
-                    ((Preview) child).getTargetRotation());
-        }
-        // By default, sharing node does not rotate
-        return 0;
+        int childTargetRotation = ((ImageOutputConfig) child.getCurrentConfig())
+                .getTargetRotation(Surface.ROTATION_0);
+        return mParentCamera.getCameraInfo().getSensorRotationDegrees(
+                childTargetRotation);
     }
 
     private static int getChildFormat(@NonNull UseCase useCase) {

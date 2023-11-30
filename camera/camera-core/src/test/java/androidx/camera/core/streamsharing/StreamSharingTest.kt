@@ -136,6 +136,8 @@ class StreamSharingTest {
             streamSharing.unbindFromCamera(streamSharing.camera!!)
         }
         effectProcessor.release()
+        sharingProcessor.cleanUp()
+        effectProcessor.cleanUp()
         shadowOf(getMainLooper()).idle()
     }
 
@@ -220,12 +222,12 @@ class StreamSharingTest {
     fun childTakingPicture_getJpegQuality() {
         // Arrange: set up StreamSharing with min latency ImageCapture as child
         val imageCapture = ImageCapture.Builder()
-            .setTargetRotation(Surface.ROTATION_90)
             .setCaptureMode(CAPTURE_MODE_MINIMIZE_LATENCY)
             .build()
         streamSharing = StreamSharing(camera, setOf(child1, imageCapture), useCaseConfigFactory)
         streamSharing.bindToCamera(camera, null, defaultConfig)
         streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
+        imageCapture.targetRotation = Surface.ROTATION_90
 
         // Act: the child takes a picture.
         imageCapture.takePicture(directExecutor(), object : ImageCapture.OnImageCapturedCallback() {
@@ -523,6 +525,17 @@ class StreamSharingTest {
         // Assert.
         assertThat(child1.camera!!.hasTransform).isFalse()
         assertThat(child2.camera!!.hasTransform).isFalse()
+    }
+
+    @Test
+    fun bindChildToCamera_virtualCameraHasNoRotationDegrees() {
+        // Act.
+        streamSharing.bindToCamera(frontCamera, null, null)
+        // Assert.
+        assertThat(child1.camera!!.cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_0))
+            .isEqualTo(0)
+        assertThat(child2.camera!!.cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_0))
+            .isEqualTo(0)
     }
 
     @Test
