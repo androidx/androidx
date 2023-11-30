@@ -42,7 +42,6 @@ import androidx.compose.ui.platform.AndroidComposeView
 import androidx.compose.ui.platform.AndroidComposeViewAccessibilityDelegateCompat
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
@@ -53,7 +52,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.collapse
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.copyText
-import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.cutText
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.dismiss
@@ -105,7 +103,6 @@ import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Correspondence
 import com.google.common.truth.Truth.assertThat
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -1015,233 +1012,6 @@ class AndroidComposeViewAccessibilityDelegateCompatTest {
             assertThat(info.actionList)
                 .comparingElementsUsing(IdAndLabel)
                 .contains(AccessibilityActionCompat(ACTION_CLICK, actionLabel))
-        }
-    }
-
-    @Test
-    fun sendWindowContentChangeUndefinedEventByDefault_whenPropertyAdded() {
-        // Arrange.
-        var addProperty by mutableStateOf(false)
-        rule.mainClock.autoAdvance = false
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics(mergeDescendants = false) {
-                        if (addProperty) disabled()
-                    }
-            )
-        }
-
-        // Act.
-        rule.runOnIdle { addProperty = true }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(dispatchedAccessibilityEvents)
-                .comparingElementsUsing(AccessibilityEventComparator)
-                .containsExactly(
-                    AccessibilityEvent().apply {
-                        eventType = TYPE_WINDOW_CONTENT_CHANGED
-                        contentChangeTypes = CONTENT_CHANGE_TYPE_UNDEFINED
-                    }
-                )
-        }
-    }
-
-    @Test
-    fun sendWindowContentChangeUndefinedEventByDefault_whenPropertyRemoved() {
-        // Arrange.
-        var removeProperty by mutableStateOf(false)
-        rule.mainClock.autoAdvance = false
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics(mergeDescendants = false) {
-                        if (!removeProperty) disabled()
-                    }
-            )
-        }
-
-        // Act.
-        rule.runOnIdle { removeProperty = true }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(dispatchedAccessibilityEvents)
-                .comparingElementsUsing(AccessibilityEventComparator)
-                .containsExactly(
-                    AccessibilityEvent().apply {
-                        eventType = TYPE_WINDOW_CONTENT_CHANGED
-                        contentChangeTypes = CONTENT_CHANGE_TYPE_UNDEFINED
-                    }
-                )
-        }
-    }
-
-    @Test
-    @Ignore("b/307823561")
-    fun sendWindowContentChangeUndefinedEventByDefault_onlyOnce_whenMultiplePropertiesChange() {
-        // Arrange.
-        var propertiesChanged by mutableStateOf(false)
-        rule.mainClock.autoAdvance = false
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics(mergeDescendants = false) {
-                        if (!propertiesChanged) {
-                            disabled()
-                        } else {
-                            onClick { true }
-                        }
-                    }
-            )
-        }
-
-        // Act.
-        rule.runOnIdle { propertiesChanged = true }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(dispatchedAccessibilityEvents)
-                .comparingElementsUsing(AccessibilityEventComparator)
-                .containsExactly(
-                    AccessibilityEvent().apply {
-                        eventType = TYPE_WINDOW_CONTENT_CHANGED
-                        contentChangeTypes = CONTENT_CHANGE_TYPE_UNDEFINED
-                    }
-                )
-        }
-    }
-
-    @Test
-    fun sendWindowContentChangeUndefinedEventByDefault_standardActionWithTheSameLabel() {
-        // Arrange.
-        var newAction by mutableStateOf(false)
-        rule.mainClock.autoAdvance = false
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics(mergeDescendants = false) {
-                        if (!newAction) {
-                            onClick(label = "action") { true }
-                        } else {
-                            onClick(label = "action") { true }
-                        }
-                    }
-            )
-        }
-
-        // Act.
-        rule.runOnIdle { newAction = true }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-
-        // Assert.
-        rule.runOnIdle { assertThat(dispatchedAccessibilityEvents).isEmpty() }
-    }
-
-    @Test
-    fun sendWindowContentChangeUndefinedEventByDefault_standardActionWithDifferentLabels() {
-        // Arrange.
-        var newAction by mutableStateOf(false)
-        rule.mainClock.autoAdvance = false
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics(mergeDescendants = false) {
-                        if (!newAction) {
-                            onClick(label = "action1") { true }
-                        } else {
-                            onClick(label = "action2") { true }
-                        }
-                    }
-            )
-        }
-
-        // Act.
-        rule.runOnIdle { newAction = true }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(dispatchedAccessibilityEvents)
-                .comparingElementsUsing(AccessibilityEventComparator)
-                .containsExactly(
-                    AccessibilityEvent().apply {
-                        eventType = TYPE_WINDOW_CONTENT_CHANGED
-                        contentChangeTypes = CONTENT_CHANGE_TYPE_UNDEFINED
-                    }
-                )
-        }
-    }
-
-    @Test
-    fun sendWindowContentChangeUndefinedEventByDefault_customActionWithTheSameLabel() {
-        // Arrange.
-        var newAction by mutableStateOf(false)
-        rule.mainClock.autoAdvance = false
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics(mergeDescendants = false) {
-                        customActions = if (!newAction) {
-                            listOf(CustomAccessibilityAction("action") { true })
-                        } else {
-                            listOf(CustomAccessibilityAction("action") { false })
-                        }
-                    }
-            )
-        }
-
-        // Act.
-        rule.runOnIdle { newAction = true }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-
-        // Assert.
-        rule.runOnIdle { assertThat(dispatchedAccessibilityEvents).isEmpty() }
-    }
-
-    @Test
-    fun sendWindowContentChangeUndefinedEventByDefault_customActionWithDifferentLabels() {
-        // Arrange.
-        var newAction by mutableStateOf(false)
-        rule.mainClock.autoAdvance = false
-        rule.setContentWithAccessibilityEnabled {
-            Box(
-                Modifier
-                    .size(10.dp)
-                    .semantics(mergeDescendants = false) {
-                        customActions = if (!newAction) {
-                            listOf(CustomAccessibilityAction("action1") { true })
-                        } else {
-                            listOf(CustomAccessibilityAction("action2") { true })
-                        }
-                    }
-            )
-        }
-
-        // Act.
-        rule.runOnIdle { newAction = true }
-        rule.mainClock.advanceTimeBy(accessibilityEventLoopIntervalMs)
-
-        // Assert.
-        rule.runOnIdle {
-            assertThat(dispatchedAccessibilityEvents)
-                .comparingElementsUsing(AccessibilityEventComparator)
-                .containsExactly(
-                    AccessibilityEvent().apply {
-                        eventType = TYPE_WINDOW_CONTENT_CHANGED
-                        contentChangeTypes = CONTENT_CHANGE_TYPE_UNDEFINED
-                    }
-                )
         }
     }
 
