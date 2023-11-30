@@ -181,8 +181,8 @@ internal fun rememberPagerMeasurePolicy(
             reverseLayout = reverseLayout,
             pinnedPages = pinnedPages,
             snapPosition = snapPosition,
+            placementScopeInvalidator = state.placementScopeInvalidator,
             layout = { width, height, placement ->
-                state.remeasureTrigger // read state to trigger remeasures on state write
                 layout(
                     containerConstraints.constrainWidth(width + totalHorizontalPadding),
                     containerConstraints.constrainHeight(height + totalVerticalPadding),
