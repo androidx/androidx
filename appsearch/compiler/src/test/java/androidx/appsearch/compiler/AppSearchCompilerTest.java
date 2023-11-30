@@ -2678,6 +2678,48 @@ public class AppSearchCompilerTest {
     }
 
     @Test
+    public void testBuilderThatUsesGenerics() throws Exception {
+        Compilation compilation = compile(
+                "@Document\n"
+                        + "public class Gift {\n"
+                        + "  @Document.Namespace private final String mNamespace;\n"
+                        + "  @Document.Id private final String mId;\n"
+                        + "  private Gift(String namespace, String id) {\n"
+                        + "    mNamespace = namespace;\n"
+                        + "    mId = id;\n"
+                        + "  }\n"
+                        + "  public String getNamespace() { return mNamespace; }\n"
+                        + "  public String getId() { return mId; }\n"
+                        + "  public static abstract class BaseBuilder<T> {\n"
+                        + "    public final T build() { return buildInternal(false); }\n"
+                        + "    // Give this a param to have zero methods with the signature\n"
+                        + "    // () -> DocumentClass\n"
+                        + "    protected abstract T buildInternal(boolean ignore);\n"
+                        + "  }\n"
+                        + "  @Document.BuilderProducer\n"
+                        + "  public static class Builder extends BaseBuilder<Gift> {\n"
+                        + "    private String mNamespace = \"\";\n"
+                        + "    private String mId = \"\";\n"
+                        + "    @Override\n"
+                        + "    protected Gift buildInternal(boolean ignore) {\n"
+                        + "      return new Gift(mNamespace, mId);\n"
+                        + "    }\n"
+                        + "    public Builder setNamespace(String namespace) {\n"
+                        + "      mNamespace = namespace;\n"
+                        + "      return this;\n"
+                        + "    }\n"
+                        + "    public Builder setId(String id) {\n"
+                        + "      mId = id;\n"
+                        + "      return this;\n"
+                        + "    }\n"
+                        + "  }\n"
+                        + "}");
+        assertThat(compilation).succeededWithoutWarnings();
+        checkResultContains("Gift.java", "Gift.Builder builder = new Gift.Builder()");
+        checkResultContains("Gift.java", "return builder.build()");
+    }
+
+    @Test
     public void testCreationByBuilderWithParameter() throws Exception {
         Compilation compilation = compile(
                 "@Document\n"
