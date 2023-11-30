@@ -254,8 +254,8 @@ package androidx.tv.foundation.lazy.list {
 package androidx.tv.foundation.text {
 
   public final class TvImeOptionsKt {
-    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.AndroidImeOptions AndroidImeOptions(androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
-    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.AndroidImeOptions keyboardAlignment(androidx.compose.ui.text.input.AndroidImeOptions, androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
+    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.PlatformImeOptions PlatformImeOptions(androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
+    method @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public static androidx.compose.ui.text.input.PlatformImeOptions keyboardAlignment(androidx.compose.ui.text.input.PlatformImeOptions, androidx.tv.foundation.text.TvKeyboardAlignment horizontalAlignment);
   }
 
   @SuppressCompatibility @androidx.tv.foundation.ExperimentalTvFoundationApi public enum TvKeyboardAlignment {
