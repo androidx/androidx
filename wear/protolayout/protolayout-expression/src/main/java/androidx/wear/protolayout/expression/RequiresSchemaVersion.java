@@ -27,7 +27,13 @@ import kotlin.annotation.MustBeDocumented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
-/** Indicates the minimum schema version the annotated type is supported at. */
+/**
+ * Indicates the minimum schema version the annotated type is supported at. {@link #major()} and
+ * {@link #minor()} correspond to {@link VersionBuilders.VersionInfo#getMajor()} and {@link
+ * VersionBuilders.VersionInfo#getMinor()} values reported by renderers/evaluators of ProtoLayout.
+ *
+ * <p>Note that {@link #minor()} version is usually in the form of {@code x00} such as 100, 200, ...
+ */
 @MustBeDocumented
 @Retention(CLASS)
 @Target({TYPE, METHOD, CONSTRUCTOR, FIELD})
