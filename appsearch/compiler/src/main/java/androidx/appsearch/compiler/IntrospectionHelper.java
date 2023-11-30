@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.stream.Stream;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
@@ -121,6 +122,7 @@ public class IntrospectionHelper {
     final TypeMirror mBytePrimitiveType;
     private final ProcessingEnvironment mEnv;
     private final Types mTypeUtils;
+    private final Elements mElementUtils;
 
     private final WeakHashMap<TypeElement, LinkedHashSet<ExecutableElement>> mAllMethodsCache =
             new WeakHashMap<>();
@@ -128,27 +130,27 @@ public class IntrospectionHelper {
     IntrospectionHelper(ProcessingEnvironment env) {
         mEnv = env;
 
-        Elements elementUtil = env.getElementUtils();
+        mElementUtils = env.getElementUtils();
         mTypeUtils = env.getTypeUtils();
-        mCollectionType = elementUtil.getTypeElement(Collection.class.getName()).asType();
-        mListType = elementUtil.getTypeElement(List.class.getName()).asType();
-        mStringType = elementUtil.getTypeElement(String.class.getName()).asType();
-        mIntegerBoxType = elementUtil.getTypeElement(Integer.class.getName()).asType();
+        mCollectionType = mElementUtils.getTypeElement(Collection.class.getName()).asType();
+        mListType = mElementUtils.getTypeElement(List.class.getName()).asType();
+        mStringType = mElementUtils.getTypeElement(String.class.getName()).asType();
+        mIntegerBoxType = mElementUtils.getTypeElement(Integer.class.getName()).asType();
         mIntPrimitiveType = mTypeUtils.unboxedType(mIntegerBoxType);
-        mLongBoxType = elementUtil.getTypeElement(Long.class.getName()).asType();
+        mLongBoxType = mElementUtils.getTypeElement(Long.class.getName()).asType();
         mLongPrimitiveType = mTypeUtils.unboxedType(mLongBoxType);
-        mFloatBoxType = elementUtil.getTypeElement(Float.class.getName()).asType();
+        mFloatBoxType = mElementUtils.getTypeElement(Float.class.getName()).asType();
         mFloatPrimitiveType = mTypeUtils.unboxedType(mFloatBoxType);
-        mDoubleBoxType = elementUtil.getTypeElement(Double.class.getName()).asType();
+        mDoubleBoxType = mElementUtils.getTypeElement(Double.class.getName()).asType();
         mDoublePrimitiveType = mTypeUtils.unboxedType(mDoubleBoxType);
-        mBooleanBoxType = elementUtil.getTypeElement(Boolean.class.getName()).asType();
+        mBooleanBoxType = mElementUtils.getTypeElement(Boolean.class.getName()).asType();
         mBooleanPrimitiveType = mTypeUtils.unboxedType(mBooleanBoxType);
-        mByteBoxType = elementUtil.getTypeElement(Byte.class.getName()).asType();
+        mByteBoxType = mElementUtils.getTypeElement(Byte.class.getName()).asType();
         mByteBoxArrayType = mTypeUtils.getArrayType(mByteBoxType);
         mBytePrimitiveType = mTypeUtils.unboxedType(mByteBoxType);
         mBytePrimitiveArrayType = mTypeUtils.getArrayType(mBytePrimitiveType);
         mGenericDocumentType =
-                elementUtil.getTypeElement(GENERIC_DOCUMENT_CLASS.canonicalName()).asType();
+                mElementUtils.getTypeElement(GENERIC_DOCUMENT_CLASS.canonicalName()).asType();
     }
 
     /**
@@ -402,13 +404,62 @@ public class IntrospectionHelper {
     }
 
     /**
-     * Whether the method returns the specified type.
+     * A method's type and element (i.e. declaration).
+     *
+     * <p>Note: The parameter and return types may differ between the type and the element.
+     * For example,
+     *
+     * <pre>
+     * {@code
+     * public class StringSet implements Set<String> {...}
+     * }
+     * </pre>
+     *
+     * <p>Here, the type of {@code StringSet.add()} is {@code (String) -> boolean} and the element
+     * points to the generic declaration within {@code Set<T>} with a return type of
+     * {@code boolean} and a single parameter of type {@code T}.
+     */
+    public static class MethodTypeAndElement {
+        private final ExecutableType mType;
+        private final ExecutableElement mElement;
+
+        public MethodTypeAndElement(
+                @NonNull ExecutableType type, @NonNull ExecutableElement element) {
+            mType = type;
+            mElement = element;
+        }
+
+        @NonNull
+        public ExecutableType getType() {
+            return mType;
+        }
+
+        @NonNull
+        public ExecutableElement getElement() {
+            return mElement;
+        }
+    }
+
+    /**
+     * Returns a stream of all the methods (including inherited) within a {@link DeclaredType}.
+     *
+     * <p>Does not include constructors.
+     */
+    @NonNull
+    public Stream<MethodTypeAndElement> getAllMethods(@NonNull DeclaredType type) {
+        return mElementUtils.getAllMembers((TypeElement) type.asElement()).stream()
+                .filter(el -> el.getKind() == ElementKind.METHOD)
+                .map(el -> new MethodTypeAndElement(
+                        (ExecutableType) mTypeUtils.asMemberOf(type, el),
+                        (ExecutableElement) el));
+    }
+
+    /**
+     * Whether the method returns the specified type (or subtype).
      */
     public boolean isReturnTypeMatching(
-            @NonNull ExecutableElement method, @NonNull TypeMirror type) {
-        TypeMirror target = method.getKind() == ElementKind.CONSTRUCTOR
-                ? method.getEnclosingElement().asType() : method.getReturnType();
-        return mTypeUtils.isSameType(type, target);
+            @NonNull ExecutableType method, @NonNull TypeMirror type) {
+        return mTypeUtils.isAssignable(method.getReturnType(), type);
     }
 
     /**
