@@ -62,7 +62,6 @@ import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 
-import androidx.annotation.IntRange;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -285,20 +284,6 @@ public final class Preview extends UseCase {
         if (camera == getCamera()) {
             mCurrentSurfaceRequest = appEdge.createSurfaceRequest(camera);
             sendSurfaceRequest();
-        }
-    }
-
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    @IntRange(from = 0, to = 359)
-    protected int getRelativeRotation(@NonNull CameraInternal cameraInternal,
-            boolean requireMirroring) {
-        if (cameraInternal.getHasTransform()) {
-            return super.getRelativeRotation(cameraInternal, requireMirroring);
-        } else {
-            // If there is a virtual parent camera, the buffer is already rotated because
-            // SurfaceView cannot handle additional rotation.
-            return 0;
         }
     }
 
