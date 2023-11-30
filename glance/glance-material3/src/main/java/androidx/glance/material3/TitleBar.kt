@@ -45,8 +45,8 @@ import androidx.glance.unit.ColorProvider
  * @param title Text to be displayed. Generally the name of your widget or app. Title
  * should be shortened or omitted when the widget's width is narrow. The width can be checked
  * using `LocalSize.current.width`
- * @param contentColor The color which foreground content will be tinted. Note: This does not
- * tint the contents of the [actions] block.
+ * @param iconColor The color which [startIcon] will be tinted.
+ * @param textColor The color which [title] will be tinted.
  * @param modifier GlanceModifier.
  * @param fontFamily Optional override for [title]'s font family. Leave null to use the default.
  * @param actions A slot api for buttons. Use [CircleIconButton] with backgroundColor = null.
@@ -57,10 +57,11 @@ import androidx.glance.unit.ColorProvider
 fun TitleBar(
     startIcon: ImageProvider,
     title: String,
-    contentColor: ColorProvider = GlanceTheme.colors.onSurface,
+    iconColor: ColorProvider? = GlanceTheme.colors.onSurface,
+    textColor: ColorProvider = GlanceTheme.colors.onSurface,
     modifier: GlanceModifier = GlanceModifier,
     fontFamily: FontFamily? = null,
-    actions: @Composable RowScope.() -> Unit,
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
     @Composable
     fun StartIcon() {
@@ -72,7 +73,7 @@ fun TitleBar(
                 modifier = GlanceModifier.size(24.dp),
                 provider = startIcon,
                 contentDescription = "",
-                colorFilter = ColorFilter.tint(contentColor)
+                colorFilter = iconColor?.let { ColorFilter.tint(iconColor) }
             )
         }
     }
@@ -82,7 +83,7 @@ fun TitleBar(
         Text(
             text = title,
             style = TextStyle(
-                color = contentColor,
+                color = textColor,
                 fontWeight = FontWeight.Medium,
                 fontSize = 16.sp,
                 fontFamily = fontFamily
