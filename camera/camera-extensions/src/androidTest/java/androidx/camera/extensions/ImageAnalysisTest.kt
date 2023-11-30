@@ -30,6 +30,7 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.internal.VendorExtender
 import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -58,14 +59,15 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class ImageAnalysisTest(
+    private val implType: ExtensionsTestlibControl.ImplementationType,
     @ExtensionMode.Mode private val extensionMode: Int,
     @CameraSelector.LensFacing private val lensFacing: Int
 ) {
     companion object {
         @JvmStatic
-        @get:Parameterized.Parameters(name = "extension = {0}, facing = {1}")
+        @get:Parameterized.Parameters(name = "implType = {0}, mode = {1}, facing = {2}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllExtensionsLensFacingCombinations()
+            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations()
     }
 
     @get:Rule
@@ -91,6 +93,7 @@ class ImageAnalysisTest(
         )
 
         cameraProvider = ProcessCameraProvider.getInstance(context)[10000, TimeUnit.MILLISECONDS]
+        ExtensionsTestlibControl.getInstance().setImplementationType(implType)
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
         extensionsManager = ExtensionsManager.getInstanceAsync(
             context,
