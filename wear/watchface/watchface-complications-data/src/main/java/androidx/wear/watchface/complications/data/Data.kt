@@ -124,10 +124,10 @@ public annotation class ComplicationDisplayPolicy
  * @property dataSource The [ComponentName] of the
  *   [androidx.wear.watchface.complications.datasource.ComplicationDataSourceService] that provided
  *   the ComplicationData. This may be `null` when run on old systems.
- * @property persistencePolicy The [ComplicationPersistencePolicy] for this complication. This
- *   requires the watchface to be built with a compatible library to work.
- * @property displayPolicy The [ComplicationDisplayPolicy] for this complication. This requires the
- *   watchface to be built with a compatible library to work.
+ * @property persistencePolicy The [persistence policy][ComplicationPersistencePolicies] for this
+ *   complication. This requires the watchface to be built with a compatible library to work.
+ * @property displayPolicy The [display policy][ComplicationDisplayPolicies] for this complication.
+ *   This requires the watchface to be built with a compatible library to work.
  * @property dynamicValueInvalidationFallback Used in case any dynamic value has been invalidated.
  *
  *   IMPORTANT: This is only used when the system supports dynamic values. See each dynamic field's
@@ -255,7 +255,7 @@ constructor(
             return this as BuilderT
         }
 
-        /** Sets the complication's [ComplicationPersistencePolicy]. */
+        /** Sets the complication's [persistence policy][ComplicationPersistencePolicies]. */
         @Suppress("UNCHECKED_CAST", "SetterReturnsThis")
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         public fun setPersistencePolicy(
@@ -265,7 +265,7 @@ constructor(
             return this as BuilderT
         }
 
-        /** Sets the complication's [ComplicationDisplayPolicy]. */
+        /** Sets the complication's [display policy][ComplicationDisplayPolicies]. */
         @Suppress("UNCHECKED_CAST", "SetterReturnsThis")
         @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         public fun setDisplayPolicy(@ComplicationDisplayPolicy displayPolicy: Int): BuilderT {
