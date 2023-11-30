@@ -389,7 +389,8 @@ package androidx.wear.protolayout.expression {
   public final class VersionBuilders {
   }
 
-  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class VersionBuilders.VersionInfo {
+  @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class VersionBuilders.VersionInfo implements java.lang.Comparable<androidx.wear.protolayout.expression.VersionBuilders.VersionInfo> {
+    method public int compareTo(androidx.wear.protolayout.expression.VersionBuilders.VersionInfo);
     method public int getMajor();
     method public int getMinor();
   }
