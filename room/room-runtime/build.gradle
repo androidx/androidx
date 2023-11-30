@@ -25,6 +25,12 @@ plugins {
 }
 
 android {
+    sourceSets {
+        main {
+            // Align AGP main source set root with KMP
+            root = 'src/androidMain'
+        }
+    }
     defaultConfig {
         multiDexEnabled true
     }
