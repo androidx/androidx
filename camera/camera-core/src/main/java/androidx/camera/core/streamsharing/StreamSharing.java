@@ -256,7 +256,8 @@ public class StreamSharing extends UseCase {
 
         // Transform the input based on virtual camera configuration.
         Map<UseCase, SurfaceProcessorNode.OutConfig> outConfigMap =
-                mVirtualCameraAdapter.getChildrenOutConfigs(mSharingInputEdge);
+                mVirtualCameraAdapter.getChildrenOutConfigs(mSharingInputEdge,
+                        getTargetRotationInternal());
         SurfaceProcessorNode.Out out = mSharingNode.transform(
                 SurfaceProcessorNode.In.of(mSharingInputEdge,
                         new ArrayList<>(outConfigMap.values())));
