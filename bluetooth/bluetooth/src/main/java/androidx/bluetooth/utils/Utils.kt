@@ -17,11 +17,7 @@
 package androidx.bluetooth.utils
 
 import android.bluetooth.BluetoothDevice as FwkBluetoothDevice
-import android.os.Build
-import android.os.Parcel
-import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.bluetooth.BluetoothAddress
 import java.security.MessageDigest
 import java.util.UUID
 import kotlin.experimental.and
@@ -32,19 +28,7 @@ internal fun deviceId(
     packageName: String,
     fwkDevice: FwkBluetoothDevice
 ): UUID {
-    return if (Build.VERSION.SDK_INT >= 34) {
-        deviceId(packageName, fwkDevice.address, fwkDevice.addressType())
-    } else {
-        deviceId(packageName, fwkDevice.address, BluetoothAddress.ADDRESS_TYPE_UNKNOWN)
-    }
-}
-
-private fun deviceId(
-    packageName: String,
-    address: String,
-    @BluetoothAddress.AddressType addressType: Int
-): UUID {
-    val name = packageName + address + addressType
+    val name = packageName + fwkDevice.address + fwkDevice.addressType()
     val md = MessageDigest.getInstance("SHA-1")
     md.update(name.toByteArray())
     val hash = md.digest()
@@ -67,31 +51,4 @@ private fun deviceId(
     }
 
     return UUID(msb, lsb)
-}
-
-// mAddressType is added to the parcel in API 34
-@RequiresApi(34)
-private fun FwkBluetoothDevice.addressType(): @BluetoothAddress.AddressType Int {
-    val parcel = Parcel.obtain()
-    writeToParcel(parcel, 0)
-    parcel.setDataPosition(0)
-    parcel.readString() // Skip address
-    val mAddressType = parcel.readInt()
-    parcel.recycle()
-
-    return when (mAddressType) {
-        FwkBluetoothDevice.ADDRESS_TYPE_PUBLIC -> BluetoothAddress.ADDRESS_TYPE_PUBLIC
-        FwkBluetoothDevice.ADDRESS_TYPE_RANDOM ->
-            when (address.substring(0, 0).toInt(16).shr(2)) {
-                BluetoothAddress.TYPE_RANDOM_STATIC_BITS_VALUE ->
-                    BluetoothAddress.ADDRESS_TYPE_RANDOM_STATIC
-                BluetoothAddress.TYPE_RANDOM_RESOLVABLE_BITS_VALUE ->
-                    BluetoothAddress.ADDRESS_TYPE_RANDOM_RESOLVABLE
-                BluetoothAddress.TYPE_RANDOM_NON_RESOLVABLE_BITS_VALUE ->
-                    BluetoothAddress.ADDRESS_TYPE_RANDOM_NON_RESOLVABLE
-                else -> BluetoothAddress.ADDRESS_TYPE_UNKNOWN
-            }
-        FwkBluetoothDevice.ADDRESS_TYPE_UNKNOWN -> BluetoothAddress.ADDRESS_TYPE_UNKNOWN
-        else -> BluetoothAddress.ADDRESS_TYPE_UNKNOWN
-    }
 }

@@ -22,6 +22,7 @@ import android.os.ParcelUuid
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
+import androidx.bluetooth.utils.addressType
 import java.util.UUID
 
 /**
@@ -74,12 +75,10 @@ class ScanResult @RestrictTo(RestrictTo.Scope.LIBRARY) constructor(
     /** Remote Bluetooth device found. */
     val device: BluetoothDevice = BluetoothDevice(fwkScanResult.device)
 
-    // TODO(kihongs) Find a way to get address type from framework scan result
     /** Bluetooth address for the remote device found. */
-
     val deviceAddress: BluetoothAddress = BluetoothAddress(
         fwkScanResult.device.address,
-        BluetoothAddress.ADDRESS_TYPE_UNKNOWN
+        fwkScanResult.device.addressType()
     )
 
     /** Device timestamp when the advertisement was last seen. */
