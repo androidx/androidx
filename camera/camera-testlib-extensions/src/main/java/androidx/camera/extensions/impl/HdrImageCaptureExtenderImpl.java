@@ -19,7 +19,6 @@ import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
@@ -40,7 +39,7 @@ import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -385,8 +384,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     @Nullable
     @Override
     public List<Pair<Integer, Size[]>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
-        Pair<Integer, Size[]> pair = new Pair<>(ImageFormat.JPEG, new Size[] {captureSize});
-        return Arrays.asList(pair);
+        return Collections.emptyList();
     }
 
     @Override
