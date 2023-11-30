@@ -78,7 +78,7 @@ class MavenUploadHelperTest {
       <groupId>androidx.collection</groupId>
       <artifactId>collection-jvm</artifactId>
       <version>1.3.0-alpha05</version>
-      <scope>runtime</scope>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 </project>
@@ -136,7 +136,7 @@ class MavenUploadHelperTest {
       <artifactId>ui-geometry-android</artifactId>
       <version>1.6.0-alpha01</version>
       <type>aar</type>
-      <scope>runtime</scope>
+      <scope>compile</scope>
     </dependency>
   </dependencies>
 </project>
