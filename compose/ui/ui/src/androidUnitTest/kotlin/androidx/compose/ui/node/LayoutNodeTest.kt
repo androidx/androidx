@@ -54,6 +54,7 @@ import androidx.compose.ui.modifier.ModifierLocalManager
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.PlatformTextInputSessionScope
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.TextToolbar
 import androidx.compose.ui.platform.ViewConfiguration
 import androidx.compose.ui.platform.WindowInfo
@@ -2526,6 +2527,8 @@ internal class MockOwner(
     override val density: Density
         get() = Density(1f)
     override val textInputService: TextInputService
+        get() = TODO("Not yet implemented")
+    override val softwareKeyboardController: SoftwareKeyboardController
         get() = TODO("Not yet implemented")
     override val pointerIconService: PointerIconService
         get() = TODO("Not yet implemented")

@@ -412,14 +412,13 @@ internal class AndroidComposeView(
      * The legacy text input service. This is only used for new text input sessions if
      * [textInputSessionMutex] is null.
      */
-    override val textInputService
-        get() = TextInputService(
-            platformTextInputServiceInterceptor(
-                legacyTextInputServiceAndroid
-            )
-        )
+    override val textInputService =
+        TextInputService(platformTextInputServiceInterceptor(legacyTextInputServiceAndroid))
 
     private val textInputSessionMutex = SessionMutex<AndroidPlatformTextInputSession>()
+
+    override val softwareKeyboardController: SoftwareKeyboardController =
+        DelegatingSoftwareKeyboardController(textInputService)
 
     override val placementScope: Placeable.PlacementScope
         get() = PlacementScope(this)
