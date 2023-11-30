@@ -98,6 +98,10 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 }
             }
 
+            skikoExcludingWebMain {
+                dependsOn(skikoMain)
+            }
+
             jsNativeMain.dependsOn(skikoMain)
 
             jsWasmMain.dependsOn(jsNativeMain)
@@ -122,7 +126,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             desktopMain {
-                dependsOn skikoMain
+                dependsOn skikoExcludingWebMain
                 dependencies {
                     implementation(libs.kotlinStdlib)
                     implementation(libs.kotlinStdlibJdk8)
@@ -136,6 +140,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             nativeMain.dependsOn(jsNativeMain)
+            nativeMain.dependsOn(skikoExcludingWebMain)
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
             //  need to add Robolectric (which must be kept out of androidAndroidTest), use a top
