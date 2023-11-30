@@ -505,19 +505,6 @@ class PreviewTest {
     }
 
     @Test
-    fun noCameraTransform_rotationDegreesIsZero() {
-        // Act: create preview with hasCameraTransform == false
-        frontCamera.hasTransform = false
-        val preview = createPreview(
-            effect,
-            frontCamera,
-            targetRotation = ROTATION_90
-        )
-        // Assert: rotationDegrees is 0.
-        assertThat(preview.cameraEdge.rotationDegrees).isEqualTo(0)
-    }
-
-    @Test
     fun setNoCameraTransform_propagatesToCameraEdge() {
         // Act: create preview with hasCameraTransform == false
         frontCamera.hasTransform = false

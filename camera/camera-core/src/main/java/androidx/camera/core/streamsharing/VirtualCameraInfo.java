@@ -16,12 +16,15 @@
 
 package androidx.camera.core.streamsharing;
 
+import static androidx.camera.core.impl.utils.TransformUtils.within360;
+
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ForwardingCameraInfo;
+import androidx.camera.core.impl.ImageOutputConfig;
 
 import java.util.UUID;
 
@@ -32,6 +35,7 @@ import java.util.UUID;
 public class VirtualCameraInfo extends ForwardingCameraInfo {
 
     private final String mVirtualCameraId;
+    private int mVirtualCameraRotationDegrees;
 
     VirtualCameraInfo(@NonNull CameraInfoInternal cameraInfoInternal) {
         super(cameraInfoInternal);
@@ -47,5 +51,20 @@ public class VirtualCameraInfo extends ForwardingCameraInfo {
     @Override
     public String getCameraId() {
         return mVirtualCameraId;
+    }
+
+    /**
+     * Sets the rotation applied by this virtual camera.
+     */
+    void setVirtualCameraRotationDegrees(int virtualCameraRotationDegrees) {
+        mVirtualCameraRotationDegrees = virtualCameraRotationDegrees;
+    }
+
+    @Override
+    public int getSensorRotationDegrees(@ImageOutputConfig.RotationValue int relativeRotation) {
+        // The child UseCase calls this method to get the remaining rotation degrees, which is the
+        // original rotation minus the rotation applied by the virtual camera.
+        return within360(
+                super.getSensorRotationDegrees(relativeRotation) - mVirtualCameraRotationDegrees);
     }
 }
