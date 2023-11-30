@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.app.sdksandbox.sdkprovider.SdkSandboxController
 import android.content.Context
 import android.os.Binder
-import android.os.Build
 import android.os.ext.SdkExtensions
 import androidx.annotation.RequiresExtension
 import androidx.core.os.BuildCompat
@@ -39,31 +38,11 @@ import org.mockito.Mockito.verifyZeroInteractions
 import org.mockito.Mockito.`when`
 
 // TODO(b/249982507) Rewrite test to use real SDK in sandbox instead of mocking controller
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+@SdkSuppress(minSdkVersion = 34)
 class SdkSandboxControllerAppOwnedInterfacesTest {
 
     @Test
-    fun getAppOwnedSdkSandboxInterfaces_whenControllerNotAvailable_returnsEmptyList() {
-        assumeFalse(
-            "Requires SandboxController not available",
-            isSandboxControllerAvailable()
-        )
-
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val controllerCompat = SdkSandboxControllerCompat.from(context)
-
-        val appOwnedInterfaces = controllerCompat.getAppOwnedSdkSandboxInterfaces()
-        assertThat(appOwnedInterfaces).isEmpty()
-    }
-
-    @Test
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 5)
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
     fun getAppOwnedSdkSandboxInterfaces_whenApiNotAvailable_returnsEmptyList() {
-        assumeTrue(
-            "Requires SandboxController available",
-            isSandboxControllerAvailable()
-        )
         assumeFalse(
             "Requires AppOwnedInterfaces API not available",
             isAppOwnedInterfacesApiAvailable()
@@ -83,7 +62,7 @@ class SdkSandboxControllerAppOwnedInterfacesTest {
 
     @Test
     @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 8)
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.TIRAMISU)
+    @SdkSuppress(minSdkVersion = 34)
     fun getAppOwnedSdkSandboxInterfaces_whenApiAvailable_delegateToPlatform() {
         assumeTrue(
             "Requires AppOwnedInterfaces API available",
@@ -111,9 +90,6 @@ class SdkSandboxControllerAppOwnedInterfacesTest {
         assertThat(resultObj.getVersion()).isEqualTo(expectedObj.getVersion())
         assertThat(resultObj.getInterface()).isEqualTo(expectedObj.getInterface())
     }
-
-    private fun isSandboxControllerAvailable() =
-        AdServicesInfo.isAtLeastV5()
 
     private fun isAppOwnedInterfacesApiAvailable() =
         BuildCompat.AD_SERVICES_EXTENSION_INT >= 8 || AdServicesInfo.isDeveloperPreview()

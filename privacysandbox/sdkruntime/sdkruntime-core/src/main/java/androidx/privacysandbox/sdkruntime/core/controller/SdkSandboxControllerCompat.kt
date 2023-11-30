@@ -33,7 +33,6 @@ import androidx.privacysandbox.sdkruntime.core.Versions
 import androidx.privacysandbox.sdkruntime.core.activity.SdkSandboxActivityHandlerCompat
 import androidx.privacysandbox.sdkruntime.core.controller.impl.LocalImpl
 import androidx.privacysandbox.sdkruntime.core.controller.impl.NoOpImpl
-import androidx.privacysandbox.sdkruntime.core.controller.impl.PlatformImpl
 import androidx.privacysandbox.sdkruntime.core.controller.impl.PlatformUDCImpl
 import org.jetbrains.annotations.TestOnly
 
@@ -181,13 +180,10 @@ class SdkSandboxControllerCompat internal constructor(
 
     private object PlatformImplFactory {
         fun create(context: Context): SandboxControllerImpl {
-            if (AdServicesInfo.isAtLeastV5()) {
-                if (Build.VERSION.SDK_INT >= 34 || AdServicesInfo.isDeveloperPreview()) {
-                    return PlatformUDCImpl.from(context)
-                }
-                return PlatformImpl.from(context)
+            if (Build.VERSION.SDK_INT >= 34 || AdServicesInfo.isDeveloperPreview()) {
+                return PlatformUDCImpl.from(context)
             }
-            return NoOpImpl()
+            throw UnsupportedOperationException("SDK should be loaded locally on API below 34")
         }
     }
 }
