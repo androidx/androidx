@@ -46,6 +46,12 @@ androidXMultiplatform {
                 implementation(libs.kotlinTestJunit)
             }
         }
+
+        androidInstrumentedTest {
+            dependencies {
+                implementation(libs.testRunner)
+            }
+        }
     }
 }
 
