@@ -344,6 +344,33 @@ src/sample/experimental/UseJavaPackageFromKt.kt:55: Error: This declaration is o
         check(*input).expect(expected)
     }
 
+    @Test
+    fun resolveSamWithValueClass() {
+        val input = arrayOf(
+            kotlin(
+                """
+                @JvmInline
+                value class MyValue(val p: Int)
+
+                fun interface FunInterface {
+                  fun sam(): MyValue
+                }
+
+                fun itfConsumer(itf: FunInterface) {
+                  itf.sam().p
+                }
+
+                fun test() {
+                  itfConsumer {
+                    MyValue(42)
+                  }
+                }
+                """.trimIndent()
+            )
+        )
+        check(*input).expectClean()
+    }
+
     /* ktlint-disable max-line-length */
     companion object {
         /**
