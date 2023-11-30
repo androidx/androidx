@@ -22,6 +22,8 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.proto.VersionProto;
 
+import java.util.Objects;
+
 /** Builders for the schema version information of a layout (or an expression). */
 public final class VersionBuilders {
     private VersionBuilders() {}
@@ -31,7 +33,7 @@ public final class VersionBuilders {
      * layout).
      */
     @RequiresSchemaVersion(major = 1, minor = 0)
-    public static final class VersionInfo {
+    public static final class VersionInfo implements Comparable<VersionInfo> {
         private final VersionProto.VersionInfo mImpl;
         @Nullable private final Fingerprint mFingerprint;
 
@@ -92,6 +94,28 @@ public final class VersionBuilders {
         @NonNull
         public String toString() {
             return "VersionInfo{" + "major=" + getMajor() + ", minor=" + getMinor() + "}";
+        }
+
+        @Override
+        public int compareTo(@NonNull VersionInfo other) {
+            if (this.getMajor() == other.getMajor()) {
+                return Integer.compare(this.getMinor(), other.getMinor());
+            }
+            return Integer.compare(this.getMajor(), other.getMajor());
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(getMajor(), getMinor());
+        }
+
+        @Override
+        public boolean equals(@Nullable Object obj) {
+            if (obj instanceof VersionInfo) {
+                VersionInfo that = (VersionInfo) obj;
+                return this.getMajor() == that.getMajor() && this.getMinor() == that.getMinor();
+            }
+            return false;
         }
 
         /** Builder for {@link VersionInfo} */
