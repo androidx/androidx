@@ -36,7 +36,6 @@ import static androidx.media2.session.SessionResult.RESULT_SUCCESS;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -56,7 +55,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.ObjectsCompat;
-import androidx.media2.common.ClassVerificationHelper;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.Rating;
@@ -205,11 +203,7 @@ class MediaControllerImplLegacy implements MediaController.MediaControllerImpl {
             }
             mHandler.removeCallbacksAndMessages(null);
 
-            if (Build.VERSION.SDK_INT >= 18) {
-                ClassVerificationHelper.HandlerThread.Api18.quitSafely(mHandlerThread);
-            } else {
-                mHandlerThread.quit();
-            }
+            mHandlerThread.quitSafely();
 
             mClosed = true;
 

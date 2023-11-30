@@ -120,14 +120,7 @@ public final class TextViewCompat {
     public static void setCompoundDrawablesRelative(@NonNull TextView textView,
             @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
             @Nullable Drawable bottom) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            Api17Impl.setCompoundDrawablesRelative(textView, start, top, end, bottom);
-        } else if (Build.VERSION.SDK_INT >= 17) {
-            boolean rtl = Api17Impl.getLayoutDirection(textView) == View.LAYOUT_DIRECTION_RTL;
-            textView.setCompoundDrawables(rtl ? end : start, top, rtl ? start : end, bottom);
-        } else {
-            textView.setCompoundDrawables(start, top, end, bottom);
-        }
+        textView.setCompoundDrawablesRelative(start, top, end, bottom);
     }
 
     /**
@@ -152,16 +145,7 @@ public final class TextViewCompat {
     public static void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
             @Nullable Drawable start, @Nullable Drawable top, @Nullable Drawable end,
             @Nullable Drawable bottom) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            Api17Impl.setCompoundDrawablesRelativeWithIntrinsicBounds(textView, start, top, end,
-                    bottom);
-        } else if (Build.VERSION.SDK_INT >= 17) {
-            boolean rtl = Api17Impl.getLayoutDirection(textView) == View.LAYOUT_DIRECTION_RTL;
-            textView.setCompoundDrawablesWithIntrinsicBounds(rtl ? end : start, top,
-                    rtl ? start : end,  bottom);
-        } else {
-            textView.setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom);
-        }
+        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom);
     }
 
     /**
@@ -185,16 +169,7 @@ public final class TextViewCompat {
     public static void setCompoundDrawablesRelativeWithIntrinsicBounds(@NonNull TextView textView,
             @DrawableRes int start, @DrawableRes int top, @DrawableRes int end,
             @DrawableRes int bottom) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            Api17Impl.setCompoundDrawablesRelativeWithIntrinsicBounds(textView, start, top, end,
-                    bottom);
-        } else if (Build.VERSION.SDK_INT >= 17) {
-            boolean rtl = Api17Impl.getLayoutDirection(textView) == View.LAYOUT_DIRECTION_RTL;
-            textView.setCompoundDrawablesWithIntrinsicBounds(rtl ? end : start, top,
-                    rtl ? start : end, bottom);
-        } else {
-            textView.setCompoundDrawablesWithIntrinsicBounds(start, top, end, bottom);
-        }
+        textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom);
     }
 
     /**
@@ -235,22 +210,7 @@ public final class TextViewCompat {
      */
     @NonNull
     public static Drawable[] getCompoundDrawablesRelative(@NonNull TextView textView) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return Api17Impl.getCompoundDrawablesRelative(textView);
-        }
-        if (Build.VERSION.SDK_INT >= 17) {
-            final boolean rtl = Api17Impl.getLayoutDirection(textView) == View.LAYOUT_DIRECTION_RTL;
-            final Drawable[] compounds = textView.getCompoundDrawables();
-            if (rtl) {
-                // If we're on RTL, we need to invert the horizontal result like above
-                final Drawable start = compounds[2];
-                final Drawable end = compounds[0];
-                compounds[0] = start;
-                compounds[2] = end;
-            }
-            return compounds;
-        }
-        return textView.getCompoundDrawables();
+        return textView.getCompoundDrawablesRelative();
     }
 
     /**
@@ -815,9 +775,7 @@ public final class TextViewCompat {
                 builder.setBreakStrategy(Api23Impl.getBreakStrategy(textView));
                 builder.setHyphenationFrequency(Api23Impl.getHyphenationFrequency(textView));
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                builder.setTextDirection(getTextDirectionHeuristic(textView));
-            }
+            builder.setTextDirection(getTextDirectionHeuristic(textView));
             return builder.build();
         }
     }
@@ -833,9 +791,7 @@ public final class TextViewCompat {
 
         // There is no way of setting text direction heuristics to TextView.
         // Convert to the View's text direction int values.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            Api17Impl.setTextDirection(textView, getTextDirection(params.getTextDirection()));
-        }
+        textView.setTextDirection(getTextDirection(params.getTextDirection()));
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             float paintTextScaleX = params.getTextPaint().getTextScaleX();
@@ -910,7 +866,7 @@ public final class TextViewCompat {
                 // have LTR digits, but some locales, such as those written in the Adlam or N'Ko
                 // scripts, have RTL digits.
                 final DecimalFormatSymbols symbols =
-                        Api24Impl.getInstance(Api17Impl.getTextLocale(textView));
+                        Api24Impl.getInstance(textView.getTextLocale());
                 final String zero = Api28Impl.getDigitStrings(symbols)[0];
                 // In case the zero digit is multi-codepoint, just use the first codepoint to
                 // determine direction.
@@ -927,10 +883,10 @@ public final class TextViewCompat {
 
         // Always need to resolve layout direction first
         final boolean defaultIsRtl =
-                (Api17Impl.getLayoutDirection(textView) == View.LAYOUT_DIRECTION_RTL);
+                (textView.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL);
 
         // Now, we can select the heuristic
-        switch (Api17Impl.getTextDirection(textView)) {
+        switch (textView.getTextDirection()) {
             default:
             case TEXT_DIRECTION_FIRST_STRONG:
                 return (defaultIsRtl ? TextDirectionHeuristics.FIRSTSTRONG_RTL :
@@ -953,7 +909,6 @@ public final class TextViewCompat {
     /**
      * Convert TextDirectionHeuristic to TextDirection int values
      */
-    @RequiresApi(18)
     private static int getTextDirection(@NonNull  TextDirectionHeuristic heuristic) {
         if (heuristic == TextDirectionHeuristics.FIRSTSTRONG_RTL) {
             return TEXT_DIRECTION_FIRST_STRONG;
@@ -1043,56 +998,6 @@ public final class TextViewCompat {
             return ((TintableCompoundDrawablesView) textView).getSupportCompoundDrawablesTintMode();
         }
         return null;
-    }
-
-    @RequiresApi(17)
-    static class Api17Impl {
-        private Api17Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setCompoundDrawablesRelative(TextView textView, Drawable start, Drawable top,
-                Drawable end, Drawable bottom) {
-            textView.setCompoundDrawablesRelative(start, top, end, bottom);
-        }
-
-        @DoNotInline
-        static int getLayoutDirection(View view) {
-            return view.getLayoutDirection();
-        }
-
-        @DoNotInline
-        static void setCompoundDrawablesRelativeWithIntrinsicBounds(TextView textView,
-                Drawable start, Drawable top, Drawable end, Drawable bottom) {
-            textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom);
-        }
-
-        @DoNotInline
-        static void setCompoundDrawablesRelativeWithIntrinsicBounds(TextView textView, int start,
-                int top, int end, int bottom) {
-            textView.setCompoundDrawablesRelativeWithIntrinsicBounds(start, top, end, bottom);
-        }
-
-        @DoNotInline
-        static Drawable[] getCompoundDrawablesRelative(TextView textView) {
-            return textView.getCompoundDrawablesRelative();
-        }
-
-        @DoNotInline
-        static void setTextDirection(View view, int textDirection) {
-            view.setTextDirection(textDirection);
-        }
-
-        @DoNotInline
-        static Locale getTextLocale(TextView textView) {
-            return textView.getTextLocale();
-        }
-
-        @DoNotInline
-        static int getTextDirection(View view) {
-            return view.getTextDirection();
-        }
     }
 
     @RequiresApi(26)

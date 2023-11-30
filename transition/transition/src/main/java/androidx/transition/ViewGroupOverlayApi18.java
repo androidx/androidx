@@ -22,9 +22,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroupOverlay;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 
-@RequiresApi(18)
 class ViewGroupOverlayApi18 implements ViewGroupOverlayImpl {
 
     private final ViewGroupOverlay mViewGroupOverlay;

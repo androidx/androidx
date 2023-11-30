@@ -3789,9 +3789,7 @@ public class AccessibilityNodeInfoCompat {
      * @param viewId The id resource name.
      */
     public void setViewIdResourceName(String viewId) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            mInfo.setViewIdResourceName(viewId);
-        }
+        mInfo.setViewIdResourceName(viewId);
     }
 
     /**
@@ -3807,11 +3805,7 @@ public class AccessibilityNodeInfoCompat {
      * @return The id resource name.
      */
     public String getViewIdResourceName() {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return mInfo.getViewIdResourceName();
-        } else {
-            return null;
-        }
+        return mInfo.getViewIdResourceName();
     }
 
     /**
@@ -4433,9 +4427,7 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setTextSelection(int start, int end) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            mInfo.setTextSelection(start, end);
-        }
+        mInfo.setTextSelection(start, end);
     }
 
     /**
@@ -4444,11 +4436,7 @@ public class AccessibilityNodeInfoCompat {
      * @return The text selection start if there is selection or -1.
      */
     public int getTextSelectionStart() {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return mInfo.getTextSelectionStart();
-        } else {
-            return -1;
-        }
+        return mInfo.getTextSelectionStart();
     }
 
     /**
@@ -4457,11 +4445,7 @@ public class AccessibilityNodeInfoCompat {
      * @return The text selection end if there is selection or -1.
      */
     public int getTextSelectionEnd() {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return mInfo.getTextSelectionEnd();
-        } else {
-            return -1;
-        }
+        return mInfo.getTextSelectionEnd();
     }
 
     /**
@@ -4642,11 +4626,7 @@ public class AccessibilityNodeInfoCompat {
      * @return True if the node is editable, false otherwise.
      */
     public boolean isEditable() {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return mInfo.isEditable();
-        } else {
-            return false;
-        }
+        return mInfo.isEditable();
     }
 
     /**
@@ -4662,9 +4642,7 @@ public class AccessibilityNodeInfoCompat {
      * @throws IllegalStateException If called from an AccessibilityService.
      */
     public void setEditable(boolean editable) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            mInfo.setEditable(editable);
-        }
+        mInfo.setEditable(editable);
     }
 
     /**
@@ -4958,11 +4936,7 @@ public class AccessibilityNodeInfoCompat {
      * @return Whether the refresh succeeded.
      */
     public boolean refresh() {
-        if (Build.VERSION.SDK_INT >= 18) {
-            return mInfo.refresh();
-        } else {
-            return false;
-        }
+        return mInfo.refresh();
     }
 
     /**

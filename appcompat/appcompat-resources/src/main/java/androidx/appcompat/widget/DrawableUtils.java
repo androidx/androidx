@@ -62,13 +62,9 @@ public class DrawableUtils {
                     insets.right,
                     insets.bottom
             );
-        } else if (Build.VERSION.SDK_INT >= 18) {
+        } else {
             return Api18Impl.getOpticalInsets(DrawableCompat.unwrap(drawable));
         }
-
-        // If we reach here, either we're running on a device pre-v18, the Drawable didn't have
-        // any optical insets, or a reflection issue, so we'll just return an empty rect.
-        return INSETS_NONE;
     }
 
     /**
@@ -140,8 +136,7 @@ public class DrawableUtils {
         }
     }
 
-    // Only accessible on SDK_INT >= 18 and < 29.
-    @RequiresApi(18)
+    // Only accessible on SDK_INT < 29.
     static class Api18Impl {
         private static final boolean sReflectionSuccessful;
         private static final Method sGetOpticalInsets;

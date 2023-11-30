@@ -23,7 +23,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -38,7 +37,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.media.MediaBrowserServiceCompat;
 import androidx.media.MediaSessionManager;
-import androidx.media2.common.ClassVerificationHelper;
 import androidx.versionedparcelable.ParcelField;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
@@ -345,11 +343,7 @@ public final class SessionToken implements VersionedParcelable {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     static void quitHandlerThread(HandlerThread thread) {
-        if (Build.VERSION.SDK_INT >= 18) {
-            ClassVerificationHelper.HandlerThread.Api18.quitSafely(thread);
-        } else {
-            thread.quit();
-        }
+        thread.quitSafely();
     }
 
     @SuppressWarnings("deprecation")
