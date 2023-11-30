@@ -17,11 +17,13 @@
 package androidx.bluetooth
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice as FwkBluetoothDevice
 import android.bluetooth.BluetoothManager
 import android.bluetooth.le.ScanResult as FwkScanResult
 import android.content.Context
 import android.os.Build
 import android.os.ParcelUuid
+import androidx.bluetooth.utils.addressType
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
@@ -39,6 +41,7 @@ import org.junit.runners.JUnit4
  */
 @RunWith(JUnit4::class)
 class ScanResultTest {
+
     @Rule
     @JvmField
     val permissionRule: GrantPermissionRule = if (Build.VERSION.SDK_INT >= 31) {
@@ -53,6 +56,7 @@ class ScanResultTest {
     private val bluetoothManager: BluetoothManager? =
         context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager?
     private val bluetoothAdapter: BluetoothAdapter? = bluetoothManager?.adapter
+    private val bluetoothLe = BluetoothLe(context)
 
     @Before
     fun setUp() {
@@ -90,8 +94,13 @@ class ScanResultTest {
         assertThat(BluetoothDevice(fwkBluetoothDevice).bondState)
             .isEqualTo(scanResult.device.bondState)
         assertThat(address).isEqualTo(scanResult.deviceAddress.address)
-        assertThat(BluetoothAddress.ADDRESS_TYPE_UNKNOWN)
-            .isEqualTo(scanResult.deviceAddress.addressType)
+        val expectedAddressType = if (Build.VERSION.SDK_INT >= 34) {
+            BluetoothAddress.ADDRESS_TYPE_PUBLIC
+        } else {
+            BluetoothAddress.ADDRESS_TYPE_UNKNOWN
+        }
+        assertThat(scanResult.deviceAddress.addressType)
+            .isEqualTo(expectedAddressType)
         assertThat(true).isEqualTo(scanResult.isConnectable())
         assertThat(timeStampNanos).isEqualTo(scanResult.timestampNanos)
         assertThat(scanResult.getManufacturerSpecificData(1)).isNull()
@@ -128,5 +137,101 @@ class ScanResultTest {
         val scanResult = ScanResult(fwkScanResult)
         assertThat(scanResult.device).isEqualTo(scanResult.device)
         assertThat(scanResult.deviceAddress).isEqualTo(scanResult.deviceAddress)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun frameworkScanResultAddressTypeRandomStatic() {
+        val address = "F0:43:A8:23:10:11"
+        val fwkBluetoothDevice = bluetoothAdapter!!
+            .getRemoteLeDevice(address, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
+        val rssi = 34
+        val periodicAdvertisingInterval = 8
+        val timeStampNanos: Long = 1
+
+        val fwkScanResult = FwkScanResult(
+            fwkBluetoothDevice,
+            1,
+            0,
+            0,
+            0,
+            0,
+            rssi,
+            periodicAdvertisingInterval,
+            null,
+            timeStampNanos
+        )
+
+        val bluetoothAddress = BluetoothAddress(
+            fwkScanResult.device.address,
+            fwkScanResult.device.addressType()
+        )
+
+        assertThat(bluetoothAddress.addressType)
+            .isEqualTo(BluetoothAddress.ADDRESS_TYPE_RANDOM_STATIC)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun frameworkScanResultAddressTypeRandomResolvable() {
+        val address = "40:01:02:03:04:05"
+        val fwkBluetoothDevice = bluetoothAdapter!!
+            .getRemoteLeDevice(address, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
+        val rssi = 34
+        val periodicAdvertisingInterval = 8
+        val timeStampNanos: Long = 1
+
+        val fwkScanResult = FwkScanResult(
+            fwkBluetoothDevice,
+            1,
+            0,
+            0,
+            0,
+            0,
+            rssi,
+            periodicAdvertisingInterval,
+            null,
+            timeStampNanos
+        )
+
+        val bluetoothAddress = BluetoothAddress(
+            fwkScanResult.device.address,
+            fwkScanResult.device.addressType()
+        )
+
+        assertThat(bluetoothAddress.addressType)
+            .isEqualTo(BluetoothAddress.ADDRESS_TYPE_RANDOM_RESOLVABLE)
+    }
+
+    @SdkSuppress(minSdkVersion = 34)
+    @Test
+    fun frameworkScanResultAddressTypeRandomNonResolvable() {
+        val address = "00:01:02:03:04:05"
+        val fwkBluetoothDevice = bluetoothAdapter!!
+            .getRemoteLeDevice(address, FwkBluetoothDevice.ADDRESS_TYPE_RANDOM)
+        val rssi = 34
+        val periodicAdvertisingInterval = 8
+        val timeStampNanos: Long = 1
+
+        val fwkScanResult = FwkScanResult(
+            fwkBluetoothDevice,
+            1,
+            0,
+            0,
+            0,
+            0,
+            rssi,
+            periodicAdvertisingInterval,
+            null,
+            timeStampNanos
+        )
+
+        val bluetoothAddress = BluetoothAddress(
+            fwkScanResult.device.address,
+            fwkScanResult.device.addressType()
+        )
+
+        assertThat(bluetoothAddress.addressType)
+            .isEqualTo(BluetoothAddress.ADDRESS_TYPE_RANDOM_NON_RESOLVABLE)
     }
 }
