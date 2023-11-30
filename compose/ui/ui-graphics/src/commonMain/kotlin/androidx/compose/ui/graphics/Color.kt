@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.colorspace.ColorSpace
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.graphics.colorspace.Rgb
 import androidx.compose.ui.graphics.colorspace.connect
+import androidx.compose.ui.util.fastCoerceIn
 import androidx.compose.ui.util.lerp
 import kotlin.math.max
 import kotlin.math.min
@@ -390,6 +391,10 @@ value class Color(val value: ULong) {
     }
 }
 
+// Same as Color.Unspecified.packedValue, but avoids a getstatic
+@PublishedApi
+internal const val UnspecifiedColor = 0x10UL
+
 /**
  * Create a [Color] by passing individual [red], [green], [blue], [alpha], and [colorSpace]
  * components. The default [color space][ColorSpace] is [sRGB][ColorSpaces.Srgb] and
@@ -420,7 +425,7 @@ fun Color(
             ((green * 255.0f + 0.5f).toInt() shl 8) or
             (blue * 255.0f + 0.5f).toInt()
         )
-        return Color(value = (argb.toULong() and 0xffffffffUL) shl 32)
+        return Color(argb.toULong() shl 32)
     }
 
     requirePrecondition(colorSpace.componentCount == 3) {
@@ -438,15 +443,57 @@ fun Color(
 
     val a = (max(0.0f, min(alpha, 1.0f)) * 1023.0f + 0.5f).toInt()
 
-    // Suppress sign extension
     return Color(
-        value = (
-            ((r.toULong() and 0xffffUL) shl 48) or
-            ((g.toULong() and 0xffffUL) shl 32) or
-            ((b.toULong() and 0xffffUL) shl 16) or
-            ((a.toULong() and 0x03ffUL) shl 6) or
-            (id.toULong() and 0x003fUL)
+        (
+            ((r.toLong() and 0xffffL) shl 48) or
+            ((g.toLong() and 0xffffL) shl 32) or
+            ((b.toLong() and 0xffffL) shl 16) or
+            ((a.toLong() and 0x03ffL) shl 6) or
+            (id.toLong() and 0x003fL)
+        ).toULong()
+    )
+}
+
+/**
+ * Create a [Color] by passing individual [red], [green], [blue], [alpha], and [colorSpace]
+ * components. This function is equivalent to [Color] but doesn't perform any check/validation
+ * of the parameters. It is meant to be used when the color space and values are known to
+ * be valid by construction, for instance when lerping colors.
+ */
+@Stable
+internal fun UncheckedColor(
+    red: Float,
+    green: Float,
+    blue: Float,
+    alpha: Float = 1f,
+    colorSpace: ColorSpace = ColorSpaces.Srgb
+): Color {
+    if (colorSpace.isSrgb) {
+        val argb = (
+            ((alpha * 255.0f + 0.5f).toInt() shl 24) or
+            ((red * 255.0f + 0.5f).toInt() shl 16) or
+            ((green * 255.0f + 0.5f).toInt() shl 8) or
+            (blue * 255.0f + 0.5f).toInt()
         )
+        return Color(argb.toULong() shl 32)
+    }
+
+    val r = floatToHalf(red)
+    val g = floatToHalf(green)
+    val b = floatToHalf(blue)
+
+    val a = (max(0.0f, min(alpha, 1.0f)) * 1023.0f + 0.5f).toInt()
+
+    val id = colorSpace.id
+
+    return Color(
+        (
+            ((r.toLong() and 0xffffL) shl 48) or
+            ((g.toLong() and 0xffffL) shl 32) or
+            ((b.toLong() and 0xffffL) shl 16) or
+            ((a.toLong() and 0x03ffL) shl 6) or
+            (id.toLong() and 0x003fL)
+        ).toULong()
     )
 }
 
@@ -460,7 +507,7 @@ fun Color(
  */
 @Stable
 fun Color(@ColorInt color: Int): Color {
-    return Color(value = color.toULong() shl 32)
+    return Color(color.toULong() shl 32)
 }
 
 /**
@@ -477,7 +524,7 @@ fun Color(@ColorInt color: Int): Color {
  */
 @Stable
 fun Color(color: Long): Color {
-    return Color(value = (color.toULong() and 0xffffffffUL) shl 32)
+    return Color((color shl 32).toULong())
 }
 
 /**
@@ -499,7 +546,8 @@ fun Color(
     @IntRange(from = 0, to = 0xFF) blue: Int,
     @IntRange(from = 0, to = 0xFF) alpha: Int = 0xFF
 ): Color {
-    val color = ((alpha and 0xFF) shl 24) or
+    val color =
+        ((alpha and 0xFF) shl 24) or
         ((red and 0xFF) shl 16) or
         ((green and 0xFF) shl 8) or
         (blue and 0xFF)
@@ -528,12 +576,12 @@ fun lerp(start: Color, stop: Color, @FloatRange(from = 0.0, to = 1.0) fraction: 
     val endA = endColor.green
     val endB = endColor.blue
 
-    val interpolated = Color(
-        alpha = lerp(startAlpha, endAlpha, fraction),
-        red = lerp(startL, endL, fraction),
-        green = lerp(startA, endA, fraction),
-        blue = lerp(startB, endB, fraction),
-        colorSpace = colorSpace
+    val interpolated = UncheckedColor(
+        lerp(startL, endL, fraction),
+        lerp(startA, endA, fraction),
+        lerp(startB, endB, fraction),
+        lerp(startAlpha, endAlpha, fraction),
+        colorSpace
     )
     return interpolated.convert(stop.colorSpace)
 }
@@ -561,7 +609,7 @@ fun Color.compositeOver(background: Color): Color {
     val g = compositeComponent(fg.green, background.green, fgA, bgA, a)
     val b = compositeComponent(fg.blue, background.blue, fgA, bgA, a)
 
-    return Color(r, g, b, a, background.colorSpace)
+    return UncheckedColor(r, g, b, a, background.colorSpace)
 }
 
 /**
@@ -602,7 +650,7 @@ private fun Color.getComponents(): FloatArray = floatArrayOf(red, green, blue, a
 @Stable
 fun Color.luminance(): Float {
     val colorSpace = colorSpace
-    require(colorSpace.model == ColorModel.Rgb) {
+    requirePrecondition(colorSpace.model == ColorModel.Rgb) {
         "The specified color must be encoded in an RGB color space. " +
             "The supplied color space is ${colorSpace.model}"
     }
@@ -612,11 +660,7 @@ fun Color.luminance(): Float {
     val g = eotf(green.toDouble())
     val b = eotf(blue.toDouble())
 
-    return saturate(((0.2126 * r) + (0.7152 * g) + (0.0722 * b)).toFloat())
-}
-
-private fun saturate(v: Float): Float {
-    return if (v <= 0.0f) 0.0f else (if (v >= 1.0f) 1.0f else v)
+    return (((0.2126 * r) + (0.7152 * g) + (0.0722 * b)).toFloat()).fastCoerceIn(0.0f, 1.0f)
 }
 
 /**
@@ -636,13 +680,13 @@ fun Color.toArgb(): Int {
  * `false` when this is [Color.Unspecified].
  */
 @Stable
-inline val Color.isSpecified: Boolean get() = value != Color.Unspecified.value
+inline val Color.isSpecified: Boolean get() = value != UnspecifiedColor
 
 /**
  * `true` when this is [Color.Unspecified].
  */
 @Stable
-inline val Color.isUnspecified: Boolean get() = value == Color.Unspecified.value
+inline val Color.isUnspecified: Boolean get() = value == UnspecifiedColor
 
 /**
  * If this color [isSpecified] then this is returned, otherwise [block] is executed and its result

@@ -440,6 +440,7 @@ package androidx.compose.ui.graphics {
     method @androidx.compose.runtime.Stable public static float luminance(long);
     method public static inline long takeOrElse(long, kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.Color> block);
     method @ColorInt @androidx.compose.runtime.Stable public static int toArgb(long);
+    field @kotlin.PublishedApi internal static final long UnspecifiedColor = 16L; // 0x10L
   }
 
   @kotlin.jvm.JvmInline public final value class ColorMatrix {
