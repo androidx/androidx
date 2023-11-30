@@ -22,8 +22,10 @@ import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.semantics.AccessibilityAction
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsActions.CustomActions
 import androidx.compose.ui.semantics.SemanticsActions.ScrollBy
 import androidx.compose.ui.semantics.SemanticsActions.ScrollToIndex
 import androidx.compose.ui.semantics.SemanticsNode
@@ -622,6 +624,70 @@ fun SemanticsNodeInteraction.performRotaryScrollInput(
             dispose()
         }
     }
+    return this
+}
+
+/**
+ * Finds the [CustomAccessibilityAction] in the node's [CustomActions] list whose label is equal
+ * to [label] and then invokes it.
+ *
+ * To use your own logic to find the action to perform instead of matching on the full label, use
+ * [performCustomAccessibilityActionWhere].
+ *
+ * @param label The exact label of the [CustomAccessibilityAction] to perform.
+ *
+ * @throws AssertionError If no [SemanticsNode] is found, or no [CustomAccessibilityAction] has
+ * [label], or more than one [CustomAccessibilityAction] has [label].
+ *
+ * @see performCustomAccessibilityActionWhere
+ */
+@ExperimentalTestApi
+fun SemanticsNodeInteraction.performCustomAccessibilityActionLabelled(
+    label: String
+): SemanticsNodeInteraction =
+    performCustomAccessibilityActionWhere("label is \"$label\"") { it == label }
+
+/**
+ * Finds the [CustomAccessibilityAction] in the node's [CustomActions] list whose label satisfies a
+ * predicate function and then invokes it.
+ *
+ * @param predicateDescription A description of [labelPredicate] that will be included in the error
+ * message if zero or >1 actions match.
+ * @param labelPredicate A predicate function used to select the [CustomAccessibilityAction] to
+ * perform.
+ *
+ * @throws AssertionError If no [SemanticsNode] is found, or no [CustomAccessibilityAction] matches
+ * [labelPredicate], or more than one [CustomAccessibilityAction] matches [labelPredicate].
+ *
+ * @see performCustomAccessibilityActionLabelled
+ */
+@ExperimentalTestApi
+fun SemanticsNodeInteraction.performCustomAccessibilityActionWhere(
+    predicateDescription: String? = null,
+    labelPredicate: (label: String) -> Boolean
+): SemanticsNodeInteraction {
+    val node = fetchSemanticsNode()
+    val actions = node.config[CustomActions]
+    val matchingActions = actions.filter { labelPredicate(it.label) }
+    if (matchingActions.isEmpty()) {
+        throw AssertionError(
+            buildGeneralErrorMessage(
+                "No custom accessibility actions matched [$predicateDescription].",
+                selector,
+                node
+            )
+        )
+    } else if (matchingActions.size > 1) {
+        throw AssertionError(
+            buildGeneralErrorMessage(
+                "Expected exactly one custom accessibility action to match" +
+                    " [$predicateDescription], but found ${matchingActions.size}.",
+                selector,
+                node
+            )
+        )
+    }
+    matchingActions[0].action()
     return this
 }
 
