@@ -75,6 +75,7 @@ import org.jetbrains.uast.getContainingUClass
 import org.jetbrains.uast.getContainingUMethod
 import org.jetbrains.uast.java.JavaUAnnotation
 import org.jetbrains.uast.toUElement
+import org.jetbrains.uast.toUElementOfType
 import org.jetbrains.uast.tryResolve
 
 class ExperimentalDetector : Detector(), SourceCodeScanner {
@@ -98,13 +99,11 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // Infer the overridden method by taking the first (and only) abstract method from the
         // functional interface being implemented.
         val superClass = (lambda.functionalInterfaceType as? PsiClassReferenceType)?.resolve()
-        val superMethod = superClass?.allMethods
+        superClass?.toUElementOfType<UClass>()?.methods
             ?.first { method -> method.isAbstract() }
-            ?.toUElement()
-
-        if (superMethod is UMethod) {
-            checkMethodOverride(context, lambda, superMethod)
-        }
+            ?.let { superMethod ->
+                checkMethodOverride(context, lambda, superMethod)
+            }
     }
 
     override fun visitClass(
@@ -920,4 +919,5 @@ private fun UElement.isDeclarationAnnotatedWithOptInOf(
 } == true
 
 private fun PsiModifierListOwner.isAbstract(): Boolean =
-    modifierList?.hasModifierProperty(PsiModifier.ABSTRACT) == true
+    modifierList?.hasModifierProperty(PsiModifier.ABSTRACT) == true ||
+        hasModifierProperty(PsiModifier.ABSTRACT)
