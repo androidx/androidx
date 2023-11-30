@@ -71,6 +71,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG =
             FLAG_PREFIX + "enable_search_spec_set_search_source_log_tag";
 
+    /** Enable addTakenActions API in PutDocumentsRequest. */
+    public static final String FLAG_ENABLE_PUT_DOCUMENTS_REQUEST_ADD_TAKEN_ACTIONS =
+            FLAG_PREFIX + "enable_put_documents_request_add_taken_actions";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -106,8 +110,14 @@ public final class Flags {
 
     /**
      * Whether the {@link androidx.appsearch.app.SearchSpec.Builder#setSearchSourceLogTag} should
-     * be enabled. */
+     * be enabled.
+     */
     public static boolean enableSearchSpecSetSearchSourceLogTag() {
+        return true;
+    }
+
+    /** Whether addTakenActions API in PutDocumentsRequest should be enabled. */
+    public static boolean enablePutDocumentsRequestAddTakenActions() {
         return true;
     }
 }
