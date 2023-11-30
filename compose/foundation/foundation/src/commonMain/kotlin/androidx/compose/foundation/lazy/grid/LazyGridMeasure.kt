@@ -390,7 +390,7 @@ private fun calculateItemsOffsets(
             } else {
                 absoluteOffset
             }
-            positionedItems.addAll(
+            positionedItems.addAllFromArray(
                 line.position(relativeOffset, layoutWidth, layoutHeight)
             )
         }
@@ -405,7 +405,7 @@ private fun calculateItemsOffsets(
 
         currentMainAxis = firstLineScrollOffset
         lines.fastForEach {
-            positionedItems.addAll(it.position(currentMainAxis, layoutWidth, layoutHeight))
+            positionedItems.addAllFromArray(it.position(currentMainAxis, layoutWidth, layoutHeight))
             currentMainAxis += it.mainAxisSizeWithSpacings
         }
 
@@ -416,4 +416,11 @@ private fun calculateItemsOffsets(
         }
     }
     return positionedItems
+}
+
+// Faster version of addAll that does not create a list for each array
+private fun <T> MutableList<T>.addAllFromArray(arr: Array<T>) {
+    for (item in arr) {
+        add(item)
+    }
 }
