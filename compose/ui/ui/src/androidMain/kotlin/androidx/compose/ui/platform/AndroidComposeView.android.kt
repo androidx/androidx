@@ -1510,9 +1510,10 @@ internal class AndroidComposeView(
 
     override fun dispatchGenericMotionEvent(event: MotionEvent) = when (event.actionMasked) {
         ACTION_SCROLL -> when {
-            event.isFromSource(SOURCE_ROTARY_ENCODER) -> handleRotaryEvent(event)
             isBadMotionEvent(event) || !isAttachedToWindow ->
                 super.dispatchGenericMotionEvent(event)
+
+            event.isFromSource(SOURCE_ROTARY_ENCODER) -> handleRotaryEvent(event)
 
             else -> handleMotionEvent(event).dispatchedToAPointerInputModifier
         }
