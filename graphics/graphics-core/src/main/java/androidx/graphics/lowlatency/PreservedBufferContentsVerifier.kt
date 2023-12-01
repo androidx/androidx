@@ -85,7 +85,7 @@ internal class PreservedBufferContentsVerifier {
         val firstRenderLatch = CountDownLatch(1)
         multiBufferedRenderer.obtainRenderRequest()
             .preserveContents(true)
-            .draw(executor) { _ ->
+            .drawAsync(executor) { _ ->
                 firstRenderLatch.countDown()
             }
 
@@ -107,7 +107,7 @@ internal class PreservedBufferContentsVerifier {
         val secondRenderLatch = CountDownLatch(1)
         multiBufferedRenderer.obtainRenderRequest()
             .preserveContents(true)
-            .draw(executor) { result ->
+            .drawAsync(executor) { result ->
                 result.fence?.awaitForever()
                 bitmap = Bitmap.wrapHardwareBuffer(
                     result.hardwareBuffer,
