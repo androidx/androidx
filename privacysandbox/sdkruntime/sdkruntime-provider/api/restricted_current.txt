@@ -1,7 +1,7 @@
 // Signature format: 4.0
 package androidx.privacysandbox.sdkruntime.provider {
 
-  @RequiresExtension(extension=android.os.ext.SdkExtensions.AD_SERVICES, version=4) public final class SandboxedSdkProviderAdapter extends android.app.sdksandbox.SandboxedSdkProvider {
+  @RequiresApi(34) public final class SandboxedSdkProviderAdapter extends android.app.sdksandbox.SandboxedSdkProvider {
     ctor public SandboxedSdkProviderAdapter();
     method public android.view.View getView(android.content.Context windowContext, android.os.Bundle params, int width, int height);
     method @kotlin.jvm.Throws(exceptionClasses=LoadSdkException::class) public android.app.sdksandbox.SandboxedSdk onLoadSdk(android.os.Bundle params) throws android.app.sdksandbox.LoadSdkException;

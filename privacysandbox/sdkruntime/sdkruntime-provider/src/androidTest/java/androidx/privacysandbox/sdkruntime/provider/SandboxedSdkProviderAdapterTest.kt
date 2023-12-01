@@ -19,12 +19,8 @@ package androidx.privacysandbox.sdkruntime.provider
 import android.app.sdksandbox.LoadSdkException
 import android.content.Context
 import android.os.Binder
-import android.os.Build.VERSION_CODES.TIRAMISU
 import android.os.Bundle
-import android.os.ext.SdkExtensions.AD_SERVICES
 import android.view.View
-import androidx.annotation.RequiresExtension
-import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkCompat
 import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
@@ -35,7 +31,6 @@ import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.reflect.KClass
 import org.junit.Assert.assertThrows
-import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,16 +38,13 @@ import org.mockito.Mockito.mock
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-// TODO(b/262577044) Remove RequiresExtension after extensions support in @SdkSuppress
-@RequiresExtension(extension = AD_SERVICES, version = 4)
-@SdkSuppress(minSdkVersion = TIRAMISU)
+@SdkSuppress(minSdkVersion = 34)
 class SandboxedSdkProviderAdapterTest {
 
     private lateinit var context: Context
 
     @Before
     fun setUp() {
-        assumeTrue("Requires Sandbox API available", isSandboxApiAvailable())
         context = ApplicationProvider.getApplicationContext()
     }
 
@@ -259,7 +251,4 @@ class SandboxedSdkProviderAdapterTest {
             return mView
         }
     }
-
-    private fun isSandboxApiAvailable() =
-        AdServicesInfo.isAtLeastV4()
 }
