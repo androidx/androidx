@@ -96,11 +96,14 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
 
     private boolean mIsReleased = false;
 
+    private final int mQueueDepth;
+
     // Thread and handler for receiving overlay texture updates.
     private final HandlerThread mOverlayHandlerThread;
     private final Handler mOverlayHandler;
 
     public SurfaceProcessorImpl(int queueDepth, @NonNull Handler glHandler) {
+        mQueueDepth = queueDepth;
         mGlHandler = glHandler;
         mGlExecutor = CameraXExecutors.newHandlerExecutor(mGlHandler);
         mGlRenderer = new GlRenderer(queueDepth);
@@ -267,7 +270,7 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
      * exception.
      */
     @NonNull
-    public ListenableFuture<Integer> drawFrame(long timestampNs) {
+    public ListenableFuture<Integer> drawFrameAsync(long timestampNs) {
         return CallbackToFutureAdapter.getFuture(completer -> {
             runOnGlThread(() -> {
                 if (mIsReleased) {
@@ -284,6 +287,21 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
             });
             return "drawFrameFuture";
         });
+    }
+
+    /**
+     * Gets the depth of the buffer.
+     */
+    public int getQueueDepth() {
+        return mQueueDepth;
+    }
+
+    /**
+     * Gets the GL handler.
+     */
+    @NonNull
+    public Handler getGlHandler() {
+        return mGlHandler;
     }
 
     // *** Private methods ***
@@ -331,10 +349,10 @@ public class SurfaceProcessorImpl implements SurfaceProcessor,
                 return OverlayEffect.RESULT_INVALID_SURFACE;
             }
             // Only draw if frame is associated with the current output surface.
-            if (drawOverlay(frame.getTimestampNs())) {
+            if (drawOverlay(frame.getTimestampNanos())) {
                 mGlRenderer.renderQueueTextureToSurface(
                         frame.getTextureId(),
-                        frame.getTimestampNs(),
+                        frame.getTimestampNanos(),
                         frame.getTransform(),
                         frame.getSurface());
                 return OverlayEffect.RESULT_SUCCESS;
