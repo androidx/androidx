@@ -24,6 +24,8 @@ import android.os.Build
 import android.util.Range
 import android.util.Size
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
+import androidx.camera.camera2.pipe.integration.internal.DOLBY_VISION_10B_UNCONSTRAINED
+import androidx.camera.camera2.pipe.integration.internal.HLG10_UNCONSTRAINED
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.createCameraInfoAdapter
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCreator.useCaseThreads
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
@@ -31,6 +33,12 @@ import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.integration.testing.FakeZoomCompat
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.CameraInfo
+import androidx.camera.core.DynamicRange
+import androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT
+import androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT
+import androidx.camera.core.DynamicRange.HDR10_10_BIT
+import androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT
+import androidx.camera.core.DynamicRange.HLG_10_BIT
 import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory
 import androidx.camera.core.ZoomState
@@ -255,5 +263,132 @@ class CameraInfoAdapterTest {
         )
 
         assertThat(cameraInfo.isVideoStabilizationSupported).isFalse()
+    }
+
+    // Analog to Camera2CameraInfoImplTest#apiVersionMet_canReturnSupportedHdrDynamicRanges()
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun cameraInfo_hdrDynamicRangeSupported() {
+        val cameraInfo: CameraInfo = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                            HLG10_UNCONSTRAINED
+                    )
+                )
+            )
+        )
+
+        assertThat(cameraInfo.querySupportedDynamicRanges(
+            setOf(
+                HLG_10_BIT, HDR10_10_BIT, HDR10_PLUS_10_BIT, DOLBY_VISION_10_BIT, DOLBY_VISION_8_BIT
+            )
+        )).containsExactly(HLG_10_BIT)
+
+        assertThat(cameraInfo.querySupportedDynamicRanges(
+            setOf(DynamicRange.HDR_UNSPECIFIED_10_BIT)
+        )).containsExactly(HLG_10_BIT)
+    }
+
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun cameraInfo_tenBitHdrDynamicRangeSupported_whenAlsoQuerying8Bit() {
+        val cameraInfo: CameraInfo = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                            DOLBY_VISION_10B_UNCONSTRAINED
+                    )
+                )
+            )
+        )
+
+        assertThat(cameraInfo.querySupportedDynamicRanges(
+            setOf(DOLBY_VISION_10_BIT, DOLBY_VISION_8_BIT)
+        )).containsExactly(DOLBY_VISION_10_BIT)
+    }
+
+    // Analog to Camera2CameraInfoImplTest#apiVersionMet_canReturnSupportedDynamicRanges()
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun cameraInfo_returnsAllSupportedDynamicRanges_whenQueryingWithUnspecified() {
+        val cameraInfo: CameraInfo = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                            HLG10_UNCONSTRAINED
+                    )
+                )
+            )
+        )
+
+        assertThat(cameraInfo.querySupportedDynamicRanges(
+            setOf(DynamicRange.UNSPECIFIED)
+        )).containsExactly(DynamicRange.SDR, HLG_10_BIT)
+    }
+
+    // Analog to
+    // Camera2CameraInfoImplTest#apiVersionMet_canReturnSupportedDynamicRanges_fromFullySpecified()
+    @Config(minSdk = Build.VERSION_CODES.TIRAMISU)
+    @Test
+    fun cameraInfo_hdrAndSdrDynamicRangesSupported_whenQueryingWithFullySpecified() {
+        val cameraInfo: CameraInfo = createCameraInfoAdapter(
+            cameraProperties = FakeCameraProperties(
+                FakeCameraMetadata(
+                    characteristics = mapOf(
+                        CameraCharacteristics.REQUEST_AVAILABLE_DYNAMIC_RANGE_PROFILES to
+                            HLG10_UNCONSTRAINED
+                    )
+                )
+            )
+        )
+
+        assertThat(
+            cameraInfo.querySupportedDynamicRanges(
+                setOf(
+                    DynamicRange.SDR,
+                    HLG_10_BIT
+                )
+            )
+        ).containsExactly(DynamicRange.SDR, HLG_10_BIT)
+    }
+
+    // Analog to Camera2CameraInfoImplTest#apiVersionNotMet_canReturnSupportedDynamicRanges()
+    @Test
+    fun cameraInfo_queryUnspecifiedDynamicRangeSupported() {
+        val cameraInfo: CameraInfo = createCameraInfoAdapter()
+
+        assertThat(cameraInfo.querySupportedDynamicRanges(
+            setOf(DynamicRange.UNSPECIFIED))).containsExactly(DynamicRange.SDR)
+    }
+
+    // Analog to Camera2CameraInfoImplTest#apiVersionNotMet_queryHdrDynamicRangeNotSupported()
+    @Test
+    fun cameraInfo_queryForHdrWhenUnsupported_returnsEmptySet() {
+        val cameraInfo: CameraInfo = createCameraInfoAdapter()
+
+        assertThat(cameraInfo.querySupportedDynamicRanges(
+            setOf(DynamicRange.HDR_UNSPECIFIED_10_BIT))).isEmpty()
+    }
+
+    // Analog to Camera2CameraInfoImplTest#querySdrDynamicRange_alwaysSupported()
+    @Test
+    fun cameraInfo_querySdrSupported() {
+        val cameraInfo: CameraInfo = createCameraInfoAdapter()
+
+        assertThat(cameraInfo.querySupportedDynamicRanges(setOf(DynamicRange.SDR))).containsExactly(
+            DynamicRange.SDR
+        )
+    }
+
+    // Analog to Camera2CameraInfoImplTest#queryDynamicRangeWithEmptySet_returnsEmptySet()
+    @Test
+    fun cameraInfo_queryWithEmptySet_returnsEmptySet() {
+        val cameraInfo: CameraInfo = createCameraInfoAdapter()
+
+        assertThat(cameraInfo.querySupportedDynamicRanges(emptySet())).isEmpty()
     }
 }

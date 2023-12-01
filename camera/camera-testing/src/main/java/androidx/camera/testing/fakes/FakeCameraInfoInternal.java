@@ -26,6 +26,7 @@ import android.view.Surface;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraState;
 import androidx.camera.core.DynamicRange;
@@ -35,6 +36,7 @@ import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.Quirk;
@@ -258,6 +260,30 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @Override
     public Set<DynamicRange> getSupportedDynamicRanges() {
         return mSupportedDynamicRanges;
+    }
+
+    /**
+     * Returns the supported dynamic ranges of this camera from a set of candidate dynamic ranges.
+     *
+     * <p>The dynamic ranges which represent what the camera supports will come from the dynamic
+     * ranges set on {@link #setSupportedDynamicRanges(Set)}, or will consist of {@code {SDR}} if
+     * {@code setSupportedDynamicRanges(Set)} has not been called. In order to stay compliant
+     * with the API contract of
+     * {@link androidx.camera.core.CameraInfo#querySupportedDynamicRanges(Set)}, it is
+     * required that the {@link Set} provided to {@code setSupportedDynamicRanges(Set)} should
+     * always contain {@link DynamicRange#SDR} and should never contain under-specified dynamic
+     * ranges, such as {@link DynamicRange#UNSPECIFIED} and
+     * {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}.
+     *
+     * @see androidx.camera.core.CameraInfo#querySupportedDynamicRanges(Set)
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    public Set<DynamicRange> querySupportedDynamicRanges(
+            @NonNull Set<DynamicRange> candidateDynamicRanges) {
+        return DynamicRanges.findAllPossibleMatches(
+                candidateDynamicRanges, getSupportedDynamicRanges());
     }
 
     @Override

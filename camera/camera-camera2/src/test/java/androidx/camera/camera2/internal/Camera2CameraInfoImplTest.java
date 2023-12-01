@@ -20,9 +20,18 @@ import static android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_C
 import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF;
 import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_ON;
 import static android.hardware.camera2.CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION;
+
+import static androidx.camera.core.DynamicRange.DOLBY_VISION_10_BIT;
+import static androidx.camera.core.DynamicRange.DOLBY_VISION_8_BIT;
+import static androidx.camera.core.DynamicRange.HDR10_10_BIT;
+import static androidx.camera.core.DynamicRange.HDR10_PLUS_10_BIT;
+import static androidx.camera.core.DynamicRange.HDR_UNSPECIFIED_10_BIT;
 import static androidx.camera.core.DynamicRange.HLG_10_BIT;
 import static androidx.camera.core.DynamicRange.SDR;
+import static androidx.camera.core.DynamicRange.UNSPECIFIED;
+
 import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -77,6 +86,7 @@ import org.robolectric.shadows.StreamConfigurationMapBuilder;
 import org.robolectric.util.ReflectionHelpers;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -728,13 +738,44 @@ public class Camera2CameraInfoImplTest {
 
     @Config(minSdk = 33)
     @Test
-    public void apiVersionMet_canReturnSupportedDynamicRanges() throws CameraAccessExceptionCompat {
+    public void apiVersionMet_canReturnOnlySupportedHdrDynamicRanges()
+            throws CameraAccessExceptionCompat {
         init(/* hasAvailableCapabilities = */ true);
 
-        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
-                CAMERA0_ID, mCameraManagerCompat);
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
 
-        Set<DynamicRange> supportedDynamicRanges = cameraInfo.getSupportedDynamicRanges();
+        Set<DynamicRange> supportedDynamicRanges = cameraInfo.querySupportedDynamicRanges(
+                new HashSet<>(Arrays.asList(HLG_10_BIT, HDR10_10_BIT, HDR10_PLUS_10_BIT,
+                        DOLBY_VISION_10_BIT, DOLBY_VISION_8_BIT)));
+        assertThat(supportedDynamicRanges).containsExactly(HLG_10_BIT);
+        supportedDynamicRanges = cameraInfo.querySupportedDynamicRanges(
+                Collections.singleton(HDR_UNSPECIFIED_10_BIT));
+        assertThat(supportedDynamicRanges).containsExactly(HLG_10_BIT);
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    public void apiVersionMet_canReturnSupportedDynamicRanges()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+
+        Set<DynamicRange> supportedDynamicRanges = cameraInfo.querySupportedDynamicRanges(
+                Collections.singleton(UNSPECIFIED));
+        assertThat(supportedDynamicRanges).containsExactly(SDR, HLG_10_BIT);
+    }
+
+    @Config(minSdk = 33)
+    @Test
+    public void apiVersionMet_canReturnSupportedDynamicRanges_fromFullySpecified()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+
+        Set<DynamicRange> supportedDynamicRanges = cameraInfo.querySupportedDynamicRanges(
+                new HashSet<>(Arrays.asList(SDR, HLG_10_BIT)));
         assertThat(supportedDynamicRanges).containsExactly(SDR, HLG_10_BIT);
     }
 
@@ -744,11 +785,42 @@ public class Camera2CameraInfoImplTest {
             throws CameraAccessExceptionCompat {
         init(/* hasAvailableCapabilities = */ true);
 
-        final Camera2CameraInfoImpl cameraInfo = new Camera2CameraInfoImpl(
-                CAMERA0_ID, mCameraManagerCompat);
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
 
-        Set<DynamicRange> supportedDynamicRanges = cameraInfo.getSupportedDynamicRanges();
+        Set<DynamicRange> supportedDynamicRanges = cameraInfo.querySupportedDynamicRanges(
+                Collections.singleton(UNSPECIFIED));
         assertThat(supportedDynamicRanges).containsExactly(SDR);
+    }
+
+    @Config(maxSdk = 32)
+    @Test
+    public void apiVersionNotMet_queryHdrDynamicRangeNotSupported()
+            throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+
+        Set<DynamicRange> supportedDynamicRanges = cameraInfo.querySupportedDynamicRanges(
+                Collections.singleton(HDR_UNSPECIFIED_10_BIT));
+        assertThat(supportedDynamicRanges).isEmpty();
+    }
+
+    @Test
+    public void querySdrDynamicRange_alwaysSupported() throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.querySupportedDynamicRanges(Collections.singleton(SDR))).isNotEmpty();
+    }
+
+    @Test
+    public void queryDynamicRangeWithEmptySet_returnsEmptySet() throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfo cameraInfo = new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+
+        assertThat(cameraInfo.querySupportedDynamicRanges(Collections.emptySet())).isEmpty();
     }
 
     private CameraManagerCompat initCameraManagerWithPhysicalIds(

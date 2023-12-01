@@ -27,6 +27,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.StringDef;
+import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.internal.compat.MediaActionSoundCompat;
 import androidx.lifecycle.LifecycleOwner;
@@ -338,6 +339,71 @@ public interface CameraInfo {
     @RestrictTo(Scope.LIBRARY_GROUP)
     default boolean isPrivateReprocessingSupported() {
         return false;
+    }
+
+    /**
+     * Returns the supported dynamic ranges of this camera from a set of candidate dynamic ranges.
+     *
+     * <p>Dynamic range specifies how the range of colors, highlights and shadows captured by
+     * the frame producer are represented on a display. Some dynamic ranges allow the preview
+     * surface to make full use of the extended range of brightness of the display.
+     *
+     * <p>The returned dynamic ranges are those which the camera can produce. However, because
+     * care usually needs to be taken to ensure the frames produced can be displayed correctly,
+     * the returned dynamic ranges will be limited to those passed in to {@code
+     * candidateDynamicRanges}. For example, if the device display supports HLG, HDR10 and
+     * HDR10+, and you're attempting to use a UI component to receive frames from those dynamic
+     * ranges that you know will be display correctly, you would use a {@code
+     * candidateDynamicRanges} set consisting of {@code {DynamicRange.HLG_10_BIT,
+     * DynamicRange.HDR10_10_BIT, DynamicRange.HDR10_PLUS_10_BIT}}. If the only 10-bit/HDR {@code
+     * DynamicRange} the camera can produce is {@code HLG_10_BIT}, then that will be the only
+     * dynamic range returned by this method given the above candidate list.
+     *
+     * <p>Consult the documentation of each use case to determine whether using the dynamic ranges
+     * published here are appropriate. Some use cases may have complex requirements that prohibit
+     * them from publishing a candidate list for use with this method, such as
+     * {@link androidx.camera.video.Recorder Recorder}. For those cases, alternative APIs may be
+     * present for querying the supported dynamic ranges that can be set on the use case.
+     *
+     * <p>The dynamic ranges published as return values by this method are fully-defined. That is,
+     * the resulting set will not contain dynamic ranges such as {@link DynamicRange#UNSPECIFIED} or
+     * {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}. However, non-fully-defined dynamic ranges can
+     * be used in {@code candidateDynamicRanges}, and will resolve to fully-defined dynamic ranges
+     * in the resulting set. To query all dynamic ranges the camera can produce, {@code
+     * Collections.singleton(DynamicRange.UNSPECIFIED}} can be used as the candidate set.
+     *
+     * <p>Because SDR is always supported, including {@link DynamicRange#SDR} in {@code
+     * candidateDynamicRanges} will always result in {@code SDR} being present in the result set.
+     * If an empty candidate set is provided, it is treated as a no-op, and an empty set will be
+     * returned.
+     *
+     * @param candidateDynamicRanges a set of dynamic ranges representing the dynamic ranges the
+     *                               consumer of frames can support. Note that each use case may
+     *                               have its own requirements on which dynamic ranges it can
+     *                               consume based on how it is configured, and those dynamic
+     *                               ranges may not be published as a set of candidate dynamic
+     *                               ranges. In that case, this API may not be appropriate. An
+     *                               example of this is
+     *                               {@link androidx.camera.video.VideoCapture VideoCapture}'s
+     *                               {@link androidx.camera.video.Recorder Recorder} class, which
+     *                               must also take into account the dynamic ranges supported by
+     *                               the media codecs on the device, and the quality of the video
+     *                               being recorded. For that class, it is recommended to use
+     *            {@link androidx.camera.video.RecorderVideoCapabilities#getSupportedDynamicRanges()
+     *                               RecorderVideoCapabilities.getSupportedDynamicRanges()}
+     *                               instead.
+     * @return a set of dynamic ranges supported by the camera based on the candidate dynamic ranges
+     *
+     * @see Preview.Builder#setDynamicRange(DynamicRange)
+     * @see androidx.camera.video.RecorderVideoCapabilities#getSupportedDynamicRanges()
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    default Set<DynamicRange> querySupportedDynamicRanges(
+            @NonNull Set<DynamicRange> candidateDynamicRanges) {
+        // For the default implementation, only assume SDR is supported.
+        return DynamicRanges.findAllPossibleMatches(candidateDynamicRanges,
+                Collections.singleton(DynamicRange.SDR));
     }
 
     @StringDef(open = true, value = {IMPLEMENTATION_TYPE_UNKNOWN,
