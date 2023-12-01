@@ -43,12 +43,6 @@ unset ANDROID_BUILD_TOP
 
 # Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
 
-if [[ " ${@} " =~ " -PupdateLintBaseline " ]]; then
-  # remove when b/188666845 is complete
-  # Inform lint to not fail even when creating a baseline file
-  JAVA_OPTS="$JAVA_OPTS -Dlint.baselines.continue=true"
-fi
-
 APP_NAME="Gradle"
 APP_BASE_NAME=`basename "$0"`
 
