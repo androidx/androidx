@@ -18,6 +18,7 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.HandleState
 import androidx.compose.foundation.text.InternalFoundationTextApi
+import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.TextFieldState
 import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.ui.focus.FocusRequester
@@ -63,6 +64,7 @@ import org.mockito.stubbing.Answer
 @RunWith(JUnit4::class)
 class TextFieldSelectionManagerTest {
     private val text = "Hello World"
+    private val textAnnotatedString = AnnotatedString(text)
     private val density = Density(density = 1f)
     private val offsetMapping = OffsetMapping.Identity
     private val maxLines = 2
@@ -100,7 +102,7 @@ class TextFieldSelectionManagerTest {
 
         whenever(layoutResult.layoutInput).thenReturn(
             TextLayoutInput(
-                text = AnnotatedString(text),
+                text = textAnnotatedString,
                 style = TextStyle.Default,
                 placeholders = mock(),
                 maxLines = maxLines,
@@ -135,8 +137,12 @@ class TextFieldSelectionManagerTest {
 
         whenever(layoutResultProxy.value).thenReturn(layoutResult)
 
+        val textDelegate = mock<TextDelegate> {
+            on { this.text }.thenReturn(textAnnotatedString)
+        }
+
         state = TextFieldState(
-            textDelegate = mock(),
+            textDelegate = textDelegate,
             recomposeScope = mock(),
             keyboardController = null
         )
