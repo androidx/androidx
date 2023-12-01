@@ -365,11 +365,7 @@ public class ContextCompat {
      */
     @NonNull
     public static File[] getObbDirs(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getObbDirs(context);
-        } else {
-            return new File[]{context.getObbDir()};
-        }
+        return context.getObbDirs();
     }
 
     /**
@@ -418,11 +414,7 @@ public class ContextCompat {
      */
     @NonNull
     public static File[] getExternalFilesDirs(@NonNull Context context, @Nullable String type) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getExternalFilesDirs(context, type);
-        } else {
-            return new File[]{context.getExternalFilesDir(type)};
-        }
+        return context.getExternalFilesDirs(type);
     }
 
     /**
@@ -471,11 +463,7 @@ public class ContextCompat {
      */
     @NonNull
     public static File[] getExternalCacheDirs(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getExternalCacheDirs(context);
-        } else {
-            return new File[]{context.getExternalCacheDir()};
-        }
+        return context.getExternalCacheDirs();
     }
 
     /**
@@ -1047,28 +1035,6 @@ public class ContextCompat {
             SERVICES.put(WifiP2pManager.class, WIFI_P2P_SERVICE);
             SERVICES.put(WifiManager.class, WIFI_SERVICE);
             SERVICES.put(WindowManager.class, WINDOW_SERVICE);
-        }
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static File[] getExternalCacheDirs(Context obj) {
-            return obj.getExternalCacheDirs();
-        }
-
-        @DoNotInline
-        static File[] getExternalFilesDirs(Context obj, String type) {
-            return obj.getExternalFilesDirs(type);
-        }
-
-        @DoNotInline
-        static File[] getObbDirs(Context obj) {
-            return obj.getObbDirs();
         }
     }
 

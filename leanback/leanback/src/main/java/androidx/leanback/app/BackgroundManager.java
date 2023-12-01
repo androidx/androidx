@@ -42,7 +42,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.interpolator.view.animation.FastOutLinearInInterpolator;
 import androidx.leanback.R;
-import androidx.leanback.widget.BackgroundHelper;
 
 import java.lang.ref.WeakReference;
 
@@ -791,7 +790,10 @@ public final class BackgroundManager {
         mLayerDrawable = createTranslucentLayerDrawable(layerDrawable);
         mImageInWrapperIndex = mLayerDrawable.findWrapperIndexById(R.id.background_imagein);
         mImageOutWrapperIndex = mLayerDrawable.findWrapperIndexById(R.id.background_imageout);
-        BackgroundHelper.setBackgroundPreservingAlpha(mBgView, mLayerDrawable);
+        if (mBgView.getBackground() != null) {
+            ((Drawable) mLayerDrawable).setAlpha(mBgView.getBackground().getAlpha());
+        }
+        mBgView.setBackground(mLayerDrawable);
     }
 
     private void updateImmediate() {

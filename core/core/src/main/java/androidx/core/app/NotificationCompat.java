@@ -9209,7 +9209,7 @@ public class NotificationCompat {
     public static @Nullable Action getAction(@NonNull Notification notification, int actionIndex) {
         if (Build.VERSION.SDK_INT >= 20) {
             return getActionCompatFromAction(notification.actions[actionIndex]);
-        } else if (Build.VERSION.SDK_INT >= 19) {
+        } else {
             Notification.Action action = notification.actions[actionIndex];
             Bundle actionExtras = null;
             SparseArray<Bundle> actionExtrasMap = notification.extras.getSparseParcelableArray(
@@ -9219,8 +9219,6 @@ public class NotificationCompat {
             }
             return NotificationCompatJellybean.readAction(action.icon, action.title,
                     action.actionIntent, actionExtras);
-        } else {
-            return NotificationCompatJellybean.getAction(notification, actionIndex);
         }
     }
 
@@ -9315,19 +9313,17 @@ public class NotificationCompat {
     @RequiresApi(21)
     public static @NonNull List<Action> getInvisibleActions(@NonNull Notification notification) {
         ArrayList<Action> result = new ArrayList<>();
-        if (Build.VERSION.SDK_INT >= 19) {
-            Bundle carExtenderBundle =
-                    notification.extras.getBundle(CarExtender.EXTRA_CAR_EXTENDER);
-            if (carExtenderBundle == null) {
-                return result;
-            }
+        Bundle carExtenderBundle =
+                notification.extras.getBundle(CarExtender.EXTRA_CAR_EXTENDER);
+        if (carExtenderBundle == null) {
+            return result;
+        }
 
-            Bundle listBundle = carExtenderBundle.getBundle(CarExtender.EXTRA_INVISIBLE_ACTIONS);
-            if (listBundle != null) {
-                for (int i = 0; i < listBundle.size(); i++) {
-                    result.add(NotificationCompatJellybean.getActionFromBundle(
-                            listBundle.getBundle(Integer.toString(i))));
-                }
+        Bundle listBundle = carExtenderBundle.getBundle(CarExtender.EXTRA_INVISIBLE_ACTIONS);
+        if (listBundle != null) {
+            for (int i = 0; i < listBundle.size(); i++) {
+                result.add(NotificationCompatJellybean.getActionFromBundle(
+                        listBundle.getBundle(Integer.toString(i))));
             }
         }
         return result;
@@ -9349,7 +9345,7 @@ public class NotificationCompat {
                     result.add(Person.fromAndroidPerson(person));
                 }
             }
-        } else if (Build.VERSION.SDK_INT >= 19) {
+        } else {
             final String[] peopleArray = notification.extras.getStringArray(EXTRA_PEOPLE);
             if (peopleArray != null && peopleArray.length != 0) {
                 for (String personUri : peopleArray) {

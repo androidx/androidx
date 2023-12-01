@@ -155,7 +155,7 @@ public final class PrintHelper {
      */
     public static boolean systemSupportsPrint() {
         // Supported on Android 4.4 or later.
-        return Build.VERSION.SDK_INT >= 19;
+        return true;
     }
 
     /**
@@ -233,7 +233,7 @@ public final class PrintHelper {
      */
     public int getOrientation() {
         // Unset defaults to landscape but might turn image
-        if (Build.VERSION.SDK_INT >= 19 && mOrientation == 0) {
+        if (mOrientation == 0) {
             return ORIENTATION_LANDSCAPE;
         }
         return mOrientation;

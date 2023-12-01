@@ -432,9 +432,7 @@ public final class AccessibilityEventCompat {
      */
     public static void setContentChangeTypes(@NonNull AccessibilityEvent event,
             @ContentChangeType int changeTypes) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            Api19Impl.setContentChangeTypes(event, changeTypes);
-        }
+        event.setContentChangeTypes(changeTypes);
     }
 
     /**
@@ -454,11 +452,7 @@ public final class AccessibilityEventCompat {
     @SuppressLint("WrongConstant")
     @ContentChangeType
     public static int getContentChangeTypes(@NonNull AccessibilityEvent event) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getContentChangeTypes(event);
-        } else {
-            return 0;
-        }
+        return event.getContentChangeTypes();
     }
 
     /**
@@ -577,22 +571,6 @@ public final class AccessibilityEventCompat {
         static void setAccessibilityDataSensitive(AccessibilityEvent event,
                 boolean accessibilityDataSensitive) {
             event.setAccessibilityDataSensitive(accessibilityDataSensitive);
-        }
-    }
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void setContentChangeTypes(AccessibilityEvent accessibilityEvent, int changeTypes) {
-            accessibilityEvent.setContentChangeTypes(changeTypes);
-        }
-
-        @DoNotInline
-        static int getContentChangeTypes(AccessibilityEvent accessibilityEvent) {
-            return accessibilityEvent.getContentChangeTypes();
         }
     }
 }
