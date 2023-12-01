@@ -24,10 +24,8 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import android.os.ext.SdkExtensions.AD_SERVICES
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresExtension
 import androidx.core.os.BuildCompat
 import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
@@ -290,14 +288,14 @@ class SdkSandboxManagerCompat private constructor(
         )
 
         @DoNotInline
-        fun getSandboxedSdks(): List<SandboxedSdkCompat> = emptyList()
+        fun getSandboxedSdks(): List<SandboxedSdkCompat>
 
         fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder)
     }
 
-    @RequiresApi(33)
-    @RequiresExtension(extension = AD_SERVICES, version = 4)
-    private open class ApiAdServicesV4Impl(context: Context) : PlatformApi {
+    @RequiresApi(34)
+    @SuppressLint("NewApi", "ClassVerificationFailure") // until updating checks to requires api 34
+    private open class Api34Impl(context: Context) : PlatformApi {
         protected val sdkSandboxManager = context.getSystemService(
             SdkSandboxManager::class.java
         )
@@ -320,6 +318,12 @@ class SdkSandboxManagerCompat private constructor(
 
         override fun unloadSdk(sdkName: String) {
             sdkSandboxManager.unloadSdk(sdkName)
+        }
+
+        override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
+            return sdkSandboxManager
+                .sandboxedSdks
+                .map { platformSdk -> SandboxedSdkCompat(platformSdk) }
         }
 
         @DoNotInline
@@ -350,9 +354,7 @@ class SdkSandboxManagerCompat private constructor(
         }
 
         override fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder) {
-            throw UnsupportedOperationException(
-                "This API is only supported for devices run on Android U+"
-            )
+            sdkSandboxManager.startSdkSandboxActivity(fromActivity, sdkActivityToken)
         }
 
         private suspend fun loadSdkInternal(
@@ -379,29 +381,6 @@ class SdkSandboxManagerCompat private constructor(
         }
     }
 
-    @RequiresApi(33)
-    @RequiresExtension(extension = AD_SERVICES, version = 5)
-    private open class ApiAdServicesV5Impl(
-        context: Context
-    ) : ApiAdServicesV4Impl(context) {
-        @DoNotInline
-        override fun getSandboxedSdks(): List<SandboxedSdkCompat> {
-            return sdkSandboxManager
-                .sandboxedSdks
-                .map { platformSdk -> SandboxedSdkCompat(platformSdk) }
-        }
-    }
-
-    @RequiresExtension(extension = AD_SERVICES, version = 5)
-    @RequiresApi(34)
-    private class ApiAdServicesUDCImpl(
-        context: Context
-    ) : ApiAdServicesV5Impl(context) {
-        override fun startSdkSandboxActivity(fromActivity: Activity, sdkActivityToken: IBinder) {
-            sdkSandboxManager.startSdkSandboxActivity(fromActivity, sdkActivityToken)
-        }
-    }
-
     private class FailImpl : PlatformApi {
         @DoNotInline
         override suspend fun loadSdk(
@@ -413,6 +392,8 @@ class SdkSandboxManagerCompat private constructor(
 
         override fun unloadSdk(sdkName: String) {
         }
+
+        override fun getSandboxedSdks(): List<SandboxedSdkCompat> = emptyList()
 
         override fun addSdkSandboxProcessDeathCallback(
             callbackExecutor: Executor,
@@ -474,14 +455,9 @@ class SdkSandboxManagerCompat private constructor(
     }
 
     private object PlatformApiFactory {
-        @SuppressLint("NewApi", "ClassVerificationFailure")
         fun create(context: Context): PlatformApi {
             return if (Build.VERSION.SDK_INT >= 34 || AdServicesInfo.isDeveloperPreview()) {
-                ApiAdServicesUDCImpl(context)
-            } else if (AdServicesInfo.isAtLeastV5()) {
-                ApiAdServicesV5Impl(context)
-            } else if (AdServicesInfo.isAtLeastV4()) {
-                ApiAdServicesV4Impl(context)
+                Api34Impl(context)
             } else {
                 FailImpl()
             }
