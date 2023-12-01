@@ -80,6 +80,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -587,6 +588,40 @@ class TextFieldTest {
 
         // click to focus
         rule.onNodeWithTag(TextFieldTag).performClick()
+    }
+
+    @Test
+    fun testTextField_placeholderColor_whenInputEmptyAndFocused() {
+        var focused = false
+        rule.setMaterialContent(lightColorScheme()) {
+            val text = remember { mutableStateOf("") }
+            TextField(
+                modifier = Modifier.testTag(TextFieldTag),
+                value = text.value,
+                onValueChange = { text.value = it },
+                colors = TextFieldDefaults.colors(
+                    focusedPlaceholderColor = Color.Red,
+                    unfocusedPlaceholderColor = Color.Green,
+                ),
+                placeholder = {
+                    Text("Placeholder")
+                    assertThat(LocalContentColor.current)
+                        .isEqualTo(if (focused) Color.Red else Color.Green)
+                },
+            )
+        }
+
+        // click to focus
+        focused = true
+        rule.onNodeWithTag(TextFieldTag).performClick()
+
+        // enter some text (placeholder hidden)
+        rule.onNodeWithTag(TextFieldTag).performTextInput("input")
+        rule.runOnIdle {}
+
+        // delete the text (placeholder shown)
+        rule.onNodeWithTag(TextFieldTag).performTextClearance()
+        rule.runOnIdle {}
     }
 
     @Test
