@@ -708,10 +708,16 @@ public final class LayoutElementBuilders {
             /**
              * Sets whether the text should be rendered in a italic typeface. If not specified,
              * defaults to "false".
+             *
+             * <p>Note that this field only supports static values.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setItalic(@NonNull BoolProp italic) {
+                if (italic.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "FontStyle.Builder.setItalic doesn't support dynamic values.");
+                }
                 mImpl.setItalic(italic.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(italic.getFingerprint()).aggregateValueAsInt());
@@ -732,10 +738,16 @@ public final class LayoutElementBuilders {
             /**
              * Sets whether the text should be rendered with an underline. If not specified,
              * defaults to "false".
+             *
+             * <p>Note that this field only supports static values.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setUnderline(@NonNull BoolProp underline) {
+                if (underline.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "FontStyle.Builder.setUnderline doesn't support dynamic values.");
+                }
                 mImpl.setUnderline(underline.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(underline.getFingerprint()).aggregateValueAsInt());
@@ -4821,10 +4833,16 @@ public final class LayoutElementBuilders {
              * be placed at the 3 o clock position, and will be rotated clockwise through 90
              * degrees. If rotate_contents = false, the image will be placed at the 3 o clock
              * position, but itself will not be rotated. If not defined, defaults to false.
+             *
+             * <p>Note that this field only supports static values.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setRotateContents(@NonNull BoolProp rotateContents) {
+                if (rotateContents.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "ArcAdapter.Builder.setRotateContents doesn't support dynamic values.");
+                }
                 mImpl.setRotateContents(rotateContents.toProto());
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(rotateContents.getFingerprint()).aggregateValueAsInt());

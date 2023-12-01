@@ -494,7 +494,11 @@ public final class TypeBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the static value. */
+        /**
+         * Gets the static value. If a dynamic value is also set and the renderer supports dynamic
+         * values for the corresponding field, this static value will be ignored. If the static
+         * value is not specified, false will be used instead.
+         */
         public boolean getValue() {
             return mImpl.getValue();
         }
@@ -543,7 +547,12 @@ public final class TypeBuilders {
         @Override
         @NonNull
         public String toString() {
-            return "BoolProp{" + "value=" + getValue() + "}";
+            return "BoolProp{"
+                    + "value="
+                    + getValue()
+                    + ", dynamicValue="
+                    + getDynamicValue()
+                    + "}";
         }
 
         /** Builder for {@link BoolProp} */
@@ -567,7 +576,11 @@ public final class TypeBuilders {
             @Deprecated
             public Builder() {}
 
-            /** Sets the static value. */
+            /**
+             * Sets the static value. If a dynamic value is also set and the renderer supports
+             * dynamic values for the corresponding field, this static value will be ignored. If the
+             * static value is not specified, false will be used instead.
+             */
             @RequiresSchemaVersion(major = 1, minor = 0)
             @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
