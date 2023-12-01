@@ -222,6 +222,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     key1: Any?,
@@ -256,6 +261,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     key1: Any?,
@@ -291,6 +301,11 @@ fun Modifier.pointerInput(
  * that is accessed by [block]:
  *
  * @sample androidx.compose.ui.samples.rememberedUpdatedParameterPointerInputModifier
+ *
+ * ***Note*** Any removal operations on Android Views from `pointerInput` should wrap the `block`
+ * in a `post { }` block to guarantee the event dispatch completes before executing the removal.
+ * (You do not need to do this when removing a composable because Compose guarantees it completes
+ * via the snapshot state system.)
  */
 fun Modifier.pointerInput(
     vararg keys: Any?,
