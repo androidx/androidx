@@ -16,7 +16,6 @@
 
 package androidx.room.benchmark
 
-import android.os.Build
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.room.Dao
@@ -30,7 +29,6 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.generateAllEnumerations
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -42,7 +40,6 @@ import org.junit.runners.Parameterized
 
 @LargeTest
 @RunWith(Parameterized::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN) // TODO Fix me for API 15 - b/120098504
 class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode: Mode) {
 
     @get:Rule

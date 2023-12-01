@@ -356,12 +356,9 @@ internal class AutoClosingRoomOpenHelper(
             }
         }
 
-        @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
         override fun setForeignKeyConstraintsEnabled(enabled: Boolean) {
             autoCloser.executeRefCountingFunction<Any?> { db: SupportSQLiteDatabase ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    db.setForeignKeyConstraintsEnabled(enabled)
-                }
+                db.setForeignKeyConstraintsEnabled(enabled)
                 null
             }
         }
@@ -380,13 +377,9 @@ internal class AutoClosingRoomOpenHelper(
             )
         }
 
-        @get:RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
         override val isWriteAheadLoggingEnabled: Boolean
             get() = autoCloser.executeRefCountingFunction { db: SupportSQLiteDatabase ->
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    return@executeRefCountingFunction db.isWriteAheadLoggingEnabled
-                }
-                false
+                return@executeRefCountingFunction db.isWriteAheadLoggingEnabled
             }
 
         override val attachedDbs: List<Pair<String, String>>?

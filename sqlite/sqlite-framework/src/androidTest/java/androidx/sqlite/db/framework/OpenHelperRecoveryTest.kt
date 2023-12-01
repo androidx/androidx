@@ -18,7 +18,6 @@ package androidx.sqlite.db.framework
 
 import android.content.Context
 import android.database.sqlite.SQLiteException
-import android.os.Build
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.test.core.app.ApplicationProvider
@@ -40,25 +39,23 @@ class OpenHelperRecoveryTest {
     }
     @Test
     fun delegateLaziness() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            val openHelper = FrameworkSQLiteOpenHelper(
-                context,
-                dbName,
-                EmptyCallback(),
-                false,
-                false
-            )
-            openHelper.setWriteAheadLoggingEnabled(true)
+        val openHelper = FrameworkSQLiteOpenHelper(
+            context,
+            dbName,
+            EmptyCallback(),
+            false,
+            false
+        )
+        openHelper.setWriteAheadLoggingEnabled(true)
 
-            val dbFileBeforeWritable = context.getDatabasePath(dbName)
-            assertThat(dbFileBeforeWritable.exists()).isFalse()
+        val dbFileBeforeWritable = context.getDatabasePath(dbName)
+        assertThat(dbFileBeforeWritable.exists()).isFalse()
 
-            val writableDb = openHelper.writableDatabase
-            val dbFileAfterWritable = context.getDatabasePath(dbName)
+        val writableDb = openHelper.writableDatabase
+        val dbFileAfterWritable = context.getDatabasePath(dbName)
 
-            assertThat(dbFileAfterWritable.exists()).isTrue()
-            assertThat(writableDb.isWriteAheadLoggingEnabled).isTrue()
-        }
+        assertThat(dbFileAfterWritable.exists()).isTrue()
+        assertThat(writableDb.isWriteAheadLoggingEnabled).isTrue()
     }
 
     @Test

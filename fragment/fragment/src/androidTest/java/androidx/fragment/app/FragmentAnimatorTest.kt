@@ -411,7 +411,6 @@ class FragmentAnimatorTest {
 
     // Ensure that removing and popping a Fragment uses the exit and popEnter animators,
     // but the animators are delayed when an entering Fragment is postponed.
-    @RequiresApi(Build.VERSION_CODES.JELLY_BEAN)
     @Test
     fun postponedRemoveAnimators() {
         val fm = activityRule.activity.supportFragmentManager
