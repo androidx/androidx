@@ -112,27 +112,27 @@ public class PaletteActivity extends AppCompatActivity {
 
         @Override
         public boolean onOptionsItemSelected(MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.menu_num_colors_8:
-                    mAdapter.setNumColors(8);
-                    item.setChecked(true);
-                    return true;
-                case R.id.menu_num_colors_12:
-                    mAdapter.setNumColors(12);
-                    item.setChecked(true);
-                    return true;
-                case R.id.menu_num_colors_16:
-                    mAdapter.setNumColors(16);
-                    item.setChecked(true);
-                    return true;
-                case R.id.menu_num_colors_24:
-                    mAdapter.setNumColors(24);
-                    item.setChecked(true);
-                    return true;
-                case R.id.menu_num_colors_32:
-                    mAdapter.setNumColors(32);
-                    item.setChecked(true);
-                    return true;
+            int itemId = item.getItemId();
+            if (itemId == R.id.menu_num_colors_8) {
+                mAdapter.setNumColors(8);
+                item.setChecked(true);
+                return true;
+            } else if (itemId == R.id.menu_num_colors_12) {
+                mAdapter.setNumColors(12);
+                item.setChecked(true);
+                return true;
+            } else if (itemId == R.id.menu_num_colors_16) {
+                mAdapter.setNumColors(16);
+                item.setChecked(true);
+                return true;
+            } else if (itemId == R.id.menu_num_colors_24) {
+                mAdapter.setNumColors(24);
+                item.setChecked(true);
+                return true;
+            } else if (itemId == R.id.menu_num_colors_32) {
+                mAdapter.setNumColors(32);
+                item.setChecked(true);
+                return true;
             }
 
             return super.onOptionsItemSelected(item);

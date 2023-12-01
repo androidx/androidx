@@ -238,15 +238,15 @@ public class SystemUIModes extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.show_tabs:
-                getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-                item.setChecked(true);
-                return true;
-            case R.id.hide_tabs:
-                getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-                item.setChecked(true);
-                return true;
+        int itemId = item.getItemId();
+        if (itemId == R.id.show_tabs) {
+            getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+            item.setChecked(true);
+            return true;
+        } else if (itemId == R.id.hide_tabs) {
+            getSupportActionBar().setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
+            item.setChecked(true);
+            return true;
         }
         return false;
     }
