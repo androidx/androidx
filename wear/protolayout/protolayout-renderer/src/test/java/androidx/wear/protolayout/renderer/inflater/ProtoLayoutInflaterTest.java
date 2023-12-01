@@ -4782,6 +4782,71 @@ public class ProtoLayoutInflaterTest {
         assertThat(secondImage.getLeft()).isEqualTo(secondImageLeft);
     }
 
+    @Test   public void inflate_box_withVisibleModifier() {
+        final String protoResId = "android";
+        final String boolKey = "bool-key";
+
+        LayoutElement image = buildImage(protoResId, 30, 30);
+
+        BoolProp.Builder stateBoolPropBuilder =
+                BoolProp.newBuilder()
+                        .setValue(true)
+                        .setDynamicValue(
+                                DynamicBool.newBuilder()
+                                        .setStateSource(
+                                                StateBoolSource.newBuilder()
+                                                        .setSourceKey(boolKey)));
+        BoolProp.Builder alwaysTrueBoolPropBuilder =
+                BoolProp.newBuilder()
+                        .setValue(true)
+                        .setDynamicValue(
+                                DynamicBool.newBuilder()
+                                        .setFixed(FixedBool.newBuilder().setValue(true)));
+        LayoutElement.Builder boxBuilder =
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .addContents(image)
+                                        .setModifiers(
+                                                Modifiers.newBuilder()
+                                                        .setVisible(stateBoolPropBuilder)
+                                                        // This should be ignored
+                                                        .setHidden(alwaysTrueBoolPropBuilder)));
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setRow(Row.newBuilder().addContents(boxBuilder).addContents(image))
+                        .build();
+
+        FrameLayout layout = renderer(fingerprintedLayout(root)).inflate();
+
+        // There should be a child ViewGroup which is a LinearLayout.
+        assertThat(layout.getChildAt(0)).isInstanceOf(ViewGroup.class);
+        ViewGroup firstChild = (ViewGroup) layout.getChildAt(0);
+        ViewGroup box = (ViewGroup) firstChild.getChildAt(0);
+        ViewGroup secondImage = (ViewGroup) firstChild.getChildAt(1);
+
+        assertThat(box.getWidth()).isGreaterThan(0);
+        assertThat(box.getVisibility()).isEqualTo(VISIBLE);
+
+        // The second image should start after the hidden (but not gone) box.
+        int secondImageLeft = secondImage.getLeft();
+        assertThat(secondImageLeft).isEqualTo(box.getWidth());
+        assertThat(box.getWidth()).isEqualTo(secondImage.getWidth());
+
+        // Try to hide the box.
+        mStateStore.setAppStateEntryValuesProto(
+                ImmutableMap.of(
+                        new AppDataKey<DynamicBuilders.DynamicBool>(boolKey),
+                        DynamicDataValue.newBuilder()
+                                .setBoolVal(FixedBool.newBuilder().setValue(false))
+                                .build()));
+
+        // The box should be hidden but still take some space (as it wraps around its inner image)
+        assertThat(box.getVisibility()).isEqualTo(INVISIBLE);
+        // The second image shouldn't move around.
+        assertThat(secondImage.getLeft()).isEqualTo(secondImageLeft);
+    }
+
     @Test
     public void enterTransition_noQuota_notPlayed() throws Exception {
         Renderer renderer =
