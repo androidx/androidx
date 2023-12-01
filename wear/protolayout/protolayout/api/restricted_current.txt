@@ -1009,10 +1009,10 @@ package androidx.wear.protolayout {
     method public androidx.wear.protolayout.ModifiersBuilders.Border? getBorder();
     method public androidx.wear.protolayout.ModifiersBuilders.Clickable? getClickable();
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility? getContentUpdateAnimation();
-    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.TypeBuilders.BoolProp? getHidden();
     method public androidx.wear.protolayout.ModifiersBuilders.ElementMetadata? getMetadata();
     method public androidx.wear.protolayout.ModifiersBuilders.Padding? getPadding();
     method public androidx.wear.protolayout.ModifiersBuilders.Semantics? getSemantics();
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.TypeBuilders.BoolProp isVisible();
   }
 
   public static final class ModifiersBuilders.Modifiers.Builder {
@@ -1022,10 +1022,10 @@ package androidx.wear.protolayout {
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setBorder(androidx.wear.protolayout.ModifiersBuilders.Border);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setClickable(androidx.wear.protolayout.ModifiersBuilders.Clickable);
     method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setContentUpdateAnimation(androidx.wear.protolayout.ModifiersBuilders.AnimatedVisibility);
-    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setHidden(androidx.wear.protolayout.TypeBuilders.BoolProp);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setMetadata(androidx.wear.protolayout.ModifiersBuilders.ElementMetadata);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setPadding(androidx.wear.protolayout.ModifiersBuilders.Padding);
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setSemantics(androidx.wear.protolayout.ModifiersBuilders.Semantics);
+    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.ModifiersBuilders.Modifiers.Builder setVisible(androidx.wear.protolayout.TypeBuilders.BoolProp);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final class ModifiersBuilders.Padding {

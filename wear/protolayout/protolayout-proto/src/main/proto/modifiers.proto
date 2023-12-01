@@ -190,18 +190,20 @@ message Modifiers {
   // underneath it.
   AnimatedVisibility content_update_animation = 7;
 
-  // Whether the attached element is hidden, or visible. If the element is
-  // hidden, then it will still consume space in the layout, but will not render
-  // any contents, nor will any children render any contents.
-  //
-  // Note that a hidden element also cannot be clickable (i.e. a Clickable
-  // modifier would be ignored).
-  //
-  // Defaults to false (i.e. not hidden).
+
+  // This field is deprecated and is only kept for backward compatibility.
   BoolProp hidden = 8;
 
   // The optional identifier for the layout element.
   string id = 9;
+
+  // Whether the attached element is visible, or hidden. If the element is
+  // hidden, then it will still consume space in the layout, but will not render
+  // any contents, nor will any children render any contents. Defaults to visible.
+  //
+  // Note that a hidden element also cannot be clickable (i.e. a Clickable
+  // modifier would be ignored).
+  BoolProp visible = 10;
 }
 
 // The content transition of an element. Any update to the element or its
