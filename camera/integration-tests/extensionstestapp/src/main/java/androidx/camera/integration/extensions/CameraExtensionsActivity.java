@@ -665,20 +665,20 @@ public class CameraExtensionsActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-        switch (item.getItemId()) {
-            case R.id.menu_camera2_extensions:
-                if (Build.VERSION.SDK_INT >= 31) {
-                    mCameraProvider.unbindAll();
-                    intent.setClassName(this, Camera2ExtensionsActivity.class.getName());
-                    startActivity(intent);
-                    finish();
-                }
-                return true;
-            case R.id.menu_validation_tool:
-                intent.setClassName(this, CameraValidationResultActivity.class.getName());
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_camera2_extensions) {
+            if (Build.VERSION.SDK_INT >= 31) {
+                mCameraProvider.unbindAll();
+                intent.setClassName(this, Camera2ExtensionsActivity.class.getName());
                 startActivity(intent);
                 finish();
-                return true;
+            }
+            return true;
+        } else if (itemId == R.id.menu_validation_tool) {
+            intent.setClassName(this, CameraValidationResultActivity.class.getName());
+            startActivity(intent);
+            finish();
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
