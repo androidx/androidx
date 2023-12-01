@@ -631,6 +631,40 @@ class OutlinedTextFieldTest {
     }
 
     @Test
+    fun testOutlinedTextField_placeholderColor_whenInputEmptyAndFocused() {
+        var focused = false
+        rule.setMaterialContent(lightColorScheme()) {
+            val text = remember { mutableStateOf("") }
+            OutlinedTextField(
+                modifier = Modifier.testTag(TextFieldTag),
+                value = text.value,
+                onValueChange = { text.value = it },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedPlaceholderColor = Color.Red,
+                    unfocusedPlaceholderColor = Color.Green,
+                ),
+                placeholder = {
+                    Text("Placeholder")
+                    assertThat(LocalContentColor.current)
+                        .isEqualTo(if (focused) Color.Red else Color.Green)
+                },
+            )
+        }
+
+        // click to focus
+        focused = true
+        rule.onNodeWithTag(TextFieldTag).performClick()
+
+        // enter some text (placeholder hidden)
+        rule.onNodeWithTag(TextFieldTag).performTextInput("input")
+        rule.runOnIdle {}
+
+        // delete the text (placeholder shown)
+        rule.onNodeWithTag(TextFieldTag).performTextClearance()
+        rule.runOnIdle {}
+    }
+
+    @Test
     fun testOutlinedTextField_labelAndPlaceholderPosition_whenSmallerThanMinimumHeight() {
         val labelSize = 10.dp
         val labelPosition = Ref<Offset>()
