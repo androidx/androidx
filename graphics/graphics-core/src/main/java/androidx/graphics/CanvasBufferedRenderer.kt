@@ -31,13 +31,14 @@ import androidx.hardware.DefaultNumBuffers
 import androidx.hardware.HardwareBufferFormat
 import androidx.hardware.HardwareBufferUsage
 import androidx.hardware.SyncFenceCompat
-import java.lang.IllegalStateException
 import java.util.concurrent.Executor
+import kotlin.coroutines.resume
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * Creates an instance of a hardware-accelerated renderer. This is used to render a scene built
  * from [RenderNode]s to an output [HardwareBuffer]. There can be as many
- * HardwareBufferRenderer instances as desired.
+ * [CanvasBufferedRenderer] instances as desired.
  *
  * Resources & lifecycle
  *
@@ -125,7 +126,8 @@ class CanvasBufferedRenderer internal constructor(
      * Returns if the [CanvasBufferedRenderer] has already been closed. That is
      * [CanvasBufferedRenderer.close] has been invoked.
      */
-    fun isClosed(): Boolean = mImpl.isClosed()
+    val isClosed: Boolean
+        get() = mImpl.isClosed()
 
     /**
      * Returns a [RenderRequest] that can be used to render into the provided HardwareBuffer.
@@ -140,7 +142,7 @@ class CanvasBufferedRenderer internal constructor(
      * Sets the content root to render. It is not necessary to call this whenever the content
      * recording changes. Any mutations to the [RenderNode] content, or any of the [RenderNode]s
      * contained within the content node, will be applied whenever a new [RenderRequest] is issued
-     * via [obtainRenderRequest] and [RenderRequest.draw].
+     * via [obtainRenderRequest] and [RenderRequest.drawAsync].
      */
     fun setContentRoot(renderNode: RenderNode) {
         mImpl.setContentRoot(renderNode)
@@ -217,8 +219,8 @@ class CanvasBufferedRenderer internal constructor(
          * [CanvasBufferedRenderer].
          * If 1 is specified, then the created [CanvasBufferedRenderer] is running in
          * "single buffer mode". In this case consumption of the buffer content would need to be
-         * coordinated with the [SyncFenceCompat] returned by the callback of [RenderRequest.draw].
-         * @see CanvasBufferedRenderer.RenderRequest.draw
+         * coordinated with the [SyncFenceCompat] returned by the callback of [RenderRequest.drawAsync].
+         * @see CanvasBufferedRenderer.RenderRequest.drawAsync
          *
          * @param numBuffers The number of buffers within the swap chain to be consumed by the
          * created [CanvasBufferedRenderer]. This must be greater than zero. The default
@@ -312,11 +314,39 @@ class CanvasBufferedRenderer internal constructor(
          * @throws IllegalStateException if this method is invoked after the
          * [CanvasBufferedRenderer] has been closed.
          */
-        fun draw(executor: Executor, callback: Consumer<RenderResult>) {
-            if (isClosed()) {
+        fun drawAsync(executor: Executor, callback: Consumer<RenderResult>) {
+            if (isClosed) {
                 throw IllegalStateException("Attempt to draw after renderer has been closed")
             }
             mImpl.draw(this, executor, callback)
+        }
+
+        /**
+         * Syncs the [RenderNode] tree to the render thread and requests content to be drawn
+         * synchronously.
+         * This [RenderRequest] instance should no longer be used after calling this method.
+         * The system internally may reuse instances of [RenderRequest] to reduce allocation churn.
+         *
+         * @param waitForFence Optional flag to determine if the [SyncFenceCompat] is also waited
+         * upon before returning as a convenience in order to enable callers to consume the
+         * [HardwareBuffer] returned in the [RenderResult] immediately after this method returns.
+         * Passing `false` here on Android T and below is a no-op as the graphics rendering pipeline
+         * internally blocks on the fence before returning.
+         */
+        suspend fun draw(waitForFence: Boolean = true): RenderResult {
+            check(!isClosed) { "Attempt to draw after renderer has been closed" }
+
+            return suspendCancellableCoroutine { continuation ->
+                drawAsync(Runnable::run) { result ->
+                    if (waitForFence) {
+                        result.fence?.apply {
+                            awaitForever()
+                            close()
+                        }
+                    }
+                    continuation.resume(result)
+                }
+            }
         }
 
         /**
@@ -367,11 +397,19 @@ class CanvasBufferedRenderer internal constructor(
         /**
          * Determines whether or not previous buffer contents will be persisted across render
          * requests. If false then contents are cleared before issuing drawing instructions,
-         * otherwise contents will remain. If contents are known in advance to be completely opaque
-         * and cover all pixels within the buffer, setting this flag to false will slightly improve
-         * performance as the clear operation will be skipped. Additionally for single buffered
-         * rendering scenarios, persisting contents can be beneficial in order to draw the deltas of
-         * content across frames. The default setting is false
+         * otherwise contents will remain.
+         *
+         * If contents are known in advance to be completely opaque and cover all pixels within the
+         * buffer, setting this flag to true will slightly improve performance as the clear
+         * operation will be skipped.
+         *
+         * For low latency use cases (ex applications that support drawing with a stylus), setting
+         * this value to true alongside single buffered rendering by configuring
+         * [CanvasBufferedRenderer.Builder.setMaxBuffers] to 1 allows for reduced latency by allowing
+         * consumers to only render the deltas across frames as the previous content would be
+         * persisted.
+         *
+         * The default setting is false.
          */
         fun preserveContents(preserve: Boolean): RenderRequest {
             mPreserveContents = preserve
