@@ -108,19 +108,19 @@ public class SlidingPaneLayoutActivity extends ComponentActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.lock_mode_unlocked:
-                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_UNLOCKED);
-                return true;
-            case R.id.lock_mode_locked_open:
-                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED_OPEN);
-                return true;
-            case R.id.lock_mode_locked_closed:
-                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED_CLOSED);
-                return true;
-            case R.id.lock_mode_locked:
-                mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED);
-                return true;
+        int itemId = item.getItemId();
+        if (itemId == R.id.lock_mode_unlocked) {
+            mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_UNLOCKED);
+            return true;
+        } else if (itemId == R.id.lock_mode_locked_open) {
+            mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED_OPEN);
+            return true;
+        } else if (itemId == R.id.lock_mode_locked_closed) {
+            mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED_CLOSED);
+            return true;
+        } else if (itemId == R.id.lock_mode_locked) {
+            mSlidingLayout.setLockMode(SlidingPaneLayout.LOCK_MODE_LOCKED);
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
