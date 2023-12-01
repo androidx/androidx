@@ -23,7 +23,9 @@ import android.content.Context
 import android.os.Bundle
 import android.os.ext.SdkExtensions.AD_SERVICES
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
+import androidx.annotation.RestrictTo
 
 /**
  * Implementation of platform [SandboxedSdkProvider] that delegate to [SandboxedSdkProviderCompat]
@@ -31,6 +33,7 @@ import androidx.annotation.RequiresExtension
  *
  */
 @SuppressLint("Override") // b/273473397
+@RequiresApi(34)
 @RequiresExtension(extension = AD_SERVICES, version = 4)
 // TODO(b/301437557) Remove after documentation migration to sdkruntime-provider
 @Deprecated(
@@ -38,8 +41,10 @@ import androidx.annotation.RequiresExtension
     replaceWith = ReplaceWith(
         expression = "SandboxedSdkProviderAdapter",
         imports = arrayOf("androidx.privacysandbox.sdkruntime.provider.SandboxedSdkProviderAdapter")
-    )
+    ),
+    level = DeprecationLevel.HIDDEN
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY) // removing from public API surface
 class SandboxedSdkProviderAdapter internal constructor(
     private val classNameProvider: CompatClassNameProvider
 ) : SandboxedSdkProvider() {
