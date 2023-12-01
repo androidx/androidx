@@ -774,6 +774,21 @@ class PreviewTest {
         assertThat(preview.isPreviewStabilizationEnabled).isTrue()
     }
 
+    @Test
+    fun canSetDynamicRange() {
+        // Use an unspecified dynamic range that isn't the default, UNSPECIFIED.
+        val preview = Preview.Builder().setDynamicRange(DynamicRange.HDR_UNSPECIFIED_10_BIT).build()
+
+        assertThat(preview.dynamicRange).isEqualTo(DynamicRange.HDR_UNSPECIFIED_10_BIT)
+    }
+
+    @Test
+    fun defaultDynamicRange_isUnspecified() {
+        val preview = Preview.Builder().build()
+
+        assertThat(preview.dynamicRange).isEqualTo(DynamicRange.UNSPECIFIED)
+    }
+
     private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
         return bindToLifecycleAndGetResult(null).first
     }

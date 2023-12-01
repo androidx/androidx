@@ -59,6 +59,7 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.DynamicRanges;
 import androidx.camera.core.impl.EncoderProfilesProvider;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 import androidx.camera.core.impl.Quirks;
@@ -449,6 +450,14 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
                 mCameraCharacteristicsCompat);
 
         return dynamicRangesCompat.getSupportedDynamicRanges();
+    }
+
+    @NonNull
+    @Override
+    public Set<DynamicRange> querySupportedDynamicRanges(
+            @NonNull Set<DynamicRange> candidateDynamicRanges) {
+        return DynamicRanges.findAllPossibleMatches(candidateDynamicRanges,
+                getSupportedDynamicRanges());
     }
 
     @Override

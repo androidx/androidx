@@ -183,6 +183,13 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
 
     @NonNull
     @Override
+    public Set<DynamicRange> querySupportedDynamicRanges(
+            @NonNull Set<DynamicRange> candidateDynamicRanges) {
+        return mCameraInfoInternal.querySupportedDynamicRanges(candidateDynamicRanges);
+    }
+
+    @NonNull
+    @Override
     public CameraInfoInternal getImplementation() {
         return mCameraInfoInternal.getImplementation();
     }
