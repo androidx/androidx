@@ -39,8 +39,20 @@ AddedFinal: androidx.kruth.ThrowableSubject:
     Class androidx.kruth.ThrowableSubject added 'final' qualifier
 
 
+ChangedType: androidx.kruth.ObjectArraySubject#asList():
+    Method androidx.kruth.ObjectArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<?>
+ChangedType: androidx.kruth.PrimitiveBooleanArraySubject#asList():
+    Method androidx.kruth.PrimitiveBooleanArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Boolean>
 ChangedType: androidx.kruth.PrimitiveByteArraySubject#asList():
     Method androidx.kruth.PrimitiveByteArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Byte>
+ChangedType: androidx.kruth.PrimitiveCharArraySubject#asList():
+    Method androidx.kruth.PrimitiveCharArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Character>
+ChangedType: androidx.kruth.PrimitiveIntArraySubject#asList():
+    Method androidx.kruth.PrimitiveIntArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Integer>
+ChangedType: androidx.kruth.PrimitiveLongArraySubject#asList():
+    Method androidx.kruth.PrimitiveLongArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Long>
+ChangedType: androidx.kruth.PrimitiveShortArraySubject#asList():
+    Method androidx.kruth.PrimitiveShortArraySubject.asList has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<java.lang.Short>
 ChangedType: androidx.kruth.SimpleSubjectBuilder#that(T):
     Method androidx.kruth.SimpleSubjectBuilder.that has changed return type from SubjectT (extends androidx.kruth.Subject) to S (extends androidx.kruth.Subject<? extends T>)
 ChangedType: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.Subject.Factory<? extends S,T>):
@@ -51,8 +63,8 @@ ChangedType: androidx.kruth.StandardSubjectBuilder#that(Iterable<? extends T>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.IterableSubject to androidx.kruth.IterableSubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(T):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ClassSubject to androidx.kruth.Subject<T>
-ChangedType: androidx.kruth.StandardSubjectBuilder#that(byte[]):
-    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ObjectArraySubject<T> to androidx.kruth.PrimitiveByteArraySubject
+ChangedType: androidx.kruth.StandardSubjectBuilder#that(T[]):
+    Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.ObjectArraySubject<T> to androidx.kruth.ObjectArraySubject<T>
 ChangedType: androidx.kruth.StandardSubjectBuilder#that(java.util.Map<K,? extends V>):
     Method androidx.kruth.StandardSubjectBuilder.that has changed return type from androidx.kruth.MapSubject to androidx.kruth.MapSubject<K,V>
 ChangedType: androidx.kruth.Subject#failWithActual(String, Object):
@@ -123,22 +135,10 @@ RemovedClass: androidx.kruth.MultimapSubject:
     Removed class androidx.kruth.MultimapSubject
 RemovedClass: androidx.kruth.MultisetSubject:
     Removed class androidx.kruth.MultisetSubject
-RemovedClass: androidx.kruth.ObjectArraySubject:
-    Removed class androidx.kruth.ObjectArraySubject
-RemovedClass: androidx.kruth.PrimitiveBooleanArraySubject:
-    Removed class androidx.kruth.PrimitiveBooleanArraySubject
-RemovedClass: androidx.kruth.PrimitiveCharArraySubject:
-    Removed class androidx.kruth.PrimitiveCharArraySubject
-RemovedClass: androidx.kruth.PrimitiveDoubleArraySubject:
-    Removed class androidx.kruth.PrimitiveDoubleArraySubject
-RemovedClass: androidx.kruth.PrimitiveFloatArraySubject:
-    Removed class androidx.kruth.PrimitiveFloatArraySubject
-RemovedClass: androidx.kruth.PrimitiveIntArraySubject:
-    Removed class androidx.kruth.PrimitiveIntArraySubject
-RemovedClass: androidx.kruth.PrimitiveLongArraySubject:
-    Removed class androidx.kruth.PrimitiveLongArraySubject
-RemovedClass: androidx.kruth.PrimitiveShortArraySubject:
-    Removed class androidx.kruth.PrimitiveShortArraySubject
+RemovedClass: androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable:
+    Removed class androidx.kruth.PrimitiveDoubleArraySubject.DoubleArrayAsIterable
+RemovedClass: androidx.kruth.PrimitiveFloatArraySubject.FloatArrayAsIterable:
+    Removed class androidx.kruth.PrimitiveFloatArraySubject.FloatArrayAsIterable
 RemovedClass: androidx.kruth.TableSubject:
     Removed class androidx.kruth.TableSubject
 RemovedClass: androidx.kruth.Truth:
@@ -181,6 +181,14 @@ RemovedMethod: androidx.kruth.MapSubject#containsExactly(Object, Object, java.la
     Removed method androidx.kruth.MapSubject.containsExactly(Object,Object,java.lang.Object...)
 RemovedMethod: androidx.kruth.MapSubject#formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V,? super V>):
     Removed method androidx.kruth.MapSubject.formattingDiffsUsing(androidx.kruth.Correspondence.DiffFormatter<? super V,? super V>)
+RemovedMethod: androidx.kruth.PrimitiveDoubleArraySubject#usingExactEquality():
+    Removed method androidx.kruth.PrimitiveDoubleArraySubject.usingExactEquality()
+RemovedMethod: androidx.kruth.PrimitiveDoubleArraySubject#usingTolerance(double):
+    Removed method androidx.kruth.PrimitiveDoubleArraySubject.usingTolerance(double)
+RemovedMethod: androidx.kruth.PrimitiveFloatArraySubject#usingExactEquality():
+    Removed method androidx.kruth.PrimitiveFloatArraySubject.usingExactEquality()
+RemovedMethod: androidx.kruth.PrimitiveFloatArraySubject#usingTolerance(double):
+    Removed method androidx.kruth.PrimitiveFloatArraySubject.usingTolerance(double)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>):
     Removed method androidx.kruth.StandardSubjectBuilder.about(androidx.kruth.CustomSubjectBuilder.Factory<CustomSubjectBuilderT>)
 RemovedMethod: androidx.kruth.StandardSubjectBuilder#withMessage(String, java.lang.Object...):

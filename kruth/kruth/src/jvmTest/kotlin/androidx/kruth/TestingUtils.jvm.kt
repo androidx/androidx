@@ -16,18 +16,11 @@
 
 package androidx.kruth
 
-import kotlin.test.assertEquals
-import kotlin.test.fail
+import kotlin.math.nextDown as kotlinNextDown
+import kotlin.math.nextUp as kotlinNextUp
 
-internal fun assertFailsWithMessage(message: String, block: () -> Unit) {
-    try {
-        block()
-        fail("Expected to fail but didn't")
-    } catch (e: AssertionError) {
-        assertEquals(expected = message, actual = e.message)
-    }
-}
+internal actual fun Float.nextUp(): Float =
+    kotlinNextUp()
 
-internal expect fun Float.nextUp(): Float
-
-internal expect fun Float.nextDown(): Float
+internal actual fun Float.nextDown(): Float =
+    kotlinNextDown()
