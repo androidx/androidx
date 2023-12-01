@@ -51,8 +51,32 @@ fun assertThat(actual: String?): StringSubject {
 fun <T> assertThat(actual: Iterable<T>?): IterableSubject<T> =
     IterableSubject(actual)
 
+fun <T> assertThat(actual: Array<out T>?): ObjectArraySubject<T> =
+    ObjectArraySubject(actual)
+
+fun assertThat(actual: BooleanArray?): PrimitiveBooleanArraySubject =
+    PrimitiveBooleanArraySubject(actual)
+
+fun assertThat(actual: ShortArray?): PrimitiveShortArraySubject =
+    PrimitiveShortArraySubject(actual)
+
+fun assertThat(actual: IntArray?): PrimitiveIntArraySubject =
+    PrimitiveIntArraySubject(actual)
+
+fun assertThat(actual: LongArray?): PrimitiveLongArraySubject =
+    PrimitiveLongArraySubject(actual)
+
 fun assertThat(actual: ByteArray?): PrimitiveByteArraySubject =
     PrimitiveByteArraySubject(actual)
+
+fun assertThat(actual: CharArray?): PrimitiveCharArraySubject =
+    PrimitiveCharArraySubject(actual)
+
+fun assertThat(actual: FloatArray?): PrimitiveFloatArraySubject =
+    PrimitiveFloatArraySubject(actual)
+
+fun assertThat(actual: DoubleArray?): PrimitiveDoubleArraySubject =
+    PrimitiveDoubleArraySubject(actual)
 
 fun <K, V> assertThat(actual: Map<K, V>?): MapSubject<K, V> =
     MapSubject(actual)

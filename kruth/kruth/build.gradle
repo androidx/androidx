@@ -72,12 +72,19 @@ androidXMultiplatform {
             nativeMain {
                 dependsOn(commonMain)
             }
+
+            nativeTest {
+                dependsOn(commonTest)
+            }
         }
 
         targets.all { target ->
             if (target.platformType == org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     dependsOn(nativeMain)
+                }
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
                 }
             }
         }

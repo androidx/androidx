@@ -113,16 +113,24 @@ package androidx.kruth {
 
   public final class KruthKt {
     method public static <S extends androidx.kruth.Subject<? extends T>, T> androidx.kruth.SimpleSubjectBuilder<S,T> assertAbout(androidx.kruth.Subject.Factory<? extends S,T> subjectFactory);
+    method public static androidx.kruth.PrimitiveBooleanArraySubject assertThat(boolean[]? actual);
     method public static androidx.kruth.PrimitiveByteArraySubject assertThat(byte[]? actual);
+    method public static androidx.kruth.PrimitiveCharArraySubject assertThat(char[]? actual);
+    method public static androidx.kruth.PrimitiveDoubleArraySubject assertThat(double[]? actual);
+    method public static androidx.kruth.PrimitiveFloatArraySubject assertThat(float[]? actual);
+    method public static androidx.kruth.PrimitiveIntArraySubject assertThat(int[]? actual);
     method public static androidx.kruth.BooleanSubject assertThat(Boolean? actual);
     method public static androidx.kruth.DoubleSubject assertThat(Double? actual);
     method public static androidx.kruth.IntegerSubject assertThat(Integer? actual);
     method public static <T> androidx.kruth.IterableSubject<T> assertThat(Iterable<? extends T>? actual);
     method public static androidx.kruth.StringSubject assertThat(String? actual);
     method public static <K, V> androidx.kruth.MapSubject<K,V> assertThat(java.util.Map<K,? extends V>? actual);
+    method public static androidx.kruth.PrimitiveLongArraySubject assertThat(long[]? actual);
+    method public static androidx.kruth.PrimitiveShortArraySubject assertThat(short[]? actual);
     method public static <T extends java.lang.Comparable<? super T>> androidx.kruth.ComparableSubject<T> assertThat(T? actual);
     method public static <T> androidx.kruth.Subject<T> assertThat(T? actual);
     method public static <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> assertThat(T? actual);
+    method public static <T> androidx.kruth.ObjectArraySubject<T> assertThat(T![]? actual);
     method public static androidx.kruth.StandardSubjectBuilder assertWithMessage(String messageToPrepend);
   }
 
@@ -142,12 +150,68 @@ package androidx.kruth {
     method public void isNotEmpty();
   }
 
+  public final class ObjectArraySubject<T> extends androidx.kruth.Subject<T[]> {
+    method public androidx.kruth.IterableSubject<?> asList();
+    method public void hasLength(int length);
+    method public void isEmpty();
+    method public void isNotEmpty();
+  }
+
   public interface Ordered {
     method public void inOrder();
   }
 
+  public final class PrimitiveBooleanArraySubject extends androidx.kruth.Subject<boolean[]> {
+    method public androidx.kruth.IterableSubject<java.lang.Boolean> asList();
+    method public void hasLength(int length);
+    method public void isEmpty();
+    method public void isNotEmpty();
+  }
+
   public final class PrimitiveByteArraySubject extends androidx.kruth.Subject<byte[]> {
     method public androidx.kruth.IterableSubject<java.lang.Byte> asList();
+    method public void hasLength(int length);
+    method public void isEmpty();
+    method public void isNotEmpty();
+  }
+
+  public final class PrimitiveCharArraySubject extends androidx.kruth.Subject<char[]> {
+    method public androidx.kruth.IterableSubject<java.lang.Character> asList();
+    method public void hasLength(int length);
+    method public void isEmpty();
+    method public void isNotEmpty();
+  }
+
+  public final class PrimitiveDoubleArraySubject extends androidx.kruth.Subject<double[]> {
+    method public androidx.kruth.IterableSubject<java.lang.Double> asList();
+    method public void hasLength(int length);
+    method public void isEmpty();
+    method public void isNotEmpty();
+  }
+
+  public final class PrimitiveFloatArraySubject extends androidx.kruth.Subject<float[]> {
+    method public androidx.kruth.IterableSubject<java.lang.Float> asList();
+    method public void hasLength(int length);
+    method public void isEmpty();
+    method public void isNotEmpty();
+  }
+
+  public final class PrimitiveIntArraySubject extends androidx.kruth.Subject<int[]> {
+    method public androidx.kruth.IterableSubject<java.lang.Integer> asList();
+    method public void hasLength(int length);
+    method public void isEmpty();
+    method public void isNotEmpty();
+  }
+
+  public final class PrimitiveLongArraySubject extends androidx.kruth.Subject<long[]> {
+    method public androidx.kruth.IterableSubject<java.lang.Long> asList();
+    method public void hasLength(int length);
+    method public void isEmpty();
+    method public void isNotEmpty();
+  }
+
+  public final class PrimitiveShortArraySubject extends androidx.kruth.Subject<short[]> {
+    method public androidx.kruth.IterableSubject<java.lang.Short> asList();
     method public void hasLength(int length);
     method public void isEmpty();
     method public void isNotEmpty();
@@ -160,23 +224,31 @@ package androidx.kruth {
   public final class StandardSubjectBuilder {
     method public <T, S extends androidx.kruth.Subject<? extends T>> androidx.kruth.SimpleSubjectBuilder<S,T> about(androidx.kruth.Subject.Factory<? extends S,T> subjectFactory);
     method public Void fail();
-    method public static androidx.kruth.StandardSubjectBuilder? forCustomFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
+    method public static androidx.kruth.StandardSubjectBuilder forCustomFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
+    method public androidx.kruth.PrimitiveBooleanArraySubject that(boolean[]? actual);
     method public androidx.kruth.PrimitiveByteArraySubject that(byte[]? actual);
+    method public androidx.kruth.PrimitiveCharArraySubject that(char[]? actual);
+    method public androidx.kruth.PrimitiveDoubleArraySubject that(double[]? actual);
+    method public androidx.kruth.PrimitiveFloatArraySubject that(float[]? actual);
+    method public androidx.kruth.PrimitiveIntArraySubject that(int[]? actual);
     method public androidx.kruth.BooleanSubject that(Boolean? actual);
     method public androidx.kruth.DoubleSubject that(Double? actual);
     method public androidx.kruth.IntegerSubject that(Integer? actual);
     method public <T> androidx.kruth.IterableSubject<T> that(Iterable<? extends T>? actual);
     method public androidx.kruth.StringSubject that(String? actual);
     method public <K, V> androidx.kruth.MapSubject<K,V> that(java.util.Map<K,? extends V>? actual);
+    method public androidx.kruth.PrimitiveLongArraySubject that(long[]? actual);
+    method public androidx.kruth.PrimitiveShortArraySubject that(short[]? actual);
     method public <T> androidx.kruth.Subject<T> that(T actual);
     method public <T extends java.lang.Comparable<? super T>> androidx.kruth.ComparableSubject<T> that(T? actual);
     method public <T extends java.lang.Throwable> androidx.kruth.ThrowableSubject<T> that(T? actual);
+    method public <T> androidx.kruth.ObjectArraySubject<T> that(T![]? actual);
     method public androidx.kruth.StandardSubjectBuilder withMessage(String messageToPrepend);
     field public static final androidx.kruth.StandardSubjectBuilder.Companion Companion;
   }
 
   public static final class StandardSubjectBuilder.Companion {
-    method public androidx.kruth.StandardSubjectBuilder? forCustomFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
+    method public androidx.kruth.StandardSubjectBuilder forCustomFailureStrategy(androidx.kruth.FailureStrategy failureStrategy);
   }
 
   public final class StringSubject extends androidx.kruth.ComparableSubject<java.lang.String> {
