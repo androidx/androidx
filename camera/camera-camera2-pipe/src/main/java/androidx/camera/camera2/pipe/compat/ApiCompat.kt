@@ -518,4 +518,23 @@ internal object Api34Compat {
         extensionCharacteristics: CameraExtensionCharacteristics,
         extension: Int
     ): Boolean = extensionCharacteristics.isPostviewAvailable(extension)
+
+    @JvmStatic
+    @DoNotInline
+    fun getPostviewSupportedSizes(
+        extensionCharacteristics: CameraExtensionCharacteristics,
+        extension: Int,
+        captureSize: Size,
+        format: Int
+    ): List<Size> =
+        extensionCharacteristics.getPostviewSupportedSizes(extension, captureSize, format)
+
+    @JvmStatic
+    @DoNotInline
+    fun setPostviewOutputConfiguration(
+        extensionSessionConfiguration: ExtensionSessionConfiguration,
+        postviewOutputConfiguration: OutputConfiguration
+    ) {
+        extensionSessionConfiguration.postviewOutputConfiguration = postviewOutputConfiguration
+    }
 }

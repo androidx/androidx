@@ -122,6 +122,7 @@ interface CameraGraph : AutoCloseable {
         val streams: List<CameraStream.Config>,
         val streamSharingGroups: List<List<CameraStream.Config>> = listOf(),
         val input: List<InputStream.Config>? = null,
+        val postviewStream: CameraStream.Config? = null,
         val sessionTemplate: RequestTemplate = RequestTemplate(1),
         val sessionParameters: Map<*, Any?> = emptyMap<Any, Any?>(),
         val sessionMode: OperatingMode = NORMAL,
