@@ -130,19 +130,19 @@ fun ToggleButton(
 
 /**
  * The Stadium-shaped [ToggleButton] offers four slots and a specific layout for an icon, a
- * label, a secondaryLabel and selection control. The icon and secondaryLabel are optional.
+ * label, a secondaryLabel and toggle control. The icon and secondaryLabel are optional.
  * The items are laid out in a row with the optional icon at the start, a column containing the two
- * label slots in the middle and a slot for the selection control at the end.
+ * label slots in the middle and a slot for the toggle control at the end.
  *
  * ToggleButtons can be enabled or disabled. A disabled ToggleButton will not respond to
  * click events.
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
- * @param onCheckedChange Callback to be invoked when this buttons checked/selected status is
+ * @param onCheckedChange Callback to be invoked when this buttons checked status is
  * @param label A slot for providing the ToggleButton's main label. The contents are expected
  * to be text which is "start" aligned.
- * @param selectionControl A slot for providing the ToggleButton's selection controls(s).
- * Three built-in types of selection control are supported.
+ * @param toggleControl A slot for providing the ToggleButton's toggle control.
+ * Three built-in types of toggle control are supported.
  * @param modifier Modifier to be applied to the ToggleButton. Pass Modifier.height(height)
  * or Modifier.defaultMinSize(minHeight = minHeight) to set a fixed height or a minimum height
  * for the button respectively.
@@ -163,8 +163,8 @@ fun ToggleButton(
  * content
  * @param shape Defines the ToggleButton's shape. It is strongly recommended to use the
  * default as this shape is a key characteristic of the Wear Material Theme
- * @param selectionControlWidth Width for the selection control.
- * @param selectionControlHeight Height for the selection control.
+ * @param toggleControlWidth Width for the toggle control.
+ * @param toggleControlHeight Height for the toggle control.
  * @param ripple Ripple used for this toggle button
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -173,7 +173,7 @@ fun ToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     label: @Composable RowScope.() -> Unit,
-    selectionControl: @Composable () -> Unit,
+    toggleControl: @Composable () -> Unit,
     modifier: Modifier,
     icon: @Composable (BoxScope.() -> Unit)?,
     secondaryLabel: @Composable (RowScope.() -> Unit)?,
@@ -182,8 +182,8 @@ fun ToggleButton(
     interactionSource: MutableInteractionSource,
     contentPadding: PaddingValues,
     shape: Shape,
-    selectionControlWidth: Dp,
-    selectionControlHeight: Dp,
+    toggleControlWidth: Dp,
+    toggleControlHeight: Dp,
     ripple: Indication
 ) {
     // Stadium/Chip shaped toggle button
@@ -209,43 +209,43 @@ fun ToggleButton(
         )
         Spacer(
             modifier = Modifier.size(
-                SELECTION_CONTROL_SPACING
+                TOGGLE_CONTROL_SPACING
             )
         )
-        SelectionControl(
-            width = selectionControlWidth,
-            height = selectionControlHeight,
-            content = selectionControl
+        ToggleControl(
+            width = toggleControlWidth,
+            height = toggleControlHeight,
+            content = toggleControl
         )
     }
 }
 
 /**
  * The [SplitToggleButton] offers three slots and a specific layout for a label,
- * secondaryLabel and selection control. The secondaryLabel is optional. The items are laid out
- * with a column containing the two label slots and a slot for the selection control at the
+ * secondaryLabel and toggle control. The secondaryLabel is optional. The items are laid out
+ * with a column containing the two label slots and a slot for the toggle control at the
  * end.
  *
  * A [SplitToggleButton] has two tappable areas, one tap area for the labels and another for the
- * selection control. The [onClick] listener will be associated with the main body of the
- * SplitToggleButton with the [onCheckedChange] listener associated with the selection
+ * toggle control. The [onClick] listener will be associated with the main body of the
+ * SplitToggleButton with the [onCheckedChange] listener associated with the toggle
  * control area only.
  *
  * For a SplitToggleButton the background of the tappable background area behind
- * the selection control will have a visual effect applied to provide a "divider" between the two
+ * the toggle control will have a visual effect applied to provide a "divider" between the two
  * tappable areas.
  *
  * SplitToggleButton can be enabled or disabled. A disabled SplitToggleButton will not
  * respond to click events.
  *
  * @param checked Boolean flag indicating whether this button is currently checked.
- * @param onCheckedChange Callback to be invoked when this buttons checked/selected status is
+ * @param onCheckedChange Callback to be invoked when this buttons checked status is
  * changed.
  * @param label A slot for providing the SplitToggleButton's main label.
  * The contents are expected to be text which is "start" aligned.
  * @param onClick Click listener called when the user clicks the main body of the
  * SplitToggleButton, the area behind the labels.
- * @param selectionControl A slot for providing the SplitToggleButton's selection controls(s).
+ * @param toggleControl A slot for providing the SplitToggleButton's toggle control.
  * @param modifier Modifier to be applied to the SplitToggleButton
  * @param secondaryLabel A slot for providing the SplitToggleButton's secondary label.
  * The contents are expected to be "start" or "center" aligned. label and secondaryLabel
@@ -276,7 +276,7 @@ fun SplitToggleButton(
     onCheckedChange: (Boolean) -> Unit,
     label: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
-    selectionControl: @Composable BoxScope.() -> Unit,
+    toggleControl: @Composable BoxScope.() -> Unit,
     modifier: Modifier,
     secondaryLabel: @Composable (RowScope.() -> Unit)?,
     backgroundColor: @Composable (enabled: Boolean, checked: Boolean) -> State<Color>,
@@ -319,7 +319,7 @@ fun SplitToggleButton(
             )
             Spacer(
                 modifier = Modifier
-                    .size(SELECTION_CONTROL_SPACING)
+                    .size(TOGGLE_CONTROL_SPACING)
             )
         }
 
@@ -345,11 +345,11 @@ fun SplitToggleButton(
                     }
                 }
                 .align(Alignment.CenterVertically)
-                .width(52.dp)
+                .width(SPLIT_WIDTH)
                 .wrapContentHeight(align = Alignment.CenterVertically)
                 .wrapContentWidth(align = Alignment.End)
                 .then(endPadding),
-            content = selectionControl
+            content = toggleControl
         )
     }
 }
@@ -381,7 +381,7 @@ private fun RowScope.Labels(
 }
 
 @Composable
-private fun RowScope.SelectionControl(
+private fun RowScope.ToggleControl(
     width: Dp,
     height: Dp,
     content: @Composable () -> Unit
@@ -412,5 +412,6 @@ private fun PaddingValues.splitHorizontally() =
         bottom = calculateBottomPadding()
     )
 
-private val SELECTION_CONTROL_SPACING = 4.dp
+private val TOGGLE_CONTROL_SPACING = 4.dp
 private val ICON_SPACING = 6.dp
+private val SPLIT_WIDTH = 52.dp

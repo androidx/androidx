@@ -21,7 +21,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -30,76 +30,63 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.SplitToggleButton
-import androidx.wear.compose.material3.Switch
+import androidx.wear.compose.material3.SplitRadioButton
 import androidx.wear.compose.material3.Text
 
 @Composable
-fun SplitToggleButtonDemo() {
+fun SplitRadioButtonDemo() {
+    var selectedRadioIndex by remember { mutableIntStateOf(0) }
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            ListHeader { Text("Checkbox") }
+            ListHeader { Text("Radio Button") }
         }
         item {
-            DemoSplitToggleCheckbox(enabled = true, initiallyChecked = true)
+            DemoSplitRadioButton(
+                enabled = true,
+                (selectedRadioIndex == 0)
+            ) { selectedRadioIndex = 0 }
         }
         item {
-            DemoSplitToggleCheckbox(enabled = true, initiallyChecked = false)
+            DemoSplitRadioButton(
+                enabled = true,
+                (selectedRadioIndex == 1)
+            ) { selectedRadioIndex = 1 }
         }
         item {
-            ListHeader { Text("Disabled Checkbox") }
+            ListHeader { Text("Disabled Radio Button") }
         }
         item {
-            DemoSplitToggleCheckbox(enabled = false, initiallyChecked = true)
+            DemoSplitRadioButton(enabled = false, selected = true)
         }
         item {
-            DemoSplitToggleCheckbox(enabled = false, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Switch") }
-        }
-        item {
-            DemoSplitToggleSwitch(enabled = true, initiallyChecked = true)
-        }
-        item {
-            DemoSplitToggleSwitch(enabled = true, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Disabled Switch") }
-        }
-        item {
-            DemoSplitToggleSwitch(enabled = false, initiallyChecked = true)
-        }
-        item {
-            DemoSplitToggleSwitch(enabled = false, initiallyChecked = false)
+            DemoSplitRadioButton(enabled = false, selected = false)
         }
         item {
             ListHeader { Text("Multi-line") }
         }
         item {
-            DemoSplitToggleCheckbox(
+            DemoSplitRadioButton(
                 enabled = true,
-                initiallyChecked = true,
+                selected = true,
                 primary = "8:15AM",
                 secondary = "Mon, Tue, Wed"
             )
         }
         item {
-            DemoSplitToggleCheckbox(
+            DemoSplitRadioButton(
                 enabled = true,
-                initiallyChecked = true,
+                selected = true,
                 primary = "Primary Label with 3 lines of content max"
             )
         }
         item {
-            DemoSplitToggleCheckbox(
+            DemoSplitRadioButton(
                 enabled = true,
-                initiallyChecked = true,
+                selected = true,
                 primary = "Primary Label with 3 lines of content max",
                 secondary = "Secondary label with 2 lines"
             )
@@ -108,33 +95,26 @@ fun SplitToggleButtonDemo() {
 }
 
 @Composable
-private fun DemoSplitToggleCheckbox(
+private fun DemoSplitRadioButton(
     enabled: Boolean,
-    initiallyChecked: Boolean,
+    selected: Boolean,
     primary: String = "Primary label",
-    secondary: String = ""
+    secondary: String? = null,
+    onSelected: () -> Unit = {},
 ) {
-    var checked by remember { mutableStateOf(initiallyChecked) }
     val context = LocalContext.current
-    SplitToggleButton(
+    SplitRadioButton(
         label = {
             Text(
                 primary,
-                modifier = Modifier.fillMaxWidth(),
+                Modifier.fillMaxWidth(),
                 maxLines = 3,
                 textAlign = TextAlign.Start,
                 overflow = TextOverflow.Ellipsis
             )
         },
-        checked = checked,
-        toggleControl = { Checkbox() },
-        onCheckedChange = { checked = it },
-        onClick = {
-            Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
-        },
-        enabled = enabled,
-        secondaryLabel = {
-            if (secondary.isNotEmpty()) {
+        secondaryLabel = secondary?.let {
+            {
                 Text(
                     secondary,
                     modifier = Modifier.fillMaxWidth(),
@@ -143,27 +123,9 @@ private fun DemoSplitToggleCheckbox(
                     overflow = TextOverflow.Ellipsis
                 )
             }
-        }
-    )
-}
-
-@Composable
-private fun DemoSplitToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
-    var checked by remember { mutableStateOf(initiallyChecked) }
-    val context = LocalContext.current
-    SplitToggleButton(
-        label = {
-            Text(
-                "Primary label",
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 3,
-                textAlign = TextAlign.Center,
-                overflow = TextOverflow.Ellipsis
-            )
         },
-        checked = checked,
-        toggleControl = { Switch() },
-        onCheckedChange = { checked = it },
+        selected = selected,
+        onSelected = onSelected,
         onClick = {
             Toast.makeText(context, "Clicked", Toast.LENGTH_SHORT).show()
         },
