@@ -21,7 +21,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.IntDef;
@@ -423,10 +422,6 @@ public class ProfileInstaller {
             @NonNull Executor executor,
             @NonNull DiagnosticsCallback diagnostics
     ) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            result(executor, diagnostics, ProfileInstaller.RESULT_UNSUPPORTED_ART_VERSION, null);
-            return false;
-        }
         File curProfile = new File(new File(PROFILE_BASE_DIR, packageName), PROFILE_FILE);
 
         DeviceProfileWriter deviceProfileWriter = new DeviceProfileWriter(assets, executor,

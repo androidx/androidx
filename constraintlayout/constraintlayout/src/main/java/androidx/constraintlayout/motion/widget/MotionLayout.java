@@ -1517,12 +1517,10 @@ public class MotionLayout extends ConstraintLayout implements
                     mBeginState = mScene.getStartId();
                     mEndState = mScene.getEndId();
                 }
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT || isAttachedToWindow()) {
+                if (isAttachedToWindow()) {
                     try {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                            Display display = getDisplay();
-                            mPreviouseRotation = (display == null) ? 0 : display.getRotation();
-                        }
+                        Display display = getDisplay();
+                        mPreviouseRotation = (display == null) ? 0 : display.getRotation();
 
                         if (mScene != null) {
                             ConstraintSet cSet = mScene.getConstraintSet(mCurrentState);
@@ -1573,17 +1571,6 @@ public class MotionLayout extends ConstraintLayout implements
         } else {
             mScene = null;
         }
-    }
-
-    /**
-     * Returns true if the provided view is currently attached to a window.
-     */
-    @Override
-    public boolean isAttachedToWindow() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            return super.isAttachedToWindow();
-        }
-        return getWindowToken() != null;
     }
 
     /**
