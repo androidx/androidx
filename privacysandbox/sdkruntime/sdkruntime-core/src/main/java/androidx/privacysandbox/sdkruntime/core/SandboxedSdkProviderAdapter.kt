@@ -15,16 +15,13 @@
  */
 package androidx.privacysandbox.sdkruntime.core
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SandboxedSdkProvider
 import android.content.Context
 import android.os.Bundle
-import android.os.ext.SdkExtensions.AD_SERVICES
 import android.view.View
 import androidx.annotation.RequiresApi
-import androidx.annotation.RequiresExtension
 import androidx.annotation.RestrictTo
 
 /**
@@ -32,9 +29,7 @@ import androidx.annotation.RestrictTo
  * Gets compat class name from asset "SandboxedSdkProviderCompatClassName.txt"
  *
  */
-@SuppressLint("Override") // b/273473397
 @RequiresApi(34)
-@RequiresExtension(extension = AD_SERVICES, version = 4)
 // TODO(b/301437557) Remove after documentation migration to sdkruntime-provider
 @Deprecated(
     message = "Use SandboxedSdkProviderAdapter from sdkruntime-provider library",

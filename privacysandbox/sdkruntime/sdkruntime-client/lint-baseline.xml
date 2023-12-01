@@ -19,49 +19,4 @@
             file="src/androidTest/java/androidx/privacysandbox/sdkruntime/client/loader/storage/CachedLocalSdkStorageTest.kt"/>
     </issue>
 
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat.ApiAdServicesV4Impl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            sdkSandboxManager.unloadSdk(sdkName)"
-        errorLine2="                              ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/privacysandbox/sdkruntime/client/SdkSandboxManagerCompat.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat.ApiAdServicesV4Impl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                sdkSandboxManager.addSdkSandboxProcessDeathCallback(callbackExecutor, delegate)"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/privacysandbox/sdkruntime/client/SdkSandboxManagerCompat.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat.ApiAdServicesV4Impl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        sdkSandboxManager.removeSdkSandboxProcessDeathCallback(delegate)"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/privacysandbox/sdkruntime/client/SdkSandboxManagerCompat.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat.ApiAdServicesV4Impl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                sdkSandboxManager.loadSdk("
-        errorLine2="                                  ~~~~~~~">
-        <location
-            file="src/main/java/androidx/privacysandbox/sdkruntime/client/SdkSandboxManagerCompat.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 34; however, the containing class androidx.privacysandbox.sdkruntime.client.SdkSandboxManagerCompat.ApiAdServicesV5Impl is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                .sandboxedSdks"
-        errorLine2="                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/privacysandbox/sdkruntime/client/SdkSandboxManagerCompat.kt"/>
-    </issue>
-
 </issues>

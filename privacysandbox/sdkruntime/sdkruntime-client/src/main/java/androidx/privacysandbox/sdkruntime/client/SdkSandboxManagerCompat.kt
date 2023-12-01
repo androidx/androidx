@@ -294,7 +294,6 @@ class SdkSandboxManagerCompat private constructor(
     }
 
     @RequiresApi(34)
-    @SuppressLint("NewApi", "ClassVerificationFailure") // until updating checks to requires api 34
     private open class Api34Impl(context: Context) : PlatformApi {
         protected val sdkSandboxManager = context.getSystemService(
             SdkSandboxManager::class.java

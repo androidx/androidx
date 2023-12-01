@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.sdkruntime.core.controller.impl
 
-import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.app.sdksandbox.sdkprovider.SdkSandboxActivityHandler
@@ -39,7 +38,6 @@ import androidx.privacysandbox.sdkruntime.core.controller.SdkSandboxControllerCo
  * Implementation that delegates to platform [SdkSandboxController] for Android U.
  */
 @RequiresApi(34)
-@SuppressLint("NewApi", "ClassVerificationFailure") // until updating checks to requires api 34
 internal class PlatformUDCImpl(
     private val controller: SdkSandboxController
 ) : SdkSandboxControllerCompat.SandboxControllerImpl {

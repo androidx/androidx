@@ -16,7 +16,6 @@
 
 package androidx.privacysandbox.sdkruntime.provider
 
-import android.annotation.SuppressLint
 import android.app.sdksandbox.LoadSdkException
 import android.app.sdksandbox.SandboxedSdk
 import android.app.sdksandbox.SandboxedSdkProvider
@@ -33,7 +32,6 @@ import androidx.privacysandbox.sdkruntime.core.SandboxedSdkProviderCompat
  *
  */
 @RequiresApi(34)
-@SuppressLint("NewApi", "ClassVerificationFailure") // until updating checks to requires api 34
 class SandboxedSdkProviderAdapter internal constructor(
     private val classNameProvider: CompatClassNameProvider
 ) : SandboxedSdkProvider() {
