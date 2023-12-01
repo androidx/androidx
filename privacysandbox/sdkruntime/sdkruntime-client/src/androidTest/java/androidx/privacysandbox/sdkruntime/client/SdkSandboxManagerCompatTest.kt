@@ -15,18 +15,15 @@
  */
 package androidx.privacysandbox.sdkruntime.client
 
-import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
 import android.os.Binder
-import android.os.Build
 import android.os.Bundle
 import androidx.privacysandbox.sdkruntime.client.activity.LocalSdkActivityHandlerRegistry
 import androidx.privacysandbox.sdkruntime.client.activity.SdkActivity
 import androidx.privacysandbox.sdkruntime.client.loader.CatchingSdkActivityHandler
 import androidx.privacysandbox.sdkruntime.client.loader.asTestSdk
 import androidx.privacysandbox.sdkruntime.client.loader.extractSdkProviderFieldValue
-import androidx.privacysandbox.sdkruntime.core.AdServicesInfo
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_INTERNAL_ERROR
 import androidx.privacysandbox.sdkruntime.core.LoadSdkCompatException.Companion.LOAD_SDK_SDK_DEFINED_ERROR
@@ -41,13 +38,8 @@ import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertThrows
-import org.junit.Assume.assumeTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.Mockito
-import org.mockito.Mockito.any
-import org.mockito.Mockito.spy
-import org.mockito.Mockito.verify
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
@@ -80,29 +72,8 @@ class SdkSandboxManagerCompatTest {
     }
 
     @Test
-    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    fun loadSdk_whenNoLocalSdkExistsAndSandboxNotAvailable_dontDelegateToSandbox() {
-        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
-        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
-
-        val context = spy(ApplicationProvider.getApplicationContext<Context>())
-        val managerCompat = SdkSandboxManagerCompat.from(context)
-
-        assertThrows(LoadSdkCompatException::class.java) {
-            runBlocking {
-                managerCompat.loadSdk("sdk-not-exists", Bundle())
-            }
-        }
-
-        verify(context, Mockito.never()).getSystemService(any())
-    }
-
-    @Test
-    fun loadSdk_whenNoLocalSdkExistsAndSandboxNotAvailable_throwsSdkNotFoundException() {
-        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
-        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
-
+    @SdkSuppress(maxSdkVersion = 33)
+    fun loadSdk_whenNoLocalSdkExistsAndApiBelow34_throwsSdkNotFoundException() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
@@ -203,18 +174,11 @@ class SdkSandboxManagerCompatTest {
     }
 
     @Test
-    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    fun unloadSdk_whenNoLocalSdkLoadedAndSandboxNotAvailable_dontDelegateToSandbox() {
-        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
-        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
-
-        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+    @SdkSuppress(maxSdkVersion = 33)
+    fun unloadSdk_whenNoLocalSdkLoadedAndApiBelow34_doesntThrow() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
-
         managerCompat.unloadSdk("sdk-not-loaded")
-
-        verify(context, Mockito.never()).getSystemService(any())
     }
 
     @Test
@@ -268,13 +232,9 @@ class SdkSandboxManagerCompatTest {
     }
 
     @Test
-    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    fun addSdkSandboxProcessDeathCallback_whenSandboxNotAvailable_dontDelegateToSandbox() {
-        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
-        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
-
-        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+    @SdkSuppress(maxSdkVersion = 33)
+    fun addSdkSandboxProcessDeathCallback_whenApiBelow34_doesntThrow() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
         managerCompat.addSdkSandboxProcessDeathCallback(Runnable::run, object :
@@ -282,18 +242,12 @@ class SdkSandboxManagerCompatTest {
             override fun onSdkSandboxDied() {
             }
         })
-
-        verify(context, Mockito.never()).getSystemService(any())
     }
 
     @Test
-    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    fun removeSdkSandboxProcessDeathCallback_whenSandboxNotAvailable_dontDelegateToSandbox() {
-        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
-        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
-
-        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+    @SdkSuppress(maxSdkVersion = 33)
+    fun removeSdkSandboxProcessDeathCallback_whenApiBelow34_doesntThrow() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
         managerCompat.removeSdkSandboxProcessDeathCallback(object :
@@ -301,39 +255,37 @@ class SdkSandboxManagerCompatTest {
             override fun onSdkSandboxDied() {
             }
         })
-
-        verify(context, Mockito.never()).getSystemService(any())
     }
 
     @Test
-    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    fun getSandboxedSdks_whenSandboxNotAvailable_dontDelegateToSandbox() {
-        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
-        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
-
-        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+    @SdkSuppress(maxSdkVersion = 33)
+    fun getSandboxedSdks_whenApiBelow34_returnsLocallyLoadedSdkList() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
-        managerCompat.getSandboxedSdks()
+        val localSdk = runBlocking {
+            managerCompat.loadSdk(
+                TestSdkConfigs.CURRENT.packageName,
+                Bundle()
+            )
+        }
 
-        verify(context, Mockito.never()).getSystemService(any())
+        val sandboxedSdks = managerCompat.getSandboxedSdks()
+
+        assertThat(sandboxedSdks).containsExactly(localSdk)
     }
 
     @Test
-    // TODO(b/249982507) DexmakerMockitoInline requires P+. Rewrite to support P-
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
-    fun startSdkSandboxActivity_whenSandboxNotAvailable_dontDelegateToSandbox() {
-        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
-        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
-
-        val context = spy(ApplicationProvider.getApplicationContext<Context>())
+    @SdkSuppress(maxSdkVersion = 33)
+    fun startSdkSandboxActivity_whenNoHandlerRegisteredAndApiBelow34_doesntThrow() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
         val managerCompat = SdkSandboxManagerCompat.from(context)
 
-        val fromActivitySpy = Mockito.mock(Activity::class.java)
-        managerCompat.startSdkSandboxActivity(fromActivitySpy, Binder())
-
-        verify(context, Mockito.never()).getSystemService(any())
+        with(ActivityScenario.launch(EmptyActivity::class.java)) {
+            withActivity {
+                managerCompat.startSdkSandboxActivity(this, Binder())
+            }
+        }
     }
 
     @Test
@@ -392,27 +344,4 @@ class SdkSandboxManagerCompatTest {
             anotherLocalSdk.getInterface(),
         )
     }
-
-    @Test
-    fun getSandboxedSdks_whenSandboxNotAvailable_returnsLocallyLoadedSdkList() {
-        // TODO(b/262577044) Replace with @SdkSuppress after supporting maxExtensionVersion
-        assumeTrue("Requires Sandbox API not available", isSandboxApiNotAvailable())
-
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        val managerCompat = SdkSandboxManagerCompat.from(context)
-
-        val localSdk = runBlocking {
-            managerCompat.loadSdk(
-                TestSdkConfigs.CURRENT.packageName,
-                Bundle()
-            )
-        }
-
-        val sandboxedSdks = managerCompat.getSandboxedSdks()
-
-        assertThat(sandboxedSdks).containsExactly(localSdk)
-    }
-
-    private fun isSandboxApiNotAvailable() =
-        !AdServicesInfo.isAtLeastV4()
 }
