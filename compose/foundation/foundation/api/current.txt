@@ -31,16 +31,16 @@ package androidx.compose.foundation {
   }
 
   public final class BasicMarqueeKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.MarqueeSpacing MarqueeSpacing(float spacing);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier basicMarquee(androidx.compose.ui.Modifier, optional int iterations, optional int animationMode, optional int delayMillis, optional int initialDelayMillis, optional androidx.compose.foundation.MarqueeSpacing spacing, optional float velocity);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static int getDefaultMarqueeDelayMillis();
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static int getDefaultMarqueeIterations();
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.MarqueeSpacing getDefaultMarqueeSpacing();
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static float getDefaultMarqueeVelocity();
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static final int DefaultMarqueeDelayMillis;
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static final int DefaultMarqueeIterations;
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static final androidx.compose.foundation.MarqueeSpacing DefaultMarqueeSpacing;
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static final float DefaultMarqueeVelocity;
+    method public static androidx.compose.foundation.MarqueeSpacing MarqueeSpacing(float spacing);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier basicMarquee(androidx.compose.ui.Modifier, optional int iterations, optional int animationMode, optional int delayMillis, optional int initialDelayMillis, optional androidx.compose.foundation.MarqueeSpacing spacing, optional float velocity);
+    method public static int getDefaultMarqueeDelayMillis();
+    method public static int getDefaultMarqueeIterations();
+    method public static androidx.compose.foundation.MarqueeSpacing getDefaultMarqueeSpacing();
+    method public static float getDefaultMarqueeVelocity();
+    property public static final int DefaultMarqueeDelayMillis;
+    property public static final int DefaultMarqueeIterations;
+    property public static final androidx.compose.foundation.MarqueeSpacing DefaultMarqueeSpacing;
+    property public static final float DefaultMarqueeVelocity;
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final class BasicTooltipDefaults {
@@ -173,24 +173,24 @@ package androidx.compose.foundation {
     method public static androidx.compose.ui.Modifier magnifier(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Density,androidx.compose.ui.geometry.Offset> sourceCenter, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Density,androidx.compose.ui.geometry.Offset>? magnifierCenter, optional kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.DpSize,kotlin.Unit>? onSizeChanged, optional float zoom, optional long size, optional float cornerRadius, optional float elevation, optional boolean clip);
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @kotlin.jvm.JvmInline public final value class MarqueeAnimationMode {
+  @kotlin.jvm.JvmInline public final value class MarqueeAnimationMode {
     field public static final androidx.compose.foundation.MarqueeAnimationMode.Companion Companion;
   }
 
   public static final class MarqueeAnimationMode.Companion {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public int getImmediately();
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public int getWhileFocused();
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final int Immediately;
-    property @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public final int WhileFocused;
+    method public int getImmediately();
+    method public int getWhileFocused();
+    property public final int Immediately;
+    property public final int WhileFocused;
   }
 
-  @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public fun interface MarqueeSpacing {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public int calculateSpacing(androidx.compose.ui.unit.Density, int contentWidth, int containerWidth);
+  @androidx.compose.runtime.Stable public fun interface MarqueeSpacing {
+    method public int calculateSpacing(androidx.compose.ui.unit.Density, int contentWidth, int containerWidth);
     field public static final androidx.compose.foundation.MarqueeSpacing.Companion Companion;
   }
 
   public static final class MarqueeSpacing.Companion {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public androidx.compose.foundation.MarqueeSpacing fractionOfContainer(float fraction);
+    method public androidx.compose.foundation.MarqueeSpacing fractionOfContainer(float fraction);
   }
 
   public enum MutatePriority {
