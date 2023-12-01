@@ -28,7 +28,6 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.FlakyTest
-import androidx.test.filters.SdkSuppress
 import androidx.testutils.assertThrows
 import java.io.IOException
 import java.util.concurrent.Executors
@@ -121,7 +120,6 @@ class AutoClosingRoomOpenHelperTest {
     @SuppressLint("BanThreadSleep")
     @RequiresApi(Build.VERSION_CODES.N)
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
     fun enableWriteAheadLogging_onOpenHelper() {
         val autoClosingRoomOpenHelper = getAutoClosingRoomOpenHelper()
 

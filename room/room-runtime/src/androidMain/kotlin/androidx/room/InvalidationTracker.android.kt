@@ -19,7 +19,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.database.sqlite.SQLiteException
-import android.os.Build
 import android.util.Log
 import androidx.annotation.GuardedBy
 import androidx.annotation.RestrictTo
@@ -827,9 +826,7 @@ open class InvalidationTracker @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX
         ) = "`room_table_modification_trigger_${tableName}_$triggerType`"
 
         internal fun beginTransactionInternal(database: SupportSQLiteDatabase) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN &&
-                database.isWriteAheadLoggingEnabled
-            ) {
+            if (database.isWriteAheadLoggingEnabled) {
                 database.beginTransactionNonExclusive()
             } else {
                 database.beginTransaction()

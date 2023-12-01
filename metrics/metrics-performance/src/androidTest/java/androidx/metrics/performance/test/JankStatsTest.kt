@@ -17,7 +17,6 @@ package androidx.metrics.performance.test
 
 import android.os.Build
 import android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
-import android.os.Build.VERSION_CODES.JELLY_BEAN
 import android.util.Log
 import android.view.Choreographer
 import androidx.annotation.RequiresApi
@@ -172,7 +171,6 @@ class JankStatsTest {
         assertNotEquals(frameData31, frameData31A)
     }
 
-    @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
     fun testNoJank() {
         val frameDelay = 0
@@ -194,7 +192,6 @@ class JankStatsTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
     fun testMultipleListeners() {
         var secondListenerLatch = CountDownLatch(0)
@@ -264,7 +261,6 @@ class JankStatsTest {
         runDelayTest(frameDelay, NUM_FRAMES * 100, latchedListener)
     }
 
-    @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
     fun testRegularJank() {
         val frameDelay = 100
@@ -289,7 +285,6 @@ class JankStatsTest {
         )
     }
 
-    @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
     fun testFrameStates() {
         val frameDelay = 0
@@ -433,7 +428,6 @@ class JankStatsTest {
         runDelayTest(0, NUM_FRAMES, latchedListener)
     }
 
-    @SdkSuppress(minSdkVersion = JELLY_BEAN)
     @Test
     fun testComplexFrameStateData() {
         frameInit.initFramePipeline()
