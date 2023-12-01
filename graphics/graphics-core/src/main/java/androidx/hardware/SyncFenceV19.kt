@@ -33,7 +33,6 @@ import kotlin.concurrent.withLock
  * When the fence signals, then the backing storage for the framebuffer may be safely read from,
  * such as for display or media encoding.
  */
-@RequiresApi(Build.VERSION_CODES.KITKAT)
 @JniVisible
 internal class SyncFenceV19(private var fd: Int) : AutoCloseable, SyncFenceImpl {
 

@@ -103,7 +103,6 @@ class GLRendererTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testRender() {
         val latch = CountDownLatch(1)
         val renderer = object : GLRenderer.RenderCallback {
@@ -129,7 +128,7 @@ class GLRendererTest {
         assertEquals(4, plane.pixelStride)
 
         val targetColor = Color.argb(255, 255, 0, 255)
-        Api19Helpers.verifyPlaneContent(width, height, plane, targetColor)
+        verifyPlaneContent(width, height, plane, targetColor)
 
         target.detach(true)
 
@@ -137,7 +136,6 @@ class GLRendererTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testDetachExecutesPendingRequests() {
         val latch = CountDownLatch(1)
         val renderer = object : GLRenderer.RenderCallback {
@@ -164,13 +162,12 @@ class GLRendererTest {
         assertEquals(4, plane.pixelStride)
 
         val targetColor = Color.argb(255, 255, 0, 255)
-        Api19Helpers.verifyPlaneContent(width, height, plane, targetColor)
+        verifyPlaneContent(width, height, plane, targetColor)
 
         glRenderer.stop(true)
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testStopExecutesPendingRequests() {
         val latch = CountDownLatch(1)
         val surfaceWidth = 5
@@ -200,11 +197,10 @@ class GLRendererTest {
         assertEquals(4, plane.pixelStride)
 
         val targetColor = Color.argb(255, 255, 0, 255)
-        Api19Helpers.verifyPlaneContent(surfaceWidth, surfaceHeight, plane, targetColor)
+        verifyPlaneContent(surfaceWidth, surfaceHeight, plane, targetColor)
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testDetachExecutesMultiplePendingRequests() {
         val numRenders = 4
         val latch = CountDownLatch(numRenders)
@@ -254,13 +250,12 @@ class GLRendererTest {
         assertEquals(4, plane.pixelStride)
 
         val targetColor = Color.argb(255, 0, 0, 255)
-        Api19Helpers.verifyPlaneContent(width, height, plane, targetColor)
+        verifyPlaneContent(width, height, plane, targetColor)
 
         glRenderer.stop(true)
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testDetachCancelsPendingRequests() {
         val latch = CountDownLatch(1)
         val renderer = object : GLRenderer.RenderCallback {
@@ -286,7 +281,6 @@ class GLRendererTest {
     }
 
     @Test
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     fun testMultipleAttachedSurfaces() {
         val latch = CountDownLatch(2)
         val renderer1 = object : GLRenderer.RenderCallback {
@@ -329,8 +323,8 @@ class GLRendererTest {
         val plane1 = reader1.acquireLatestImage().planes[0]
         val plane2 = reader2.acquireLatestImage().planes[0]
 
-        Api19Helpers.verifyPlaneContent(width1, height1, plane1, Color.argb(255, 255, 0, 0))
-        Api19Helpers.verifyPlaneContent(width2, height2, plane2, Color.argb(255, 0, 0, 255))
+        verifyPlaneContent(width1, height1, plane1, Color.argb(255, 255, 0, 0))
+        verifyPlaneContent(width2, height2, plane2, Color.argb(255, 0, 0, 255))
 
         target1.detach(true)
         target2.detach(true)
@@ -351,25 +345,20 @@ class GLRendererTest {
      * there are corresponding @SdkSuppress and @RequiresApi
      * See https://b.corp.google.com/issues/221485597
      */
-    class Api19Helpers private constructor() {
-        companion object {
-            @RequiresApi(Build.VERSION_CODES.KITKAT)
-            fun verifyPlaneContent(width: Int, height: Int, plane: Image.Plane, targetColor: Int) {
-                val rowPadding = plane.rowStride - plane.pixelStride * width
-                var offset = 0
-                for (y in 0 until height) {
-                    for (x in 0 until width) {
-                        val red = plane.buffer[offset].toInt() and 0xff
-                        val green = plane.buffer[offset + 1].toInt() and 0xff
-                        val blue = plane.buffer[offset + 2].toInt() and 0xff
-                        val alpha = plane.buffer[offset + 3].toInt() and 0xff
-                        val packedColor = Color.argb(alpha, red, green, blue)
-                        assertEquals("Index: $x, $y", targetColor, packedColor)
-                        offset += plane.pixelStride
-                    }
-                    offset += rowPadding
-                }
+    private fun verifyPlaneContent(width: Int, height: Int, plane: Image.Plane, targetColor: Int) {
+        val rowPadding = plane.rowStride - plane.pixelStride * width
+        var offset = 0
+        for (y in 0 until height) {
+            for (x in 0 until width) {
+                val red = plane.buffer[offset].toInt() and 0xff
+                val green = plane.buffer[offset + 1].toInt() and 0xff
+                val blue = plane.buffer[offset + 2].toInt() and 0xff
+                val alpha = plane.buffer[offset + 3].toInt() and 0xff
+                val packedColor = Color.argb(alpha, red, green, blue)
+                assertEquals("Index: $x, $y", targetColor, packedColor)
+                offset += plane.pixelStride
             }
+            offset += rowPadding
         }
     }
 

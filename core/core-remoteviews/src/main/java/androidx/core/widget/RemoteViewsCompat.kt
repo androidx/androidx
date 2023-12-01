@@ -728,8 +728,7 @@ public object RemoteViewsCompat {
     @JvmStatic
     public fun RemoteViews.setImageViewImageAlpha(@IdRes viewId: Int, alpha: Int) {
         // Note: setImageAlpha was added and is preferred to setAlpha since API 16.
-        val methodName = if (Build.VERSION.SDK_INT >= 16) "setImageAlpha" else "setAlpha"
-        setInt(viewId, methodName, alpha)
+        setInt(viewId, "setImageAlpha", alpha)
     }
 
     /**

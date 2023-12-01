@@ -75,7 +75,7 @@ public suspend fun Activity.trackPipAnimationHintView(view: View) {
         }
         // Check if the view is already attached to the window, if it is then emit the current
         // position and start listening for layout changes to track movement.
-        if (Api19Impl.isAttachedToWindow(view)) {
+        if (view.isAttachedToWindow) {
             trySend(view.positionInWindow())
             view.viewTreeObserver.addOnScrollChangedListener(scrollChangeListener)
             view.addOnLayoutChangeListener(layoutChangeListener)
@@ -91,11 +91,6 @@ public suspend fun Activity.trackPipAnimationHintView(view: View) {
     flow.collect { hint ->
         Api26Impl.setPipParamsSourceRectHint(this, hint)
     }
-}
-
-@RequiresApi(Build.VERSION_CODES.KITKAT)
-internal object Api19Impl {
-    fun isAttachedToWindow(view: View): Boolean = view.isAttachedToWindow
 }
 
 @RequiresApi(Build.VERSION_CODES.O)

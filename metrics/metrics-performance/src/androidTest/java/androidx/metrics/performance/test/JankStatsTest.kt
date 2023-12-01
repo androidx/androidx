@@ -15,11 +15,9 @@
  */
 package androidx.metrics.performance.test
 
-import android.os.Build
 import android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
 import android.util.Log
 import android.view.Choreographer
-import androidx.annotation.RequiresApi
 import androidx.metrics.performance.FrameData
 import androidx.metrics.performance.FrameDataApi24
 import androidx.metrics.performance.FrameDataApi31
@@ -56,8 +54,6 @@ class JankStatsTest {
     private lateinit var delayedView: DelayedView
     private lateinit var latchedListener: LatchedListener
 
-    private var frameInit: FrameInitCompat
-
     private val NUM_FRAMES = 10
 
     /**
@@ -65,14 +61,6 @@ class JankStatsTest {
      * jank. We check against this MIN duration to avoid flaky tests.
      */
     private val MIN_JANK_NS = 100000000
-
-    init {
-        if (Build.VERSION.SDK_INT >= 16) {
-            frameInit = FrameInit16(this)
-        } else {
-            frameInit = FrameInitCompat(this)
-        }
-    }
 
     @Rule
     @JvmField
@@ -175,7 +163,7 @@ class JankStatsTest {
     fun testNoJank() {
         val frameDelay = 0
 
-        frameInit.initFramePipeline()
+        initFramePipeline()
 
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
         assertEquals("numJankFrames should equal 0", 0, latchedListener.numJankFrames)
@@ -197,7 +185,7 @@ class JankStatsTest {
         var secondListenerLatch = CountDownLatch(0)
         val frameDelay = 0
 
-        frameInit.initFramePipeline()
+        initFramePipeline()
 
         var numSecondListenerCalls = 0
         val secondListenerStates = mutableListOf<StateInfo>()
@@ -265,7 +253,7 @@ class JankStatsTest {
     fun testRegularJank() {
         val frameDelay = 100
 
-        frameInit.initFramePipeline()
+        initFramePipeline()
 
         runDelayTest(frameDelay, NUM_FRAMES, latchedListener)
 
@@ -289,7 +277,7 @@ class JankStatsTest {
     fun testFrameStates() {
         val frameDelay = 0
 
-        frameInit.initFramePipeline()
+        initFramePipeline()
 
         resetFrameStateData()
 
@@ -374,7 +362,7 @@ class JankStatsTest {
     )
 
     /**
-     * Utility function (embedded in a class because it uses version-specific APIs) which
+     * Utility function which
      * is used by tests which require the frame pipeline to be empty when they
      * start. When the activity first starts, there are usually a couple of frames drawn.
      * Depending on when those frames are drawn relative to when the JankStats object and
@@ -384,31 +372,24 @@ class JankStatsTest {
      * begins, so that any data used by the test will only land on frames after the test begins
      * instead of these old activity-creation frames.
      */
-    open class FrameInitCompat(val jankStatsTest: JankStatsTest) {
-        open fun initFramePipeline() {}
-    }
-
-    @RequiresApi(16)
-    class FrameInit16(jankStatsTest: JankStatsTest) : FrameInitCompat(jankStatsTest) {
-        override fun initFramePipeline() {
-            val latch = CountDownLatch(10)
-            var numFrames = 10
-            val callback: Choreographer.FrameCallback = object : Choreographer.FrameCallback {
-                override fun doFrame(frameTimeNanos: Long) {
-                    --numFrames
-                    latch.countDown()
-                    if (numFrames > 0) {
-                        Choreographer.getInstance().postFrameCallback(this)
-                    }
+     private fun initFramePipeline() {
+        val latch = CountDownLatch(10)
+        var numFrames = 10
+        val callback: Choreographer.FrameCallback = object : Choreographer.FrameCallback {
+            override fun doFrame(frameTimeNanos: Long) {
+                --numFrames
+                latch.countDown()
+                if (numFrames > 0) {
+                    Choreographer.getInstance().postFrameCallback(this)
                 }
             }
-            jankStatsTest.delayedActivityRule.getScenario().onActivity {
-                Choreographer.getInstance().postFrameCallback(callback)
-            }
-            latch.await(5, TimeUnit.SECONDS)
-
-            jankStatsTest.latchedListener.reset()
         }
+        delayedActivityRule.getScenario().onActivity {
+            Choreographer.getInstance().postFrameCallback(callback)
+        }
+        latch.await(5, TimeUnit.SECONDS)
+
+        latchedListener.reset()
     }
 
     /**
@@ -430,7 +411,7 @@ class JankStatsTest {
 
     @Test
     fun testComplexFrameStateData() {
-        frameInit.initFramePipeline()
+        initFramePipeline()
 
         // perFrameStateData is a structure for testing which holds information about the
         // states that should be added or removed on every frame. This functionality is

@@ -17,13 +17,11 @@
 package androidx.compose.ui.platform
 
 import android.content.Context
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.activity.ComponentActivity
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.recyclerview.widget.DefaultItemAnimator
@@ -32,7 +30,6 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.AnimationDurationScaleRule
 import com.google.common.truth.Truth.assertThat
@@ -54,7 +51,6 @@ private const val MaxItemsInAnyTest = 100
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
 /**
  * Note: this test's structure largely parallels PoolingContainerRecyclerViewTest
  * (though there are notable implementation differences)
@@ -503,7 +499,6 @@ class PoolingContainerTestAdapter(
     var binds = 0
     var releases = 0
 
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = DisposalCountingComposeView(context, this)
         view.layoutParams =
