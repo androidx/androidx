@@ -345,8 +345,10 @@ public class CameraXActivity extends AppCompatActivity {
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
     private RecordUi mRecordUi;
+    private DynamicRangeUi mDynamicRangeUi;
     private Quality mVideoQuality;
     private DynamicRange mDynamicRange = DynamicRange.SDR;
+    private Set<DynamicRange> mDisplaySupportedHighDynamicRanges = Collections.emptySet();
     private final Set<DynamicRange> mSelectableDynamicRanges = new HashSet<>();
     private int mVideoMirrorMode = MIRROR_MODE_ON_FRONT_ONLY;
     private boolean mIsPreviewStabilizationOn = false;
@@ -716,42 +718,6 @@ public class CameraXActivity extends AppCompatActivity {
         });
 
         // Final reference to this record UI
-        mRecordUi.getButtonDynamicRange().setText(getDynamicRangeIconName(mDynamicRange));
-        mRecordUi.getButtonDynamicRange().setOnClickListener(view -> {
-            PopupMenu popup = new PopupMenu(this, view);
-            Menu menu = popup.getMenu();
-
-            final int groupId = Menu.NONE;
-            for (DynamicRange dynamicRange : mSelectableDynamicRanges) {
-                int itemId = dynamicRangeToItemId(dynamicRange);
-                menu.add(groupId, itemId, itemId, getDynamicRangeMenuItemName(dynamicRange));
-                if (Objects.equals(dynamicRange, mDynamicRange)) {
-                    // Apply the checked item for the selected dynamic range to the menu.
-                    menu.findItem(itemId).setChecked(true);
-                }
-            }
-
-            // Make menu single checkable
-            menu.setGroupCheckable(groupId, true, true);
-
-            popup.setOnMenuItemClickListener(item -> {
-                DynamicRange dynamicRange = itemIdToDynamicRange(item.getItemId());
-                if (!Objects.equals(dynamicRange, mDynamicRange)) {
-                    mDynamicRange = dynamicRange;
-                    if (Build.VERSION.SDK_INT >= 26) {
-                        updateWindowColorMode();
-                    }
-                    mRecordUi.getButtonDynamicRange()
-                            .setText(getDynamicRangeIconName(mDynamicRange));
-                    // Dynamic range changed, rebind UseCases
-                    tryBindUseCases();
-                }
-                return true;
-            });
-
-            popup.show();
-        });
-
         mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality));
         mRecordUi.getButtonQuality().setOnClickListener(view -> {
             PopupMenu popup = new PopupMenu(this, view);
@@ -797,6 +763,47 @@ public class CameraXActivity extends AppCompatActivity {
 
             popup.show();
         });
+    }
+
+    private void setUpDynamicRangeButton() {
+        mDynamicRangeUi.setDisplayedDynamicRange(mDynamicRange);
+        mDynamicRangeUi.getButton().setOnClickListener(view -> {
+            PopupMenu popup = new PopupMenu(this, view);
+            Menu menu = popup.getMenu();
+
+            final int groupId = Menu.NONE;
+            for (DynamicRange dynamicRange : mSelectableDynamicRanges) {
+                int itemId = dynamicRangeToItemId(dynamicRange);
+                menu.add(groupId, itemId, itemId, getDynamicRangeMenuItemName(dynamicRange));
+                if (Objects.equals(dynamicRange, mDynamicRange)) {
+                    // Apply the checked item for the selected dynamic range to the menu.
+                    menu.findItem(itemId).setChecked(true);
+                }
+            }
+
+            // Make menu single checkable
+            menu.setGroupCheckable(groupId, true, true);
+
+            popup.setOnMenuItemClickListener(item -> {
+                DynamicRange dynamicRange = itemIdToDynamicRange(item.getItemId());
+                if (!Objects.equals(dynamicRange, mDynamicRange)) {
+                    setSelectedDynamicRange(dynamicRange);
+                    // Dynamic range changed, rebind UseCases
+                    tryBindUseCases();
+                }
+                return true;
+            });
+
+            popup.show();
+        });
+    }
+
+    private void setSelectedDynamicRange(@NonNull DynamicRange dynamicRange) {
+        mDynamicRange = dynamicRange;
+        if (Build.VERSION.SDK_INT >= 26) {
+            updateWindowColorMode();
+        }
+        mDynamicRangeUi.setDisplayedDynamicRange(mDynamicRange);
     }
 
     @RequiresApi(26)
@@ -1155,6 +1162,7 @@ public class CameraXActivity extends AppCompatActivity {
             mPhotoToggle.setVisibility(View.GONE);
             mPreviewToggle.setVisibility(View.GONE);
             mAnalysisToggle.setVisibility(View.GONE);
+            mDynamicRangeUi.getButton().setVisibility(View.GONE);
             mRecordUi.hideUi();
             if (!testCase.equals(SWITCH_TEST_CASE)) {
                 mCameraDirectionButton.setVisibility(View.GONE);
@@ -1190,10 +1198,30 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    private void updateDynamicRangeUiState() {
+        // Only show dynamic range if video or preview are enabled
+        boolean visible = (mVideoToggle.isChecked() || mPreviewToggle.isChecked());
+        // Dynamic range is configurable if it's visible, there's more than 1 choice, and there
+        // isn't a recording in progress
+        boolean configurable = visible
+                && mSelectableDynamicRanges.size() > 1
+                && mRecordUi.getState() != RecordUi.State.RECORDING;
+
+        if (configurable) {
+            mDynamicRangeUi.setState(DynamicRangeUi.State.CONFIGURABLE);
+        } else if (visible) {
+            mDynamicRangeUi.setState(DynamicRangeUi.State.VISIBLE);
+        } else {
+            mDynamicRangeUi.setState(DynamicRangeUi.State.HIDDEN);
+        }
+    }
+
     @SuppressLint({"NullAnnotationGroup", "RestrictedApiAndroidX"})
     @OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)
     private void updateButtonsUi() {
         mRecordUi.setEnabled(mVideoToggle.isChecked());
+        updateDynamicRangeUiState();
+
         mTakePicture.setEnabled(mPhotoToggle.isChecked());
         mCaptureQualityToggle.setEnabled(mPhotoToggle.isChecked());
         mZslToggle.setVisibility(getCameraInfo() != null
@@ -1276,6 +1304,7 @@ public class CameraXActivity extends AppCompatActivity {
         mPreviewToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
 
         setUpRecordButton();
+        setUpDynamicRangeButton();
         setUpFlashButton();
         setUpTakePictureButton();
         setUpCameraDirectionButton();
@@ -1352,12 +1381,14 @@ public class CameraXActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_camera_xmain);
         mImageCaptureExecutorService = Executors.newSingleThreadExecutor();
-        Display display = null;
+        mDisplaySupportedHighDynamicRanges = Collections.emptySet();
         if (Build.VERSION.SDK_INT >= 30) {
-            display = OpenGLActivity.Api30Impl.getDisplay(this);
+            Display display = OpenGLActivity.Api30Impl.getDisplay(this);
+            mDisplaySupportedHighDynamicRanges =
+                    OpenGLActivity.getHighDynamicRangesSupportedByDisplay(display);
         }
         OpenGLRenderer previewRenderer = mPreviewRenderer =
-                new OpenGLRenderer(OpenGLActivity.getHdrEncodingsSupportedByDisplay(display));
+                new OpenGLRenderer(mDisplaySupportedHighDynamicRanges);
         ViewStub viewFinderStub = findViewById(R.id.viewFinderStub);
         updatePreviewRatioAndScaleTypeByIntent(viewFinderStub);
         updateVideoMirrorModeByIntent(getIntent());
@@ -1391,13 +1422,14 @@ public class CameraXActivity extends AppCompatActivity {
         mZoomResetToggle = findViewById(R.id.zoom_reset_toggle);
 
         mTextView = findViewById(R.id.textView);
+        mDynamicRangeUi = new DynamicRangeUi(findViewById(R.id.dynamic_range));
         mRecordUi = new RecordUi(
                 findViewById(R.id.Video),
                 findViewById(R.id.video_pause),
                 findViewById(R.id.video_stats),
                 findViewById(R.id.video_quality),
                 findViewById(R.id.video_persistent),
-                findViewById(R.id.video_dynamic_range)
+                (newState) -> updateDynamicRangeUiState()
         );
 
         setUpButtonEvents();
@@ -1631,8 +1663,7 @@ public class CameraXActivity extends AppCompatActivity {
             // Reset video quality to avoid always fail by quality too large.
             mRecordUi.getButtonQuality().setText(getQualityIconName(mVideoQuality = QUALITY_AUTO));
             // Reset video dynamic range to avoid failure
-            mRecordUi.getButtonDynamicRange().setText(
-                    getDynamicRangeIconName(mDynamicRange = DynamicRange.SDR));
+            setSelectedDynamicRange(DynamicRange.SDR);
 
             reduceUseCaseToFindSupportedCombination();
 
@@ -1694,11 +1725,18 @@ public class CameraXActivity extends AppCompatActivity {
     @SuppressLint("RestrictedApiAndroidX")
     private List<UseCase> buildUseCases() {
         List<UseCase> useCases = new ArrayList<>();
+        if (mVideoToggle.isChecked() || mPreviewToggle.isChecked()) {
+            // Update possible dynamic ranges for current camera
+            updateDynamicRangeConfiguration();
+        }
+
         if (mPreviewToggle.isChecked()) {
             Preview preview = new Preview.Builder()
                     .setTargetName("Preview")
                     .setTargetAspectRatio(mTargetAspectRatio)
                     .setPreviewStabilizationEnabled(mIsPreviewStabilizationOn)
+                    .setDynamicRange(
+                            mVideoToggle.isChecked() ? DynamicRange.UNSPECIFIED : mDynamicRange)
                     .build();
             resetViewIdlingResource();
             // Use the listener of the future to make sure the Preview setup the new surface.
@@ -1732,9 +1770,6 @@ public class CameraXActivity extends AppCompatActivity {
         }
 
         if (mVideoToggle.isChecked()) {
-            // Update possible dynamic ranges for current camera
-            updateDynamicRangeConfiguration();
-
             // Recreate the Recorder except there's a running persistent recording, existing
             // Recorder. We may later consider reuse the Recorder everytime if the quality didn't
             // change.
@@ -1756,29 +1791,43 @@ public class CameraXActivity extends AppCompatActivity {
         return useCases;
     }
 
+    @SuppressLint("RestrictedApiAndroidX")
     private void updateDynamicRangeConfiguration() {
         mSelectableDynamicRanges.clear();
 
-        // Get the list of available dynamic ranges for the current quality
-        VideoCapabilities videoCapabilities = Recorder.getVideoCapabilities(
-                mCamera.getCameraInfo());
-        Set<DynamicRange> supportedDynamicRanges =
-                videoCapabilities.getSupportedDynamicRanges();
+        Set<DynamicRange> supportedDynamicRanges = Collections.singleton(DynamicRange.SDR);
+        // ImageCapture and ImageAnalysis currently only support SDR, so only update supported
+        // ranges if they're not enabled
+        if (!mAnalysisToggle.isChecked() && !mPhotoToggle.isChecked()) {
+            if (mVideoToggle.isChecked()) {
+                // Get the list of available dynamic ranges for the current quality
+                VideoCapabilities videoCapabilities = Recorder.getVideoCapabilities(
+                        mCamera.getCameraInfo());
+                supportedDynamicRanges = videoCapabilities.getSupportedDynamicRanges();
+            } else if (mPreviewToggle.isChecked()) {
+                supportedDynamicRanges = new HashSet<>();
+                // Add SDR as its always available
+                supportedDynamicRanges.add(DynamicRange.SDR);
+
+                // Add all HDR dynamic ranges supported by the display
+                Set<DynamicRange> queryResult = mCamera.getCameraInfo()
+                        .querySupportedDynamicRanges(
+                                Collections.singleton(DynamicRange.UNSPECIFIED));
+                supportedDynamicRanges.addAll(queryResult);
+            }
+        }
 
         if (supportedDynamicRanges.size() > 1) {
-            mRecordUi.setDynamicRangeConfigurable(true);
             if (hasTenBitDynamicRange(supportedDynamicRanges)) {
                 mSelectableDynamicRanges.add(DynamicRange.HDR_UNSPECIFIED_10_BIT);
             }
-        } else {
-            mRecordUi.setDynamicRangeConfigurable(false);
         }
         mSelectableDynamicRanges.addAll(supportedDynamicRanges);
 
         // In case the previous dynamic range held in mDynamicRange isn't supported, reset
         // to SDR.
         if (!mSelectableDynamicRanges.contains(mDynamicRange)) {
-            mDynamicRange = DynamicRange.SDR;
+            setSelectedDynamicRange(DynamicRange.SDR);
         }
     }
 
@@ -2064,6 +2113,65 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    private static class DynamicRangeUi {
+
+        enum State {
+            // Button can be selected to choose dynamic range
+            CONFIGURABLE,
+            // Button is visible, but cannot be selected
+            VISIBLE,
+            // Button is not visible, cannot be selected
+            HIDDEN
+        }
+
+        private State mState = State.HIDDEN;
+
+        private final Button mButtonDynamicRange;
+
+        DynamicRangeUi(@NonNull Button buttonDynamicRange) {
+            mButtonDynamicRange = buttonDynamicRange;
+        }
+
+        void setState(@NonNull State newState) {
+            if (newState != mState) {
+                mState = newState;
+                switch (newState) {
+                    case HIDDEN: {
+                        mButtonDynamicRange.setEnabled(false);
+                        mButtonDynamicRange.setVisibility(View.INVISIBLE);
+                        break;
+                    }
+                    case VISIBLE: {
+                        mButtonDynamicRange.setEnabled(false);
+                        mButtonDynamicRange.setVisibility(View.VISIBLE);
+                        break;
+                    }
+                    case CONFIGURABLE: {
+                        mButtonDynamicRange.setEnabled(true);
+                        mButtonDynamicRange.setVisibility(View.VISIBLE);
+                        break;
+                    }
+                }
+            }
+        }
+
+        @NonNull
+        Button getButton() {
+            return mButtonDynamicRange;
+        }
+
+        void setDisplayedDynamicRange(@NonNull DynamicRange dynamicRange) {
+            int resId = R.string.toggle_video_dyn_rng_unknown;
+            for (DynamicRangeUiData uiData : DYNAMIC_RANGE_UI_DATA) {
+                if (Objects.equals(dynamicRange, uiData.mDynamicRange)) {
+                    resId = uiData.mToggleLabelRes;
+                    break;
+                }
+            }
+            mButtonDynamicRange.setText(resId);
+        }
+    }
+
     @UiThread
     private static class RecordUi {
 
@@ -2076,22 +2184,20 @@ public class CameraXActivity extends AppCompatActivity {
         private final TextView mTextStats;
         private final Button mButtonQuality;
         private final ToggleButton mButtonPersistent;
-        private final Button mButtonDynamicRange;
-        private boolean mDynamicRangeConfigurable = false;
-
         private boolean mEnabled = false;
         private State mState = State.IDLE;
+        private final Consumer<State> mNewStateConsumer;
 
         RecordUi(@NonNull Button buttonRecord, @NonNull Button buttonPause,
                 @NonNull TextView textStats, @NonNull Button buttonQuality,
                 @NonNull ToggleButton buttonPersistent,
-                @NonNull Button buttonDynamicRange) {
+                @NonNull Consumer<State> onNewState) {
             mButtonRecord = buttonRecord;
             mButtonPause = buttonPause;
             mTextStats = textStats;
             mButtonQuality = buttonQuality;
             mButtonPersistent = buttonPersistent;
-            mButtonDynamicRange = buttonDynamicRange;
+            mNewStateConsumer = onNewState;
         }
 
         void setEnabled(boolean enabled) {
@@ -2101,22 +2207,23 @@ public class CameraXActivity extends AppCompatActivity {
                 mTextStats.setVisibility(View.VISIBLE);
                 mButtonQuality.setVisibility(View.VISIBLE);
                 mButtonPersistent.setVisibility(View.VISIBLE);
-                mButtonDynamicRange.setVisibility(View.VISIBLE);
                 updateUi();
             } else {
                 mButtonRecord.setText("Record");
                 mButtonRecord.setEnabled(false);
                 mButtonPause.setVisibility(View.INVISIBLE);
                 mButtonQuality.setVisibility(View.INVISIBLE);
-                mButtonDynamicRange.setVisibility(View.INVISIBLE);
                 mTextStats.setVisibility(View.GONE);
                 mButtonPersistent.setVisibility(View.INVISIBLE);
             }
         }
 
         void setState(@NonNull State state) {
-            mState = state;
-            updateUi();
+            if (state != mState) {
+                mState = state;
+                updateUi();
+                mNewStateConsumer.accept(state);
+            }
         }
 
         @NonNull
@@ -2131,14 +2238,6 @@ public class CameraXActivity extends AppCompatActivity {
             mButtonPersistent.setVisibility(View.GONE);
         }
 
-        private void setDynamicRangeConfigurable(boolean configurable) {
-            if (configurable != mDynamicRangeConfigurable) {
-                mDynamicRangeConfigurable = configurable;
-                boolean buttonEnabled = mButtonDynamicRange.isEnabled();
-                mButtonDynamicRange.setEnabled(buttonEnabled && mDynamicRangeConfigurable);
-            }
-        }
-
         private void updateUi() {
             if (!mEnabled) {
                 return;
@@ -2151,7 +2250,6 @@ public class CameraXActivity extends AppCompatActivity {
                     mButtonPause.setVisibility(View.INVISIBLE);
                     mButtonPersistent.setEnabled(true);
                     mButtonQuality.setEnabled(true);
-                    mButtonDynamicRange.setEnabled(mDynamicRangeConfigurable);
                     break;
                 case RECORDING:
                     mButtonRecord.setText("Stop");
@@ -2160,7 +2258,6 @@ public class CameraXActivity extends AppCompatActivity {
                     mButtonPause.setVisibility(View.VISIBLE);
                     mButtonPersistent.setEnabled(false);
                     mButtonQuality.setEnabled(false);
-                    mButtonDynamicRange.setEnabled(false);
                     break;
                 case STOPPING:
                     mButtonRecord.setText("Saving");
@@ -2169,7 +2266,6 @@ public class CameraXActivity extends AppCompatActivity {
                     mButtonPause.setVisibility(View.INVISIBLE);
                     mButtonPersistent.setEnabled(false);
                     mButtonQuality.setEnabled(true);
-                    mButtonDynamicRange.setEnabled(mDynamicRangeConfigurable);
                     break;
                 case PAUSED:
                     mButtonRecord.setText("Stop");
@@ -2178,7 +2274,6 @@ public class CameraXActivity extends AppCompatActivity {
                     mButtonPause.setVisibility(View.VISIBLE);
                     mButtonPersistent.setEnabled(false);
                     mButtonQuality.setEnabled(true);
-                    mButtonDynamicRange.setEnabled(mDynamicRangeConfigurable);
                     break;
             }
         }
@@ -2202,10 +2297,6 @@ public class CameraXActivity extends AppCompatActivity {
 
         ToggleButton getButtonPersistent() {
             return mButtonPersistent;
-        }
-        @NonNull
-        Button getButtonDynamicRange() {
-            return mButtonDynamicRange;
         }
     }
 
@@ -2348,19 +2439,6 @@ public class CameraXActivity extends AppCompatActivity {
             default:
                 throw new IllegalArgumentException("Undefined item id: " + itemId);
         }
-    }
-
-    @NonNull
-    private String getDynamicRangeIconName(@NonNull DynamicRange dynamicRange) {
-        int resId = R.string.toggle_video_dyn_rng_unknown;
-        for (DynamicRangeUiData uiData : DYNAMIC_RANGE_UI_DATA) {
-            if (Objects.equals(dynamicRange, uiData.mDynamicRange)) {
-                resId = uiData.mToggleLabelRes;
-                break;
-            }
-        }
-
-        return getString(resId);
     }
 
     @NonNull
