@@ -352,7 +352,7 @@ internal fun CoreTextField(
                         startInputSession(
                             textInputService,
                             state,
-                            value,
+                            manager.value,
                             imeOptions,
                             offsetMapping
                         )
