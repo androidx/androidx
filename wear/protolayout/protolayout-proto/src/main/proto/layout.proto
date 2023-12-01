@@ -663,7 +663,11 @@ message StrokeCapProp {
   StrokeCap value = 1;
 
   // The stroke cap's shadow. When set, the stroke cap will be drawn with a
-  // shadow, which allows it to be visible on top of other similarly colored elements.
+  // shadow, which allows it to be visible on top of other similarly colored
+  // elements.
+  //
+  // Only opaque colors are supported in ArcLine if a shadow is set. Any
+  // transparent colors will have their alpha component set to 0xFF (opaque).
   Shadow shadow = 2;
 }
 

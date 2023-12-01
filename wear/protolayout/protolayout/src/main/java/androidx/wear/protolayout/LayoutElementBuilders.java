@@ -20,6 +20,8 @@ import static androidx.wear.protolayout.DimensionBuilders.sp;
 import static androidx.wear.protolayout.expression.Preconditions.checkNotNull;
 
 import android.annotation.SuppressLint;
+import android.graphics.Color;
+import android.util.Log;
 
 import androidx.annotation.Dimension;
 import androidx.annotation.IntDef;
@@ -57,6 +59,7 @@ import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.expression.ProtoLayoutExperimental;
 import androidx.wear.protolayout.expression.RequiresSchemaVersion;
 import androidx.wear.protolayout.proto.AlignmentProto;
+import androidx.wear.protolayout.proto.ColorProto;
 import androidx.wear.protolayout.proto.DimensionProto;
 import androidx.wear.protolayout.proto.FingerprintProto;
 import androidx.wear.protolayout.proto.FingerprintProto.TreeFingerprint;
@@ -4463,6 +4466,24 @@ public final class LayoutElementBuilders {
                             "length with dynamic value requires "
                                     + "layoutConstraintsForDynamicLength to be present.");
                 }
+
+                String onlyOpaqueMsg = "Only opaque colors are supported";
+                String alphaChangeMsg =
+                        "Any transparent colors will have their alpha component set to 0xFF"
+                            + " (opaque).";
+                for (ColorProto.ColorStop colorStop :
+                        mImpl.getBrush().getSweepGradient().getColorStopsList()) {
+                    if (Color.alpha(colorStop.getColor().getArgb()) < 0xFF) {
+                        Log.w("ArcLine", onlyOpaqueMsg + " for SweepGradient. " + alphaChangeMsg);
+                        break;
+                    }
+                }
+                if (mImpl.getStrokeCap().hasShadow()
+                        && Color.alpha(mImpl.getColor().getArgb()) < 0xFF) {
+                    Log.w(
+                            "ArcLine",
+                            onlyOpaqueMsg + " when using StrokeCap Shadow. " + alphaChangeMsg);
+                }
                 return new ArcLine(mImpl.build(), mFingerprint);
             }
         }
@@ -4488,6 +4509,9 @@ public final class LayoutElementBuilders {
         /**
          * Gets the stroke cap's shadow. When set, the stroke cap will be drawn with a shadow, which
          * allows it to be visible on top of other similarly colored elements.
+         *
+         * <p>Only opaque colors are supported in {@link ArcLine} if a shadow is set. Any
+         * transparent colors will have their alpha component set to 0xFF (opaque).
          */
         @Nullable
         public Shadow getShadow() {
@@ -4553,6 +4577,9 @@ public final class LayoutElementBuilders {
             /**
              * Sets the stroke cap's shadow. When set, the stroke cap will be drawn with a shadow,
              * which allows it to be visible on top of other similarly colored elements.
+             *
+             * <p>Only opaque colors are supported in {@link ArcLine} if a shadow is set. Any
+             * transparent colors will have their alpha component set to 0xFF (opaque).
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
