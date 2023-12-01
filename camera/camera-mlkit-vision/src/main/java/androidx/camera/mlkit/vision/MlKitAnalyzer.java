@@ -16,6 +16,7 @@
 package androidx.camera.mlkit.vision;
 
 import static androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_ORIGINAL;
+import static androidx.camera.core.ImageAnalysis.COORDINATE_SYSTEM_SENSOR;
 import static androidx.camera.core.impl.utils.TransformUtils.getRectToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.rotateRect;
 
@@ -160,10 +161,10 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
         if (mTargetCoordinateSystem != COORDINATE_SYSTEM_ORIGINAL) {
             // Calculate the transform if not COORDINATE_SYSTEM_ORIGINAL.
             Matrix sensorToTarget = mSensorToTarget;
-            if (sensorToTarget == null) {
-                // If the app set a target coordinate system, do not perform detection until the
-                // transform is ready.
-                Logger.d(TAG, "Transform is null.");
+            if (mTargetCoordinateSystem != COORDINATE_SYSTEM_SENSOR && sensorToTarget == null) {
+                // If the app sets an sensor to target transformation, we cannot provide correct
+                // coordinates until it is ready. Return early.
+                Logger.d(TAG, "Sensor-to-target transformation is null.");
                 imageProxy.close();
                 return;
             }
@@ -180,8 +181,10 @@ public class MlKitAnalyzer implements ImageAnalysis.Analyzer {
             sensorToAnalysis.postConcat(analysisToMlKitRotation);
             // Invert to get analysis to sensor.
             sensorToAnalysis.invert(analysisToTarget);
-            // Concat sensor to target to get analysisToTarget.
-            analysisToTarget.postConcat(sensorToTarget);
+            if (mTargetCoordinateSystem != COORDINATE_SYSTEM_SENSOR) {
+                // Concat the sensor to target transformation to get the overall transformation.
+                analysisToTarget.postConcat(sensorToTarget);
+            }
         }
         // Detect the image recursively, starting from index 0.
         detectRecursively(imageProxy, 0, analysisToTarget, new HashMap<>(), new HashMap<>());

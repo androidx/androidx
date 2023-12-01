@@ -185,7 +185,6 @@ public final class ImageAnalysis extends UseCase {
 
     /**
      * Provides a static configuration with implementation-agnostic options.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
@@ -219,7 +218,7 @@ public final class ImageAnalysis extends UseCase {
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    SessionConfig.Builder mSessionConfigBuilder;
+            SessionConfig.Builder mSessionConfigBuilder;
 
     @Nullable
     private DeferrableSurface mDeferrableSurface;
@@ -250,7 +249,6 @@ public final class ImageAnalysis extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -534,7 +532,6 @@ public final class ImageAnalysis extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -545,7 +542,6 @@ public final class ImageAnalysis extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -639,6 +635,7 @@ public final class ImageAnalysis extends UseCase {
     }
 
     /**
+     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
@@ -687,7 +684,6 @@ public final class ImageAnalysis extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -698,7 +694,6 @@ public final class ImageAnalysis extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -719,7 +714,6 @@ public final class ImageAnalysis extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -729,7 +723,6 @@ public final class ImageAnalysis extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -740,7 +733,6 @@ public final class ImageAnalysis extends UseCase {
 
     /**
      * {@inheritDoc}
-     *
      */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -936,18 +928,34 @@ public final class ImageAnalysis extends UseCase {
     /**
      * {@link ImageAnalysis.Analyzer} option for returning the original coordinates.
      *
-     * <p> Use this option if no additional transformation is needed by the {@link Analyzer}
-     * implementation. By using this option, CameraX will pass {@code null} to
+     * <p>Use this option if no additional transformation is needed by the {@link Analyzer}
+     * implementation. The coordinates returned by the {@link Analyzer} should be within (0, 0) -
+     * (width, height) where width and height are the dimensions of the {@link ImageProxy}.
+     *
+     * <p>By using this option, CameraX will pass {@code null} to
      * {@link Analyzer#updateTransform(Matrix)}.
      */
     public static final int COORDINATE_SYSTEM_ORIGINAL = 0;
+
+    /**
+     * {@link ImageAnalysis.Analyzer} option for returning the sensor coordinates.
+     *
+     * <p>Use this option if the app wishes to get the detected objects in camera sensor
+     * coordinates. The coordinates returned by the {@link Analyzer} should be within (left,
+     * right) - (width, height), where the left, right, width and height are bounds of the camera
+     * sensor's active array.
+     *
+     * <p>By using this option, CameraX will pass
+     * {@link ImageInfo#getSensorToBufferTransformMatrix()}'s inverse to
+     * {@link Analyzer#updateTransform}.
+     */
+    public static final int COORDINATE_SYSTEM_SENSOR = 2;
 
     /**
      * Provides a base static default configuration for the ImageAnalysis.
      *
      * <p>These values may be overridden by the implementation. They only provide a minimum set of
      * defaults that are implementation independent.
-     *
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
@@ -966,8 +974,8 @@ public final class ImageAnalysis extends UseCase {
 
         private static final ResolutionSelector DEFAULT_RESOLUTION_SELECTOR =
                 new ResolutionSelector.Builder().setAspectRatioStrategy(
-                        AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY).setResolutionStrategy(
-                        new ResolutionStrategy(SizeUtil.RESOLUTION_VGA,
+                                AspectRatioStrategy.RATIO_4_3_FALLBACK_AUTO_STRATEGY)
+                        .setResolutionStrategy(new ResolutionStrategy(SizeUtil.RESOLUTION_VGA,
                                 ResolutionStrategy.FALLBACK_RULE_CLOSEST_HIGHER_THEN_LOWER))
                         .build();
 
@@ -1139,7 +1147,6 @@ public final class ImageAnalysis extends UseCase {
          *
          * @param outputImageRotationEnabled flag to enable or disable.
          * @return The current Builder.
-         *
          * @see
          * <a href="https://developer.android.com/training/camerax/orientation-rotation#imageanalysis">ImageAnalysis</a>
          */
@@ -1161,7 +1168,6 @@ public final class ImageAnalysis extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Override
@@ -1172,7 +1178,6 @@ public final class ImageAnalysis extends UseCase {
 
         /**
          * {@inheritDoc}
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1299,7 +1304,6 @@ public final class ImageAnalysis extends UseCase {
 
         /**
          * setMirrorMode is not supported on ImageAnalysis.
-         *
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
@@ -1566,6 +1570,7 @@ public final class ImageAnalysis extends UseCase {
          * Sets the {@link DynamicRange}.
          *
          * <p>This is currently only exposed to internally set the dynamic range to SDR.
+         *
          * @return The current Builder.
          * @see DynamicRange
          */
