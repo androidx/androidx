@@ -1831,7 +1831,7 @@ public abstract class Transition implements Cloneable {
             for (int i = numAnimators - 1; i >= 0; i--) {
                 Animator animator = cache[i];
                 cache[i] = null;
-                AnimatorUtils.pause(animator);
+                animator.pause();
             }
             mAnimatorCache = cache;
             notifyListeners(TransitionNotification.ON_PAUSE, false);
@@ -1855,7 +1855,7 @@ public abstract class Transition implements Cloneable {
                 for (int i = numAnimators - 1; i >= 0; i--) {
                     Animator animator = cache[i];
                     cache[i] = null;
-                    AnimatorUtils.resume(animator);
+                    animator.resume();
                 }
                 mAnimatorCache = cache;
                 notifyListeners(TransitionNotification.ON_RESUME, false);

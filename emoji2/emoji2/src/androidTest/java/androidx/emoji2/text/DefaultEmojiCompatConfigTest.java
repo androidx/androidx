@@ -215,11 +215,8 @@ public class DefaultEmojiCompatConfigTest {
         Object result = reflectHelper.get(factory);
         int apiVersion = Build.VERSION.SDK_INT;
         Class<?> helperClass = Objects.requireNonNull(result).getClass();
-        if (apiVersion < 19) {
+        if (apiVersion < 28) {
             assertEquals(DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper.class,
-                    helperClass);
-        } else if (apiVersion < 28) {
-            assertEquals(DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper_API19.class,
                     helperClass);
         } else {
             assertEquals(DefaultEmojiCompatConfig.DefaultEmojiCompatConfigHelper_API28.class,

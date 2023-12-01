@@ -17,7 +17,6 @@
 package androidx.emoji2.text;
 
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 
 import androidx.annotation.NonNull;
@@ -84,12 +83,9 @@ public class EmojiCompatInitializer implements Initializer<Boolean> {
     @NonNull
     @Override
     public Boolean create(@NonNull Context context) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            EmojiCompat.init(new BackgroundDefaultConfig(context));
-            delayUntilFirstResume(context);
-            return true;
-        }
-        return false;
+        EmojiCompat.init(new BackgroundDefaultConfig(context));
+        delayUntilFirstResume(context);
+        return true;
     }
 
     /**

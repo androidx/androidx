@@ -89,10 +89,7 @@ public final class BitmapCompat {
      * @see Bitmap#getAllocationByteCount()
      */
     public static int getAllocationByteCount(@NonNull Bitmap bitmap) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return Api19Impl.getAllocationByteCount(bitmap);
-        }
-        return bitmap.getByteCount();
+        return bitmap.getAllocationByteCount();
     }
 
     /**
@@ -327,18 +324,6 @@ public final class BitmapCompat {
 
     private BitmapCompat() {
         // This class is not instantiable.
-    }
-
-    @RequiresApi(19)
-    static class Api19Impl {
-        private Api19Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static int getAllocationByteCount(Bitmap bitmap) {
-            return bitmap.getAllocationByteCount();
-        }
     }
 
     @RequiresApi(27)

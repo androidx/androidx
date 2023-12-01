@@ -19,7 +19,6 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -531,11 +530,7 @@ public class EmojiCompat {
      */
     public static boolean handleOnKeyDown(@NonNull final Editable editable, final int keyCode,
             final KeyEvent event) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return EmojiProcessor.handleOnKeyDown(editable, keyCode, event);
-        } else {
-            return false;
-        }
+        return EmojiProcessor.handleOnKeyDown(editable, keyCode, event);
     }
 
     /**
@@ -560,12 +555,8 @@ public class EmojiCompat {
             @NonNull final InputConnection inputConnection, @NonNull final Editable editable,
             @IntRange(from = 0) final int beforeLength, @IntRange(from = 0) final int afterLength,
             final boolean inCodePoints) {
-        if (Build.VERSION.SDK_INT >= 19) {
-            return EmojiProcessor.handleDeleteSurroundingText(inputConnection, editable,
-                    beforeLength, afterLength, inCodePoints);
-        } else {
-            return false;
-        }
+        return EmojiProcessor.handleDeleteSurroundingText(inputConnection, editable,
+                beforeLength, afterLength, inCodePoints);
     }
 
     /**

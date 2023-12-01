@@ -72,7 +72,6 @@ import org.hamcrest.Matchers.greaterThanOrEqualTo
 import org.hamcrest.Matchers.lessThan
 import org.hamcrest.Matchers.lessThanOrEqualTo
 import org.junit.After
-import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 
@@ -728,11 +727,7 @@ fun tryNTimes(n: Int, resetBlock: () -> Unit, tryBlock: () -> Unit) {
             if (i < n - 1) {
                 Log.w(BaseTest.TAG, "Bad state, retrying block", e)
             } else {
-                val errorMessage = "Block hit bad state $n times"
-                when {
-                    Build.VERSION.SDK_INT >= 19 -> throw AssertionError(errorMessage, e)
-                    else -> fail(errorMessage)
-                }
+                throw AssertionError("Block hit bad state $n times", e)
             }
             resetBlock()
         }

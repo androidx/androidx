@@ -17,7 +17,6 @@ package androidx.emoji.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
-import android.os.Build;
 import android.text.method.KeyListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
@@ -81,8 +80,7 @@ public final class EmojiEditTextHelper {
      */
     public EmojiEditTextHelper(@NonNull final EditText editText) {
         Preconditions.checkNotNull(editText, "editText cannot be null");
-        mHelper = Build.VERSION.SDK_INT >= 19 ? new HelperInternal19(editText)
-                : new HelperInternal();
+        mHelper = new HelperInternal19(editText);
     }
 
     /**
