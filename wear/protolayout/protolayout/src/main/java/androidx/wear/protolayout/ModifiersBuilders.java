@@ -858,10 +858,16 @@ public final class ModifiersBuilders {
              * start/end will follow the layout direction (i.e. start will refer to the right hand
              * side of the container if the device is using an RTL locale). If false, start/end will
              * always map to left/right, accordingly.
+             *
+             * <p>Note that this field only supports static values.
              */
             @RequiresSchemaVersion(major = 1, minor = 0)
             @NonNull
             public Builder setRtlAware(@NonNull BoolProp rtlAware) {
+                if (rtlAware.getDynamicValue() != null) {
+                    throw new IllegalArgumentException(
+                            "Padding.Builder.setRtlAware doesn't support dynamic values.");
+                }
                 mImpl.setRtlAware(rtlAware.toProto());
                 mFingerprint.recordPropertyUpdate(
                         5, checkNotNull(rtlAware.getFingerprint()).aggregateValueAsInt());
