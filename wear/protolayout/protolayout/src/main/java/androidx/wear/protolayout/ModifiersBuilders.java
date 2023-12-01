@@ -1409,20 +1409,17 @@ public final class ModifiersBuilders {
         }
 
         /**
-         * Gets whether the attached element is hidden, or visible. If the element is hidden, then
+         * Gets whether the attached element is visible, or hidden. If the element is hidden, then
          * it will still consume space in the layout, but will not render any contents, nor will any
-         * children render any contents.
-         *
-         * <p>Note that a hidden element also cannot be clickable (i.e. a {@link Clickable} modifier
-         * would be ignored).
+         * children render any contents. Defaults to visible.
          */
         @ProtoLayoutExperimental
-        @Nullable
-        public BoolProp getHidden() {
-            if (mImpl.hasHidden()) {
-                return BoolProp.fromProto(mImpl.getHidden());
+        @NonNull
+        public BoolProp isVisible() {
+            if (mImpl.hasVisible()) {
+                return BoolProp.fromProto(mImpl.getVisible());
             } else {
-                return null;
+                return new BoolProp.Builder(true).build();
             }
         }
 
@@ -1477,8 +1474,8 @@ public final class ModifiersBuilders {
                     + getMetadata()
                     + ", contentUpdateAnimation="
                     + getContentUpdateAnimation()
-                    + ", hidden="
-                    + getHidden()
+                    + ", visible="
+                    + isVisible()
                     + "}";
         }
 
@@ -1578,22 +1575,23 @@ public final class ModifiersBuilders {
             }
 
             /**
-             * Sets whether the attached element is hidden, or visible. If the element is hidden,
+             * Sets whether the attached element is visible, or hidden. If the element is hidden,
              * then it will still consume space in the layout, but will not render any contents, nor
-             * will any children render any contents.
+             * will any children render any contents. Defaults to visible.
              *
              * <p>Note that a hidden element also cannot be clickable (i.e. a {@link Clickable}
              * modifier would be ignored).
              *
-             * <p>Defaults to false (i.e. not hidden).
+             * <p>This field is bindable and will use the dynamic value (if set).
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @ProtoLayoutExperimental
+            @SuppressLint("MissingGetterMatchingBuilder")
             @NonNull
-            public Builder setHidden(@NonNull BoolProp hidden) {
-                mImpl.setHidden(hidden.toProto());
+            public Builder setVisible(@NonNull BoolProp visible) {
+                mImpl.setVisible(visible.toProto());
                 mFingerprint.recordPropertyUpdate(
-                        8, checkNotNull(hidden.getFingerprint()).aggregateValueAsInt());
+                        10, checkNotNull(visible.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
