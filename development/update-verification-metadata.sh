@@ -73,10 +73,6 @@ function regenerateVerificationMetadata() {
 
   # rename keyring
   mv gradle/verification-keyring-dryrun.keys gradle/verification-keyring.keys 2>/dev/null || true
-
-  # remove temporary files
-  rm -f gradle/verification-keyring-dryrun.gpg
-  rm -f gradle/verification-keyring.gpg
 }
 regenerateVerificationMetadata
 
