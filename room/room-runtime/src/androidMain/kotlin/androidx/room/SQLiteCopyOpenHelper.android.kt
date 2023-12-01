@@ -16,9 +16,7 @@
 package androidx.room
 
 import android.content.Context
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.room.Room.LOG_TAG
 import androidx.room.util.copy
 import androidx.room.util.readVersion
@@ -31,9 +29,6 @@ import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
 import java.io.InputStream
-import java.lang.Exception
-import java.lang.IllegalStateException
-import java.lang.RuntimeException
 import java.nio.channels.Channels
 import java.nio.channels.ReadableByteChannel
 import java.util.concurrent.Callable
@@ -57,7 +52,6 @@ internal class SQLiteCopyOpenHelper(
     override val databaseName: String?
         get() = delegate.databaseName
 
-    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN)
     override fun setWriteAheadLoggingEnabled(enabled: Boolean) {
         delegate.setWriteAheadLoggingEnabled(enabled)
     }

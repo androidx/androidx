@@ -19,7 +19,6 @@ package androidx.room
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
-import android.os.Build.VERSION_CODES.JELLY_BEAN
 import androidx.annotation.RequiresApi
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
@@ -89,28 +88,16 @@ public class AutoClosingRoomOpenHelperFactoryTest {
 
         autoClosingRoomOpenHelper.writableDatabase
 
-        if (android.os.Build.VERSION.SDK_INT < JELLY_BEAN) {
-            // onConfigure does not exist before JELLY_BEAN
-            // onCreate + onOpen
-            assertEquals(2, callbackCount.get())
-        } else {
-            // onConfigure + onCreate + onOpen
-            assertEquals(3, callbackCount.get())
-        }
+        // onConfigure + onCreate + onOpen
+        assertEquals(3, callbackCount.get())
 
         Thread.sleep(100)
 
         autoClosingRoomOpenHelper.writableDatabase
 
         // onCreate won't be called the second time.
-        if (android.os.Build.VERSION.SDK_INT < JELLY_BEAN) {
-            // onConfigure does not exist before JELLY_BEAN
-            // onCreate + onOpen + onOpen
-            assertEquals(3, callbackCount.get())
-        } else {
-            // onConfigure + onCreate + onOpen + onConfigure + onOpen
-            assertEquals(5, callbackCount.get())
-        }
+        // onConfigure + onCreate + onOpen + onConfigure + onOpen
+        assertEquals(5, callbackCount.get())
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
