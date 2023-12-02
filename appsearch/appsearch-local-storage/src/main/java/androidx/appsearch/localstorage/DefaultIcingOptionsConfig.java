@@ -88,4 +88,14 @@ public class DefaultIcingOptionsConfig implements IcingOptionsConfig {
     public int getLiteIndexSortSize() {
         return DEFAULT_LITE_INDEX_SORT_SIZE;
     }
+
+    @Override
+    public boolean getUseNewQualifiedIdJoinIndex() {
+        return DEFAULT_USE_NEW_QUALIFIED_ID_JOIN_INDEX;
+    }
+
+    @Override
+    public boolean getBuildPropertyExistenceMetadataHits() {
+        return DEFAULT_BUILD_PROPERTY_EXISTENCE_METADATA_HITS;
+    }
 }
