@@ -661,9 +661,34 @@ class GLRendererTest {
                 assertNotNull(textureView)
 
                 glRenderer = GLRenderer().apply { start() }
-                target = glRenderer!!.attach(it.textureView, ColorRenderCallback(Color.BLUE) {
-                    renderLatch.get().countDown()
-                })
+                target = glRenderer!!.attach(it.textureView, ColorRenderCallback(Color.BLUE))
+                val listener = textureView!!.surfaceTextureListener
+                textureView!!.surfaceTextureListener = object : SurfaceTextureListener {
+                    override fun onSurfaceTextureAvailable(
+                        surface: SurfaceTexture,
+                        width: Int,
+                        height: Int
+                    ) {
+                        listener?.onSurfaceTextureAvailable(surface, width, height)
+                    }
+
+                    override fun onSurfaceTextureSizeChanged(
+                        surface: SurfaceTexture,
+                        width: Int,
+                        height: Int
+                    ) {
+                        listener?.onSurfaceTextureSizeChanged(surface, width, height)
+                    }
+
+                    override fun onSurfaceTextureDestroyed(surface: SurfaceTexture): Boolean {
+                        return listener?.onSurfaceTextureDestroyed(surface) ?: true
+                    }
+
+                    override fun onSurfaceTextureUpdated(surface: SurfaceTexture) {
+                        listener?.onSurfaceTextureUpdated(surface)
+                        renderLatch.get().countDown()
+                    }
+                }
             }
 
         scenario.moveToState(State.RESUMED)
