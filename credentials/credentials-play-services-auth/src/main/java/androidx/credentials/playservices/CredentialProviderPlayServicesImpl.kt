@@ -159,7 +159,7 @@ class CredentialProviderPlayServicesImpl(private val context: Context) : Credent
         // This points to the min APK version of GMS that contains required changes
         // to make passkeys work well
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-        const val MIN_GMS_APK_VERSION = 231200000
+        const val MIN_GMS_APK_VERSION = 230815045
 
         internal fun cancellationReviewerWithCallback(
             cancellationSignal: CancellationSignal?,
