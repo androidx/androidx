@@ -114,6 +114,16 @@ public class AppSearchConfigImpl implements AppSearchConfig {
     }
 
     @Override
+    public boolean getUseNewQualifiedIdJoinIndex() {
+        return mIcingOptionsConfig.getUseNewQualifiedIdJoinIndex();
+    }
+
+    @Override
+    public boolean getBuildPropertyExistenceMetadataHits() {
+        return mIcingOptionsConfig.getBuildPropertyExistenceMetadataHits();
+    }
+
+    @Override
     public int getMaxDocumentSizeBytes() {
         return mLimitConfig.getMaxDocumentSizeBytes();
     }
