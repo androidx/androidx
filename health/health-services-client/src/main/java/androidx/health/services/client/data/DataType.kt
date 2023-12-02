@@ -578,6 +578,11 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
         val SWIMMING_LAP_COUNT: DeltaDataType<Long, IntervalDataPoint<Long>> =
             createIntervalDataType("Swim Lap Count")
 
+        /** Count of swimming laps since the start of the current active exercise. */
+        @JvmField
+        val SWIMMING_LAP_COUNT_TOTAL: AggregateDataType<Long, CumulativeDataPoint<Long>> =
+            createCumulativeDataType("Swim Lap Count")
+
         /** The number of repetitions of an exercise performed since the last update. */
         @JvmField
         val REP_COUNT: DeltaDataType<Long, IntervalDataPoint<Long>> =
@@ -685,6 +690,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             SPEED_STATS,
             STEPS_PER_MINUTE_STATS,
             STEPS_TOTAL,
+            SWIMMING_LAP_COUNT_TOTAL,
             SWIMMING_STROKES_TOTAL,
             VO2_MAX_STATS,
             WALKING_STEPS_TOTAL,
