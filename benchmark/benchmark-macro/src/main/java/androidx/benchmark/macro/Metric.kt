@@ -353,9 +353,14 @@ class TraceSectionMetric(
      */
     private val sectionName: String,
     /**
-     * How should the
+     * Metric label, defaults to [sectionName].
      */
-    private val mode: Mode = Mode.First,
+    private val label: String = sectionName,
+    /**
+     * Defines how slices matching [sectionName] should be confirmed to metrics, by default uses
+     * [Mode.Sum] to count and sum durations of all matching trace sections.
+     */
+    private val mode: Mode = Mode.Sum,
     /**
      * Filter results to trace sections only from the target process, defaults to true.
      */
@@ -376,7 +381,25 @@ class TraceSectionMetric(
          * When this mode is used, a measurement of `0` will be reported if the named section
          * does not appear in the trace
          */
-        Sum
+        Sum,
+
+        /**
+         * Reports the maximum observed duration for a trace section matching `sectionName` in the
+         * trace.
+         *
+         * When this mode is used, no measurement will be reported if the named section does
+         * not appear in the trace.
+         */
+        Min,
+
+        /**
+         * Reports the maximum observed duration for a trace section matching `sectionName` in the
+         * trace.
+         *
+         * When this mode is used, no measurement will be reported if the named section does
+         * not appear in the trace.
+         */
+        Max,
     }
 
     override fun configure(packageName: String) {
@@ -404,22 +427,41 @@ class TraceSectionMetric(
                     emptyList()
                 } else listOf(
                     Measurement(
-                        name = sectionName + "Ms",
+                        name = label + "FirstMs",
                         data = slice.dur / 1_000_000.0
                     )
                 )
             }
-
             Mode.Sum -> {
                 listOf(
                     Measurement(
-                        name = sectionName + "Ms",
+                        name = label + "SumMs",
                         // note, this duration assumes non-reentrant slices
                         data = slices.sumOf { it.dur } / 1_000_000.0
                     ),
                     Measurement(
-                        name = sectionName + "Count",
+                        name = label + "Count",
                         data = slices.size.toDouble()
+                    )
+                )
+            }
+            Mode.Min -> {
+                if (slices.isEmpty()) {
+                    emptyList()
+                } else listOf(
+                    Measurement(
+                        name = label + "MinMs",
+                        data = slices.minOf { it.dur } / 1_000_000.0
+                    )
+                )
+            }
+            Mode.Max -> {
+                if (slices.isEmpty()) {
+                    emptyList()
+                } else listOf(
+                    Measurement(
+                        name = label + "MaxMs",
+                        data = slices.maxOf { it.dur } / 1_000_000.0
                     )
                 )
             }
