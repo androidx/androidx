@@ -92,23 +92,22 @@ class SinglePointerPredictorTest {
     }
 
     @Test
-    fun predictionNeverGoesBackwardsEvenWhenLifting() {
+    fun liftingDoesNotAffectPredictionDistance() {
         val predictor = constructPredictor()
         val coordGenerator = { delta: Long -> delta.toFloat() }
         // Pressure will be 1 at the beginning and trend to zero while never getting there
         val pressureGenerator = fun(delta: Long): Float {
-                if (delta > 500) {
-                    return ((700 - delta) / 500).toFloat()
-                }
-                return 1f
+            if (delta > 500) {
+                return ((700 - delta) / 500).toFloat()
             }
+            return 1f
+        }
         val motionGenerator =
                 MotionEventGenerator(coordGenerator, coordGenerator, pressureGenerator)
         var lastPredictedTime = 0L
         var lastPredictedEvent: MotionEvent? = null
         var predicted: MotionEvent?
-        var iteration = 0
-        do {
+        for (i in 1..MAX_ITERATIONS) {
             predictor.onTouchEvent(motionGenerator.next())
             predicted = predictor.predict(motionGenerator.getRateMs().toInt() * 10)
             if (predicted != null) {
@@ -118,8 +117,10 @@ class SinglePointerPredictorTest {
                 assertThat(lastPredictedEvent.getHistorySize()).isEqualTo(0);
             }
             lastPredictedEvent = predicted
-            iteration++
-        } while (predicted != null || iteration < INITIAL_FEED)
+            if (i > INITIAL_FEED) {
+                assertThat(predicted).isNotNull()
+            }
+        }
     }
 }
 
@@ -129,4 +130,5 @@ private fun constructPredictor(): SinglePointerPredictor = SinglePointerPredicto
 )
 
 private const val INITIAL_FEED = 20
+private const val MAX_ITERATIONS = 10000
 private const val PREDICT_LENGTH = 10
