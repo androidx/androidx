@@ -179,11 +179,11 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
     @NonNull
     @Override
     public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
-        List<CaptureRequest.Key> keys = Arrays.asList(
+        List<CaptureRequest.Key> keys = new ArrayList<>(Arrays.asList(
                 CaptureRequest.CONTROL_AF_MODE,
                 CaptureRequest.CONTROL_AF_TRIGGER,
                 CaptureRequest.CONTROL_AF_REGIONS,
-                CaptureRequest.CONTROL_AE_REGIONS);
+                CaptureRequest.CONTROL_AE_REGIONS));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             keys.add(CaptureRequest.CONTROL_ZOOM_RATIO);
         } else {
@@ -195,12 +195,12 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
     @NonNull
     @Override
     public List<CaptureResult.Key> getAvailableCaptureResultKeys() {
-        List<CaptureResult.Key> keys = Arrays.asList(
+        List<CaptureResult.Key> keys = new ArrayList<>(Arrays.asList(
                 CaptureResult.CONTROL_AF_MODE,
                 CaptureResult.CONTROL_AE_REGIONS,
                 CaptureResult.CONTROL_AF_REGIONS,
                 CaptureResult.CONTROL_AE_STATE,
-                CaptureResult.CONTROL_AF_STATE);
+                CaptureResult.CONTROL_AF_STATE));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             keys.add(CaptureResult.CONTROL_ZOOM_RATIO);
         } else {

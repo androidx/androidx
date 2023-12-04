@@ -21,6 +21,9 @@ import static androidx.camera.extensions.ExtensionMode.BOKEH;
 import static androidx.camera.extensions.ExtensionMode.FACE_RETOUCH;
 import static androidx.camera.extensions.ExtensionMode.HDR;
 import static androidx.camera.extensions.ExtensionMode.NIGHT;
+import static androidx.camera.extensions.impl.ExtensionsTestlibControl.ImplementationType.OEM_IMPL;
+import static androidx.camera.extensions.impl.ExtensionsTestlibControl.ImplementationType.TESTLIB_ADVANCED;
+import static androidx.camera.extensions.impl.ExtensionsTestlibControl.ImplementationType.TESTLIB_BASIC;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
@@ -29,6 +32,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.extensions.ExtensionMode;
+import androidx.camera.extensions.impl.ExtensionsTestlibControl;
 import androidx.camera.extensions.internal.AdvancedVendorExtender;
 import androidx.camera.extensions.internal.BasicVendorExtender;
 import androidx.camera.extensions.internal.ExtensionVersion;
@@ -37,28 +41,65 @@ import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
 import androidx.camera.testing.impl.CameraUtil;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * Extension test util functions.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtensionsTestUtil {
+
+    /**
+     * Returns the parameters which contains the combination of implementationType, extensions
+     * mode and lens facing.
+     */
     @NonNull
-    public static Collection<Object[]> getAllExtensionsLensFacingCombinations() {
-        return Arrays.asList(new Object[][]{
-                {BOKEH, CameraSelector.LENS_FACING_FRONT},
-                {BOKEH, CameraSelector.LENS_FACING_BACK},
-                {HDR, CameraSelector.LENS_FACING_FRONT},
-                {HDR, CameraSelector.LENS_FACING_BACK},
-                {FACE_RETOUCH, CameraSelector.LENS_FACING_FRONT},
-                {FACE_RETOUCH, CameraSelector.LENS_FACING_BACK},
-                {NIGHT, CameraSelector.LENS_FACING_FRONT},
-                {NIGHT, CameraSelector.LENS_FACING_BACK},
-                {AUTO, CameraSelector.LENS_FACING_FRONT},
-                {AUTO, CameraSelector.LENS_FACING_BACK}
+    public static Collection<Object[]> getAllImplExtensionsLensFacingCombinations() {
+        ExtensionsTestlibControl.ImplementationType implType =
+                ExtensionsTestlibControl.getInstance().getImplementationType();
+
+        if (implType == TESTLIB_ADVANCED) {
+            ExtensionsTestlibControl.getInstance().setImplementationType(TESTLIB_BASIC);
+            implType = TESTLIB_BASIC;
+        }
+
+        List<Object[]> basicOrOemImplList = Arrays.asList(new Object[][]{
+                {implType, BOKEH, CameraSelector.LENS_FACING_FRONT},
+                {implType, BOKEH, CameraSelector.LENS_FACING_BACK},
+                {implType, HDR, CameraSelector.LENS_FACING_FRONT},
+                {implType, HDR, CameraSelector.LENS_FACING_BACK},
+                {implType, FACE_RETOUCH, CameraSelector.LENS_FACING_FRONT},
+                {implType, FACE_RETOUCH, CameraSelector.LENS_FACING_BACK},
+                {implType, NIGHT, CameraSelector.LENS_FACING_FRONT},
+                {implType, NIGHT, CameraSelector.LENS_FACING_BACK},
+                {implType, AUTO, CameraSelector.LENS_FACING_FRONT},
+                {implType, AUTO, CameraSelector.LENS_FACING_BACK}
         });
+
+        if (implType == OEM_IMPL) {
+            return basicOrOemImplList;
+        }
+
+        List<Object[]> advancedList = Arrays.asList(new Object[][]{
+                {TESTLIB_ADVANCED, BOKEH, CameraSelector.LENS_FACING_FRONT},
+                {TESTLIB_ADVANCED, BOKEH, CameraSelector.LENS_FACING_BACK},
+                {TESTLIB_ADVANCED, HDR, CameraSelector.LENS_FACING_FRONT},
+                {TESTLIB_ADVANCED, HDR, CameraSelector.LENS_FACING_BACK},
+                {TESTLIB_ADVANCED, FACE_RETOUCH, CameraSelector.LENS_FACING_FRONT},
+                {TESTLIB_ADVANCED, FACE_RETOUCH, CameraSelector.LENS_FACING_BACK},
+                {TESTLIB_ADVANCED, NIGHT, CameraSelector.LENS_FACING_FRONT},
+                {TESTLIB_ADVANCED, NIGHT, CameraSelector.LENS_FACING_BACK},
+                {TESTLIB_ADVANCED, AUTO, CameraSelector.LENS_FACING_FRONT},
+                {TESTLIB_ADVANCED, AUTO, CameraSelector.LENS_FACING_BACK}
+        });
+
+        List<Object[]> allList = new ArrayList<>();
+        allList.addAll(basicOrOemImplList);
+        allList.addAll(advancedList);
+        return allList;
     }
 
     /**
