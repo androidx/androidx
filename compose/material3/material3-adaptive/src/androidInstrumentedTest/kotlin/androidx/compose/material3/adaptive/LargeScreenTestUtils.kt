@@ -37,7 +37,7 @@ internal fun ComposeContentTestRule.setContentWithSimulatedSize(
     setContent {
         val currentDensity = LocalDensity.current
         val windowSize = with(currentDensity) {
-            collectWindowSizeAsState().value.toSize().toDpSize();
+            currentWindowSize().toSize().toDpSize();
         }
         val simulatedDensity = Density(
             currentDensity.density * (windowSize.width / simulatedWidth)
