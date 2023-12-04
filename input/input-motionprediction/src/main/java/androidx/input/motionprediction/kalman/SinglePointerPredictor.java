@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.input.motionprediction.common.Configuration;
 import androidx.input.motionprediction.kalman.matrix.DVector2;
 
 import java.util.LinkedList;
@@ -92,6 +93,8 @@ public class SinglePointerPredictor implements KalmanPredictor {
     private double mLastOrientation = 0;
     private double mLastTilt = 0;
 
+    private final boolean mPredictLift;
+
     /**
      * Kalman based predictor, predicting the location of the pen `predictionTarget`
      * milliseconds into the future.
@@ -107,6 +110,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
         mDownEventTime = 0;
         mPointerId = pointerId;
         mToolType = toolType;
+        mPredictLift = Configuration.getInstance().predictLift();
     }
 
     private void update(float x, float y, float pressure, float orientation,
@@ -277,7 +281,8 @@ public class SinglePointerPredictor implements KalmanPredictor {
             long nextPredictedEventTime = predictedEventTime + Math.round(mReportRateMs);
 
             // Abort prediction if the pen is to be lifted.
-            if (mPressure < 0.1
+            if (mPredictLift
+                    && mPressure < 0.1
                     && nextPredictedEventTime > mLastPredictEventTime) {
                 //TODO: Should we generate ACTION_UP MotionEvent instead of ACTION_MOVE?
                 break;
