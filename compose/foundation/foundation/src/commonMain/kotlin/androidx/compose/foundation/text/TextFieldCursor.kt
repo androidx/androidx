@@ -38,7 +38,7 @@ import androidx.compose.ui.util.fastCoerceIn
 import kotlinx.coroutines.withContext
 
 internal fun Modifier.cursor(
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     value: TextFieldValue,
     offsetMapping: OffsetMapping,
     cursorBrush: Brush,

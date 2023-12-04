@@ -24,13 +24,13 @@ import org.junit.runners.JUnit4
 import org.mockito.kotlin.mock
 
 @RunWith(JUnit4::class)
-internal class TextFieldStateTest {
+internal class LegacyTextFieldStateTest {
 
     @OptIn(InternalFoundationTextApi::class)
     @Test
     fun layoutResult_isSnapshotState() {
         // this is really a test about references, so just using mocks
-        val subject = TextFieldState(
+        val subject = LegacyTextFieldState(
             textDelegate = mock(), // not needed for test
             recomposeScope = mock(), // not needed for test
             keyboardController = null, // not needed for test
