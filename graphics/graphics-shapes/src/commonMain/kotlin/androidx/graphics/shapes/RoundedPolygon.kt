@@ -572,8 +572,12 @@ private class RoundedCorner(
     private fun lineIntersection(p0: Point, d0: Point, p1: Point, d1: Point): Point? {
         val rotatedD1 = d1.rotate90()
         val den = d0.dotProduct(rotatedD1)
-        if (abs(den) < AngleEpsilon) return null
-        val k = (p1 - p0).dotProduct(rotatedD1) / den
+        if (abs(den) < DistanceEpsilon) return null
+        val num = (p1 - p0).dotProduct(rotatedD1)
+        // Also check the relative value. This is equivalent to abs(den/num) < DistanceEpsilon,
+        // but avoid doing a division
+        if (abs(den) < DistanceEpsilon * abs(num)) return null
+        val k = num / den
         return p0 + d0 * k
     }
 }
