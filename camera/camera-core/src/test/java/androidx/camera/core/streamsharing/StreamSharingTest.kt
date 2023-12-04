@@ -142,6 +142,36 @@ class StreamSharingTest {
     }
 
     @Test
+    fun effectHandleRotation_remainingRotationIs0() {
+        // Arrange: create an effect that handles rotation.
+        effect = FakeSurfaceEffect(
+            PREVIEW or VIDEO_CAPTURE,
+            CameraEffect.TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION,
+            effectProcessor
+        )
+        streamSharing = StreamSharing(camera, setOf(child1), useCaseConfigFactory)
+        streamSharing.effect = effect
+        // Act: Bind effect and get sharing input edge.
+        streamSharing.bindToCamera(frontCamera, null, defaultConfig)
+        streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
+        // Assert: no remaining rotation because it's handled by the effect.
+        assertThat(streamSharing.sharingInputEdge!!.rotationDegrees).isEqualTo(0)
+    }
+
+    @Test
+    fun effectDoNotHandleRotation_remainingRotationIsNot0() {
+        // Arrange: create an effect that does not handle rotation.
+        streamSharing = StreamSharing(camera, setOf(child1), useCaseConfigFactory)
+        streamSharing.effect = effect
+        // Act: bind effect.
+        streamSharing.bindToCamera(frontCamera, null, defaultConfig)
+        streamSharing.onSuggestedStreamSpecUpdated(StreamSpec.builder(size).build())
+        // Assert: the remaining rotation still exists because the effect doesn't handle it. It will
+        // be handled by downstream pipeline.
+        assertThat(streamSharing.sharingInputEdge!!.rotationDegrees).isEqualTo(SENSOR_ROTATION)
+    }
+
+    @Test
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun invokeParentSessionCaptureCallbacks_receivedByChildren() {
         // Arrange.

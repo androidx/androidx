@@ -20,6 +20,7 @@ import static androidx.camera.core.processing.TargetUtils.checkSupportedTargets;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import android.graphics.ImageFormat;
+import android.view.Display;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -84,6 +85,16 @@ import java.util.concurrent.Executor;
 public abstract class CameraEffect {
 
     /**
+     * Options for the transformation handled by the effect.
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @IntDef(flag = true, value = {TRANSFORMATION_ARBITRARY,
+            TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION})
+    public @interface Transformations {
+    }
+
+    /**
      * Bitmask options for the effect targets.
      */
     @Retention(RetentionPolicy.SOURCE)
@@ -93,7 +104,7 @@ public abstract class CameraEffect {
     }
 
     /**
-     * Bitmask options for the effect targets.
+     * Bitmask options for the effect buffer formats.
      */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -123,8 +134,39 @@ public abstract class CameraEffect {
             PREVIEW | VIDEO_CAPTURE,
             PREVIEW | VIDEO_CAPTURE | IMAGE_CAPTURE);
 
+    /**
+     * Flag to indicate that the implementation will handle arbitrary transformation.
+     *
+     * <p>When this flag is used, CameraX may suggest arbitrary transformation via
+     * {@link SurfaceOutput#updateTransformMatrix} for the {@link SurfaceProcessor} to handle,
+     * including mirroring, rotating, cropping and/or scaling.
+     *
+     * <p>Use this flag if the {@link CameraEffect} implementation can handle arbitrary
+     * transformation.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int TRANSFORMATION_ARBITRARY = 0;
+
+    /**
+     * Flag to indicate that the implementation will handle the camera and the Surface rotation.
+     *
+     * <p>When this flag is used, the value of {@link SurfaceOutput#updateTransformMatrix} will
+     * be a combination of the camera sensor orientation and the Surface rotation. The camera
+     * rotation is the value written by camera framework, which can be retrieved via
+     * {@link android.graphics.SurfaceTexture#getTransformMatrix(float[])} if the consumer is a
+     * {@link android.graphics.SurfaceTexture}. The Surface rotation is the value of the default
+     * {@link Display#getRotation()}.
+     *
+     * <p>Use this flag if the {@link CameraEffect} implementation handles the camera and the
+     * Surface rotation.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int TRANSFORMATION_CAMERA_AND_SURFACE_ROTATION = 1;
+
     @Targets
     private final int mTargets;
+    @Transformations
+    private final int mTransformation;
     @NonNull
     private final Executor mExecutor;
     @Nullable
@@ -155,9 +197,50 @@ public abstract class CameraEffect {
         checkArgument(targets == IMAGE_CAPTURE,
                 "Currently ImageProcessor can only target IMAGE_CAPTURE.");
         mTargets = targets;
+        mTransformation = TRANSFORMATION_ARBITRARY;
         mExecutor = executor;
         mSurfaceProcessor = null;
         mImageProcessor = imageProcessor;
+        mErrorListener = errorListener;
+    }
+
+    /**
+     * @param targets          the target {@link UseCase} to which this effect should be applied.
+     *                         Currently {@link SurfaceProcessor} can target the following
+     *                         combinations:
+     *                         <ul>
+     *                         <li>{@link #PREVIEW}
+     *                         <li>{@link #PREVIEW} | {@link #VIDEO_CAPTURE}
+     *                         <li>{@link #PREVIEW} | {@link #VIDEO_CAPTURE} |
+     *                         {@link #IMAGE_CAPTURE}
+     *                         </ul>
+     *                         Targeting other {@link UseCase} combinations will throw
+     *                         {@link IllegalArgumentException}.
+     * @param transformation   the transformation that the {@link SurfaceProcessor} will handle.
+     * @param executor         the {@link Executor} on which the {@param imageProcessor} and
+     *                         {@param errorListener} will be invoked.
+     * @param surfaceProcessor a {@link SurfaceProcessor} implementation. Once the effect is
+     *                         active, CameraX will send frames to the {@link SurfaceProcessor}
+     *                         on the {@param executor}, and deliver the processed frames to the
+     *                         app.
+     * @param errorListener    invoked if the effect runs into unrecoverable errors. The
+     *                         {@link Throwable} will be the error thrown by this
+     *                         {@link CameraEffect}. For example, {@link ProcessingException}.
+     *                         This is invoked on the provided {@param executor}.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected CameraEffect(
+            @Targets int targets,
+            @Transformations int transformation,
+            @NonNull Executor executor,
+            @NonNull SurfaceProcessor surfaceProcessor,
+            @NonNull Consumer<Throwable> errorListener) {
+        checkSupportedTargets(SURFACE_PROCESSOR_TARGETS, targets);
+        mTargets = targets;
+        mTransformation = transformation;
+        mExecutor = executor;
+        mSurfaceProcessor = surfaceProcessor;
+        mImageProcessor = null;
         mErrorListener = errorListener;
     }
 
@@ -191,6 +274,7 @@ public abstract class CameraEffect {
             @NonNull Consumer<Throwable> errorListener) {
         checkSupportedTargets(SURFACE_PROCESSOR_TARGETS, targets);
         mTargets = targets;
+        mTransformation = TRANSFORMATION_ARBITRARY;
         mExecutor = executor;
         mSurfaceProcessor = surfaceProcessor;
         mImageProcessor = null;
@@ -203,6 +287,15 @@ public abstract class CameraEffect {
     @Targets
     public int getTargets() {
         return mTargets;
+    }
+
+    /**
+     * Gets the transformation that the {@link SurfaceProcessor} will handle.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Transformations
+    public int getTransformation() {
+        return mTransformation;
     }
 
     /**
