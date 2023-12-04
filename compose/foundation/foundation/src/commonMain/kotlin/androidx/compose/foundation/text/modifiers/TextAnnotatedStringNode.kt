@@ -405,9 +405,9 @@ internal class TextAnnotatedStringNode(
 
         // then allow children to measure _inside_ our final box, with the above placeholders
         val placeable = measurable.measure(
-            Constraints.fixed(
-                textLayoutResult.size.width,
-                textLayoutResult.size.height
+            Constraints.fixedCoerceHeightAndWidthForBits(
+                width = textLayoutResult.size.width,
+                height = textLayoutResult.size.height
             )
         )
 
@@ -416,7 +416,6 @@ internal class TextAnnotatedStringNode(
             textLayoutResult.size.height,
             baselineCache!!
         ) {
-            // this is basically a graphicsLayer
             placeable.place(0, 0)
         }
     }
