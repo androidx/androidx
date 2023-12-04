@@ -373,7 +373,6 @@ class ButtonTest {
     fun gives_enabled_base_button_correct_colors() {
         rule.verifyButtonColors(
             status = Status.Enabled,
-            colors = { ButtonDefaults.filledButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.primary },
             expectedContentColor = { MaterialTheme.colorScheme.onPrimary },
         )
@@ -384,7 +383,6 @@ class ButtonTest {
     fun gives_disabled_base_button_correct_colors() {
         rule.verifyButtonColors(
             status = Status.Disabled,
-            colors = { ButtonDefaults.filledButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = DisabledContainerAlpha
             ) },
@@ -399,9 +397,9 @@ class ButtonTest {
     fun gives_enabled_filled_tonal_base_button_correct_colors() {
         rule.verifyButtonColors(
             status = Status.Enabled,
-            colors = { ButtonDefaults.filledTonalButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.surface },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface },
+            content = { FilledTonalButton(Status.Enabled) }
         )
     }
 
@@ -410,13 +408,13 @@ class ButtonTest {
     fun gives_disabled_filled_tonal_base_button_correct_colors() {
         rule.verifyButtonColors(
             status = Status.Disabled,
-            colors = { ButtonDefaults.filledTonalButtonColors() },
             expectedContainerColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
             ) },
+            content = { FilledTonalButton(Status.Disabled) }
         )
     }
 
@@ -425,9 +423,9 @@ class ButtonTest {
     fun gives_enabled_outlined_base_button_correct_colors() {
         rule.verifyButtonColors(
             status = Status.Enabled,
-            colors = { ButtonDefaults.outlinedButtonColors() },
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface },
+            content = { OutlinedButton(Status.Enabled) }
         )
     }
 
@@ -436,11 +434,11 @@ class ButtonTest {
     fun gives_disabled_outlined_base_button_correct_colors() {
         rule.verifyButtonColors(
             status = Status.Disabled,
-            colors = { ButtonDefaults.outlinedButtonColors() },
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
             ) },
+            content = { OutlinedButton(Status.Disabled) }
         )
     }
 
@@ -449,9 +447,9 @@ class ButtonTest {
     fun gives_enabled_child_base_button_correct_colors() {
         rule.verifyButtonColors(
             status = Status.Enabled,
-            colors = { ButtonDefaults.childButtonColors() },
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface },
+            content = { ChildButton(Status.Enabled) }
         )
     }
 
@@ -460,11 +458,11 @@ class ButtonTest {
     fun gives_disabled_child_base_button_correct_colors() {
         rule.verifyButtonColors(
             status = Status.Disabled,
-            colors = { ButtonDefaults.childButtonColors() },
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
                 alpha = ContentAlpha.disabled
             ) },
+            content = { ChildButton(Status.Disabled) }
         )
     }
 
@@ -473,7 +471,8 @@ class ButtonTest {
     fun gives_enabled_three_slot_button_correct_colors() {
         rule.verifyThreeSlotButtonColors(
             status = Status.Enabled,
-            colors = { ButtonDefaults.filledButtonColors() }
+            expectedColor = { ButtonDefaults.filledButtonColors() },
+            content = { ThreeSlotFilledButton(Status.Enabled) }
         )
     }
 
@@ -482,7 +481,8 @@ class ButtonTest {
     fun gives_disabled_three_slot_button_correct_colors() {
         rule.verifyThreeSlotButtonColors(
             status = Status.Disabled,
-            colors = { ButtonDefaults.filledButtonColors() }
+            expectedColor = { ButtonDefaults.filledButtonColors() },
+            content = { ThreeSlotFilledButton(Status.Disabled) }
         )
     }
 
@@ -491,7 +491,8 @@ class ButtonTest {
     fun gives_enabled_filled_tonal_three_slot_button_correct_colors() {
         rule.verifyThreeSlotButtonColors(
             status = Status.Enabled,
-            colors = { ButtonDefaults.filledTonalButtonColors() }
+            expectedColor = { ButtonDefaults.filledTonalButtonColors() },
+            content = { ThreeSlotFilledTonalButton(Status.Enabled) }
         )
     }
 
@@ -500,7 +501,8 @@ class ButtonTest {
     fun gives_disabled_filled_tonal_three_slot_button_correct_colors() {
         rule.verifyThreeSlotButtonColors(
             status = Status.Disabled,
-            colors = { ButtonDefaults.filledTonalButtonColors() }
+            expectedColor = { ButtonDefaults.filledTonalButtonColors() },
+            content = { ThreeSlotFilledTonalButton(Status.Disabled) }
         )
     }
 
@@ -509,7 +511,8 @@ class ButtonTest {
     fun gives_enabled_outlined_three_slot_button_correct_colors() {
         rule.verifyThreeSlotButtonColors(
             status = Status.Enabled,
-            colors = { ButtonDefaults.outlinedButtonColors() }
+            expectedColor = { ButtonDefaults.outlinedButtonColors() },
+            content = { ThreeSlotOutlinedButton(Status.Enabled) }
         )
     }
 
@@ -518,7 +521,8 @@ class ButtonTest {
     fun gives_disabled_outlined_three_slot_button_correct_colors() {
         rule.verifyThreeSlotButtonColors(
             status = Status.Disabled,
-            colors = { ButtonDefaults.outlinedButtonColors() }
+            expectedColor = { ButtonDefaults.outlinedButtonColors() },
+            content = { ThreeSlotOutlinedButton(Status.Disabled) }
         )
     }
 
@@ -527,7 +531,8 @@ class ButtonTest {
     fun gives_enabled_child_three_slot_button_correct_colors() {
         rule.verifyThreeSlotButtonColors(
             status = Status.Enabled,
-            colors = { ButtonDefaults.childButtonColors() }
+            expectedColor = { ButtonDefaults.childButtonColors() },
+            content = { ThreeSlotChildButton(Status.Enabled) }
         )
     }
 
@@ -536,7 +541,8 @@ class ButtonTest {
     fun gives_disabled_child_three_slot_button_correct_colors() {
         rule.verifyThreeSlotButtonColors(
             status = Status.Disabled,
-            colors = { ButtonDefaults.childButtonColors() }
+            expectedColor = { ButtonDefaults.childButtonColors() },
+            content = { ThreeSlotChildButton(Status.Disabled) }
         )
     }
 
@@ -623,77 +629,191 @@ class ButtonTest {
 @RequiresApi(Build.VERSION_CODES.O)
 private fun ComposeContentTestRule.verifyButtonColors(
     status: Status,
-    colors: @Composable () -> ButtonColors,
     expectedContainerColor: @Composable () -> Color,
     expectedContentColor: @Composable () -> Color,
+    content: @Composable () -> Color = { FilledButton(status) }
 ) {
     verifyColors(
         status = status,
         expectedContainerColor = expectedContainerColor,
         expectedContentColor = expectedContentColor,
         applyAlphaForDisabled = false,
-        content = {
-            var actualContentColor = Color.Transparent
-            Button(
-                onClick = {},
-                enabled = status.enabled(),
-                colors = colors(),
-                modifier = Modifier.testTag(TEST_TAG),
-            ) {
-                actualContentColor = LocalContentColor.current
-            }
-            return@verifyColors actualContentColor
-        }
+        content = { return@verifyColors content() }
     )
+}
+
+@Composable
+private fun FilledButton(
+    status: Status,
+): Color {
+    var actualContentColor = Color.Transparent
+    Button(
+        onClick = {},
+        enabled = status.enabled(),
+        modifier = Modifier.testTag(TEST_TAG),
+    ) {
+        actualContentColor = LocalContentColor.current
+    }
+    return actualContentColor
+}
+
+@Composable
+private fun FilledTonalButton(
+    status: Status,
+): Color {
+    var actualContentColor = Color.Transparent
+    FilledTonalButton(
+        onClick = {},
+        enabled = status.enabled(),
+        modifier = Modifier.testTag(TEST_TAG),
+    ) {
+        actualContentColor = LocalContentColor.current
+    }
+    return actualContentColor
+}
+
+@Composable
+private fun OutlinedButton(
+    status: Status
+): Color {
+    var actualContentColor = Color.Transparent
+    OutlinedButton(
+        onClick = {},
+        enabled = status.enabled(),
+        modifier = Modifier.testTag(TEST_TAG),
+    ) {
+        actualContentColor = LocalContentColor.current
+    }
+    return actualContentColor
+}
+
+@Composable
+private fun ChildButton(
+    status: Status
+): Color {
+    var actualContentColor = Color.Transparent
+    ChildButton(
+        onClick = {},
+        enabled = status.enabled(),
+        modifier = Modifier.testTag(TEST_TAG),
+    ) {
+        actualContentColor = LocalContentColor.current
+    }
+    return actualContentColor
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
 private fun ComposeContentTestRule.verifyThreeSlotButtonColors(
     status: Status,
-    colors: @Composable () -> ButtonColors
+    expectedColor: @Composable () -> ButtonColors,
+    content: @Composable () -> ThreeSlotButtonColors
 ) {
     val testBackgroundColor = Color.White
     var containerColor = Color.Transparent
     var labelColor = Color.Transparent
     var secondaryLabelColor = Color.Transparent
     var iconColor = Color.Transparent
-    var actualLabelColor = Color.Transparent
-    var actualSecondaryLabelColor = Color.Transparent
-    var actualIconColor = Color.Transparent
+    lateinit var threeSlotButtonColors: ThreeSlotButtonColors
 
     setContentWithTheme {
-        containerColor = ((colors().containerPainter(status.enabled()).value as ColorPainter).color)
+        val buttonColors = expectedColor()
+        containerColor = (
+            (buttonColors.containerPainter(status.enabled()).value as ColorPainter).color)
             .compositeOver(testBackgroundColor)
-        labelColor = colors().contentColor(status.enabled()).value
-        secondaryLabelColor = colors().secondaryContentColor(status.enabled()).value
-        iconColor = colors().iconColor(status.enabled()).value
+        labelColor = buttonColors.contentColor(status.enabled()).value
+        secondaryLabelColor = buttonColors.secondaryContentColor(status.enabled()).value
+        iconColor = buttonColors.iconColor(status.enabled()).value
 
         Box(
             Modifier
                 .fillMaxSize()
                 .background(testBackgroundColor)
         ) {
-            Button(
-                onClick = {},
-                colors = colors(),
-                enabled = status.enabled(),
-                modifier = Modifier.testTag(TEST_TAG),
-                label = { actualLabelColor = LocalContentColor.current },
-                secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
-                icon = { actualIconColor = LocalContentColor.current }
-            )
+            threeSlotButtonColors = content()
         }
     }
 
-    assertEquals(actualLabelColor, labelColor)
-    assertEquals(actualSecondaryLabelColor, secondaryLabelColor)
-    assertEquals(actualIconColor, iconColor)
+    assertEquals(threeSlotButtonColors.labelColor, labelColor)
+    assertEquals(threeSlotButtonColors.secondaryLabelColor, secondaryLabelColor)
+    assertEquals(threeSlotButtonColors.iconColor, iconColor)
 
     onNodeWithTag(TEST_TAG)
         .captureToImage()
         .assertContainsColor(
             if (containerColor != Color.Transparent) containerColor else testBackgroundColor,
         )
+}
+
+@Composable
+private fun ThreeSlotFilledButton(
+    status: Status
+): ThreeSlotButtonColors {
+    var actualLabelColor: Color = Color.Transparent
+    var actualSecondaryLabelColor: Color = Color.Transparent
+    var actualIconColor: Color = Color.Transparent
+    Button(
+        onClick = {},
+        enabled = status.enabled(),
+        modifier = Modifier.testTag(TEST_TAG),
+        label = { actualLabelColor = LocalContentColor.current },
+        secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
+        icon = { actualIconColor = LocalContentColor.current }
+    )
+    return ThreeSlotButtonColors(actualLabelColor, actualSecondaryLabelColor, actualIconColor)
+}
+
+@Composable
+private fun ThreeSlotFilledTonalButton(
+    status: Status
+): ThreeSlotButtonColors {
+    var actualLabelColor: Color = Color.Transparent
+    var actualSecondaryLabelColor: Color = Color.Transparent
+    var actualIconColor: Color = Color.Transparent
+    FilledTonalButton(
+        onClick = {},
+        enabled = status.enabled(),
+        modifier = Modifier.testTag(TEST_TAG),
+        label = { actualLabelColor = LocalContentColor.current },
+        secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
+        icon = { actualIconColor = LocalContentColor.current }
+    )
+    return ThreeSlotButtonColors(actualLabelColor, actualSecondaryLabelColor, actualIconColor)
+}
+
+@Composable
+private fun ThreeSlotOutlinedButton(
+    status: Status
+): ThreeSlotButtonColors {
+    var actualLabelColor: Color = Color.Transparent
+    var actualSecondaryLabelColor: Color = Color.Transparent
+    var actualIconColor: Color = Color.Transparent
+    OutlinedButton(
+        onClick = {},
+        enabled = status.enabled(),
+        modifier = Modifier.testTag(TEST_TAG),
+        label = { actualLabelColor = LocalContentColor.current },
+        secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
+        icon = { actualIconColor = LocalContentColor.current }
+    )
+    return ThreeSlotButtonColors(actualLabelColor, actualSecondaryLabelColor, actualIconColor)
+}
+
+@Composable
+private fun ThreeSlotChildButton(
+    status: Status
+): ThreeSlotButtonColors {
+    var actualLabelColor: Color = Color.Transparent
+    var actualSecondaryLabelColor: Color = Color.Transparent
+    var actualIconColor: Color = Color.Transparent
+    ChildButton(
+        onClick = {},
+        enabled = status.enabled(),
+        modifier = Modifier.testTag(TEST_TAG),
+        label = { actualLabelColor = LocalContentColor.current },
+        secondaryLabel = { actualSecondaryLabelColor = LocalContentColor.current },
+        icon = { actualIconColor = LocalContentColor.current }
+    )
+    return ThreeSlotButtonColors(actualLabelColor, actualSecondaryLabelColor, actualIconColor)
 }
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -759,3 +879,9 @@ private fun ComposeContentTestRule.isShape(
 }
 
 val MinimumButtonTapSize = 48.dp
+
+private data class ThreeSlotButtonColors(
+    val labelColor: Color,
+    val secondaryLabelColor: Color,
+    val iconColor: Color
+)
