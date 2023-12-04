@@ -36,6 +36,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeUp
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMaxBy
 import androidx.test.filters.LargeTest
@@ -89,6 +90,42 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
         rule.runOnIdle {
             Truth.assertThat(currentPage.value).isEqualTo(6)
             Truth.assertThat(currentPageOffsetFraction.value).isEqualTo(0.0f)
+        }
+    }
+
+    @Test
+    fun pageSizeIsZero_offsetFractionShouldNotBeNan() {
+        // Arrange
+        val zeroPageSize = object : PageSize {
+            override fun Density.calculateMainAxisPageSize(
+                availableSpace: Int,
+                pageSpacing: Int
+            ): Int {
+                return 0
+            }
+        }
+
+        rule.setContent {
+            pagerState = rememberPagerState {
+                DefaultPageCount
+            }
+            HorizontalOrVerticalPager(
+                state = pagerState,
+                modifier = Modifier
+                    .size(0.dp)
+                    .testTag(PagerTestTag)
+                    .onSizeChanged { pagerSize = if (vertical) it.height else it.width },
+                pageSize = zeroPageSize,
+                reverseLayout = config.reverseLayout,
+                pageSpacing = config.pageSpacing,
+                contentPadding = config.mainAxisContentPadding,
+            ) {
+                Page(index = it)
+            }
+        }
+
+        rule.runOnIdle {
+            Truth.assertThat(pagerState.currentPageOffsetFraction).isNotNaN()
         }
     }
 
