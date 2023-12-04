@@ -75,6 +75,7 @@ private fun getPendingIntentForAction(
     translationContext: TranslationContext,
     @IdRes viewId: Int,
     editParams: (ActionParameters) -> ActionParameters = { it },
+    mutability: Int = PendingIntent.FLAG_IMMUTABLE,
 ): PendingIntent {
     when (action) {
         is StartActivityAction -> {
@@ -93,7 +94,7 @@ private fun getPendingIntentForAction(
                         )
                     }
                 },
-                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                mutability or PendingIntent.FLAG_UPDATE_CURRENT,
                 action.activityOptions,
             )
         }
@@ -119,7 +120,7 @@ private fun getPendingIntentForAction(
                     translationContext.context,
                     0,
                     intent,
-                    PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                    mutability or PendingIntent.FLAG_UPDATE_CURRENT,
                 )
             }
         }
@@ -136,7 +137,7 @@ private fun getPendingIntentForAction(
                         )
                     }
                 },
-                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                mutability or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
         is RunCallbackAction -> {
@@ -156,7 +157,7 @@ private fun getPendingIntentForAction(
                             ActionTrampolineType.CALLBACK,
                         )
                 },
-                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                mutability or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
         is LambdaAction -> {
@@ -179,7 +180,7 @@ private fun getPendingIntentForAction(
                             action.key,
                         )
                 },
-                PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+                mutability or PendingIntent.FLAG_UPDATE_CURRENT,
             )
         }
         is CompoundButtonAction -> {
@@ -188,6 +189,15 @@ private fun getPendingIntentForAction(
                 translationContext,
                 viewId,
                 action.getActionParameters(),
+                mutability = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+                    action.innerAction !is LambdaAction) {
+                    // RemoteViews.setOnCheckedChangedResponse (API 31+) requires a mutable
+                    // PendingIntent in order to set the EXTRA_CHECKED extra with the current state
+                    // of the button. Lambda actions do not use this extra so they can be immutable.
+                    PendingIntent.FLAG_MUTABLE
+                } else {
+                    mutability
+                }
             )
         }
         else -> error("Cannot create PendingIntent for action type: $action")
@@ -370,7 +380,7 @@ private object ApplyActionApi26Impl {
             context,
             0,
             intent,
-            PendingIntent.FLAG_MUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
         )
     }
 }
