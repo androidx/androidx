@@ -19,19 +19,17 @@ package androidx.wear.protolayout.lint
 import com.android.tools.lint.client.api.IssueRegistry
 import com.android.tools.lint.client.api.Vendor
 import com.android.tools.lint.detector.api.CURRENT_API
-import com.android.tools.lint.detector.api.Issue
 
-/**
- * Issue Registry containing ProtoLayout specific lint Issues.
- */
+/** Issue Registry containing ProtoLayout specific lint Issues. */
 @Suppress("UnstableApiUsage")
 class ProtoLayoutIssueRegistry : IssueRegistry() {
     override val api = 14
     override val minApi = CURRENT_API
-    override val issues get() = emptyList<Issue>()
-    override val vendor = Vendor(
-        feedbackUrl = "https://issuetracker.google.com/issues/new?component=1112273",
-        identifier = "androidx.wear.protolayout",
-        vendorName = "Android Open Source Project",
-    )
+    override val issues = listOf(ProtoLayoutMinSchemaDetector.ISSUE)
+    override val vendor =
+        Vendor(
+            feedbackUrl = "https://issuetracker.google.com/issues/new?component=1112273",
+            identifier = "androidx.wear.protolayout",
+            vendorName = "Android Open Source Project",
+        )
 }
