@@ -27,6 +27,7 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.MutableStateObservable
+import androidx.camera.extensions.impl.ExtensionsTestlibControl
 import androidx.camera.extensions.internal.ClientVersion
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.VendorExtender
@@ -60,6 +61,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
 class ExtensionsManagerTest(
+    private val implType: ExtensionsTestlibControl.ImplementationType,
     @field:ExtensionMode.Mode @param:ExtensionMode.Mode private val extensionMode: Int,
     @field:CameraSelector.LensFacing @param:CameraSelector.LensFacing private val lensFacing: Int
 ) {
@@ -92,6 +94,7 @@ class ExtensionsManagerTest(
         )
 
         baseCameraSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+        ExtensionsTestlibControl.getInstance().setImplementationType(implType)
     }
 
     @After
@@ -107,9 +110,9 @@ class ExtensionsManagerTest(
 
     companion object {
         @JvmStatic
-        @get:Parameterized.Parameters(name = "extension = {0}, facing = {1}")
+        @get:Parameterized.Parameters(name = "implType = {0}, mode = {1}, facing = {2}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllExtensionsLensFacingCombinations()
+            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations()
     }
 
     @Test
