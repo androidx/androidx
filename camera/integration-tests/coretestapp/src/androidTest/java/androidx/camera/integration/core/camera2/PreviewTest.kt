@@ -47,6 +47,7 @@ import androidx.camera.testing.impl.CameraXUtil
 import androidx.camera.testing.impl.GLUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.SurfaceTextureProvider.SurfaceTextureCallback
+import androidx.camera.testing.impl.WakelockEmptyActivityRule
 import androidx.core.util.Consumer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
@@ -89,6 +90,9 @@ class PreviewTest(
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
         PreTestCameraIdList(cameraConfig)
     )
+
+    @get:Rule
+    val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
 
     companion object {
         private const val ANY_THREAD_NAME = "any-thread-name"
