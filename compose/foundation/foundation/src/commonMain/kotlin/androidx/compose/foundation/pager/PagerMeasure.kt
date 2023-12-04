@@ -401,11 +401,14 @@ internal fun LazyLayoutMeasureScope.measurePager(
 
         val currentPagePositionOffset = (newCurrentPage?.offset ?: 0)
 
-        val currentPageOffsetFraction =
+        val currentPageOffsetFraction = if (pageSizeWithSpacing == 0) {
+            0.0f
+        } else {
             ((snapOffset - currentPagePositionOffset) / (pageSizeWithSpacing.toFloat())).coerceIn(
                 MinPageOffset,
                 MaxPageOffset
             )
+        }
 
         debugLog {
             "Finished Measure Pass" +
