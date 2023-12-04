@@ -17,39 +17,37 @@
 package androidx.camera.testing.impl.mocks
 
 import androidx.annotation.GuardedBy
-import androidx.camera.core.ImageCapture.ScreenFlashUiCompleter
+import androidx.camera.core.ImageCapture.ScreenFlashListener
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 /**
- * A mock implementations of [ScreenFlashUiCompleter] for testing purpose.
+ * A mock implementations of [ScreenFlashListener] for testing purpose.
  */
-class MockScreenFlashUiCompleter : ScreenFlashUiCompleter {
+class MockScreenFlashListener : ScreenFlashListener {
     private val lock = Object()
 
     @GuardedBy("lock")
     private var completeCount: Int = 0
     private val completeLatch = CountDownLatch(1)
 
-    override fun complete() {
+    override fun onCompleted() {
         synchronized(lock) {
             completeCount++
         }
         completeLatch.countDown()
     }
 
-    override fun getExpirationTimeMillis() = 0L
-
     /**
-     * Gets the number of times [complete] was invoked.
+     * Gets the number of times [onCompleted] was invoked.
      */
     fun getCompleteCount() = synchronized(lock) { completeCount }
 
     /**
-     * Waits for [complete] to be invoked once.
+     * Waits for [onCompleted] to be invoked once.
      *
      * @param timeoutInMillis The timeout of waiting in milliseconds.
-     * @return True if [complete] was invoked, false if timed out.
+     * @return True if [onCompleted] was invoked, false if timed out.
      */
     fun awaitComplete(timeoutInMillis: Long): Boolean {
         return completeLatch.await(timeoutInMillis, TimeUnit.MILLISECONDS)

@@ -22,9 +22,10 @@ import android.view.Window
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCapture.ScreenFlash
-import androidx.camera.core.ImageCapture.ScreenFlashUiCompleter
+import androidx.camera.core.ImageCapture.ScreenFlashListener
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
+import java.util.concurrent.TimeUnit
 import org.junit.Assert
 import org.junit.Assume
 import org.junit.Before
@@ -39,14 +40,8 @@ import org.robolectric.shadows.ShadowWindow
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ScreenFlashViewTest {
-    private val noOpUiCompleter = object : ScreenFlashUiCompleter {
-        override fun complete() {
-            // no-op
-        }
-
-        override fun getExpirationTimeMillis(): Long {
-            return 0
-        }
+    private val noOpListener = ScreenFlashListener {
+        // no-op
     }
 
     private val appContext = ApplicationProvider.getApplicationContext<Context>()
@@ -107,21 +102,36 @@ class ScreenFlashViewTest {
     @Test
     fun isFullyVisible_whenScreenFlashApplyInvoked() {
         val screenFlash = getScreenFlashAfterSettingWindow(true)
-        screenFlash!!.apply(noOpUiCompleter)
+        screenFlash!!.apply(
+            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
+                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
+            ),
+            noOpListener,
+        )
         assertThat(screenFlashView.alpha).isEqualTo(1f)
     }
 
     @Test
     fun windowBrightnessMaximized_whenScreenFlashApplyInvoked() {
         val screenFlash = getScreenFlashAfterSettingWindow(true)
-        screenFlash!!.apply(noOpUiCompleter)
+        screenFlash!!.apply(
+            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
+                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
+            ),
+            noOpListener,
+        )
         assertThat(window.attributes.screenBrightness).isEqualTo(1f)
     }
 
     @Test
     fun isTransparent_whenScreenFlashUiClearedAfterApply() {
         val screenFlash = getScreenFlashAfterSettingWindow(true)
-        screenFlash!!.apply(noOpUiCompleter)
+        screenFlash!!.apply(
+            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
+                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
+            ),
+            noOpListener,
+        )
         screenFlash.clear()
         assertThat(screenFlashView.alpha).isEqualTo(0f)
     }
@@ -133,7 +143,12 @@ class ScreenFlashViewTest {
         layoutParam.screenBrightness = initialBrightness
         window.setAttributes(layoutParam)
         val screenFlash = getScreenFlashAfterSettingWindow(true)
-        screenFlash!!.apply(noOpUiCompleter)
+        screenFlash!!.apply(
+            System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(
+                ImageCapture.SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS
+            ),
+            noOpListener,
+        )
         screenFlash.clear()
         assertThat(window.attributes.screenBrightness).isEqualTo(initialBrightness)
     }

@@ -378,13 +378,12 @@ package androidx.camera.core {
   }
 
   public static interface ImageCapture.ScreenFlash {
-    method @UiThread public void apply(androidx.camera.core.ImageCapture.ScreenFlashUiCompleter);
+    method @UiThread public void apply(long, androidx.camera.core.ImageCapture.ScreenFlashListener);
     method @UiThread public void clear();
   }
 
-  public static interface ImageCapture.ScreenFlashUiCompleter {
-    method public void complete();
-    method public long getExpirationTimeMillis();
+  public static interface ImageCapture.ScreenFlashListener {
+    method public void onCompleted();
   }
 
   public interface ImageCaptureCapabilities {
