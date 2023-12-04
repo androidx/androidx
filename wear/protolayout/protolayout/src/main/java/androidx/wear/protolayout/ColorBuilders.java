@@ -217,38 +217,6 @@ public final class ColorBuilders {
             }
         }
 
-        /**
-         * Constructor for {@link ColorStop}.
-         *
-         * <p>When all {@link ColorStop} in a Gradient have no offset, the colors are evenly
-         * distributed in the gradient.
-         *
-         * @param color the color for this stop.
-         *     <p>Note that this parameter only supports static values.
-         */
-        @RequiresSchemaVersion(major = 1, minor = 300)
-        public ColorStop(@NonNull ColorProp color) {
-            ColorStop inst = new Builder().setColor(color).build();
-            this.mImpl = inst.mImpl;
-            this.mFingerprint = inst.mFingerprint;
-        }
-
-        /**
-         * Constructor for {@link ColorStop}.
-         *
-         * <p>Note that all parameters only support static values.
-         *
-         * @param color the color for this stop.
-         * @param offset the relative offset for this color, between 0 and 1. This determines where
-         *     the color is positioned relative to a gradient space.
-         */
-        @RequiresSchemaVersion(major = 1, minor = 300)
-        public ColorStop(@NonNull ColorProp color, @NonNull FloatProp offset) {
-            ColorStop inst = new Builder().setColor(color).setOffset(offset).build();
-            this.mImpl = inst.mImpl;
-            this.mFingerprint = inst.mFingerprint;
-        }
-
         /** Get the fingerprint for this object, or null if unknown. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -283,12 +251,9 @@ public final class ColorBuilders {
         }
 
         /** Builder for {@link ColorStop} */
-        static final class Builder {
+        public static final class Builder {
             private final ColorProto.ColorStop.Builder mImpl = ColorProto.ColorStop.newBuilder();
             private final Fingerprint mFingerprint = new Fingerprint(-468737254);
-
-            /** Creates an instance of {@link Builder}. */
-            public Builder() {}
 
             /**
              * Sets the color for this stop. Only opaque colors are supported. Any transparent
@@ -298,7 +263,7 @@ public final class ColorBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
-            Builder setColor(@NonNull ColorProp color) {
+            private Builder setColor(@NonNull ColorProp color) {
                 if (color.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
                             "ColorStop.Builder.setColor doesn't support dynamic values.");
@@ -319,7 +284,7 @@ public final class ColorBuilders {
              */
             @RequiresSchemaVersion(major = 1, minor = 300)
             @NonNull
-            Builder setOffset(@NonNull FloatProp offset) {
+            public Builder setOffset(@NonNull FloatProp offset) {
                 if (offset.getDynamicValue() != null) {
                     throw new IllegalArgumentException(
                             "ColorStop.Builder.setOffset doesn't support dynamic values.");
@@ -333,6 +298,21 @@ public final class ColorBuilders {
                 mFingerprint.recordPropertyUpdate(
                         2, checkNotNull(offset.getFingerprint()).aggregateValueAsInt());
                 return this;
+            }
+
+            /**
+             * Creates an instance of {@link Builder}.
+             *
+             * <p>If all {@link ColorStop} in a Gradient have no offset, the colors are evenly
+             * distributed in the gradient.
+             *
+             * @param color the color for this stop. Only opaque colors are supported. Any
+             *     transparent colors will have their alpha component set to 0xFF (opaque). Note
+             *     that this parameter only supports static values.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            public Builder(@NonNull ColorProp color) {
+                this.setColor(color);
             }
 
             /** Builds an instance from accumulated values. */

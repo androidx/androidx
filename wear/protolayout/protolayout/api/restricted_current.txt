@@ -122,10 +122,14 @@ package androidx.wear.protolayout {
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public static final class ColorBuilders.ColorStop {
-    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public ColorBuilders.ColorStop(androidx.wear.protolayout.ColorBuilders.ColorProp);
-    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public ColorBuilders.ColorStop(androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.TypeBuilders.FloatProp);
     method public androidx.wear.protolayout.ColorBuilders.ColorProp getColor();
     method public androidx.wear.protolayout.TypeBuilders.FloatProp? getOffset();
+  }
+
+  public static final class ColorBuilders.ColorStop.Builder {
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public ColorBuilders.ColorStop.Builder(androidx.wear.protolayout.ColorBuilders.ColorProp);
+    method public androidx.wear.protolayout.ColorBuilders.ColorStop build();
+    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.ColorBuilders.ColorStop.Builder setOffset(androidx.wear.protolayout.TypeBuilders.FloatProp);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public static final class ColorBuilders.SweepGradient implements androidx.wear.protolayout.ColorBuilders.Brush {
