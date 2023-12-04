@@ -251,6 +251,20 @@ package androidx.compose.ui.autofill {
 
 }
 
+package androidx.compose.ui.contentcapture {
+
+  @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public sealed interface ContentCaptureManager {
+    field public static final androidx.compose.ui.contentcapture.ContentCaptureManager.Companion Companion;
+  }
+
+  public static final class ContentCaptureManager.Companion {
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public boolean isEnabled();
+    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void setEnabled(boolean);
+    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public final boolean isEnabled;
+  }
+
+}
+
 package androidx.compose.ui.draganddrop {
 
   public final class DragAndDropEvent {
@@ -2751,9 +2765,9 @@ package androidx.compose.ui.platform {
   }
 
   public final class AndroidComposeViewAccessibilityDelegateCompat_androidKt {
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getDisableContentCapture();
-    method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setDisableContentCapture(boolean);
-    property @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final boolean DisableContentCapture;
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static boolean getDisableContentCapture();
+    method @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static void setDisableContentCapture(boolean);
+    property @Deprecated @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public static final boolean DisableContentCapture;
   }
 
   public final class AndroidCompositionLocals_androidKt {

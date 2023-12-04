@@ -5289,7 +5289,7 @@ class AndroidAccessibilityTest {
             // This test implies that the listener was removed
             // and the enabled services were set to empty.
             assertThat(androidComposeView.isAttachedToWindow).isFalse()
-            assertThat(delegate.isEnabledForAccessibility).isFalse()
+            assertThat(delegate.isEnabled).isFalse()
         }
     }
 
@@ -5307,7 +5307,7 @@ class AndroidAccessibilityTest {
             // This test implies that the listener was removed
             // and the enabled services were set to empty.
             assertThat(androidComposeView.isAttachedToWindow).isFalse()
-            assertThat(delegate.isEnabledForAccessibility).isFalse()
+            assertThat(delegate.isEnabled).isFalse()
         }
     }
 
@@ -5320,7 +5320,7 @@ class AndroidAccessibilityTest {
         rule.runOnIdle {
             // This test implies that UIAutomator is enabled and is the only enabled a11y service
             assertThat(accessibilityManager.isEnabled).isTrue()
-            assertThat(delegate.isEnabledForAccessibility).isFalse()
+            assertThat(delegate.isEnabled).isFalse()
         }
     }
 
