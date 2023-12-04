@@ -65,7 +65,7 @@ interface XRoundEnv {
                     JavacRoundEnv(processingEnv, roundEnvironment)
                 }
                 is KspProcessingEnv -> {
-                    KspRoundEnv(processingEnv, isProcessingOver)
+                    KspRoundEnv(if (isProcessingOver) null else processingEnv)
                 }
                 else -> error("invalid processing environment type: $processingEnv")
             }
