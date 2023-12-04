@@ -180,6 +180,34 @@ public class WearCurvedLineViewTest {
         assertThat(rotatedMatrix).isEqualTo(generatedMatrix);
     }
 
+    @Test
+    public void sweepGradientHelper_colorSetToOpaque() {
+        final int color0 = 0x12666666;
+        final int color90 = 0xFD123456;
+        final int color180 = 0xFF654321;
+        final int noAlphaMask = 0x00FFFFFF;
+        SweepGradient sgProto =
+                SweepGradient.newBuilder()
+                        .addColorStops(colorStop(color0))
+                        .addColorStops(colorStop(color90))
+                        .addColorStops(colorStop(color180))
+                        .setEndAngle(degrees(180f))
+                        .build();
+        SweepGradientHelper sgHelper = new SweepGradientHelper(sgProto);
+
+        int resolvedColor0 = sgHelper.getColor(0f);
+        expect.that(Color.alpha(resolvedColor0)).isEqualTo(0xFF);
+        expect.that(resolvedColor0 & noAlphaMask).isEqualTo(color0 & noAlphaMask);
+
+        int resolvedColor90 = sgHelper.getColor(90f);
+        expect.that(Color.alpha(resolvedColor90)).isEqualTo(0xFF);
+        expect.that(resolvedColor90 & noAlphaMask).isEqualTo(color90 & noAlphaMask);
+
+        int resolvedColor180 = sgHelper.getColor(180f);
+        expect.that(Color.alpha(resolvedColor180)).isEqualTo(0xFF);
+        expect.that(resolvedColor180 & noAlphaMask).isEqualTo(color180 & noAlphaMask);
+    }
+
     /** Gradient with colors [Red, Blue, Green] at offsets [0, 0.5, 1] and given angles. */
     private SweepGradient basicSweepGradientProto(float startAngle, float endAngle) {
         return SweepGradient.newBuilder()

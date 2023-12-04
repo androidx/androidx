@@ -30,7 +30,10 @@ message ColorProp {
 
 // A color and an offset, determining a color position in a gradient.
 message ColorStop {
-  // The color for this stop.
+  // The color for this stop. Only opaque colors are supported. Any transparent
+  // colors will have their alpha component set to 0xFF (opaque).
+  //
+
   ColorProp color = 1;
 
   oneof optional_offset {

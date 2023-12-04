@@ -73,6 +73,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     private static final float DEFAULT_LINE_SWEEP_ANGLE_DEGREES = 0;
     private static final int DEFAULT_LINE_STROKE_CAP = Cap.ROUND.ordinal();
     @ColorInt private static final int DEFAULT_COLOR = 0xFFFFFFFF;
+    private static final int FULLY_OPAQUE_COLOR_MASK = 0xFF000000;
 
     /**
      * The base angle for drawings. The zero angle in Android corresponds to the "3 o clock"
@@ -257,6 +258,10 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
 
     /** Sets the color of this arc, in ARGB format. */
     public void setColor(@ColorInt int color) {
+        // Force color to be fully opaque if stroke cap shadow is used.
+        if (mCapShadow != null) {
+            color = makeOpaque(color);
+        }
         this.mColor = color;
         updateArcDrawable();
         invalidate();
@@ -290,6 +295,8 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
     /** Sets the parameters for the stroke cap shadow. */
     public void setStrokeCapShadow(float blurRadius, int color) {
         this.mCapShadow = new StrokeCapShadow(blurRadius, color);
+        // Re-set color.
+        this.setColor(mColor);
     }
 
     /** Clears the stroke cap shadow. */
@@ -352,6 +359,7 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
 
         @NonNull private final List<AngularColorStop> colorStops;
 
+        /** Constructor. All colors will have their alpha channel set to 0xFF (opaque). */
         SweepGradientHelper(@NonNull ColorProto.SweepGradient sweepGradProto) {
             int numColors = sweepGradProto.getColorStopsCount();
             if (numColors < MIN_COLOR_STOPS || numColors > MAX_COLOR_STOPS) {
@@ -383,7 +391,8 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
                                 ? stop.getOffset().getValue()
                                 : (float) i / (numColors - 1);
                 float gradAngle = gradStartAngle + offset * (gradEndAngle - gradStartAngle);
-                colorStops.add(new AngularColorStop(gradAngle, stop.getColor().getArgb()));
+                colorStops.add(
+                        new AngularColorStop(gradAngle, makeOpaque(stop.getColor().getArgb())));
             }
 
             if (offsetsRequired) {
@@ -723,6 +732,8 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
      * elements are drawn first).
      *
      * <p>All other lower layers of the line are not visible so they are not drawn.
+     *
+     * <p>For a more detail explanation of the drawing method, see go/protolayout-arcline.
      */
     static class ArcDrawableImpl implements ArcDrawable {
         // The list of segments that compose the ArcDrawable, in the order that they should be
@@ -908,5 +919,10 @@ public class WearCurvedLineView extends View implements ArcLayout.Widget {
             this.mBlurRadius = blurRadius;
             this.mColor = color;
         }
+    }
+
+    /** Changes the alpha channel of the color to 0xFF (fully opaque). */
+    private static int makeOpaque(int color) {
+        return color | FULLY_OPAQUE_COLOR_MASK;
     }
 }

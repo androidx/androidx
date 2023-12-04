@@ -195,7 +195,10 @@ public final class ColorBuilders {
             this.mFingerprint = fingerprint;
         }
 
-        /** Gets the color for this stop. */
+        /**
+         * Gets the color for this stop. Only opaque colors are supported. Any transparent colors
+         * will have their alpha component set to 0xFF (opaque).
+         */
         @NonNull
         public ColorProp getColor() {
             return ColorProp.fromProto(mImpl.getColor());
@@ -288,7 +291,8 @@ public final class ColorBuilders {
             public Builder() {}
 
             /**
-             * Sets the color for this stop.
+             * Sets the color for this stop. Only opaque colors are supported. Any transparent
+             * colors will have their alpha component set to 0xFF (opaque).
              *
              * <p>Note that this field only supports static values.
              */
