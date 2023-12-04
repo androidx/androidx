@@ -542,7 +542,7 @@ fun insertDefaultMultiplatformDependencies(xml: XmlProvider, platformId: String)
         if (platformId == PlatformIdentifier.ANDROID.id) {
             appendElement("type", "aar")
         }
-        appendElement("scope", "runtime")
+        appendElement("scope", "compile")
     }
 }
 
