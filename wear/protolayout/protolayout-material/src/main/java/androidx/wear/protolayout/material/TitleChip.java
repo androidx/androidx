@@ -180,7 +180,6 @@ public class TitleChip implements LayoutElement {
                             .setHorizontalPadding(TITLE_HORIZONTAL_PADDING)
                             .setPrimaryLabelContent(mText)
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_TITLE2)
-                            .setPrimaryLabelExcludeFontPadding(true)
                             .setIsPrimaryLabelScalable(false);
 
             if (mWidth != null) {

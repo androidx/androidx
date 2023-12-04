@@ -111,7 +111,6 @@ public class Chip implements LayoutElement {
         @HorizontalAlignment private int mHorizontalAlign = HORIZONTAL_ALIGN_UNDEFINED;
         @TypographyName private int mPrimaryLabelTypography;
         private boolean mIsScalable = true;
-        private boolean mIsFontPaddingExcluded = false;
         private int mMaxLines = 0; // 0 indicates that is not set.
         @NonNull private final androidx.wear.protolayout.materialcore.Chip.Builder mCoreBuilder;
 
@@ -240,23 +239,6 @@ public class Chip implements LayoutElement {
         }
 
         /**
-         * Sets whether the font padding for the primary label is excluded.
-         *
-         * <p>It should be used for creating {@code CompactChip} and {@code TitleChip} to make the
-         * label vertically aligned. Shouldn't be used if there is anything else in chip besides
-         * primary label.
-         *
-         * @see Text.Builder#setExcludeFontPadding
-         */
-        @NonNull
-        @ProtoLayoutExperimental
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        Builder setPrimaryLabelExcludeFontPadding(boolean excluded) {
-            this.mIsFontPaddingExcluded = excluded;
-            return this;
-        }
-
-        /**
          * Sets the secondary label for the {@link Chip}. Any previously added custom content will
          * be overridden. If secondary label is set, primary label must be set too with {@link
          * #setPrimaryLabelContent}.
@@ -381,7 +363,7 @@ public class Chip implements LayoutElement {
                             .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
                             .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
                             .setIsScalable(mIsScalable)
-                            .setExcludeFontPadding(mIsFontPaddingExcluded)
+                            .setExcludeFontPadding(true)
                             .build();
 
             mCoreBuilder.setPrimaryLabelContent(mainTextElement);
@@ -394,6 +376,7 @@ public class Chip implements LayoutElement {
                                 .setMaxLines(1)
                                 .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
                                 .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
+                                .setExcludeFontPadding(true)
                                 .build();
                 mCoreBuilder.setSecondaryLabelContent(labelTextElement);
             }
@@ -541,13 +524,6 @@ public class Chip implements LayoutElement {
     @NonNull
     String getMetadataTag() {
         return mElement.getMetadataTag();
-    }
-
-    /** Returns whether the font padding for the primary label is excluded. */
-    @ProtoLayoutExperimental
-    boolean hasPrimaryLabelExcludeFontPadding() {
-        Text primaryLabel = getPrimaryLabelContentObject();
-        return primaryLabel != null && primaryLabel.hasExcludeFontPadding();
     }
 
     /**

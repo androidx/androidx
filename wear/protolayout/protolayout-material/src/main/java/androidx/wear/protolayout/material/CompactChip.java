@@ -144,7 +144,6 @@ public class CompactChip implements LayoutElement {
                             .setHorizontalPadding(COMPACT_HORIZONTAL_PADDING)
                             .setPrimaryLabelContent(mText)
                             .setPrimaryLabelTypography(Typography.TYPOGRAPHY_CAPTION1)
-                            .setPrimaryLabelExcludeFontPadding(true)
                             .setIsPrimaryLabelScalable(false);
 
             if (mIconResourceId != null) {
