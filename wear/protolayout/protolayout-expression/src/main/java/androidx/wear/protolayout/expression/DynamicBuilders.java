@@ -26,7 +26,6 @@ import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.expression.AnimationParameterBuilders.AnimationSpec;
@@ -6832,7 +6831,7 @@ public final class DynamicBuilders {
          *      .getYear(ZoneId.of("Europe/London"));
          * </pre>
          */
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @RequiresSchemaVersion(major=1,minor=300)
         @NonNull
         default DynamicInt32 getYear(@NonNull ZoneId zoneId) {
             return this.atZone(zoneId).getYear();
@@ -6847,7 +6846,7 @@ public final class DynamicBuilders {
          *      .getMonth(ZoneId.of("Europe/London"));
          * </pre>
          */
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @RequiresSchemaVersion(major=1,minor=300)
         @NonNull
         default DynamicInt32 getMonth(@NonNull ZoneId zoneId) {
             return this.atZone(zoneId).getMonth();
@@ -6862,7 +6861,7 @@ public final class DynamicBuilders {
          *      .getDayOfMonth(ZoneId.of("Europe/London"));
          * </pre>
          */
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @RequiresSchemaVersion(major=1,minor=300)
         @NonNull
         default DynamicInt32 getDayOfMonth(@NonNull ZoneId zoneId) {
             return this.atZone(zoneId).getDayOfMonth();
@@ -6878,7 +6877,7 @@ public final class DynamicBuilders {
          *      .getDayOfWeek(ZoneId.of("Europe/London"));
          * </pre>
          */
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @RequiresSchemaVersion(major=1,minor=300)
         @NonNull
         default DynamicInt32 getDayOfWeek(@NonNull ZoneId zoneId) {
             return this.atZone(zoneId).getDayOfWeek();
@@ -6893,7 +6892,7 @@ public final class DynamicBuilders {
          *      .getHour(ZoneId.of("Europe/London"));
          * </pre>
          */
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @RequiresSchemaVersion(major=1,minor=300)
         @NonNull
         default DynamicInt32 getHour(@NonNull ZoneId zoneId) {
             return this.atZone(zoneId).getHour();
@@ -6908,7 +6907,7 @@ public final class DynamicBuilders {
          *      .getMinute(ZoneId.of("Europe/London"));
          * </pre>
          */
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @RequiresSchemaVersion(major=1,minor=300)
         @NonNull
         default DynamicInt32 getMinute(@NonNull ZoneId zoneId) {
             return this.atZone(zoneId).getMinute();
@@ -6923,7 +6922,7 @@ public final class DynamicBuilders {
          *      .getSecond(ZoneId.of("Europe/London"));
          * </pre>
          */
-        @RequiresApi(Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+        @RequiresSchemaVersion(major=1,minor=300)
         @NonNull
         default DynamicInt32 getSecond(@NonNull ZoneId zoneId) {
             return this.atZone(zoneId).getSecond();
