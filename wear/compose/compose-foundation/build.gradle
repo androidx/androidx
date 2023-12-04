@@ -54,8 +54,6 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinTest)
     androidTestImplementation(libs.truth)
-
-    samples(project(":wear:compose:compose-foundation-samples"))
 }
 
 android {
@@ -82,4 +80,5 @@ androidx {
             "functionality to support wearable specific devices sizes, shapes and navigation " +
             "gestures. It builds upon the Jetpack Compose libraries."
     targetsJavaConsumers = false
+    samples(project(":wear:compose:compose-foundation-samples"))
 }

@@ -49,8 +49,6 @@ dependencies {
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
-
-    samples(project(":paging:paging-samples"))
 }
 
 androidx {
@@ -60,6 +58,7 @@ androidx {
     description = "Android Paging-RXJava2"
     legacyDisableKotlinStrictApiMode = true
     metalavaK2UastEnabled = true
+    samples(project(":paging:paging-samples"))
 }
 
 android {

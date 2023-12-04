@@ -57,8 +57,6 @@ dependencies {
     testImplementation(libs.testRules)
     testImplementation(libs.testRunner)
     testImplementation(libs.junit)
-
-    samples(project(":wear:compose:compose-material-samples"))
 }
 
 android {
@@ -87,4 +85,5 @@ androidx {
             "Material Design UX guidelines and specifications. It builds upon the Jetpack Compose" +
             " libraries."
     targetsJavaConsumers = false
+    samples(project(":wear:compose:compose-material-samples"))
 }

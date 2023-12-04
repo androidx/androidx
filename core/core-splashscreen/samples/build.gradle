@@ -44,13 +44,4 @@ dependencies {
     implementation(projectOrArtifact(":appcompat:appcompat"))
     implementation projectOrArtifact(":annotation:annotation")
     implementation(projectOrArtifact(":interpolator:interpolator"))
-    compileOnly(project(":annotation:annotation-sampled"))
-}
-
-androidx {
-    name = "Splashscreen Samples"
-    type = LibraryType.SAMPLES
-    mavenVersion = LibraryVersions.CORE_SPLASHSCREEN
-    inceptionYear = "2021"
-    description = "Sample for the AndoridX Splashscreen library"
 }

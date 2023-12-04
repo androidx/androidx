@@ -92,8 +92,6 @@ dependencies {
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.kotlinReflect)
-
-    samples(projectOrArtifact(":glance:glance-appwidget:glance-appwidget-samples"))
 }
 
 android {
@@ -124,6 +122,7 @@ androidx {
     description = "Glance-appwidgets allows developers to build layouts for Android AppWidgets " +
             "using a Jetpack Compose-style API."
     targetsJavaConsumers = false
+    samples(projectOrArtifact(":glance:glance-appwidget:glance-appwidget-samples"))
 }
 
 LayoutGeneratorTask.registerLayoutGenerator(

@@ -42,8 +42,6 @@ dependencies {
     androidTestImplementation("androidx.lifecycle:lifecycle-common:2.5.0-alpha01")
     androidTestImplementation("androidx.test:core:1.4.0@aar")
     androidTestImplementation(project(":core:core"))
-
-    samples(project(":graphics:graphics-core:graphics-core-samples"))
 }
 
 android {
@@ -78,4 +76,5 @@ androidx {
     inceptionYear = "2021"
     description = "Leverage graphics facilities across multiple Android platform releases"
     metalavaK2UastEnabled = true
+    samples(project(":graphics:graphics-core:graphics-core-samples"))
 }

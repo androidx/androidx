@@ -499,6 +499,11 @@ WARN: .*\/unzippedMultiplatformSources\/jvmMain\/androidx\/datastore\/core\/Seri
 WARN: .*\/unzippedMultiplatformSources\/commonJvmMain\/androidx\/datastore\/core\/Serializer\.kt:[0-9]+ Missing @param tag for parameter `output` in DFunction writeTo
 WARN: .*\/unzippedMultiplatformSources\/nonJvmMain\/androidx\/annotation\/RestrictTo\.nonJvm\.kt:UnknownLine Link does not resolve for @throws kotlin\.IllegalArgumentException in DFunction valueOf\. Is it from a package that the containing file does not import\? Are docs inherited by an un-documented override function, but the exception class is not in scope in the inheriting class\? The general fix for these is to fully qualify the exception name, e\.g\. `@throws java\.io\.IOException under some conditions`\.
 WARN: File location could not be determined\. Failed to resolve See <a href="https:\/\/developer\.android\.com\/training\/transitions">Transition API Guide<\/a> in DPackage androidx\.transition
+# Task docs-*:unzipJvmSources
+# paging and wear have multiple libraries depending on the same samples library, which can cause the samples library to be unzipped multiple times
+Encountered duplicate path "androidx/paging/samples/.*
+Encountered duplicate path "androidx/wear/compose/material/samples/.*
+Encountered duplicate path "androidx/wear/watchface/samples/.*
 # > Task :compose:ui:ui-tooling:processDebugAndroidTestManifest
 \$SUPPORT/compose/ui/ui\-tooling/src/androidInstrumentedTest/AndroidManifest\.xml:[0-9]+:[0-9]+\-[0-9]+:[0-9]+ Warning:
 # ./gradlew tasks warns as we have warnings present

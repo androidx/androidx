@@ -34,9 +34,3 @@ android {
     }
     namespace "androidx.emoji2.emojipicker.samples"
 }
-androidx {
-    name = "androidx.emoji2:emoji2-emojipicker-samples"
-    type = LibraryType.SAMPLES
-    inceptionYear = "2022"
-    description = "Contains the sample code for the APIs in the androidx.emoji2:emoji2-emojipicker library"
-}

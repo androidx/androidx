@@ -77,10 +77,6 @@ androidXMultiplatform {
     }
 }
 
-dependencies {
-    samples(projectOrArtifact(":paging:paging-compose:paging-compose-samples"))
-}
-
 androidx {
     name = "Paging-Compose"
     publish = Publish.SNAPSHOT_AND_RELEASE
@@ -88,6 +84,7 @@ androidx {
     description = "Compose integration with Paging"
     runApiTasks = new RunApiTasks.Yes()
     legacyDisableKotlinStrictApiMode = true
+    samples(project(":paging:paging-compose:paging-compose-samples"))
 }
 
 android {

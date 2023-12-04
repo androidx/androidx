@@ -45,8 +45,6 @@ dependencies {
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
     testImplementation(libs.truth)
-
-    samples(projectOrArtifact(":glance:glance-appwidget-testing:glance-appwidget-testing-samples"))
 }
 
 android {
@@ -68,4 +66,5 @@ androidx {
     targetsJavaConsumers = false
     inceptionYear = "2023"
     description = "This library provides APIs for developers to use for testing their appWidget specific Glance composables."
+    samples(projectOrArtifact(":glance:glance-appwidget-testing:glance-appwidget-testing-samples"))
 }

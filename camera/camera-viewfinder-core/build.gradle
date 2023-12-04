@@ -42,7 +42,6 @@ dependencies {
     implementation("androidx.test.espresso:espresso-idling-resource:3.1.0")
     implementation(libs.kotlinCoroutinesCore)
     implementation(libs.kotlinCoroutinesAndroid)
-    samples(project(":camera:camera-viewfinder-core:camera-viewfinder-core-samples"))
 
     annotationProcessor(libs.autoValue)
 }
@@ -58,4 +57,5 @@ androidx {
     inceptionYear = "2023"
     description = "Core dependencies for ViewFinder"
     metalavaK2UastEnabled = true
+    samples(project(":camera:camera-viewfinder-core:camera-viewfinder-core-samples"))
 }

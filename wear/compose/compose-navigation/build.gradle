@@ -53,8 +53,6 @@ dependencies {
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.lifecycle:lifecycle-runtime-testing:2.6.0")
     androidTestImplementation("androidx.navigation:navigation-testing:2.6.0")
-
-    samples(project(":wear:compose:compose-navigation-samples"))
 }
 
 android {
@@ -79,5 +77,6 @@ androidx {
             "It builds upon the Jetpack Compose libraries."
     targetsJavaConsumers = false
     metalavaK2UastEnabled = true
+    samples(project(":wear:compose:compose-navigation-samples"))
 }
 

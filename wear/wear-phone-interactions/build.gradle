@@ -50,8 +50,6 @@ dependencies {
     // Includes the wear-sdk jar
     compileOnly files("../../wear/wear_sdk/wear-sdk.jar")
     testImplementation(files("../../wear/wear_sdk/wear-sdk.jar"))
-
-    samples(project(":wear:wear-phone-interactions-samples"))
 }
 
 android {
@@ -80,4 +78,5 @@ androidx {
     inceptionYear = "2021"
     description = "Android Wear Phone Interactions"
     metalavaK2UastEnabled = true
+    samples(project(":wear:wear-phone-interactions-samples"))
 }

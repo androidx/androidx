@@ -146,17 +146,12 @@ androidXMultiplatform {
     }
 }
 
-// top level declaration because the KGP sourceSets declaration used by androidXMultiplatform
-// does not support constraints or samples configurations yet
-dependencies {
-    samples(project(":paging:paging-samples"))
-}
-
 androidx {
     name = "Paging-Common"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Paging-Common"
+    samples(project(":paging:paging-samples"))
 }
 
 android {
