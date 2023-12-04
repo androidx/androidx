@@ -1725,59 +1725,25 @@ class SurfaceControlCompatTest {
         createTransaction: (SurfaceView) -> SurfaceControlCompat.Transaction,
         verifyOutput: (Bitmap, Rect) -> Boolean
     ) {
-        val transactionLatch = CountDownLatch(1)
-        var surfaceView: SurfaceView? = null
-        val destroyLatch = CountDownLatch(1)
-        val scenario = ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
-            .moveToState(
-                Lifecycle.State.CREATED
-            ).onActivity {
-                it.setDestroyCallback { destroyLatch.countDown() }
-                val callback = object : SurfaceHolderCallback() {
-                    override fun surfaceCreated(sh: SurfaceHolder) {
-                        surfaceView = it.mSurfaceView
-                        val transaction = createTransaction(surfaceView!!)
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                            transaction.addTransactionCommittedListener(
-                                executor!!,
-                                object : SurfaceControlCompat.TransactionCommittedListener {
-                                    override fun onTransactionCommitted() {
-                                        transactionLatch.countDown()
-                                    }
-                                }
-                            )
-                        } else {
-                            transactionLatch.countDown()
+        SurfaceControlUtils.surfaceControlTestHelper(
+            { surfaceView, latch ->
+                val transaction = createTransaction(surfaceView)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    transaction.addTransactionCommittedListener(
+                        executor!!,
+                        object : SurfaceControlCompat.TransactionCommittedListener {
+                            override fun onTransactionCommitted() {
+                                latch.countDown()
+                            }
                         }
-                        transaction.commit()
-                    }
-                }
-
-                it.addSurface(it.mSurfaceView, callback)
-                surfaceView = it.mSurfaceView
-            }
-
-        scenario.moveToState(Lifecycle.State.RESUMED)
-
-        assertTrue(transactionLatch.await(3000, TimeUnit.MILLISECONDS))
-        val coords = intArrayOf(0, 0)
-        surfaceView!!.getLocationOnScreen(coords)
-        try {
-            SurfaceControlUtils.validateOutput { bitmap ->
-                verifyOutput(
-                    bitmap,
-                    Rect(
-                        coords[0],
-                        coords[1],
-                        coords[0] + SurfaceControlWrapperTestActivity.DEFAULT_WIDTH,
-                        coords[1] + SurfaceControlWrapperTestActivity.DEFAULT_HEIGHT
                     )
-                )
-            }
-        } finally {
-            scenario.moveToState(Lifecycle.State.DESTROYED)
-            assertTrue(destroyLatch.await(3000, TimeUnit.MILLISECONDS))
-        }
+                } else {
+                    latch.countDown()
+                }
+                transaction.commit()
+            },
+            verifyOutput
+        )
     }
 
     fun Color.compositeOver(background: Color): Color {
