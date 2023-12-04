@@ -56,9 +56,11 @@ package androidx.compose.material3.adaptive.navigation.suite {
     method public String getNavigationBar();
     method public String getNavigationDrawer();
     method public String getNavigationRail();
+    method public String getNone();
     property public final String NavigationBar;
     property public final String NavigationDrawer;
     property public final String NavigationRail;
+    property public final String None;
   }
 
 }
