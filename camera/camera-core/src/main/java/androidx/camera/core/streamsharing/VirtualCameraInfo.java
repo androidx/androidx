@@ -19,6 +19,7 @@ package androidx.camera.core.streamsharing;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 
 import android.os.Build;
+import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -58,6 +59,11 @@ public class VirtualCameraInfo extends ForwardingCameraInfo {
      */
     void setVirtualCameraRotationDegrees(int virtualCameraRotationDegrees) {
         mVirtualCameraRotationDegrees = virtualCameraRotationDegrees;
+    }
+
+    @Override
+    public int getSensorRotationDegrees() {
+        return getSensorRotationDegrees(Surface.ROTATION_0);
     }
 
     @Override

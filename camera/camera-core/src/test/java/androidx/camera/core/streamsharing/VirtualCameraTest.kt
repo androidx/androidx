@@ -80,6 +80,8 @@ class VirtualCameraTest {
         assertThat(parentCamera.cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_0))
             .isEqualTo(90)
         virtualCamera.setRotationDegrees(180)
+        assertThat(virtualCamera.cameraInfoInternal.getSensorRotationDegrees())
+            .isEqualTo(270)
         assertThat(virtualCamera.cameraInfoInternal.getSensorRotationDegrees(Surface.ROTATION_0))
             .isEqualTo(270)
     }
