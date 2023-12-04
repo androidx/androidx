@@ -29,6 +29,9 @@ dependencies {
     implementation(project(path: ":wear:protolayout:protolayout-proto", configuration: "shadow"))
     api(project(":wear:protolayout:protolayout-expression"))
 
+    lintChecks(project(":wear:protolayout:protolayout-lint"))
+    lintPublish(project(":wear:protolayout:protolayout-lint"))
+
     testImplementation(libs.testExtJunit)
     testImplementation(libs.testExtTruth)
     testImplementation(libs.testRunner)
