@@ -4,7 +4,6 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
-import android.os.Build
 import android.util.AttributeSet
 import android.view.View
 import androidx.metrics.performance.PerformanceMetricsState
@@ -52,11 +51,7 @@ class DelayedView(context: Context?, attrs: AttributeSet?) :
             }
         }
         if (repetitions < maxReps) {
-            if (Build.VERSION.SDK_INT >= 16) {
-                postInvalidateOnAnimation()
-            } else {
-                postInvalidate()
-            }
+            postInvalidateOnAnimation()
         }
     }
 }

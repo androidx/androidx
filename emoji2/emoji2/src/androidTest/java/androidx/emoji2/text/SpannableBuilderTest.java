@@ -35,7 +35,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.withSettings;
 
-import android.os.Build;
 import android.text.DynamicLayout;
 import android.text.Editable;
 import android.text.Layout;
@@ -46,7 +45,6 @@ import android.text.TextWatcher;
 import android.text.style.QuoteSpan;
 import android.text.style.TypefaceSpan;
 
-import androidx.annotation.RequiresApi;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
@@ -127,7 +125,6 @@ public class SpannableBuilderTest {
         assertEquals(1, start);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Test
     public void testBlocksSpanCallbacks_forEmojiSpans() {
         final EmojiSpan span = mock(EmojiSpan.class);
@@ -189,7 +186,6 @@ public class SpannableBuilderTest {
         verify(mWatcher, times(1)).afterTextChanged(any(Editable.class));
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Test
     public void testDoesNotBlockSpanCallbacksForOtherWatchers() {
         final TextWatcher textWatcher = mock(TextWatcher.class);

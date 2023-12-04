@@ -90,7 +90,7 @@ package androidx.graphics.lowlatency {
 
   public final class FrontBufferSyncStrategy implements androidx.graphics.opengl.SyncStrategy {
     ctor public FrontBufferSyncStrategy(long usageFlags);
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.hardware.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
+    method public androidx.hardware.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
     method public boolean isVisible();
     method public void setVisible(boolean);
     property public final boolean isVisible;
@@ -245,7 +245,7 @@ package androidx.graphics.opengl {
   }
 
   public interface SyncStrategy {
-    method @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public androidx.hardware.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
+    method public androidx.hardware.SyncFenceCompat? createSyncFence(androidx.graphics.opengl.egl.EGLSpec eglSpec);
     field public static final androidx.graphics.opengl.SyncStrategy ALWAYS;
     field public static final androidx.graphics.opengl.SyncStrategy.Companion Companion;
   }
@@ -465,7 +465,7 @@ package androidx.hardware {
   public static final class DataSpace.Companion {
   }
 
-  @RequiresApi(android.os.Build.VERSION_CODES.KITKAT) public final class SyncFenceCompat implements java.lang.AutoCloseable {
+  public final class SyncFenceCompat implements java.lang.AutoCloseable {
     method public boolean await(long timeoutNanos);
     method public boolean awaitForever();
     method public void close();

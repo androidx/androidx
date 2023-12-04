@@ -1549,13 +1549,10 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                         .setBigContentTitle("Big Content Title")
                         .setSummaryText("Summary Text"))
                 .build();
-        // Extras are not populated before KITKAT
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Bundle extras = NotificationCompat.getExtras(n);
-            assertNotNull(extras);
-            assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG));
-            assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG));
-        }
+        Bundle extras = NotificationCompat.getExtras(n);
+        assertNotNull(extras);
+        assertTrue(extras.containsKey(NotificationCompat.EXTRA_LARGE_ICON_BIG));
+        assertNull(extras.get(NotificationCompat.EXTRA_LARGE_ICON_BIG));
     }
 
     @SdkSuppress(minSdkVersion = 23)

@@ -29,7 +29,6 @@ import java.lang.reflect.Field
  * Subclass of JankStatsBaseImpl records frame timing data for API 16 and later,
  * using Choreographer (which was introduced in API 16).
  */
-@RequiresApi(16)
 internal open class JankStatsApi16Impl(
     jankStats: JankStats,
     view: View

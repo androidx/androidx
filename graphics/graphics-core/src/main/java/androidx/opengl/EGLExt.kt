@@ -573,7 +573,6 @@ class EGLExt private constructor() {
          */
         @JvmStatic
         @Suppress("AcronymName")
-        @RequiresApi(Build.VERSION_CODES.KITKAT)
         internal fun eglDupNativeFenceFDANDROID(
             display: EGLDisplay,
             sync: EGLSyncKHR

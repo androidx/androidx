@@ -48,25 +48,16 @@ class DocumentsContractCompatTest {
 
     @Test
     fun testBuildChildDocumentsUri() {
-        if (isAtLeastKitKat()) {
-            assertEquals(
-                DocumentsContractCompat.buildChildDocumentsUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
-                ),
-                DocumentsContract.buildChildDocumentsUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
-                )
+        assertEquals(
+            DocumentsContractCompat.buildChildDocumentsUri(
+                EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                DOWNLOAD_DOCID
+            ),
+            DocumentsContract.buildChildDocumentsUri(
+                EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                DOWNLOAD_DOCID
             )
-        } else {
-            assertNull(
-                DocumentsContractCompat.buildChildDocumentsUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
-                )
-            )
-        }
+        )
     }
 
     @Test
@@ -95,25 +86,16 @@ class DocumentsContractCompatTest {
 
     @Test
     fun testBuildDocumentUri() {
-        if (isAtLeastKitKat()) {
-            assertEquals(
-                DocumentsContractCompat.buildDocumentUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
-                ),
-                DocumentsContract.buildDocumentUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
-                )
+        assertEquals(
+            DocumentsContractCompat.buildDocumentUri(
+                EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                DOWNLOAD_DOCID
+            ),
+            DocumentsContract.buildDocumentUri(
+                EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                DOWNLOAD_DOCID
             )
-        } else {
-            assertNull(
-                DocumentsContractCompat.buildDocumentUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
-                )
-            )
-        }
+        )
     }
 
     @Test
@@ -159,20 +141,15 @@ class DocumentsContractCompatTest {
 
     @Test
     fun testGetDocumentId() {
-        if (isAtLeastKitKat()) {
-            val documentUri =
-                DocumentsContract.buildDocumentUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
-                )
-            assertEquals(
-                DocumentsContractCompat.getDocumentId(documentUri),
-                DocumentsContract.getDocumentId(documentUri)
+        val documentUri =
+            DocumentsContract.buildDocumentUri(
+                EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                DOWNLOAD_DOCID
             )
-        } else {
-            val documentUri = buildDocUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
-            assertNull(DocumentsContractCompat.getDocumentId(documentUri))
-        }
+        assertEquals(
+            DocumentsContractCompat.getDocumentId(documentUri),
+            DocumentsContract.getDocumentId(documentUri)
+        )
     }
 
     @Test
@@ -247,19 +224,12 @@ class DocumentsContractCompatTest {
         val mediaStoreUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         assertFalse(DocumentsContractCompat.isDocumentUri(context, mediaStoreUri))
 
-        if (isAtLeastKitKat()) {
-            val documentUri =
-                DocumentsContract.buildDocumentUri(
-                    EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
-                    DOWNLOAD_DOCID
-                )
-            assertTrue(DocumentsContractCompat.isDocumentUri(context, documentUri))
-        } else {
-            val documentUri = buildDocUri(EXTERNAL_STORAGE_PROVIDER_AUTHORITY, DOWNLOAD_DOCID)
-
-            // DocumentsProvider doesn't exist before KitKat.
-            assertFalse(DocumentsContractCompat.isDocumentUri(context, documentUri))
-        }
+        val documentUri =
+            DocumentsContract.buildDocumentUri(
+                EXTERNAL_STORAGE_PROVIDER_AUTHORITY,
+                DOWNLOAD_DOCID
+            )
+        assertTrue(DocumentsContractCompat.isDocumentUri(context, documentUri))
 
         if (isAtLeastLollipop()) {
             val downloadTree =
@@ -283,7 +253,6 @@ class DocumentsContractCompatTest {
         }
     }
 
-    private fun isAtLeastKitKat() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT
     private fun isAtLeastLollipop() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
 
     /** Helper method that works similar to [DocumentsContract.buildDocumentUri]. */
