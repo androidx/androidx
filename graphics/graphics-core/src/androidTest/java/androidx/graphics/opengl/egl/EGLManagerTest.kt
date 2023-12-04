@@ -27,7 +27,6 @@ import android.opengl.EGLSurface
 import android.opengl.GLES20
 import android.os.Build
 import android.view.Surface
-import androidx.annotation.RequiresApi
 import androidx.hardware.SyncFenceCompat
 import androidx.opengl.EGLBindings
 import androidx.opengl.EGLExt
@@ -290,19 +289,16 @@ class EGLManagerTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testSurfaceContentsWithBackBuffer() {
         verifySurfaceContentsWithWindowConfig()
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testSurfaceContentsWithFrontBuffer() {
         verifySurfaceContentsWithWindowConfig(true)
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     private fun verifySurfaceContentsWithWindowConfig(
         singleBuffered: Boolean = false
     ) {
@@ -499,7 +495,6 @@ class EGLManagerTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testEGLDupNativeFenceFDMethodLinked() {
         verifyMethodLinked {
@@ -688,7 +683,6 @@ class EGLManagerTest {
         }
     }
 
-    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.KITKAT)
     @Test
     fun testEglDupNativeFenceFDANDROID() {
         testEGLManager {

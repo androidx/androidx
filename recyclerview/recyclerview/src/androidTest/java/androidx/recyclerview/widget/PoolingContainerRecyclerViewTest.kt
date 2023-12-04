@@ -17,11 +17,9 @@
 package androidx.recyclerview.widget
 
 import android.content.Context
-import android.os.Build
 import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
-import androidx.annotation.RequiresApi
 import androidx.customview.poolingcontainer.addPoolingContainerListener
 import androidx.recyclerview.test.awaitScrollIdle
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -428,7 +426,6 @@ class PoolingContainerTestAdapter(
     var binds = 0
     var releases = 0
 
-    @RequiresApi(Build.VERSION_CODES.KITKAT)
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val view = View(context)
         view.layoutParams =

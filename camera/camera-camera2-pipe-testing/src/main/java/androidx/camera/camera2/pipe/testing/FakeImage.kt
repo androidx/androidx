@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2.pipe.testing
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.media.ImagePlane
 import androidx.camera.camera2.pipe.media.ImageWrapper
 import kotlin.reflect.KClass
@@ -26,7 +24,6 @@ import kotlinx.atomicfu.atomic
 /**
  * FakeImage that can be used for testing classes that accept [ImageWrapper].
  */
-@RequiresApi(Build.VERSION_CODES.KITKAT)
 class FakeImage(
     override val width: Int,
     override val height: Int,

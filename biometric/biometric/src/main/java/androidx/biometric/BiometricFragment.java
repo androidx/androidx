@@ -449,11 +449,6 @@ public class BiometricFragment extends Fragment {
             return;
         }
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
-            Log.e(TAG, "Unable to show fingerprint dialog on API <19.");
-            return;
-        }
-
         if (isAdded()) {
             mViewModel.setFingerprintDialogDismissedInstantly(true);
             if (!DeviceUtils.shouldHideFingerprintDialog(context, Build.MODEL)) {
