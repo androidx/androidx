@@ -185,10 +185,35 @@ fun <T, V : AnimationVector> TargetBasedAnimation(
 class TargetBasedAnimation<T, V : AnimationVector> internal constructor(
     internal val animationSpec: VectorizedAnimationSpec<V>,
     override val typeConverter: TwoWayConverter<T, V>,
-    val initialValue: T,
-    override val targetValue: T,
+    initialValue: T,
+    targetValue: T,
     initialVelocityVector: V? = null
 ) : Animation<T, V> {
+    internal var mutableTargetValue: T = targetValue
+        set(value) {
+            if (field != value) {
+                field = value
+                targetValueVector = typeConverter.convertToVector(value)
+                _endVelocity = null
+                _durationNanos = -1L
+            }
+        }
+
+    internal var mutableInitialValue: T = initialValue
+        set(value) {
+            if (value != field) {
+                field = value
+                initialValueVector = typeConverter.convertToVector(value)
+                _endVelocity = null
+                _durationNanos = -1L
+            }
+        }
+
+    val initialValue: T
+        get() = mutableInitialValue
+
+    override val targetValue: T
+        get() = mutableTargetValue
 
     /**
      * Creates a [TargetBasedAnimation] with the given start/end conditions of the animation, and
@@ -225,8 +250,8 @@ class TargetBasedAnimation<T, V : AnimationVector> internal constructor(
         initialVelocityVector
     )
 
-    private val initialValueVector = typeConverter.convertToVector(initialValue)
-    private val targetValueVector = typeConverter.convertToVector(targetValue)
+    private var initialValueVector = typeConverter.convertToVector(initialValue)
+    private var targetValueVector = typeConverter.convertToVector(targetValue)
     private val initialVelocityVector =
         initialVelocityVector?.copy() ?: typeConverter.convertToVector(initialValue)
             .newInstance()
@@ -252,18 +277,29 @@ class TargetBasedAnimation<T, V : AnimationVector> internal constructor(
         }
     }
 
-    @get:Suppress("MethodNameUnits")
-    override val durationNanos: Long = animationSpec.getDurationNanos(
-        initialValue = initialValueVector,
-        targetValue = targetValueVector,
-        initialVelocity = this.initialVelocityVector
-    )
+    private var _durationNanos: Long = -1L
 
-    private val endVelocity = animationSpec.getEndVelocity(
-        initialValueVector,
-        targetValueVector,
-        this.initialVelocityVector
-    )
+    @get:Suppress("MethodNameUnits")
+    override val durationNanos: Long
+        get() {
+            if (_durationNanos < 0L) {
+                _durationNanos = animationSpec.getDurationNanos(
+                    initialValue = initialValueVector,
+                    targetValue = targetValueVector,
+                    initialVelocity = this.initialVelocityVector
+                )
+            }
+            return _durationNanos
+        }
+
+    private var _endVelocity: V? = null
+
+    private val endVelocity
+        get() = _endVelocity ?: animationSpec.getEndVelocity(
+                initialValueVector,
+                targetValueVector,
+                this.initialVelocityVector
+            ).also { _endVelocity = it }
 
     override fun getVelocityVectorFromNanos(playTimeNanos: Long): V {
         return if (!isFinishedFromNanos(playTimeNanos)) {
