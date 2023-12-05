@@ -29,10 +29,6 @@ import kotlin.reflect.KClass
  * @see javax.annotation.processing.RoundEnvironment
  */
 interface XRoundEnv {
-    /**
-     * The root elements in the round.
-     */
-    val rootElements: Set<XElement>
 
     /**
      * Returns true if no further rounds of processing will be done.

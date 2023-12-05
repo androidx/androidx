@@ -34,9 +34,6 @@ internal class KspRoundEnv(
     override val isProcessingOver: Boolean
         get() = env == null
 
-    override val rootElements: Set<XElement>
-        get() = TODO("not supported")
-
     override fun getElementsAnnotatedWith(klass: KClass<out Annotation>): Set<XElement> {
         return getElementsAnnotatedWith(
             annotationQualifiedName = klass.qualifiedName ?: error("No qualified name for $klass")
