@@ -30,6 +30,7 @@ import android.content.Context;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.wear.protolayout.ColorBuilders.ColorProp;
@@ -91,11 +92,16 @@ public class Text implements LayoutElement {
         @Nullable private Integer mCustomWeight = null;
 
         @NonNull
+        @OptIn(markerClass = ProtoLayoutExperimental.class)
         private final LayoutElementBuilders.Text.Builder mElementBuilder =
                 new LayoutElementBuilders.Text.Builder()
                         .setMaxLines(1)
                         .setMultilineAlignment(TEXT_ALIGN_CENTER)
-                        .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END);
+                        .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END)
+                        .setAndroidTextStyle(
+                                new LayoutElementBuilders.AndroidTextStyle.Builder()
+                                        .setExcludeFontPadding(true)
+                                        .build());
 
         /**
          * Creates a builder for a {@link Text} component with static text.
@@ -223,11 +229,8 @@ public class Text implements LayoutElement {
 
         /**
          * Sets whether the {@link Text} excludes extra top and bottom padding above the normal
-         * ascent and descent. The default is false.
+         * ascent and descent. The default is true.
          */
-        // TODO(b/252767963): Coordinate the transition of the default from false->true along with
-        // other impacted UI Libraries - needs care as will have an impact on layout and needs to be
-        // communicated clearly.
         @NonNull
         @ProtoLayoutExperimental
         @SuppressWarnings("MissingGetterMatchingBuilder")
