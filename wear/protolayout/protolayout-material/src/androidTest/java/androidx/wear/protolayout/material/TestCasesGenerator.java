@@ -334,6 +334,47 @@ public class TestCasesGenerator {
         testCases.put(
                 "overflow_text_golden" + goldenSuffix,
                 new Text.Builder(context, "abcdeabcdeabcde").build());
+        testCases.put(
+                "overflow_ellipsize_maxlines_notreached" + goldenSuffix,
+                new Box.Builder()
+                        .setWidth(dp(100))
+                        .setHeight(dp(42))
+                        .setModifiers(buildBackgroundColorModifier(Color.YELLOW))
+                        .addContent(
+                                new Text.Builder(
+                                        context,
+                                        "Very long text that won't fit in its parent box so it"
+                                                + "needs to be ellipsized correctly before its "
+                                                + "last line")
+                                        // Line height = 20sp
+                                        .setTypography(Typography.TYPOGRAPHY_BODY1)
+                                        .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE)
+                                        .setMultilineAlignment(
+                                                LayoutElementBuilders.TEXT_ALIGN_START)
+                                        .setMaxLines(6)
+                                        .build())
+                        .build());
+        testCases.put(
+                "overflow_ellipsize_end_maxlines_notreached" + goldenSuffix,
+                new Box.Builder()
+                        .setWidth(dp(100))
+                        .setHeight(dp(42))
+                        .setModifiers(buildBackgroundColorModifier(Color.YELLOW))
+                        .addContent(
+                                new Text.Builder(
+                                        context,
+                                        "Very long text that won't fit in its parent box so it"
+                                                + "needs to be ellipsized correctly before its "
+                                                + "last line")
+                                        // Line height = 20sp
+                                        .setTypography(Typography.TYPOGRAPHY_BODY1)
+                                        .setOverflow(
+                                                LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
+                                        .setMultilineAlignment(
+                                                LayoutElementBuilders.TEXT_ALIGN_START)
+                                        .setMaxLines(6)
+                                        .build())
+                        .build());
 
         return testCases;
     }

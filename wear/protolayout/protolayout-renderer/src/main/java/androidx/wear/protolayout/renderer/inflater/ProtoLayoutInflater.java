@@ -69,6 +69,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewOutlineProvider;
 import android.view.ViewParent;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
@@ -1873,13 +1874,12 @@ public final class ProtoLayoutInflater {
                 // A null TruncateAt disables adding an ellipsis.
                 return null;
             case TEXT_OVERFLOW_ELLIPSIZE_END:
+            case TEXT_OVERFLOW_ELLIPSIZE:
                 return TruncateAt.END;
             case TEXT_OVERFLOW_MARQUEE:
                 return TruncateAt.MARQUEE;
             case TEXT_OVERFLOW_UNDEFINED:
             case UNRECOGNIZED:
-                // TODO(b/302531877): Implement ellipsize.
-            case TEXT_OVERFLOW_ELLIPSIZE:
                 return TEXT_OVERFLOW_DEFAULT;
         }
 
@@ -2550,7 +2550,14 @@ public final class ProtoLayoutInflater {
         } else {
             textView.setMaxLines(TEXT_MAX_LINES_DEFAULT);
         }
-        applyTextOverflow(textView, text.getOverflow(), text.getMarqueeParameters());
+
+        TextOverflowProp overflow = text.getOverflow();
+        applyTextOverflow(textView, overflow, text.getMarqueeParameters());
+
+        if (overflow.getValue() == TextOverflow.TEXT_OVERFLOW_ELLIPSIZE
+                && !text.getText().hasDynamicValue()) {
+            adjustMaxLinesForEllipsize(textView);
+        }
 
         // Text auto size is not supported for dynamic text.
         boolean isAutoSizeAllowed = !(text.hasText() && text.getText().hasDynamicValue());
@@ -2639,6 +2646,52 @@ public final class ProtoLayoutInflater {
                             .getParentProperties()
                             .applyPendingChildLayoutParams(layoutParams));
         }
+    }
+
+    /**
+     * Sorts out what maxLines should be if the text could possibly be truncated before maxLines is
+     * reached.
+     *
+     * <p>Should be only called for the {@link TextOverflow#TEXT_OVERFLOW_ELLIPSIZE} option which
+     * ellipsizes the text even before the last line, if there's no space for all lines. This is
+     * different than what TEXT_OVERFLOW_ELLIPSIZE_END does, as that option just ellipsizes the last
+     * line of text.
+     */
+    private void adjustMaxLinesForEllipsize(@NonNull TextView textView) {
+        textView
+                .getViewTreeObserver()
+                .addOnPreDrawListener(
+                        new OnPreDrawListener() {
+                            @Override
+                            public boolean onPreDraw() {
+                                ViewParent maybeParent = textView.getParent();
+                                if (!(maybeParent instanceof View)) {
+                                    Log.d(
+                                            TAG,
+                                            "Couldn't adjust max lines for ellipsizing as"
+                                                    + "there's no View/ViewGroup parent.");
+                                    return false;
+                                }
+
+                                textView.getViewTreeObserver().removeOnPreDrawListener(this);
+
+                                View parent = (View) maybeParent;
+                                int availableHeight = parent.getHeight();
+                                int oneLineHeight = textView.getLineHeight();
+                                // This is what was set in proto, we shouldn't exceed it.
+                                int maxMaxLines = textView.getMaxLines();
+                                // Avoid having maxLines as 0 in case the space is really tight.
+                                int availableLines = max(availableHeight / oneLineHeight, 1);
+
+                                // Update only if changed.
+                                if (availableLines < maxMaxLines) {
+                                    textView.setMaxLines(availableLines);
+                                }
+
+                                // Cancel the current drawing pass.
+                                return false;
+                            }
+                        });
     }
 
     /**

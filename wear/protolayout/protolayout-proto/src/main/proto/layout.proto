@@ -167,6 +167,8 @@ enum TextOverflow {
   // Note that, when this is used, the parent of the Text element this
   // corresponds to shouldn't have its width and height set to wrapped, as it
   // can lead to unexpected results.
+  // <p>Note that, on SpanText, this will behave exactly the same way as
+  // TEXT_OVERFLOW_ELLIPSIZE_END.
   TEXT_OVERFLOW_ELLIPSIZE = 4;
 }
 

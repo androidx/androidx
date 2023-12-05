@@ -222,6 +222,9 @@ public final class LayoutElementBuilders {
      * parent container. Note that, when this is used, the parent of the {@link Text} element this
      * corresponds to shouldn't have its width and height set to wrapped, as it can lead to
      * unexpected results.
+     *
+     * <p>Note that, on {@link SpanText}, this will behave exactly the same way as
+     * TEXT_OVERFLOW_ELLIPSIZE_END.
      */
     @RequiresSchemaVersion(major = 1, minor = 300)
     public static final int TEXT_OVERFLOW_ELLIPSIZE = 4;
