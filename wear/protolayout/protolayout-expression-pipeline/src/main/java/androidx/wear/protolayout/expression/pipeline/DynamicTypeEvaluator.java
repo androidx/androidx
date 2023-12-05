@@ -633,12 +633,12 @@ public class DynamicTypeEvaluator {
                     node = concatNode;
                     bindRecursively(
                             stringSource.getConcatOp().getInputLhs(),
-                            concatNode.getLhsIncomingCallback(),
+                            concatNode.getLhsUpstreamCallback(),
                             locale,
                             resultBuilder);
                     bindRecursively(
                             stringSource.getConcatOp().getInputRhs(),
-                            concatNode.getRhsIncomingCallback(),
+                            concatNode.getRhsUpstreamCallback(),
                             locale,
                             resultBuilder);
                     break;
@@ -681,11 +681,11 @@ public class DynamicTypeEvaluator {
 
                     bindRecursively(
                             int32Source.getArithmeticOperation().getInputLhs(),
-                            arithmeticNode.getLhsIncomingCallback(),
+                            arithmeticNode.getLhsUpstreamCallback(),
                             resultBuilder);
                     bindRecursively(
                             int32Source.getArithmeticOperation().getInputRhs(),
-                            arithmeticNode.getRhsIncomingCallback(),
+                            arithmeticNode.getRhsUpstreamCallback(),
                             resultBuilder);
 
                     break;
@@ -809,11 +809,11 @@ public class DynamicTypeEvaluator {
                 node = betweenInstancesNode;
                 bindRecursively(
                         durationSource.getBetween().getStartInclusive(),
-                        betweenInstancesNode.getLhsIncomingCallback(),
+                        betweenInstancesNode.getLhsUpstreamCallback(),
                         resultBuilder);
                 bindRecursively(
                         durationSource.getBetween().getEndExclusive(),
-                        betweenInstancesNode.getRhsIncomingCallback(),
+                        betweenInstancesNode.getRhsUpstreamCallback(),
                         resultBuilder);
                 break;
             case FIXED:
@@ -984,11 +984,11 @@ public class DynamicTypeEvaluator {
 
                     bindRecursively(
                             floatSource.getArithmeticOperation().getInputLhs(),
-                            arithmeticNode.getLhsIncomingCallback(),
+                            arithmeticNode.getLhsUpstreamCallback(),
                             resultBuilder);
                     bindRecursively(
                             floatSource.getArithmeticOperation().getInputRhs(),
-                            arithmeticNode.getRhsIncomingCallback(),
+                            arithmeticNode.getRhsUpstreamCallback(),
                             resultBuilder);
 
                     break;
@@ -1167,11 +1167,11 @@ public class DynamicTypeEvaluator {
 
                     bindRecursively(
                             boolSource.getInt32Comparison().getInputLhs(),
-                            compNode.getLhsIncomingCallback(),
+                            compNode.getLhsUpstreamCallback(),
                             resultBuilder);
                     bindRecursively(
                             boolSource.getInt32Comparison().getInputRhs(),
-                            compNode.getRhsIncomingCallback(),
+                            compNode.getRhsUpstreamCallback(),
                             resultBuilder);
 
                     break;
@@ -1184,11 +1184,11 @@ public class DynamicTypeEvaluator {
 
                     bindRecursively(
                             boolSource.getLogicalOp().getInputLhs(),
-                            logicalNode.getLhsIncomingCallback(),
+                            logicalNode.getLhsUpstreamCallback(),
                             resultBuilder);
                     bindRecursively(
                             boolSource.getLogicalOp().getInputRhs(),
-                            logicalNode.getRhsIncomingCallback(),
+                            logicalNode.getRhsUpstreamCallback(),
                             resultBuilder);
 
                     break;
@@ -1211,11 +1211,11 @@ public class DynamicTypeEvaluator {
 
                     bindRecursively(
                             boolSource.getFloatComparison().getInputLhs(),
-                            compNode.getLhsIncomingCallback(),
+                            compNode.getLhsUpstreamCallback(),
                             resultBuilder);
                     bindRecursively(
                             boolSource.getFloatComparison().getInputRhs(),
-                            compNode.getRhsIncomingCallback(),
+                            compNode.getRhsUpstreamCallback(),
                             resultBuilder);
 
                     break;

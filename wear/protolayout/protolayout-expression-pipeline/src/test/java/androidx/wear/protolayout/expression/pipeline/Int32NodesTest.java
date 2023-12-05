@@ -113,11 +113,11 @@ public class Int32NodesTest {
 
         int numerator = 4;
         FixedInt32 lhsProtoNode = FixedInt32.newBuilder().setValue(numerator).build();
-        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsIncomingCallback());
+        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsUpstreamCallback());
 
         int denominator = 2;
         FixedInt32 rhsProtoNode = FixedInt32.newBuilder().setValue(denominator).build();
-        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsIncomingCallback());
+        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsUpstreamCallback());
         lhsNode.preInit();
         rhsNode.preInit();
 
@@ -143,11 +143,11 @@ public class Int32NodesTest {
 
         int numerator = 0;
         FixedInt32 lhsProtoNode = FixedInt32.newBuilder().setValue(numerator).build();
-        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsIncomingCallback());
+        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsUpstreamCallback());
 
         int denominator = 0;
         FixedInt32 rhsProtoNode = FixedInt32.newBuilder().setValue(denominator).build();
-        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsIncomingCallback());
+        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsUpstreamCallback());
         lhsNode.preInit();
         rhsNode.preInit();
 
