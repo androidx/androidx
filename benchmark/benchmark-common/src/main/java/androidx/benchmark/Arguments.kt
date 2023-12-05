@@ -91,11 +91,12 @@ object Arguments {
         val argumentName = "profiling.mode"
         val argumentValue = getBenchmarkArgument(argumentName, "DEFAULT_VAL")
         if (argumentValue == "DEFAULT_VAL") {
-            return if (Build.VERSION.SDK_INT in 22..33) {
+            return if (Build.VERSION.SDK_INT in 22..30) {
                 MethodTracing to true
             } else {
                 // Method tracing can corrupt the stack on API 21, see b/300658578
-                // on API 34, it causes regressions in jit behavior, see b/303686344
+                // On API 31+ (where ART mainline updates are available), it causes regressions in
+                // jit behavior, see b/303686344
                 null to true
             }
         }
