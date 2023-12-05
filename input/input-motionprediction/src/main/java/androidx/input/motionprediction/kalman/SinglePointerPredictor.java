@@ -94,6 +94,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
     private double mLastTilt = 0;
 
     private final boolean mPredictLift;
+    private final int mStrategy;
 
     /**
      * Kalman based predictor, predicting the location of the pen `predictionTarget`
@@ -103,7 +104,8 @@ public class SinglePointerPredictor implements KalmanPredictor {
      * achieving close-to-zero latency, prediction errors can be more visible and the target should
      * be reduced to 20ms.
      */
-    public SinglePointerPredictor(int pointerId, int toolType) {
+    public SinglePointerPredictor(int strategy, int pointerId, int toolType) {
+        mStrategy = strategy;
         mKalman.reset();
         mLastSeenEventTime = 0;
         mLastPredictEventTime = 0;
@@ -232,6 +234,11 @@ public class SinglePointerPredictor implements KalmanPredictor {
         double jankFactor = 1.0 - normalizeRange(jankAbs, lowJank, highJank);
         double confidenceFactor = speedFactor * jankFactor;
 
+        if (mStrategy == Configuration.STRATEGY_AGGRESSIVE) {
+            // We are very confident
+            confidenceFactor = 1;
+        }
+
         MotionEvent predictedEvent = null;
         final MotionEvent.PointerProperties[] pointerProperties =
                 new MotionEvent.PointerProperties[1];
@@ -258,6 +265,11 @@ public class SinglePointerPredictor implements KalmanPredictor {
             if (predictionTargetInSamples > mExpectedPredictionSampleSize) {
                 predictionTargetInSamples = mExpectedPredictionSampleSize;
             }
+        }
+
+        if (mStrategy == Configuration.STRATEGY_SAFE) {
+            // Just a single prediction step is very accurate
+            predictionTargetInSamples = Math.max(predictionTargetInSamples, 1);
         }
 
         long predictedEventTime = mLastSeenEventTime;
