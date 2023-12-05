@@ -78,6 +78,7 @@ import android.widget.Space;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -630,11 +631,72 @@ public class ProtoLayoutInflaterTest {
         // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
         expect.that(tv.getMeasuredWidth()).isEqualTo(width);
         expect.that(tv.getMeasuredHeight()).isEqualTo(height);
+    }
 
-        // This tests that layoutParams weren't null in the case when there's no modifiers so that
-        // minimum dimension is correctly set.
+    @Test
+    public void inflate_spacer_noModifiers_hasMinDim() {
+        int width = 10;
+        int height = 20;
+        LayoutElement root =
+                LayoutElement.newBuilder()
+                        .setSpacer(
+                                Spacer.newBuilder()
+                                        .setHeight(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(dp(height)))
+                                        .setWidth(
+                                                SpacerDimension.newBuilder()
+                                                        .setLinearDimension(dp(width))))
+                        .build();
+
+        FrameLayout rootLayout = renderer(fingerprintedLayout(root)).inflate();
+
+        // Check that there's a single element in the layout...
+        assertThat(rootLayout.getChildCount()).isEqualTo(1);
+        View tv = rootLayout.getChildAt(0);
+
+        // This tests that minimum dimension is correctly set.
+        // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
         expect.that(tv.getMinimumWidth()).isEqualTo(width);
         expect.that(tv.getMeasuredHeight()).isEqualTo(height);
+    }
+
+    @Test
+    public void inflate_spacer_afterMutation_hasMinDim() {
+        // Confirms that all dimensions are correctly set after mutation.
+        int width = 10;
+        int newWidth = width - 5;
+        int height = 20;
+        int newHeight = height - 6;
+
+        Layout layout1 = layoutBoxWithSpacer(width, height);
+        Layout layout2 = layoutBoxWithSpacer(newWidth, newHeight);
+
+        // Add initial layout.
+        Renderer renderer = renderer(layout1);
+        ViewGroup inflatedViewParent = renderer.inflate();
+
+        // Compute the mutation.
+        ViewGroupMutation mutation =
+                renderer.computeMutation(getRenderedMetadata(inflatedViewParent), layout2);
+        assertThat(mutation).isNotNull();
+        assertThat(mutation.isNoOp()).isFalse();
+
+        // Apply the mutation.
+        boolean mutationResult = renderer.applyMutation(inflatedViewParent, mutation);
+        assertThat(mutationResult).isTrue();
+
+        // This contains layout after the mutation.
+        ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
+        View spacerAfterMutation = boxAfterMutation.getChildAt(0);
+
+        // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
+        expect.that(spacerAfterMutation.getMeasuredWidth()).isEqualTo(0);
+        expect.that(spacerAfterMutation.getMeasuredHeight()).isEqualTo(0);
+
+        // This tests that minimum dimension is correctly set.
+        expect.that(spacerAfterMutation.getMinimumWidth()).isEqualTo(newWidth);
+        expect.that(spacerAfterMutation.getMinimumHeight()).isEqualTo(newHeight);
     }
 
     @Test
@@ -668,6 +730,42 @@ public class ProtoLayoutInflaterTest {
         // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
         expect.that(tv.getMeasuredWidth()).isEqualTo(width);
         expect.that(tv.getMeasuredHeight()).isEqualTo(height);
+    }
+
+    @Test
+    public void inflate_spacer_withModifiers_afterMutation_hasMinDim() {
+        // Confirms that all dimensions are correctly set after mutation.
+        int width = 10;
+        int newWidth = width - 5;
+        int height = 20;
+        int newHeight = height - 6;
+        Modifiers.Builder modifiers =
+                Modifiers.newBuilder().setBorder(Border.newBuilder().setWidth(dp(2)).build());
+
+        Layout layout1 = layoutBoxWithSpacer(width, height, modifiers);
+
+        // Add initial layout.
+        Renderer renderer = renderer(layout1);
+        ViewGroup inflatedViewParent = renderer.inflate();
+
+        Layout layout2 = layoutBoxWithSpacer(newHeight, newWidth, modifiers);
+
+        // Compute the mutation.
+        ViewGroupMutation mutation =
+                renderer.computeMutation(getRenderedMetadata(inflatedViewParent), layout2);
+        assertThat(mutation).isNotNull();
+        assertThat(mutation.isNoOp()).isFalse();
+
+        // Apply the mutation.
+        boolean mutationResult = renderer.applyMutation(inflatedViewParent, mutation);
+        assertThat(mutationResult).isTrue();
+
+        ViewGroup boxAfterMutation = (ViewGroup) inflatedViewParent.getChildAt(0);
+        View spacerAfterMutation = boxAfterMutation.getChildAt(0);
+
+        // Dimensions are in DP, but the density is currently 1 in the tests, so this is fine.
+        expect.that(spacerAfterMutation.getMeasuredWidth()).isEqualTo(0);
+        expect.that(spacerAfterMutation.getMeasuredHeight()).isEqualTo(0);
     }
 
     @Test
@@ -5748,5 +5846,28 @@ public class ProtoLayoutInflaterTest {
         return ExpandedDimensionProp.newBuilder()
                 .setLayoutWeight(FloatProp.newBuilder().setValue(weight).build())
                 .build();
+    }
+
+    /** Builds a wrapper Box that contains Spacer with the given parameters. */
+    private static Layout layoutBoxWithSpacer(int width, int height) {
+        return layoutBoxWithSpacer(width, height, /* modifiers= */ null);
+    }
+
+    /** Builds a wrapper Box that contains Spacer with the given parameters. */
+    private static Layout layoutBoxWithSpacer(
+            int width, int height, @Nullable Modifiers.Builder modifiers) {
+        Spacer.Builder spacer =
+                Spacer.newBuilder()
+                        .setWidth(SpacerDimension.newBuilder().setLinearDimension(dp(width)))
+                        .setHeight(SpacerDimension.newBuilder().setLinearDimension(dp(height)));
+        if (modifiers != null) {
+            spacer.setModifiers(modifiers);
+        }
+        return fingerprintedLayout(
+                LayoutElement.newBuilder()
+                        .setBox(
+                                Box.newBuilder()
+                                        .addContents(LayoutElement.newBuilder().setSpacer(spacer)))
+                        .build());
     }
 }
