@@ -55,11 +55,10 @@ public class HealthEvent(
 
         override fun toString(): String = name
 
-        internal fun toProto(): DataProto.HealthEvent.HealthEventType =
-            DataProto.HealthEvent.HealthEventType.forNumber(id)
-                ?: DataProto.HealthEvent.HealthEventType.HEALTH_EVENT_TYPE_UNKNOWN
+        internal fun toProto(): Int = id
 
         public companion object {
+            private const val CUSTOM_TYPE_NAME_PREFIX = "health_services.device_private."
             /**
              * The Health Event is unknown, or is represented by a value too new for this library
              * version to parse.
@@ -76,20 +75,30 @@ public class HealthEvent(
 
             internal fun fromProto(proto: DataProto.HealthEvent.HealthEventType): Type =
                 VALUES.firstOrNull { it.id == proto.number } ?: UNKNOWN
+
+            internal fun fromProto(typeId: Int): Type {
+                if (isInCustomHealthEventRange(typeId)) {
+                    return Type(typeId, CUSTOM_TYPE_NAME_PREFIX + typeId)
+                }
+
+                return VALUES.firstOrNull { it.id == typeId } ?: UNKNOWN
+            }
+
+            private fun isInCustomHealthEventRange(id: Int) = id in 0x40000..0x4ffff
         }
     }
 
     internal constructor(
         proto: DataProto.HealthEvent
     ) : this(
-        Type.fromProto(proto.type),
+        Type.fromProto(proto.healthEventTypeId),
         Instant.ofEpochMilli(proto.eventTimeEpochMs),
         fromHealthEventProto(proto)
     )
 
     internal val proto: DataProto.HealthEvent =
         DataProto.HealthEvent.newBuilder()
-            .setType(type.toProto())
+            .setHealthEventTypeId(type.toProto())
             .setEventTimeEpochMs(eventTime.toEpochMilli())
             .addAllMetrics(toEventProtoList(metrics))
             .build()

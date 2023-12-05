@@ -499,7 +499,7 @@ message HealthEvent {
     reserved 3 to max;  // Next ID
   }
 
-  optional HealthEventType type = 1;
+  optional int32 health_event_type_id = 1;
   optional int64 event_time_epoch_ms = 2;
   repeated MetricsEntry metrics = 3;
   reserved 4 to max;  // Next ID
@@ -561,7 +561,7 @@ message PassiveMonitoringCapabilities {
   repeated DataType supported_data_types_passive_monitoring = 1;
   repeated DataType supported_data_types_passive_goals = 2;
   repeated int32 supported_hr_sampling_intervals_seconds = 3 [packed = true];
-  repeated HealthEvent.HealthEventType supported_health_event_types = 4
+  repeated int32 supported_health_event_types = 4
       [packed = true];
   repeated UserActivityState supported_user_activity_states = 5 [packed = true];
   reserved 6 to max;  // Next ID
@@ -571,7 +571,7 @@ message PassiveListenerConfig {
   repeated DataType data_types = 1;
   optional bool include_user_activity_state = 2;
   repeated PassiveGoal passive_goals = 3;
-  repeated HealthEvent.HealthEventType health_event_types = 4;
+  repeated int32 health_event_types = 4;
   reserved 5 to max;  // Next ID
 }
 
