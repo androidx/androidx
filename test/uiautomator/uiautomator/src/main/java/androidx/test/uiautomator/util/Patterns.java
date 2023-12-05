@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.test.uiautomator;
+package androidx.test.uiautomator.util;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 import java.util.regex.Pattern;
 
-/**
- * This class contains static helper methods about regex.
- */
-class RegexHelper {
+/** Static regex utilities. */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public final class Patterns {
 
-    private RegexHelper(){}
+    private Patterns() {}
 
     /**
      * Returns a {@link Pattern} that matches when content starts with given string
      * (case-sensitive).
      */
-    static Pattern getPatternStartsWith(@NonNull String text) {
+    @NonNull
+    public static Pattern startsWith(@NonNull String text) {
         return Pattern.compile(String.format("^%s.*$", Pattern.quote(text)), Pattern.DOTALL);
     }
 
@@ -39,14 +40,16 @@ class RegexHelper {
      * Returns a {@link Pattern} that matches when content ends with given string
      * (case-sensitive).
      */
-    static Pattern getPatternEndsWith(@NonNull String text) {
+    @NonNull
+    public static Pattern endsWith(@NonNull String text) {
         return Pattern.compile(String.format("^.*%s$", Pattern.quote(text)), Pattern.DOTALL);
     }
 
     /**
      * Returns a {@link Pattern} that matches when content contains given string (case-sensitive).
      */
-    static Pattern getPatternContains(@NonNull String text) {
+    @NonNull
+    public static Pattern contains(@NonNull String text) {
         return Pattern.compile(String.format("^.*%s.*$", Pattern.quote(text)), Pattern.DOTALL);
     }
 }
