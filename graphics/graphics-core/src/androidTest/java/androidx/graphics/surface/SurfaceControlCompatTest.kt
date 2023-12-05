@@ -1482,7 +1482,7 @@ class SurfaceControlCompatTest {
             }
     }
 
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRate120WithDefaultCompatibilityAndAlwaysChangeStrategy() {
         testFrameRate(
@@ -1492,7 +1492,7 @@ class SurfaceControlCompatTest {
         )
     }
 
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRateNegativeWithDefaultCompatibilityAndAlwaysChangeStrategy() {
         testFrameRate(
@@ -1503,7 +1503,7 @@ class SurfaceControlCompatTest {
     }
 
     @SuppressLint("NewApi")
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRateZeroWithDefaultCompatibilityAndAlwaysChangeStrategy() {
         testFrameRate(
@@ -1514,7 +1514,7 @@ class SurfaceControlCompatTest {
     }
 
     @SuppressLint("NewApi")
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRateInvalidCompatibility() {
         testFrameRate(
@@ -1525,7 +1525,7 @@ class SurfaceControlCompatTest {
     }
 
     @SuppressLint("NewApi")
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testSetFrameRateInvalidStrategy() {
         testFrameRate(
@@ -1535,7 +1535,7 @@ class SurfaceControlCompatTest {
         )
     }
 
-    @SdkSuppress(maxSdkVersion = Build.VERSION_CODES.Q)
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
     @Test
     fun testClearFrameRate() {
         ActivityScenario.launch(SurfaceControlWrapperTestActivity::class.java)
