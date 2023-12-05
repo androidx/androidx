@@ -20,9 +20,9 @@ import android.os.Build
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.InternalFoundationTextApi
+import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDelegate
 import androidx.compose.foundation.text.TextFieldDelegate
-import androidx.compose.foundation.text.TextFieldState
 import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -139,7 +139,7 @@ internal class TextFieldMagnifierTest : AbstractSelectionMagnifierTests() {
             val scope = currentRecomposeScope
             // The value won't ever change so we don't need to worry about ever updating the state.
             selectionManager.state = remember {
-                TextFieldState(
+                LegacyTextFieldState(
                     textDelegate = TextDelegate(
                         text = AnnotatedString(Text),
                         style = TextStyle.Default,

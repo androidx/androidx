@@ -249,7 +249,7 @@ internal fun CoreTextField(
     // and IME may think it is updated. To fix this inconsistent state, enforce recompose.
     val scope = currentRecomposeScope
     val state = remember(keyboardController) {
-        TextFieldState(
+        LegacyTextFieldState(
             TextDelegate(
                 text = visualText,
                 style = textStyle,
@@ -787,7 +787,7 @@ internal enum class HandleState {
 
 /**
  * Indicates which handle is being dragged when the user is dragging on a text field handle.
- * @see TextFieldState.handleState
+ * @see LegacyTextFieldState.handleState
  */
 internal enum class Handle {
     Cursor,
@@ -800,7 +800,7 @@ internal enum class Handle {
  * text and clear selection popups.
  */
 private fun Modifier.previewKeyEventToDeselectOnBack(
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     manager: TextFieldSelectionManager
 ) = onPreviewKeyEvent { keyEvent ->
     if (state.handleState == HandleState.Selection && keyEvent.cancelsTextSelection()) {
@@ -812,7 +812,7 @@ private fun Modifier.previewKeyEventToDeselectOnBack(
 }
 
 @OptIn(InternalFoundationTextApi::class)
-internal class TextFieldState(
+internal class LegacyTextFieldState(
     var textDelegate: TextDelegate,
     val recomposeScope: RecomposeScope,
     val keyboardController: SoftwareKeyboardController?,
@@ -996,7 +996,7 @@ internal class TextFieldState(
  * Request focus on tap. If already focused, makes sure the keyboard is requested.
  */
 private fun tapToFocus(
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     focusRequester: FocusRequester,
     allowKeyboard: Boolean
 ) {
@@ -1009,7 +1009,7 @@ private fun tapToFocus(
 
 private fun startInputSession(
     textInputService: TextInputService,
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     value: TextFieldValue,
     imeOptions: ImeOptions,
     offsetMapping: OffsetMapping
@@ -1025,7 +1025,7 @@ private fun startInputSession(
     notifyFocusedRect(state, value, offsetMapping)
 }
 
-private fun endInputSession(state: TextFieldState) {
+private fun endInputSession(state: LegacyTextFieldState) {
     state.inputSession?.let { session ->
         TextFieldDelegate.onBlur(session, state.processor, state.onValueChange)
     }
@@ -1168,7 +1168,7 @@ internal expect fun CursorHandle(
 // TODO(b/262648050) Try to find a better API.
 @OptIn(InternalFoundationTextApi::class)
 private fun notifyFocusedRect(
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     value: TextFieldValue,
     offsetMapping: OffsetMapping
 ) {

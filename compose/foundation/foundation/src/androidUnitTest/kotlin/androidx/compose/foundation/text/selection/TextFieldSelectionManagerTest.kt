@@ -18,8 +18,8 @@ package androidx.compose.foundation.text.selection
 
 import androidx.compose.foundation.text.HandleState
 import androidx.compose.foundation.text.InternalFoundationTextApi
+import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDelegate
-import androidx.compose.foundation.text.TextFieldState
 import androidx.compose.foundation.text.TextLayoutResultProxy
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.geometry.Offset
@@ -71,7 +71,7 @@ class TextFieldSelectionManagerTest {
     private var value = TextFieldValue(text)
     private val lambda: (TextFieldValue) -> Unit = { value = it }
     private val spyLambda = spy(lambda)
-    private lateinit var state: TextFieldState
+    private lateinit var state: LegacyTextFieldState
 
     private val dragBeginPosition = Offset.Zero
     private val dragDistance = Offset(300f, 15f)
@@ -141,7 +141,7 @@ class TextFieldSelectionManagerTest {
             on { this.text }.thenReturn(textAnnotatedString)
         }
 
-        state = TextFieldState(
+        state = LegacyTextFieldState(
             textDelegate = textDelegate,
             recomposeScope = mock(),
             keyboardController = null

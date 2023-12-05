@@ -20,8 +20,8 @@ import androidx.compose.foundation.text.DefaultCursorThickness
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.HandleState
 import androidx.compose.foundation.text.InternalFoundationTextApi
+import androidx.compose.foundation.text.LegacyTextFieldState
 import androidx.compose.foundation.text.TextDragObserver
-import androidx.compose.foundation.text.TextFieldState
 import androidx.compose.foundation.text.UndoManager
 import androidx.compose.foundation.text.ValidatingEmptyOffsetMappingIdentity
 import androidx.compose.foundation.text.detectDownAndDragGesturesWithObserver
@@ -76,9 +76,9 @@ internal class TextFieldSelectionManager(
     internal var onValueChange: (TextFieldValue) -> Unit = {}
 
     /**
-     * The current [TextFieldState].
+     * The current [LegacyTextFieldState].
      */
-    internal var state: TextFieldState? = null
+    internal var state: LegacyTextFieldState? = null
 
     /**
      * The current [TextFieldValue]. This contains the original text, not the transformed text.
@@ -87,7 +87,7 @@ internal class TextFieldSelectionManager(
     internal var value: TextFieldValue by mutableStateOf(TextFieldValue())
 
     /**
-     * The current transformed text from the [TextFieldState].
+     * The current transformed text from the [LegacyTextFieldState].
      * The original text can be found in [value].
      */
     @OptIn(InternalFoundationTextApi::class)
@@ -678,10 +678,10 @@ internal class TextFieldSelectionManager(
     }
 
     /**
-     * Update the [TextFieldState.showFloatingToolbar] state and show/hide the toolbar.
+     * Update the [LegacyTextFieldState.showFloatingToolbar] state and show/hide the toolbar.
      *
      * You may want to call [showSelectionToolbar] and [hideSelectionToolbar] directly without
-     * updating the [TextFieldState.showFloatingToolbar] if you are simply hiding all touch
+     * updating the [LegacyTextFieldState.showFloatingToolbar] if you are simply hiding all touch
      * selection behaviors (toolbar, handles, cursor, magnifier), but want the toolbar to come
      * back when you un-hide all those behaviors.
      */

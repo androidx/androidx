@@ -48,7 +48,7 @@ internal expect val KeyEvent.isTypedEvent: Boolean
  * using utility class [TextFieldPreparedSelection]
  */
 internal class TextFieldKeyInput(
-    val state: TextFieldState,
+    val state: LegacyTextFieldState,
     val selectionManager: TextFieldSelectionManager,
     val value: TextFieldValue = TextFieldValue(),
     val editable: Boolean = true,
@@ -233,7 +233,7 @@ internal class TextFieldKeyInput(
 }
 
 internal fun Modifier.textFieldKeyInput(
-    state: TextFieldState,
+    state: LegacyTextFieldState,
     manager: TextFieldSelectionManager,
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit = {},
