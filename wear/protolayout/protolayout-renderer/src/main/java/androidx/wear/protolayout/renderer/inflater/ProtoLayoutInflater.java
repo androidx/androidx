@@ -2294,6 +2294,16 @@ public final class ProtoLayoutInflater {
         // Modifiers cannot be applied to android's Space, so use a plain View if this Spacer has
         // modifiers.
         View view;
+
+        // Init the layout params to 0 in case of linear dimension (so we don't get strange
+        // behaviour before the first data pipeline update).
+        if (spacer.getWidth().hasLinearDimension()) {
+            layoutParams.width = 0;
+        }
+        if (spacer.getHeight().hasLinearDimension()) {
+            layoutParams.height = 0;
+        }
+
         if (spacer.hasModifiers()) {
             view =
                     applyModifiers(
@@ -2311,9 +2321,6 @@ public final class ProtoLayoutInflater {
             parentViewWrapper.maybeAddView(view, layoutParams);
 
             if (spacer.getWidth().hasLinearDimension()) {
-                // Init the layout params' width to 0 (so we don't get strange behaviour before the
-                // first data pipeline update).
-                layoutParams.width = 0;
                 handleProp(
                         spacer.getWidth().getLinearDimension(),
                         width -> {
@@ -2331,9 +2338,6 @@ public final class ProtoLayoutInflater {
             }
 
             if (spacer.getHeight().hasLinearDimension()) {
-                // Init the layout params' width to 0 (so we don't get strange behaviour before the
-                // first data pipeline update).
-                layoutParams.height = 0;
                 handleProp(
                         spacer.getHeight().getLinearDimension(),
                         height -> {
@@ -2356,6 +2360,11 @@ public final class ProtoLayoutInflater {
                 handleProp(
                         spacer.getWidth().getLinearDimension(),
                         width -> {
+                            // Update minimum width first, because LayoutParams could be null.
+                            // This calls requestLayout.
+                            int widthPx = safeDpToPx(width);
+                            view.setMinimumWidth(widthPx);
+
                             // We still need to update layout params in case other dimension is
                             // expand, so 0 could
                             // be miss interpreted.
@@ -2365,9 +2374,7 @@ public final class ProtoLayoutInflater {
                                 return;
                             }
 
-                            lp.width = safeDpToPx(width);
-                            // This calls requestLayout.
-                            view.setMinimumWidth(safeDpToPx(width));
+                            lp.width = widthPx;
                         },
                         posId,
                         pipelineMaker);
@@ -2376,6 +2383,11 @@ public final class ProtoLayoutInflater {
                 handleProp(
                         spacer.getHeight().getLinearDimension(),
                         height -> {
+                            // Update minimum height first, because LayoutParams could be null.
+                            // This calls requestLayout.
+                            int heightPx = safeDpToPx(height);
+                            view.setMinimumHeight(heightPx);
+
                             // We still need to update layout params in case other dimension is
                             // expand, so 0 could be miss interpreted.
                             LayoutParams lp = view.getLayoutParams();
@@ -2384,9 +2396,7 @@ public final class ProtoLayoutInflater {
                                 return;
                             }
 
-                            lp.height = safeDpToPx(height);
-                            // This calls requestLayout.
-                            view.setMinimumHeight(safeDpToPx(height));
+                            lp.height = heightPx;
                         },
                         posId,
                         pipelineMaker);
