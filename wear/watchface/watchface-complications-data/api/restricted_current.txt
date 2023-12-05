@@ -93,6 +93,7 @@ package androidx.wear.watchface.complications.data {
   }
 
   @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public final class DynamicComplicationText implements androidx.wear.watchface.complications.data.ComplicationText {
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public DynamicComplicationText(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString dynamicValue);
     ctor public DynamicComplicationText(androidx.wear.protolayout.expression.DynamicBuilders.DynamicString dynamicValue, CharSequence fallbackValue);
     method public androidx.wear.protolayout.expression.DynamicBuilders.DynamicString getDynamicValue();
     method public CharSequence getFallbackValue();
@@ -352,6 +353,7 @@ package androidx.wear.watchface.complications.data {
   }
 
   public static final class RangedValueComplicationData.Builder {
+    ctor @RequiresApi(android.os.Build.VERSION_CODES.UPSIDE_DOWN_CAKE) public RangedValueComplicationData.Builder(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dynamicValue, float min, float max, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     ctor @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public RangedValueComplicationData.Builder(androidx.wear.protolayout.expression.DynamicBuilders.DynamicFloat dynamicValue, float fallbackValue, float min, float max, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     ctor public RangedValueComplicationData.Builder(float value, float min, float max, androidx.wear.watchface.complications.data.ComplicationText contentDescription);
     method public androidx.wear.watchface.complications.data.RangedValueComplicationData build();
