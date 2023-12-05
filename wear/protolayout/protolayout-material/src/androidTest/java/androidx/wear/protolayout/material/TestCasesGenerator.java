@@ -53,6 +53,7 @@ public class TestCasesGenerator {
      * as it should point on the same size independent image.
      */
     @NonNull
+    @SuppressWarnings("deprecation")
     static Map<String, LayoutElement> generateTestCases(
             @NonNull Context context,
             @NonNull DeviceParametersBuilders.DeviceParameters deviceParameters,

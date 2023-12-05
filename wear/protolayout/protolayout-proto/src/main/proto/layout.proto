@@ -151,6 +151,7 @@ enum TextOverflow {
 
   // Truncate the text to fit in the Text element's bounds, but add an ellipsis
   // (i.e. ...) to the end of the text if it has been truncated.
+  // @deprecated Use TEXT_OVERFLOW_ELLIPSIZE instead.
   TEXT_OVERFLOW_ELLIPSIZE_END = 2;
 
   // Enable marquee animation for texts that don't fit inside the Text element.
