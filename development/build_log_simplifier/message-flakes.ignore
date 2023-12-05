@@ -42,11 +42,6 @@ See the profiling report at\: file\:\/\/\$OUT_DIR\/buildSrc\/build\/reports\/pro
 [0-9]+ problems were found reusing the configuration cache\.
 [0-9]+ problem was found reusing the configuration cache\.
 Configuration cache entry reused with [0-9]+ problem\.
-# > Task :webkit:integration-tests:testapp:compileReleaseJavaWithJavac
-\[ant\:jacocoReport\] Note\: Some input files use or override a deprecated API\.
-\[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:deprecation for details\.
-\[ant\:jacocoReport\] Note\: Some input files use unchecked or unsafe operations\.
-\[ant\:jacocoReport\] Note\: Recompile with \-Xlint\:unchecked for details\.
 # b/179833331 , https://youtrack.jetbrains.com/issue/KT-35156
 # b/181258249 , https://youtrack.jetbrains.com/issue/KT-43881
 \.\.\. [0-9]+ more

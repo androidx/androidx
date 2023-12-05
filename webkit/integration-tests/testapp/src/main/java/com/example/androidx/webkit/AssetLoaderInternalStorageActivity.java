@@ -54,6 +54,7 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
             mAssetLoader = assetLoader;
         }
 
+        /** @noinspection RedundantSuppression*/
         @Override
         @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
         public boolean shouldOverrideUrlLoading(WebView view, String url) {
@@ -67,6 +68,7 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
             return mAssetLoader.shouldInterceptRequest(Api21Impl.getUrl(request));
         }
 
+        /** @noinspection RedundantSuppression*/
         @Override
         @SuppressWarnings("deprecation") // use the old one for compatibility with all API levels.
         public WebResourceResponse shouldInterceptRequest(WebView view, String url) {
@@ -75,7 +77,6 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
     }
 
     @Override
-    @SuppressWarnings("deprecation") /* AsyncTask */
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -96,6 +97,11 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
         webView.setWebViewClient(new MyWebViewClient(assetLoader));
 
         // Write the demo file asynchronously and then load the file after it's written.
+        writeFileInBackgroundAndShowInWebView(webView);
+    }
+
+    @SuppressWarnings("deprecation") /* b/180503860 */
+    private void writeFileInBackgroundAndShowInWebView(WebView webView) {
         new WriteFileTask(webView, mDemoFile, DEMO_HTML_CONTENT).execute();
     }
 
@@ -108,6 +114,7 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
     }
 
     // Writes to file asynchronously in the background thread.
+    @SuppressWarnings("deprecation") /* b/180503860 */
     private static class WriteFileTask extends android.os.AsyncTask<Void, Void, Void> {
         @NonNull private final WebView mWebView;
         @NonNull private final File mFile;
