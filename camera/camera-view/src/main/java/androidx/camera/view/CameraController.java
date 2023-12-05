@@ -836,7 +836,7 @@ public abstract class CameraController {
      *
      * <p>The saved image is cropped to match the aspect ratio of the {@link PreviewView}. To
      * take a picture with the maximum available resolution, make sure that the
-     * {@link PreviewView}'s aspect ratio is 4:3.
+     * {@link PreviewView}'s aspect ratio matches the max JPEG resolution supported by the camera.
      *
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
