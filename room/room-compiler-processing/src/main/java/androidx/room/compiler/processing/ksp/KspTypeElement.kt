@@ -251,6 +251,12 @@ internal sealed class KspTypeElement(
         return !isInterface() && !declaration.isOpen()
     }
 
+    override fun isRecordClass(): Boolean {
+        // Need to also check super type since @JvmRecord is @Retention(SOURCE)
+        return hasAnnotation(JvmRecord::class) ||
+            superClass?.isTypeOf(java.lang.Record::class) == true
+    }
+
     override fun getDeclaredFields(): List<XFieldElement> {
         return _declaredFields
     }
