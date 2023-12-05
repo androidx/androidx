@@ -22,6 +22,7 @@ import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
 import androidx.compose.foundation.layout.Arrangement.Absolute.spacedBy
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
+import androidx.compose.foundation.lazy.layout.ObservableScopeInvalidator
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.Placeable
@@ -56,6 +57,7 @@ internal fun LazyLayoutMeasureScope.measurePager(
     beyondBoundsPageCount: Int,
     pinnedPages: List<Int>,
     snapPosition: SnapPosition,
+    placementScopeInvalidator: ObservableScopeInvalidator,
     layout: (Int, Int, Placeable.PlacementScope.() -> Unit) -> MeasureResult
 ): PagerMeasureResult {
     require(beforeContentPadding >= 0) { "negative beforeContentPadding" }
@@ -86,7 +88,8 @@ internal fun LazyLayoutMeasureScope.measurePager(
             canScrollForward = false,
             currentPage = null,
             currentPageOffsetFraction = 0.0f,
-            snapPosition = snapPosition
+            snapPosition = snapPosition,
+            remeasureNeeded = false
         )
     } else {
 
@@ -185,10 +188,24 @@ internal fun LazyLayoutMeasureScope.measurePager(
         val maxMainAxis = (maxOffset + afterContentPadding).coerceAtLeast(0)
         var currentMainAxisOffset = -currentFirstPageScrollOffset
 
+        // will be set to true if we composed some items only to know their size and apply scroll,
+        // while in the end this item will not end up in the visible viewport. we will need an
+        // extra remeasure in order to dispose such items.
+        var remeasureNeeded = false
+
         // first we need to skip pages we already composed while composing backward
-        visiblePages.fastForEach {
-            index++
-            currentMainAxisOffset += pageSizeWithSpacing
+        var indexInVisibleItems = 0
+
+        while (indexInVisibleItems < visiblePages.size) {
+            if (currentMainAxisOffset >= maxMainAxis) {
+                // this item is out of the bounds and will not be visible.
+                visiblePages.removeAt(indexInVisibleItems)
+                remeasureNeeded = true
+            } else {
+                index++
+                currentMainAxisOffset += pageSizeWithSpacing
+                indexInVisibleItems++
+            }
         }
 
         debugLog { "Composing Forward Starting at Index=$index" }
@@ -223,9 +240,10 @@ internal fun LazyLayoutMeasureScope.measurePager(
             }
 
             if (currentMainAxisOffset <= minOffset && index != pageCount - 1) {
-                // this page is offscreen and will not be placed. advance firstVisiblePage
+                // this page is offscreen and will not be visible. advance currentFirstPage
                 currentFirstPage = index + 1
                 currentFirstPageScrollOffset -= pageSizeWithSpacing
+                remeasureNeeded = true
             } else {
                 maxCrossAxis = maxOf(maxCrossAxis, measuredPage.crossAxisSize)
                 visiblePages.add(measuredPage)
@@ -424,6 +442,8 @@ internal fun LazyLayoutMeasureScope.measurePager(
                 positionedPages.fastForEach {
                     it.place(this)
                 }
+                // we attach it during the placement so PagerState can trigger re-placement
+                placementScopeInvalidator.attachToScope()
             },
             viewportStartOffset = -beforeContentPadding,
             viewportEndOffset = maxOffset + afterContentPadding,
@@ -437,7 +457,8 @@ internal fun LazyLayoutMeasureScope.measurePager(
             canScrollForward = index < pageCount || currentMainAxisOffset > maxOffset,
             currentPage = newCurrentPage,
             currentPageOffsetFraction = currentPageOffsetFraction,
-            snapPosition = snapPosition
+            snapPosition = snapPosition,
+            remeasureNeeded = remeasureNeeded
         )
     }
 }

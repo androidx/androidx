@@ -18,6 +18,7 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
 import androidx.compose.foundation.layout.Box
@@ -41,7 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastMaxBy
 import androidx.test.filters.LargeTest
 import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import kotlin.math.abs
+import kotlin.math.roundToInt
 import kotlin.test.assertFalse
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -534,6 +537,105 @@ class PagerStateNonGestureScrollingTest(val config: ParamConfig) : BasePagerTest
             Truth.assertThat(pagerState.firstVisiblePage).isNotEqualTo(0)
             Truth.assertThat(pagerState.currentPage)
                 .isEqualTo(pagerState.layoutInfo.visiblePagesInfo.last().index)
+        }
+    }
+
+    @Test
+    fun canScrollForwardAndBackward_afterSmallScrollFromStart() {
+        val pageSizePx = 100
+        val pageSizeDp = with(rule.density) { pageSizePx.toDp() }
+        createPager(
+            modifier = Modifier.size(pageSizeDp * 1.5f),
+            pageSize = { PageSize.Fixed(pageSizeDp) })
+
+        val delta = (pageSizePx / 3f).roundToInt()
+
+        runBlocking {
+            withContext(Dispatchers.Main + AutoTestFrameClock()) {
+                // small enough scroll to not cause any new items to be composed or old ones disposed.
+                pagerState.scrollBy(delta.toFloat())
+            }
+            rule.runOnIdle {
+                assertThat(pagerState.firstVisiblePageOffset).isEqualTo(delta)
+                assertThat(pagerState.canScrollForward).isTrue()
+                assertThat(pagerState.canScrollBackward).isTrue()
+            }
+            // and scroll back to start
+            withContext(Dispatchers.Main + AutoTestFrameClock()) {
+                pagerState.scrollBy(-delta.toFloat())
+            }
+            rule.runOnIdle {
+                assertThat(pagerState.canScrollForward).isTrue()
+                assertThat(pagerState.canScrollBackward).isFalse()
+            }
+        }
+    }
+
+    @Test
+    fun canScrollForwardAndBackward_afterSmallScrollFromEnd() {
+        val pageSizePx = 100
+        val pageSizeDp = with(rule.density) { pageSizePx.toDp() }
+        createPager(
+            modifier = Modifier.size(pageSizeDp * 1.5f),
+            pageSize = { PageSize.Fixed(pageSizeDp) })
+        val delta = -(pageSizePx / 3f).roundToInt()
+        runBlocking {
+            withContext(Dispatchers.Main + AutoTestFrameClock()) {
+                // scroll to the end of the list.
+                pagerState.scrollToPage(DefaultPageCount)
+                // small enough scroll to not cause any new items to be composed or old ones disposed.
+                pagerState.scrollBy(delta.toFloat())
+            }
+            rule.runOnIdle {
+                assertThat(pagerState.canScrollForward).isTrue()
+                assertThat(pagerState.canScrollBackward).isTrue()
+            }
+            // and scroll back to the end
+            withContext(Dispatchers.Main + AutoTestFrameClock()) {
+                pagerState.scrollBy(-delta.toFloat())
+            }
+            rule.runOnIdle {
+                assertThat(pagerState.canScrollForward).isFalse()
+                assertThat(pagerState.canScrollBackward).isTrue()
+            }
+        }
+    }
+
+    @Test
+    fun canScrollForwardAndBackward_afterSmallScrollFromEnd_withContentPadding() {
+        val pageSizePx = 100
+        val pageSizeDp = with(rule.density) { pageSizePx.toDp() }
+        val afterContentPaddingDp = with(rule.density) { 2.toDp() }
+        createPager(
+            modifier = Modifier.size(pageSizeDp * 1.5f),
+            pageSize = { PageSize.Fixed(pageSizeDp) },
+            contentPadding = PaddingValues(afterContent = afterContentPaddingDp)
+        )
+
+        val delta = -(pageSizePx / 3f).roundToInt()
+        runBlocking {
+            withContext(Dispatchers.Main + AutoTestFrameClock()) {
+                // scroll to the end of the list.
+                pagerState.scrollToPage(DefaultPageCount)
+
+                assertThat(pagerState.canScrollForward).isFalse()
+                assertThat(pagerState.canScrollBackward).isTrue()
+
+                // small enough scroll to not cause any new pages to be composed or old ones disposed.
+                pagerState.scrollBy(delta.toFloat())
+            }
+            rule.runOnIdle {
+                assertThat(pagerState.canScrollForward).isTrue()
+                assertThat(pagerState.canScrollBackward).isTrue()
+            }
+            // and scroll back to the end
+            withContext(Dispatchers.Main + AutoTestFrameClock()) {
+                pagerState.scrollBy(-delta.toFloat())
+            }
+            rule.runOnIdle {
+                assertThat(pagerState.canScrollForward).isFalse()
+                assertThat(pagerState.canScrollBackward).isTrue()
+            }
         }
     }
 

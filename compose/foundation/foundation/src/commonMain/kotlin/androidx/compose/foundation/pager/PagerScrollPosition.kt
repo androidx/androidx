@@ -106,6 +106,10 @@ internal class PagerScrollPosition(
         currentPageOffsetFraction = offsetFraction
     }
 
+    fun updateCurrentPageOffsetFraction(offsetFraction: Float) {
+        currentPageOffsetFraction = offsetFraction
+    }
+
     fun currentAbsoluteScrollOffset(): Int {
         return ((currentPage +
             currentPageOffsetFraction) * state.pageSizeWithSpacing).roundToInt()
@@ -119,7 +123,6 @@ internal class PagerScrollPosition(
             delta / state.pageSizeWithSpacing.toFloat()
         }
         currentPageOffsetFraction += fractionUpdate
-        state.remeasureTrigger = Unit // trigger remeasure
     }
 }
 
