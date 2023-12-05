@@ -17,6 +17,7 @@
 package androidx.compose.foundation.lazy.grid
 
 import androidx.collection.mutableScatterMapOf
+import androidx.collection.mutableScatterSetOf
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimation
 import androidx.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
@@ -43,7 +44,7 @@ internal class LazyGridItemPlacementAnimator {
     private var firstVisibleIndex = 0
 
     // stored to not allocate it every pass.
-    private val movingAwayKeys = LinkedHashSet<Any>()
+    private val movingAwayKeys = mutableScatterSetOf<Any>()
     private val movingInFromStartBound = mutableListOf<LazyGridMeasuredItem>()
     private val movingInFromEndBound = mutableListOf<LazyGridMeasuredItem>()
     private val movingAwayToStartBound = mutableListOf<LazyGridMeasuredItem>()
