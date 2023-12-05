@@ -23,4 +23,4 @@ internal inline fun logi(tag: String, t: Throwable, block: () -> String) =
 
 internal inline fun loge(tag: String, block: () -> String) = Logger.get().error(tag, block())
 internal inline fun loge(tag: String, t: Throwable, block: () -> String) =
-    Logger.get().info(tag, block(), t)
+    Logger.get().error(tag, block(), t)
