@@ -23,9 +23,11 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.lazy.staggeredgrid.LazyHorizontalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridState
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
@@ -219,7 +221,7 @@ private val Horizontal = LazyStaggeredGridScrollingTestCase(
     LazyHorizontalStaggeredGrid(
         rows = StaggeredGridCells.Fixed(2),
         state = state,
-        modifier = Modifier.requiredHeight(400.dp).fillMaxWidth(),
+        modifier = Modifier.requiredWidth(400.dp).fillMaxHeight(),
         flingBehavior = NoFlingBehavior
     ) {
         items(2) {
