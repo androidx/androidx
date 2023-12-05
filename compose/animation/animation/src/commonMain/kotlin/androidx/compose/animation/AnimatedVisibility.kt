@@ -784,7 +784,7 @@ internal fun <T> AnimatedEnterExitImpl(
     content: @Composable() AnimatedVisibilityScope.() -> Unit
 ) {
     if (visible(transition.targetState) || visible(transition.currentState) ||
-        transition.isSeeking
+        transition.isSeeking || transition.hasInitialValueAnimations
     ) {
         val childTransition = transition.createChildTransition(label = "EnterExitTransition") {
             transition.targetEnterExit(visible, it)
