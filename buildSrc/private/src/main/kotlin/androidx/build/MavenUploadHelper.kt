@@ -510,7 +510,10 @@ fun insertDefaultMultiplatformDependencies(xml: XmlProvider, platformId: String)
         appendElement("groupId", groupId)
         appendElement("artifactId", "$artifactId-$platformId")
         appendElement("version", version)
-        appendElement("scope", "runtime")
+        if (platformId == PlatformIdentifier.ANDROID.id) {
+            appendElement("type", "aar")
+        }
+        appendElement("scope", "compile")
     }
 }
 
