@@ -58,7 +58,7 @@ class CollectWindowSizeAsStateTest {
             testConfiguration.screenWidthDp = mockWindowSize.value.width
             testConfiguration.screenHeightDp = mockWindowSize.value.height
             CompositionLocalProvider(LocalConfiguration provides testConfiguration) {
-                actualWindowSize = collectWindowSizeAsState().value
+                actualWindowSize = currentWindowSize()
             }
         }
 
