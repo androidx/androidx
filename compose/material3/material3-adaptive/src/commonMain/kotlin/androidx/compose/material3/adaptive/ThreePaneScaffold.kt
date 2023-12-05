@@ -691,7 +691,7 @@ private fun Modifier.clipToBounds(adaptedValue: PaneAdaptedValue): Modifier =
 @Composable
 fun ThreePaneScaffoldScope.AnimatedPane(
     modifier: Modifier,
-    content: (@Composable ThreePaneScaffoldScope.(PaneAdaptedValue) -> Unit),
+    content: (@Composable ThreePaneScaffoldScope.() -> Unit),
 ) {
     AnimatedVisibility(
         visible = paneAdaptedValue == PaneAdaptedValue.Expanded,
@@ -717,7 +717,7 @@ fun ThreePaneScaffoldScope.AnimatedPane(
         exit = exitTransition,
         label = "AnimatedVisibility: $animationToolingLabel"
     ) {
-        content.invoke(this@AnimatedPane, paneAdaptedValue)
+        content()
     }
 }
 
