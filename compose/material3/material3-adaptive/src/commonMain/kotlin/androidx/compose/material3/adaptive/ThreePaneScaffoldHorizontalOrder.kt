@@ -32,9 +32,9 @@ import androidx.compose.ui.unit.LayoutDirection
 @ExperimentalMaterial3AdaptiveApi
 @Immutable
 internal class ThreePaneScaffoldHorizontalOrder(
-    val firstPane: ThreePaneScaffoldRole,
-    val secondPane: ThreePaneScaffoldRole,
-    val thirdPane: ThreePaneScaffoldRole
+    val firstPane: ThreePaneScaffoldRoleInternal,
+    val secondPane: ThreePaneScaffoldRoleInternal,
+    val thirdPane: ThreePaneScaffoldRoleInternal
 ) {
     init {
         require(firstPane != secondPane && secondPane != thirdPane && firstPane != thirdPane) {
@@ -80,7 +80,7 @@ internal fun ThreePaneScaffoldHorizontalOrder.toLtrOrder(
 
 @ExperimentalMaterial3AdaptiveApi
 internal inline fun ThreePaneScaffoldHorizontalOrder.forEach(
-    action: (ThreePaneScaffoldRole) -> Unit
+    action: (ThreePaneScaffoldRoleInternal) -> Unit
 ) {
     action(firstPane)
     action(secondPane)
@@ -89,7 +89,7 @@ internal inline fun ThreePaneScaffoldHorizontalOrder.forEach(
 
 @ExperimentalMaterial3AdaptiveApi
 internal inline fun ThreePaneScaffoldHorizontalOrder.forEachIndexed(
-    action: (Int, ThreePaneScaffoldRole) -> Unit
+    action: (Int, ThreePaneScaffoldRoleInternal) -> Unit
 ) {
     action(0, firstPane)
     action(1, secondPane)
@@ -97,7 +97,7 @@ internal inline fun ThreePaneScaffoldHorizontalOrder.forEachIndexed(
 }
 
 @ExperimentalMaterial3AdaptiveApi
-internal fun ThreePaneScaffoldHorizontalOrder.indexOf(role: ThreePaneScaffoldRole): Int {
+internal fun ThreePaneScaffoldHorizontalOrder.indexOf(role: ThreePaneScaffoldRoleInternal): Int {
     forEachIndexed { i, r ->
         if (r == role) {
             return i
@@ -111,7 +111,7 @@ internal fun ThreePaneScaffoldHorizontalOrder.indexOf(role: ThreePaneScaffoldRol
  * The set of the available pane roles of [ThreePaneScaffold].
  */
 @ExperimentalMaterial3AdaptiveApi
-enum class ThreePaneScaffoldRole {
+internal enum class ThreePaneScaffoldRoleInternal {
     /**
      * The primary pane of [ThreePaneScaffold]. It is supposed to have the highest priority during
      * layout adaptation and usually contains the most important content of the screen, like content
@@ -133,3 +133,15 @@ enum class ThreePaneScaffoldRole {
      */
     Tertiary
 }
+
+/**
+ * The base class to represent the set of the available pane roles of a specific three pane scaffold
+ * implementation.
+ *
+ * @see [ListDetailPaneScaffoldRole]
+ * @see [SupportingPaneScaffoldRole]
+ */
+@ExperimentalMaterial3AdaptiveApi
+abstract class ThreePaneScaffoldRole internal constructor(
+    internal val internalRole: ThreePaneScaffoldRoleInternal
+)
