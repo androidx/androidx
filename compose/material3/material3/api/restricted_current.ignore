@@ -1,17 +1,7 @@
 // Baseline format: 1.0
-BecameUnchecked: androidx.compose.material3.TabIndicatorScope:
-    Removed class androidx.compose.material3.TabIndicatorScope from compatibility checked API surface
-BecameUnchecked: androidx.compose.material3.TabIndicatorScope#tabIndicatorLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.MeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? super java.util.List<androidx.compose.material3.TabPosition>,? extends androidx.compose.ui.layout.MeasureResult>):
-    Removed method androidx.compose.material3.TabIndicatorScope.tabIndicatorLayout(androidx.compose.ui.Modifier,kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.MeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? super java.util.List<androidx.compose.material3.TabPosition>,? extends androidx.compose.ui.layout.MeasureResult>) from compatibility checked API surface
-BecameUnchecked: androidx.compose.material3.TabIndicatorScope#tabIndicatorLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.MeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? super java.util.List<androidx.compose.material3.TabPosition>,? extends androidx.compose.ui.layout.MeasureResult>) parameter #0:
-    Removed parameter arg1 in androidx.compose.material3.TabIndicatorScope.tabIndicatorLayout(androidx.compose.ui.Modifier arg1, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.MeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? super java.util.List<androidx.compose.material3.TabPosition>,? extends androidx.compose.ui.layout.MeasureResult> measure) from compatibility checked API surface
-BecameUnchecked: androidx.compose.material3.TabIndicatorScope#tabIndicatorLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.MeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? super java.util.List<androidx.compose.material3.TabPosition>,? extends androidx.compose.ui.layout.MeasureResult>) parameter #1:
-    Removed parameter measure in androidx.compose.material3.TabIndicatorScope.tabIndicatorLayout(androidx.compose.ui.Modifier arg1, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.MeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? super java.util.List<androidx.compose.material3.TabPosition>,? extends androidx.compose.ui.layout.MeasureResult> measure) from compatibility checked API surface
-BecameUnchecked: androidx.compose.material3.TabIndicatorScope#tabIndicatorOffset(androidx.compose.ui.Modifier, int, boolean):
-    Removed method androidx.compose.material3.TabIndicatorScope.tabIndicatorOffset(androidx.compose.ui.Modifier,int,boolean) from compatibility checked API surface
-BecameUnchecked: androidx.compose.material3.TabIndicatorScope#tabIndicatorOffset(androidx.compose.ui.Modifier, int, boolean) parameter #0:
-    Removed parameter arg1 in androidx.compose.material3.TabIndicatorScope.tabIndicatorOffset(androidx.compose.ui.Modifier arg1, int selectedTabIndex, boolean matchContentSize) from compatibility checked API surface
-BecameUnchecked: androidx.compose.material3.TabIndicatorScope#tabIndicatorOffset(androidx.compose.ui.Modifier, int, boolean) parameter #1:
-    Removed parameter selectedTabIndex in androidx.compose.material3.TabIndicatorScope.tabIndicatorOffset(androidx.compose.ui.Modifier arg1, int selectedTabIndex, boolean matchContentSize) from compatibility checked API surface
-BecameUnchecked: androidx.compose.material3.TabIndicatorScope#tabIndicatorOffset(androidx.compose.ui.Modifier, int, boolean) parameter #2:
-    Removed parameter matchContentSize in androidx.compose.material3.TabIndicatorScope.tabIndicatorOffset(androidx.compose.ui.Modifier arg1, int selectedTabIndex, boolean matchContentSize) from compatibility checked API surface
+AddedMethod: androidx.compose.material3.SuggestionChipDefaults#suggestionChipColors():
+    Added method androidx.compose.material3.SuggestionChipDefaults.suggestionChipColors()
+
+
+RemovedMethod: androidx.compose.material3.SuggestionChipDefaults#suggestionChipColor():
+    Removed method androidx.compose.material3.SuggestionChipDefaults.suggestionChipColor()

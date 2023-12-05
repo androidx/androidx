@@ -404,6 +404,8 @@ class ColorScheme(
             "surfaceContainerLowest=$surfaceContainerLowest" +
             ")"
     }
+
+    internal var defaultSuggestionChipColorsCached: ChipColors? = null
 }
 
 /**

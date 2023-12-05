@@ -24,6 +24,7 @@ import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.LayeredComposeTestCase
@@ -34,21 +35,27 @@ import androidx.compose.testutils.benchmark.benchmarkFirstLayout
 import androidx.compose.testutils.benchmark.benchmarkFirstMeasure
 import androidx.compose.testutils.benchmark.benchmarkToFirstPixel
 import androidx.compose.ui.Modifier
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
-class ChipBenchmark {
+@RunWith(Parameterized::class)
+class ChipBenchmark(private val type: ChipType) {
+
+    companion object {
+        @Parameterized.Parameters(name = "{0}")
+        @JvmStatic
+        fun parameters() = ChipType.values()
+    }
 
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
-    private val chipTestCaseFactory = { ChipTestCase() }
+    private val chipTestCaseFactory = { ChipTestCase(type) }
 
     @Ignore
     @Test
@@ -80,22 +87,39 @@ class ChipBenchmark {
     }
 }
 
-internal class ChipTestCase : LayeredComposeTestCase() {
+internal class ChipTestCase(
+    private val type: ChipType
+) : LayeredComposeTestCase() {
 
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun MeasuredContent() {
-        AssistChip(
-            onClick = { /* Do something! */ },
-            label = { Text("Assist Chip") },
-            leadingIcon = {
-                Icon(
-                    Icons.Filled.Settings,
-                    contentDescription = "Localized description",
-                    Modifier.size(AssistChipDefaults.IconSize)
+        when (type) {
+            ChipType.Assist ->
+                AssistChip(
+                    onClick = { /* Do something! */ },
+                    label = { Text("Assist Chip") },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Filled.Settings,
+                            contentDescription = "Localized description",
+                            Modifier.size(AssistChipDefaults.IconSize)
+                        )
+                    }
                 )
-            }
-        )
+            ChipType.Suggestion ->
+                SuggestionChip(
+                    onClick = { /* Do something! */ },
+                    label = { Text("Suggestion Chip") },
+                    icon = {
+                        Icon(
+                            Icons.Filled.Settings,
+                            contentDescription = "Localized description",
+                            Modifier.size(AssistChipDefaults.IconSize)
+                        )
+                    }
+                )
+        }
     }
 
     @Composable
@@ -104,4 +128,8 @@ internal class ChipTestCase : LayeredComposeTestCase() {
             content()
         }
     }
+}
+
+enum class ChipType {
+    Assist, Suggestion
 }
