@@ -563,6 +563,10 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             project,
             kotlinMultiplatformAndroidComponentsExtension
         )
+        kotlinMultiplatformAndroidTarget.configureAndroidLibraryOptions(
+            project,
+            androidXExtension
+        )
 
         project.configureProjectForApiTasks(
             AndroidMultiplatformApiTaskConfig,
@@ -977,7 +981,41 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         project.extensions.findByType<LibraryAndroidComponentsExtension>()!!.finalizeDsl {
             it.defaultConfig.aarMetadata.minCompileSdk = it.compileSdk
         }
+        project.fixGuavaDeps()
+        project.disableStrictVersionConstraints()
+        project.setPublishProperty(androidXExtension)
+        project.afterEvaluate {
+            setBenchmarkAdbOptions(project)
+        }
+    }
 
+    private fun KotlinMultiplatformAndroidTarget.configureAndroidLibraryOptions(
+        project: Project,
+        androidXExtension: AndroidXExtension
+    ) {
+        // Propagate the compileSdk value into minCompileSdk.
+        aarMetadata.minCompileSdk = compileSdk
+        project.fixGuavaDeps()
+        project.disableStrictVersionConstraints()
+        project.setPublishProperty(androidXExtension)
+    }
+
+    private fun LibraryExtension.setBenchmarkAdbOptions(project: Project) {
+        if (project.hasBenchmarkPlugin()) {
+            // Inject AOT compilation - see b/287358254 for context, b/288167775 for AGP support
+
+            // NOTE: we assume here that all benchmarks have package name $namespace.test
+            val aotCompile = "cmd package compile -m speed -f $namespace.test"
+
+            // only run aotCompile on N+, where it's supported
+            val inject = "if [ `getprop ro.build.version.sdk` -ge 24 ]; then $aotCompile; fi"
+            val options =
+                "/data/local/tmp/${project.name}-$testBuildType-androidTest.apk && $inject #"
+            adbOptions.setInstallOptions(*options.split(" ").toTypedArray())
+        }
+    }
+
+    private fun Project.fixGuavaDeps() {
         // The full Guava artifact is very large, so they split off a special artifact containing a
         // standalone version of the commonly-used ListenableFuture interface. However, they also
         // structured the artifacts in a way that causes dependency resolution conflicts:
@@ -996,7 +1034,9 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 }
             }
         }
+    }
 
+    private fun Project.disableStrictVersionConstraints() {
         // Gradle inserts strict version constraints to ensure that dependency versions are
         // identical across main and test source sets. For normal projects, this ensures
         // that test bytecode is binary- and behavior-compatible with the main source set's
@@ -1016,22 +1056,12 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
                 }
             }
         }
+    }
 
-        project.afterEvaluate {
+    private fun Project.setPublishProperty(androidXExtension: AndroidXExtension) {
+        afterEvaluate {
             if (androidXExtension.shouldRelease()) {
                 project.extra.set("publish", true)
-            }
-            if (project.hasBenchmarkPlugin()) {
-                // Inject AOT compilation - see b/287358254 for context, b/288167775 for AGP support
-
-                // NOTE: we assume here that all benchmarks have package name $namespace.test
-                val aotCompile = "cmd package compile -m speed -f $namespace.test"
-
-                // only run aotCompile on N+, where it's supported
-                val inject = "if [ `getprop ro.build.version.sdk` -ge 24 ]; then $aotCompile; fi"
-                val options =
-                    "/data/local/tmp/${project.name}-$testBuildType-androidTest.apk && $inject #"
-                adbOptions.setInstallOptions(*options.split(" ").toTypedArray())
             }
         }
     }
