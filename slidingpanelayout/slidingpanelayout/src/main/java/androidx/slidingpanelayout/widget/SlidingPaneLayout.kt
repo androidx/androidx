@@ -541,6 +541,17 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     val isUserResizable: Boolean
         get() = !isSlideable && isUserResizingEnabled && userResizingDividerDrawable != null
 
+    /**
+     * `true` if child views are clipped to [visualDividerPosition].
+     */
+    var isChildClippingToResizeDividerEnabled: Boolean = true
+        set(value) {
+            if (value != field) {
+                field = value
+                invalidate()
+            }
+        }
+
     private var onUserResizingDividerClickListener: OnClickListener? = null
 
     /**
@@ -563,6 +574,10 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 getBoolean(R.styleable.SlidingPaneLayout_isUserResizingEnabled, false)
             userResizingDividerDrawable =
                 getDrawable(R.styleable.SlidingPaneLayout_userResizingDividerDrawable)
+            isChildClippingToResizeDividerEnabled = getBoolean(
+                R.styleable.SlidingPaneLayout_isChildClippingToResizeDividerEnabled,
+                true
+            )
         }
     }
 
@@ -1296,7 +1311,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             }
             canvas.clipRect(tmpRect)
         }
-        if (!isSlideable) {
+        if (!isSlideable && isChildClippingToResizeDividerEnabled) {
             val visualDividerPosition = visualDividerPosition
             if (visualDividerPosition >= 0) {
                 with(tmpRect) {
