@@ -103,7 +103,13 @@ class InvalidationTrackerBenchmark(private val sampleSize: Int, private val mode
         @Parameterized.Parameters(name = "sampleSize={0}, mode={1}")
         fun data(): List<Array<Any>> =
             generateAllEnumerations(
-                listOf(100, 1000, 5000, 10000),
+                listOf(
+                    100,
+                    1000,
+                    5000,
+                    // Removed due to due to slow run times, see b/267544445 for details.
+                    // 10000
+                ),
                 listOf(
                     Mode.MEASURE_INSERT,
                     Mode.MEASURE_DELETE,
