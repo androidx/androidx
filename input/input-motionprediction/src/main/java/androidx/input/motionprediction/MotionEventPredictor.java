@@ -72,11 +72,14 @@ public interface MotionEventPredictor {
     @NonNull
     static MotionEventPredictor newInstance(@NonNull View view) {
         Context context = view.getContext();
+        Configuration configuration = Configuration.getInstance();
         if (Build.VERSION.SDK_INT >= 34
-                && Configuration.getInstance().preferSystemPrediction()) {
-            return SystemMotionEventPredictor.newInstance(context);
+                && configuration.preferSystemPrediction()) {
+            return SystemMotionEventPredictor.newInstance(
+                    context,
+                    configuration.predictionStrategy());
         } else {
-            return new KalmanMotionEventPredictor(context);
+            return new KalmanMotionEventPredictor(context, configuration.predictionStrategy());
         }
     }
 }

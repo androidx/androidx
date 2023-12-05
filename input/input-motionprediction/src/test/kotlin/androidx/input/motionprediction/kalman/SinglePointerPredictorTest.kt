@@ -18,6 +18,7 @@ package androidx.input.motionprediction.kalman
 
 import android.view.MotionEvent
 import androidx.input.motionprediction.MotionEventGenerator
+import androidx.input.motionprediction.common.Configuration
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -125,6 +126,7 @@ class SinglePointerPredictorTest {
 }
 
 private fun constructPredictor(): SinglePointerPredictor = SinglePointerPredictor(
+        Configuration.STRATEGY_BALANCED,
         0,
         MotionEvent.TOOL_TYPE_STYLUS
 )
