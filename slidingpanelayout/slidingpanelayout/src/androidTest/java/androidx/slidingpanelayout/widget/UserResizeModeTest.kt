@@ -122,11 +122,27 @@ class UserResizeModeTest {
             .that((spl[0] as TestPaneView).clipBoundsAtLastDraw)
             .isEqualTo(Rect(0, 0, 35, 100))
         spl.splitDividerPosition = 65
-        spl.measureAndLayoutForTest()
         spl.drawToBitmap()
         assertWithMessage("right child clip")
             .that(((spl[1] as ViewGroup)[0] as TestPaneView).clipBoundsAtLastDraw)
-            .isEqualTo(Rect(0, 0, 35, 100))
+            .isEqualTo(Rect(15, 0, 50, 100))
+    }
+
+    @Test
+    fun disablingDividerClippingDoesNotClipChildren() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        spl.splitDividerPosition = 35
+        spl.isChildClippingToResizeDividerEnabled = false
+        spl.drawToBitmap()
+        assertWithMessage("left child clip")
+            .that((spl[0] as TestPaneView).clipBoundsAtLastDraw)
+            .isEqualTo(Rect(0, 0, 50, 100))
+        spl.splitDividerPosition = 65
+        spl.drawToBitmap()
+        assertWithMessage("right child clip")
+            .that(((spl[1] as ViewGroup)[0] as TestPaneView).clipBoundsAtLastDraw)
+            .isEqualTo(Rect(0, 0, 50, 100))
     }
 
     @Test
