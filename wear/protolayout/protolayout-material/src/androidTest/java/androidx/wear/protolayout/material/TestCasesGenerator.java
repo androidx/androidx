@@ -31,7 +31,6 @@ import androidx.wear.protolayout.DeviceParametersBuilders;
 import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
-import androidx.wear.protolayout.LayoutElementBuilders.Row;
 import androidx.wear.protolayout.ModifiersBuilders.Background;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
@@ -322,31 +321,8 @@ public class TestCasesGenerator {
                         .build());
 
         testCases.put(
-                "default_text_golden" + goldenSuffix, new Text.Builder(context, "Testing").build());
-        testCases.put(
-                "excluded_padding_text_golden" + goldenSuffix,
-                new Row.Builder()
-                        .addContent(
-                                new Box.Builder()
-                                        .setModifiers(buildBackgroundColorModifier(Color.YELLOW))
-                                        .addContent(
-                                                new Text.Builder(context, "Inc padd ")
-                                                        .setExcludeFontPadding(false)
-                                                        .setTypography(
-                                                                Typography.TYPOGRAPHY_CAPTION1)
-                                                        .build())
-                                        .build())
-                        .addContent(
-                                new Box.Builder()
-                                        .setModifiers(buildBackgroundColorModifier(Color.CYAN))
-                                        .addContent(
-                                                new Text.Builder(context, "Excl padd")
-                                                        .setExcludeFontPadding(true)
-                                                        .setTypography(
-                                                                Typography.TYPOGRAPHY_CAPTION1)
-                                                        .build())
-                                        .build())
-                        .build());
+                "default_text_golden" + goldenSuffix,
+                new Text.Builder(context, "Testing").build());
         testCases.put(
                 "custom_text_golden" + goldenSuffix,
                 new Text.Builder(context, "Testing text.")

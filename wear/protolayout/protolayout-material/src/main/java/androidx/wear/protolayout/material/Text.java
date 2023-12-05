@@ -227,21 +227,6 @@ public class Text implements LayoutElement {
             return this;
         }
 
-        /**
-         * Sets whether the {@link Text} excludes extra top and bottom padding above the normal
-         * ascent and descent. The default is true.
-         */
-        @NonNull
-        @ProtoLayoutExperimental
-        @SuppressWarnings("MissingGetterMatchingBuilder")
-        public Builder setExcludeFontPadding(boolean excludeFontPadding) {
-            this.mElementBuilder.setAndroidTextStyle(
-                    new LayoutElementBuilders.AndroidTextStyle.Builder()
-                            .setExcludeFontPadding(excludeFontPadding)
-                            .build());
-            return this;
-        }
-
         /** Constructs and returns {@link Text} with the provided content and look. */
         @NonNull
         @Override
@@ -321,15 +306,6 @@ public class Text implements LayoutElement {
     /** Returns whether the Text is underlined. */
     public boolean isUnderline() {
         return checkNotNull(checkNotNull(mText.getFontStyle()).getUnderline()).getValue();
-    }
-
-    /**
-     * Returns whether the Text has extra top and bottom padding above the normal ascent and descent
-     * excluded.
-     */
-    @ProtoLayoutExperimental
-    public boolean hasExcludeFontPadding() {
-        return checkNotNull(mText.getAndroidTextStyle()).getExcludeFontPadding();
     }
 
     /**

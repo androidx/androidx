@@ -321,7 +321,6 @@ public class Button implements LayoutElement {
                                 new Text.Builder(mContext, checkNotNull(mText))
                                         .setMaxLines(1)
                                         .setTypography(typographyName)
-                                        .setExcludeFontPadding(true)
                                         .setColor(mButtonColors.getContentColor());
 
                         return content.build();

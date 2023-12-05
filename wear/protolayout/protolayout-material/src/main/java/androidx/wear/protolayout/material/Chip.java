@@ -363,7 +363,6 @@ public class Chip implements LayoutElement {
                             .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
                             .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
                             .setIsScalable(mIsScalable)
-                            .setExcludeFontPadding(true)
                             .build();
 
             mCoreBuilder.setPrimaryLabelContent(mainTextElement);
@@ -376,7 +375,6 @@ public class Chip implements LayoutElement {
                                 .setMaxLines(1)
                                 .setOverflow(LayoutElementBuilders.TEXT_OVERFLOW_ELLIPSIZE_END)
                                 .setMultilineAlignment(LayoutElementBuilders.TEXT_ALIGN_START)
-                                .setExcludeFontPadding(true)
                                 .build();
                 mCoreBuilder.setSecondaryLabelContent(labelTextElement);
             }

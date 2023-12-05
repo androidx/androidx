@@ -173,7 +173,6 @@ package androidx.wear.protolayout.material {
     method public int getOverflow();
     method public androidx.wear.protolayout.TypeBuilders.StringProp getText();
     method public int getWeight();
-    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public boolean hasExcludeFontPadding();
     method public boolean isItalic();
     method public boolean isUnderline();
   }
@@ -183,7 +182,6 @@ package androidx.wear.protolayout.material {
     ctor public Text.Builder(android.content.Context, String);
     method public androidx.wear.protolayout.material.Text build();
     method public androidx.wear.protolayout.material.Text.Builder setColor(androidx.wear.protolayout.ColorBuilders.ColorProp);
-    method @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental public androidx.wear.protolayout.material.Text.Builder setExcludeFontPadding(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setItalic(boolean);
     method public androidx.wear.protolayout.material.Text.Builder setMaxLines(@IntRange(from=1) int);
     method public androidx.wear.protolayout.material.Text.Builder setModifiers(androidx.wear.protolayout.ModifiersBuilders.Modifiers);
