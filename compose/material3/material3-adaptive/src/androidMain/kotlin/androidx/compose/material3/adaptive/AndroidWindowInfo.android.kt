@@ -22,7 +22,6 @@ import androidx.compose.material3.windowsizeclass.WindowSizeClass
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -48,39 +47,31 @@ fun currentWindowAdaptiveInfo(): WindowAdaptiveInfo =
     WindowAdaptiveInfo(
         WindowSizeClass.calculateFromSize(
             with(LocalDensity.current) {
-                collectWindowSizeAsState().value.toSize().toDpSize()
+                currentWindowSize().toSize().toDpSize()
             }
         ),
         calculatePosture(collectFoldingFeaturesAsState().value)
     )
 
 /**
- * Collects the current window size from [WindowMetricsCalculator] in to a [State].
+ * Returns and automatically update the current window size from [WindowMetricsCalculator].
  *
- * @return a [State] of [IntSize] that represents the current window size.
+ * @return an [IntSize] that represents the current window size.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Composable
-fun collectWindowSizeAsState(): State<IntSize> {
-    val size = remember {
-        mutableStateOf(IntSize(0, 0))
-    }
-
+fun currentWindowSize(): IntSize {
     // Observe view configuration changes and recalculate the size class on each change. We can't
     // use Activity#onConfigurationChanged as this will sometimes fail to be called on different
     // API levels, hence why this function needs to be @Composable so we can observe the
     // ComposeView's configuration changes.
-    val context = LocalContext.current
-    size.value = remember(context, LocalConfiguration.current) {
-        val windowBounds =
-            WindowMetricsCalculator
-                .getOrCreate()
-                .computeCurrentWindowMetrics(context)
-                .bounds
-        IntSize(windowBounds.width(), windowBounds.height())
-    }
-
-    return size
+    LocalConfiguration.current
+    val windowBounds =
+        WindowMetricsCalculator
+            .getOrCreate()
+            .computeCurrentWindowMetrics(LocalContext.current)
+            .bounds
+   return IntSize(windowBounds.width(), windowBounds.height())
 }
 
 /**
