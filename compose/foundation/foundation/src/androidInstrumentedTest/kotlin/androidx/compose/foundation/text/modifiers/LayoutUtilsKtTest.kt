@@ -89,4 +89,22 @@ class LayoutUtilsKtTest {
         val subject = finalMaxLines(false, TextOverflow.Ellipsis, 4)
         assertThat(subject).isEqualTo(1)
     }
+
+    @Test
+    fun fixedCoercedNeverCrashes() {
+        var a = 0
+        var b = 0
+        while (1 shl a > 0) {
+            val width = 1 shl a
+            while (1 shl b > 0) {
+                val height = 1 shl b
+                /* shouldn't crash */
+                val constraints = Constraints.fixedCoerceHeightAndWidthForBits(width, height)
+                println("$width $height => $constraints")
+                b++
+            }
+            b = 0
+            a++
+        }
+    }
 }
