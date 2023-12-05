@@ -1353,7 +1353,10 @@ internal class LayoutNode(
         subcompositionsState?.onDeactivate()
         isDeactivated = true
         resetModifierState()
-        invalidateSemantics()
+        // if the node is detached the semantics were already updated without this node.
+        if (isAttached) {
+            invalidateSemantics()
+        }
     }
 
     override fun onRelease() {
