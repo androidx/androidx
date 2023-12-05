@@ -52,7 +52,8 @@ class TrivialStartupPerfettoSdkBenchmark(
         try {
             val perfettoSdkTraceSection = TraceSectionMetric(
                 "%TrivialStartupTracingActivity.onCreate%" +
-                    " (TrivialStartupTracingActivity.kt:%)"
+                    " (TrivialStartupTracingActivity.kt:%)",
+                    mode = TraceSectionMetric.Mode.First
             )
             benchmarkRule.measureStartup(
                 compilationMode = compilationMode,
