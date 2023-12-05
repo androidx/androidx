@@ -312,7 +312,7 @@ public class FloatNodeTest {
 
         float lhsValue = 6.6f;
         FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(lhsValue).build();
-        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsIncomingCallback());
+        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsUpstreamCallback());
         lhsNode.init();
 
         float oldRhsValue = 6.5f;
@@ -325,7 +325,7 @@ public class FloatNodeTest {
                                         .build()));
         StateFloatSource rhsProtoNode = StateFloatSource.newBuilder().setSourceKey("foo").build();
         StateFloatSourceNode rhsNode =
-                new StateFloatSourceNode(oss, rhsProtoNode, node.getRhsIncomingCallback());
+                new StateFloatSourceNode(oss, rhsProtoNode, node.getRhsUpstreamCallback());
 
         rhsNode.preInit();
         rhsNode.init();
@@ -359,11 +359,11 @@ public class FloatNodeTest {
 
         float numerator = 0f;
         FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(numerator).build();
-        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsIncomingCallback());
+        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsUpstreamCallback());
 
         float denominator = 0f;
         FixedFloat rhsProtoNode = FixedFloat.newBuilder().setValue(denominator).build();
-        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsIncomingCallback());
+        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsUpstreamCallback());
         lhsNode.preInit();
         rhsNode.preInit();
 
@@ -389,11 +389,11 @@ public class FloatNodeTest {
 
         float numerator = 1f;
         FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(numerator).build();
-        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsIncomingCallback());
+        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsUpstreamCallback());
 
         float denominator = 0;
         FixedFloat rhsProtoNode = FixedFloat.newBuilder().setValue(denominator).build();
-        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsIncomingCallback());
+        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsUpstreamCallback());
         lhsNode.preInit();
         rhsNode.preInit();
 

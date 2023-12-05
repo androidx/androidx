@@ -160,11 +160,11 @@ public class BoolNodesTest {
         new BoolNodes.LogicalBoolOp(protoNode, new AddToListCallback<>(results));
 
     FixedBool lhsProtoNode = FixedBool.newBuilder().setValue(lhs).build();
-    FixedBoolNode lhsNode = new FixedBoolNode(lhsProtoNode, node.getLhsIncomingCallback());
+    FixedBoolNode lhsNode = new FixedBoolNode(lhsProtoNode, node.getLhsUpstreamCallback());
     lhsNode.init();
 
     FixedBool rhsProtoNode = FixedBool.newBuilder().setValue(rhs).build();
-    FixedBoolNode rhsNode = new FixedBoolNode(rhsProtoNode, node.getRhsIncomingCallback());
+    FixedBoolNode rhsNode = new FixedBoolNode(rhsProtoNode, node.getRhsUpstreamCallback());
     rhsNode.init();
 
     return results.get(0);

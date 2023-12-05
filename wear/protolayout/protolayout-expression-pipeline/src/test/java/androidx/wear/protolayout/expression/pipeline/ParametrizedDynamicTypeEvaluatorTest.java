@@ -523,8 +523,8 @@ public class ParametrizedDynamicTypeEvaluatorTest {
 
             if (mExpectedValue != null) {
                 // Test expects an actual value.
-                assertThat(results).hasSize(1);
                 assertThat(results).containsExactly(mExpectedValue);
+                assertThat(invalidatedCalls.get()).isEqualTo(0);
             } else {
                 // Test expects an invalid value.
                 assertThat(results).isEmpty();
