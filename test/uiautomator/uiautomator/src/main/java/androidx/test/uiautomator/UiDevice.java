@@ -1178,7 +1178,6 @@ public class UiDevice implements Searchable {
      */
     @Deprecated
     public void dumpWindowHierarchy(@NonNull String fileName) {
-
         File dumpFile = new File(fileName);
         if (!dumpFile.isAbsolute()) {
             dumpFile = mInstrumentation.getContext().getFileStreamPath(fileName);
@@ -1197,8 +1196,9 @@ public class UiDevice implements Searchable {
      * @throws IOException
      */
     public void dumpWindowHierarchy(@NonNull File dest) throws IOException {
+        Log.d(TAG, String.format("Dumping window hierarchy to %s.", dest));
         try (OutputStream stream = new BufferedOutputStream(new FileOutputStream(dest))) {
-            dumpWindowHierarchy(stream);
+            AccessibilityNodeInfoDumper.dumpWindowHierarchy(this, stream);
         }
     }
 
@@ -1209,6 +1209,7 @@ public class UiDevice implements Searchable {
      * @throws IOException
      */
     public void dumpWindowHierarchy(@NonNull OutputStream out) throws IOException {
+        Log.d(TAG, String.format("Dumping window hierarchy to %s.", out));
         AccessibilityNodeInfoDumper.dumpWindowHierarchy(this, out);
     }
 
