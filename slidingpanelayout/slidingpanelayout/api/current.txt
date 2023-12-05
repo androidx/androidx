@@ -17,6 +17,7 @@ package androidx.slidingpanelayout.widget {
     method @Deprecated @ColorInt public int getSliderFadeColor();
     method public final int getSplitDividerPosition();
     method public final int getVisualDividerPosition();
+    method public final boolean isChildClippingToResizeDividerEnabled();
     method public final boolean isDividerDragging();
     method public boolean isOpen();
     method public final boolean isOverlappingEnabled();
@@ -27,6 +28,7 @@ package androidx.slidingpanelayout.widget {
     method public boolean openPane();
     method public void removePanelSlideListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.PanelSlideListener listener);
     method public void removeSlideableStateListener(androidx.slidingpanelayout.widget.SlidingPaneLayout.SlideableStateListener listener);
+    method public final void setChildClippingToResizeDividerEnabled(boolean);
     method @Deprecated public void setCoveredFadeColor(int);
     method public final void setLockMode(int);
     method public final void setOnUserResizingDividerClickListener(android.view.View.OnClickListener? listener);
@@ -47,6 +49,7 @@ package androidx.slidingpanelayout.widget {
     method @Deprecated public void smoothSlideClosed();
     method @Deprecated public void smoothSlideOpen();
     property @Deprecated @ColorInt public int coveredFadeColor;
+    property public final boolean isChildClippingToResizeDividerEnabled;
     property public final boolean isDividerDragging;
     property public final boolean isOverlappingEnabled;
     property public boolean isSlideable;
