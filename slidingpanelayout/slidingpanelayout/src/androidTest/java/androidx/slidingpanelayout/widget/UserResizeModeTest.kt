@@ -160,6 +160,42 @@ class UserResizeModeTest {
             .that(spl[1].width)
             .isEqualTo(30)
     }
+
+    @Test
+    fun splitDividerPositionDoesNotChangePadding() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        spl.setPadding(4, 0, 10, 0)
+        spl.measureAndLayoutForTest()
+        assertWithMessage("left padding")
+            .that(spl.paddingLeft)
+            .isEqualTo(4)
+        assertWithMessage("right padding")
+            .that(spl.paddingRight)
+            .isEqualTo(10)
+
+        fun testPadding(description: String) {
+            assertWithMessage("left edge of first child $description")
+                .that(spl[0].left)
+                .isEqualTo(4)
+            assertWithMessage("right edge of second child $description")
+                .that(spl[1].right)
+                .isEqualTo(spl.width - 10)
+        }
+
+        testPadding("before divider position change")
+        val firstChildExpectedWidth = spl[0].width
+        val secondChildExpectedWidth = spl[1].width
+        spl.splitDividerPosition = spl.visualDividerPosition
+        spl.measureAndLayoutForTest()
+        assertWithMessage("first child width")
+            .that(spl[0].width)
+            .isEqualTo(firstChildExpectedWidth)
+        assertWithMessage("second child width")
+            .that(spl[1].width)
+            .isEqualTo(secondChildExpectedWidth)
+        testPadding("after divider position change")
+    }
 }
 
 private fun View.drawToBitmap(): Bitmap {

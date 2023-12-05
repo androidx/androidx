@@ -920,8 +920,9 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                             if ((index == 0) xor isLayoutRtl) {
                                 dividerPos - lp.horizontalMargin - paddingLeft
                             } else {
-                                // padding accounted for in widthAvailable
-                                widthAvailable - lp.horizontalMargin - dividerPos
+                                // padding accounted for in widthAvailable;
+                                // dividerPos includes left padding
+                                widthAvailable - lp.horizontalMargin - (dividerPos - paddingLeft)
                             }
                         }
                     }
