@@ -346,7 +346,9 @@ package androidx.fragment.app {
   }
 
   public static interface FragmentManager.OnBackStackChangedListener {
+    method @MainThread public default void onBackStackChangeCancelled();
     method @MainThread public default void onBackStackChangeCommitted(androidx.fragment.app.Fragment, boolean);
+    method @MainThread public default void onBackStackChangeProgressed(androidx.activity.BackEventCompat);
     method @MainThread public default void onBackStackChangeStarted(androidx.fragment.app.Fragment, boolean);
     method @MainThread public void onBackStackChanged();
   }
