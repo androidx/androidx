@@ -62,7 +62,7 @@ fun calculateSupportingPaneScaffoldState(
     calculateThreePaneScaffoldValue(
         scaffoldDirective.maxHorizontalPartitions,
         adaptStrategies,
-        currentPaneDestination.threePaneScaffoldRole
+        currentPaneDestination
     )
 )
 
@@ -94,18 +94,34 @@ object SupportingPaneScaffoldDefaults {
  * The set of the available pane roles of [SupportingPaneScaffold].
  */
 @ExperimentalMaterial3AdaptiveApi
-enum class SupportingPaneScaffoldRole(internal val threePaneScaffoldRole: ThreePaneScaffoldRole) {
-    /**
-     * The main pane of [SupportingPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Primary].
-     */
-    Main(ThreePaneScaffoldRole.Primary),
-    /**
-     * The supporting pane of [SupportingPaneScaffold]. It is mapped to
-     * [ThreePaneScaffoldRole.Secondary].
-     */
-    Supporting(ThreePaneScaffoldRole.Secondary),
-    /**
-     * The extra pane of [SupportingPaneScaffold]. It is mapped to [ThreePaneScaffoldRole.Tertiary].
-     */
-    Extra(ThreePaneScaffoldRole.Tertiary)
+class SupportingPaneScaffoldRole private constructor(
+    internalRole: ThreePaneScaffoldRoleInternal
+) : ThreePaneScaffoldRole(internalRole) {
+    companion object {
+        /**
+         * The main pane of [SupportingPaneScaffold]. It is mapped to
+         * [ThreePaneScaffoldRoleInternal.Primary].
+         */
+        val Main = SupportingPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Primary)
+
+        /**
+         * The supporting pane of [SupportingPaneScaffold]. It is mapped to
+         * [ThreePaneScaffoldRoleInternal.Secondary].
+         */
+        val Supporting = SupportingPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Secondary)
+
+        /**
+         * The extra pane of [SupportingPaneScaffold]. It is mapped to
+         * [ThreePaneScaffoldRoleInternal.Tertiary].
+         */
+        val Extra = SupportingPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Tertiary)
+    }
 }
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+internal fun ThreePaneScaffoldRoleInternal.toSupportingPaneScaffoldRole():
+    SupportingPaneScaffoldRole = when (this) {
+        ThreePaneScaffoldRoleInternal.Primary -> SupportingPaneScaffoldRole.Main
+        ThreePaneScaffoldRoleInternal.Secondary -> SupportingPaneScaffoldRole.Supporting
+        ThreePaneScaffoldRoleInternal.Tertiary -> SupportingPaneScaffoldRole.Extra
+    }
