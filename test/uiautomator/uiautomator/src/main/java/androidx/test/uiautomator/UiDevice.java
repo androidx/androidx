@@ -16,6 +16,7 @@
 
 package androidx.test.uiautomator;
 
+import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
 import android.annotation.SuppressLint;
 import android.app.Instrumentation;
@@ -516,12 +517,12 @@ public class UiDevice implements Searchable {
      * Simulates a short press on the Recent Apps button.
      *
      * @return true if successful, else return false
-     * @throws RemoteException
+     * @throws RemoteException never
      */
     public boolean pressRecentApps() throws RemoteException {
         waitForIdle();
         Log.d(TAG, "Pressing recent apps button.");
-        return getInteractionController().toggleRecentApps();
+        return getUiAutomation().performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS);
     }
 
     /**
@@ -532,7 +533,8 @@ public class UiDevice implements Searchable {
     public boolean openNotification() {
         waitForIdle();
         Log.d(TAG, "Opening notification.");
-        return  getInteractionController().openNotification();
+        return getUiAutomation().performGlobalAction(
+                AccessibilityService.GLOBAL_ACTION_NOTIFICATIONS);
     }
 
     /**
@@ -543,7 +545,8 @@ public class UiDevice implements Searchable {
     public boolean openQuickSettings() {
         waitForIdle();
         Log.d(TAG, "Opening quick settings.");
-        return getInteractionController().openQuickSettings();
+        return getUiAutomation().performGlobalAction(
+                AccessibilityService.GLOBAL_ACTION_QUICK_SETTINGS);
     }
 
     /**
