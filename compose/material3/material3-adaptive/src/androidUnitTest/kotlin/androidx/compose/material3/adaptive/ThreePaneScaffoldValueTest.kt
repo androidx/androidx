@@ -26,61 +26,61 @@ import org.junit.runners.JUnit4
 class ThreePaneScaffoldValueTest {
     @Test
     fun test_onePaneLayoutNoFocus() {
-        val scaffoldState = calculateThreePaneScaffoldValueInternal(
+        val scaffoldState = calculateThreePaneScaffoldValue(
             maxHorizontalPartitions = 1,
             adaptStrategies = MockAdaptStrategies
         )
-        scaffoldState.assertState(ThreePaneScaffoldRoleInternal.Primary, PaneAdaptedValue.Expanded)
+        scaffoldState.assertState(ThreePaneScaffoldRole.Primary, PaneAdaptedValue.Expanded)
         scaffoldState.assertState(
-            ThreePaneScaffoldRoleInternal.Secondary,
+            ThreePaneScaffoldRole.Secondary,
             SecondaryPaneAdaptedState
         )
-        scaffoldState.assertState(ThreePaneScaffoldRoleInternal.Tertiary, TertiaryPaneAdaptedState)
+        scaffoldState.assertState(ThreePaneScaffoldRole.Tertiary, TertiaryPaneAdaptedState)
     }
 
     @Test
     fun test_onePaneLayoutWithFocus() {
-        val scaffoldState = calculateThreePaneScaffoldValueInternal(
+        val scaffoldState = calculateThreePaneScaffoldValue(
             maxHorizontalPartitions = 1,
             adaptStrategies = MockAdaptStrategies,
-            currentDestination = ThreePaneScaffoldRoleInternal.Secondary
+            currentDestination = ThreePaneScaffoldRole.Secondary
         )
-        scaffoldState.assertState(ThreePaneScaffoldRoleInternal.Primary, PrimaryPaneAdaptedState)
+        scaffoldState.assertState(ThreePaneScaffoldRole.Primary, PrimaryPaneAdaptedState)
         scaffoldState.assertState(
-            ThreePaneScaffoldRoleInternal.Secondary,
+            ThreePaneScaffoldRole.Secondary,
             PaneAdaptedValue.Expanded)
-        scaffoldState.assertState(ThreePaneScaffoldRoleInternal.Tertiary, TertiaryPaneAdaptedState)
+        scaffoldState.assertState(ThreePaneScaffoldRole.Tertiary, TertiaryPaneAdaptedState)
     }
 
     @Test
     fun test_twoPaneLayoutNoFocus() {
-        val scaffoldState = calculateThreePaneScaffoldValueInternal(
+        val scaffoldState = calculateThreePaneScaffoldValue(
             maxHorizontalPartitions = 2,
             adaptStrategies = MockAdaptStrategies
         )
-        scaffoldState.assertState(ThreePaneScaffoldRoleInternal.Primary, PaneAdaptedValue.Expanded)
+        scaffoldState.assertState(ThreePaneScaffoldRole.Primary, PaneAdaptedValue.Expanded)
         scaffoldState.assertState(
-            ThreePaneScaffoldRoleInternal.Secondary, PaneAdaptedValue.Expanded
+            ThreePaneScaffoldRole.Secondary, PaneAdaptedValue.Expanded
         )
-        scaffoldState.assertState(ThreePaneScaffoldRoleInternal.Tertiary, TertiaryPaneAdaptedState)
+        scaffoldState.assertState(ThreePaneScaffoldRole.Tertiary, TertiaryPaneAdaptedState)
     }
 
     @Test
     fun test_twoPaneLayoutWithFocus() {
-        val scaffoldState = calculateThreePaneScaffoldValueInternal(
+        val scaffoldState = calculateThreePaneScaffoldValue(
             maxHorizontalPartitions = 2,
             adaptStrategies = MockAdaptStrategies,
-            currentDestination = ThreePaneScaffoldRoleInternal.Tertiary
+            currentDestination = ThreePaneScaffoldRole.Tertiary
         )
-        scaffoldState.assertState(ThreePaneScaffoldRoleInternal.Primary, PaneAdaptedValue.Expanded)
+        scaffoldState.assertState(ThreePaneScaffoldRole.Primary, PaneAdaptedValue.Expanded)
         scaffoldState.assertState(
-            ThreePaneScaffoldRoleInternal.Secondary, SecondaryPaneAdaptedState
+            ThreePaneScaffoldRole.Secondary, SecondaryPaneAdaptedState
         )
-        scaffoldState.assertState(ThreePaneScaffoldRoleInternal.Tertiary, PaneAdaptedValue.Expanded)
+        scaffoldState.assertState(ThreePaneScaffoldRole.Tertiary, PaneAdaptedValue.Expanded)
     }
 
     private fun ThreePaneScaffoldValue.assertState(
-        role: ThreePaneScaffoldRoleInternal,
+        role: ThreePaneScaffoldRole,
         state: PaneAdaptedValue
     ) {
         assertThat(this[role]).isEqualTo(state)

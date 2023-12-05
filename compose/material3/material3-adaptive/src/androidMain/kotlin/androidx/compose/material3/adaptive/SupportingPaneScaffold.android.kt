@@ -56,7 +56,7 @@ fun calculateSupportingPaneScaffoldState(
         calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         SupportingPaneScaffoldDefaults.adaptStrategies(),
-    currentPaneDestination: SupportingPaneScaffoldRole = SupportingPaneScaffoldRole.Main
+    currentPaneDestination: ThreePaneScaffoldRole = SupportingPaneScaffoldRole.Main
 ): ThreePaneScaffoldState = ThreePaneScaffoldStateImpl(
     scaffoldDirective,
     calculateThreePaneScaffoldValue(
@@ -91,37 +91,28 @@ object SupportingPaneScaffoldDefaults {
 }
 
 /**
- * The set of the available pane roles of [SupportingPaneScaffold].
+ * The set of the available pane roles of [SupportingPaneScaffold]. Basically those values are
+ * aliases of [ThreePaneScaffoldRole]. We suggest you to use the values defined here instead of
+ * the raw [ThreePaneScaffoldRole] under the context of [SupportingPaneScaffold] for better
+ * code clarity.
  */
 @ExperimentalMaterial3AdaptiveApi
-class SupportingPaneScaffoldRole private constructor(
-    internalRole: ThreePaneScaffoldRoleInternal
-) : ThreePaneScaffoldRole(internalRole) {
-    companion object {
-        /**
-         * The main pane of [SupportingPaneScaffold]. It is mapped to
-         * [ThreePaneScaffoldRoleInternal.Primary].
-         */
-        val Main = SupportingPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Primary)
+object SupportingPaneScaffoldRole {
+    /**
+     * The main pane of [SupportingPaneScaffold]. It is an alias of
+     * [ThreePaneScaffoldRole.Primary].
+     */
+    val Main = ThreePaneScaffoldRole.Primary
 
-        /**
-         * The supporting pane of [SupportingPaneScaffold]. It is mapped to
-         * [ThreePaneScaffoldRoleInternal.Secondary].
-         */
-        val Supporting = SupportingPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Secondary)
+    /**
+     * The supporting pane of [SupportingPaneScaffold]. It is an alias of
+     * [ThreePaneScaffoldRole.Secondary].
+     */
+    val Supporting = ThreePaneScaffoldRole.Secondary
 
-        /**
-         * The extra pane of [SupportingPaneScaffold]. It is mapped to
-         * [ThreePaneScaffoldRoleInternal.Tertiary].
-         */
-        val Extra = SupportingPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Tertiary)
-    }
+    /**
+     * The extra pane of [SupportingPaneScaffold]. It is an alias of
+     * [ThreePaneScaffoldRole.Tertiary].
+     */
+    val Extra = ThreePaneScaffoldRole.Tertiary
 }
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal fun ThreePaneScaffoldRoleInternal.toSupportingPaneScaffoldRole():
-    SupportingPaneScaffoldRole = when (this) {
-        ThreePaneScaffoldRoleInternal.Primary -> SupportingPaneScaffoldRole.Main
-        ThreePaneScaffoldRoleInternal.Secondary -> SupportingPaneScaffoldRole.Supporting
-        ThreePaneScaffoldRoleInternal.Tertiary -> SupportingPaneScaffoldRole.Extra
-    }

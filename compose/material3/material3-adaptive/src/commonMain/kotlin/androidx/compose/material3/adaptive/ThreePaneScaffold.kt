@@ -105,14 +105,14 @@ internal fun ThreePaneScaffold(
     val contents = listOf<@Composable () -> Unit>(
         {
             remember { ThreePaneScaffoldScopeImpl() }.apply {
-                paneAdaptedValue = scaffoldValue[ThreePaneScaffoldRoleInternal.Primary]
+                paneAdaptedValue = scaffoldValue[ThreePaneScaffoldRole.Primary]
                 positionAnimationSpec = paneMotion.animationSpec
                 enterTransition = paneMotion.enterTransition(
-                    ThreePaneScaffoldRoleInternal.Primary,
+                    ThreePaneScaffoldRole.Primary,
                     ltrPaneOrder
                 )
                 exitTransition = paneMotion.exitTransition(
-                    ThreePaneScaffoldRoleInternal.Primary,
+                    ThreePaneScaffoldRole.Primary,
                     ltrPaneOrder
                 )
                 animationToolingLabel = "Primary"
@@ -120,14 +120,14 @@ internal fun ThreePaneScaffold(
         },
         {
             remember { ThreePaneScaffoldScopeImpl() }.apply {
-                paneAdaptedValue = scaffoldValue[ThreePaneScaffoldRoleInternal.Secondary]
+                paneAdaptedValue = scaffoldValue[ThreePaneScaffoldRole.Secondary]
                 positionAnimationSpec = paneMotion.animationSpec
                 enterTransition = paneMotion.enterTransition(
-                    ThreePaneScaffoldRoleInternal.Secondary,
+                    ThreePaneScaffoldRole.Secondary,
                     ltrPaneOrder
                 )
                 exitTransition = paneMotion.exitTransition(
-                    ThreePaneScaffoldRoleInternal.Secondary,
+                    ThreePaneScaffoldRole.Secondary,
                     ltrPaneOrder
                 )
                 animationToolingLabel = "Secondary"
@@ -136,14 +136,14 @@ internal fun ThreePaneScaffold(
         {
             if (tertiaryPane != null) {
                 remember { ThreePaneScaffoldScopeImpl() }.apply {
-                    paneAdaptedValue = scaffoldValue[ThreePaneScaffoldRoleInternal.Tertiary]
+                    paneAdaptedValue = scaffoldValue[ThreePaneScaffoldRole.Tertiary]
                     positionAnimationSpec = paneMotion.animationSpec
                     enterTransition = paneMotion.enterTransition(
-                        ThreePaneScaffoldRoleInternal.Tertiary,
+                        ThreePaneScaffoldRole.Tertiary,
                         ltrPaneOrder
                     )
                     exitTransition = paneMotion.exitTransition(
-                        ThreePaneScaffoldRoleInternal.Tertiary,
+                        ThreePaneScaffoldRole.Tertiary,
                         ltrPaneOrder
                     )
                     animationToolingLabel = "Tertiary"
@@ -185,11 +185,11 @@ internal class ThreePaneMotion internal constructor(
 ) {
 
     /**
-     * Resolves and returns the [EnterTransition] for the given [ThreePaneScaffoldRoleInternal]
+     * Resolves and returns the [EnterTransition] for the given [ThreePaneScaffoldRole]
      * at the given [ThreePaneScaffoldHorizontalOrder].
      */
     fun enterTransition(
-        role: ThreePaneScaffoldRoleInternal,
+        role: ThreePaneScaffoldRole,
         paneOrder: ThreePaneScaffoldHorizontalOrder
     ): EnterTransition {
         // Quick return in case this instance is the NoMotion one.
@@ -203,11 +203,11 @@ internal class ThreePaneMotion internal constructor(
     }
 
     /**
-     * Resolves and returns the [ExitTransition] for the given [ThreePaneScaffoldRoleInternal]
+     * Resolves and returns the [ExitTransition] for the given [ThreePaneScaffoldRole]
      * at the given [ThreePaneScaffoldHorizontalOrder].
      */
     fun exitTransition(
-        role: ThreePaneScaffoldRoleInternal,
+        role: ThreePaneScaffoldRole,
         paneOrder: ThreePaneScaffoldHorizontalOrder
     ): ExitTransition {
         // Quick return in case this instance is the NoMotion one.
@@ -348,9 +348,9 @@ private class ThreePaneContentMeasurePolicy(
     private data class PanePlacement(var positionX: Int = 0, var measuredWidth: Int = 0)
 
     private val placementsCache = mapOf(
-        ThreePaneScaffoldRoleInternal.Primary to PanePlacement(),
-        ThreePaneScaffoldRoleInternal.Secondary to PanePlacement(),
-        ThreePaneScaffoldRoleInternal.Tertiary to PanePlacement()
+        ThreePaneScaffoldRole.Primary to PanePlacement(),
+        ThreePaneScaffoldRole.Secondary to PanePlacement(),
+        ThreePaneScaffoldRole.Tertiary to PanePlacement()
     )
 
     override fun MeasureScope.measure(
@@ -519,7 +519,7 @@ private class ThreePaneContentMeasurePolicy(
             paneOrder.forEach { role ->
                 if (predicate(scaffoldValue[role])) {
                     when (role) {
-                        ThreePaneScaffoldRoleInternal.Primary -> {
+                        ThreePaneScaffoldRole.Primary -> {
                             createPaneMeasurableIfNeeded(
                                 primaryMeasurables,
                                 ThreePaneScaffoldDefaults.PrimaryPanePriority,
@@ -529,7 +529,7 @@ private class ThreePaneContentMeasurePolicy(
                             )
                         }
 
-                        ThreePaneScaffoldRoleInternal.Secondary -> {
+                        ThreePaneScaffoldRole.Secondary -> {
                             createPaneMeasurableIfNeeded(
                                 secondaryMeasurables,
                                 ThreePaneScaffoldDefaults.SecondaryPanePriority,
@@ -539,7 +539,7 @@ private class ThreePaneContentMeasurePolicy(
                             )
                         }
 
-                        ThreePaneScaffoldRoleInternal.Tertiary -> {
+                        ThreePaneScaffoldRole.Tertiary -> {
                             createPaneMeasurableIfNeeded(
                                 tertiaryMeasurables,
                                 ThreePaneScaffoldDefaults.TertiaryPanePriority,
@@ -558,7 +558,7 @@ private class ThreePaneContentMeasurePolicy(
     private fun MutableList<PaneMeasurable>.createPaneMeasurableIfNeeded(
         measurables: List<Measurable>,
         priority: Int,
-        role: ThreePaneScaffoldRoleInternal,
+        role: ThreePaneScaffoldRole,
         defaultPreferredWidth: Int
     ) {
         if (measurables.isNotEmpty()) {
@@ -725,7 +725,7 @@ fun ThreePaneScaffoldScope.AnimatedPane(
 private class PaneMeasurable(
     val measurable: Measurable,
     val priority: Int,
-    val role: ThreePaneScaffoldRoleInternal,
+    val role: ThreePaneScaffoldRole,
     defaultPreferredWidth: Int
 ) : Measurable by measurable {
     private val data = ((parentData as? PaneScaffoldParentData) ?: PaneScaffoldParentData())
@@ -796,9 +796,9 @@ internal object ThreePaneScaffoldDefaults {
      */
     // TODO(conradchen/sgibly): Consider moving this to the ListDetailPaneScaffoldDefaults
     val ListDetailLayoutPaneOrder = ThreePaneScaffoldHorizontalOrder(
-        ThreePaneScaffoldRoleInternal.Secondary,
-        ThreePaneScaffoldRoleInternal.Primary,
-        ThreePaneScaffoldRoleInternal.Tertiary
+        ThreePaneScaffoldRole.Secondary,
+        ThreePaneScaffoldRole.Primary,
+        ThreePaneScaffoldRole.Tertiary
     )
 
     /**
@@ -808,19 +808,19 @@ internal object ThreePaneScaffoldDefaults {
      */
     // TODO(conradchen/sgibly): Consider moving this to the SupportingPaneScaffoldDefaults
     val SupportingPaneLayoutPaneOrder = ThreePaneScaffoldHorizontalOrder(
-        ThreePaneScaffoldRoleInternal.Primary,
-        ThreePaneScaffoldRoleInternal.Secondary,
-        ThreePaneScaffoldRoleInternal.Tertiary
+        ThreePaneScaffoldRole.Primary,
+        ThreePaneScaffoldRole.Secondary,
+        ThreePaneScaffoldRole.Tertiary
     )
 
     /**
-     * The default preferred width of [ThreePaneScaffoldRoleInternal.Secondary]. See more details in
+     * The default preferred width of [ThreePaneScaffoldRole.Secondary]. See more details in
      * [ThreePaneScaffoldScope.preferredWidth].
      */
     val SecondaryPanePreferredWidth = 412.dp
 
     /**
-     * The default preferred width of [ThreePaneScaffoldRoleInternal.Tertiary]. See more details in
+     * The default preferred width of [ThreePaneScaffoldRole.Tertiary]. See more details in
      * [ThreePaneScaffoldScope.preferredWidth].
      */
     val TertiaryPanePreferredWidth = 412.dp

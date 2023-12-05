@@ -37,7 +37,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
     @Test
     fun singlePaneLayout_navigateTo_makeFocusPaneExpanded() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<SupportingPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
@@ -64,7 +64,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
     @Test
     fun dualPaneLayout_navigateTo_keepFocusPaneExpanded() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<SupportingPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
@@ -91,7 +91,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
     @Test
     fun singlePaneLayout_navigateBack_makeFocusPaneHidden() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<SupportingPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
@@ -123,7 +123,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
     @Test
     fun dualPaneLayout_enforceScaffoldChange_cannotNavigateBack() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<SupportingPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
 
         composeRule.setContent {
             scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
@@ -142,7 +142,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
     @Test
     fun dualPaneLayout_notEnforceScaffoldValueChange_canNavigateBack() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<SupportingPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
 
         composeRule.setContent {
             scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
@@ -171,7 +171,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
     @Test
     fun singlePaneToDualPaneLayout_enforceScaffoldValueChange_cannotNavigateBack() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<SupportingPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
         val mockCurrentScaffoldDirective = mutableStateOf(MockSinglePaneScaffoldDirective)
 
         composeRule.setContent {
