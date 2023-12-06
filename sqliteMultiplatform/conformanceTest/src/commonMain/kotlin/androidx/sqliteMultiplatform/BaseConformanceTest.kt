@@ -117,6 +117,11 @@ abstract class BaseConformanceTest {
             assertThat(message).isEqualTo(expectedMessage)
             message = assertFailsWith<SQLiteException> { it.bindText(1, "") }.message
             assertThat(message).isEqualTo(expectedMessage)
+
+            message = assertFailsWith<SQLiteException> { it.bindText(0, "") }.message
+            assertThat(message).isEqualTo(expectedMessage)
+            message = assertFailsWith<SQLiteException> { it.bindText(-1, "") }.message
+            assertThat(message).isEqualTo(expectedMessage)
         }
     }
 
@@ -139,6 +144,9 @@ abstract class BaseConformanceTest {
             message = assertFailsWith<SQLiteException> { it.getText(3) }.message
             assertThat(message).isEqualTo(expectedMessage)
             message = assertFailsWith<SQLiteException> { it.getColumnName(3) }.message
+            assertThat(message).isEqualTo(expectedMessage)
+
+            message = assertFailsWith<SQLiteException> { it.getColumnName(-1) }.message
             assertThat(message).isEqualTo(expectedMessage)
         }
     }
