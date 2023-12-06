@@ -133,10 +133,6 @@ class Int32Nodes {
                     (lhs, rhs) -> {
                         try {
                             switch (protoNode.getOperationType()) {
-                                case ARITHMETIC_OP_TYPE_UNDEFINED:
-                                case UNRECOGNIZED:
-                                    Log.e(TAG, "Unknown operation type in ArithmeticInt32Node");
-                                    return 0;
                                 case ARITHMETIC_OP_TYPE_ADD:
                                     return lhs + rhs;
                                 case ARITHMETIC_OP_TYPE_SUBTRACT:
@@ -147,14 +143,18 @@ class Int32Nodes {
                                     return lhs / rhs;
                                 case ARITHMETIC_OP_TYPE_MODULO:
                                     return lhs % rhs;
+                                case ARITHMETIC_OP_TYPE_UNDEFINED:
+                                case UNRECOGNIZED:
+                                    break;
                             }
                         } catch (ArithmeticException ex) {
                             Log.e(TAG, "ArithmeticException in ArithmeticInt32Node", ex);
                             return null;
                         }
 
-                        Log.e(TAG, "Unknown operation type in ArithmeticInt32Node");
-                        return 0;
+                        throw new IllegalArgumentException(
+                                "Unknown operation type in ArithmeticInt32Node: "
+                                        + protoNode.getOperationType());
                     });
         }
     }
@@ -185,16 +185,18 @@ class Int32Nodes {
                     downstream,
                     x -> {
                         switch (protoNode.getRoundMode()) {
-                            case ROUND_MODE_UNDEFINED:
                             case ROUND_MODE_FLOOR:
                                 return (int) Math.floor(x);
                             case ROUND_MODE_ROUND:
                                 return Math.round(x);
                             case ROUND_MODE_CEILING:
                                 return (int) Math.ceil(x);
-                            default:
-                                throw new IllegalArgumentException("Unknown rounding mode");
+                            case ROUND_MODE_UNDEFINED:
+                            case UNRECOGNIZED:
+                                break;
                         }
+                        throw new IllegalArgumentException(
+                                "Unknown rounding mode:" + protoNode.getRoundMode());
                     },
                     x -> x - 1 < Integer.MAX_VALUE && x >= Integer.MIN_VALUE);
         }
@@ -214,10 +216,6 @@ class Int32Nodes {
 
         private static long getDurationPart(Duration duration, DurationPartType durationPartType) {
             switch (durationPartType) {
-                case DURATION_PART_TYPE_UNDEFINED:
-                case UNRECOGNIZED:
-                    Log.e(TAG, "Unknown duration part type in GetDurationPartOpNode");
-                    return 0;
                 case DURATION_PART_TYPE_DAYS:
                     return abs(duration.getSeconds() / (3600 * 24));
                 case DURATION_PART_TYPE_HOURS:
@@ -234,8 +232,11 @@ class Int32Nodes {
                     return duration.toMinutes();
                 case DURATION_PART_TYPE_TOTAL_SECONDS:
                     return duration.getSeconds();
+                case DURATION_PART_TYPE_UNDEFINED:
+                case UNRECOGNIZED:
+                    break;
             }
-            throw new IllegalArgumentException("Unknown duration part");
+            throw new IllegalArgumentException("Unknown duration part: " + durationPartType);
         }
     }
 
@@ -363,10 +364,6 @@ class Int32Nodes {
 
         private static long getZonedDateTimePart(ZonedDateTime zdt, ZonedDateTimePartType type) {
             switch (type) {
-                case ZONED_DATE_TIME_PART_UNDEFINED:
-                case UNRECOGNIZED:
-                    Log.e(TAG, "Unknown ZonedDateTime part.");
-                    return 0;
                 case ZONED_DATE_TIME_PART_SECOND:
                     return zdt.getSecond();
                 case ZONED_DATE_TIME_PART_MINUTE:
@@ -381,8 +378,11 @@ class Int32Nodes {
                     return zdt.getMonth().getValue();
                 case ZONED_DATE_TIME_PART_YEAR:
                     return zdt.getYear();
+                case ZONED_DATE_TIME_PART_UNDEFINED:
+                case UNRECOGNIZED:
+                    break;
             }
-            throw new IllegalArgumentException("Unknown ZonedDateTime part.");
+            throw new IllegalArgumentException("Unknown ZonedDateTime part: " + type);
         }
     }
 }
