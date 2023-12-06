@@ -60,11 +60,14 @@ androidXMultiplatform {
         androidMain {
             dependsOn(jvmMain)
             dependencies {
+                implementation "androidx.activity:activity-compose:1.3.0"
+
                 api(project(":compose:ui:ui-graphics"))
 
                 implementation("androidx.annotation:annotation:1.1.0")
                 implementation("androidx.core:core-ktx:1.2.0")
                 implementation("androidx.test.espresso:espresso-core:3.5.0")
+                implementation("androidx.test.espresso:espresso-idling-resource:3.5.0")
             	implementation("androidx.test:monitor:1.6.1")
 	        }
         }
@@ -96,12 +99,19 @@ androidXMultiplatform {
             dependsOn(androidCommonTest)
             dependencies {
                 implementation(project(":compose:material:material"))
-                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(project(":compose:animation:animation"))
+                implementation(project(":compose:ui:ui-test"))
                 implementation("androidx.activity:activity-compose:1.3.1")
+                implementation("androidx.fragment:fragment-testing:1.4.1")
+
                 implementation(libs.mockitoCore)
                 implementation(libs.mockitoKotlin)
                 implementation(libs.dexmakerMockito)
                 implementation(libs.kotlinTest)
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.truth)
+
             }
         }
 
@@ -109,14 +119,27 @@ androidXMultiplatform {
             dependsOn(jvmTest)
             dependsOn(androidCommonTest)
             dependencies {
+                implementation(libs.truth)
                 implementation(libs.robolectric)
                 implementation(libs.mockitoCore4)
                 implementation(libs.mockitoKotlin4)
+
+                implementation(project(":compose:animation:animation-core"))
+                implementation(project(":compose:material:material"))
+                implementation(project(":compose:test-utils"))
             }
         }
 
         desktopTest {
             dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.truth)
+                implementation(libs.junit)
+                implementation(libs.kotlinTest)
+                implementation(libs.skikoCurrentOs)
+                implementation(project(":compose:foundation:foundation"))
+                implementation(project(":compose:ui:ui-test"))
+            }
         }
     }
 }
