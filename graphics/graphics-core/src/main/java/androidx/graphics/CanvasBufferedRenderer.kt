@@ -430,14 +430,28 @@ class CanvasBufferedRenderer internal constructor(
      * @param fence Optional [SyncFenceCompat] that should be waited upon before the buffer is
      * reused.
      */
-    fun releaseBuffer(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat?) {
+    @JvmOverloads
+    fun releaseBuffer(hardwareBuffer: HardwareBuffer, fence: SyncFenceCompat? = null) {
         mImpl.releaseBuffer(hardwareBuffer, fence)
     }
 
     /**
      * Class that contains data regarding the result of the render request. Consumers are to wait
-     * on the provided [SyncFenceCompat] before consuming the [HardwareBuffer] provided to as well
-     * as verify that the status returned by [RenderResult.status] returns [RenderResult.SUCCESS].
+     * on the provided [SyncFenceCompat] if it is non null before consuming the [HardwareBuffer]
+     * provided to as well as verify that the status returned by [RenderResult.status] returns
+     * [RenderResult.SUCCESS].
+     *
+     * For example:
+     * ```
+     *  fun handleRenderResult(result: RenderResult) {
+     *      // block on the fence if it is non-null
+     *      result.fence?.let { fence ->
+     *          fence.awaitForever()
+     *          fence.close()
+     *      }
+     *      // consume contents of RenderResult.hardwareBuffer
+     *  }
+     * ```
      */
     class RenderResult(
         private val buffer: HardwareBuffer,
@@ -448,13 +462,23 @@ class CanvasBufferedRenderer internal constructor(
         /**
          * [HardwareBuffer] that contains the result of the render request.
          * Consumers should be sure to block on the [SyncFenceCompat] instance
-         * provided in [fence] before consuming the contents of this buffer.
+         * provided in [fence] if it is non-null before consuming the contents of this buffer.
+         * If [fence] returns null then this [HardwareBuffer] can be consumed immediately.
          */
         val hardwareBuffer: HardwareBuffer
             get() = buffer
 
         /**
-         * Optional fence that should be waited upon before consuming [hardwareBuffer]
+         * Optional fence that should be waited upon before consuming [hardwareBuffer].
+         * On Android U and above, requests to render will return sooner and include this fence
+         * as a way to signal that the result of the render request is reflected in the contents
+         * of the buffer. This is done to reduce latency and provide opportunities for other systems
+         * to block on the fence on the behalf of the application.
+         * For example, [SurfaceControlCompat.Transaction.setBuffer] can be invoked with
+         * [RenderResult.hardwareBuffer] and [RenderResult.fence] respectively without the
+         * application having to explicitly block on this fence.
+         * For older Android versions, the rendering pipeline will automatically block on this fence
+         * and this value will return null.
          */
         val fence: SyncFenceCompat?
             get() = mFence

@@ -1,11 +1,3 @@
 // Baseline format: 1.0
-AddedMethod: androidx.graphics.CanvasBufferedRenderer.RenderRequest#draw(boolean, kotlin.coroutines.Continuation<? super androidx.graphics.CanvasBufferedRenderer.RenderResult>):
-    Added method androidx.graphics.CanvasBufferedRenderer.RenderRequest.draw(boolean,kotlin.coroutines.Continuation<? super androidx.graphics.CanvasBufferedRenderer.RenderResult>)
-AddedMethod: androidx.graphics.CanvasBufferedRenderer.RenderRequest#drawAsync(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.graphics.CanvasBufferedRenderer.RenderResult>):
-    Added method androidx.graphics.CanvasBufferedRenderer.RenderRequest.drawAsync(java.util.concurrent.Executor,androidx.core.util.Consumer<androidx.graphics.CanvasBufferedRenderer.RenderResult>)
-
-
-RemovedMethod: androidx.graphics.CanvasBufferedRenderer.RenderRequest#draw(java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.graphics.CanvasBufferedRenderer.RenderResult>):
-    Removed method androidx.graphics.CanvasBufferedRenderer.RenderRequest.draw(java.util.concurrent.Executor,androidx.core.util.Consumer<androidx.graphics.CanvasBufferedRenderer.RenderResult>)
-RemovedMethod: androidx.graphics.CanvasBufferedRenderer.RenderRequest#drawSync(boolean):
-    Removed method androidx.graphics.CanvasBufferedRenderer.RenderRequest.drawSync(boolean)
+AddedMethod: androidx.graphics.CanvasBufferedRenderer#releaseBuffer(android.hardware.HardwareBuffer):
+    Added method androidx.graphics.CanvasBufferedRenderer.releaseBuffer(android.hardware.HardwareBuffer)
