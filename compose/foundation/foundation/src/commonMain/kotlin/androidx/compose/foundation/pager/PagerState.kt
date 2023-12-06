@@ -743,7 +743,7 @@ private val PagerLayoutInfo.singleAxisViewPort: Int
 
 @OptIn(ExperimentalFoundationApi::class)
 private fun PagerMeasureResult.calculateNewMaxScrollOffset(pageCount: Int): Int {
-    return beforeContentPadding +
+    return (beforeContentPadding +
         pageCount * (pageSpacing + pageSize) +
-        afterContentPadding - pageSpacing - singleAxisViewPort
+        afterContentPadding - pageSpacing - singleAxisViewPort).coerceAtLeast(0)
 }

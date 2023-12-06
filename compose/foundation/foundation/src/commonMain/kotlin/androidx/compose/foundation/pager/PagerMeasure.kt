@@ -373,10 +373,13 @@ internal fun LazyLayoutMeasureScope.measurePager(
 
         val currentPagePositionOffset = newCurrentPage?.offset ?: 0
 
-        val newCurrentPageOffsetFraction =
-            ((-currentPagePositionOffset.toFloat()) / (pageSizeWithSpacing)).coerceIn(
+        val newCurrentPageOffsetFraction = if (pageSizeWithSpacing == 0) {
+            0.0f
+        } else {
+            ((-currentPagePositionOffset.toFloat()) / (pageSizeWithSpacing.toFloat())).coerceIn(
                 MinPageOffset, MaxPageOffset
             )
+        }
 
         debugLog { "Finished Measure Pass" +
             "\n Final currentPage=${newCurrentPage?.index} " +
