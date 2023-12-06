@@ -18,7 +18,7 @@ package androidx.compose.foundation
 
 actual class AtomicLong actual constructor(value: Long) {
 
-    private val atomic = kotlin.native.concurrent.AtomicLong(value)
+    private val atomic = kotlin.concurrent.AtomicLong(value)
 
     actual fun get(): Long = atomic.value
 
@@ -26,5 +26,5 @@ actual class AtomicLong actual constructor(value: Long) {
         atomic.value = value
     }
 
-    actual fun getAndIncrement(): Long = atomic.addAndGet(1) - 1
+    actual fun getAndIncrement(): Long = atomic.addAndGet(1L) - 1
 }

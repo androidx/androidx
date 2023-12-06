@@ -140,6 +140,7 @@ public final class androidx/compose/foundation/layout/IntrinsicKt {
 public final class androidx/compose/foundation/layout/IntrinsicSize : java/lang/Enum {
 	public static final field Max Landroidx/compose/foundation/layout/IntrinsicSize;
 	public static final field Min Landroidx/compose/foundation/layout/IntrinsicSize;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/foundation/layout/IntrinsicSize;
 	public static fun values ()[Landroidx/compose/foundation/layout/IntrinsicSize;
 }

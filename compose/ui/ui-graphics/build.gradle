@@ -85,6 +85,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api(project(":compose:ui:ui-unit"))
                 implementation(project(":compose:runtime:runtime"))
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":compose:ui:ui-geometry"))
             }
 
             androidMain.dependencies {
@@ -108,17 +109,13 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             jsMain {
                 dependsOn(jsWasmMain)
-                dependencies {
-                    implementation(kotlin("stdlib-js"))
-                    api(libs.skikoCommon)
-                }
             }
 
             if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmMain {
+                wasmJsMain {
                     dependsOn(jsWasmMain)
                     dependencies {
-                        implementation(kotlin("stdlib-wasm"))
+                        implementation(libs.kotlinStdlib)
                         implementation(libs.create("skikoWasm"))
                         implementation(libs.create("skikoWasmWasm"))
                     }
@@ -198,5 +195,11 @@ android {
 if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     tasks.findByName("desktopTest").configure {
         systemProperties["GOLDEN_PATH"] = project.rootDir.absolutePath + "/golden"
+    }
+}
+
+project.tasks.configureEach {
+    if (name == "compileJsWasmMainKotlinMetadata") {
+        enabled = false
     }
 }

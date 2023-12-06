@@ -79,7 +79,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         // NOTE: Keep this list in sync with runtime's targets.
         watchosArm64()
         watchosArm32()
-        watchosX86()
         watchosX64()
         watchosSimulatorArm64()
         tvosArm64()
@@ -102,16 +101,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api "androidx.annotation:annotation:1.1.0"
             }
 
-            jsMain {
-                dependencies {
-                    implementation(kotlin("stdlib-js"))
-                }
-            }
+            jsMain {}
 
             if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmMain {
+                wasmJsMain {
                     dependencies {
-                        implementation(kotlin("stdlib-wasm"))
+                        implementation(libs.kotlinStdlib)
                     }
                 }
             }

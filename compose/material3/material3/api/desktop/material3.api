@@ -461,6 +461,7 @@ public final class androidx/compose/material3/DateRangePickerState$Companion {
 public final class androidx/compose/material3/DismissDirection : java/lang/Enum {
 	public static final field EndToStart Landroidx/compose/material3/DismissDirection;
 	public static final field StartToEnd Landroidx/compose/material3/DismissDirection;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material3/DismissDirection;
 	public static fun values ()[Landroidx/compose/material3/DismissDirection;
 }
@@ -489,6 +490,7 @@ public final class androidx/compose/material3/DismissValue : java/lang/Enum {
 	public static final field Default Landroidx/compose/material3/DismissValue;
 	public static final field DismissedToEnd Landroidx/compose/material3/DismissValue;
 	public static final field DismissedToStart Landroidx/compose/material3/DismissValue;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material3/DismissValue;
 	public static fun values ()[Landroidx/compose/material3/DismissValue;
 }
@@ -559,6 +561,7 @@ public final class androidx/compose/material3/DrawerState$Companion {
 public final class androidx/compose/material3/DrawerValue : java/lang/Enum {
 	public static final field Closed Landroidx/compose/material3/DrawerValue;
 	public static final field Open Landroidx/compose/material3/DrawerValue;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material3/DrawerValue;
 	public static fun values ()[Landroidx/compose/material3/DrawerValue;
 }
@@ -1032,6 +1035,7 @@ public final class androidx/compose/material3/SheetValue : java/lang/Enum {
 	public static final field Expanded Landroidx/compose/material3/SheetValue;
 	public static final field Hidden Landroidx/compose/material3/SheetValue;
 	public static final field PartiallyExpanded Landroidx/compose/material3/SheetValue;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material3/SheetValue;
 	public static fun values ()[Landroidx/compose/material3/SheetValue;
 }
@@ -1096,6 +1100,7 @@ public final class androidx/compose/material3/SnackbarDuration : java/lang/Enum 
 	public static final field Indefinite Landroidx/compose/material3/SnackbarDuration;
 	public static final field Long Landroidx/compose/material3/SnackbarDuration;
 	public static final field Short Landroidx/compose/material3/SnackbarDuration;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material3/SnackbarDuration;
 	public static fun values ()[Landroidx/compose/material3/SnackbarDuration;
 }
@@ -1121,6 +1126,7 @@ public final class androidx/compose/material3/SnackbarKt {
 public final class androidx/compose/material3/SnackbarResult : java/lang/Enum {
 	public static final field ActionPerformed Landroidx/compose/material3/SnackbarResult;
 	public static final field Dismissed Landroidx/compose/material3/SnackbarResult;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material3/SnackbarResult;
 	public static fun values ()[Landroidx/compose/material3/SnackbarResult;
 }

@@ -104,7 +104,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             jsNativeMain.dependsOn(commonMain)
             nativeMain.dependsOn(jsNativeMain)
 
-            jsWasmMain.dependsOn(jsNativeMain)
+            jsWasmMain {
+                dependsOn(jsNativeMain)
+                dependencies {
+                    implementation(libs.kotlinStdlib)
+                }
+            }
 
             skikoMain.dependsOn(commonMain)
             uikitMain.dependsOn(skikoMain)
@@ -115,17 +120,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             jsMain {
                 dependsOn(jsWasmMain)
-                dependencies {
-                    implementation(kotlin("stdlib-js"))
-                }
             }
 
             if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmMain {
+                wasmJsMain {
                     dependsOn(jsWasmMain)
-                    dependencies {
-                        implementation(kotlin("stdlib-wasm"))
-                    }
                 }
             }
 

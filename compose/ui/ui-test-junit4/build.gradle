@@ -81,6 +81,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         desktop()
         darwin()
         js()
+        wasm()
 
         configureDarwinFlags()
     }
@@ -148,6 +149,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             desktopMain.dependsOn(skikoMain)
             nativeMain.dependsOn(skikoMain)
             jsMain.dependsOn(skikoMain)
+            wasmJsMain.dependsOn(skikoMain)
 
             desktopMain.dependencies {
                 implementation(libs.truth)
@@ -164,6 +166,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             desktopTest.dependsOn(skikoTest)
             jsTest.dependsOn(skikoTest)
             nativeTest.dependsOn(skikoTest)
+            wasmJsTest.dependsOn(skikoTest)
 
             desktopTest.dependencies {
                 implementation(libs.truth)

@@ -96,6 +96,7 @@ public final class androidx/compose/animation/EnterExitState : java/lang/Enum {
 	public static final field PostExit Landroidx/compose/animation/EnterExitState;
 	public static final field PreEnter Landroidx/compose/animation/EnterExitState;
 	public static final field Visible Landroidx/compose/animation/EnterExitState;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/animation/EnterExitState;
 	public static fun values ()[Landroidx/compose/animation/EnterExitState;
 }

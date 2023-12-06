@@ -138,9 +138,19 @@ class AndroidXComposeImplPlugin : Plugin<Project> {
             }
 
             project.tasks.withType(KotlinJsCompile::class.java).configureEach { compile ->
+                // val isWasm = compile.kotlinOptions.freeCompilerArgs.contains("-Xwasm")
+
                 compile.kotlinOptions.freeCompilerArgs += listOf(
-                    "-P", "plugin:androidx.compose.compiler.plugins.kotlin:generateDecoys=true"
+                    "-P", "plugin:androidx.compose.compiler.plugins.kotlin:generateDecoys=false",
+                    "-Xklib-enable-signature-clash-checks=false",
                 )
+            }
+
+            project.tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile>().configureEach {
+                it.kotlinOptions {
+                    freeCompilerArgs += "-opt-in=kotlinx.cinterop.ExperimentalForeignApi"
+                    freeCompilerArgs += "-opt-in=kotlin.experimental.ExperimentalNativeApi"
+                }
             }
         }
 
@@ -366,16 +376,10 @@ private fun configureComposeCompilerPlugin(
         val configuration = project.configurations.create(COMPILER_PLUGIN_CONFIGURATION)
         // Add Compose compiler plugin to kotlinPlugin configuration, making sure it works
         // for Playground builds as well
+        val compilerPluginVersion = project.properties["jetbrains.compose.compiler.version"] as String
         project.dependencies.add(
             COMPILER_PLUGIN_CONFIGURATION,
-            if (ProjectLayoutType.isPlayground(project)) {
-                AndroidXPlaygroundRootImplPlugin.projectOrArtifact(
-                    project.rootProject,
-                    ":compose:compiler:compiler"
-                )
-            } else {
-                project.rootProject.resolveProject(":compose:compiler:compiler")
-            }
+            "org.jetbrains.compose.compiler:compiler:$compilerPluginVersion"
         )
         val kotlinPlugin = configuration.incoming.artifactView { view ->
             view.attributes { attributes ->

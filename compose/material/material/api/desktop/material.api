@@ -51,6 +51,7 @@ public final class androidx/compose/material/BackdropScaffoldState$Companion {
 public final class androidx/compose/material/BackdropValue : java/lang/Enum {
 	public static final field Concealed Landroidx/compose/material/BackdropValue;
 	public static final field Revealed Landroidx/compose/material/BackdropValue;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material/BackdropValue;
 	public static fun values ()[Landroidx/compose/material/BackdropValue;
 }
@@ -86,6 +87,7 @@ public final class androidx/compose/material/BottomDrawerValue : java/lang/Enum 
 	public static final field Closed Landroidx/compose/material/BottomDrawerValue;
 	public static final field Expanded Landroidx/compose/material/BottomDrawerValue;
 	public static final field Open Landroidx/compose/material/BottomDrawerValue;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material/BottomDrawerValue;
 	public static fun values ()[Landroidx/compose/material/BottomDrawerValue;
 }
@@ -150,6 +152,7 @@ public final class androidx/compose/material/BottomSheetState$Companion {
 public final class androidx/compose/material/BottomSheetValue : java/lang/Enum {
 	public static final field Collapsed Landroidx/compose/material/BottomSheetValue;
 	public static final field Expanded Landroidx/compose/material/BottomSheetValue;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material/BottomSheetValue;
 	public static fun values ()[Landroidx/compose/material/BottomSheetValue;
 }
@@ -352,6 +355,7 @@ public final class androidx/compose/material/DesktopMenu_desktopKt {
 public final class androidx/compose/material/DismissDirection : java/lang/Enum {
 	public static final field EndToStart Landroidx/compose/material/DismissDirection;
 	public static final field StartToEnd Landroidx/compose/material/DismissDirection;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material/DismissDirection;
 	public static fun values ()[Landroidx/compose/material/DismissDirection;
 }
@@ -375,6 +379,7 @@ public final class androidx/compose/material/DismissValue : java/lang/Enum {
 	public static final field Default Landroidx/compose/material/DismissValue;
 	public static final field DismissedToEnd Landroidx/compose/material/DismissValue;
 	public static final field DismissedToStart Landroidx/compose/material/DismissValue;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material/DismissValue;
 	public static fun values ()[Landroidx/compose/material/DismissValue;
 }
@@ -424,6 +429,7 @@ public final class androidx/compose/material/DrawerState$Companion {
 public final class androidx/compose/material/DrawerValue : java/lang/Enum {
 	public static final field Closed Landroidx/compose/material/DrawerValue;
 	public static final field Open Landroidx/compose/material/DrawerValue;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material/DrawerValue;
 	public static fun values ()[Landroidx/compose/material/DrawerValue;
 }
@@ -631,6 +637,7 @@ public final class androidx/compose/material/ModalBottomSheetValue : java/lang/E
 	public static final field Expanded Landroidx/compose/material/ModalBottomSheetValue;
 	public static final field HalfExpanded Landroidx/compose/material/ModalBottomSheetValue;
 	public static final field Hidden Landroidx/compose/material/ModalBottomSheetValue;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material/ModalBottomSheetValue;
 	public static fun values ()[Landroidx/compose/material/ModalBottomSheetValue;
 }
@@ -773,6 +780,7 @@ public final class androidx/compose/material/SnackbarDuration : java/lang/Enum {
 	public static final field Indefinite Landroidx/compose/material/SnackbarDuration;
 	public static final field Long Landroidx/compose/material/SnackbarDuration;
 	public static final field Short Landroidx/compose/material/SnackbarDuration;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material/SnackbarDuration;
 	public static fun values ()[Landroidx/compose/material/SnackbarDuration;
 }
@@ -797,6 +805,7 @@ public final class androidx/compose/material/SnackbarKt {
 public final class androidx/compose/material/SnackbarResult : java/lang/Enum {
 	public static final field ActionPerformed Landroidx/compose/material/SnackbarResult;
 	public static final field Dismissed Landroidx/compose/material/SnackbarResult;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/material/SnackbarResult;
 	public static fun values ()[Landroidx/compose/material/SnackbarResult;
 }

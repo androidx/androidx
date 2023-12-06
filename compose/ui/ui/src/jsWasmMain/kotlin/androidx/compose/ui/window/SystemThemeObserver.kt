@@ -17,57 +17,14 @@
 package androidx.compose.ui.window
 
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.SystemTheme
-import org.w3c.dom.MediaQueryList
 import org.w3c.dom.Window
-import org.w3c.dom.events.Event
-import org.w3c.dom.events.EventListener
 
-internal class SystemThemeObserver(window : Window) {
 
+internal interface SystemThemeObserver {
     val currentSystemTheme: State<SystemTheme>
-        get() = _currentSystemTheme
 
-    private val media: MediaQueryList by lazy {
-        window.matchMedia("(prefers-color-scheme: dark)")
-    }
-
-    private val _currentSystemTheme = mutableStateOf(
-        when {
-            !isSupported -> SystemTheme.Unknown
-            media.matches -> SystemTheme.Dark
-            else -> SystemTheme.Light
-        }
-    )
-
-    // supported by all browsers since 2015
-    // https://developer.mozilla.org/en-US/docs/Web/API/Window/matchMedia
-    private val isSupported: Boolean
-        get() = js("window.matchMedia != undefined").unsafeCast<Boolean>()
-
-    private val listener = EventListener {
-        _currentSystemTheme.value = if (it.unsafeCast<MediaQueryList>().matches)
-            SystemTheme.Dark else SystemTheme.Light
-    }
-
-    fun dispose() {
-        if (isSupported){
-            try {
-                media.removeEventListener("change", listener)
-            } catch (t : Throwable){
-                media.removeListener(listener)
-            }
-        }
-    }
-
-    init {
-        if (isSupported) {
-            try {
-                media.addEventListener("change", listener)
-            } catch (t: Throwable) {
-                media.addListener(listener)
-            }
-        }
-    }
+    fun dispose()
 }
+
+internal expect fun getSystemThemeObserver(window: Window): SystemThemeObserver

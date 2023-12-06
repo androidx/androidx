@@ -414,7 +414,7 @@ class SnapshotStateMapTests {
         }
     }
 
-    @Test @IgnoreNativeTarget
+    @Test @IgnoreJsAndNative
     // Ignored for native:
     // SnapshotStateMap removes a correct element (same as on jvm and js) - entry(key=1,value=1f)
     // The test fails because MutableMap (normalMap) removes entry(key=1, value=5f)

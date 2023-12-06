@@ -319,3 +319,4 @@ internal fun datePatternAsInputFormat(localeFormat: String): DateInputFormat {
 
 internal const val DaysInWeek: Int = 7
 internal const val MillisecondsIn24Hours = 86400000L
+internal const val MillisecondsIn24HoursDouble = 86400000.0

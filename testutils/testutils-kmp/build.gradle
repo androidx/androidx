@@ -57,6 +57,13 @@ kotlin {
             }
         }
 
+        wasmJsMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api(libs.kotlinTest)
+            }
+        }
+
         jvmTest {
             dependencies {
                 implementation(libs.kotlinStdlib)

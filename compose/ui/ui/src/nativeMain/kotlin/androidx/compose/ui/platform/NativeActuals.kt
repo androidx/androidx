@@ -18,7 +18,7 @@ package androidx.compose.ui.platform
 
 internal class AtomicIntWrapper(value_: Int) {
 
-    private val delegate = kotlin.native.concurrent.AtomicInt(value_)
+    private val delegate = kotlin.concurrent.AtomicInt(value_)
     fun addAndGet(delta: Int): Int = delegate.addAndGet(delta)
     fun compareAndSet(expected: Int, new: Int): Boolean = delegate.compareAndSet(expected, new)
 }

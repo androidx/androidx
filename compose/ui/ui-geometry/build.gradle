@@ -76,16 +76,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(kotlin("test-junit"))
             }
             desktopTest.kotlin.srcDirs("src/test/kotlin")
-            jsMain {
-                dependencies {
-                    implementation(kotlin("stdlib-js"))
-                }
-            }
 
             if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmMain {
+                wasmJsMain {
                     dependencies {
-                        implementation(kotlin("stdlib-wasm"))
+                        implementation(libs.kotlinStdlib)
                     }
                 }
             }

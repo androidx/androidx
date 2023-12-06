@@ -111,6 +111,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:runtime:runtime-saveable"))
 
                 implementation(project(":compose:ui:ui-util"))
+                implementation(project(":compose:ui:ui-geometry"))
             }
 
             jvmMain.dependencies {
@@ -135,17 +136,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             jsMain {
                 dependsOn(jsWasmMain)
-                dependencies {
-                    implementation(kotlin("stdlib-js"))
-                    api(libs.skikoCommon)
-                }
             }
 
             if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmMain {
+                wasmJsMain {
                     dependsOn(jsWasmMain)
                     dependencies {
-                        implementation(kotlin("stdlib-wasm"))
                         implementation(libs.create("skikoWasm"))
                         implementation(libs.create("skikoWasmWasm"))
                     }
@@ -230,6 +226,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
             nativeTest.dependsOn(jsNativeTest)
             jsTest.dependsOn(jsNativeTest)
+            wasmJsTest.dependsOn(jsNativeTest)
 
             configureEach {
                 languageSettings.optIn("androidx.compose.ui.text.ExperimentalTextApi")
@@ -251,4 +248,10 @@ androidx {
 
 android {
     namespace "androidx.compose.ui.text"
+}
+
+project.tasks.configureEach {
+    if (name == "compileJsWasmMainKotlinMetadata") {
+        enabled = false
+    }
 }

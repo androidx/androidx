@@ -49,6 +49,7 @@ internal class FastFloatParser {
          * This function returns the offset inside the char sequence right after parsing stopped,
          * successfully or unsuccessfully.
          */
+        @OptIn(kotlin.ExperimentalStdlibApi::class)
         fun nextFloat(s: String, start: Int, end: Int, result: FloatResult): Int {
             result.value = Float.NaN
             result.isValid = false

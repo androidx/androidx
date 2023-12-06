@@ -17,7 +17,7 @@
 package androidx.compose.ui
 
 internal actual fun areObjectsOfSameType(a: Any, b: Any): Boolean {
-    return js(
+    return (js(
         "Object.getPrototypeOf(a).constructor == Object.getPrototypeOf(b).constructor"
-    ) as Boolean
+    )) as Boolean
 }

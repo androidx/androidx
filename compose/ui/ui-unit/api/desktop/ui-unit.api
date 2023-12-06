@@ -356,6 +356,7 @@ public final class androidx/compose/ui/unit/IntSizeKt {
 public final class androidx/compose/ui/unit/LayoutDirection : java/lang/Enum {
 	public static final field Ltr Landroidx/compose/ui/unit/LayoutDirection;
 	public static final field Rtl Landroidx/compose/ui/unit/LayoutDirection;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/unit/LayoutDirection;
 	public static fun values ()[Landroidx/compose/ui/unit/LayoutDirection;
 }

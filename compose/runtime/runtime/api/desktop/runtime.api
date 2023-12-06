@@ -267,6 +267,7 @@ public final class androidx/compose/runtime/CompositionLocalMap$Companion {
 }
 
 public final class androidx/compose/runtime/CompositionScopedCoroutineScopeCanceller : androidx/compose/runtime/RememberObserver {
+	public static final field $stable I
 	public fun <init> (Lkotlinx/coroutines/CoroutineScope;)V
 	public final fun getCoroutineScope ()Lkotlinx/coroutines/CoroutineScope;
 	public fun onAbandoned ()V
@@ -581,6 +582,7 @@ public final class androidx/compose/runtime/Recomposer$State : java/lang/Enum {
 	public static final field PendingWork Landroidx/compose/runtime/Recomposer$State;
 	public static final field ShutDown Landroidx/compose/runtime/Recomposer$State;
 	public static final field ShuttingDown Landroidx/compose/runtime/Recomposer$State;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/runtime/Recomposer$State;
 	public static fun values ()[Landroidx/compose/runtime/Recomposer$State;
 }

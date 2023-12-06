@@ -1517,6 +1517,7 @@ public final class androidx/compose/ui/text/style/LineHeightStyle$Trim$Companion
 public final class androidx/compose/ui/text/style/ResolvedTextDirection : java/lang/Enum {
 	public static final field Ltr Landroidx/compose/ui/text/style/ResolvedTextDirection;
 	public static final field Rtl Landroidx/compose/ui/text/style/ResolvedTextDirection;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/text/style/ResolvedTextDirection;
 	public static fun values ()[Landroidx/compose/ui/text/style/ResolvedTextDirection;
 }

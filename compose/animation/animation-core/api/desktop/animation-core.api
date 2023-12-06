@@ -74,6 +74,7 @@ public final class androidx/compose/animation/core/AnimationConstants {
 public final class androidx/compose/animation/core/AnimationEndReason : java/lang/Enum {
 	public static final field BoundReached Landroidx/compose/animation/core/AnimationEndReason;
 	public static final field Finished Landroidx/compose/animation/core/AnimationEndReason;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/animation/core/AnimationEndReason;
 	public static fun values ()[Landroidx/compose/animation/core/AnimationEndReason;
 }
@@ -457,6 +458,7 @@ public final class androidx/compose/animation/core/MutableTransitionState {
 public final class androidx/compose/animation/core/RepeatMode : java/lang/Enum {
 	public static final field Restart Landroidx/compose/animation/core/RepeatMode;
 	public static final field Reverse Landroidx/compose/animation/core/RepeatMode;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/animation/core/RepeatMode;
 	public static fun values ()[Landroidx/compose/animation/core/RepeatMode;
 }

@@ -35,6 +35,7 @@ const val ENABLED_KMP_TARGET_PLATFORMS = "androidx.enabled.kmp.target.platforms"
 enum class PlatformGroup {
     JVM,
     JS,
+    WASM,
     MAC,
     LINUX,
     DESKTOP;
@@ -51,7 +52,7 @@ enum class PlatformGroup {
          * Do *not* enable [JS] unless you have read and understand this:
          * https://blog.jetbrains.com/kotlin/2021/10/important-ua-parser-js-exploit-and-kotlin-js/
          */
-        val enabledByDefault = listOf(JVM, DESKTOP)
+        val enabledByDefault = listOf(JVM, DESKTOP, MAC, JS, WASM)
     }
 }
 
@@ -64,6 +65,7 @@ enum class PlatformIdentifier(
 ) {
     JVM("jvm", PlatformGroup.JVM),
     JS("js", PlatformGroup.JS),
+    WASM("wasm", PlatformGroup.WASM),
     ANDROID("android", PlatformGroup.JVM),
     MAC_ARM_64("macosarm64", PlatformGroup.MAC),
     MAC_OSX_64("macosx64", PlatformGroup.MAC),
@@ -122,6 +124,7 @@ private open class KmpPlatformsExtension(project: Project) {
 }
 
 fun Project.enableJs(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JS)
+fun Project.enableWasm(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.WASM)
 fun Project.enableMac(): Boolean =
     enabledKmpPlatforms.contains(PlatformGroup.MAC) || Multiplatform.isKotlinNativeEnabled(this)
 fun Project.enableLinux(): Boolean =

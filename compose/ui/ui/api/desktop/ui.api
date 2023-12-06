@@ -316,6 +316,7 @@ public final class androidx/compose/ui/SystemTheme : java/lang/Enum {
 	public static final field Dark Landroidx/compose/ui/SystemTheme;
 	public static final field Light Landroidx/compose/ui/SystemTheme;
 	public static final field Unknown Landroidx/compose/ui/SystemTheme;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/SystemTheme;
 	public static fun values ()[Landroidx/compose/ui/SystemTheme;
 }
@@ -394,6 +395,7 @@ public final class androidx/compose/ui/autofill/AutofillType : java/lang/Enum {
 	public static final field PostalCodeExtended Landroidx/compose/ui/autofill/AutofillType;
 	public static final field SmsOtpCode Landroidx/compose/ui/autofill/AutofillType;
 	public static final field Username Landroidx/compose/ui/autofill/AutofillType;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/autofill/AutofillType;
 	public static fun values ()[Landroidx/compose/ui/autofill/AutofillType;
 }
@@ -1676,6 +1678,7 @@ public final class androidx/compose/ui/input/mouse/MouseScrollFilter_skikoKt {
 public final class androidx/compose/ui/input/mouse/MouseScrollOrientation : java/lang/Enum {
 	public static final field Horizontal Landroidx/compose/ui/input/mouse/MouseScrollOrientation;
 	public static final field Vertical Landroidx/compose/ui/input/mouse/MouseScrollOrientation;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/input/mouse/MouseScrollOrientation;
 	public static fun values ()[Landroidx/compose/ui/input/mouse/MouseScrollOrientation;
 }
@@ -1904,6 +1907,7 @@ public final class androidx/compose/ui/input/pointer/PointerEventPass : java/lan
 	public static final field Final Landroidx/compose/ui/input/pointer/PointerEventPass;
 	public static final field Initial Landroidx/compose/ui/input/pointer/PointerEventPass;
 	public static final field Main Landroidx/compose/ui/input/pointer/PointerEventPass;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/input/pointer/PointerEventPass;
 	public static fun values ()[Landroidx/compose/ui/input/pointer/PointerEventPass;
 }
@@ -3201,6 +3205,7 @@ public final class androidx/compose/ui/platform/TextToolbar$DefaultImpls {
 public final class androidx/compose/ui/platform/TextToolbarStatus : java/lang/Enum {
 	public static final field Hidden Landroidx/compose/ui/platform/TextToolbarStatus;
 	public static final field Shown Landroidx/compose/ui/platform/TextToolbarStatus;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/platform/TextToolbarStatus;
 	public static fun values ()[Landroidx/compose/ui/platform/TextToolbarStatus;
 }
@@ -3737,6 +3742,7 @@ public final class androidx/compose/ui/state/ToggleableState : java/lang/Enum {
 	public static final field Indeterminate Landroidx/compose/ui/state/ToggleableState;
 	public static final field Off Landroidx/compose/ui/state/ToggleableState;
 	public static final field On Landroidx/compose/ui/state/ToggleableState;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/state/ToggleableState;
 	public static fun values ()[Landroidx/compose/ui/state/ToggleableState;
 }
@@ -3877,6 +3883,7 @@ public final class androidx/compose/ui/window/Notification$Type : java/lang/Enum
 	public static final field Info Landroidx/compose/ui/window/Notification$Type;
 	public static final field None Landroidx/compose/ui/window/Notification$Type;
 	public static final field Warning Landroidx/compose/ui/window/Notification$Type;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/window/Notification$Type;
 	public static fun values ()[Landroidx/compose/ui/window/Notification$Type;
 }
@@ -3958,6 +3965,7 @@ public final class androidx/compose/ui/window/WindowPlacement : java/lang/Enum {
 	public static final field Floating Landroidx/compose/ui/window/WindowPlacement;
 	public static final field Fullscreen Landroidx/compose/ui/window/WindowPlacement;
 	public static final field Maximized Landroidx/compose/ui/window/WindowPlacement;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/ui/window/WindowPlacement;
 	public static fun values ()[Landroidx/compose/ui/window/WindowPlacement;
 }

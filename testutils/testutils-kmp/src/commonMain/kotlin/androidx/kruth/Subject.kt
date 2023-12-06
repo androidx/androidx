@@ -193,6 +193,6 @@ private fun Any?.integralValue(): Long = when (this) {
 
 private fun Any?.toStringForAssert(): String = when {
     this == null -> toString()
-    isIntegralBoxedPrimitive() -> "${this::class.qualifiedName}<$this>"
+    isIntegralBoxedPrimitive() -> "${this::class.simpleName}<$this>"
     else -> toString()
 }

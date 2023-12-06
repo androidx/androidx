@@ -743,6 +743,7 @@ private fun Modifier.animateTooltip(
     )
 }
 
+@Composable
 internal expect fun TooltipPopup(
     popupPositionProvider: PopupPositionProvider,
     onDismissRequest: () -> Unit,

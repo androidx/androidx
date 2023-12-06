@@ -29,6 +29,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinTargetPreset
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithHostTests
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
 import org.jetbrains.kotlin.gradle.targets.jvm.KotlinJvmTarget
 
@@ -107,8 +108,6 @@ open class AndroidXMultiplatformExtension(val project: Project) {
             field = value
         }
 
-    val presets: NamedDomainObjectCollection<KotlinTargetPreset<*>>
-        get() = kotlinExtension.presets
     val targets: NamedDomainObjectCollection<KotlinTarget>
         get() = kotlinExtension.targets
 
@@ -155,7 +154,7 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     ): KotlinAndroidTarget? {
         requestedPlatforms.add(PlatformIdentifier.ANDROID)
         return if (project.enableJvm()) {
-            kotlinExtension.android {
+            kotlinExtension.androidTarget {
                 block?.execute(this)
             }
         } else { null }
@@ -287,6 +286,21 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         requestedPlatforms.add(PlatformIdentifier.JS)
         return if (project.enableJs()) {
             kotlinExtension.js().also {
+                block?.execute(it)
+            }
+        } else {
+            null
+        }
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    @JvmOverloads
+    fun wasm(
+        block: Action<KotlinJsTargetDsl>? = null
+    ): KotlinJsTargetDsl? {
+        requestedPlatforms.add(PlatformIdentifier.WASM)
+        return if (project.enableWasm()) {
+            kotlinExtension.wasmJs().also {
                 block?.execute(it)
             }
         } else {

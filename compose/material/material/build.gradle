@@ -128,17 +128,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
 
             jsMain {
                 dependsOn(jsWasmMain)
-                dependencies {
-                    implementation(kotlin("stdlib-js"))
-                }
             }
 
             if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmMain {
+                wasmJsMain {
                     dependsOn(jsWasmMain)
-                    dependencies {
-                        implementation(kotlin("stdlib-wasm"))
-                    }
                 }
             }
 
@@ -198,4 +192,10 @@ android {
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/golden/compose/material/material"
     namespace "androidx.compose.material"
+}
+
+project.tasks.configureEach {
+    if (name == "compileJsWasmMainKotlinMetadata") {
+        enabled = false
+    }
 }

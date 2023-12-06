@@ -20,6 +20,7 @@ import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotContextElement
 import androidx.compose.runtime.snapshots.SnapshotMutableState
 import kotlin.coroutines.CoroutineContext
+import kotlin.experimental.ExperimentalNativeApi
 import kotlinx.coroutines.yield
 import kotlin.native.identityHashCode
 import kotlin.system.getTimeNanos
@@ -28,7 +29,7 @@ import kotlin.native.concurrent.isFrozen
 import kotlin.native.concurrent.freeze
 import kotlin.native.concurrent.ensureNeverFrozen
 
-private val threadCounter = kotlin.native.concurrent.AtomicLong(0)
+private val threadCounter = kotlin.concurrent.AtomicLong(0)
 
 @kotlin.native.concurrent.ThreadLocal
 private var threadId: Long = threadCounter.addAndGet(1)
@@ -39,7 +40,7 @@ internal actual fun getCurrentThreadId(): Long = threadId
  * AtomicReference implementation suitable for both single and multi-threaded context.
  */
 actual class AtomicReference<V> actual constructor(value: V) {
-    private val delegate = kotlin.native.concurrent.AtomicReference(value)
+    private val delegate = kotlin.concurrent.AtomicReference(value)
 
     actual fun get(): V = delegate.value
 
@@ -59,7 +60,7 @@ actual class AtomicReference<V> actual constructor(value: V) {
 }
 
 internal actual class AtomicInt actual constructor(value: Int) {
-    private val delegate = kotlin.native.concurrent.AtomicInt(value)
+    private val delegate = kotlin.concurrent.AtomicInt(value)
     actual fun get(): Int = delegate.value
     actual fun set(value: Int) {
         delegate.value = value
@@ -67,11 +68,13 @@ internal actual class AtomicInt actual constructor(value: Int) {
     actual fun add(amount: Int): Int = delegate.addAndGet(amount)
 }
 
+@OptIn(ExperimentalNativeApi::class)
 internal actual class WeakReference<T : Any> actual constructor(reference: T) {
     val kotlinNativeReference = kotlin.native.ref.WeakReference<T>(reference)
     actual fun get(): T? = kotlinNativeReference.get()
 }
 
+@OptIn(ExperimentalNativeApi::class)
 @InternalComposeApi
 actual fun identityHashCode(instance: Any?): Int =
     instance.identityHashCode()

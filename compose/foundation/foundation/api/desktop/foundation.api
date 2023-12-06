@@ -226,6 +226,7 @@ public final class androidx/compose/foundation/MutatePriority : java/lang/Enum {
 	public static final field Default Landroidx/compose/foundation/MutatePriority;
 	public static final field PreventUserInput Landroidx/compose/foundation/MutatePriority;
 	public static final field UserInput Landroidx/compose/foundation/MutatePriority;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/foundation/MutatePriority;
 	public static fun values ()[Landroidx/compose/foundation/MutatePriority;
 }
@@ -452,6 +453,7 @@ public final class androidx/compose/foundation/gestures/GestureCancellationExcep
 public final class androidx/compose/foundation/gestures/Orientation : java/lang/Enum {
 	public static final field Horizontal Landroidx/compose/foundation/gestures/Orientation;
 	public static final field Vertical Landroidx/compose/foundation/gestures/Orientation;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
 	public static fun valueOf (Ljava/lang/String;)Landroidx/compose/foundation/gestures/Orientation;
 	public static fun values ()[Landroidx/compose/foundation/gestures/Orientation;
 }

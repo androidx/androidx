@@ -112,20 +112,3 @@ apple {
         }
     }
 }
-
-// TODO: Workaround, see https://youtrack.jetbrains.com/issue/KT-55751
-val myAttribute = Attribute.of("myOwnAttribute", String::class.java)
-// replace releaseFrameworkIosFat by the name of the first configuration that conflicts
-configurations.named("releaseFrameworkIosFat").configure {
-    attributes {
-        // put a unique attribute
-        attribute(myAttribute, "release-all")
-    }
-}
-
-// replace debugFrameworkIosFat by the name of the second configuration that conflicts
-configurations.named("debugFrameworkIosFat").configure {
-    attributes {
-        attribute(myAttribute, "debug-all")
-    }
-}

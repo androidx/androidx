@@ -79,7 +79,7 @@ private class ComposeWindow(
         platformContext = platformContext,
         input = jsTextInputService.input
     )
-    private val systemThemeObserver = SystemThemeObserver(window)
+    private val systemThemeObserver = getSystemThemeObserver(window)
 
     var canvas = document.getElementById(canvasId) as HTMLCanvasElement
         private set

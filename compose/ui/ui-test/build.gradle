@@ -86,6 +86,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         desktop()
         darwin()
         js()
+        wasm()
     }
 
     kotlin {
@@ -148,6 +149,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             desktopMain.dependsOn(skikoMain)
             jsNativeMain.dependsOn(skikoMain)
             jsMain.dependsOn(jsNativeMain)
+            wasmJsMain.dependsOn(jsNativeMain)
             nativeMain.dependsOn(jsNativeMain)
             uikitMain.dependsOn(nativeMain)
             macosMain.dependsOn(nativeMain)

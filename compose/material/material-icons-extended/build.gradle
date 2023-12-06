@@ -65,6 +65,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
         desktop()
         darwin()
         js()
+        wasm()
     }
 
     kotlin {
@@ -77,6 +78,7 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(project(":compose:foundation:foundation"))
                 implementation(project(":compose:foundation:foundation-layout"))
                 implementation(project(":compose:ui:ui"))
+                implementation(project(":compose:ui:ui-graphics"))
                 implementation(androidxArtifact(":test:screenshot:screenshot"))
                 implementation(project(":compose:ui:ui-test-junit4"))
                 implementation(project(":compose:test-utils"))
@@ -88,6 +90,17 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.junit)
                 implementation(libs.kotlinReflect)
                 implementation(libs.truth)
+            }
+
+            commonMain.dependencies {
+                implementation(project(":compose:ui:ui"))
+                implementation(project(":compose:ui:ui-graphics"))
+            }
+
+            wasmJsMain {
+                dependencies {
+                    implementation(libs.kotlinStdlib)
+                }
             }
         }
     }
