@@ -98,11 +98,7 @@ public class Text implements LayoutElement {
                 new LayoutElementBuilders.Text.Builder()
                         .setMaxLines(1)
                         .setMultilineAlignment(TEXT_ALIGN_CENTER)
-                        .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END)
-                        .setAndroidTextStyle(
-                                new LayoutElementBuilders.AndroidTextStyle.Builder()
-                                        .setExcludeFontPadding(true)
-                                        .build());
+                        .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END);
 
         /**
          * Creates a builder for a {@link Text} component with static text.

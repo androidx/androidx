@@ -1302,21 +1302,6 @@ public final class LayoutElementBuilders {
         }
 
         /**
-         * Gets an Android platform specific text style configuration options for styling and
-         * compatibility.
-         */
-        @ProtoLayoutExperimental
-        @Nullable
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        public AndroidTextStyle getAndroidTextStyle() {
-            if (mImpl.hasAndroidTextStyle()) {
-                return AndroidTextStyle.fromProto(mImpl.getAndroidTextStyle());
-            } else {
-                return null;
-            }
-        }
-
-        /**
          * Gets the number of times to repeat the Marquee animation. Only applies when overflow is
          * TEXT_OVERFLOW_MARQUEE. Set to -1 to repeat indefinitely. Defaults to repeat indefinitely.
          */
@@ -1392,8 +1377,6 @@ public final class LayoutElementBuilders {
                     + getOverflow()
                     + ", lineHeight="
                     + getLineHeight()
-                    + ", androidTextStyle="
-                    + getAndroidTextStyle()
                     + "}";
         }
 
@@ -1547,21 +1530,6 @@ public final class LayoutElementBuilders {
                 mImpl.setLineHeight(lineHeight.toProto());
                 mFingerprint.recordPropertyUpdate(
                         7, checkNotNull(lineHeight.getFingerprint()).aggregateValueAsInt());
-                return this;
-            }
-
-            /**
-             * Sets an Android platform specific text style configuration options for styling and
-             * compatibility.
-             */
-            @RequiresSchemaVersion(major = 1, minor = 200)
-            @ProtoLayoutExperimental
-            @NonNull
-            @RestrictTo(Scope.LIBRARY_GROUP)
-            public Builder setAndroidTextStyle(@NonNull AndroidTextStyle androidTextStyle) {
-                mImpl.setAndroidTextStyle(androidTextStyle.toProto());
-                mFingerprint.recordPropertyUpdate(
-                        8, checkNotNull(androidTextStyle.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
@@ -2607,21 +2575,6 @@ public final class LayoutElementBuilders {
             }
         }
 
-        /**
-         * Gets an Android platform specific text style configuration options for styling and
-         * compatibility.
-         */
-        @ProtoLayoutExperimental
-        @Nullable
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        public AndroidTextStyle getAndroidTextStyle() {
-            if (mImpl.hasAndroidTextStyle()) {
-                return AndroidTextStyle.fromProto(mImpl.getAndroidTextStyle());
-            } else {
-                return null;
-            }
-        }
-
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -2667,8 +2620,6 @@ public final class LayoutElementBuilders {
                     + getFontStyle()
                     + ", modifiers="
                     + getModifiers()
-                    + ", androidTextStyle="
-                    + getAndroidTextStyle()
                     + "}";
         }
 
@@ -2737,21 +2688,6 @@ public final class LayoutElementBuilders {
                 mImpl.setModifiers(modifiers.toProto());
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
-                return this;
-            }
-
-            /**
-             * Sets an Android platform specific text style configuration options for styling and
-             * compatibility.
-             */
-            @RequiresSchemaVersion(major = 1, minor = 200)
-            @ProtoLayoutExperimental
-            @NonNull
-            @RestrictTo(Scope.LIBRARY_GROUP)
-            public Builder setAndroidTextStyle(@NonNull AndroidTextStyle androidTextStyle) {
-                mImpl.setAndroidTextStyle(androidTextStyle.toProto());
-                mFingerprint.recordPropertyUpdate(
-                        4, checkNotNull(androidTextStyle.getFingerprint()).aggregateValueAsInt());
                 return this;
             }
 
