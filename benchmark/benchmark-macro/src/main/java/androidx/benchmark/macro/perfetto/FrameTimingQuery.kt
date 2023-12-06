@@ -181,6 +181,11 @@ internal object FrameTimingQuery {
             return emptyList()
         }
 
+        check(rtSlices.isNotEmpty()) {
+            "Observed no renderthread slices in trace - verify that your benchmark is redrawing" +
+                " and is hardware accelerated (which is the default)."
+        }
+
         return if (captureApiLevel >= 31) {
             check(actualSlices.isNotEmpty() && expectedSlices.isNotEmpty()) {
                 "Observed no expect/actual slices in trace," +
