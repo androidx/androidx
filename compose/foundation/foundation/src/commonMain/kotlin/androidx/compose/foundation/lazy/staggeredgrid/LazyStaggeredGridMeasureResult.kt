@@ -17,9 +17,11 @@
 package androidx.compose.foundation.lazy.staggeredgrid
 
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastForEach
 
 /**
  * Information about layout state of individual item in lazy staggered grid.
@@ -136,13 +138,14 @@ internal fun LazyStaggeredGridLayoutInfo.findVisibleItem(
 internal class LazyStaggeredGridMeasureResult(
     val firstVisibleItemIndices: IntArray,
     val firstVisibleItemScrollOffsets: IntArray,
-    val consumedScroll: Float,
+    var consumedScroll: Float,
     val measureResult: MeasureResult,
-    val canScrollForward: Boolean,
-    val canScrollBackward: Boolean,
+    var canScrollForward: Boolean,
     val isVertical: Boolean,
+    /** True when extra remeasure is required. */
+    val remeasureNeeded: Boolean,
     override val totalItemsCount: Int,
-    override val visibleItemsInfo: List<LazyStaggeredGridItemInfo>,
+    override val visibleItemsInfo: List<LazyStaggeredGridMeasuredItem>,
     override val viewportSize: IntSize,
     override val viewportStartOffset: Int,
     override val viewportEndOffset: Int,
@@ -150,18 +153,96 @@ internal class LazyStaggeredGridMeasureResult(
     override val afterContentPadding: Int,
     override val mainAxisItemSpacing: Int
 ) : LazyStaggeredGridLayoutInfo, MeasureResult by measureResult {
+
+    val canScrollBackward
+        // only scroll backward if the first item is not on screen or fully visible
+        get() = !(firstVisibleItemIndices[0] == 0 && firstVisibleItemScrollOffsets[0] <= 0)
+
     override val orientation: Orientation =
         if (isVertical) Orientation.Vertical else Orientation.Horizontal
+
+    /**
+     * Tries to apply a scroll [delta] for this layout info. In some cases we can apply small
+     * scroll deltas by just changing the offsets for each [visibleItemsInfo].
+     * But we can only do so if after applying the delta we would not need to compose a new item
+     * or dispose an item which is currently visible. In this case this function will not apply
+     * the [delta] and return false.
+     *
+     * @return true if we can safely apply a passed scroll [delta] to this layout info.
+     * If true is returned, only the placement phase is needed to apply new offsets.
+     * If false is returned, it means we have to rerun the full measure phase to apply the [delta].
+     */
+    fun tryToApplyScrollWithoutRemeasure(delta: Int): Boolean {
+        if (remeasureNeeded || visibleItemsInfo.isEmpty() || firstVisibleItemIndices.isEmpty() ||
+            firstVisibleItemScrollOffsets.isEmpty()
+        ) {
+            return false
+        }
+        visibleItemsInfo.fastForEach {
+            // non scrollable items require special handling.
+            if (it.nonScrollableItem ||
+                // applying delta will make this item to cross the 0th pixel, this means
+                // that firstVisibleItemIndices will change. we require a remeasure for it.
+                it.mainAxisOffset <= 0 != it.mainAxisOffset + delta <= 0
+            ) {
+                return false
+            }
+            if (it.mainAxisOffset <= viewportStartOffset) {
+                // we compare with viewportStartOffset in order to know when the item will became
+                // not visible anymore, and with 0 to know when the firstVisibleItemIndices will
+                // change. when we have a beforeContentPadding those values will not be the same.
+                val canApply = if (delta < 0) { // scrolling forward
+                    it.mainAxisOffset + it.sizeWithSpacings - viewportStartOffset > -delta
+                } else { // scrolling backward
+                    viewportStartOffset - it.mainAxisOffset > delta
+                }
+                if (!canApply) return false
+            }
+            // item is partially visible at the bottom.
+            if (it.mainAxisOffset + it.sizeWithSpacings >= viewportEndOffset) {
+                val canApply = if (delta < 0) { // scrolling forward
+                    it.mainAxisOffset + it.sizeWithSpacings - viewportEndOffset > -delta
+                } else { // scrolling backward
+                    viewportEndOffset - it.mainAxisOffset > delta
+                }
+                if (!canApply) return false
+            }
+        }
+        repeat(firstVisibleItemScrollOffsets.size) { index ->
+            firstVisibleItemScrollOffsets[index] -= delta
+        }
+        visibleItemsInfo.fastForEach {
+            it.applyScrollDelta(delta)
+        }
+        consumedScroll = delta.toFloat()
+        if (!canScrollForward && delta > 0) {
+            // we scrolled backward, so now we can scroll forward
+            canScrollForward = true
+        }
+        return true
+    }
 }
 
-internal object EmptyLazyStaggeredGridLayoutInfo : LazyStaggeredGridLayoutInfo {
-    override val visibleItemsInfo: List<LazyStaggeredGridItemInfo> = emptyList()
-    override val totalItemsCount: Int = 0
-    override val viewportSize: IntSize = IntSize.Zero
-    override val viewportStartOffset: Int = 0
-    override val viewportEndOffset: Int = 0
-    override val beforeContentPadding: Int = 0
-    override val afterContentPadding: Int = 0
-    override val mainAxisItemSpacing: Int = 0
-    override val orientation: Orientation = Orientation.Vertical
-}
+internal val EmptyLazyStaggeredGridLayoutInfo = LazyStaggeredGridMeasureResult(
+    firstVisibleItemIndices = IntArray(0),
+    firstVisibleItemScrollOffsets = IntArray(0),
+    consumedScroll = 0f,
+    measureResult = object : MeasureResult {
+        override val width: Int = 0
+        override val height: Int = 0
+        @Suppress("PrimitiveInCollection")
+        override val alignmentLines: Map<AlignmentLine, Int> = emptyMap()
+        override fun placeChildren() {}
+    },
+    canScrollForward = false,
+    isVertical = false,
+    visibleItemsInfo = emptyList(),
+    totalItemsCount = 0,
+    remeasureNeeded = false,
+    viewportSize = IntSize.Zero,
+    viewportStartOffset = 0,
+    viewportEndOffset = 0,
+    beforeContentPadding = 0,
+    afterContentPadding = 0,
+    mainAxisItemSpacing = 0
+)

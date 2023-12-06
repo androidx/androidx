@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.list.setContentWithTestViewConfiguration
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -2090,5 +2091,83 @@ class LazyStaggeredGridTest(
 
         rule.onNodeWithTag("9")
             .assertMainAxisStartPositionInRootIsEqualTo(0.dp)
+    }
+
+    @Test
+    fun itemsRemovedAfterLargeThenSmallScrollForward() {
+        lateinit var state: LazyStaggeredGridState
+        val composedItems = mutableSetOf<Int>()
+        rule.setContent {
+            state = rememberLazyStaggeredGridState()
+            LazyStaggeredGrid(
+                lanes = 2,
+                state = state,
+                modifier = Modifier
+                    .mainAxisSize(itemSizeDp * 1.5f)
+                    .crossAxisSize(itemSizeDp * 2)
+            ) {
+                items(100) {
+                    Spacer(Modifier.mainAxisSize(itemSizeDp))
+                    DisposableEffect(it) {
+                        composedItems += it
+                        onDispose { composedItems -= it }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.prefetchingEnabled = false
+                state.scrollBy(itemSizePx * 3f)
+                assertThat(state.firstVisibleItemIndex).isEqualTo(6)
+                assertThat(state.firstVisibleItemScrollOffset).isEqualTo(0)
+                state.scrollBy(10f)
+                assertThat(state.firstVisibleItemIndex).isEqualTo(6)
+                assertThat(state.firstVisibleItemScrollOffset).isEqualTo(10)
+            }
+        }
+        rule.runOnIdle {
+            assertThat(composedItems).isEqualTo(setOf(6, 7, 8, 9))
+        }
+    }
+
+    @Test
+    fun itemsRemovedAfterLargeThenSmallScrollBackward() {
+        lateinit var state: LazyStaggeredGridState
+        val composedItems = mutableSetOf<Int>()
+        rule.setContent {
+            state = rememberLazyStaggeredGridState(initialFirstVisibleItemIndex = 6)
+            LazyStaggeredGrid(
+                lanes = 2,
+                state = state,
+                modifier = Modifier
+                    .mainAxisSize(itemSizeDp * 1.5f)
+                    .crossAxisSize(itemSizeDp * 2)
+            ) {
+                items(100) {
+                    Spacer(Modifier.mainAxisSize(itemSizeDp))
+                    DisposableEffect(it) {
+                        composedItems += it
+                        onDispose { composedItems -= it }
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            runBlocking {
+                state.prefetchingEnabled = false
+                state.scrollBy(-itemSizePx * 2.5f)
+                assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+                assertThat(state.firstVisibleItemScrollOffset).isEqualTo(itemSizePx / 2)
+                state.scrollBy(-5f)
+                assertThat(state.firstVisibleItemIndex).isEqualTo(0)
+                assertThat(state.firstVisibleItemScrollOffset).isEqualTo(itemSizePx / 2 - 5)
+            }
+        }
+        rule.runOnIdle {
+            assertThat(composedItems).isEqualTo(setOf(0, 1, 2, 3))
+        }
     }
 }
