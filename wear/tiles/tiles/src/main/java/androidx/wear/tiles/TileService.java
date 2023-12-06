@@ -272,10 +272,10 @@ public abstract class TileService extends Service {
      * changed by the time the result is received. {@link TileService#onTileAddEvent} and {@link
      * TileService#onTileRemoveEvent} should be used instead for live updates.
      *
-     * <p>This method is a best-effort to match platform behavior, but may not always return all
-     * tiles present in the carousel. The possibly omitted tiles being the pre-installed tiles, all
-     * tiles if the user has cleared the app data, or the tiles a user hasn't visited in the last 60
-     * days, while tiles removed by an app update may be shown as active for 60 days afterwards.
+     * <p>This method may not always return all tiles present in the carousel. The possibly
+     * omitted tiles being the pre-installed tiles, all tiles if the user has cleared the app
+     * data, or the tiles a user hasn't visited in the last 60 days, while tiles removed by an
+     * app update may be shown as active for 60 days afterwards.
      *
      * @param context The application context.
      * @param executor The executor on which methods should be invoked. To dispatch events through
