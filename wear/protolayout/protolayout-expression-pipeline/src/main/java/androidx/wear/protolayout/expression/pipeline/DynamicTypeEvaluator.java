@@ -27,7 +27,6 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
-import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.PlatformDataKey;
 import androidx.wear.protolayout.expression.pipeline.BoolNodes.ComparisonFloatNode;
 import androidx.wear.protolayout.expression.pipeline.BoolNodes.ComparisonInt32Node;
@@ -92,7 +91,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
 /**
@@ -392,133 +390,63 @@ public class DynamicTypeEvaluator {
     }
 
     @NonNull
-    BoundDynamicTypeImpl bindInternal(
-            @NonNull DynamicBuilders.DynamicString stringSource,
-            @NonNull ULocale locale,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<String> consumer) {
-        return bindInternal(
-                stringSource.toDynamicStringProto(),
-                locale,
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
-    }
-
-    @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicString stringSource,
             @NonNull ULocale locale,
-            @NonNull DynamicTypeValueReceiver<String> consumer) {
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<String> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                stringSource,
-                new DynamicTypeValueReceiverOnExecutor<>(consumer),
-                locale,
-                resultBuilder);
+        bindRecursively(stringSource, consumer, locale, resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
-    }
-
-    @NonNull
-    BoundDynamicTypeImpl bindInternal(
-            @NonNull DynamicBuilders.DynamicInt32 int32Source,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Integer> consumer) {
-        return bindInternal(
-                int32Source.toDynamicInt32Proto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
     }
 
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicInt32 int32Source,
-            @NonNull DynamicTypeValueReceiver<Integer> consumer) {
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                int32Source, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
+        bindRecursively(int32Source, consumer, resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
-    }
-
-    @NonNull
-    BoundDynamicTypeImpl bindInternal(
-            @NonNull DynamicBuilders.DynamicFloat floatSource,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Float> consumer) {
-        return bindInternal(
-                floatSource.toDynamicFloatProto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
     }
 
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     BoundDynamicTypeImpl bindInternal(
-            @NonNull DynamicFloat floatSource, @NonNull DynamicTypeValueReceiver<Float> consumer) {
+            @NonNull DynamicFloat floatSource,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Float> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                floatSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
+        bindRecursively(floatSource, consumer, resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
-    }
-
-    @NonNull
-    BoundDynamicTypeImpl bindInternal(
-            @NonNull DynamicBuilders.DynamicColor colorSource,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Integer> consumer) {
-        return bindInternal(
-                colorSource.toDynamicColorProto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
     }
 
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicColor colorSource,
-            @NonNull DynamicTypeValueReceiver<Integer> consumer) {
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Integer> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                colorSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
+        bindRecursively(colorSource, consumer, resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
-    }
-
-    @NonNull
-    BoundDynamicTypeImpl bindInternal(
-            @NonNull DynamicBuilders.DynamicDuration durationSource,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Duration> consumer) {
-        return bindInternal(
-                durationSource.toDynamicDurationProto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
     }
 
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicDuration durationSource,
-            @NonNull DynamicTypeValueReceiver<Duration> consumer) {
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Duration> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                durationSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
+        bindRecursively(durationSource, consumer, resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
-    }
-
-    @NonNull
-    BoundDynamicTypeImpl bindInternal(
-            @NonNull DynamicBuilders.DynamicInstant instantSource,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Instant> consumer) {
-        return bindInternal(
-                instantSource.toDynamicInstantProto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
     }
 
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicInstant instantSource,
-            @NonNull DynamicTypeValueReceiver<Instant> consumer) {
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Instant> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                instantSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
+        bindRecursively(instantSource, consumer, resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
@@ -526,30 +454,19 @@ public class DynamicTypeEvaluator {
     @RestrictTo(Scope.LIBRARY_GROUP)
     BoundDynamicTypeImpl bindInternal(
             @NonNull DynamicZonedDateTime zdtSource,
-            @NonNull DynamicTypeValueReceiver<ZonedDateTime> consumer) {
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<ZonedDateTime> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                zdtSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
+        bindRecursively(zdtSource, consumer, resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
-    }
-
-    @NonNull
-    BoundDynamicTypeImpl bindInternal(
-            @NonNull DynamicBuilders.DynamicBool boolSource,
-            @NonNull Executor executor,
-            @NonNull DynamicTypeValueReceiver<Boolean> consumer) {
-        return bindInternal(
-                boolSource.toDynamicBoolProto(),
-                new DynamicTypeValueReceiverOnExecutor<>(executor, consumer));
     }
 
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     BoundDynamicTypeImpl bindInternal(
-            @NonNull DynamicBool boolSource, @NonNull DynamicTypeValueReceiver<Boolean> consumer) {
+            @NonNull DynamicBool boolSource,
+            @NonNull DynamicTypeValueReceiverWithPreUpdate<Boolean> consumer) {
         List<DynamicDataNode<?>> resultBuilder = new ArrayList<>();
-        bindRecursively(
-                boolSource, new DynamicTypeValueReceiverOnExecutor<>(consumer), resultBuilder);
+        bindRecursively(boolSource, consumer, resultBuilder);
         return new BoundDynamicTypeImpl(resultBuilder, mDynamicTypesQuotaManager);
     }
 
@@ -1227,43 +1144,5 @@ public class DynamicTypeEvaluator {
         }
 
         resultBuilder.add(node);
-    }
-
-    /**
-     * Wraps {@link DynamicTypeValueReceiver} and executes its methods on the given {@link
-     * Executor}.
-     */
-    private static class DynamicTypeValueReceiverOnExecutor<T>
-            implements DynamicTypeValueReceiverWithPreUpdate<T> {
-
-        @NonNull private final Executor mExecutor;
-        @NonNull private final DynamicTypeValueReceiver<T> mConsumer;
-
-        DynamicTypeValueReceiverOnExecutor(@NonNull DynamicTypeValueReceiver<T> consumer) {
-            this(Runnable::run, consumer);
-        }
-
-        DynamicTypeValueReceiverOnExecutor(
-                @NonNull Executor executor, @NonNull DynamicTypeValueReceiver<T> consumer) {
-            this.mConsumer = consumer;
-            this.mExecutor = executor;
-        }
-
-        /** This method is noop in this class. */
-        @Override
-        @SuppressWarnings("ExecutorTaskName")
-        public void onPreUpdate() {}
-
-        @Override
-        @SuppressWarnings("ExecutorTaskName")
-        public void onData(@NonNull T newData) {
-            mExecutor.execute(() -> mConsumer.onData(newData));
-        }
-
-        @Override
-        @SuppressWarnings("ExecutorTaskName")
-        public void onInvalidated() {
-            mExecutor.execute(mConsumer::onInvalidated);
-        }
     }
 }
