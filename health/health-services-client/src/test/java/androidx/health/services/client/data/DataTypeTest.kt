@@ -23,6 +23,7 @@ import androidx.health.services.client.data.DataType.Companion.CALORIES
 import androidx.health.services.client.data.DataType.Companion.CALORIES_DAILY
 import androidx.health.services.client.data.DataType.Companion.CALORIES_TOTAL
 import androidx.health.services.client.data.DataType.Companion.DISTANCE_DAILY
+import androidx.health.services.client.data.DataType.Companion.ELEVATION_GAIN_DAILY
 import androidx.health.services.client.data.DataType.Companion.FLOORS_DAILY
 import androidx.health.services.client.data.DataType.Companion.FORMAT_BYTE_ARRAY
 import androidx.health.services.client.data.DataType.Companion.LOCATION
@@ -206,6 +207,7 @@ internal class DataTypeTest {
             // Dailies are used in passive and passive only deals with deltas
             remove(CALORIES_DAILY)
             remove(DISTANCE_DAILY)
+            remove(ELEVATION_GAIN_DAILY)
             remove(FLOORS_DAILY)
             remove(STEPS_DAILY)
         }.map { it.name }

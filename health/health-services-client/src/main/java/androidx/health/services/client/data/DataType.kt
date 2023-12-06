@@ -611,6 +611,17 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             createIntervalDataType("Daily Floors")
 
         /**
+         * The total gain in elevation over a day expressed in meters in `double` format, where the
+         * previous day ends and a new day begins at 12:00 AM local time. Elevation losses are not
+         * counted in this metric (so it will only be positive or 0). Each DataPoint of this type
+         * will cover the interval from the start of day to now. In the event of time-zone shifts,
+         * the interval might be greater than 24hrs.
+         */
+        @JvmField
+        val ELEVATION_GAIN_DAILY: DeltaDataType<Double, IntervalDataPoint<Double>> =
+            createIntervalDataType("Daily Elevation Gain")
+
+        /**
          * The total number of calories over a day (including both BMR and active calories), where
          * the previous day ends and a new day begins at 12:00 AM local time. Each [DataPoint] of
          * this type will cover the interval from the start of day to now. In the event of time-zone
@@ -634,6 +645,7 @@ abstract class DataType<T : Any, D : DataPoint<T>>(
             CALORIES,
             CALORIES_DAILY,
             DISTANCE_DAILY,
+            ELEVATION_GAIN_DAILY,
             FLOORS_DAILY,
             STEPS_DAILY,
             DECLINE_DISTANCE,

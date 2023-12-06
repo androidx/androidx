@@ -225,6 +225,7 @@ package androidx.health.services.client.data {
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> DISTANCE_DAILY;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> DISTANCE_TOTAL;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_GAIN;
+    field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_GAIN_DAILY;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> ELEVATION_GAIN_TOTAL;
     field public static final androidx.health.services.client.data.DeltaDataType<java.lang.Double,androidx.health.services.client.data.IntervalDataPoint<java.lang.Double>> ELEVATION_LOSS;
     field public static final androidx.health.services.client.data.AggregateDataType<java.lang.Double,androidx.health.services.client.data.CumulativeDataPoint<java.lang.Double>> ELEVATION_LOSS_TOTAL;
