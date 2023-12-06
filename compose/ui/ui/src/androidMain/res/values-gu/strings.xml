@@ -18,8 +18,8 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="indeterminate" msgid="7933458017204019916">"આંશિક રીતે ચેક કરેલા વિકલ્પો"</string>
-    <string name="on" msgid="8655164131929253426">"ચાલુ છે"</string>
-    <string name="off" msgid="875452955155264703">"બંધ છે"</string>
+    <string name="state_on" msgid="8655164131929253426">"ચાલુ છે"</string>
+    <string name="state_off" msgid="875452955155264703">"બંધ છે"</string>
     <string name="switch_role" msgid="2561197295334830845">"સ્વિચ"</string>
     <string name="selected" msgid="6043586758067023">"પસંદગી કરી"</string>
     <string name="not_selected" msgid="6610465462668679431">"પસંદગી કરી નથી"</string>
