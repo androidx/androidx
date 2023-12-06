@@ -151,26 +151,26 @@ public class UiObject2 implements Searchable {
      * Sets the percentage of gestures' margins to avoid touching too close to the edges, e.g.
      * when scrolling up, phone open quick settings instead if gesture is close to the top.
      * The percentage is based on the object's visible size, e.g. to set 20% margins:
-     * <pre>mUiObject2.setGestureMarginPercent(0.2f);</pre>
+     * <pre>mUiObject2.setGestureMarginPercentage(0.2f);</pre>
      *
      * @Param percent Float between [0, 0.5] for four margins: left, top, right, and bottom.
      */
-    public void setGestureMarginPercent(@FloatRange(from = 0f, to = 0.5f) float percent) {
-        setGestureMarginPercent(percent, percent, percent, percent);
+    public void setGestureMarginPercentage(@FloatRange(from = 0f, to = 0.5f) float percent) {
+        setGestureMarginsPercentage(percent, percent, percent, percent);
     }
 
     /**
      * Sets the percentage of gestures' margins to avoid touching too close to the edges, e.g.
      * when scrolling up, phone open quick settings instead if gesture is close to the top.
      * The percentage is based on the object's visible size, e.g. to set 20% bottom margin only:
-     * <pre>mUiObject2.setGestureMarginPercent(0f, 0f, 0f, 0.2f);</pre>
+     * <pre>mUiObject2.setGestureMarginsPercentage(0f, 0f, 0f, 0.2f);</pre>
      *
      * @Param left Float between [0, 1] for left margin
      * @Param top Float between [0, 1] for top margin
      * @Param right Float between [0, 1] for right margin
      * @Param bottom Float between [0, 1] for bottom margin
      */
-    public void setGestureMarginPercent(@FloatRange(from = 0f, to = 1f) float left,
+    public void setGestureMarginsPercentage(@FloatRange(from = 0f, to = 1f) float left,
             @FloatRange(from = 0f, to = 1f) float top,
             @FloatRange(from = 0f, to = 1f) float right,
             @FloatRange(from = 0f, to = 1f) float bottom) {
