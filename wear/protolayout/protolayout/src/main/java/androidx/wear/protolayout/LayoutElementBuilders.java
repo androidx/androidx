@@ -2679,7 +2679,11 @@ public final class LayoutElementBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(266451531);
 
             /** Creates an instance of {@link Builder}. */
-            public Builder() {}
+            public Builder() {
+                mImpl.setAndroidTextStyle(
+                        LayoutElementProto.AndroidTextStyle.newBuilder()
+                                .setExcludeFontPadding(true));
+            }
 
             /**
              * Sets the text to render.
