@@ -11,6 +11,15 @@
     </issue>
 
     <issue
+        id="BanThreadSleep"
+        message="Uses Thread.sleep()"
+        errorLine1="                Thread.sleep(10)"
+        errorLine2="                       ~~~~~">
+        <location
+            file="src/androidMain/kotlin/androidx/compose/ui/test/ComposeUiTest.android.kt"/>
+    </issue>
+
+    <issue
         id="PrimitiveInCollection"
         message="field MouseAsTouchEvents with type List&lt;Integer>: replace with IntList"
         errorLine1="private val MouseAsTouchEvents = listOf(ACTION_DOWN, ACTION_MOVE, ACTION_UP)"
