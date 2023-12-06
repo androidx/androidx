@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.text.input
 
 import androidx.compose.ui.geometry.Rect
@@ -31,6 +33,7 @@ import androidx.compose.ui.text.TextLayoutResult
  * close it with [stopInput].
  */
 // Open for testing purposes.
+@Deprecated("Use PlatformTextInputModifierNode instead.")
 open class TextInputService(private val platformTextInputService: PlatformTextInputService) {
     private val _currentInputSession: AtomicReference<TextInputSession?> =
         AtomicReference(null)
@@ -134,6 +137,7 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
  * This session may be closed at any time by [TextInputService] or by calling [dispose], after
  * which [isOpen] will return false and all further calls will have no effect.
  */
+@Deprecated("Use PlatformTextInputModifierNode instead.")
 class TextInputSession(
     private val textInputService: TextInputService,
     private val platformTextInputService: PlatformTextInputService
@@ -285,6 +289,7 @@ class TextInputSession(
 /**
  * Platform specific text input service.
  */
+@Deprecated("Use PlatformTextInputModifierNode instead.")
 interface PlatformTextInputService {
     /**
      * Start text input session for given client.
