@@ -40,6 +40,7 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
+import androidx.wear.protolayout.expression.pipeline.DynamicTypeEvaluator.EvaluationException;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedBool;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
@@ -380,14 +381,20 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicString bindUnderTest, String expectedValue) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicStringProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(
-                                        bindUnderTest,
-                                        ULocale.getDefault(),
-                                        new MainThreadExecutor(),
-                                        cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicString(
+                                                bindUnderTest,
+                                                ULocale.getDefault(),
+                                                new MainThreadExecutor(),
+                                                cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 expectedValue);
     }
 
@@ -395,10 +402,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicInt32 bindUnderTest, Integer expectedValue) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInt32Proto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicInt32(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 expectedValue);
     }
 
@@ -406,10 +420,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicColor bindUnderTest, Integer expectedValue) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicColorProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicColor(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 expectedValue);
     }
 
@@ -417,10 +438,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicInstant bindUnderTest, Instant instant) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInstantProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicInstant(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 instant);
     }
 
@@ -428,10 +456,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicDuration bindUnderTest, Duration duration) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicDurationProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicDuration(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 duration);
     }
 
@@ -439,10 +474,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicFloat bindUnderTest, Float expectedValue) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicFloatProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicFloat(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 expectedValue);
     }
 
@@ -450,10 +492,17 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicBool bindUnderTest, Boolean expectedValue) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicBoolProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation(),
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicBool(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
                 expectedValue);
     }
 
@@ -461,20 +510,34 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             DynamicInt32 bindUnderTest) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicInt32Proto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation());
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicInt32(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     private static ParametrizedDynamicTypeEvaluatorTest.TestCase<Float> testForInvalidValue(
             DynamicFloat bindUnderTest) {
         return new ParametrizedDynamicTypeEvaluatorTest.TestCase<>(
                 bindUnderTest.toDynamicFloatProto().toString(),
-                (evaluator, cb) ->
+                (evaluator, cb) -> {
+                    try {
                         evaluator
-                                .bindInternal(bindUnderTest, new MainThreadExecutor(), cb)
-                                .startEvaluation());
+                                .bind(
+                                        DynamicTypeBindingRequest.forDynamicFloat(
+                                                bindUnderTest, new MainThreadExecutor(), cb))
+                                .startEvaluation();
+                    } catch (EvaluationException e) {
+                        throw new RuntimeException(e);
+                    }
+                });
     }
 
     private static class TestCase<T> {
