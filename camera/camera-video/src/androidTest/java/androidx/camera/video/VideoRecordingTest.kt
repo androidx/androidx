@@ -44,6 +44,7 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
+import androidx.camera.core.UseCase
 import androidx.camera.core.impl.utils.AspectRatioUtil
 import androidx.camera.core.impl.utils.TransformUtils.is90or270
 import androidx.camera.core.impl.utils.TransformUtils.rectToSize
@@ -271,7 +272,7 @@ class VideoRecordingTest(
 
         // Verify.
         val metadataRotation2 = cameraInfo.getSensorRotationDegrees(targetRotation2).let {
-            if (videoCapture.node != null) {
+            if (isSurfaceProcessingEnabled(videoCapture)) {
                 // If effect is enabled, the rotation should eliminate the video content rotation.
                 it - videoContentRotation
             } else it
@@ -407,6 +408,11 @@ class VideoRecordingTest(
                 videoCapture
             )
         }
+
+        // TODO(b/264936115): In stream sharing (VirtualCameraAdapter), children's ViewPortCropRect
+        //  is ignored and override to the parent size, the cropRect is also rotated. Skip the test
+        //  for now.
+        assumeTrue(!isStreamSharingEnabled(videoCapture))
 
         val file = File.createTempFile("video_", ".tmp").apply { deleteOnExit() }
 
@@ -1200,7 +1206,7 @@ class VideoRecordingTest(
         cameraInfo: CameraInfo
     ): ExpectedRotation {
         val rotationNeeded = cameraInfo.getSensorRotationDegrees(videoCapture.targetRotation)
-        return if (videoCapture.node != null) {
+        return if (isSurfaceProcessingEnabled(videoCapture)) {
             ExpectedRotation(rotationNeeded, 0)
         } else {
             ExpectedRotation(0, rotationNeeded)
@@ -1322,6 +1328,11 @@ class VideoRecordingTest(
     private fun assumeExtraCroppingQuirk() {
         assumeExtraCroppingQuirk(implName)
     }
+
+    private fun isStreamSharingEnabled(useCase: UseCase) = !useCase.camera!!.hasTransform
+
+    private fun isSurfaceProcessingEnabled(videoCapture: VideoCapture<*>) =
+        videoCapture.node != null || isStreamSharingEnabled(videoCapture)
 
     private class ImageSavedCallback :
         ImageCapture.OnImageSavedCallback {
