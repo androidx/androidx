@@ -136,10 +136,8 @@ dependencies {
     androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.espressoCore)
     androidTestImplementation(libs.truth)
-    androidTestImplementation(libs.mockitoCore4)
-    androidTestImplementation(libs.dexmakerMockito)
+    androidTestImplementation(libs.mockitoAndroid5)
     androidTestImplementation(project(":internal-testutils-truth"))
-
 
     testImplementation(libs.junit)
 }

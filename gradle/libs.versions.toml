@@ -224,6 +224,7 @@ mlkitBarcode = { module = "com.google.mlkit:barcode-scanning", version = "17.0.2
 mockitoCore = { module = "org.mockito:mockito-core", version.ref = "mockito" }
 mockitoCore4 = { module = "org.mockito:mockito-core", version = "4.8.0" }
 mockitoAndroid = { module = "org.mockito:mockito-android", version.ref = "mockito" }
+mockitoAndroid5 = { module = "org.mockito:mockito-android", version = "5.8.0" }
 mockitoKotlin = { module = "org.mockito.kotlin:mockito-kotlin", version = "2.2.11" }
 mockitoKotlin4 = { module = "org.mockito.kotlin:mockito-kotlin", version = "4.0.0" }
 moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
