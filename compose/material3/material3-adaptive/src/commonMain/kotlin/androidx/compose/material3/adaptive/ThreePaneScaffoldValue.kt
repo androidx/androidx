@@ -16,18 +16,16 @@
 
 package androidx.compose.material3.adaptive
 
-import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Immutable
-import org.jetbrains.annotations.TestOnly
 
 @ExperimentalMaterial3AdaptiveApi
 private inline fun buildThreePaneScaffoldValue(
-    buildAction: (ThreePaneScaffoldRoleInternal) -> PaneAdaptedValue
+    buildAction: (ThreePaneScaffoldRole) -> PaneAdaptedValue
 ): ThreePaneScaffoldValue {
     return ThreePaneScaffoldValue(
-        buildAction(ThreePaneScaffoldRoleInternal.Primary),
-        buildAction(ThreePaneScaffoldRoleInternal.Secondary),
-        buildAction(ThreePaneScaffoldRoleInternal.Tertiary)
+        buildAction(ThreePaneScaffoldRole.Primary),
+        buildAction(ThreePaneScaffoldRole.Secondary),
+        buildAction(ThreePaneScaffoldRole.Tertiary)
     )
 }
 
@@ -37,8 +35,8 @@ private inline fun buildThreePaneScaffoldValue(
  * used as a unique representation of the current layout structure.
  *
  * The function will treat the current destination as the highest priority and then adapt the rest
- * panes according to the order of [ThreePaneScaffoldRoleInternal.Primary],
- * [ThreePaneScaffoldRoleInternal.Secondary] and [ThreePaneScaffoldRoleInternal.Tertiary]. If there
+ * panes according to the order of [ThreePaneScaffoldRole.Primary],
+ * [ThreePaneScaffoldRole.Secondary] and [ThreePaneScaffoldRole.Tertiary]. If there
  * are still remaining partitions to put the pane, the pane will be set as
  * [PaneAdaptedValue.Expanded], otherwise it will be adapted according to its associated
  * [AdaptStrategy].
@@ -55,12 +53,20 @@ fun calculateThreePaneScaffoldValue(
     maxHorizontalPartitions: Int,
     adaptStrategies: ThreePaneScaffoldAdaptStrategies = ThreePaneScaffoldDefaults.adaptStrategies(),
     currentDestination: ThreePaneScaffoldRole? = null,
-): ThreePaneScaffoldValue =
-    calculateThreePaneScaffoldValueInternal(
-        maxHorizontalPartitions,
-        adaptStrategies,
-        currentDestination?.internalRole
-    )
+): ThreePaneScaffoldValue {
+    var expandedCount = if (currentDestination != null) 1 else 0
+    return buildThreePaneScaffoldValue { role ->
+        when {
+            role == currentDestination -> PaneAdaptedValue.Expanded
+            expandedCount < maxHorizontalPartitions -> {
+                expandedCount++
+                PaneAdaptedValue.Expanded
+            }
+
+            else -> adaptStrategies[role].adapt()
+        }
+    }
+}
 
 /**
  * The adapted value of [ThreePaneScaffold]. It contains each pane's adapted value.
@@ -101,34 +107,10 @@ class ThreePaneScaffoldValue(
         return result
     }
 
-    operator fun get(role: ThreePaneScaffoldRole): PaneAdaptedValue = get(role.internalRole)
-
-    internal operator fun get(role: ThreePaneScaffoldRoleInternal): PaneAdaptedValue =
+    operator fun get(role: ThreePaneScaffoldRole): PaneAdaptedValue =
         when (role) {
-            ThreePaneScaffoldRoleInternal.Primary -> primary
-            ThreePaneScaffoldRoleInternal.Secondary -> secondary
-            ThreePaneScaffoldRoleInternal.Tertiary -> tertiary
+            ThreePaneScaffoldRole.Primary -> primary
+            ThreePaneScaffoldRole.Secondary -> secondary
+            ThreePaneScaffoldRole.Tertiary -> tertiary
         }
-}
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-@TestOnly
-@VisibleForTesting
-internal fun calculateThreePaneScaffoldValueInternal(
-    maxHorizontalPartitions: Int,
-    adaptStrategies: ThreePaneScaffoldAdaptStrategies = ThreePaneScaffoldDefaults.adaptStrategies(),
-    currentDestination: ThreePaneScaffoldRoleInternal? = null,
-): ThreePaneScaffoldValue {
-    var expandedCount = if (currentDestination != null) 1 else 0
-    return buildThreePaneScaffoldValue { role ->
-        when {
-            role == currentDestination -> PaneAdaptedValue.Expanded
-            expandedCount < maxHorizontalPartitions -> {
-                expandedCount++
-                PaneAdaptedValue.Expanded
-            }
-
-            else -> adaptStrategies[role].adapt()
-        }
-    }
 }
