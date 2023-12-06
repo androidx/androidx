@@ -53,7 +53,7 @@ class CameraInternalAdapter @Inject constructor(
 ) : CameraInternal {
     private val cameraId = config.cameraId
     private var coreCameraConfig: androidx.camera.core.impl.CameraConfig =
-        CameraConfigs.emptyConfig()
+        CameraConfigs.defaultConfig()
     private val debugId = cameraAdapterIds.incrementAndGet()
 
     init {
@@ -126,7 +126,7 @@ class CameraInternalAdapter @Inject constructor(
     }
 
     override fun setExtendedConfig(cameraConfig: androidx.camera.core.impl.CameraConfig?) {
-        coreCameraConfig = cameraConfig ?: CameraConfigs.emptyConfig()
+        coreCameraConfig = cameraConfig ?: CameraConfigs.defaultConfig()
     }
 
     override fun toString(): String = "CameraInternalAdapter<$cameraId>"

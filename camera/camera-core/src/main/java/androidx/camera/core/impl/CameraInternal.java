@@ -224,13 +224,18 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
         return new LinkedHashSet<>(Collections.singleton(this));
     }
 
+    /**
+     * Returns the current {@link CameraConfig}.
+     */
     @NonNull
     @Override
     default CameraConfig getExtendedConfig() {
-        return CameraConfigs.emptyConfig();
+        return CameraConfigs.defaultConfig();
     }
 
-    @Override
+    /**
+     * Sets the {@link CameraConfig} to configure the camera.
+     */
     default void setExtendedConfig(@Nullable CameraConfig cameraConfig) {
         // Ignore the config since CameraInternal won't use the config
     }

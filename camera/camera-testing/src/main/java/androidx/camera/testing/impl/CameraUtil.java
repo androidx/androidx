@@ -56,6 +56,8 @@ import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.concurrent.CameraCoordinator;
+import androidx.camera.core.impl.CameraConfig;
+import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
@@ -620,7 +622,8 @@ public final class CameraUtil {
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(
             @NonNull Context context,
             @NonNull CameraCoordinator cameraCoordinator,
-            @NonNull CameraSelector cameraSelector) {
+            @NonNull CameraSelector cameraSelector,
+            @NonNull CameraConfig cameraConfig) {
         try {
             CameraX cameraX = CameraXUtil.getOrCreateInstance(context, null).get(5000,
                     TimeUnit.MILLISECONDS);
@@ -629,7 +632,8 @@ public final class CameraUtil {
             return new CameraUseCaseAdapter(cameras,
                     cameraCoordinator,
                     cameraX.getCameraDeviceSurfaceManager(),
-                    cameraX.getDefaultConfigFactory());
+                    cameraX.getDefaultConfigFactory(),
+                    cameraConfig);
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             throw new RuntimeException("Unable to retrieve CameraX instance");
         }
@@ -655,7 +659,22 @@ public final class CameraUtil {
     public static CameraUseCaseAdapter createCameraUseCaseAdapter(
             @NonNull Context context,
             @NonNull CameraSelector cameraSelector) {
-        return createCameraUseCaseAdapter(context, new FakeCameraCoordinator(), cameraSelector);
+        return createCameraUseCaseAdapter(context, new FakeCameraCoordinator(),
+                cameraSelector, CameraConfigs.defaultConfig());
+    }
+
+    /**
+     * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector and
+     * CameraConfig
+     */
+    @VisibleForTesting
+    @NonNull
+    public static CameraUseCaseAdapter createCameraUseCaseAdapter(
+            @NonNull Context context,
+            @NonNull CameraSelector cameraSelector,
+            @NonNull CameraConfig cameraConfig) {
+        return createCameraUseCaseAdapter(context, new FakeCameraCoordinator(),
+                cameraSelector, cameraConfig);
     }
 
     /**
