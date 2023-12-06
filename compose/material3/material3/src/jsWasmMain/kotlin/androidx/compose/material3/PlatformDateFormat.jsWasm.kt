@@ -17,7 +17,6 @@
 package androidx.compose.material3
 
 import androidx.compose.ui.text.intl.Locale
-import kotlin.js.Date
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -57,7 +56,7 @@ internal actual object PlatformDateFormat {
             .fromEpochMilliseconds(utcTimeMillis)
             .toLocalDateTime(TimeZone.UTC)
 
-        val jsDate = Date(utcTimeMillis)
+        val jsDate = Date(utcTimeMillis.toDouble())
 
         val monthShort = jsDate.toLocaleDateString(
             locales = locale.toLanguageTag(),
@@ -94,43 +93,49 @@ internal actual object PlatformDateFormat {
         skeleton: String,
         locale: CalendarLocale
     ): String {
-        val date = Date(utcTimeMillis)
+        val jsDate = Date(utcTimeMillis.toDouble())
 
-        return date.toLocaleDateString(
+        return jsDate.toLocaleDateString(
             locales = locale.toLanguageTag(),
             options = dateLocaleOptions {
-                year = when {
+                when {
                     skeleton.contains("y", true) -> NUMERIC
-                    else -> undefined
-                }
-                month = when {
+                    else -> null
+                }?.also { year = it }
+
+                when {
                     skeleton.contains("MMMM", true) -> LONG
                     skeleton.contains("MMM", true) -> SHORT
                     skeleton.contains("M", true) -> NUMERIC
-                    else -> undefined
-                }
-                weekday = when {
+                    else -> null
+                }?.also { month = it }
+
+                when {
                     skeleton.contains("eeee", true) -> LONG
                     skeleton.contains("eee", true) -> SHORT
                     skeleton.contains("e", true) -> NARROW
-                    else -> undefined
-                }
-                day = when {
+                    else -> null
+                }?.also { weekday = it }
+
+                when {
                     skeleton.contains("d", true) -> NUMERIC
-                    else -> undefined
-                }
-                hour = when {
+                    else -> null
+                }?.also { day = it }
+
+                when {
                     skeleton.contains("h", true) -> NUMERIC
-                    else -> undefined
-                }
-                minute = when {
+                    else -> null
+                }?.also { hour = it }
+
+                when {
                     skeleton.contains("i", true) -> NUMERIC
-                    else -> undefined
-                }
-                second = when {
+                    else -> null
+                }?.also { minute = it }
+
+                when {
                     skeleton.contains("s", true) -> NUMERIC
-                    else -> undefined
-                }
+                    else -> null
+                }?.also { second = it }
             }
         )
     }
@@ -184,7 +189,7 @@ internal actual object PlatformDateFormat {
         val now = Date.now()
 
         val week = List(DaysInWeek) {
-            Date(now + MillisecondsIn24Hours * it)
+            Date(now + MillisecondsIn24HoursDouble * it)
         }.sortedBy { it.getDay() } // sunday to saturday
 
         val mondayToSunday = week.drop(1) + week.first()
@@ -202,14 +207,13 @@ internal actual object PlatformDateFormat {
     }
 
     private fun firstDayOfWeek(): Int {
-
-        @Suppress("UNUSED_VARIABLE")
         val locale = Locale.current.toLanguageTag()
 
-        return runCatching {
-            // unsupported in Firefox
-            js("new Intl.Locale(locale).weekInfo.firstDay").unsafeCast<Int>()
-        }.getOrElse {
+        return try {
+            // unsupported in Firefox or in older browsers
+            // -1 means it's not supported
+            getFirstDayOfWeek(locale).also { check(it != -1) }
+        } catch (e: Exception) {
             fallbackFirstDayOfWeek()
         }
     }
@@ -219,23 +223,16 @@ internal actual object PlatformDateFormat {
     }
 
     actual fun is24HourFormat(locale: CalendarLocale): Boolean {
-
-        @Suppress("UNUSED_VARIABLE")
         val localeTag = locale.toLanguageTag()
 
-        runCatching {
-            // unsupported in Firefox and old browsers
-            return js("new Intl.Locale(localeTag).hourCycles.join().indexOf('h2') >= 0")
-                .unsafeCast<Boolean>()
+        return try {
+            // unsupported in Firefox or in older browsers
+            // -1 means it's not supported
+            getIs24HourFormat(localeTag)
+                .also { check(it != -1) } == 1
+        } catch (e: Exception) {
+            fallbackIs24HourFormat(locale)
         }
-
-        runCatching {
-            // unsupported in old browsers
-            return js("new Intl.Locale(localeTag).hourCycle.indexOf('h2') >= 0")
-                .unsafeCast<Boolean>()
-        }
-
-        return fallbackIs24HourFormat(locale)
     }
 
     private fun fallbackIs24HourFormat(locale: CalendarLocale) : Boolean {
@@ -248,4 +245,77 @@ internal actual object PlatformDateFormat {
 
 private fun Int.toStringWithLeadingZero(): String{
     return if (this >= 10) toString() else "0$this"
+}
+
+@Suppress("UnsafeCastFromDynamic")
+// handle an exception in js because it's not propagated to wasm
+internal fun getFirstDayOfWeek(locale: String): Int =
+    js("""{ try { 
+           return new Intl.Locale(locale).weekInfo.firstDay; 
+        } catch (error) { 
+           return -1; 
+      }}"""
+    )
+
+
+@Suppress("UnsafeCastFromDynamic")
+// returns 1 if true, 0 if false, or -1 if failed to detect
+internal fun getIs24HourFormat(localeTag: String): Int =
+    js("""{
+            var locale = new Intl.Locale(localeTag);
+            // Check for the hourCycles property first
+            if (locale.hourCycles) {
+                return locale.hourCycles.includes('h23') || locale.hourCycles.includes('h24') ? 1 : 0;
+            }
+        
+            // Fallback to hourCycle property
+            if (locale.hourCycle) {
+                return locale.hourCycle === 'h23' || locale.hourCycle === 'h24' ? 1 : 0;
+            }
+            return -1;
+        }"""
+    )
+
+
+/**
+ * This is an incomplete declaration of js Date:
+ * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date
+ * It's copy-pasted with some modifications from kotlin.js.Date, which is not available for k/wasm.
+ * The modifications allow to make it reusable for both k/js and k/wasm.
+ *
+ * It contains only required methods.
+ */
+private external class Date() {
+    constructor(milliseconds: Double)
+    constructor(year: Int, month: Int, day: Int)
+    fun getDay(): Int
+    fun toLocaleDateString(locales: String, options: LocaleOptions = definedExternally): String
+
+    companion object {
+        fun now(): Double
+    }
+
+    interface LocaleOptions {
+        var localeMatcher: String?
+        var timeZone: String?
+        var hour12: Boolean?
+        var formatMatcher: String?
+        var weekday: String?
+        var era: String?
+        var year: String?
+        var month: String?
+        var day: String?
+        var hour: String?
+        var minute: String?
+        var second: String?
+        var timeZoneName: String?
+    }
+}
+
+private fun emptyLocaleOptions(): Date.LocaleOptions = js("new Object()")
+
+private inline fun dateLocaleOptions(init: Date.LocaleOptions.() -> Unit): Date.LocaleOptions {
+    val result = emptyLocaleOptions()
+    init(result)
+    return result
 }

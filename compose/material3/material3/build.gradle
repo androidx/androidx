@@ -134,7 +134,12 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             jsWasmMain.dependsOn(jsNativeMain)
             jsMain.dependsOn(jsWasmMain)
             if (project.kotlinWasmEnabled.toBoolean()) {
-                wasmMain.dependsOn(jsWasmMain)
+                wasmJsMain {
+                    dependsOn(jsWasmMain)
+                    dependencies {
+                        implementation(libs.kotlinStdlib)
+                    }
+                }
             }
 
             // TODO(b/214407011): These dependencies leak into instrumented tests as well. If you
@@ -182,7 +187,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 dependsOn(skikoTest)
             }
 
-            jsTest{
+            jsTest {
+                dependsOn(jsWasmTest)
+            }
+
+            wasmJsTest {
                 dependsOn(jsWasmTest)
             }
 
@@ -209,4 +218,10 @@ android {
     sourceSets.androidTest.assets.srcDirs +=
             project.rootDir.absolutePath + "/golden/compose/material3/material3"
     namespace "androidx.compose.material3"
+}
+
+project.tasks.configureEach {
+    if (name == "compileJsWasmMainKotlinMetadata") {
+        enabled = false
+    }
 }
