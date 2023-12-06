@@ -48,16 +48,12 @@ import androidx.core.os.HandlerCompat
 import androidx.core.view.AccessibilityDelegateCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.accessibility.AccessibilityNodeInfoCompat
-import androidx.core.view.animation.PathInterpolatorCompat
 import androidx.core.view.forEach
 import androidx.core.view.forEachIndexed
 import androidx.customview.view.AbsSavedState
 import androidx.customview.widget.Openable
 import androidx.customview.widget.ViewDragHelper
 import androidx.slidingpanelayout.R
-import androidx.transition.ChangeBounds
-import androidx.transition.Transition
-import androidx.transition.TransitionManager
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
 import java.util.concurrent.CopyOnWriteArrayList
@@ -342,6 +338,12 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     internal annotation class LockMode
 
     private var foldingFeature: FoldingFeature? = null
+        set(value) {
+            if (value != field) {
+                field = value
+                requestLayout()
+            }
+        }
 
     /**
      * [Job] that tracks the last launched coroutine running [whileAttachedToVisibleWindow].
@@ -780,12 +782,6 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             .distinctUntilChanged()
             .collect { nextFeature ->
                 foldingFeature = nextFeature
-                // Start transition animation when folding feature changed
-                val changeBounds: Transition = ChangeBounds()
-                changeBounds.duration = 300L
-                changeBounds.interpolator = PathInterpolatorCompat.create(0.2f, 0f, 0f, 1f)
-                TransitionManager.beginDelayedTransition(this@SlidingPaneLayout, changeBounds)
-                requestLayout()
             }
     }
 
