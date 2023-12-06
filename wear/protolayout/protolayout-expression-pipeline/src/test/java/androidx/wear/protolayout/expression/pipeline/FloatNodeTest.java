@@ -20,6 +20,7 @@ import static androidx.wear.protolayout.expression.PlatformHealthSources.Keys.HE
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
@@ -345,30 +346,35 @@ public class FloatNodeTest {
     }
 
     @Test
+    public void arithmeticFloat_unknownOperation_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        evaluateArithmeticExpression(
+                                /* lhs= */ 1,
+                                /* rhs= */ 1,
+                                ArithmeticOpType.ARITHMETIC_OP_TYPE_UNDEFINED,
+                                new AddToListCallback<>(new ArrayList<>())));
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        evaluateArithmeticExpression(
+                                /* lhs= */ 1,
+                                /* rhs= */ 1,
+                                -1 /* UNRECOGNIZED */,
+                                new AddToListCallback<>(new ArrayList<>())));
+    }
+
+    @Test
     public void arithmeticFloat_resultIsNaN_invalidate() {
         List<Float> results = new ArrayList<>();
         List<Boolean> invalidList = new ArrayList<>();
 
-        ArithmeticFloatOp protoNode =
-                ArithmeticFloatOp.newBuilder()
-                        .setOperationType(ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE)
-                        .build();
-
-        ArithmeticFloatNode node =
-                new ArithmeticFloatNode(protoNode, new AddToListCallback<>(results, invalidList));
-
-        float numerator = 0f;
-        FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(numerator).build();
-        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsUpstreamCallback());
-
-        float denominator = 0f;
-        FixedFloat rhsProtoNode = FixedFloat.newBuilder().setValue(denominator).build();
-        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsUpstreamCallback());
-        lhsNode.preInit();
-        rhsNode.preInit();
-
-        lhsNode.init();
-        rhsNode.init();
+        evaluateArithmeticExpression(
+                /* lhs= */ 0,
+                /* rhs= */ 0,
+                ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE,
+                new AddToListCallback<>(results, invalidList));
 
         assertThat(results).isEmpty();
         assertThat(invalidList).containsExactly(true);
@@ -379,26 +385,11 @@ public class FloatNodeTest {
         List<Float> results = new ArrayList<>();
         List<Boolean> invalidList = new ArrayList<>();
 
-        ArithmeticFloatOp protoNode =
-                ArithmeticFloatOp.newBuilder()
-                        .setOperationType(ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE)
-                        .build();
-
-        ArithmeticFloatNode node =
-                new ArithmeticFloatNode(protoNode, new AddToListCallback<>(results, invalidList));
-
-        float numerator = 1f;
-        FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(numerator).build();
-        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsUpstreamCallback());
-
-        float denominator = 0;
-        FixedFloat rhsProtoNode = FixedFloat.newBuilder().setValue(denominator).build();
-        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsUpstreamCallback());
-        lhsNode.preInit();
-        rhsNode.preInit();
-
-        lhsNode.init();
-        rhsNode.init();
+        evaluateArithmeticExpression(
+                /* lhs= */ 1,
+                /* rhs= */ 0,
+                ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE,
+                new AddToListCallback<>(results, invalidList));
 
         assertThat(results).isEmpty();
         assertThat(invalidList).containsExactly(true);
@@ -569,5 +560,32 @@ public class FloatNodeTest {
         assertThat(results.get(0)).isEqualTo(value2);
         assertThat(Iterables.getLast(results)).isEqualTo(value3);
         assertThat(results).isInOrder();
+    }
+
+    private static void evaluateArithmeticExpression(
+            float lhs,
+            float rhs,
+            ArithmeticOpType op,
+            DynamicTypeValueReceiverWithPreUpdate<Float> receiver) {
+        evaluateArithmeticExpression(lhs, rhs, op.getNumber(), receiver);
+    }
+
+    private static void evaluateArithmeticExpression(
+            float lhs, float rhs, int op, DynamicTypeValueReceiverWithPreUpdate<Float> receiver) {
+        ArithmeticFloatOp protoNode =
+                ArithmeticFloatOp.newBuilder().setOperationTypeValue(op).build();
+
+        ArithmeticFloatNode node = new ArithmeticFloatNode(protoNode, receiver);
+
+        FixedFloat lhsProtoNode = FixedFloat.newBuilder().setValue(lhs).build();
+        FixedFloatNode lhsNode = new FixedFloatNode(lhsProtoNode, node.getLhsUpstreamCallback());
+
+        FixedFloat rhsProtoNode = FixedFloat.newBuilder().setValue(rhs).build();
+        FixedFloatNode rhsNode = new FixedFloatNode(rhsProtoNode, node.getRhsUpstreamCallback());
+        lhsNode.preInit();
+        rhsNode.preInit();
+
+        lhsNode.init();
+        rhsNode.init();
     }
 }

@@ -52,6 +52,7 @@ import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Animat
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.RepeatMode;
 import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Repeatable;
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
+import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicColor;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableDynamicFloat;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedColor;
@@ -855,7 +856,12 @@ public class ProtoLayoutDynamicDataPipelineTest {
                         .build();
         DynamicInt32 dynamicInt32 =
                 DynamicInt32.newBuilder()
-                        .setFloatToInt(FloatToInt32Op.newBuilder().setInput(dynamicFloat).build())
+                        .setFloatToInt(
+                                FloatToInt32Op.newBuilder()
+                                        .setRoundMode(
+                                                DynamicProto.FloatToInt32RoundMode.ROUND_MODE_ROUND)
+                                        .setInput(dynamicFloat)
+                                        .build())
                         .build();
         DynamicString dynamicString =
                 DynamicString.newBuilder()

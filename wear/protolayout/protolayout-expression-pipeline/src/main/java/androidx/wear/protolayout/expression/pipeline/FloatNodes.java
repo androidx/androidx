@@ -96,13 +96,9 @@ class FloatNodes {
         }
 
         private static float computeResult(
-                DynamicProto.ArithmeticOpType opType, Float lhs, Float rhs) {
+                DynamicProto.ArithmeticOpType opType, float lhs, float rhs) {
             try {
                 switch (opType) {
-                    case ARITHMETIC_OP_TYPE_UNDEFINED:
-                    case UNRECOGNIZED:
-                        Log.e(TAG, "Unknown operation type in ArithmeticFloatNode");
-                        return Float.NaN;
                     case ARITHMETIC_OP_TYPE_ADD:
                         return lhs + rhs;
                     case ARITHMETIC_OP_TYPE_SUBTRACT:
@@ -113,13 +109,16 @@ class FloatNodes {
                         return lhs / rhs;
                     case ARITHMETIC_OP_TYPE_MODULO:
                         return lhs % rhs;
+                    case ARITHMETIC_OP_TYPE_UNDEFINED:
+                    case UNRECOGNIZED:
+                        break;
                 }
             } catch (ArithmeticException ex) {
                 Log.e(TAG, "ArithmeticException in ArithmeticFloatNode", ex);
                 return Float.NaN;
             }
-            Log.e(TAG, "Unknown operation type in ArithmeticFloatNode");
-            return Float.NaN;
+            throw new IllegalArgumentException(
+                    "Unknown operation type in ArithmeticFloatNode: " + opType);
         }
     }
 

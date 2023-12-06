@@ -18,9 +18,16 @@ package androidx.wear.protolayout.expression.pipeline;
 
 import static androidx.wear.protolayout.expression.PlatformHealthSources.Keys.DAILY_STEPS;
 import static androidx.wear.protolayout.expression.PlatformHealthSources.Keys.HEART_RATE_BPM;
+import static androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE;
+import static androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticOpType.ARITHMETIC_OP_TYPE_UNDEFINED;
+import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32RoundMode.ROUND_MODE_CEILING;
+import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32RoundMode.ROUND_MODE_FLOOR;
+import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32RoundMode.ROUND_MODE_ROUND;
+import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32RoundMode.ROUND_MODE_UNDEFINED;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.robolectric.Shadows.shadowOf;
@@ -46,7 +53,6 @@ import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Animat
 import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.DynamicProto;
 import androidx.wear.protolayout.expression.proto.DynamicProto.AnimatableFixedInt32;
-import androidx.wear.protolayout.expression.proto.DynamicProto.ArithmeticOpType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.DurationPartType;
 import androidx.wear.protolayout.expression.proto.DynamicProto.GetDurationPartOp;
 import androidx.wear.protolayout.expression.proto.DynamicProto.GetZonedDateTimePartOp;
@@ -99,32 +105,37 @@ public class Int32NodesTest {
     }
 
     @Test
+    public void testArithmeticOperation_unknownOp_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        evaluateArithmeticExpression(
+                                1,
+                                1,
+                                ARITHMETIC_OP_TYPE_UNDEFINED.getNumber(),
+                                new AddToListCallback<>(new ArrayList<>())));
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        evaluateArithmeticExpression(
+                                /* lhs= */ 1,
+                                /* rhs= */ 1,
+                                -1 /* UNRECOGNIZED */,
+                                new AddToListCallback<>(new ArrayList<>())));
+    }
+
+    @Test
     public void testArithmeticOperation_validResult_invalidateNotCalled() {
         List<Integer> results = new ArrayList<>();
         List<Boolean> invalidList = new ArrayList<>();
 
-        DynamicProto.ArithmeticInt32Op protoNode =
-                DynamicProto.ArithmeticInt32Op.newBuilder()
-                        .setOperationType(ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE)
-                        .build();
+        evaluateArithmeticExpression(
+                /* lhs= */ 4,
+                /* rhs= */ 3,
+                ARITHMETIC_OP_TYPE_DIVIDE.getNumber(),
+                new AddToListCallback<>(results, invalidList));
 
-        ArithmeticInt32Node node =
-                new ArithmeticInt32Node(protoNode, new AddToListCallback<>(results, invalidList));
-
-        int numerator = 4;
-        FixedInt32 lhsProtoNode = FixedInt32.newBuilder().setValue(numerator).build();
-        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsUpstreamCallback());
-
-        int denominator = 2;
-        FixedInt32 rhsProtoNode = FixedInt32.newBuilder().setValue(denominator).build();
-        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsUpstreamCallback());
-        lhsNode.preInit();
-        rhsNode.preInit();
-
-        lhsNode.init();
-        rhsNode.init();
-
-        assertThat(results).containsExactly(2);
+        assertThat(results).containsExactly(1);
         assertThat(invalidList).isEmpty();
     }
 
@@ -133,29 +144,29 @@ public class Int32NodesTest {
         List<Integer> results = new ArrayList<>();
         List<Boolean> invalidList = new ArrayList<>();
 
-        DynamicProto.ArithmeticInt32Op protoNode =
-                DynamicProto.ArithmeticInt32Op.newBuilder()
-                        .setOperationType(ArithmeticOpType.ARITHMETIC_OP_TYPE_DIVIDE)
-                        .build();
-
-        ArithmeticInt32Node node =
-                new ArithmeticInt32Node(protoNode, new AddToListCallback<>(results, invalidList));
-
-        int numerator = 0;
-        FixedInt32 lhsProtoNode = FixedInt32.newBuilder().setValue(numerator).build();
-        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsUpstreamCallback());
-
-        int denominator = 0;
-        FixedInt32 rhsProtoNode = FixedInt32.newBuilder().setValue(denominator).build();
-        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsUpstreamCallback());
-        lhsNode.preInit();
-        rhsNode.preInit();
-
-        lhsNode.init();
-        rhsNode.init();
+        evaluateArithmeticExpression(
+                /* lhs= */ 0,
+                /* rhs= */ 0,
+                ARITHMETIC_OP_TYPE_DIVIDE.getNumber(),
+                new AddToListCallback<>(results, invalidList));
 
         assertThat(results).isEmpty();
         assertThat(invalidList).containsExactly(true);
+    }
+
+    @Test
+    public void testGetDurationPartOpNode_unknownPart_throws() {
+        Duration duration = Duration.ofSeconds(123456);
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () ->
+                        createGetDurationPartOpNodeAndGetPart(
+                                duration, DurationPartType.DURATION_PART_TYPE_UNDEFINED));
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> createGetDurationPartOpNodeAndGetPart(duration, -1 /* UNRECOGNIZED */));
     }
 
     @Test
@@ -239,10 +250,14 @@ public class Int32NodesTest {
     }
 
     private int createGetDurationPartOpNodeAndGetPart(Duration duration, DurationPartType part) {
+        return createGetDurationPartOpNodeAndGetPart(duration, part.getNumber());
+    }
+
+    private int createGetDurationPartOpNodeAndGetPart(Duration duration, int part) {
         List<Integer> results = new ArrayList<>();
         GetDurationPartOpNode node =
                 new GetDurationPartOpNode(
-                        GetDurationPartOp.newBuilder().setDurationPart(part).build(),
+                        GetDurationPartOp.newBuilder().setDurationPartValue(part).build(),
                         new AddToListCallback<>(results));
         node.getIncomingCallback().onData(duration);
         return results.get(0);
@@ -631,5 +646,61 @@ public class Int32NodesTest {
                         createGetZonedDateTimeOpNodeAndGetPart(
                                 zonedDateTime, ZonedDateTimePartType.ZONED_DATE_TIME_PART_SECOND))
                 .isEqualTo(0);
+    }
+
+    @Test
+    public void testFloatToInt32Node() {
+        assertThat(evaluateFloatToInt32Expression(12.49f, ROUND_MODE_CEILING)).isEqualTo(13);
+        assertThat(evaluateFloatToInt32Expression(12.99f, ROUND_MODE_FLOOR)).isEqualTo(12);
+        assertThat(evaluateFloatToInt32Expression(12.49f, ROUND_MODE_ROUND)).isEqualTo(12);
+        assertThat(evaluateFloatToInt32Expression(12.50f, ROUND_MODE_ROUND)).isEqualTo(13);
+    }
+
+    @Test
+    public void testFloatToInt32Node__unknownRoundType_throws() {
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> evaluateFloatToInt32Expression(12.34f, ROUND_MODE_UNDEFINED));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> evaluateFloatToInt32Expression(12.34f, -1 /* UNRECOGNIZED */));
+    }
+
+    private static void evaluateArithmeticExpression(
+            int lhs, int rhs, int opType, DynamicTypeValueReceiverWithPreUpdate<Integer> receiver) {
+        DynamicProto.ArithmeticInt32Op protoNode =
+                DynamicProto.ArithmeticInt32Op.newBuilder().setOperationTypeValue(opType).build();
+
+        ArithmeticInt32Node node = new ArithmeticInt32Node(protoNode, receiver);
+
+        FixedInt32 lhsProtoNode = FixedInt32.newBuilder().setValue(lhs).build();
+        FixedInt32Node lhsNode = new FixedInt32Node(lhsProtoNode, node.getLhsUpstreamCallback());
+
+        FixedInt32 rhsProtoNode = FixedInt32.newBuilder().setValue(rhs).build();
+        FixedInt32Node rhsNode = new FixedInt32Node(rhsProtoNode, node.getRhsUpstreamCallback());
+        lhsNode.preInit();
+        rhsNode.preInit();
+
+        lhsNode.init();
+        rhsNode.init();
+    }
+
+    private static int evaluateFloatToInt32Expression(
+            float value, DynamicProto.FloatToInt32RoundMode roundMode) {
+        return evaluateFloatToInt32Expression(value, roundMode.getNumber());
+    }
+
+    private static int evaluateFloatToInt32Expression(float value, int roundMode) {
+        List<Integer> results = new ArrayList<>();
+        Int32Nodes.FloatToInt32Node node =
+                new Int32Nodes.FloatToInt32Node(
+                        DynamicProto.FloatToInt32Op.newBuilder()
+                                .setRoundModeValue(roundMode)
+                                .build(),
+                        new AddToListCallback<>(results));
+        node.getIncomingCallback().onPreUpdate();
+        node.getIncomingCallback().onData(value);
+
+        return results.get(0);
     }
 }
