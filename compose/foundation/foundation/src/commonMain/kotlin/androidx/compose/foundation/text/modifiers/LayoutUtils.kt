@@ -86,3 +86,37 @@ internal fun finalMaxLines(softWrap: Boolean, overflow: TextOverflow, maxLinesIn
     val overwriteMaxLines = !softWrap && overflow == TextOverflow.Ellipsis
     return if (overwriteMaxLines) 1 else maxLinesIn.coerceAtLeast(1)
 }
+
+private const val BigConstraintValue = (1 shl 18) - 1
+private const val MediumConstraintValue = (1 shl 16) - 1
+private const val SmallConstraintValue = (1 shl 15) - 1
+private const val TinyConstraintValue = (1 shl 13) - 1
+
+/**
+ * Make constraints that never throw from being too large. Prefer to keep accurate width information
+ * first, then constrain height based on the size of width.
+ *
+ * This will return a Constraint with the same or smaller dimensions than the passed (width, height)
+ *
+ * see b/312294386 for more details
+ *
+ * This particular logic is text specific, so not generalizing.
+ *
+ * @param width desired width (has priority)
+ * @param height desired height (uses the remaining bits after width)
+ *
+ * @return a safe Constraint that never throws for running out of bits
+ */
+internal fun Constraints.Companion.fixedCoerceHeightAndWidthForBits(
+    width: Int,
+    height: Int
+): Constraints {
+    val safeWidth = minOf(width, BigConstraintValue - 1)
+    val safeHeight = when {
+        safeWidth < TinyConstraintValue -> minOf(height, BigConstraintValue - 1)
+        safeWidth < SmallConstraintValue -> minOf(height, MediumConstraintValue - 1)
+        safeWidth < MediumConstraintValue -> minOf(height, SmallConstraintValue - 1)
+        else -> minOf(height, TinyConstraintValue - 1)
+    }
+    return fixed(safeWidth, safeHeight)
+}
