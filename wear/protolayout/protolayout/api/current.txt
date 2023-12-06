@@ -127,9 +127,8 @@ package androidx.wear.protolayout {
   }
 
   public static final class ColorBuilders.ColorStop.Builder {
-    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public ColorBuilders.ColorStop.Builder(androidx.wear.protolayout.ColorBuilders.ColorProp);
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public ColorBuilders.ColorStop.Builder(androidx.wear.protolayout.ColorBuilders.ColorProp, androidx.wear.protolayout.TypeBuilders.FloatProp);
     method public androidx.wear.protolayout.ColorBuilders.ColorStop build();
-    method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.ColorBuilders.ColorStop.Builder setOffset(androidx.wear.protolayout.TypeBuilders.FloatProp);
   }
 
   @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public static final class ColorBuilders.SweepGradient implements androidx.wear.protolayout.ColorBuilders.Brush {
@@ -139,6 +138,7 @@ package androidx.wear.protolayout {
   }
 
   public static final class ColorBuilders.SweepGradient.Builder {
+    ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) @java.lang.SafeVarargs public ColorBuilders.SweepGradient.Builder(androidx.wear.protolayout.ColorBuilders.ColorProp!...);
     ctor @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) @java.lang.SafeVarargs public ColorBuilders.SweepGradient.Builder(androidx.wear.protolayout.ColorBuilders.ColorStop!...);
     method public androidx.wear.protolayout.ColorBuilders.SweepGradient build();
     method @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public androidx.wear.protolayout.ColorBuilders.SweepGradient.Builder setEndAngle(androidx.wear.protolayout.DimensionBuilders.DegreesProp);
