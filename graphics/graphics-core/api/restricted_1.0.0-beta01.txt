@@ -8,7 +8,8 @@ package androidx.graphics {
     method public long getUsageFlags();
     method public boolean isClosed();
     method public androidx.graphics.CanvasBufferedRenderer.RenderRequest obtainRenderRequest();
-    method public void releaseBuffer(android.hardware.HardwareBuffer hardwareBuffer, androidx.hardware.SyncFenceCompat? fence);
+    method public void releaseBuffer(android.hardware.HardwareBuffer hardwareBuffer);
+    method public void releaseBuffer(android.hardware.HardwareBuffer hardwareBuffer, optional androidx.hardware.SyncFenceCompat? fence);
     method public void setContentRoot(android.graphics.RenderNode renderNode);
     method public void setLightSourceAlpha(float ambientShadowAlpha, float spotShadowAlpha);
     method public void setLightSourceGeometry(float lightX, float lightY, float lightZ, float lightRadius);
