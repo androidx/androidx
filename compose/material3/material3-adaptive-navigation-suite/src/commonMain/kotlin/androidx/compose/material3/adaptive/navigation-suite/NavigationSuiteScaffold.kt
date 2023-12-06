@@ -276,6 +276,8 @@ fun NavigationSuite(
                 }
             }
         }
+
+        NavigationSuiteType.None -> { /* Do nothing. */ }
     }
 }
 
@@ -358,6 +360,12 @@ value class NavigationSuiteType private constructor(private val description: Str
          * @see PermanentDrawerSheet
          */
         val NavigationDrawer = NavigationSuiteType(description = "NavigationDrawer")
+
+        /**
+         * A navigation suite type that instructs the [NavigationSuite] to not display any
+         * navigation components on the screen.
+         */
+        val None = NavigationSuiteType(description = "None")
     }
 }
 
