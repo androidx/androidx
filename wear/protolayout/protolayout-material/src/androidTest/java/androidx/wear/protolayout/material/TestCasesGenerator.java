@@ -31,7 +31,6 @@ import androidx.wear.protolayout.DeviceParametersBuilders;
 import androidx.wear.protolayout.LayoutElementBuilders;
 import androidx.wear.protolayout.LayoutElementBuilders.Box;
 import androidx.wear.protolayout.LayoutElementBuilders.LayoutElement;
-import androidx.wear.protolayout.LayoutElementBuilders.Row;
 import androidx.wear.protolayout.ModifiersBuilders.Background;
 import androidx.wear.protolayout.ModifiersBuilders.Clickable;
 import androidx.wear.protolayout.ModifiersBuilders.Modifiers;
@@ -210,78 +209,61 @@ public class TestCasesGenerator {
         testCases.put(
                 "compactchip_default_len2_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Ab", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_default_len5_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Abcde", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_default_len9_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Abcdefghi", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_default_toolong_golden" + goldenSuffix,
                 new CompactChip.Builder(
                                 context, "AbcdefghiEXTRAEXTRAEXTRA", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_custom_default_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
-                        .setExcludeFontPadding(true)
-                        .build());
-        testCases.put(
-                "compactchip_includepadding_default_golden" + goldenSuffix,
-                new CompactChip.Builder(context, "Action", clickable, deviceParameters)
-                        .setExcludeFontPadding(false)
                         .build());
         testCases.put(
                 "compactchip_icon_default_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setIconContent(ICON_ID_SMALL)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_icon_toolong_golden" + goldenSuffix,
                 new CompactChip.Builder(
                                 context, "AbcdefghiEXTRAEXTRAEXTRA", clickable, deviceParameters)
                         .setIconContent(ICON_ID_SMALL)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_icon_len2_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Ab", clickable, deviceParameters)
                         .setIconContent(ICON_ID_SMALL)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "compactchip_icon_custom_golden" + goldenSuffix,
                 new CompactChip.Builder(context, "Action", clickable, deviceParameters)
                         .setIconContent(ICON_ID_SMALL)
-                        .setExcludeFontPadding(true)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLACK))
                         .build());
 
         testCases.put(
                 "titlechip_default_golden" + goldenSuffix,
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "titlechip_default_texttoolong_golden" + goldenSuffix,
                 new TitleChip.Builder(context, "abcdeabcdeabcdeEXTRA", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "titlechip_leftalign_secondary_default_golden" + goldenSuffix,
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_START)
                         .setChipColors(ChipDefaults.TITLE_SECONDARY_COLORS)
-                        .setExcludeFontPadding(true)
                         .build());
         testCases.put(
                 "titlechip_centered_custom_150_secondary_default_golden" + goldenSuffix,
@@ -289,23 +271,15 @@ public class TestCasesGenerator {
                         .setHorizontalAlignment(HORIZONTAL_ALIGN_CENTER)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLUE))
                         .setWidth(150)
-                        .setExcludeFontPadding(true)
-                        .build());
-        testCases.put(
-                "titlechip_includepadding_default_golden" + goldenSuffix,
-                new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
-                        .setExcludeFontPadding(false)
                         .build());
         testCases.put(
                 "titlechip_icon_default_golden" + goldenSuffix,
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .setIconContent(ICON_ID)
                         .build());
         testCases.put(
                 "titlechip_icon_default_texttoolong_golden" + goldenSuffix,
                 new TitleChip.Builder(context, "abcdeabcdeabcdeEXTRA", clickable, deviceParameters)
-                        .setExcludeFontPadding(true)
                         .setIconContent(ICON_ID)
                         .build());
         testCases.put(
@@ -313,7 +287,6 @@ public class TestCasesGenerator {
                 new TitleChip.Builder(context, largeChipText, clickable, deviceParameters)
                         .setChipColors(new ChipColors(Color.YELLOW, Color.BLUE))
                         .setWidth(150)
-                        .setExcludeFontPadding(true)
                         .setIconContent(ICON_ID)
                         .build());
 
@@ -348,31 +321,8 @@ public class TestCasesGenerator {
                         .build());
 
         testCases.put(
-                "default_text_golden" + goldenSuffix, new Text.Builder(context, "Testing").build());
-        testCases.put(
-                "excluded_padding_text_golden" + goldenSuffix,
-                new Row.Builder()
-                        .addContent(
-                                new Box.Builder()
-                                        .setModifiers(buildBackgroundColorModifier(Color.YELLOW))
-                                        .addContent(
-                                                new Text.Builder(context, "Inc padd ")
-                                                        .setExcludeFontPadding(false)
-                                                        .setTypography(
-                                                                Typography.TYPOGRAPHY_CAPTION1)
-                                                        .build())
-                                        .build())
-                        .addContent(
-                                new Box.Builder()
-                                        .setModifiers(buildBackgroundColorModifier(Color.CYAN))
-                                        .addContent(
-                                                new Text.Builder(context, "Excl padd")
-                                                        .setExcludeFontPadding(true)
-                                                        .setTypography(
-                                                                Typography.TYPOGRAPHY_CAPTION1)
-                                                        .build())
-                                        .build())
-                        .build());
+                "default_text_golden" + goldenSuffix,
+                new Text.Builder(context, "Testing").build());
         testCases.put(
                 "custom_text_golden" + goldenSuffix,
                 new Text.Builder(context, "Testing text.")
