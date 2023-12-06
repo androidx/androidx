@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,97 +14,59 @@
  * limitations under the License.
  */
 
-package androidx.car.app.sample.showcase.common.screens.navigationdemos;
+package androidx.car.app.sample.showcase.common.screens.mapdemos.mapwithcontent;
 
 import static androidx.car.app.CarToast.LENGTH_LONG;
 import static androidx.car.app.CarToast.LENGTH_SHORT;
-import static androidx.car.app.model.Action.FLAG_PRIMARY;
-
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.car.app.CarContext;
 import androidx.car.app.CarToast;
 import androidx.car.app.Screen;
+import androidx.car.app.constraints.ConstraintManager;
 import androidx.car.app.model.Action;
 import androidx.car.app.model.ActionStrip;
-import androidx.car.app.model.CarColor;
 import androidx.car.app.model.CarIcon;
+import androidx.car.app.model.CarText;
 import androidx.car.app.model.Header;
-import androidx.car.app.model.Pane;
+import androidx.car.app.model.ItemList;
+import androidx.car.app.model.OnClickListener;
+import androidx.car.app.model.ParkedOnlyOnClickListener;
 import androidx.car.app.model.Row;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.MapController;
 import androidx.car.app.navigation.model.MapTemplate;
 import androidx.car.app.sample.showcase.common.R;
-import androidx.car.app.sample.showcase.common.screens.navigationdemos.navigationtemplates.RoutingDemoModels;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDemoModels;
 import androidx.car.app.versioning.CarAppApiLevels;
 import androidx.core.graphics.drawable.IconCompat;
 
-/** Simple demo of how to present a map template with a pane. */
-public class MapTemplateWithPaneDemoScreen extends Screen {
-    @Nullable
-    private final IconCompat mPaneImage;
-
-    @Nullable
-    private final IconCompat mRowLargeIcon;
-
-    private static final int LIST_LIMIT = 4;
-
+/** Simple demo of how to present a map template with a list. */
+public class MapTemplateWithListDemoScreen extends Screen {
+    private static final int MAX_LIST_ITEMS = 100;
     private boolean mIsFavorite;
 
-    public MapTemplateWithPaneDemoScreen(@NonNull CarContext carContext) {
+    public MapTemplateWithListDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
-        Resources resources = getCarContext().getResources();
-        Bitmap bitmap = BitmapFactory.decodeResource(resources, R.drawable.patio);
-        mPaneImage = IconCompat.createWithBitmap(bitmap);
-        mRowLargeIcon = IconCompat.createWithResource(getCarContext(),
-                R.drawable.ic_fastfood_white_48dp);
     }
 
     @NonNull
     @Override
     public Template onGetTemplate() {
-        Pane.Builder paneBuilder = new Pane.Builder();
+        ItemList.Builder listBuilder = new ItemList.Builder();
+        listBuilder.addItem(createRowWithParkedOnlyContent());
+        listBuilder.addItem(createRowWithSecondaryAction(2));
+        // Some hosts may allow more items in the list than others, so create more.
+        if (getCarContext().getCarAppApiLevel() > CarAppApiLevels.LEVEL_1) {
+            int listLimit =
+                    Math.min(MAX_LIST_ITEMS,
+                            getCarContext().getCarService(ConstraintManager.class).getContentLimit(
+                                    ConstraintManager.CONTENT_LIMIT_TYPE_LIST));
 
-        paneBuilder.addRow(createRowWithExcessivelyLargeContent());
-        paneBuilder.addRow(createRowWithSecondaryAction(1));
-        for (int i = 2; i < LIST_LIMIT; i++) {
-            paneBuilder.addRow(createRow(i));
+            for (int i = 3; i <= listLimit; ++i) {
+                listBuilder.addItem(createRow(i));
+            }
         }
-
-        // Also set a large image outside of the rows.
-        paneBuilder.setImage(new CarIcon.Builder(mPaneImage).build());
-
-        Action.Builder primaryActionBuilder = new Action.Builder()
-                .setTitle(getCarContext().getString(R.string.primary_action_title))
-                .setBackgroundColor(CarColor.BLUE)
-                .setOnClickListener(
-                        () -> CarToast.makeText(
-                                        getCarContext(),
-                                        getCarContext().getString(R.string.primary_toast_msg),
-                                        LENGTH_SHORT)
-                                .show());
-        if (getCarContext().getCarAppApiLevel() >= CarAppApiLevels.LEVEL_4) {
-            primaryActionBuilder.setFlags(FLAG_PRIMARY);
-        }
-
-        paneBuilder
-                .addAction(primaryActionBuilder.build())
-                .addAction(
-                        new Action.Builder()
-                                .setTitle(getCarContext().getString(R.string.options_action_title))
-                                .setOnClickListener(
-                                        () -> CarToast.makeText(
-                                                        getCarContext(),
-                                                        getCarContext().getString(
-                                                                R.string.options_toast_msg),
-                                                        LENGTH_SHORT)
-                                                .show())
-                                .build());
 
         Header header = new Header.Builder()
                 .setStartHeaderAction(Action.BACK)
@@ -122,8 +84,8 @@ public class MapTemplateWithPaneDemoScreen extends Screen {
                             CarToast.makeText(
                                             getCarContext(),
                                             mIsFavorite
-                                                    ? getCarContext()
-                                                    .getString(R.string.favorite_toast_msg)
+                                                    ? getCarContext().getString(
+                                                    R.string.favorite_toast_msg)
                                                     : getCarContext().getString(
                                                             R.string.not_favorite_toast_msg),
                                             LENGTH_SHORT)
@@ -140,7 +102,7 @@ public class MapTemplateWithPaneDemoScreen extends Screen {
                                                 R.drawable.ic_close_white_24dp))
                                         .build())
                         .build())
-                .setTitle(getCarContext().getString(R.string.map_template_pane_demo_title))
+                .setTitle(getCarContext().getString(R.string.map_template_list_demo_title))
                 .build();
 
 
@@ -169,35 +131,28 @@ public class MapTemplateWithPaneDemoScreen extends Screen {
                 .build();
 
         MapTemplate.Builder builder = new MapTemplate.Builder()
+                .setItemList(listBuilder.build())
                 .setActionStrip(actionStrip)
-                .setPane(paneBuilder.build())
                 .setHeader(header)
                 .setMapController(mapController);
 
         return builder.build();
     }
 
-    private Row createRow(int index) {
+    private Row createRowWithParkedOnlyContent() {
         return new Row.Builder()
-                .setTitle(createRowTitle(index))
-                .addText(getCarContext().getString(R.string.other_row_text))
-                .addText(getCarContext().getString(R.string.other_row_text))
+                .setOnClickListener(
+                        ParkedOnlyOnClickListener.create(() -> onClick(
+                                getCarContext().getString(R.string.parked_toast_msg))))
+                .setTitle(getCarContext().getString(R.string.parked_only_title))
+                .addText(getCarContext().getString(R.string.parked_only_text))
                 .build();
-    }
-
-    private Row createRowWithExcessivelyLargeContent() {
-        return new Row.Builder()
-            .setTitle(getCarContext().getString(R.string.first_row_title))
-            .addText(getCarContext().getString(R.string.long_line_text))
-            .setImage(new CarIcon.Builder(mRowLargeIcon).build())
-            .build();
     }
 
     private Row createRowWithSecondaryAction(int index) {
         Action action = new Action.Builder()
                 .setIcon(buildCarIconWithResources(R.drawable.baseline_question_mark_24))
-                .setOnClickListener(() -> CarToast.makeText(getCarContext(),
-                        R.string.secondary_action_toast, LENGTH_LONG).show())
+                .setOnClickListener(createRowOnClickListener(index))
                 .build();
 
         Row.Builder rowBuilder = new Row.Builder()
@@ -211,8 +166,31 @@ public class MapTemplateWithPaneDemoScreen extends Screen {
         return rowBuilder.build();
     }
 
-    private CharSequence createRowTitle(int index) {
-        return getCarContext().getString(R.string.other_row_title_prefix) + (index + 1);
+    private Row createRow(int index) {
+        // For row text, set text variants that fit best in different screen sizes.
+        String secondTextStr = getCarContext().getString(R.string.second_line_text);
+        CarText secondText =
+                new CarText.Builder(
+                        "================= " + secondTextStr + " ================")
+                        .addVariant("--------------------- " + secondTextStr
+                                + " ----------------------")
+                        .addVariant(secondTextStr)
+                        .build();
+
+        return new Row.Builder()
+                .setOnClickListener(createRowOnClickListener(index))
+                .setTitle(createRowTitle(index))
+                .addText(getCarContext().getString(R.string.first_line_text))
+                .addText(secondText)
+                .build();
+    }
+
+    private String createRowTitle(int index) {
+        return getCarContext().getString(R.string.title_prefix) + " " + index;
+    }
+
+    private OnClickListener createRowOnClickListener(int index) {
+        return () -> onClick(getCarContext().getString(R.string.clicked_row_prefix) + ": " + index);
     }
 
     private CarIcon buildCarIconWithResources(int imageId) {
@@ -221,5 +199,9 @@ public class MapTemplateWithPaneDemoScreen extends Screen {
                         getCarContext(),
                         imageId))
                 .build();
+    }
+
+    private void onClick(String text) {
+        CarToast.makeText(getCarContext(), text, LENGTH_LONG).show();
     }
 }

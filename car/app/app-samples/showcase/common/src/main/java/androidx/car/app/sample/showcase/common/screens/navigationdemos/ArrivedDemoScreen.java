@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.sample.showcase.common.screens.navigationdemos.navigationtemplates;
+package androidx.car.app.sample.showcase.common.screens.navigationdemos;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;

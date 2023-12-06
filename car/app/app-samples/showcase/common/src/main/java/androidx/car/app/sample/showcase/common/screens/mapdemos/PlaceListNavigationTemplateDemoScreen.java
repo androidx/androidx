@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.car.app.sample.showcase.common.screens.navigationdemos;
+package androidx.car.app.sample.showcase.common.screens.mapdemos;
 
 import static androidx.car.app.CarToast.LENGTH_SHORT;
 
@@ -34,7 +34,7 @@ import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.PlaceListNavigationTemplate;
 import androidx.car.app.sample.showcase.common.R;
 import androidx.car.app.sample.showcase.common.common.SamplePlaces;
-import androidx.car.app.sample.showcase.common.screens.navigationdemos.navigationtemplates.RoutingDemoModels;
+import androidx.car.app.sample.showcase.common.screens.navigationdemos.RoutingDemoModels;
 import androidx.core.graphics.drawable.IconCompat;
 
 /** Creates a screen using the {@link PlaceListNavigationTemplate} */

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,23 @@
  * limitations under the License.
  */
 
-package androidx.car.app.sample.showcase.common.screens.navigationdemos.navigationtemplates;
+package androidx.car.app.sample.showcase.common.screens.navigationdemos;
 
 import androidx.annotation.NonNull;
 import androidx.car.app.CarContext;
 import androidx.car.app.Screen;
-import androidx.car.app.model.CarColor;
+import androidx.car.app.model.CarIcon;
 import androidx.car.app.model.Distance;
 import androidx.car.app.model.Template;
 import androidx.car.app.navigation.model.NavigationTemplate;
 import androidx.car.app.navigation.model.RoutingInfo;
+import androidx.car.app.sample.showcase.common.R;
+import androidx.core.graphics.drawable.IconCompat;
 import androidx.lifecycle.DefaultLifecycleObserver;
 
-/** A screen that shows the navigation template in routing state. */
-public final class NavigatingDemoScreen extends Screen implements DefaultLifecycleObserver {
-    public NavigatingDemoScreen(@NonNull CarContext carContext) {
+/** A screen that shows the navigation template in routing state showing a junction image. */
+public final class JunctionImageDemoScreen extends Screen implements DefaultLifecycleObserver {
+    public JunctionImageDemoScreen(@NonNull CarContext carContext) {
         super(carContext);
     }
 
@@ -42,12 +44,15 @@ public final class NavigatingDemoScreen extends Screen implements DefaultLifecyc
                                 .setCurrentStep(
                                         RoutingDemoModels.getCurrentStep(carContext),
                                         Distance.create(200, Distance.UNIT_METERS))
-                                .setNextStep(RoutingDemoModels.getNextStep(carContext))
+                                .setJunctionImage(
+                                        new CarIcon.Builder(
+                                                IconCompat.createWithResource(
+                                                        carContext,
+                                                        R.drawable.junction_image))
+                                                .build())
                                 .build())
                 .setDestinationTravelEstimate(RoutingDemoModels.getTravelEstimate(carContext))
                 .setActionStrip(RoutingDemoModels.getActionStrip(getCarContext(), this::finish))
-                .setMapActionStrip(RoutingDemoModels.getMapActionStrip(getCarContext()))
-                .setBackgroundColor(CarColor.SECONDARY)
                 .build();
     }
 }
