@@ -138,7 +138,7 @@ public final class CameraUseCaseAdapter implements Camera {
     // Additional configs to apply onto the UseCases when added to this Camera
     @GuardedBy("mLock")
     @NonNull
-    private CameraConfig mCameraConfig = CameraConfigs.emptyConfig();
+    private final CameraConfig mCameraConfig;
 
     private final Object mLock = new Object();
 
@@ -166,16 +166,11 @@ public final class CameraUseCaseAdapter implements Camera {
     private final RestrictedCameraControl mAdapterCameraControl;
     @NonNull
     private final RestrictedCameraInfo mAdapterCameraInfo;
-
-
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
      *
      * @param cameras                    The set of cameras that are wrapped, with them in order
-     *                                   of preference. The actual camera used will be dependent
-     *                                   on configs set by
-     *                                   {@link #setExtendedConfig(CameraConfig)} which can
-     *                                   filter out specific camera instances
+     *                                   of preference.
      * @param cameraCoordinator          Camera coordinator that exposes concurrent camera mode.
      * @param cameraDeviceSurfaceManager A class that checks for whether a specific camera
      *                                   can support the set of Surface with set resolutions.
@@ -186,6 +181,29 @@ public final class CameraUseCaseAdapter implements Camera {
             @NonNull CameraCoordinator cameraCoordinator,
             @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager,
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
+        this(cameras, cameraCoordinator, cameraDeviceSurfaceManager, useCaseConfigFactory,
+                CameraConfigs.defaultConfig());
+    }
+
+    /**
+     * Create a new {@link CameraUseCaseAdapter} instance.
+     *
+     * @param cameras                    The set of cameras that are wrapped, with them in order
+     *                                   of preference.
+     * @param cameraCoordinator          Camera coordinator that exposes concurrent camera mode.
+     * @param cameraDeviceSurfaceManager A class that checks for whether a specific camera
+     *                                   can support the set of Surface with set resolutions.
+     * @param useCaseConfigFactory       UseCase config factory that exposes configuration for
+     *                                   each UseCase.
+     * @param cameraConfig               the CameraConfig to configure the {@link CameraInternal}
+     *                                   when attaching the uses cases of this adapter to the
+     *                                   camera.
+     */
+    public CameraUseCaseAdapter(@NonNull LinkedHashSet<CameraInternal> cameras,
+            @NonNull CameraCoordinator cameraCoordinator,
+            @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager,
+            @NonNull UseCaseConfigFactory useCaseConfigFactory,
+            @NonNull CameraConfig cameraConfig) {
         mCameraInternal = cameras.iterator().next();
         mCameraInternals = new LinkedHashSet<>(cameras);
         mId = new CameraId(mCameraInternals);
@@ -198,6 +216,20 @@ public final class CameraUseCaseAdapter implements Camera {
         mAdapterCameraInfo =
                 new RestrictedCameraInfo(mCameraInternal.getCameraInfoInternal(),
                         mAdapterCameraControl);
+
+        mCameraConfig = cameraConfig;
+        SessionProcessor sessionProcessor = mCameraConfig.getSessionProcessor(null);
+        if (sessionProcessor != null) {
+            @CameraOperation Set<Integer> supportedOps =
+                    sessionProcessor.getSupportedCameraOperations();
+            mAdapterCameraControl.enableRestrictedOperations(true, supportedOps);
+        } else {
+            mAdapterCameraControl.enableRestrictedOperations(false, null);
+        }
+        mAdapterCameraInfo.setPostviewSupported(
+                mCameraConfig.isPostviewSupported());
+        mAdapterCameraInfo.setCaptureProcessProgressSupported(
+                mCameraConfig.isCaptureProcessProgressSupported());
     }
 
     /**
@@ -249,6 +281,8 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     public void addUseCases(@NonNull Collection<UseCase> appUseCasesToAdd) throws CameraException {
         synchronized (mLock) {
+            // Configure the CameraConfig when binding
+            mCameraInternal.setExtendedConfig(mCameraConfig);
             Set<UseCase> appUseCases = new LinkedHashSet<>(mAppUseCases);
             //TODO(b/266641900): must be LinkedHashSet otherwise ExistingActivityLifecycleTest
             // fails due to a camera-pipe integration bug.
@@ -590,6 +624,10 @@ public final class CameraUseCaseAdapter implements Camera {
     public void attachUseCases() {
         synchronized (mLock) {
             if (!mAttached) {
+                // Ensure the current opening camera has the right camera config.
+                if (!mCameraUseCases.isEmpty()) {
+                    mCameraInternal.setExtendedConfig(mCameraConfig);
+                }
                 mCameraInternal.attachUseCases(mCameraUseCases);
                 restoreInteropConfig();
 
@@ -988,42 +1026,11 @@ public final class CameraUseCaseAdapter implements Camera {
         return mCameraInternals;
     }
 
-    @NonNull
     @Override
+    @NonNull
     public CameraConfig getExtendedConfig() {
         synchronized (mLock) {
             return mCameraConfig;
-        }
-    }
-
-    @Override
-    public void setExtendedConfig(@Nullable CameraConfig cameraConfig) {
-        synchronized (mLock) {
-            if (cameraConfig == null) {
-                cameraConfig = CameraConfigs.emptyConfig();
-            }
-
-            if (!mAppUseCases.isEmpty() && !mCameraConfig.getCompatibilityId().equals(
-                    cameraConfig.getCompatibilityId())) {
-                throw new IllegalStateException(
-                        "Need to unbind all use cases before binding with extension enabled");
-            }
-
-            mCameraConfig = cameraConfig;
-            SessionProcessor sessionProcessor = mCameraConfig.getSessionProcessor(null);
-            if (sessionProcessor != null) {
-                @CameraOperation Set<Integer> supportedOps =
-                        sessionProcessor.getSupportedCameraOperations();
-                mAdapterCameraControl.enableRestrictedOperations(true, supportedOps);
-            } else {
-                mAdapterCameraControl.enableRestrictedOperations(false, null);
-            }
-            mAdapterCameraInfo.setPostviewSupported(
-                    mCameraConfig.isPostviewSupported());
-            mAdapterCameraInfo.setCaptureProcessProgressSupported(
-                    mCameraConfig.isCaptureProcessProgressSupported());
-            //Configure the CameraInternal as well so that it can get SessionProcessor.
-            mCameraInternal.setExtendedConfig(mCameraConfig);
         }
     }
 

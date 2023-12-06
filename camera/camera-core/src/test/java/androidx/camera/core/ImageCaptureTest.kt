@@ -33,13 +33,10 @@ import androidx.camera.core.CameraEffect.PREVIEW
 import androidx.camera.core.CameraEffect.VIDEO_CAPTURE
 import androidx.camera.core.MirrorMode.MIRROR_MODE_OFF
 import androidx.camera.core.MirrorMode.MIRROR_MODE_ON_FRONT_ONLY
-import androidx.camera.core.impl.CameraConfig
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CaptureConfig
-import androidx.camera.core.impl.Identifier
 import androidx.camera.core.impl.ImageCaptureConfig
 import androidx.camera.core.impl.MutableOptionsBundle
-import androidx.camera.core.impl.OptionsBundle
 import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.SessionProcessor
 import androidx.camera.core.impl.StreamSpec
@@ -554,18 +551,16 @@ class ImageCaptureTest {
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider.getApplicationContext(),
-            CameraSelector.DEFAULT_BACK_CAMERA
-        )
-
-        val cameraConfig = FakeCameraConfig(
-            sessionProcessor = FakeSessionProcessor(
-                postviewSupportedSizes = mapOf(
-                    ImageFormat.JPEG to
-                        listOf(Size(1920, 1080), Size(640, 480)))
+            CameraSelector.DEFAULT_BACK_CAMERA,
+            FakeCameraConfig(
+                sessionProcessor = FakeSessionProcessor(
+                    postviewSupportedSizes = mapOf(
+                        ImageFormat.JPEG to
+                            listOf(Size(1920, 1080), Size(640, 480))
+                    )
+                )
             )
         )
-
-        cameraUseCaseAdapter.setExtendedConfig(cameraConfig)
         cameraUseCaseAdapter.addUseCases(listOf(imageCapture))
         assertThat(imageCapture.imagePipeline!!.postviewSize).isEqualTo(Size(1920, 1080))
     }
@@ -584,18 +579,16 @@ class ImageCaptureTest {
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider.getApplicationContext(),
-            CameraSelector.DEFAULT_BACK_CAMERA
-        )
-
-        val cameraConfig = FakeCameraConfig(
-            sessionProcessor = FakeSessionProcessor(
-                postviewSupportedSizes = mapOf(
-                    ImageFormat.JPEG to
-                        listOf(Size(4000, 3000), Size(1920, 1080)))
+            CameraSelector.DEFAULT_BACK_CAMERA,
+            FakeCameraConfig(
+                sessionProcessor = FakeSessionProcessor(
+                    postviewSupportedSizes = mapOf(
+                        ImageFormat.JPEG to
+                            listOf(Size(4000, 3000), Size(1920, 1080)))
+                )
             )
         )
 
-        cameraUseCaseAdapter.setExtendedConfig(cameraConfig)
         cameraUseCaseAdapter.addUseCases(listOf(imageCapture))
         assertThat(imageCapture.imagePipeline!!.postviewSize).isEqualTo(Size(1920, 1080))
     }
@@ -612,17 +605,15 @@ class ImageCaptureTest {
 
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider.getApplicationContext(),
-            CameraSelector.DEFAULT_BACK_CAMERA
-        )
-
-        val cameraConfig = FakeCameraConfig(
-            sessionProcessor = FakeSessionProcessor(
-                postviewSupportedSizes = mapOf(
-                    ImageFormat.JPEG to listOf(Size(1920, 1080)))
+            CameraSelector.DEFAULT_BACK_CAMERA,
+            FakeCameraConfig(
+                sessionProcessor = FakeSessionProcessor(
+                    postviewSupportedSizes = mapOf(
+                        ImageFormat.JPEG to listOf(Size(1920, 1080)))
+                )
             )
         )
 
-        cameraUseCaseAdapter.setExtendedConfig(cameraConfig)
         // the CameraException will be converted to IllegalArgumentException in camera-lifecycle.
         assertThrows(CameraUseCaseAdapter.CameraException::class.java) {
             cameraUseCaseAdapter.addUseCases(listOf(imageCapture))
@@ -645,34 +636,14 @@ class ImageCaptureTest {
             imageReaderProxyProvider,
         )
 
+        val cameraConfig = FakeCameraConfig(sessionProcessor = sessionProcessor)
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider.getApplicationContext(),
-            cameraSelector
+            cameraSelector,
+            cameraConfig
         )
 
         cameraUseCaseAdapter.setViewPort(viewPort)
-        if (sessionProcessor != null) {
-            cameraUseCaseAdapter.setExtendedConfig(object : CameraConfig {
-                override fun getConfig(): androidx.camera.core.impl.Config {
-                    return OptionsBundle.emptyBundle()
-                }
-
-                override fun getSessionProcessor(
-                    valueIfMissing: SessionProcessor?
-                ): SessionProcessor {
-                    return sessionProcessor
-                }
-
-                override fun getSessionProcessor(): SessionProcessor {
-                    return sessionProcessor
-                }
-
-                override fun getCompatibilityId(): Identifier {
-                    return Identifier.create(Any())
-                }
-            })
-        }
-
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(imageCapture))
         return imageCapture
     }
