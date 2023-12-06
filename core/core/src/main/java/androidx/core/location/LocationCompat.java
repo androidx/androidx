@@ -28,7 +28,6 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -337,19 +336,18 @@ public final class LocationCompat {
     /**
      * Returns the Mean Sea Level altitude of the location in meters.
      *
+     * <p>This is only valid if {@link #hasMslAltitude(Location)} is true.
+     *
      * <p>NOTE: On API levels below 34, the concept of Mean Sea Level altitude does not exist. In
      * order to allow for backwards compatibility and testing however, this method will attempt
      * to read a double extra with the key {@link #EXTRA_MSL_ALTITUDE} and return the result.
      *
-     * @throws IllegalStateException if the Mean Sea Level altitude of the location is not set
      * @see Location#getMslAltitudeMeters()
      */
     public static double getMslAltitudeMeters(@NonNull Location location) {
         if (VERSION.SDK_INT >= 34) {
             return Api34Impl.getMslAltitudeMeters(location);
         }
-        Preconditions.checkState(hasMslAltitude(location),
-                "The Mean Sea Level altitude of the location is not set.");
         return getOrCreateExtras(location).getDouble(EXTRA_MSL_ALTITUDE);
     }
 
@@ -411,22 +409,20 @@ public final class LocationCompat {
      * altitude of the location falls within {@link #getMslAltitudeMeters(Location)} +/- this
      * uncertainty.
      *
+     * <p>This is only valid if {@link #hasMslAltitudeAccuracy(Location)} is true.
+     *
      * <p>NOTE: On API levels below 34, the concept of Mean Sea Level altitude accuracy does not
      * exist. In order to allow for backwards compatibility and testing however, this method will
      * attempt to read a float extra with the key {@link #EXTRA_MSL_ALTITUDE_ACCURACY} and return
      * the result.
      *
-     * @throws IllegalStateException if the Mean Sea Level altitude accuracy of the location is not
-     *                               set
-     * @see Location#setMslAltitudeAccuracyMeters(float)
+     * @see Location#getMslAltitudeAccuracyMeters()
      */
     public static @FloatRange(from = 0.0) float getMslAltitudeAccuracyMeters(
             @NonNull Location location) {
         if (VERSION.SDK_INT >= 34) {
             return Api34Impl.getMslAltitudeAccuracyMeters(location);
         }
-        Preconditions.checkState(hasMslAltitudeAccuracy(location),
-                "The Mean Sea Level altitude accuracy of the location is not set.");
         return getOrCreateExtras(location).getFloat(EXTRA_MSL_ALTITUDE_ACCURACY);
     }
 

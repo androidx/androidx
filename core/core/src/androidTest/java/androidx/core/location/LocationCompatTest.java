@@ -18,7 +18,6 @@ package androidx.core.location;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -105,8 +104,6 @@ public class LocationCompatTest {
         assertEquals(1.0, LocationCompat.getMslAltitudeMeters(location), 0.0);
         LocationCompat.removeMslAltitude(location);
         assertFalse(LocationCompat.hasMslAltitude(location));
-        assertThrows(IllegalStateException.class,
-                () -> LocationCompat.getMslAltitudeMeters(location));
     }
 
     @Test
@@ -118,8 +115,6 @@ public class LocationCompatTest {
         assertEquals(1f, LocationCompat.getMslAltitudeAccuracyMeters(location), 0f);
         LocationCompat.removeMslAltitudeAccuracy(location);
         assertFalse(LocationCompat.hasMslAltitudeAccuracy(location));
-        assertThrows(IllegalStateException.class,
-                () -> LocationCompat.getMslAltitudeAccuracyMeters(location));
     }
 
     @Test
