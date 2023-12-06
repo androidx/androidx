@@ -271,6 +271,7 @@ public class LayoutElementBuildersTest {
     }
 
     @Test
+    @SuppressWarnings("deprecation")
     public void testTextSetOverflow_ellipsizeEnd() {
         LayoutElementBuilders.Text text =
                 new LayoutElementBuilders.Text.Builder()

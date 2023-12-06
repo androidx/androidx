@@ -2765,6 +2765,70 @@ public class ProtoLayoutInflaterTest {
     }
 
     @Test
+    public void inflate_textView_ellipsize() {
+        String textContents = "Text that is very large so it will go to many lines";
+        Text.Builder text1 =
+                Text.newBuilder()
+                        .setLineHeight(sp(16))
+                        .setText(string(textContents))
+                        .setFontStyle(FontStyle.newBuilder().addSize(sp(16)))
+                        .setMaxLines(Int32Prop.newBuilder().setValue(6))
+                        .setOverflow(
+                                TextOverflowProp.newBuilder().setValue(
+                                        TextOverflow.TEXT_OVERFLOW_ELLIPSIZE));
+        Layout layout1 =
+                fingerprintedLayout(
+                        LayoutElement.newBuilder()
+                                .setBox(buildFixedSizeBoxWIthText(text1)).build());
+
+        Text.Builder text2 =
+                Text.newBuilder()
+                        .setText(string(textContents))
+                        // Diff
+                        .setLineHeight(sp(4))
+                        .setFontStyle(FontStyle.newBuilder().addSize(sp(4)))
+                        .setMaxLines(Int32Prop.newBuilder().setValue(6))
+                        .setOverflow(
+                                TextOverflowProp.newBuilder().setValue(
+                                        TextOverflow.TEXT_OVERFLOW_ELLIPSIZE));
+        Layout layout2 =
+                fingerprintedLayout(
+                        LayoutElement.newBuilder()
+                                .setBox(buildFixedSizeBoxWIthText(text2)).build());
+
+        // Initial layout.
+        Renderer renderer = renderer(layout1);
+        ViewGroup inflatedViewParent = renderer.inflate();
+        TextView textView1 = (TextView) ((ViewGroup) inflatedViewParent
+                .getChildAt(0)).getChildAt(0);
+
+        // Apply the mutation.
+        ViewGroupMutation mutation =
+                renderer.computeMutation(getRenderedMetadata(inflatedViewParent), layout2);
+        assertThat(mutation).isNotNull();
+        assertThat(mutation.isNoOp()).isFalse();
+        boolean mutationResult = renderer.applyMutation(inflatedViewParent, mutation);
+        assertThat(mutationResult).isTrue();
+
+        // This contains layout after the mutation.
+        TextView textView2 = (TextView) ((ViewGroup) inflatedViewParent
+                .getChildAt(0)).getChildAt(0);
+
+        expect.that(textView1.getEllipsize()).isEqualTo(TruncateAt.END);
+        expect.that(textView1.getMaxLines()).isEqualTo(2);
+
+        expect.that(textView2.getEllipsize()).isEqualTo(TruncateAt.END);
+        expect.that(textView2.getMaxLines()).isEqualTo(3);
+    }
+
+    private static Box.Builder buildFixedSizeBoxWIthText(Text.Builder content) {
+        return Box.newBuilder()
+                .setWidth(ContainerDimension.newBuilder().setLinearDimension(dp(100)))
+                .setHeight(ContainerDimension.newBuilder().setLinearDimension(dp(120)))
+                .addContents(LayoutElement.newBuilder().setText(content));
+    }
+
+    @Test
     public void inflate_textView_marquee_animationsDisabled() {
         String textContents = "Marquee Animation";
         LayoutElement root =
