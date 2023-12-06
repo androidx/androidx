@@ -80,8 +80,7 @@ public fun <T : Component> SwingPanel(
     val focusSwitcher = remember { FocusSwitcher(componentInfo, focusManager) }
 
     Box(
-        modifier = modifier.onGloballyPositioned { childCoordinates ->
-            val coordinates = childCoordinates.parentCoordinates!!
+        modifier = modifier.onGloballyPositioned { coordinates ->
             val location = coordinates.localToWindow(Offset.Zero).round()
             val size = coordinates.size
             componentInfo.container.setBounds(

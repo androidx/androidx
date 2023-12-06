@@ -95,8 +95,7 @@ fun <T : UIView> UIKitView(
     val interopContext = LocalUIKitInteropContext.current
 
     Place(
-        modifier.onGloballyPositioned { childCoordinates ->
-            val coordinates = childCoordinates.parentCoordinates!!
+        modifier.onGloballyPositioned { coordinates ->
             localToWindowOffset = coordinates.localToWindow(Offset.Zero).round()
             val newRectInPixels = IntRect(localToWindowOffset, coordinates.size)
             if (rectInPixels != newRectInPixels) {
@@ -195,8 +194,7 @@ fun <T : UIViewController> UIKitViewController(
     val interopContext = LocalUIKitInteropContext.current
 
     Place(
-        modifier.onGloballyPositioned { childCoordinates ->
-            val coordinates = childCoordinates.parentCoordinates!!
+        modifier.onGloballyPositioned { coordinates ->
             localToWindowOffset = coordinates.localToWindow(Offset.Zero).round()
             val newRectInPixels = IntRect(localToWindowOffset, coordinates.size)
             if (rectInPixels != newRectInPixels) {
