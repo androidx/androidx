@@ -18,6 +18,7 @@ package androidx.compose.material3.adaptive.navigation.suite
 
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.DrawerDefaults
 import androidx.compose.material3.Icon
@@ -56,9 +57,8 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastMap
-import androidx.compose.ui.util.fastMaxOfOrNull
+import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.util.fastFirst
 
 /**
  * The Navigation Suite Scaffold wraps the provided content and places the adequate provided
@@ -129,52 +129,55 @@ fun NavigationSuiteScaffoldLayout(
         NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(WindowAdaptiveInfoDefault),
     content: @Composable () -> Unit = {}
 ) {
-    Layout(
-        contents = listOf(navigationSuite, content)
-    ) { (navigationMeasurables, contentMeasurables), constraints ->
-        val navigationPlaceables = navigationMeasurables.fastMap { it.measure(constraints) }
+    Layout({
+        // Wrap the navigation suite and content composables each in a Box to not propagate the
+        // parent's (Surface) min constraints to its children (see b/312664933).
+        Box(Modifier.layoutId(NavigationSuiteLayoutIdTag)) {
+            navigationSuite()
+        }
+        Box(Modifier.layoutId(ContentLayoutIdTag)) {
+            content()
+        }
+    }
+    ) { measurables, constraints ->
+        val looseConstraints = constraints.copy(minWidth = 0, minHeight = 0)
+        // Find the navigation suite composable through it's layoutId tag
+        val navigationPlaceable =
+            measurables.fastFirst { it.layoutId == NavigationSuiteLayoutIdTag }
+                .measure(looseConstraints)
         val isNavigationBar = layoutType == NavigationSuiteType.NavigationBar
         val layoutHeight = constraints.maxHeight
         val layoutWidth = constraints.maxWidth
-        val contentPlaceables = contentMeasurables.fastMap { it.measure(
-            if (isNavigationBar) {
-                constraints.copy(
-                    minHeight = layoutHeight - (navigationPlaceables.fastMaxOfOrNull { it.height }
-                        ?: 0),
-                    maxHeight = layoutHeight - (navigationPlaceables.fastMaxOfOrNull { it.height }
-                        ?: 0)
-                )
-            } else {
-                constraints.copy(
-                    minWidth = layoutWidth - (navigationPlaceables.fastMaxOfOrNull { it.width }
-                        ?: 0),
-                    maxWidth = layoutWidth - (navigationPlaceables.fastMaxOfOrNull { it.width }
-                        ?: 0)
-                )
-            }
-        ) }
+        // Find the content composable through it's layoutId tag
+        val contentPlaceable =
+            measurables.fastFirst { it.layoutId == ContentLayoutIdTag }.measure(
+                if (isNavigationBar) {
+                    constraints.copy(
+                        minHeight = layoutHeight - navigationPlaceable.height,
+                        maxHeight = layoutHeight - navigationPlaceable.height
+                    )
+                } else {
+                    constraints.copy(
+                        minWidth = layoutWidth - navigationPlaceable.width,
+                        maxWidth = layoutWidth - navigationPlaceable.width
+                    )
+                }
+            )
 
         layout(layoutWidth, layoutHeight) {
             if (isNavigationBar) {
                 // Place content above the navigation component.
-                contentPlaceables.fastForEach {
-                    it.placeRelative(0, 0)
-                }
+                contentPlaceable.placeRelative(0, 0)
                 // Place the navigation component at the bottom of the screen.
-                navigationPlaceables.fastForEach {
-                    it.placeRelative(
-                        0,
-                        layoutHeight - (navigationPlaceables.fastMaxOfOrNull { it.height } ?: 0))
-                }
+                navigationPlaceable.placeRelative(
+                    0,
+                    layoutHeight - (navigationPlaceable.height)
+                )
             } else {
                 // Place the navigation component at the start of the screen.
-                navigationPlaceables.fastForEach {
-                    it.placeRelative(0, 0)
-                }
+                navigationPlaceable.placeRelative(0, 0)
                 // Place content to the side of the navigation component.
-                contentPlaceables.fastForEach {
-                    it.placeRelative((navigationPlaceables.fastMaxOfOrNull { it.width } ?: 0), 0)
-                }
+                contentPlaceable.placeRelative((navigationPlaceable.width), 0)
             }
         }
     }
@@ -571,3 +574,6 @@ private fun NavigationItemIcon(
         icon()
     }
 }
+
+private const val NavigationSuiteLayoutIdTag = "navigationSuite"
+private const val ContentLayoutIdTag = "content"
