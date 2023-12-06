@@ -159,6 +159,7 @@ internal object FrameTimingQuery {
 
         val groupedData = slices
             .filter { it.dur > 0 } // drop non-terminated slices
+            .filter { !it.name.contains("resynced") } // drop "#doFrame - resynced to" slices
             .groupBy {
                 when {
                     // note: we use "startsWith" as starting in S, all of these will end
