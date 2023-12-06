@@ -1,5 +1,6 @@
 package androidx.compose.foundation.layout
 
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collection.MutableVector
@@ -15,7 +16,11 @@ import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
+import androidx.compose.ui.node.ModifierNodeElement
+import androidx.compose.ui.node.ParentDataModifierNode
+import androidx.compose.ui.platform.InspectorInfo
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
@@ -132,7 +137,23 @@ inline fun FlowColumn(
 @LayoutScopeMarker
 @Immutable
 @ExperimentalLayoutApi
-interface FlowRowScope : RowScope
+interface FlowRowScope : RowScope {
+    /**
+     * Have the item fill (possibly only partially) the max height of the tallest item in the
+     * row it was placed in, within the [FlowRow].
+     *
+     * @param fraction The fraction of the max height of the tallest item
+     * between `0` and `1`, inclusive.
+     *
+     * Example usage:
+     * @sample androidx.compose.foundation.layout.samples.SimpleFlowRow_EqualHeight
+     */
+    @ExperimentalLayoutApi
+    fun Modifier.fillMaxRowHeight(
+        @FloatRange(from = 0.0, to = 1.0)
+        fraction: Float = 1f,
+    ): Modifier
+}
 
 /**
  * Scope for the children of [FlowColumn].
@@ -140,13 +161,93 @@ interface FlowRowScope : RowScope
 @LayoutScopeMarker
 @Immutable
 @ExperimentalLayoutApi
-interface FlowColumnScope : ColumnScope
+interface FlowColumnScope : ColumnScope {
+    /**
+     * Have the item fill (possibly only partially) the max width of the tallest item in the
+     * column it was placed in, within the [FlowColumn].
+     *
+     * @param fraction The fraction of the max width of the tallest item
+     * between `0` and `1`, inclusive.
+     *
+     * Example usage:
+     * @sample androidx.compose.foundation.layout.samples.SimpleFlowColumn_EqualWidth
+     */
+    @ExperimentalLayoutApi
+    fun Modifier.fillMaxColumnWidth(
+        @FloatRange(from = 0.0, to = 1.0)
+        fraction: Float = 1f,
+    ): Modifier
+}
 
 @OptIn(ExperimentalLayoutApi::class)
-internal object FlowRowScopeInstance : RowScope by RowScopeInstance, FlowRowScope
+internal object FlowRowScopeInstance : RowScope by RowScopeInstance, FlowRowScope {
+    override fun Modifier.fillMaxRowHeight(fraction: Float): Modifier {
+        require(fraction > 0.0) { "invalid fraction $fraction; must be greater than zero" }
+        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater than 1.0" }
+        return this.then(
+            FillCrossAxisSizeElement(
+                fraction = fraction,
+            )
+        )
+    }
+}
 
 @OptIn(ExperimentalLayoutApi::class)
-internal object FlowColumnScopeInstance : ColumnScope by ColumnScopeInstance, FlowColumnScope
+internal object FlowColumnScopeInstance : ColumnScope by ColumnScopeInstance, FlowColumnScope {
+    override fun Modifier.fillMaxColumnWidth(fraction: Float): Modifier {
+        require(fraction > 0.0) { "invalid fraction $fraction; must be greater than zero" }
+        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater than 1.0" }
+        return this.then(
+            FillCrossAxisSizeElement(
+                fraction = fraction,
+            )
+        )
+    }
+}
+
+internal data class FlowLayoutData(
+    var fillCrossAxisFraction: Float
+)
+
+internal class FillCrossAxisSizeNode(
+    var fraction: Float,
+) : ParentDataModifierNode, Modifier.Node() {
+    override fun Density.modifyParentData(parentData: Any?) =
+        ((parentData as? RowColumnParentData) ?: RowColumnParentData()).also {
+            it.flowLayoutData = it.flowLayoutData ?: FlowLayoutData(fraction)
+            it.flowLayoutData!!.fillCrossAxisFraction = fraction
+        }
+}
+
+internal class FillCrossAxisSizeElement(
+    val fraction: Float
+) : ModifierNodeElement<FillCrossAxisSizeNode>() {
+    override fun create(): FillCrossAxisSizeNode {
+        return FillCrossAxisSizeNode(fraction)
+    }
+
+    override fun update(node: FillCrossAxisSizeNode) {
+        node.fraction = fraction
+    }
+
+    override fun InspectorInfo.inspectableProperties() {
+        name = "fraction"
+        value = fraction
+        properties["fraction"] = fraction
+    }
+
+    override fun hashCode(): Int {
+        var result = fraction.hashCode()
+        result *= 31
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        val otherModifier = other as? FillCrossAxisSizeNode ?: return false
+        return fraction == otherModifier.fraction
+    }
+}
 
 @PublishedApi
 @Composable
@@ -620,48 +721,58 @@ internal fun MeasureScope.breakDownItems(
         crossAxisMax
     )
     // nextSize of the list, pre-calculated
-    var nextSize: Int? = measurables.getOrNull(0)?.measureAndCache(
+    var nextSize: Pair<Int, Int>? = measurables.getOrNull(0)?.measureAndCache(
         subsetConstraints, orientation
     ) { placeable ->
         placeables[0] = placeable
     }
+    var nextMainAxisSize: Int? = nextSize?.first
+    var nextCrossAxisSize: Int? = nextSize?.second
 
     var startBreakLineIndex = 0
     val endBreakLineList = arrayOfNulls<Int>(measurables.size)
+    val crossAxisSizes = arrayOfNulls<Int>(measurables.size)
     var endBreakLineIndex = 0
 
     var leftOver = mainAxisMax
     // figure out the mainAxisTotalSize which will be minMainAxis when measuring the row/column
     var mainAxisTotalSize = mainAxisMin
     var currentLineMainAxisSize = 0
+    var currentLineCrossAxisSize = 0
     for (index in measurables.indices) {
-        val itemMainAxisSize = nextSize!!
+        val itemMainAxisSize = nextMainAxisSize!!
+        val itemCrossAxisSize = nextCrossAxisSize!!
         currentLineMainAxisSize += itemMainAxisSize
+        currentLineCrossAxisSize = maxOf(currentLineCrossAxisSize, itemCrossAxisSize)
         leftOver -= itemMainAxisSize
         nextSize = measurables.getOrNull(index + 1)?.measureAndCache(
             subsetConstraints, orientation
         ) { placeable ->
             placeables[index + 1] = placeable
-        }?.plus(spacing)
+        }
+        nextMainAxisSize = nextSize?.first?.plus(spacing)
+        nextCrossAxisSize = nextSize?.second ?: 0
         if (index + 1 >= measurables.size ||
             (index + 1) - startBreakLineIndex >= maxItemsInMainAxis ||
-            leftOver - (nextSize ?: 0) < 0
+            leftOver - (nextMainAxisSize ?: 0) < 0
         ) {
             mainAxisTotalSize = maxOf(mainAxisTotalSize, currentLineMainAxisSize)
             mainAxisTotalSize = minOf(mainAxisTotalSize, mainAxisMax)
-            currentLineMainAxisSize = 0
-            leftOver = mainAxisMax
             startBreakLineIndex = index + 1
             endBreakLineList[endBreakLineIndex] = index + 1
+            crossAxisSizes[endBreakLineIndex] = currentLineCrossAxisSize
             endBreakLineIndex++
+            currentLineMainAxisSize = 0
+            currentLineCrossAxisSize = 0
+            leftOver = mainAxisMax
             // only add spacing for next items in the row or column, not the starting indexes
-            nextSize = nextSize?.minus(spacing)
+            nextMainAxisSize = nextMainAxisSize?.minus(spacing)
         }
     }
 
     val subsetBoxConstraints = subsetConstraints.copy(
         mainAxisMin = mainAxisTotalSize
-    ).toBoxConstraints(orientation)
+    )
 
     startBreakLineIndex = 0
     var crossAxisTotalSize = 0
@@ -669,9 +780,12 @@ internal fun MeasureScope.breakDownItems(
     endBreakLineIndex = 0
     var endIndex = endBreakLineList.getOrNull(endBreakLineIndex)
     while (endIndex != null) {
+        var crossAxisSize = crossAxisSizes[endBreakLineIndex]
         val result = measureHelper.measureWithoutPlacing(
             this,
-            subsetBoxConstraints,
+            subsetBoxConstraints.copy(
+                crossAxisMax = crossAxisSize!!
+            ).toBoxConstraints(orientation),
             startBreakLineIndex,
             endIndex
         )
@@ -726,17 +840,24 @@ private fun Measurable.measureAndCache(
     constraints: OrientationIndependentConstraints,
     orientation: LayoutOrientation,
     storePlaceable: (Placeable?) -> Unit
-): Int {
-    val itemSize: Int = if (rowColumnParentData.weight == 0f) {
+): Pair<Int, Int> {
+    val itemSize: Pair<Int, Int> = if (
+        rowColumnParentData.weight == 0f &&
+        rowColumnParentData?.flowLayoutData?.fillCrossAxisFraction == 0f
+    ) {
         // fixed sizes: measure once
         val placeable = measure(
             constraints.copy(
                 mainAxisMin = 0,
             ).toBoxConstraints(orientation)
         ).also(storePlaceable)
-        placeable.mainAxisSize(orientation)
+        val mainAxis = placeable.mainAxisSize(orientation)
+        val crossAxis = placeable.crossAxisSize(orientation)
+        Pair(mainAxis, crossAxis)
     } else {
-        mainAxisMin(orientation, Constraints.Infinity)
+        val mainAxis = mainAxisMin(orientation, Constraints.Infinity)
+        val crossAxis = crossAxisMin(orientation, mainAxis)
+        Pair(mainAxis, crossAxis)
     }
     return itemSize
 }
