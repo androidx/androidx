@@ -38,6 +38,7 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformInsetsConfig
 import androidx.compose.ui.platform.ZeroInsetsConfig
+import androidx.compose.ui.scene.ComposeSceneLayer
 import androidx.compose.ui.scene.rememberComposeSceneLayer
 import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
@@ -433,8 +434,8 @@ private fun PopupLayout(
     )
     layer.setKeyEventListener(onPreviewKeyEvent, onKeyEvent)
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)
-    layer.setContent {
-        val parentBounds = layoutParentBoundsInWindow ?: return@setContent
+    rememberLayerContent(layer) {
+        val parentBounds = layoutParentBoundsInWindow ?: return@rememberLayerContent
         val layoutDirection = LocalLayoutDirection.current
         val measurePolicy = rememberPopupMeasurePolicy(
             popupPositionProvider = popupPositionProvider,
@@ -452,6 +453,13 @@ private fun PopupLayout(
                 measurePolicy = measurePolicy
             )
         }
+    }
+}
+
+@Composable
+private fun rememberLayerContent(layer: ComposeSceneLayer, content: @Composable () -> Unit) {
+    remember(layer, content) {
+        layer.setContent(content)
     }
 }
 

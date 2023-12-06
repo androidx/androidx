@@ -32,6 +32,7 @@ import androidx.compose.ui.platform.InsetsConfig
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformInsetsConfig
 import androidx.compose.ui.platform.ZeroInsetsConfig
+import androidx.compose.ui.scene.ComposeSceneLayer
 import androidx.compose.ui.scene.rememberComposeSceneLayer
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
@@ -176,7 +177,7 @@ private fun DialogLayout(
     layer.scrimColor = properties.scrimColor
     layer.setKeyEventListener(onPreviewKeyEvent, onKeyEvent)
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)
-    layer.setContent {
+    rememberLayerContent(layer) {
         val measurePolicy = rememberDialogMeasurePolicy(
             properties = properties,
             platformInsets = platformInsets
@@ -190,6 +191,13 @@ private fun DialogLayout(
                 measurePolicy = measurePolicy
             )
         }
+    }
+}
+
+@Composable
+private fun rememberLayerContent(layer: ComposeSceneLayer, content: @Composable () -> Unit) {
+    remember(layer, content) {
+        layer.setContent(content)
     }
 }
 
