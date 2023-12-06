@@ -345,9 +345,9 @@ package androidx.test.uiautomator {
     method public <U> U! scrollUntil(androidx.test.uiautomator.Direction, androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2,U!>);
     method public <U> U! scrollUntil(androidx.test.uiautomator.Direction, androidx.test.uiautomator.EventCondition<U!>);
     method public void setGestureMargin(int);
-    method public void setGestureMarginPercent(@FloatRange(from=0.0f, to=0.5f) float);
-    method public void setGestureMarginPercent(@FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float);
+    method public void setGestureMarginPercentage(@FloatRange(from=0.0f, to=0.5f) float);
     method public void setGestureMargins(int, int, int, int);
+    method public void setGestureMarginsPercentage(@FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float);
     method public void setText(String?);
     method public void swipe(androidx.test.uiautomator.Direction, float);
     method public void swipe(androidx.test.uiautomator.Direction, float, int);
