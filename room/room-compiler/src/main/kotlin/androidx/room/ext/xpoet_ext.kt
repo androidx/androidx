@@ -151,6 +151,7 @@ object CommonTypeNames {
     val UUID = XClassName.get("java.util", "UUID")
     val BYTE_BUFFER = XClassName.get("java.nio", "ByteBuffer")
     val JAVA_CLASS = XClassName.get("java.lang", "Class")
+    val KOTLIN_CLASS = XClassName.get("kotlin.reflect", "KClass")
     val CALLABLE = Callable::class.asClassName()
     val DATE = XClassName.get("java.util", "Date")
 }

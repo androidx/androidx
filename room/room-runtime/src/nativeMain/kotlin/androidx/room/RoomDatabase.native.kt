@@ -18,6 +18,7 @@ package androidx.room
 
 import androidx.room.migration.Migration
 import androidx.sqlite.SQLiteDriver
+import kotlin.reflect.KClass
 
 /**
  * Base class for all Room databases. All classes that are annotated with [Database] must
@@ -60,8 +61,17 @@ actual abstract class RoomDatabase {
      * Builder for [RoomDatabase].
      *
      * @param T The type of the abstract database class.
+     * @param klass The database class.
+     * @param name The name of the database or NULL for an in-memory database.
+     * @param factory The lambda calling initializeImpl()` on the database class which returns
+     * the generated database implementation.
      */
-    actual class Builder<T : RoomDatabase> {
+    actual class Builder<T : RoomDatabase>(
+        private val klass: KClass<T>,
+        private val name: String?,
+        private val factory: (() -> T)
+    ) {
+
         private var driver: SQLiteDriver? = null
 
         /**
@@ -84,8 +94,7 @@ actual abstract class RoomDatabase {
          */
         actual fun build(): T {
             requireNotNull(driver)
-            // TODO(b/316978491): Implement no-reflection initialization
-            TODO("Not yet implemented")
+            return factory.invoke()
         }
     }
 

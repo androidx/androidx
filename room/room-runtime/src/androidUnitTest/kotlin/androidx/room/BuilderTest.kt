@@ -24,6 +24,7 @@ import androidx.sqlite.SQLiteDriver
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
+import instantiateImpl
 import java.io.File
 import java.util.concurrent.Executor
 import org.junit.Assert
@@ -48,6 +49,17 @@ class BuilderTest {
                     "in memory database, use Room.inMemoryDatabaseBuilder"
             )
         }
+    }
+
+    @Test
+    fun databaseBuilderWithFactory() {
+        val db = databaseBuilder(
+            context = mock(),
+            name = "TestDatabase",
+            factory = { TestDatabase::class.instantiateImpl() }
+        ).build()
+        // Assert that the db is built successfully.
+        assertThat(db).isInstanceOf<TestDatabase>()
     }
 
     @Test

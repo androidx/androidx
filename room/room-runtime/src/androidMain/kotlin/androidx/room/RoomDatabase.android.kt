@@ -51,6 +51,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.reflect.KClass
 
 /**
  * Base class for all Room databases. All classes that are annotated with [Database] must
@@ -738,13 +739,42 @@ actual abstract class RoomDatabase {
      * Builder for [RoomDatabase].
      *
      * @param T The type of the abstract database class.
+     * @param klass The database class.
+     * @param name The name of the database or null if it is an in-memory database.
+     * @param factory The lambda calling `initializeImpl()` on the database class which returns
+     * the generated database implementation.
      */
     @Suppress("GetterOnBuilder") // To keep ABI compatibility from Java
-    actual open class Builder<T : RoomDatabase> internal constructor(
-        private val context: Context,
-        private val klass: Class<T>,
+    actual open class Builder<T : RoomDatabase> {
+        private val klass: KClass<T>
+        private val context: Context
         private val name: String?
-    ) {
+        private val factory: (() -> T)?
+
+        @PublishedApi
+        internal constructor(
+            klass: KClass<T>,
+            name: String?,
+            factory: (() -> T)?,
+            context: Context
+        ) {
+            this.klass = klass
+            this.context = context
+            this.name = name
+            this.factory = factory
+        }
+
+        internal constructor(
+            context: Context,
+            klass: Class<T>,
+            name: String?
+        ) {
+            this.klass = klass.kotlin
+            this.context = context
+            this.name = name
+            this.factory = null
+        }
+
         private val callbacks: MutableList<Callback> = mutableListOf()
         private var prepackagedDatabaseCallback: PrepackagedDatabaseCallback? = null
         private var queryCallback: QueryCallback? = null
@@ -755,7 +785,7 @@ actual abstract class RoomDatabase {
         private var queryExecutor: Executor? = null
 
         private var transactionExecutor: Executor? = null
-        private var factory: SupportSQLiteOpenHelper.Factory? = null
+        private var supportOpenHelperFactory: SupportSQLiteOpenHelper.Factory? = null
         private var allowMainThreadQueries = false
         private var journalMode: JournalMode = JournalMode.AUTOMATIC
         private var multiInstanceInvalidationIntent: Intent? = null
@@ -968,7 +998,7 @@ actual abstract class RoomDatabase {
          * @return This builder instance.
          */
         open fun openHelperFactory(factory: SupportSQLiteOpenHelper.Factory?) = apply {
-            this.factory = factory
+            this.supportOpenHelperFactory = factory
         }
 
         /**
@@ -1435,13 +1465,13 @@ actual abstract class RoomDatabase {
             }
 
             val initialFactory: SupportSQLiteOpenHelper.Factory? =
-                if (driver == null && factory == null) {
+                if (driver == null && supportOpenHelperFactory == null) {
                     // No driver and no factory, compatibility mode, create the default factory
                     FrameworkSQLiteOpenHelperFactory()
                 } else if (driver == null) {
                     // No driver but a factory was provided, use it in compatibility mode
-                    factory
-                } else if (factory == null) {
+                    supportOpenHelperFactory
+                } else if (supportOpenHelperFactory == null) {
                     // A driver was provided, no need to create the default factory
                     null
                 } else {
@@ -1451,7 +1481,7 @@ actual abstract class RoomDatabase {
                             "SupportOpenHelper.Factory."
                     )
                 }
-            val factory = initialFactory?.let {
+            val supportOpenHelperFactory = initialFactory?.let {
                 if (autoCloseTimeout > 0) {
                     requireNotNull(name) {
                         "Cannot create auto-closing database for an in-memory database."
@@ -1510,7 +1540,7 @@ actual abstract class RoomDatabase {
             val configuration = DatabaseConfiguration(
                 context,
                 name,
-                factory,
+                supportOpenHelperFactory,
                 migrationContainer,
                 callbacks,
                 allowMainThreadQueries,
@@ -1530,7 +1560,8 @@ actual abstract class RoomDatabase {
                 allowDestructiveMigrationForAllTables,
                 driver,
             )
-            val db = Room.getGeneratedImplementation<T, T>(klass, "_Impl")
+            val db = factory?.invoke()
+                ?: Room.getGeneratedImplementation<T, T>(klass.java, "_Impl")
             db.init(configuration)
             return db
         }
