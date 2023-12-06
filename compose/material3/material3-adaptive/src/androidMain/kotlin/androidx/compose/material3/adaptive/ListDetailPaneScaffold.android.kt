@@ -71,7 +71,7 @@ fun calculateListDetailPaneScaffoldState(
         calculateStandardPaneScaffoldDirective(currentWindowAdaptiveInfo()),
     adaptStrategies: ThreePaneScaffoldAdaptStrategies =
         ListDetailPaneScaffoldDefaults.adaptStrategies(),
-    currentPaneDestination: ListDetailPaneScaffoldRole = ListDetailPaneScaffoldRole.List
+    currentPaneDestination: ThreePaneScaffoldRole = ListDetailPaneScaffoldRole.List
 ): ThreePaneScaffoldState = ThreePaneScaffoldStateImpl(
     scaffoldDirective,
     calculateThreePaneScaffoldValue(
@@ -106,37 +106,28 @@ object ListDetailPaneScaffoldDefaults {
 }
 
 /**
- * The set of the available pane roles of [ListDetailPaneScaffold].
+ * The set of the available pane roles of [ListDetailPaneScaffold]. Basically those values are
+ * aliases of [ThreePaneScaffoldRole]. We suggest you to use the values defined here instead of
+ * the raw [ThreePaneScaffoldRole] under the context of [ListDetailPaneScaffold] for better
+ * code clarity.
  */
 @ExperimentalMaterial3AdaptiveApi
-class ListDetailPaneScaffoldRole private constructor(
-    internalRole: ThreePaneScaffoldRoleInternal
-) : ThreePaneScaffoldRole(internalRole) {
-    companion object {
-        /**
-         * The list pane of [ListDetailPaneScaffold]. It is mapped to
-         * [ThreePaneScaffoldRoleInternal.Secondary].
-         */
-        val List = ListDetailPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Secondary)
+object ListDetailPaneScaffoldRole {
+    /**
+     * The list pane of [ListDetailPaneScaffold]. It is an alias of
+     * [ThreePaneScaffoldRole.Secondary].
+     */
+    val List = ThreePaneScaffoldRole.Secondary
 
-        /**
-         * The detail pane of [ListDetailPaneScaffold]. It is mapped to
-         * [ThreePaneScaffoldRoleInternal.Primary].
-         */
-        val Detail = ListDetailPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Primary)
+    /**
+     * The detail pane of [ListDetailPaneScaffold]. It is an alias of
+     * [ThreePaneScaffoldRole.Primary].
+     */
+    val Detail = ThreePaneScaffoldRole.Primary
 
-        /**
-         * The extra pane of [ListDetailPaneScaffold]. It is mapped to
-         * [ThreePaneScaffoldRoleInternal.Tertiary].
-         */
-        val Extra = ListDetailPaneScaffoldRole(ThreePaneScaffoldRoleInternal.Tertiary)
-    }
+    /**
+     * The extra pane of [ListDetailPaneScaffold]. It is an alias of
+     * [ThreePaneScaffoldRole.Tertiary].
+     */
+    val Extra = ThreePaneScaffoldRole.Tertiary
 }
-
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
-internal fun ThreePaneScaffoldRoleInternal.toListDetailPaneScaffoldRole():
-    ListDetailPaneScaffoldRole = when (this) {
-        ThreePaneScaffoldRoleInternal.Primary -> ListDetailPaneScaffoldRole.Detail
-        ThreePaneScaffoldRoleInternal.Secondary -> ListDetailPaneScaffoldRole.List
-        ThreePaneScaffoldRoleInternal.Tertiary -> ListDetailPaneScaffoldRole.Extra
-    }

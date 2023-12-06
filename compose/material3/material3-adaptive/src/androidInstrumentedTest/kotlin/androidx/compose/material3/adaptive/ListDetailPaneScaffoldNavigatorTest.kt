@@ -37,7 +37,7 @@ class ListDetailPaneScaffoldNavigatorTest {
 
     @Test
     fun singlePaneLayout_navigateTo_makeFocusPaneExpanded() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<ListDetailPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
@@ -64,7 +64,7 @@ class ListDetailPaneScaffoldNavigatorTest {
 
     @Test
     fun dualPaneLayout_navigateTo_keepFocusPaneExpanded() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<ListDetailPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
@@ -91,7 +91,7 @@ class ListDetailPaneScaffoldNavigatorTest {
 
     @Test
     fun singlePaneLayout_navigateBack_makeFocusPaneHidden() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<ListDetailPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
         var canNavigateBack by Delegates.notNull<Boolean>()
 
         composeRule.setContent {
@@ -123,7 +123,7 @@ class ListDetailPaneScaffoldNavigatorTest {
 
     @Test
     fun dualPaneLayout_enforceScaffoldValueChange_cannotNavigateBack() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<ListDetailPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
 
         composeRule.setContent {
             scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
@@ -142,7 +142,7 @@ class ListDetailPaneScaffoldNavigatorTest {
 
     @Test
     fun dualPaneLayout_notEnforceScaffoldValueChange_canNavigateBack() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<ListDetailPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
 
         composeRule.setContent {
             scaffoldNavigator = rememberListDetailPaneScaffoldNavigator(
@@ -171,7 +171,7 @@ class ListDetailPaneScaffoldNavigatorTest {
 
     @Test
     fun singlePaneToDualPaneLayout_enforceScaffoldValueChange_cannotNavigateBack() {
-        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator<ListDetailPaneScaffoldRole>
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
         val mockCurrentScaffoldDirective = mutableStateOf(MockSinglePaneScaffoldDirective)
 
         composeRule.setContent {
