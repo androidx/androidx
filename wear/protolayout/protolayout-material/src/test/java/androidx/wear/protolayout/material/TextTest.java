@@ -148,7 +148,6 @@ public class TextTest {
                         .setOverflow(TEXT_OVERFLOW_ELLIPSIZE_END)
                         .setMultilineAlignment(TEXT_ALIGN_END)
                         .setWeight(FONT_WEIGHT_BOLD)
-                        .setExcludeFontPadding(true)
                         .build();
 
         FontStyle expectedFontStyle =
@@ -215,7 +214,6 @@ public class TextTest {
         assertThat(actualText.getMaxLines()).isEqualTo(2);
         assertThat(actualText.getLineHeight())
                 .isEqualTo(getLineHeightForTypography(TYPOGRAPHY_TITLE1).getValue());
-        assertThat(actualText.hasExcludeFontPadding()).isTrue();
     }
 
     private void assertFontStyle(

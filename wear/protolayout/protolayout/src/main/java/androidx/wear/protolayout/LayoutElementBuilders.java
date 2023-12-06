@@ -1100,6 +1100,7 @@ public final class LayoutElementBuilders {
      */
     @RequiresSchemaVersion(major = 1, minor = 200)
     @ProtoLayoutExperimental
+    @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class AndroidTextStyle {
         private final LayoutElementProto.AndroidTextStyle mImpl;
         @Nullable private final Fingerprint mFingerprint;
@@ -1159,7 +1160,11 @@ public final class LayoutElementBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(408674745);
 
             /** Creates an instance of {@link Builder}. */
-            public Builder() {}
+            public Builder() {
+                // Setting this to true before setter is called, so that default behaviour is to
+                // exclude padding.
+                mImpl.setExcludeFontPadding(true);
+            }
 
             /**
              * Sets whether the {@link Text} excludes padding specified by the font, i.e. extra top
@@ -1296,6 +1301,7 @@ public final class LayoutElementBuilders {
          */
         @ProtoLayoutExperimental
         @Nullable
+        @RestrictTo(Scope.LIBRARY_GROUP)
         public AndroidTextStyle getAndroidTextStyle() {
             if (mImpl.hasAndroidTextStyle()) {
                 return AndroidTextStyle.fromProto(mImpl.getAndroidTextStyle());
@@ -1392,7 +1398,11 @@ public final class LayoutElementBuilders {
             private final Fingerprint mFingerprint = new Fingerprint(814133697);
 
             /** Creates an instance of {@link Builder}. */
-            public Builder() {}
+            public Builder() {
+                mImpl.setAndroidTextStyle(
+                        LayoutElementProto.AndroidTextStyle.newBuilder()
+                                .setExcludeFontPadding(true));
+            }
 
             /**
              * Sets the text to render.
@@ -1541,6 +1551,7 @@ public final class LayoutElementBuilders {
             @RequiresSchemaVersion(major = 1, minor = 200)
             @ProtoLayoutExperimental
             @NonNull
+            @RestrictTo(Scope.LIBRARY_GROUP)
             public Builder setAndroidTextStyle(@NonNull AndroidTextStyle androidTextStyle) {
                 mImpl.setAndroidTextStyle(androidTextStyle.toProto());
                 mFingerprint.recordPropertyUpdate(
@@ -2596,6 +2607,7 @@ public final class LayoutElementBuilders {
          */
         @ProtoLayoutExperimental
         @Nullable
+        @RestrictTo(Scope.LIBRARY_GROUP)
         public AndroidTextStyle getAndroidTextStyle() {
             if (mImpl.hasAndroidTextStyle()) {
                 return AndroidTextStyle.fromProto(mImpl.getAndroidTextStyle());
@@ -2725,6 +2737,7 @@ public final class LayoutElementBuilders {
             @RequiresSchemaVersion(major = 1, minor = 200)
             @ProtoLayoutExperimental
             @NonNull
+            @RestrictTo(Scope.LIBRARY_GROUP)
             public Builder setAndroidTextStyle(@NonNull AndroidTextStyle androidTextStyle) {
                 mImpl.setAndroidTextStyle(androidTextStyle.toProto());
                 mFingerprint.recordPropertyUpdate(
