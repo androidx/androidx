@@ -27,7 +27,9 @@ import androidx.work.impl.constraints.ConstraintsState
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsMet
 import androidx.work.impl.constraints.ConstraintsState.ConstraintsNotMet
 import androidx.work.impl.constraints.NetworkRequestConstraintController
+import androidx.work.impl.model.WorkSpec
 import com.google.common.truth.Truth.assertThat
+import java.util.UUID
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.flow.first
@@ -114,6 +116,15 @@ class NetworkRequestConstraintControllerTest {
                 ConstraintsNotMet(STOP_REASON_CONSTRAINT_CONNECTIVITY)
             )
         }
+    }
+
+    @Test
+    fun testIsCurrentlyConstrained() {
+        val connectivityManager = getApplicationContext<Context>()
+            .getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val controller = NetworkRequestConstraintController(connectivityManager, 0)
+        val workSpec = WorkSpec(id = UUID.randomUUID().toString(), workerClassName = "Foo")
+        assertThat(controller.isCurrentlyConstrained(workSpec)).isFalse()
     }
 }
 
