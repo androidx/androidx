@@ -642,8 +642,11 @@ val WearMaterialDemos = DemoCategory(
             "Position Indicator",
             listOf(
                 ComposableDemo("Hide when no scrollable") { HideWhenFullDemo() },
-                ComposableDemo("Hide when no scrollable on ScalingLazyColumn") {
+                ComposableDemo("Hide when no scrollable SLC") {
                     HideWhenFullSLCDemo()
+                },
+                ComposableDemo("SLC with PositionIndicator") {
+                    SLCWithPositionIndicatorDemo()
                 },
                 ComposableDemo("Controllable PI") { ControllablePositionIndicator() },
                 ComposableDemo("Shared PI") { SharedPositionIndicator() }

@@ -714,7 +714,9 @@ public fun PositionIndicator(
     val updatedPositionAnimationSpec by rememberUpdatedState(positionAnimationSpec)
 
     LaunchedEffect(state) {
-        var beforeFirstAnimation = true
+        // We don't want to trigger first animation when we receive position or size
+        // for the first time, because initial position and size are equal to 0.
+        var skipFirstPositionAnimation = true
 
         // Skip first alpha animation only when initial visibility is not Hide
         var skipFirstAlphaAnimation = state.visibility(containerSize.height.toFloat()) !=
@@ -730,10 +732,22 @@ public fun PositionIndicator(
                     state.visibility(containerSize.height.toFloat())
                 )
             }.collectLatest {
-                if (beforeFirstAnimation || updatedPositionAnimationSpec is SnapSpec) {
+                // Workaround for b/315149417. When visibility is Hide and other values equal to 0,
+                // we consider that as non-initialized state.
+                // It means that we skip first alpha animation, and also ignore these values.
+                if (skipFirstPositionAnimation &&
+                    it.visibility == PositionIndicatorVisibility.Hide &&
+                    it.position == 0f &&
+                    it.size == 0f
+                ) {
+                    skipFirstAlphaAnimation = true
+                    return@collectLatest
+                }
+
+                if (skipFirstPositionAnimation || updatedPositionAnimationSpec is SnapSpec) {
                     sizeFractionAnimatable.snapTo(it.size)
                     positionFractionAnimatable.snapTo(it.position)
-                    beforeFirstAnimation = false
+                    skipFirstPositionAnimation = false
                 } else {
                     launch {
                         sizeFractionAnimatable
@@ -764,7 +778,9 @@ public fun PositionIndicator(
                         handleFadeOut(updatedFadeOutAnimationSpec, animateAlphaChannel, alphaValue)
                     }
 
-                    PositionIndicatorVisibility.Show -> {
+                    // PositionIndicatorVisibility.Show and
+                    // PositionIndicatorVisibility.AutoHide cases
+                    else -> {
                         // If fadeInAnimationSpec is SnapSpec or we skip the first animation,
                         // then we change alphaValue directly here
                         if (updatedFadeInAnimationSpec is SnapSpec || skipFirstAlphaAnimation) {
@@ -774,11 +790,6 @@ public fun PositionIndicator(
                             // Otherwise we send an event to animation channel
                             animateAlphaChannel.trySend(1f)
                         }
-                    }
-
-                    // PositionIndicatorVisibility.AutoHide case
-                    else -> {
-                        skipFirstAlphaAnimation = false
 
                         if (it.visibility == PositionIndicatorVisibility.AutoHide) {
                             // Waiting for 2000ms and changing alpha value to 0f
