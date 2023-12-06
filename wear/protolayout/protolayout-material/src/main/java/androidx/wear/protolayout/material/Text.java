@@ -93,6 +93,7 @@ public class Text implements LayoutElement {
 
         @NonNull
         @OptIn(markerClass = ProtoLayoutExperimental.class)
+        @SuppressWarnings("deprecation")
         private final LayoutElementBuilders.Text.Builder mElementBuilder =
                 new LayoutElementBuilders.Text.Builder()
                         .setMaxLines(1)

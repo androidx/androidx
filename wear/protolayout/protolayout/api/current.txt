@@ -359,7 +359,7 @@ package androidx.wear.protolayout {
     field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final int TEXT_ALIGN_START = 1; // 0x1
     field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final int TEXT_ALIGN_UNDEFINED = 0; // 0x0
     field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=300) public static final int TEXT_OVERFLOW_ELLIPSIZE = 4; // 0x4
-    field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final int TEXT_OVERFLOW_ELLIPSIZE_END = 2; // 0x2
+    field @Deprecated @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final int TEXT_OVERFLOW_ELLIPSIZE_END = 2; // 0x2
     field @SuppressCompatibility @androidx.wear.protolayout.expression.ProtoLayoutExperimental @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=200) public static final int TEXT_OVERFLOW_MARQUEE = 3; // 0x3
     field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final int TEXT_OVERFLOW_TRUNCATE = 1; // 0x1
     field @androidx.wear.protolayout.expression.RequiresSchemaVersion(major=1, minor=0) public static final int TEXT_OVERFLOW_UNDEFINED = 0; // 0x0

@@ -354,6 +354,7 @@ public class Chip implements LayoutElement {
         }
 
         @OptIn(markerClass = ProtoLayoutExperimental.class)
+        @SuppressWarnings("deprecation")
         private void setCorrectContent() {
             Text mainTextElement =
                     new Text.Builder(mContext, checkNotNull(mPrimaryLabel))
