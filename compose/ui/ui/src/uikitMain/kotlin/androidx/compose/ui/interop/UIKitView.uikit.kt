@@ -36,6 +36,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -96,7 +97,7 @@ fun <T : UIView> UIKitView(
 
     Place(
         modifier.onGloballyPositioned { coordinates ->
-            localToWindowOffset = coordinates.localToWindow(Offset.Zero).round()
+            localToWindowOffset = coordinates.positionInWindow().round()
             val newRectInPixels = IntRect(localToWindowOffset, coordinates.size)
             if (rectInPixels != newRectInPixels) {
                 val rect = newRectInPixels / density
@@ -195,7 +196,7 @@ fun <T : UIViewController> UIKitViewController(
 
     Place(
         modifier.onGloballyPositioned { coordinates ->
-            localToWindowOffset = coordinates.localToWindow(Offset.Zero).round()
+            localToWindowOffset = coordinates.positionInWindow().round()
             val newRectInPixels = IntRect(localToWindowOffset, coordinates.size)
             if (rectInPixels != newRectInPixels) {
                 val rect = newRectInPixels / density
