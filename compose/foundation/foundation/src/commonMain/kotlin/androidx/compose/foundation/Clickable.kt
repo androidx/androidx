@@ -26,6 +26,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
@@ -150,9 +151,8 @@ fun Modifier.clickable(
 ) {
     Modifier
         .indication(interactionSource, indication)
-        .hoverable(enabled = enabled, interactionSource = interactionSource)
-        .focusableInNonTouchMode(enabled = enabled, interactionSource = interactionSource)
         .then(ClickableElement(interactionSource, enabled, onClickLabel, role, onClick))
+        .then(if (enabled) Modifier.focusTarget() else Modifier)
 }
 /**
  * Configure component to receive clicks, double clicks and long clicks via input or accessibility
@@ -273,8 +273,6 @@ fun Modifier.combinedClickable(
 ) {
     Modifier
         .indication(interactionSource, indication)
-        .hoverable(enabled = enabled, interactionSource = interactionSource)
-        .focusableInNonTouchMode(enabled = enabled, interactionSource = interactionSource)
         .then(
             CombinedClickableElement(
                 interactionSource,
@@ -287,6 +285,7 @@ fun Modifier.combinedClickable(
                 onDoubleClick
             )
         )
+        .then(if (enabled) Modifier.focusTarget() else Modifier)
 }
 
 private suspend fun PressGestureScope.handlePressInteraction(
@@ -740,6 +739,9 @@ private sealed class AbstractClickableNode(
 ) : DelegatingNode(), PointerInputModifierNode, KeyInputModifierNode {
     abstract val clickablePointerInputNode: AbstractClickablePointerInputNode
     abstract val clickableSemanticsNode: ClickableSemanticsNode
+    private val hoverableNode: HoverableNode = HoverableNode(interactionSource)
+    private val focusableInNonTouchMode: FocusableInNonTouchMode = FocusableInNonTouchMode()
+    private val focusableNode: FocusableNode = FocusableNode(interactionSource)
 
     class InteractionData {
         val currentKeyPressInteractions = mutableMapOf<Key, PressInteraction.Press>()
@@ -761,7 +763,14 @@ private sealed class AbstractClickableNode(
             this.interactionSource = interactionSource
         }
         if (this.enabled != enabled) {
-            if (!enabled) {
+            if (enabled) {
+                delegate(hoverableNode)
+                delegate(focusableInNonTouchMode)
+                delegate(focusableNode)
+            } else {
+                undelegate(hoverableNode)
+                undelegate(focusableInNonTouchMode)
+                undelegate(focusableNode)
                 disposeInteractionSource()
             }
             this.enabled = enabled
@@ -769,6 +778,16 @@ private sealed class AbstractClickableNode(
         this.onClickLabel = onClickLabel
         this.role = role
         this.onClick = onClick
+        hoverableNode.updateInteractionSource(interactionSource)
+        focusableNode.update(interactionSource)
+    }
+
+    override fun onAttach() {
+        if (enabled) {
+            delegate(hoverableNode)
+            delegate(focusableInNonTouchMode)
+            delegate(focusableNode)
+        }
     }
 
     override fun onDetach() {
@@ -792,10 +811,16 @@ private sealed class AbstractClickableNode(
         pass: PointerEventPass,
         bounds: IntSize
     ) {
+        if (hoverableNode.isAttached) {
+            hoverableNode.onPointerEvent(pointerEvent, pass, bounds)
+        }
         clickablePointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
     }
 
     override fun onCancelPointerInput() {
+        if (hoverableNode.isAttached) {
+            hoverableNode.onCancelPointerInput()
+        }
         clickablePointerInputNode.onCancelPointerInput()
     }
 
