@@ -830,7 +830,8 @@ internal class VerticalAlignNode(
 internal data class RowColumnParentData(
     var weight: Float = 0f,
     var fill: Boolean = true,
-    var crossAxisAlignment: CrossAxisAlignment? = null
+    var crossAxisAlignment: CrossAxisAlignment? = null,
+    var flowLayoutData: FlowLayoutData? = null,
 )
 
 /**
