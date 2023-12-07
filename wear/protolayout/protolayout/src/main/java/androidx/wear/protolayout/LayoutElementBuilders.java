@@ -305,6 +305,31 @@ public final class LayoutElementBuilders {
     @RequiresSchemaVersion(major = 1, minor = 200)
     public static final int STROKE_CAP_SQUARE = 3;
 
+    /** Direction of drawing for any curved element. */
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({ARC_DIRECTION_NORMAL, ARC_DIRECTION_CLOCKWISE, ARC_DIRECTION_COUNTER_CLOCKWISE})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ArcDirection {}
+
+    /**
+     * Draws an element in Clockwise direction for LTR layout direction and Counter Clockwise for
+     * RTL.
+     */
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int ARC_DIRECTION_NORMAL = 0;
+
+    /** Draws an element in Clockwise direction, independently of layout direction. */
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int ARC_DIRECTION_CLOCKWISE = 1;
+
+    /** Draws an element in Counter Clockwise direction, independently of layout direction. */
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final int ARC_DIRECTION_COUNTER_CLOCKWISE = 2;
+
     /** An extensible {@code FontWeight} property. */
     @RequiresSchemaVersion(major = 1, minor = 0)
     public static final class FontWeightProp {
@@ -3882,6 +3907,20 @@ public final class LayoutElementBuilders {
             }
         }
 
+        /**
+         * Gets defines the direction in which child elements are laid out. If not set, defaults to
+         * ARC_DIRECTION_NORMAL.
+         */
+        @Nullable
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public ArcDirectionProp getArcDirection() {
+            if (mImpl.hasArcDirection()) {
+                return ArcDirectionProp.fromProto(mImpl.getArcDirection());
+            } else {
+                return null;
+            }
+        }
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -3930,6 +3969,8 @@ public final class LayoutElementBuilders {
                     + getVerticalAlign()
                     + ", modifiers="
                     + getModifiers()
+                    + ", arcDirection="
+                    + getArcDirection()
                     + "}";
         }
 
@@ -4035,6 +4076,32 @@ public final class LayoutElementBuilders {
                 return this;
             }
 
+            /**
+             * Sets the direction in which child elements are laid out. If not set, defaults to
+             * ARC_DIRECTION_NORMAL.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            @RestrictTo(Scope.LIBRARY_GROUP)
+            public Builder setArcDirection(@NonNull ArcDirectionProp arcDirection) {
+                mImpl.setArcDirection(arcDirection.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        7, checkNotNull(arcDirection.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the direction in which child elements are laid out. If not set, defaults to
+             * ARC_DIRECTION_NORMAL.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            @RestrictTo(Scope.LIBRARY_GROUP)
+            public Builder setArcDirection(@ArcDirection int arcDirection) {
+                return setArcDirection(
+                        new ArcDirectionProp.Builder().setValue(arcDirection).build());
+            }
+
             /** Builds an instance from accumulated values. */
             @Override
             @NonNull
@@ -4088,6 +4155,20 @@ public final class LayoutElementBuilders {
             }
         }
 
+        /**
+         * Gets defines the direction in which text is drawn. If not set, defaults to
+         * ARC_DIRECTION_CLOCKWISE.
+         */
+        @Nullable
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public ArcDirectionProp getArcDirection() {
+            if (mImpl.hasArcDirection()) {
+                return ArcDirectionProp.fromProto(mImpl.getArcDirection());
+            } else {
+                return null;
+            }
+        }
+
         @Override
         @RestrictTo(Scope.LIBRARY_GROUP)
         @Nullable
@@ -4132,6 +4213,8 @@ public final class LayoutElementBuilders {
                     + getFontStyle()
                     + ", modifiers="
                     + getModifiers()
+                    + ", arcDirection="
+                    + getArcDirection()
                     + "}";
         }
 
@@ -4191,6 +4274,32 @@ public final class LayoutElementBuilders {
                 mFingerprint.recordPropertyUpdate(
                         3, checkNotNull(modifiers.getFingerprint()).aggregateValueAsInt());
                 return this;
+            }
+
+            /**
+             * Sets the direction in which this text is drawn. If not set, defaults to
+             * ARC_DIRECTION_CLOCKWISE.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            @RestrictTo(Scope.LIBRARY_GROUP)
+            public Builder setArcDirection(@NonNull ArcDirectionProp arcDirection) {
+                mImpl.setArcDirection(arcDirection.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        4, checkNotNull(arcDirection.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+
+            /**
+             * Sets the direction in which this text is drawn. If not set, defaults to
+             * ARC_DIRECTION_CLOCKWISE.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            @RestrictTo(Scope.LIBRARY_GROUP)
+            public Builder setArcDirection(@ArcDirection int arcDirection) {
+                return setArcDirection(
+                        new ArcDirectionProp.Builder().setValue(arcDirection).build());
             }
 
             /** Builds an instance from accumulated values. */
@@ -4289,6 +4398,20 @@ public final class LayoutElementBuilders {
         }
 
         /**
+         * Gets defines the direction in which line drawn. If not set, defaults to
+         * ARC_DIRECTION_CLOCKWISE.
+         */
+        @Nullable
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        public ArcDirectionProp getArcDirection() {
+            if (mImpl.hasArcDirection()) {
+                return ArcDirectionProp.fromProto(mImpl.getArcDirection());
+            } else {
+                return null;
+            }
+        }
+
+        /**
          * Gets the bounding constraints for the layout affected by the dynamic value from {@link
          * #getLength()}.
          */
@@ -4351,6 +4474,8 @@ public final class LayoutElementBuilders {
                     + getModifiers()
                     + ", strokeCap="
                     + getStrokeCap()
+                    + ", arcDirection="
+                    + getArcDirection()
                     + "}";
         }
 
@@ -4467,6 +4592,31 @@ public final class LayoutElementBuilders {
                 mFingerprint.recordPropertyUpdate(
                         6, checkNotNull(strokeCap.getFingerprint()).aggregateValueAsInt());
                 return this;
+            }
+
+            /**
+             * Sets the direction in which this line is drawn. If not set, defaults to
+             * ARC_DIRECTION_CLOCKWISE.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            @RestrictTo(Scope.LIBRARY_GROUP)
+            public Builder setArcDirection(@NonNull ArcDirectionProp arcDirection) {
+                mImpl.setArcDirection(arcDirection.toProto());
+                mFingerprint.recordPropertyUpdate(
+                        8, checkNotNull(arcDirection.getFingerprint()).aggregateValueAsInt());
+                return this;
+            }
+            /**
+             * Sets the direction in which this line is drawn. If not set, defaults to
+             * ARC_DIRECTION_CLOCKWISE.
+             */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            @RestrictTo(Scope.LIBRARY_GROUP)
+            public Builder setArcDirection(@ArcDirection int arcDirection) {
+                return setArcDirection(
+                        new ArcDirectionProp.Builder().setValue(arcDirection).build());
             }
 
             /** Sets the line stroke cap. If not defined, defaults to STROKE_CAP_ROUND. */
@@ -4914,6 +5064,86 @@ public final class LayoutElementBuilders {
             @NonNull
             public ArcAdapter build() {
                 return new ArcAdapter(mImpl.build(), mFingerprint);
+            }
+        }
+    }
+
+    /** An extensible {@code StrokeCap} property. */
+    @RequiresSchemaVersion(major = 1, minor = 300)
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static final class ArcDirectionProp {
+        private final LayoutElementProto.ArcDirectionProp mImpl;
+        @Nullable private final Fingerprint mFingerprint;
+
+        ArcDirectionProp(
+                LayoutElementProto.ArcDirectionProp impl,
+                @Nullable Fingerprint fingerprint) {
+            this.mImpl = impl;
+            this.mFingerprint = fingerprint;
+        }
+
+        /** Gets the value. */
+        @ArcDirection
+        public int getValue() {
+            return mImpl.getValue().getNumber();
+        }
+
+        /** Get the fingerprint for this object, or null if unknown. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @Nullable
+        public Fingerprint getFingerprint() {
+            return mFingerprint;
+        }
+
+        /** Creates a new wrapper instance from the proto. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public static ArcDirectionProp fromProto(
+                @NonNull LayoutElementProto.ArcDirectionProp proto,
+                @Nullable Fingerprint fingerprint) {
+            return new ArcDirectionProp(proto, fingerprint);
+        }
+
+        @NonNull
+        static ArcDirectionProp fromProto(@NonNull LayoutElementProto.ArcDirectionProp proto) {
+            return fromProto(proto, null);
+        }
+
+        /** Returns the internal proto instance. */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        public LayoutElementProto.ArcDirectionProp toProto() {
+            return mImpl;
+        }
+
+        @Override
+        @NonNull
+        public String toString() {
+            return "ArcDirectionProp{" + "value=" + getValue() + "}";
+        }
+
+        /** Builder for {@link ArcDirectionProp} */
+        public static final class Builder {
+            private final LayoutElementProto.ArcDirectionProp.Builder mImpl =
+                    LayoutElementProto.ArcDirectionProp.newBuilder();
+            private final Fingerprint mFingerprint = new Fingerprint(-855955608);
+
+            /** Creates an instance of {@link Builder}. */
+            public Builder() {}
+
+            /** Sets the value. */
+            @RequiresSchemaVersion(major = 1, minor = 300)
+            @NonNull
+            public Builder setValue(@ArcDirection int value) {
+                mImpl.setValue(LayoutElementProto.ArcDirection.forNumber(value));
+                mFingerprint.recordPropertyUpdate(1, value);
+                return this;
+            }
+
+            /** Builds an instance from accumulated values. */
+            @NonNull
+            public ArcDirectionProp build() {
+                return new ArcDirectionProp(mImpl.build(), mFingerprint);
             }
         }
     }
