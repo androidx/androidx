@@ -68,7 +68,7 @@ private class HoverableElement(
     }
 }
 
-private class HoverableNode(
+internal class HoverableNode(
     private var interactionSource: MutableInteractionSource
 ) : PointerInputModifierNode, Modifier.Node() {
     private var hoverInteraction: HoverInteraction.Enter? = null
