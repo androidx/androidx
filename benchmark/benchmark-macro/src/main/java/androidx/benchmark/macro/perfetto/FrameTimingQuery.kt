@@ -159,6 +159,7 @@ internal object FrameTimingQuery {
 
         val groupedData = slices
             .filter { it.dur > 0 } // drop non-terminated slices
+            .filter { !it.name.contains("resynced") } // drop "#doFrame - resynced to" slices
             .groupBy {
                 when {
                     // note: we use "startsWith" as starting in S, all of these will end
@@ -178,6 +179,11 @@ internal object FrameTimingQuery {
 
         if (uiSlices.isEmpty()) {
             return emptyList()
+        }
+
+        check(rtSlices.isNotEmpty()) {
+            "Observed no renderthread slices in trace - verify that your benchmark is redrawing" +
+                " and is hardware accelerated (which is the default)."
         }
 
         return if (captureApiLevel >= 31) {
