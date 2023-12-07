@@ -36,7 +36,7 @@ class SupportingPaneScaffoldNavigatorTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun singlePaneLayout_navigateTo_makeFocusPaneExpanded() {
+    fun singlePaneLayout_navigateTo_makeDestinationPaneExpanded() {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
         var canNavigateBack by Delegates.notNull<Boolean>()
 
@@ -49,21 +49,21 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue.secondary
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Hidden)
             scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Supporting)
         }
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue.secondary
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(canNavigateBack).isTrue()
         }
     }
 
     @Test
-    fun dualPaneLayout_navigateTo_keepFocusPaneExpanded() {
+    fun dualPaneLayout_navigateTo_keepDestinationPaneExpanded() {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
         var canNavigateBack by Delegates.notNull<Boolean>()
 
@@ -76,21 +76,79 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue.primary
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Main]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Main)
         }
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue.primary
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Main]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(canNavigateBack).isFalse()
         }
     }
 
     @Test
-    fun singlePaneLayout_navigateBack_makeFocusPaneHidden() {
+    fun dualPaneLayout_navigateToExtra_hideSupportingWhenNotHistoryAware() {
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        var canNavigateBack by Delegates.notNull<Boolean>()
+
+        composeRule.setContent {
+            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
+                initialDestinationHistory = listOf(SupportingPaneScaffoldRole.Supporting),
+                scaffoldDirective = MockDualPaneScaffoldDirective,
+                isDestinationHistoryAware = false
+            )
+            canNavigateBack = scaffoldNavigator.canNavigateBack()
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+            ).isEqualTo(PaneAdaptedValue.Expanded)
+            scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Extra)
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+            ).isEqualTo(PaneAdaptedValue.Hidden)
+            assertThat(canNavigateBack).isTrue()
+        }
+    }
+
+    @Test
+    fun dualPaneLayout_navigateToExtra_keepSupportingExpandedWhenHistoryAware() {
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+        var canNavigateBack by Delegates.notNull<Boolean>()
+
+        composeRule.setContent {
+            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
+                initialDestinationHistory = listOf(SupportingPaneScaffoldRole.Supporting),
+                scaffoldDirective = MockDualPaneScaffoldDirective,
+                isDestinationHistoryAware = true
+            )
+            canNavigateBack = scaffoldNavigator.canNavigateBack()
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+            ).isEqualTo(PaneAdaptedValue.Expanded)
+            scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Extra)
+        }
+
+        composeRule.runOnIdle {
+            assertThat(
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
+            ).isEqualTo(PaneAdaptedValue.Expanded)
+            assertThat(canNavigateBack).isTrue()
+        }
+    }
+
+    @Test
+    fun singlePaneLayout_navigateBack_makeDestinationPaneHidden() {
         lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
         var canNavigateBack by Delegates.notNull<Boolean>()
 
@@ -107,7 +165,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue.secondary
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(canNavigateBack).isTrue()
             scaffoldNavigator.navigateBack()
@@ -115,7 +173,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue.secondary
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Supporting]
             ).isEqualTo(PaneAdaptedValue.Hidden)
             assertThat(canNavigateBack).isFalse()
         }
@@ -156,7 +214,7 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue.primary
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Main]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             assertThat(scaffoldNavigator.canNavigateBack(false)).isTrue()
             scaffoldNavigator.navigateBack(false)
@@ -164,8 +222,92 @@ class SupportingPaneScaffoldNavigatorTest {
 
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue.primary
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Main]
             ).isEqualTo(PaneAdaptedValue.Expanded)
+        }
+    }
+
+    @Test
+    fun dualPaneLayout_enforceScaffoldChangeWhenHistoryAware_notSkipBackstackEntry() {
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+
+        composeRule.setContent {
+            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
+                scaffoldDirective = MockDualPaneScaffoldDirective,
+                initialDestinationHistory = listOf(
+                    SupportingPaneScaffoldRole.Extra,
+                    SupportingPaneScaffoldRole.Supporting,
+                ),
+                isDestinationHistoryAware = true
+            )
+        }
+
+        composeRule.runOnIdle {
+            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+                PaneAdaptedValue.Hidden,
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Expanded
+            )
+            scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Main)
+        }
+
+        composeRule.runOnIdle {
+            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Hidden
+            )
+            scaffoldNavigator.navigateBack()
+        }
+
+        composeRule.runOnIdle {
+            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+                PaneAdaptedValue.Hidden,
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Expanded
+            )
+        }
+    }
+
+    @Test
+    fun dualPaneLayout_enforceScaffoldChangeWhenNotHistoryAware_skipBackstackEntry() {
+        lateinit var scaffoldNavigator: ThreePaneScaffoldNavigator
+
+        composeRule.setContent {
+            scaffoldNavigator = rememberSupportingPaneScaffoldNavigator(
+                scaffoldDirective = MockDualPaneScaffoldDirective,
+                initialDestinationHistory = listOf(
+                    SupportingPaneScaffoldRole.Extra,
+                    SupportingPaneScaffoldRole.Supporting,
+                ),
+                isDestinationHistoryAware = false
+            )
+        }
+
+        composeRule.runOnIdle {
+            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Hidden
+            )
+            scaffoldNavigator.navigateTo(SupportingPaneScaffoldRole.Main)
+        }
+
+        composeRule.runOnIdle {
+            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Hidden
+            )
+            scaffoldNavigator.navigateBack()
+        }
+
+        composeRule.runOnIdle {
+            scaffoldNavigator.scaffoldState.scaffoldValue.assert(
+                PaneAdaptedValue.Expanded,
+                PaneAdaptedValue.Hidden,
+                PaneAdaptedValue.Expanded
+            )
         }
     }
 
@@ -185,7 +327,7 @@ class SupportingPaneScaffoldNavigatorTest {
         }
         composeRule.runOnIdle {
             assertThat(
-                scaffoldNavigator.scaffoldState.scaffoldValue.primary
+                scaffoldNavigator.scaffoldState.scaffoldValue[SupportingPaneScaffoldRole.Main]
             ).isEqualTo(PaneAdaptedValue.Expanded)
             // Switches to dual pane
             mockCurrentScaffoldDirective.value = MockDualPaneScaffoldDirective
@@ -216,3 +358,16 @@ private val MockDualPaneScaffoldDirective = PaneScaffoldDirective(
     verticalPartitionSpacerSize = 0.dp,
     excludedBounds = emptyList()
 )
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private fun ThreePaneScaffoldValue.assert(
+    expectedMainPaneAdaptedValue: PaneAdaptedValue,
+    expectedSupportingPaneAdaptedValue: PaneAdaptedValue,
+    expectedExtraPaneAdaptedValue: PaneAdaptedValue
+) {
+    assertThat(this[SupportingPaneScaffoldRole.Main]).isEqualTo(expectedMainPaneAdaptedValue)
+    assertThat(this[SupportingPaneScaffoldRole.Supporting]).isEqualTo(
+        expectedSupportingPaneAdaptedValue
+    )
+    assertThat(this[SupportingPaneScaffoldRole.Extra]).isEqualTo(expectedExtraPaneAdaptedValue)
+}
