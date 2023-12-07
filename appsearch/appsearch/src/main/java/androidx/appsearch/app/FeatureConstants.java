@@ -36,4 +36,7 @@ public interface FeatureConstants {
 
     /**  Feature constants for {@link Features#LIST_FILTER_QUERY_LANGUAGE}.  */
     String LIST_FILTER_QUERY_LANGUAGE = "LIST_FILTER_QUERY_LANGUAGE";
+
+    /**  Feature constants for {@link Features#LIST_FILTER_HAS_PROPERTY_FUNCTION}.  */
+    String LIST_FILTER_HAS_PROPERTY_FUNCTION = "LIST_FILTER_HAS_PROPERTY_FUNCTION";
 }

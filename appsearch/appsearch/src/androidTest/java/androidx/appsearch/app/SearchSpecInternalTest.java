@@ -71,6 +71,22 @@ public class SearchSpecInternalTest {
                 Features.LIST_FILTER_QUERY_LANGUAGE);
     }
 
+    // TODO(b/309826655): Flag guard this test.
+    @Test
+    public void testGetBundle_hasProperty() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterHasPropertyFunctionEnabled(true)
+                .build();
+
+        Bundle bundle = searchSpec.getBundle();
+        assertThat(bundle.getStringArrayList(SearchSpec.ENABLED_FEATURES_FIELD)).containsExactly(
+                Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
+                Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION);
+    }
+
     @Test
     public void testBuildMultipleSearchSpecs() {
         SearchSpec.Builder builder = new SearchSpec.Builder();

@@ -48,6 +48,8 @@ public class AlwaysSupportedFeatures implements Features {
                 // fall through
             case Features.LIST_FILTER_QUERY_LANGUAGE:
                 // fall through
+            case Features.LIST_FILTER_HAS_PROPERTY_FUNCTION:
+                // fall through
             case Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA:
                 // fall through
             case Features.SEARCH_RESULT_MATCH_INFO_SUBMATCH:

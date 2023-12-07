@@ -27,7 +27,9 @@ import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.annotation.FlaggedApi;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.Flags;
 import androidx.appsearch.util.BundleUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -523,6 +525,14 @@ public final class SearchSpec {
      */
     public boolean isListFilterQueryLanguageEnabled() {
         return getEnabledFeatures().contains(FeatureConstants.LIST_FILTER_QUERY_LANGUAGE);
+    }
+
+    /**
+     * Returns whether the LIST_FILTER_HAS_PROPERTY_FUNCTION feature is enabled.
+     */
+    @FlaggedApi(Flags.FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION)
+    public boolean isListFilterHasPropertyFunctionEnabled() {
+        return getEnabledFeatures().contains(FeatureConstants.LIST_FILTER_HAS_PROPERTY_FUNCTION);
     }
 
     /**
@@ -1593,6 +1603,27 @@ public final class SearchSpec {
         @NonNull
         public Builder setListFilterQueryLanguageEnabled(boolean enabled) {
             modifyEnabledFeature(FeatureConstants.LIST_FILTER_QUERY_LANGUAGE, enabled);
+            return this;
+        }
+
+        /**
+         * Sets the LIST_FILTER_HAS_PROPERTY_FUNCTION feature as enabled/disabled according to
+         * the enabled parameter.
+         *
+         * @param enabled Enables the feature if true, otherwise disables it
+         *
+         * <p>If disabled, disallows the use of the "hasProperty" function. See
+         * {@link AppSearchSession#search} for more details about the function.
+         */
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.LIST_FILTER_HAS_PROPERTY_FUNCTION)
+        // @exportToFramework:endStrip()
+        @NonNull
+        @FlaggedApi(Flags.FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION)
+        public Builder setListFilterHasPropertyFunctionEnabled(boolean enabled) {
+            modifyEnabledFeature(FeatureConstants.LIST_FILTER_HAS_PROPERTY_FUNCTION, enabled);
             return this;
         }
 

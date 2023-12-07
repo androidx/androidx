@@ -47,12 +47,21 @@ public final class Flags {
     /** Enable SafeParcelable related features. */
     public static final String FLAG_ENABLE_SAFE_PARCELABLE = FLAG_PREFIX + "enable_safe_parcelable";
 
+    /** Enable the "hasProperty" function in list filter query expressions. */
+    public static final String FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION =
+            FLAG_PREFIX + "enable_list_filter_has_property_function";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
 
     /** Whether SafeParcelable should be enabled. */
     public static boolean enableSafeParcelable() {
+        return true;
+    }
+
+    /** Whether the "hasProperty" function in list filter query expressions should be enabled. */
+    public static boolean enableListFilterHasPropertyFunction() {
         return true;
     }
 }
