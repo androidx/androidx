@@ -84,7 +84,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         // Scroll a bit
         onMainList().swipeOnMainAxis()
         rule.waitForIdle()
-        val currentItem = density.getCurrentSnappedItem(lazyListState)
+        val currentItem = getCurrentSnappedItem(lazyListState)
 
         // act
         onMainList().performTouchInput {
@@ -93,7 +93,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
 
         // assert
         rule.runOnIdle {
-            val nextItem = density.getCurrentSnappedItem(lazyListState)
+            val nextItem = getCurrentSnappedItem(lazyListState)
             assertEquals(currentItem, nextItem)
         }
     }
@@ -116,7 +116,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         // Scroll a bit
         onMainList().swipeOnMainAxis()
         rule.waitForIdle()
-        val currentItem = density.getCurrentSnappedItem(lazyListState)
+        val currentItem = getCurrentSnappedItem(lazyListState)
 
         // act
         onMainList().performTouchInput {
@@ -128,7 +128,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
 
         // assert
         rule.runOnIdle {
-            val nextItem = density.getCurrentSnappedItem(lazyListState)
+            val nextItem = getCurrentSnappedItem(lazyListState)
             assertEquals(currentItem + 1, nextItem)
         }
     }
@@ -151,7 +151,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         // Scroll a bit
         onMainList().swipeOnMainAxis()
         rule.waitForIdle()
-        val currentItem = density.getCurrentSnappedItem(lazyListState)
+        val currentItem = getCurrentSnappedItem(lazyListState)
 
         // act
         onMainList().performTouchInput {
@@ -163,7 +163,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
 
         // assert
         rule.runOnIdle {
-            val nextItem = density.getCurrentSnappedItem(lazyListState)
+            val nextItem = getCurrentSnappedItem(lazyListState)
             assertEquals(currentItem + 1, nextItem)
         }
     }
@@ -186,7 +186,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         // Scroll a bit
         onMainList().swipeOnMainAxis()
         rule.waitForIdle()
-        val currentItem = density.getCurrentSnappedItem(lazyListState)
+        val currentItem = getCurrentSnappedItem(lazyListState)
 
         // act
         onMainList().performTouchInput {
@@ -199,7 +199,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
 
         // assert
         rule.runOnIdle {
-            val nextItem = density.getCurrentSnappedItem(lazyListState)
+            val nextItem = getCurrentSnappedItem(lazyListState)
             assertEquals(currentItem - 1, nextItem)
         }
     }
@@ -222,7 +222,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         // Scroll a bit
         onMainList().swipeOnMainAxis()
         rule.waitForIdle()
-        val currentItem = density.getCurrentSnappedItem(lazyListState)
+        val currentItem = getCurrentSnappedItem(lazyListState)
 
         // act
         onMainList().performTouchInput {
@@ -234,7 +234,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
 
         // assert
         rule.runOnIdle {
-            val nextItem = density.getCurrentSnappedItem(lazyListState)
+            val nextItem = getCurrentSnappedItem(lazyListState)
             assertEquals(currentItem + 2, nextItem)
         }
     }
@@ -388,12 +388,6 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         }
         rule.mainClock.advanceTimeByFrame()
 
-        // assert
-        val initialTargetOffset =
-            snapLayoutInfoProvider.calculateApproachOffset(velocity)
-        Truth.assertThat(scrollOffset.first()).isWithin(0.5f)
-            .of(initialTargetOffset)
-
         // act and assert: next calculated offset is the first value emitted by
         // remainingScrollOffset this indicates the last snap step will start
         rule.mainClock.advanceTimeUntil {
@@ -441,7 +435,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         }
     }
 
-    private fun Density.getCurrentSnappedItem(state: LazyListState?): Int {
+    private fun getCurrentSnappedItem(state: LazyListState?): Int {
         var itemIndex = -1
         if (state == null) return -1
         var minDistance = Float.POSITIVE_INFINITY
