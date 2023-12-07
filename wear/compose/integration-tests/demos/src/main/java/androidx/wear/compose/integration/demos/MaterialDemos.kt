@@ -95,6 +95,30 @@ val WearMaterialDemos = DemoCategory(
     "Material",
     listOf(
         DemoCategory(
+            "Page Indicator",
+            listOf(
+                DemoCategory(
+                    "Samples",
+                    listOf(
+                        ComposableDemo("Sample with InlineSlider") {
+                            Centralize { HorizontalPageIndicatorSample() }
+                        },
+                    )
+                ),
+                DemoCategory(
+                    "Demos",
+                    listOf(
+                        ComposableDemo("Customized PageIndicator") {
+                            CustomizedHorizontalPageIndicator()
+                        },
+                        ComposableDemo("Pager with Indicator") {
+                            PagerWithIndicator()
+                        }
+                    )
+                )
+            )
+        ),
+        DemoCategory(
             "ScrollAway",
             listOf(
                 ComposableDemo("Column") { ScrollAwayColumnDemo() },
@@ -502,27 +526,6 @@ val WearMaterialDemos = DemoCategory(
                     )
                 ),
                 ComposableDemo("Demos") { CardDemo() },
-            )
-        ),
-        DemoCategory(
-            "Page Indicator",
-            listOf(
-                DemoCategory(
-                    "Samples",
-                    listOf(
-                        ComposableDemo("Sample with InlineSlider") {
-                            Centralize { HorizontalPageIndicatorSample() }
-                        },
-                    )
-                ),
-                DemoCategory(
-                    "Demos",
-                    listOf(
-                        ComposableDemo("Customized PageIndicator") {
-                            CustomizedHorizontalPageIndicator()
-                        },
-                    )
-                )
             )
         ),
         DemoCategory(
