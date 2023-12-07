@@ -145,6 +145,8 @@ class ExportToFramework:
 
         # Apply in-place replacements
         contents = (contents
+            # replace fake flag imports with real ones
+            .replace('androidx.appsearch.annotation.FlaggedApi', 'android.annotation.FlaggedApi')
             .replace('androidx.appsearch.app', 'android.app.appsearch')
             .replace(
                     'androidx.appsearch.localstorage.',

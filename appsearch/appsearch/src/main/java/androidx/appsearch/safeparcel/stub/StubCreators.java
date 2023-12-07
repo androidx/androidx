@@ -16,9 +16,16 @@
 package androidx.appsearch.safeparcel.stub;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.StorageInfo;
+import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.safeparcel.GenericDocumentParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel;
+import androidx.appsearch.safeparcel.PropertyConfigParcel.DocumentIndexingConfigParcel;
+import androidx.appsearch.safeparcel.PropertyConfigParcel.IntegerIndexingConfigParcel;
+import androidx.appsearch.safeparcel.PropertyConfigParcel.JoinableConfigParcel;
+import androidx.appsearch.safeparcel.PropertyConfigParcel.StringIndexingConfigParcel;
 import androidx.appsearch.safeparcel.PropertyParcel;
+import androidx.appsearch.stats.SchemaMigrationStats;
 
 /**
  * Stub creators for any classes extending
@@ -32,58 +39,63 @@ import androidx.appsearch.safeparcel.PropertyParcel;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class StubCreators {
     /** Stub creator for {@link androidx.appsearch.app.StorageInfo}. */
-    public static class StorageInfoCreator extends AbstractCreator {
+    public static class StorageInfoCreator extends AbstractCreator<StorageInfo> {
     }
 
     /** Stub creator for {@link PropertyParcel}. */
-    public static class PropertyParcelCreator extends AbstractCreator {
+    public static class PropertyParcelCreator extends AbstractCreator<PropertyParcel> {
     }
 
     /** Stub creator for {@link PropertyConfigParcel}. */
-    public static class PropertyConfigParcelCreator extends AbstractCreator {
+    public static class PropertyConfigParcelCreator extends AbstractCreator<PropertyConfigParcel> {
     }
 
     /**
      * Stub creator for
      * {@link PropertyConfigParcel.JoinableConfigParcel}.
      */
-    public static class JoinableConfigParcelCreator extends AbstractCreator {
+    public static class JoinableConfigParcelCreator extends AbstractCreator<JoinableConfigParcel> {
     }
 
     /**
      * Stub creator for
      * {@link PropertyConfigParcel.StringIndexingConfigParcel}.
      */
-    public static class StringIndexingConfigParcelCreator extends AbstractCreator {
+    public static class StringIndexingConfigParcelCreator extends
+            AbstractCreator<StringIndexingConfigParcel> {
     }
 
     /**
      * Stub creator for
      * {@link PropertyConfigParcel.IntegerIndexingConfigParcel}.
      */
-    public static class IntegerIndexingConfigParcelCreator extends AbstractCreator {
+    public static class IntegerIndexingConfigParcelCreator extends
+            AbstractCreator<IntegerIndexingConfigParcel> {
     }
 
     /**
      * Stub creator for
      * {@link PropertyConfigParcel.DocumentIndexingConfigParcel}.
      */
-    public static class DocumentIndexingConfigParcelCreator extends AbstractCreator {
+    public static class DocumentIndexingConfigParcelCreator extends
+            AbstractCreator<DocumentIndexingConfigParcel> {
     }
 
     /** Stub creator for {@link GenericDocumentParcel}. */
-    public static class GenericDocumentParcelCreator extends AbstractCreator {
+    public static class GenericDocumentParcelCreator extends
+            AbstractCreator<GenericDocumentParcel> {
     }
 
     /** Stub creator for {@link androidx.appsearch.app.VisibilityPermissionDocument}. */
-    public static class VisibilityPermissionDocumentCreator extends AbstractCreator {
+    public static class VisibilityPermissionDocumentCreator extends
+            AbstractCreator<VisibilityPermissionDocumentCreator> {
     }
 
     /** Stub creator for {@link androidx.appsearch.app.VisibilityDocument}. */
-    public static class VisibilityDocumentCreator extends AbstractCreator {
+    public static class VisibilityDocumentCreator extends AbstractCreator<VisibilityDocument> {
     }
 
     /** Stub creator for {@link androidx.appsearch.stats.SchemaMigrationStats}. */
-    public static class SchemaMigrationStatsCreator extends AbstractCreator {
+    public static class SchemaMigrationStatsCreator extends AbstractCreator<SchemaMigrationStats> {
     }
 }
