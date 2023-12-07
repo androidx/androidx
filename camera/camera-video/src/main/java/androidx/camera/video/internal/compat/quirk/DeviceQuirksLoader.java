@@ -101,6 +101,9 @@ public class DeviceQuirksLoader {
         if (StopCodecAfterSurfaceRemovalCrashMediaServerQuirk.load()) {
             quirks.add(new StopCodecAfterSurfaceRemovalCrashMediaServerQuirk());
         }
+        if (ExtraSupportedQualityQuirk.load()) {
+            quirks.add(new ExtraSupportedQualityQuirk());
+        }
 
         return quirks;
     }
