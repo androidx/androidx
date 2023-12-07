@@ -73,6 +73,11 @@ import kotlinx.coroutines.launch
  * If you need to support double click or long click alongside the single click, consider
  * using [combinedClickable].
  *
+ * ***Note*** Any removal operations on Android Views from `clickable` should wrap `onClick` in a
+ * `post { }` block to guarantee the event dispatch completes before executing the removal. (You
+ * do not need to do this when removing a composable because Compose guarantees it completes via the
+ * snapshot state system.)
+ *
  * @sample androidx.compose.foundation.samples.ClickableSample
  *
  * @param enabled Controls the enabled state. When `false`, [onClick], and this modifier will
