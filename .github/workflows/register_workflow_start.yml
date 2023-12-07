@@ -1,8 +1,5 @@
 name: Register Workflow Run with AndroidX
-on:
-  workflow_run:
-    workflows: ["AndroidX Presubmits"]
-    types: [requested]
+on: {}
 
 jobs:
   ping_androidx_dev:
