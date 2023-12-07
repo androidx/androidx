@@ -18,6 +18,7 @@ package androidx.compose.runtime
 
 import androidx.compose.runtime.internal.ThreadMap
 import androidx.compose.runtime.internal.emptyThreadMap
+import java.util.concurrent.atomic.AtomicInteger
 
 internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
 
@@ -98,11 +99,13 @@ internal actual fun <T> invokeComposableForResult(
     return realFn(composer, 1)
 }
 
-internal actual class AtomicInt actual constructor(value: Int) {
-    val delegate = java.util.concurrent.atomic.AtomicInteger(value)
-    actual fun get(): Int = delegate.get()
-    actual fun set(value: Int) = delegate.set(value)
-    actual fun add(amount: Int): Int = delegate.addAndGet(amount)
+internal actual class AtomicInt actual constructor(value: Int) : AtomicInteger(value) {
+    actual fun add(amount: Int): Int = addAndGet(amount)
+
+    // These are implemented by Number, but Kotlin fails to resolve them
+    override fun toByte(): Byte = toInt().toByte()
+    override fun toShort(): Short = toInt().toShort()
+    override fun toChar(): Char = toInt().toChar()
 }
 
 internal actual fun ensureMutable(it: Any) { /* NOTHING */ }

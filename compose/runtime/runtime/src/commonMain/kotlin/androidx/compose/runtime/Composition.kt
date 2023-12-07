@@ -23,6 +23,8 @@ import androidx.compose.runtime.collection.IdentityArrayMap
 import androidx.compose.runtime.collection.IdentityArraySet
 import androidx.compose.runtime.collection.ScopeMap
 import androidx.compose.runtime.collection.fastForEach
+import androidx.compose.runtime.snapshots.ReaderKind
+import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.fastAll
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
@@ -891,12 +893,19 @@ internal class CompositionImpl(
                 it.used = true
                 val alreadyRead = it.recordRead(value)
                 if (!alreadyRead) {
+                    if (value is StateObjectImpl) {
+                        value.recordReadIn(ReaderKind.Composition)
+                    }
+
                     observations.add(value, it)
 
                     // Record derived state dependency mapping
                     if (value is DerivedState<*>) {
                         derivedStates.removeScope(value)
                         value.currentRecord.dependencies.forEachKey { dependency ->
+                            if (dependency is StateObjectImpl) {
+                                dependency.recordReadIn(ReaderKind.Composition)
+                            }
                             derivedStates.add(dependency, value)
                         }
                     }
