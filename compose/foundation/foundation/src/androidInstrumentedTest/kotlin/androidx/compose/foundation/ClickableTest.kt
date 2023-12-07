@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicText
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,8 +44,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.input.InputMode.Companion.Keyboard
 import androidx.compose.ui.input.InputMode.Companion.Touch
 import androidx.compose.ui.input.InputModeManager
@@ -165,7 +170,9 @@ class ClickableTest {
             Box {
                 BasicText(
                     "ClickableText",
-                    modifier = Modifier.testTag("myClickable").clickable(onClick = onClick)
+                    modifier = Modifier
+                        .testTag("myClickable")
+                        .clickable(onClick = onClick)
                 )
             }
         }
@@ -1150,6 +1157,178 @@ class ClickableTest {
         rule.runOnIdle {
             assertThat(clickCounter).isEqualTo(1)
             assertThat(outerCounter).isEqualTo(0)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    @LargeTest
+    fun noHover_whenDisabled() {
+        val interactionSource = MutableInteractionSource()
+
+        lateinit var scope: CoroutineScope
+        val enabled = mutableStateOf(true)
+
+        rule.setContent {
+            scope = rememberCoroutineScope()
+            BasicText(
+            "ClickableText",
+                modifier = Modifier
+                    .testTag("myClickable")
+                    .clickable(
+                        enabled = enabled.value,
+                        onClick = {},
+                        interactionSource = interactionSource,
+                        indication = null
+                    )
+            )
+        }
+
+        val interactions = mutableListOf<Interaction>()
+
+        scope.launch {
+            interactionSource.interactions.collect { interactions.add(it) }
+        }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { enter(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { exit(Offset(-1f, -1f)) }
+
+        rule.runOnIdle {
+            interactions.clear()
+            enabled.value = false
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { enter(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).isEmpty()
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { exit(Offset(-1f, -1f)) }
+
+        rule.runOnIdle {
+            enabled.value = true
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { enter(center) }
+
+        rule.runOnIdle {
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(HoverInteraction.Enter::class.java)
+        }
+
+        rule.onNodeWithTag("myClickable")
+            .performMouseInput { exit(Offset(-1f, -1f)) }
+    }
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun noFocus_whenDisabled() {
+        val requester = FocusRequester()
+        // Force clickable to always be in non-touch mode, so it should be focusable
+        val keyboardMockManager = object : InputModeManager {
+            override val inputMode = Keyboard
+            override fun requestInputMode(inputMode: InputMode) = true
+        }
+
+        val enabled = mutableStateOf(true)
+        lateinit var focusState: FocusState
+
+        rule.setContent {
+            CompositionLocalProvider(LocalInputModeManager provides keyboardMockManager) {
+                Box {
+                    BasicText(
+                        "ClickableText",
+                        modifier = Modifier
+                            .testTag("myClickable")
+                            .focusRequester(requester)
+                            .onFocusEvent { focusState = it }
+                            .clickable(enabled = enabled.value) {}
+                    )
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isTrue()
+        }
+
+        rule.runOnIdle {
+            enabled.value = false
+        }
+
+        rule.runOnIdle {
+            assertThat(focusState.isFocused).isFalse()
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isFalse()
+        }
+    }
+
+    /**
+     * Test for b/269319898
+     */
+    @OptIn(ExperimentalComposeUiApi::class)
+    @Test
+    fun noFocusPropertiesSet_whenDisabled() {
+        val requester = FocusRequester()
+        // Force clickable to always be in non-touch mode, so it should be focusable
+        val keyboardMockManager = object : InputModeManager {
+            override val inputMode = Keyboard
+            override fun requestInputMode(inputMode: InputMode) = true
+        }
+
+        val enabled = mutableStateOf(true)
+        lateinit var focusState: FocusState
+
+        rule.setContent {
+            CompositionLocalProvider(LocalInputModeManager provides keyboardMockManager) {
+                Box(Modifier.clickable(enabled = enabled.value, onClick = {})) {
+                    Box(
+                        Modifier
+                            .size(10.dp)
+                            // If clickable is setting canFocus to true without a focus target, then
+                            // that would override this property
+                            .focusProperties { canFocus = false }
+                            .focusRequester(requester)
+                            .onFocusEvent { focusState = it }
+                            .focusable()
+                    )
+                }
+            }
+        }
+
+        // b/314129026 we can't read canFocus, so instead try and request focus and make sure
+        // that we are not focused
+        rule.runOnIdle {
+            // Clickable is enabled, it should correctly apply properties to its focus node
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isFalse()
+        }
+
+        rule.runOnIdle {
+            enabled.value = false
+        }
+
+        rule.runOnIdle {
+            // Clickable is disabled, it should not apply properties down the tree
+            requester.requestFocus()
+            assertThat(focusState.isFocused).isFalse()
         }
     }
 
