@@ -74,7 +74,7 @@ public class SupportedOutputSizesSorter {
     private final Rational mFullFovRatio;
     private final SupportedOutputSizesSorterLegacy mSupportedOutputSizesSorterLegacy;
 
-    SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal,
+    public SupportedOutputSizesSorter(@NonNull CameraInfoInternal cameraInfoInternal,
             @Nullable Size activeArraySize) {
         mCameraInfoInternal = cameraInfoInternal;
         mSensorOrientation = mCameraInfoInternal.getSensorRotationDegrees();
@@ -120,7 +120,7 @@ public class SupportedOutputSizesSorter {
      * will be sorted according to the legacy resolution API settings and logic.
      */
     @NonNull
-    List<Size> getSortedSupportedOutputSizes(@NonNull UseCaseConfig<?> useCaseConfig) {
+    public List<Size> getSortedSupportedOutputSizes(@NonNull UseCaseConfig<?> useCaseConfig) {
         ImageOutputConfig imageOutputConfig = (ImageOutputConfig) useCaseConfig;
         List<Size> customOrderedResolutions = imageOutputConfig.getCustomOrderedResolutions(null);
 
