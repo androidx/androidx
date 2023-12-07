@@ -103,6 +103,10 @@ final class FeaturesImpl implements Features {
             case Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES:
                 // TODO(b/296088047) : Update to reflect support in Android U+ once this feature is
                 //  synced over into service-appsearch.
+                // fall through
+            case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
+                // TODO(b/296088047) : Update to reflect support in Android U+ once this feature is
+                //  synced over into service-appsearch.
                 return false;
             default:
                 return false; // AppSearch features in U+, absent in GMSCore AppSearch.

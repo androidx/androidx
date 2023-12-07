@@ -183,6 +183,12 @@ public interface Features {
     String SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES = "SCHEMA_ADD_INDEXABLE_NESTED_PROPERTIES";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SearchSpec.Builder#setSearchSourceLogTag(String)}.
+     */
+    String SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG = "SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.

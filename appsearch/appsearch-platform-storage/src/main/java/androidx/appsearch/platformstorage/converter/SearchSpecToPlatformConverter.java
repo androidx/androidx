@@ -139,6 +139,13 @@ public final class SearchSpecToPlatformConverter {
                     + " is not available on this AppSearch implementation.");
 
         }
+
+        if (jetpackSearchSpec.getSearchSourceLogTag() != null) {
+            // TODO(b/315370764): convert filter properties when it's ready in the framework.
+            throw new UnsupportedOperationException(
+                        Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG
+                                + " is not available on this AppSearch implementation.");
+        }
         return platformBuilder.build();
     }
 

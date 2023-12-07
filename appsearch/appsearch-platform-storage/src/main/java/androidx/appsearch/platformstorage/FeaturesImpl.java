@@ -99,6 +99,9 @@ final class FeaturesImpl implements Features {
                 // fall through
             case Features.LIST_FILTER_HAS_PROPERTY_FUNCTION:
                 // TODO(b/309826655) : Update when feature is ready in service-appsearch.
+                // fall through
+            case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
+                // TODO(b/296088047) : Update when feature is ready in service-appsearch.
                 return false;
             default:
                 return false;

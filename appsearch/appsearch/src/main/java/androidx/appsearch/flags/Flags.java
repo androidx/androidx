@@ -65,6 +65,11 @@ public final class Flags {
      */
     public static final String FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES =
             FLAG_PREFIX + "enable_search_spec_filter_properties";
+    /**
+     * Enable the {@link androidx.appsearch.app.SearchSpec.Builder#setSearchSourceLogTag} method.
+     */
+    public static final String FLAG_ENABLE_SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG =
+            FLAG_PREFIX + "enable_search_spec_set_search_source_log_tag";
 
     // Whether the features should be enabled.
     //
@@ -96,6 +101,13 @@ public final class Flags {
      * enabled.
      */
     public static boolean enableSearchSpecFilterProperties() {
+        return true;
+    }
+
+    /**
+     * Whether the {@link androidx.appsearch.app.SearchSpec.Builder#setSearchSourceLogTag} should
+     * be enabled. */
+    public static boolean enableSearchSpecSetSearchSourceLogTag() {
         return true;
     }
 }

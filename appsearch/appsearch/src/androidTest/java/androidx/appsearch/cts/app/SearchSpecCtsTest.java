@@ -117,6 +117,25 @@ public class SearchSpecCtsTest {
         assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
     }
 
+    @Test
+    public void testBuildSearchSpec_searchSourceLogTag() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .setSearchSourceLogTag("logTag")
+                .build();
+
+        assertThat(searchSpec.getSearchSourceLogTag()).isEqualTo("logTag");
+    }
+
+    @Test
+    public void testBuildSearchSpec_searchSourceLogTag_defaultIsNull() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .build();
+
+        assertThat(searchSpec.getSearchSourceLogTag()).isNull();
+    }
+
     // TODO(b/309826655): Flag guard this test.
     @Test
     public void testBuildSearchSpec_hasProperty() {

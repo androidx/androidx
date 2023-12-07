@@ -2842,6 +2842,23 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testSearchSpec_setSourceTag_notSupported() {
+        assumeFalse(mDb1.getFeatures().isFeatureSupported(
+                Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG));
+        // UnsupportedOperationException will be thrown with these queries so no need to
+        // define a schema and index document.
+        SearchSpec.Builder builder = new SearchSpec.Builder();
+        SearchSpec searchSpec = builder.setSearchSourceLogTag("tag").build();
+
+        UnsupportedOperationException exception = assertThrows(
+                UnsupportedOperationException.class,
+                () -> mDb1.search("\"Hello, world!\"", searchSpec));
+        assertThat(exception).hasMessageThat().contains(
+                Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG
+                        + " is not available on this AppSearch implementation.");
+    }
+
+    @Test
     public void testQuery_twoInstances() throws Exception {
         // Schema registration
         mDb1.setSchemaAsync(new SetSchemaRequest.Builder()

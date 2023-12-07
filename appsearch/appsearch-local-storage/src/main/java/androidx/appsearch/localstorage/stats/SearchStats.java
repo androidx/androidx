@@ -137,6 +137,7 @@ public final class SearchStats {
     private final int mNativeNumJoinedResultsCurrentPage;
     /** Time taken to join documents together. */
     private final int mNativeJoinLatencyMillis;
+    private final String mSearchSourceLogTag;
 
     SearchStats(@NonNull Builder builder) {
         Preconditions.checkNotNull(builder);
@@ -170,6 +171,7 @@ public final class SearchStats {
         mJoinType = builder.mJoinType;
         mNativeNumJoinedResultsCurrentPage = builder.mNativeNumJoinedResultsCurrentPage;
         mNativeJoinLatencyMillis = builder.mNativeJoinLatencyMillis;
+        mSearchSourceLogTag = builder.mSearchSourceLogTag;
     }
 
     /** Returns the package name of the session. */
@@ -342,6 +344,12 @@ public final class SearchStats {
         return mNativeJoinLatencyMillis;
     }
 
+    /**  Returns a tag to indicate the source of this search, or {code null} if never set. */
+    @Nullable
+    public String getSearchSourceLogTag() {
+        return mSearchSourceLogTag;
+    }
+
     /** Builder for {@link SearchStats} */
     public static class Builder {
         @NonNull
@@ -377,6 +385,7 @@ public final class SearchStats {
         @JoinableValueType int mJoinType;
         int mNativeNumJoinedResultsCurrentPage;
         int mNativeJoinLatencyMillis;
+        String mSearchSourceLogTag;
 
         /**
          * Constructor
@@ -621,6 +630,13 @@ public final class SearchStats {
         @NonNull
         public Builder setNativeJoinLatencyMillis(int nativeJoinLatencyMillis) {
             mNativeJoinLatencyMillis = nativeJoinLatencyMillis;
+            return this;
+        }
+
+        /** Sets a tag to indicate the source of this search. */
+        @NonNull
+        public Builder setSearchSourceLogTag(@NonNull String searchSourceLogTag) {
+            mSearchSourceLogTag = searchSourceLogTag;
             return this;
         }
 

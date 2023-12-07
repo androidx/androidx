@@ -85,6 +85,7 @@ public final class SearchSpec {
     static final String JOIN_SPEC = "joinSpec";
     static final String ADVANCED_RANKING_EXPRESSION = "advancedRankingExpression";
     static final String ENABLED_FEATURES_FIELD = "enabledFeatures";
+    static final String SEARCH_SOURCE_LOG_TAG_FIELD = "searchSourceLogTag";
 
     /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -506,6 +507,27 @@ public final class SearchSpec {
         return mBundle.getString(ADVANCED_RANKING_EXPRESSION, "");
     }
 
+
+    /**
+     * Gets a tag to indicate the source of this search, or {@code null} if
+     * {@link Builder#setSearchSourceLogTag(String)} was not called.
+     *
+     * <p> Some AppSearch implementations may log a hash of this tag using statsd. This tag may be
+     * used for tracing performance issues and crashes to a component of an app.
+     *
+     * <p>Call {@link Builder#setSearchSourceLogTag} and give a unique value if you want to
+     * distinguish this search scenario with other search scenarios during performance analysis.
+     *
+     * <p>Under no circumstances will AppSearch log the raw String value using statsd, but it
+     * will be provided as-is to custom {@code AppSearchLogger} implementations you have
+     * registered in your app.
+     */
+    @Nullable
+    @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG)
+    public String getSearchSourceLogTag() {
+        return mBundle.getString(SEARCH_SOURCE_LOG_TAG_FIELD);
+    }
+
     /**
      * Returns whether the NUMERIC_SEARCH feature is enabled.
      */
@@ -568,6 +590,7 @@ public final class SearchSpec {
         private int mGroupingLimit = 0;
         private JoinSpec mJoinSpec;
         private String mAdvancedRankingExpression = "";
+        @Nullable private String mSearchSourceLogTag;
         private boolean mBuilt = false;
 
         /**
@@ -1022,6 +1045,37 @@ public final class SearchSpec {
             resetIfBuilt();
             mRankingStrategy = RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION;
             mAdvancedRankingExpression = advancedRankingExpression;
+            return this;
+        }
+
+        /**
+         * Sets an optional log tag to indicate the source of this search.
+         *
+         * <p>Some AppSearch implementations may log a hash of this tag using statsd. This tag
+         * may be used for tracing performance issues and crashes to a component of an app.
+         *
+         * <p>Call this method and give a unique value if you want to distinguish this search
+         * scenario with other search scenarios during performance analysis.
+         *
+         * <p>Under no circumstances will AppSearch log the raw String value using statsd, but it
+         * will be provided as-is to custom {@code AppSearchLogger} implementations you have
+         * registered in your app.
+         *
+         * @param searchSourceLogTag A String to indicate the source caller of this search. It is
+         *                          used to label the search statsd for performance analysis. It
+         *                          is not the tag we are using in {@link android.util.Log}.
+         */
+        @NonNull
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG)
+        // @exportToFramework:endStrip()
+        @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG)
+        public Builder setSearchSourceLogTag(@NonNull String searchSourceLogTag) {
+            Preconditions.checkStringNotEmpty(searchSourceLogTag);
+            resetIfBuilt();
+            mSearchSourceLogTag = searchSourceLogTag;
             return this;
         }
 
@@ -1698,6 +1752,7 @@ public final class SearchSpec {
             bundle.putInt(RESULT_GROUPING_LIMIT, mGroupingLimit);
             bundle.putBundle(TYPE_PROPERTY_WEIGHTS_FIELD, mTypePropertyWeights);
             bundle.putString(ADVANCED_RANKING_EXPRESSION, mAdvancedRankingExpression);
+            bundle.putString(SEARCH_SOURCE_LOG_TAG_FIELD, mSearchSourceLogTag);
             mBuilt = true;
             return new SearchSpec(bundle);
         }

@@ -49,4 +49,9 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES).isEqualTo(
                 "com.android.appsearch.flags.enable_search_spec_filter_properties");
     }
+
+    public void testFlagValue_enableSearchSpecSetSearchSourceLogTag() {
+        assertThat(Flags.FLAG_ENABLE_SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG).isEqualTo(
+                "com.android.appsearch.flags.enable_search_spec_set_search_source_log_tag");
+    }
 }
