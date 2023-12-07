@@ -467,6 +467,7 @@ fun FancyIndicator(color: Color, modifier: Modifier = Modifier) {
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
 fun TabIndicatorScope.FancyAnimatedIndicatorWithModifier(index: Int) {

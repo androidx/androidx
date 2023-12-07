@@ -319,6 +319,7 @@ fun TabRow(
  * this can be used for more complex indicators requiring layout information about the tabs
  * like [TabRowDefaults.PrimaryIndicator] and [TabRowDefaults.SecondaryIndicator]
  */
+@ExperimentalMaterial3Api
 interface TabIndicatorScope {
 
     /**
@@ -353,6 +354,7 @@ internal interface TabPositionsHolder {
     fun setTabPositions(positions: List<TabPosition>)
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TabRowImpl(
     modifier: Modifier,
