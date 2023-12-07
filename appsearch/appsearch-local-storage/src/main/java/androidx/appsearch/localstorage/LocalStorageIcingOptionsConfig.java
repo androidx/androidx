@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/DefaultIcingOptionsConfig.java)
+// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/LocalStorageIcingOptionsConfig.java)
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
@@ -23,7 +23,7 @@ import androidx.annotation.RestrictTo;
  * set in {@link com.google.android.icing.proto.IcingSearchEngineOptions} proto.
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class DefaultIcingOptionsConfig implements IcingOptionsConfig {
+public class LocalStorageIcingOptionsConfig implements IcingOptionsConfig {
     @Override
     public int getMaxTokenLength() {
         return DEFAULT_MAX_TOKEN_LENGTH;
