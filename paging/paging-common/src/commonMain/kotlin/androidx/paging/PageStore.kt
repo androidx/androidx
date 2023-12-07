@@ -27,7 +27,7 @@ import androidx.paging.internal.BUGANIZER_URL
  * Presents post-transform paging data as a list, with list update notifications when
  * PageEvents are dispatched.
  */
-internal class PagePresenter<T : Any>(
+internal class PageStore<T : Any>(
     pages: List<TransformablePage<T>>,
     placeholdersBefore: Int,
     placeholdersAfter: Int,
@@ -344,19 +344,19 @@ internal class PagePresenter<T : Any>(
 
     internal companion object {
         // TODO(b/205350267): Replace this with a static list that does not emit CombinedLoadStates.
-        private val INITIAL = PagePresenter(EMPTY_REFRESH_LOCAL)
+        private val INITIAL = PageStore(EMPTY_REFRESH_LOCAL)
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
-        internal fun <T : Any> initial(event: PageEvent.Insert<T>?): PagePresenter<T> =
+        internal fun <T : Any> initial(event: PageEvent.Insert<T>?): PageStore<T> =
             if (event != null) {
-                PagePresenter(event)
+                PageStore(event)
             } else {
-                INITIAL as PagePresenter<T>
+                INITIAL as PageStore<T>
             }
     }
 
     /**
-     * Callback to communicate events from [PagePresenter] to [PagingDataDiffer]
+     * Callback to communicate events from [PageStore] to [PagingDataDiffer]
      */
     internal interface ProcessPageEventCallback {
         fun onChanged(position: Int, count: Int)
