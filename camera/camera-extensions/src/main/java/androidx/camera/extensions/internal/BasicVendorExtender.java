@@ -29,8 +29,11 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
+import androidx.camera.camera2.interop.Camera2CameraInfo;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.ImageFormatConstants;
@@ -89,7 +92,6 @@ public class BasicVendorExtender implements VendorExtender {
             CaptureRequest.FLASH_MODE,
             CaptureRequest.CONTROL_AE_EXPOSURE_COMPENSATION
     ));
-
     static {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             sBaseSupportedKeys.add(CaptureRequest.CONTROL_ZOOM_RATIO);
@@ -154,6 +156,7 @@ public class BasicVendorExtender implements VendorExtender {
                 && mImageCaptureExtenderImpl.isExtensionAvailable(cameraId, cameraCharacteristics);
     }
 
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @Override
     public void init(@NonNull CameraInfo cameraInfo) {
         mCameraInfo = cameraInfo;
@@ -162,9 +165,9 @@ public class BasicVendorExtender implements VendorExtender {
             return;
         }
 
-        mCameraId = Camera2CameraInfoWrapper.from(cameraInfo).getCameraId();
+        mCameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
         mCameraCharacteristics =
-                Camera2CameraInfoWrapper.extractCameraCharacteristics(cameraInfo);
+                Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
         mPreviewExtenderImpl.init(mCameraId, mCameraCharacteristics);
         mImageCaptureExtenderImpl.init(mCameraId, mCameraCharacteristics);
 
@@ -187,8 +190,9 @@ public class BasicVendorExtender implements VendorExtender {
         return null;
     }
 
+    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     private Size[] getOutputSizes(int imageFormat) {
-        StreamConfigurationMap map = Camera2CameraInfoWrapper.from(mCameraInfo)
+        StreamConfigurationMap map = Camera2CameraInfo.from(mCameraInfo)
                 .getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
         return map.getOutputSizes(imageFormat);
