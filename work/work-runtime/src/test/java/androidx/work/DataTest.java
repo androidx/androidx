@@ -192,6 +192,7 @@ public class DataTest {
         Data first = createData();
         Data second = createData();
         assertThat(first.equals(second), is(true));
+        assertThat(first.hashCode() == second.hashCode(), is(true));
     }
 
     @Test
