@@ -16,6 +16,8 @@
 
 package androidx.window.demo2.embedding
 
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.os.Bundle
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
@@ -41,6 +43,14 @@ open class EmbeddedActivityBase : AppCompatActivity() {
         setContentView(viewBinding.root)
         viewBinding.buttonPip.setOnClickListener {
             PictureInPictureUtil.startPictureInPicture(this, false)
+        }
+        viewBinding.buttonStartActivity.setOnClickListener {
+            startActivity(Intent(this, this.javaClass))
+        }
+        viewBinding.buttonStartActivityFromApplicationContext.setOnClickListener {
+            application.startActivity(
+                Intent(this, this.javaClass).setFlags(FLAG_ACTIVITY_NEW_TASK)
+            )
         }
 
         activityEmbeddingController = ActivityEmbeddingController.getInstance(this)

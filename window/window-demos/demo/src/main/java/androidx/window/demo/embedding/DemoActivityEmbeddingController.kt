@@ -18,9 +18,12 @@ package androidx.window.demo.embedding
 
 import android.graphics.Color
 import androidx.annotation.GuardedBy
+import androidx.window.demo.embedding.OverlayActivityBase.Companion.DEFAULT_OVERLAY_ATTRIBUTES
 import androidx.window.embedding.EmbeddingAnimationBackground
+import androidx.window.embedding.OverlayAttributes
 import androidx.window.embedding.SplitAttributes
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
@@ -77,6 +80,23 @@ class DemoActivityEmbeddingController private constructor() {
                 animationBackgroundLocked = value
             }
         }
+
+    internal var overlayAttributes: OverlayAttributes
+        get() {
+            lock.withLock {
+                return overlayAttributesLocked
+            }
+        }
+        set(value) {
+            lock.withLock {
+                overlayAttributesLocked = value
+            }
+        }
+
+    @GuardedBy("lock")
+    private var overlayAttributesLocked = DEFAULT_OVERLAY_ATTRIBUTES
+
+    internal var overlayMode = AtomicInteger()
 
     companion object {
         @Volatile
