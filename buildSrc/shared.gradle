@@ -26,7 +26,7 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
-project.tasks.withType(Jar) { task ->
+project.tasks.withType(Jar).configureEach { task ->
     task.reproducibleFileOrder = true
     task.preserveFileTimestamps = false
 }
