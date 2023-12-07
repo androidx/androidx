@@ -19,17 +19,26 @@ package androidx.sqliteMultiplatform.unbundled
 
 import androidx.sqliteMultiplatform.SQLiteConnection
 import androidx.sqliteMultiplatform.SQLiteStatement
+import androidx.sqliteMultiplatform.throwSQLiteException
+import androidx.sqliteMultiplatform.unbundled.ResultCode.SQLITE_MISUSE
 
 actual class UnbundledSQLiteConnection(
     private val connectionPointer: Long
 ) : SQLiteConnection {
+
+    private var isClosed = false
+
     override fun prepare(sql: String): SQLiteStatement {
+        if (isClosed) {
+            throwSQLiteException(SQLITE_MISUSE, "connection is closed")
+        }
         val statementPointer = nativePrepare(connectionPointer, sql)
         return UnbundledSQLiteStatement(connectionPointer, statementPointer)
     }
 
     override fun close() {
         nativeClose(connectionPointer)
+        isClosed = true
     }
 }
 

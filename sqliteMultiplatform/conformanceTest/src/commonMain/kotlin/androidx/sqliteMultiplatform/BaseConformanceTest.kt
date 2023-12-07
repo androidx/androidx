@@ -188,6 +188,26 @@ abstract class BaseConformanceTest {
         ).contains("no such table: Foo")
     }
 
+    @Test
+    fun useClosedConnection() {
+        val driver = getDriver()
+        val connection = driver.open()
+        connection.close()
+        assertFailsWith<SQLiteException> {
+            connection.prepare("SELECT * FROM Foo")
+        }
+    }
+
+    @Test
+    fun useClosedStatement() = testWithConnection {
+        it.execSQL("CREATE TABLE Foo (id)")
+        val statement = it.prepare("SELECT * FROM Foo")
+        statement.close()
+        assertFailsWith<SQLiteException> {
+            statement.step()
+        }
+    }
+
     private inline fun testWithConnection(block: (SQLiteConnection) -> Unit) {
         val driver = getDriver()
         val connection = driver.open()

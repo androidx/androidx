@@ -14,17 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
+package androidx.sqliteMultiplatform.unbundled
 
-package androidx.sqliteMultiplatform.driver
-
-import cnames.structs.sqlite3
-import kotlinx.cinterop.CPointer
-import kotlinx.cinterop.UShortVar
-import kotlinx.cinterop.reinterpret
-import kotlinx.cinterop.toKStringFromUtf16
-import sqlite3.sqlite3_errmsg16
-
-internal fun CPointer<sqlite3>.getErrorMsg(): String? {
-    return sqlite3_errmsg16(this)?.reinterpret<UShortVar>()?.toKStringFromUtf16()
+internal object ResultCode {
+    const val SQLITE_MISUSE = 21
 }

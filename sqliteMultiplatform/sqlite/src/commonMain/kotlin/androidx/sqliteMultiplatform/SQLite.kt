@@ -16,6 +16,8 @@
 
 package androidx.sqliteMultiplatform
 
+import androidx.annotation.RestrictTo
+
 fun SQLiteConnection.execSQL(sql: String) {
     prepare(sql).use { it.step() }
 }
@@ -26,4 +28,15 @@ fun <R> SQLiteStatement.use(block: (SQLiteStatement) -> R): R {
     } finally {
         close()
     }
+}
+
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun throwSQLiteException(errorCode: Int, errorMsg: String?): Nothing {
+    val message = buildString {
+        append("Error code: $errorCode")
+        if (errorMsg != null) {
+            append(", message: $errorMsg")
+        }
+    }
+    throw SQLiteException(message)
 }
