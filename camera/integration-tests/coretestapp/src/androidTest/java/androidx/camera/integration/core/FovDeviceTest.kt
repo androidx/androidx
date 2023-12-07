@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,29 @@
  * limitations under the License.
  */
 
-package androidx.camera.camera2.internal
+package androidx.camera.integration.core
 
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
+import androidx.camera.camera2.pipe.integration.CameraPipeConfig
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.CameraXConfig
 import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.internal.CameraUseCaseAdapter
+import androidx.camera.testing.impl.CameraPipeConfigTestRule
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.CameraXUtil
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth
 import java.util.Collections
 import java.util.concurrent.TimeUnit
 import org.junit.After
-import org.junit.Assume.assumeTrue
+import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -39,21 +45,46 @@ import org.junit.runners.Parameterized
 
 private val DEFAULT_CAMERA_ID_GROUP = Collections.unmodifiableSet(setOf("0", "1"))
 
+@LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = 21)
-class FovDeviceTest(private val cameraId: String) {
-    private val cameraConfig = Camera2Config.defaultConfig()
+class FovDeviceTest(
+    private val cameraId: String,
+    private val implName: String,
+    private val cameraXConfig: CameraXConfig
+) {
+    @get:Rule
+    val cameraPipeConfigTestRule = CameraPipeConfigTestRule(
+        active = implName == CameraPipeConfig::class.simpleName,
+    )
 
     @get:Rule
     val cameraRule = CameraUtil.grantCameraPermissionAndPreTest(
-        CameraUtil.PreTestCameraIdList(cameraConfig)
+        CameraUtil.PreTestCameraIdList(cameraXConfig)
     )
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "{0}")
-        fun data(): ArrayList<String> {
-            return ArrayList(CameraUtil.getBackwardCompatibleCameraIdListOrThrow())
+        @Parameterized.Parameters(name = "cameraId: {0}, implName: {1}")
+        fun data(): List<Array<Any?>> {
+            val paramList = mutableListOf<Array<Any?>>()
+            CameraUtil.getBackwardCompatibleCameraIdListOrThrow().forEach { cameraId ->
+                paramList.add(
+                    arrayOf(
+                        cameraId,
+                        Camera2Config::class.simpleName,
+                        Camera2Config.defaultConfig()
+                    )
+                )
+                paramList.add(
+                    arrayOf(
+                        cameraId,
+                        CameraPipeConfig::class.simpleName,
+                        CameraPipeConfig.defaultConfig()
+                    )
+                )
+            }
+            return paramList
         }
     }
 
@@ -64,7 +95,7 @@ class FovDeviceTest(private val cameraId: String) {
     fun setUp() {
         CameraXUtil.initialize(
             context,
-            cameraConfig
+            cameraXConfig
         ).get()
 
         val cameraSelector = CameraSelector.Builder().addCameraFilter { cameraInfoList ->
@@ -85,14 +116,15 @@ class FovDeviceTest(private val cameraId: String) {
         CameraXUtil.shutdown()[10000, TimeUnit.MILLISECONDS]
     }
 
+    @RequiresApi(Build.VERSION_CODES.R)
     @Test
     fun intrinsicZoomRatio_greaterThanZero() {
-        assertThat(cameraUseCaseAdapter.cameraInfo.intrinsicZoomRatio).isGreaterThan(0)
+        Truth.assertThat(cameraUseCaseAdapter.cameraInfo.intrinsicZoomRatio).isGreaterThan(0)
     }
 
     @Test
     fun intrinsicZoomRatio_defaultToOne() {
-        assumeTrue(DEFAULT_CAMERA_ID_GROUP.contains(cameraId))
-        assertThat(cameraUseCaseAdapter.cameraInfo.intrinsicZoomRatio).isEqualTo(1.0F)
+        Assume.assumeTrue(DEFAULT_CAMERA_ID_GROUP.contains(cameraId))
+        Truth.assertThat(cameraUseCaseAdapter.cameraInfo.intrinsicZoomRatio).isEqualTo(1.0F)
     }
 }

@@ -16,13 +16,18 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
+import android.graphics.Rect
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_OFF
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_ON
 import android.hardware.camera2.CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+import android.hardware.camera2.CameraMetadata
 import android.os.Build
 import android.util.Range
 import android.util.Size
+import android.util.SizeF
+import androidx.camera.camera2.pipe.CameraBackendId
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.integration.impl.ZoomControl
 import androidx.camera.camera2.pipe.integration.internal.DOLBY_VISION_10B_UNCONSTRAINED
 import androidx.camera.camera2.pipe.integration.internal.HLG10_UNCONSTRAINED
@@ -31,6 +36,7 @@ import androidx.camera.camera2.pipe.integration.testing.FakeCameraInfoAdapterCre
 import androidx.camera.camera2.pipe.integration.testing.FakeCameraProperties
 import androidx.camera.camera2.pipe.integration.testing.FakeUseCaseCamera
 import androidx.camera.camera2.pipe.integration.testing.FakeZoomCompat
+import androidx.camera.camera2.pipe.testing.FakeCameraDevices
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.DynamicRange
@@ -66,6 +72,41 @@ class CameraInfoAdapterTest {
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule(MoreExecutors.directExecutor().asCoroutineDispatcher())
+
+    private val defaultCameraId = "0"
+    private val defaultCameraCharacteristics = mapOf(
+        CameraCharacteristics.LENS_FACING to CameraMetadata.LENS_FACING_BACK,
+        CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS to floatArrayOf(1.0f),
+        CameraCharacteristics.SENSOR_ORIENTATION to 0,
+        CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE to Size(10, 10),
+        CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE to Rect(0, 0, 10, 10),
+        CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE to SizeF(10f, 10f),
+    )
+    private val defaultCameraProperties = FakeCameraProperties(
+        FakeCameraMetadata(characteristics = defaultCameraCharacteristics)
+    )
+
+    private val telephotoCameraId = "2"
+
+    // Only SENSOR_INFO_PHYSICAL_SIZE has been made less wider and everything else kept the same
+    private val telephotoCameraProperties = FakeCameraProperties(
+        FakeCameraMetadata(
+            characteristics = defaultCameraCharacteristics.toMutableMap().apply {
+                put(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE, SizeF(1f, 10f))
+            }
+        )
+    )
+
+    private val ultraWideCameraId = "2"
+
+    // Only SENSOR_INFO_PHYSICAL_SIZE has been made wider and everything else kept the same
+    private val ultraWideCameraProperties = FakeCameraProperties(
+        FakeCameraMetadata(
+            characteristics = defaultCameraCharacteristics.toMutableMap().apply {
+                put(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE, SizeF(100f, 10f))
+            }
+        )
+    )
 
     @Test
     fun getSupportedResolutions() {
@@ -390,5 +431,187 @@ class CameraInfoAdapterTest {
         val cameraInfo: CameraInfo = createCameraInfoAdapter()
 
         assertThat(cameraInfo.querySupportedDynamicRanges(emptySet())).isEmpty()
+    }
+
+    @Test
+    fun intrinsicZoomRatioIsLessThan1_whenSensorHorizontalLengthWiderThanDefault() {
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraId = CameraId(ultraWideCameraId),
+            cameraProperties = ultraWideCameraProperties,
+            cameraDevices = FakeCameraDevices(
+                defaultCameraBackendId = CameraBackendId(defaultCameraId),
+                concurrentCameraBackendIds = emptySet(),
+                cameraMetadataMap = mapOf(
+                    CameraBackendId(defaultCameraId) to listOf(defaultCameraProperties.metadata),
+                    CameraBackendId(ultraWideCameraId) to
+                        listOf(ultraWideCameraProperties.metadata),
+                )
+            )
+        )
+
+        assertThat(cameraInfo.intrinsicZoomRatio).isLessThan(1)
+    }
+
+    @Test
+    fun intrinsicZoomRatioIsGreaterThan1_whenSensorHorizontalLengthSmallerThanDefault() {
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraId = CameraId(telephotoCameraId),
+            cameraProperties = telephotoCameraProperties,
+            cameraDevices = FakeCameraDevices(
+                defaultCameraBackendId = CameraBackendId(defaultCameraId),
+                concurrentCameraBackendIds = emptySet(),
+                cameraMetadataMap = mapOf(
+                    CameraBackendId(defaultCameraId) to listOf(defaultCameraProperties.metadata),
+                    CameraBackendId(telephotoCameraId) to
+                        listOf(telephotoCameraProperties.metadata),
+                )
+            )
+        )
+
+        assertThat(cameraInfo.intrinsicZoomRatio).isGreaterThan(1)
+    }
+
+    @Test
+    fun intrinsicZoomRatioIsUnknown_whenNoLensFacingInfo() {
+        val cameraProperties = FakeCameraProperties(
+            FakeCameraMetadata(
+                characteristics = defaultCameraCharacteristics.toMutableMap().apply {
+                    remove(CameraCharacteristics.LENS_FACING)
+                }
+            )
+        )
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraId = CameraId(defaultCameraId),
+            cameraProperties = cameraProperties,
+            cameraDevices = FakeCameraDevices(
+                defaultCameraBackendId = CameraBackendId(defaultCameraId),
+                concurrentCameraBackendIds = emptySet(),
+                cameraMetadataMap = mapOf(
+                    CameraBackendId(defaultCameraId) to listOf(cameraProperties.metadata),
+                )
+            )
+        )
+
+        assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
+    }
+
+    @Test
+    fun intrinsicZoomRatioIsUnknown_whenNoLensFocalLengthInfo() {
+        val cameraProperties = FakeCameraProperties(
+            FakeCameraMetadata(
+                characteristics = defaultCameraCharacteristics.toMutableMap().apply {
+                    remove(CameraCharacteristics.LENS_INFO_AVAILABLE_FOCAL_LENGTHS)
+                }
+            )
+        )
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraId = CameraId(defaultCameraId),
+            cameraProperties = cameraProperties,
+            cameraDevices = FakeCameraDevices(
+                defaultCameraBackendId = CameraBackendId(defaultCameraId),
+                concurrentCameraBackendIds = emptySet(),
+                cameraMetadataMap = mapOf(
+                    CameraBackendId(defaultCameraId) to listOf(cameraProperties.metadata),
+                )
+            )
+        )
+
+        assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
+    }
+
+    @Test
+    fun intrinsicZoomRatioIsUnknown_whenNoSensorOrientationInfo() {
+        val cameraProperties = FakeCameraProperties(
+            FakeCameraMetadata(
+                characteristics = defaultCameraCharacteristics.toMutableMap().apply {
+                    remove(CameraCharacteristics.SENSOR_ORIENTATION)
+                }
+            )
+        )
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraId = CameraId(defaultCameraId),
+            cameraProperties = cameraProperties,
+            cameraDevices = FakeCameraDevices(
+                defaultCameraBackendId = CameraBackendId(defaultCameraId),
+                concurrentCameraBackendIds = emptySet(),
+                cameraMetadataMap = mapOf(
+                    CameraBackendId(defaultCameraId) to listOf(cameraProperties.metadata),
+                )
+            )
+        )
+
+        assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
+    }
+
+    @Test
+    fun intrinsicZoomRatioIsUnknown_whenNoSensorPixelArraySizeInfo() {
+        val cameraProperties = FakeCameraProperties(
+            FakeCameraMetadata(
+                characteristics = defaultCameraCharacteristics.toMutableMap().apply {
+                    remove(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE)
+                }
+            )
+        )
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraId = CameraId(defaultCameraId),
+            cameraProperties = cameraProperties,
+            cameraDevices = FakeCameraDevices(
+                defaultCameraBackendId = CameraBackendId(defaultCameraId),
+                concurrentCameraBackendIds = emptySet(),
+                cameraMetadataMap = mapOf(
+                    CameraBackendId(defaultCameraId) to listOf(cameraProperties.metadata),
+                )
+            )
+        )
+
+        assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
+    }
+
+    @Test
+    fun intrinsicZoomRatioIsUnknown_whenNoSensorActiveArraySizeInfo() {
+        val cameraProperties = FakeCameraProperties(
+            FakeCameraMetadata(
+                characteristics = defaultCameraCharacteristics.toMutableMap().apply {
+                    remove(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE)
+                }
+            )
+        )
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraId = CameraId(defaultCameraId),
+            cameraProperties = cameraProperties,
+            cameraDevices = FakeCameraDevices(
+                defaultCameraBackendId = CameraBackendId(defaultCameraId),
+                concurrentCameraBackendIds = emptySet(),
+                cameraMetadataMap = mapOf(
+                    CameraBackendId(defaultCameraId) to listOf(cameraProperties.metadata),
+                )
+            )
+        )
+
+        assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
+    }
+
+    @Test
+    fun intrinsicZoomRatioIsUnknown_whenNoSensorPhysicalSizeInfo() {
+        val cameraProperties = FakeCameraProperties(
+            FakeCameraMetadata(
+                characteristics = defaultCameraCharacteristics.toMutableMap().apply {
+                    remove(CameraCharacteristics.SENSOR_INFO_PHYSICAL_SIZE)
+                }
+            )
+        )
+        val cameraInfo: CameraInfoInternal = createCameraInfoAdapter(
+            cameraId = CameraId(defaultCameraId),
+            cameraProperties = cameraProperties,
+            cameraDevices = FakeCameraDevices(
+                defaultCameraBackendId = CameraBackendId(defaultCameraId),
+                concurrentCameraBackendIds = emptySet(),
+                cameraMetadataMap = mapOf(
+                    CameraBackendId(defaultCameraId) to listOf(cameraProperties.metadata),
+                )
+            )
+        )
+
+        assertThat(cameraInfo.intrinsicZoomRatio).isEqualTo(CameraInfo.INTRINSIC_ZOOM_RATIO_UNKNOWN)
     }
 }
