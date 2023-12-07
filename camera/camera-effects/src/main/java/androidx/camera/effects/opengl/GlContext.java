@@ -273,7 +273,8 @@ public class GlContext {
         if (!EGL14.eglMakeCurrent(mEglDisplay, eglSurface.getEglSurface(),
                 eglSurface.getEglSurface(),
                 mEglContext)) {
-            throw new IllegalStateException("eglMakeCurrent failed");
+            throw new IllegalStateException(
+                    "eglMakeCurrent failed. GL Error: " + EGL14.eglGetError());
         }
 
         mCurrentSurface = eglSurface;
