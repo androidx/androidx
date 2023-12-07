@@ -27,7 +27,3 @@
 }
 
 @end
-
-void test_CMPUIKitUtils(void) {
-    NSLog(@"Hello from CMPUIKitUtils");
-}

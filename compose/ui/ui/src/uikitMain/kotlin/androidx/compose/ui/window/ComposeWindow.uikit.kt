@@ -45,7 +45,6 @@ import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.uikit.*
-import androidx.compose.ui.uikit.utils.*
 import androidx.compose.ui.unit.*
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -520,8 +519,6 @@ private class ComposeWindow(
 
     override fun viewDidAppear(animated: Boolean) {
         super.viewDidAppear(animated)
-
-        test_CMPUIKitUtils()
 
         NSNotificationCenter.defaultCenter.addObserver(
             observer = keyboardVisibilityListener,
