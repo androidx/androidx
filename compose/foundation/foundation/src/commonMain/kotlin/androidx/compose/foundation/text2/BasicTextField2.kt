@@ -25,6 +25,7 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsFocusedAsState
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
@@ -342,6 +343,7 @@ fun BasicTextField2(
     val interactionSource = interactionSource ?: remember { MutableInteractionSource() }
     val orientation = if (singleLine) Orientation.Horizontal else Orientation.Vertical
     val isFocused = interactionSource.collectIsFocusedAsState().value
+    val isDragHovered = interactionSource.collectIsHoveredAsState().value
     val isWindowFocused = windowInfo.isWindowFocused
 
     val transformedState = remember(state, inputTransformation, codepointTransformation) {
@@ -402,6 +404,7 @@ fun BasicTextField2(
                 keyboardOptions = keyboardOptions,
                 keyboardActions = keyboardActions,
                 singleLine = singleLine,
+                interactionSource = interactionSource
             )
         )
         .focusable(interactionSource = interactionSource, enabled = enabled)
@@ -448,6 +451,7 @@ fun BasicTextField2(
                     .then(
                         TextFieldCoreModifier(
                             isFocused = isFocused && isWindowFocused,
+                            isDragHovered = isDragHovered,
                             textLayoutState = textLayoutState,
                             textFieldState = transformedState,
                             textFieldSelectionState = textFieldSelectionState,

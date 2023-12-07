@@ -230,3 +230,13 @@ internal fun TextLayoutState.fromDecorationToTextLayout(offset: Offset): Offset 
         }
     } ?: offset
 }
+
+internal fun TextLayoutState.fromWindowToDecoration(offset: Offset): Offset {
+    return decoratorNodeCoordinates?.let { decoratorNodeCoordinates ->
+        if (decoratorNodeCoordinates.isAttached) {
+            decoratorNodeCoordinates.windowToLocal(offset)
+        } else {
+            offset
+        }
+    } ?: offset
+}
