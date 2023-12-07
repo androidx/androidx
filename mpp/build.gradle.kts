@@ -55,6 +55,10 @@ val mainComponents =
             ":compose:ui:ui-tooling-preview",
             supportedPlatforms = ComposePlatforms.JVM_BASED
         ),
+        ComposeComponent(
+            ":compose:ui:ui-uikit",
+            supportedPlatforms = ComposePlatforms.IOS
+        ),
         ComposeComponent(":compose:ui:ui-unit"),
         ComposeComponent(":compose:ui:ui-util"),
     )

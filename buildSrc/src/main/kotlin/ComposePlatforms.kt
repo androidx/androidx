@@ -41,6 +41,12 @@ enum class ComposePlatforms(vararg val alternativeNames: String) {
             ComposePlatforms.AndroidRelease
         )
 
+        val IOS = EnumSet.of(
+            ComposePlatforms.UikitX64,
+            ComposePlatforms.UikitArm64,
+            ComposePlatforms.UikitSimArm64
+        )
+
         val ANDROID = EnumSet.of(
             ComposePlatforms.AndroidDebug,
             ComposePlatforms.AndroidRelease

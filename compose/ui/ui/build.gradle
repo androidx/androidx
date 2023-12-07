@@ -201,6 +201,11 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                     api(libs.skikoCommon)
                 }
             }
+            uikitMain {
+                dependencies {
+                    api project(":compose:ui:ui-uikit")
+                }
+            }
             notMobileMain.dependsOn(skikoMain)
             desktopMain {
                 dependsOn(notMobileMain)
