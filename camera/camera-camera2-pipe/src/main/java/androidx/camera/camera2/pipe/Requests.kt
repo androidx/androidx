@@ -26,6 +26,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
 import androidx.camera.camera2.pipe.core.Debug
+import androidx.camera.camera2.pipe.core.Log
 
 /**
  * A [RequestNumber] is an artificial identifier that is created for each request that is submitted
@@ -361,7 +362,17 @@ fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any?>) {
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any?) {
     if (key != null && key is CaptureRequest.Key<*>) {
-        @Suppress("UNCHECKED_CAST") this.set(key as CaptureRequest.Key<Any>, value)
+        try {
+            @Suppress("UNCHECKED_CAST") this.set(key as CaptureRequest.Key<Any>, value)
+        } catch (e: IllegalArgumentException) {
+            // Setting keys on CaptureRequest.Builder can fail if the key is defined on some
+            // OS versions, but not on others. Log and ignore these kinds of failures.
+            //
+            // See b/309518353 for an example failure.
+            Log.warn(e) {
+                "Failed to set [${key.name}: $value] on CaptureRequest.Builder"
+            }
+        }
     }
 }
 
