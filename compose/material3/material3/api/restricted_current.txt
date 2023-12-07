@@ -1617,7 +1617,7 @@ package androidx.compose.material3 {
     method @androidx.compose.runtime.Composable public static void Switch(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit>? onCheckedChange, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function0<kotlin.Unit>? thumbContent, optional boolean enabled, optional androidx.compose.material3.SwitchColors colors, optional androidx.compose.foundation.interaction.MutableInteractionSource interactionSource);
   }
 
-  public interface TabIndicatorScope {
+  @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface TabIndicatorScope {
     method public androidx.compose.ui.Modifier tabIndicatorLayout(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function4<? super androidx.compose.ui.layout.MeasureScope,? super androidx.compose.ui.layout.Measurable,? super androidx.compose.ui.unit.Constraints,? super java.util.List<androidx.compose.material3.TabPosition>,? extends androidx.compose.ui.layout.MeasureResult> measure);
     method public androidx.compose.ui.Modifier tabIndicatorOffset(androidx.compose.ui.Modifier, int selectedTabIndex, optional boolean matchContentSize);
   }
