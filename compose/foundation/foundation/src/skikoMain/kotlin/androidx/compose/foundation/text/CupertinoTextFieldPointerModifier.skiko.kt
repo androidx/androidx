@@ -97,29 +97,39 @@ private fun getTapHandlerModifier(
     return Modifier.pointerInput(interactionSource) {
         detectRepeatingTapGestures(
             onTap = { touchPointOffset ->
-                tapTextFieldToFocus(
-                    currentState,
-                    currentFocusRequester,
-                    !currentReadOnly
-                )
                 if (currentState.hasFocus) {
                     if (currentState.handleState != HandleState.Selection) {
                         currentState.layoutResult?.let { layoutResult ->
-                            TextFieldDelegate.setCursorOffset(
-                                touchPointOffset,
-                                layoutResult,
-                                currentState.processor,
-                                currentOffsetMapping,
-                                currentState.onValueChange
+                            TextFieldDelegate.cupertinoSetCursorOffsetFocused(
+                                position = touchPointOffset,
+                                textLayoutResult = layoutResult,
+                                editProcessor = currentState.processor,
+                                offsetMapping = currentOffsetMapping,
+                                showContextMenu = {},
+                                onValueChange = currentState.onValueChange
                             )
-                            // Won't enter cursor state when text is empty.
-                            if (currentState.textDelegate.text.isNotEmpty()) {
-                                currentState.handleState = HandleState.Cursor
-                            }
                         }
                     } else {
                         currentManager.deselect(touchPointOffset)
                     }
+                } else {
+                    tapTextFieldToFocus(
+                        currentState,
+                        currentFocusRequester,
+                        !currentReadOnly
+                    )
+                    currentState.layoutResult?.let { layoutResult ->
+                        TextFieldDelegate.setCursorOffset(
+                            touchPointOffset,
+                            layoutResult,
+                            currentState.processor,
+                            currentOffsetMapping,
+                            currentState.onValueChange
+                        )
+                    }
+                }
+                if (currentState.textDelegate.text.isNotEmpty()) {
+                    currentState.handleState = HandleState.Cursor
                 }
             },
             onDoubleTap = {
@@ -149,7 +159,10 @@ private fun getSelectionModifier(manager: TextFieldSelectionManager): Modifier {
     }
 }
 
-private fun TextFieldSelectionManager.doRepeatingTapSelection(touchPointOffset: Offset, selectionAdjustment: SelectionAdjustment) {
+private fun TextFieldSelectionManager.doRepeatingTapSelection(
+    touchPointOffset: Offset,
+    selectionAdjustment: SelectionAdjustment
+) {
     if (value.text.isEmpty()) return
     enterSelectionMode()
     state?.layoutResult?.let { layoutResult ->
