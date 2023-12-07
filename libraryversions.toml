@@ -191,6 +191,7 @@ BUILDSRC_TESTS_MAX_DEP_VERSIONS_MAIN = { group = "androidx.buildSrc-tests-max-de
 CAMERA = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA" }
 CAMERA_EFFECTS = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA_EFFECTS", overrideInclude = [ ":camera:camera-effects" ] }
 CAMERA_MLKIT_VISION = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA_MLKIT_VISION", overrideInclude = [ ":camera:camera-mlkit-vision" ] }
+CAMERA_TESTING = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA_TESTING", overrideInclude = [ ":camera:camera-testing" ] }
 CAMERA_VIEWFINDER = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA_VIEWFINDER", overrideInclude = [ ":camera:camera-viewfinder", ":camera:camera-viewfinder-compose", ":camera:camera-viewfinder-core" ] }
 CARDVIEW = { group = "androidx.cardview", atomicGroupVersion = "versions.CARDVIEW" }
 CAR_APP = { group = "androidx.car.app", atomicGroupVersion = "versions.CAR_APP" }
