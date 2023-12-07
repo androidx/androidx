@@ -194,10 +194,17 @@ class NetworkRequestConstraintController(
     override fun hasConstraint(workSpec: WorkSpec): Boolean =
         workSpec.constraints.requiredNetworkRequest != null
 
-    override fun isCurrentlyConstrained(workSpec: WorkSpec): Boolean =
+    override fun isCurrentlyConstrained(workSpec: WorkSpec): Boolean {
+        // It happens because ConstraintTrackingWorker can still run on API level 28
+        // after OS upgrade, because we're wrapping workers as ConstraintTrackingWorker at
+        // the enqueue time instead of execution time.
+        // However, ConstraintTrackingWorker won't have requiredNetworkRequest set
+        // because they were enqueued on APIs 23..25, in this case we don't throw.
+        if (!hasConstraint(workSpec)) return false
         throw IllegalStateException(
             "isCurrentlyConstrained() must never be called on" +
                 "NetworkRequestConstraintController. isCurrentlyConstrained() is called only " +
                 "on older platforms where NetworkRequest isn't supported"
         )
+    }
 }
