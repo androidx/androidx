@@ -16,7 +16,8 @@
 package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
+
+import java.util.Set;
 
 /**
  * A class that encapsulates all features that are only supported in certain cases (e.g. only on
@@ -29,6 +30,8 @@ import androidx.annotation.RestrictTo;
  */
 
 // @exportToFramework:copyToPath(../../../cts/tests/appsearch/testutils/src/android/app/appsearch/testutil/external/Features.java)
+// Note: When adding new fields, The @RequiresFeature is needed in setters but could be skipped in
+// getters if call the getter won't send unsupported requests to the AppSearch-framework-impl.
 public interface Features {
 
     /**
@@ -60,8 +63,8 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
-     * {@link SetSchemaRequest.Builder#addAllowedRoleForSchemaTypeVisibility},
-     * {@link SetSchemaRequest.Builder#clearAllowedRolesForSchemaTypeVisibility},
+     * {@link SetSchemaRequest.Builder#addRequiredPermissionsForSchemaTypeVisibility(String, Set)},
+     * {@link SetSchemaRequest.Builder#clearRequiredPermissionsForSchemaTypeVisibility(String)},
      * {@link GetSchemaResponse#getSchemaTypesNotDisplayedBySystem()},
      * {@link GetSchemaResponse#getSchemaTypesVisibleToPackages()},
      * {@link GetSchemaResponse#getRequiredPermissionsForSchemaTypeVisibility()},
@@ -130,10 +133,9 @@ public interface Features {
 
     /**
      * Feature for {@link #isFeatureSupported(String)}. This feature covers
-     * {@link SearchSpec.Builder#addFilterProperties}.
-     * @exportToFramework:hide
+     * {@link SearchSpec.Builder#addFilterProperties} and
+     * {@link SearchSuggestionSpec.Builder#addFilterProperties}.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     String SEARCH_SPEC_ADD_FILTER_PROPERTIES = "SEARCH_SPEC_ADD_FILTER_PROPERTIES";
 
     /**

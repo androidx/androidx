@@ -54,16 +54,17 @@ public final class SearchSpec {
      * Schema type to be used in {@link SearchSpec.Builder#addProjection} to apply
      * property paths to all results, excepting any types that have had their own, specific
      * property paths set.
+     *
+     * @deprecated use {@link #SCHEMA_TYPE_WILDCARD} instead.
      */
+    @Deprecated
     public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
 
     /**
      * Schema type to be used in {@link SearchSpec.Builder#addFilterProperties(String, Collection)}
-     * to apply property paths to all results, excepting any types that have had their own, specific
-     * property paths set.
-     * @exportToFramework:hide
+     * and {@link SearchSpec.Builder#addProjection} to apply property paths to all results,
+     * excepting any types that have had their own, specific property paths set.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static final String SCHEMA_TYPE_WILDCARD = "*";
 
     static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
@@ -282,11 +283,9 @@ public final class SearchSpec {
      *
      * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
      * by this function, rather than calling it multiple times.
-     *
-     * @exportToFramework:hide
      */
     @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
     public Map<String, List<String>> getFilterProperties() {
         Bundle typePropertyPathsBundle = Preconditions.checkNotNull(
                 mBundle.getBundle(PROPERTY_FIELD));
@@ -691,17 +690,14 @@ public final class SearchSpec {
          * @param schema the {@link AppSearchSchema} that contains the target properties
          * @param propertyPaths The String version of {@link PropertyPath}. A dot-delimited
          *                      sequence of property names.
-         *
-         * @exportToFramework:hide
          */
-         // TODO(b/296088047) unhide from framework when type property filters are made public.
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
         // @exportToFramework:endStrip()
+        @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
         public Builder addFilterProperties(@NonNull String schema,
                 @NonNull Collection<String> propertyPaths) {
             Preconditions.checkNotNull(schema);
@@ -726,17 +722,16 @@ public final class SearchSpec {
          *
          * @param schema the {@link AppSearchSchema} that contains the target properties
          * @param propertyPaths The {@link PropertyPath} to search search over
-         *
-         * @exportToFramework:hide
          */
-         // TODO(b/296088047) unhide from framework when type property filters are made public.
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // Getter method is getFilterProperties
+        @SuppressLint("MissingGetterMatchingBuilder")
         // @exportToFramework:startStrip()
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
         // @exportToFramework:endStrip()
+        @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
         public Builder addFilterPropertyPaths(@NonNull String schema,
                 @NonNull Collection<PropertyPath> propertyPaths) {
             Preconditions.checkNotNull(schema);
@@ -764,7 +759,6 @@ public final class SearchSpec {
          *
          */
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
@@ -793,7 +787,8 @@ public final class SearchSpec {
          *
          */
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // Getter method is getFilterProperties
+        @SuppressLint("MissingGetterMatchingBuilder")
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
@@ -1149,9 +1144,8 @@ public final class SearchSpec {
          * results of that type will be retrieved.
          *
          * <p>If property path is added for the
-         * {@link SearchSpec#PROJECTION_SCHEMA_TYPE_WILDCARD}, then those property paths will
-         * apply to all results, excepting any types that have their own, specific property paths
-         * set.
+         * {@link SearchSpec#SCHEMA_TYPE_WILDCARD}, then those property paths will apply to all
+         * results, excepting any types that have their own, specific property paths set.
          *
          * <p>Suppose the following document is in the index.
          * <pre>{@code

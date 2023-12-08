@@ -44,4 +44,9 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_COPY_CONSTRUCTOR).isEqualTo("com.android"
                 + ".appsearch.flags.enable_generic_document_copy_constructor");
     }
+
+    public void testFlagValue_enableSearchSpecFilterProperties() {
+        assertThat(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES).isEqualTo(
+                "com.android.appsearch.flags.enable_search_spec_filter_properties");
+    }
 }

@@ -165,7 +165,7 @@ public class DebugAppSearchManager implements Closeable {
         SearchSpec.Builder searchSpecBuilder = new SearchSpec.Builder()
                 .setResultCountPerPage(PAGE_SIZE)
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
-                .addProjection(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD, Collections.emptyList());
+                .addProjection(SearchSpec.SCHEMA_TYPE_WILDCARD, Collections.emptyList());
         String retrieveAllQueryString = "";
 
         if (mSearchType == AppSearchDebugActivity.SEARCH_TYPE_GLOBAL) {

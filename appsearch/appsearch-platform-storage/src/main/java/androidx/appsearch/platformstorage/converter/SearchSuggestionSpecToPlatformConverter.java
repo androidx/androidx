@@ -22,6 +22,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.Features;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.core.util.Preconditions;
 
@@ -61,6 +62,12 @@ public final class SearchSuggestionSpecToPlatformConverter {
                 jetpackSearchSuggestionSpec.getFilterDocumentIds().entrySet()) {
             platformBuilder.addFilterDocumentIds(documentIdFilters.getKey(),
                     documentIdFilters.getValue());
+        }
+
+        if (!jetpackSearchSuggestionSpec.getFilterProperties().isEmpty()) {
+            // TODO(b/296088047): Convert this once property filters become available in framework.
+            throw new UnsupportedOperationException(Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES
+                        + " is not available on this AppSearch implementation.");
         }
         return platformBuilder.build();
     }

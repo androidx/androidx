@@ -481,8 +481,7 @@ public final class SearchSpecToProtoConverter {
         resultSpecBuilder.clearTypePropertyMasks();
         for (int i = 0; i < typePropertyMaskBuilders.size(); i++) {
             String unprefixedType = typePropertyMaskBuilders.get(i).getSchemaType();
-            boolean isWildcard =
-                    unprefixedType.equals(SearchSpec.PROJECTION_SCHEMA_TYPE_WILDCARD);
+            boolean isWildcard = unprefixedType.equals(SearchSpec.SCHEMA_TYPE_WILDCARD);
             // Qualify the given schema types
             for (String prefix : mCurrentSearchSpecPrefixFilters) {
                 String prefixedType = isWildcard ? unprefixedType : prefix + unprefixedType;
