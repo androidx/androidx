@@ -1,7 +1,7 @@
 import androidx.build.KmpPlatformsKt
+import androidx.build.KotlinTarget
 import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
-import androidx.build.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.tasks.KotlinNativeCompile
 
@@ -10,6 +10,7 @@ plugins {
 }
 
 androidXMultiplatform {
+    androidNative()
     jvm()
     mac()
     linux()

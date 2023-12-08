@@ -16,18 +16,5 @@
 
 package androidx.sqliteMultiplatform.unbundled
 
-import androidx.kruth.assertThat
-import kotlin.test.Test
-
-class NativeSqliteLoaderTest {
-    @Test
-    fun loadLib() {
-        NativeLibraryLoader.loadLibrary("androidXUnbundledSqlite")
-    }
-
-    @Test
-    fun openDatabase() {
-        val subject = SimpleDatabaseSubject()
-        assertThat(subject.openDatabaseAndReadVersion()).isEqualTo("3.42.0")
-    }
-}
+actual typealias UnbundledSQLiteConnection =
+    androidx.sqliteMultiplatform.driver.NativeSQLiteConnection

@@ -66,9 +66,7 @@ class MultiTargetNativeCompilation(
     fun configureEachTarget(
         action: Action<NativeTargetCompilation>
     ) {
-        nativeTargets.configureEach {
-            action.execute(it)
-        }
+        nativeTargets.configureEach(action)
     }
 
     /**
@@ -80,6 +78,14 @@ class MultiTargetNativeCompilation(
     ): Provider<RegularFile> {
         return nativeTargets.named(konanTarget.name).flatMap { nativeTargetCompilation ->
             nativeTargetCompilation.sharedLibTask.flatMap { it.clangParameters.outputFile }
+        }
+    }
+
+    fun sharedArchiveOutputFor(
+        konanTarget: KonanTarget
+    ): Provider<RegularFile> {
+        return nativeTargets.named(konanTarget.name).flatMap { nativeTargetCompilation ->
+            nativeTargetCompilation.archiveTask.flatMap { it.llvmArchiveParameters.outputFile }
         }
     }
 
@@ -145,6 +151,7 @@ class MultiTargetNativeCompilation(
      * This is equal to calling [configureTarget] for each given [konanTargets].
      */
     @Suppress("unused") // used in build.gradle
+    @JvmOverloads
     fun configureTargets(
         konanTargets: List<KonanTarget>,
         action: Action<NativeTargetCompilation>? = null

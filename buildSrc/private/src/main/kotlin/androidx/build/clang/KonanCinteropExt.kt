@@ -17,21 +17,26 @@
 package androidx.build.clang
 
 import com.android.utils.appendCapitalized
-import org.gradle.kotlin.dsl.get
-import org.jetbrains.kotlin.gradle.plugin.KotlinCompilation
+import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.TaskProvider
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+import org.jetbrains.kotlin.konan.target.HostManager
+import org.jetbrains.kotlin.konan.target.KonanTarget
 
 /**
- * Configures a CInterop for the given [kotlinNativeTarget].
+ * Configures a CInterop for the given [kotlinNativeCompilation].
  * The cinterop will be based on the [cinteropName] in the project sources but will additionally
  * include the references to the library archive from the [ClangArchiveTask] so that it can be
  * embedded in the generated klib of the cinterop.
  */
 internal fun MultiTargetNativeCompilation.configureCinterop(
-    kotlinNativeTarget: KotlinNativeTarget,
+    kotlinNativeCompilation: KotlinNativeCompilation,
     cinteropName: String = archiveName,
 ) {
+    val kotlinNativeTarget = kotlinNativeCompilation.target
     if (!canCompileOnCurrentHost(kotlinNativeTarget.konanTarget)) {
         return
     }
@@ -41,44 +46,108 @@ internal fun MultiTargetNativeCompilation.configureCinterop(
         kotlinNativeTarget.name,
         archiveName
     )
-    val createDefFileTask = project.tasks.register(
-        taskNamePrefix.appendCapitalized(
-            "createDefFileFor", konanTarget.name
-        ), CreateDefFileWithLibraryPathTask::class.java
-    ) { task ->
-        task.objectFile.set(
-            nativeTargetCompilation.flatMap {
-                it.archiveTask
-            }.flatMap {
-                it.llvmArchiveParameters.outputFile
-            }
-        )
-        task.target.set(
-            project.layout.buildDirectory.file(
-                "cinteropDefFiles/$taskNamePrefix/${konanTarget.name}/$cinteropName.def"
-            )
-        )
-        task.original.set(
-            project.layout.projectDirectory.file(
-                "src/nativeInterop/cinterop/$cinteropName.def"
-            )
-        )
-        task.projectDir.set(
-            project.layout.projectDirectory
-        )
+    val createDefFileTask = registerCreateDefFileTask(
+        project = project,
+        taskNamePrefix = taskNamePrefix,
+        konanTarget = konanTarget,
+        archiveProvider = nativeTargetCompilation.flatMap {
+            it.archiveTask
+        }.flatMap {
+            it.llvmArchiveParameters.outputFile
+        },
+        cinteropName = cinteropName
+    )
+    registerCInterop(
+        project,
+        kotlinNativeCompilation,
+        cinteropName,
+        createDefFileTask,
+        nativeTargetCompilation
+    )
+}
+
+/**
+ * Configures a CInterop for the given [kotlinNativeCompilation].
+ * The cinterop will be based on the [archiveConfiguration] name in the project sources but will
+ * additionally include the references to the library archive from the [ClangArchiveTask] so that
+ * it can be embedded in the generated klib of the cinterop.
+ */
+internal fun configureCinterop(
+    project: Project,
+    kotlinNativeCompilation: KotlinNativeCompilation,
+    archiveConfiguration: Configuration
+) {
+    val kotlinNativeTarget = kotlinNativeCompilation.target
+    if (!HostManager().isEnabled(kotlinNativeTarget.konanTarget)) {
+        return
     }
-    (kotlinNativeTarget.compilations[
-        KotlinCompilation.MAIN_COMPILATION_NAME
-    ] as KotlinNativeCompilation).cinterops.register(
+    val taskNamePrefix = "androidXCinterop".appendCapitalized(
+        kotlinNativeTarget.name,
+        archiveConfiguration.name
+    )
+    val createDefFileTask = registerCreateDefFileTask(
+        project = project,
+        taskNamePrefix = taskNamePrefix,
+        konanTarget = kotlinNativeCompilation.konanTarget,
+        archiveProvider = project.layout.file(
+            archiveConfiguration.elements.map { it.single().asFile }
+        ),
+        cinteropName = archiveConfiguration.name
+    )
+    registerCInterop(
+        project,
+        kotlinNativeCompilation,
+        archiveConfiguration.name,
+        createDefFileTask
+    )
+}
+
+private fun registerCreateDefFileTask(
+    project: Project,
+    taskNamePrefix: String,
+    konanTarget: KonanTarget,
+    archiveProvider: Provider<RegularFile>,
+    cinteropName: String
+) = project.tasks.register(
+    taskNamePrefix.appendCapitalized(
+        "createDefFileFor", konanTarget.name
+    ), CreateDefFileWithLibraryPathTask::class.java
+) { task ->
+    task.objectFile.set(archiveProvider)
+    task.target.set(
+        project.layout.buildDirectory.file(
+            "cinteropDefFiles/$taskNamePrefix/${konanTarget.name}/$cinteropName.def"
+        )
+    )
+    task.original.set(
+        project.layout.projectDirectory.file(
+            "src/nativeInterop/cinterop/$cinteropName.def"
+        )
+    )
+    task.projectDir.set(
+        project.layout.projectDirectory
+    )
+}
+
+private fun registerCInterop(
+    project: Project,
+    kotlinNativeCompilation: KotlinNativeCompilation,
+    cinteropName: String,
+    createDefFileTask: TaskProvider<CreateDefFileWithLibraryPathTask>,
+    nativeTargetCompilation: Provider<NativeTargetCompilation>? = null
+) {
+    kotlinNativeCompilation.cinterops.register(
         cinteropName
     ) { cInteropSettings ->
 
         cInteropSettings.defFileProperty.set(createDefFileTask.flatMap { it.target.asFile })
-        cInteropSettings.includeDirs(nativeTargetCompilation.flatMap {
-            it.compileTask
-        }.map {
-            it.clangParameters.includes
-        })
+        nativeTargetCompilation?.let { nativeTargetCompilation ->
+            cInteropSettings.includeDirs(nativeTargetCompilation.flatMap {
+                it.compileTask
+            }.map {
+                it.clangParameters.includes
+            })
+        }
         // TODO KT-62795 We shouldn't need this dependency once that issue is fixed.
         project.tasks.named(cInteropSettings.interopProcessingTaskName).configure {
             it.dependsOn(createDefFileTask)

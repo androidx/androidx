@@ -13,11 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("UnbundledSQLiteDriverKt")
 
 package androidx.sqliteMultiplatform.unbundled
 
-internal actual object NativeLibraryLoader {
-    actual fun loadLibrary(name: String) {
-        System.loadLibrary(name)
+import androidx.sqliteMultiplatform.SQLiteConnection
+import androidx.sqliteMultiplatform.SQLiteDriver
+
+// TODO(b/313895287): Explore usability of @FastNative and @CriticalNative for the external functions.
+actual class UnbundledSQLiteDriver actual constructor(
+    private val filename: String
+) : SQLiteDriver {
+    override fun open(): SQLiteConnection {
+        val address = nativeOpen(filename)
+        return UnbundledSQLiteConnection(address)
+    }
+
+    companion object {
+        init {
+            NativeLibraryLoader.loadLibrary("jvmArtJniImplementation")
+        }
     }
 }
+
+private external fun nativeOpen(name: String): Long

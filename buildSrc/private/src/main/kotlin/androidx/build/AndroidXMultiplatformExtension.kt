@@ -27,6 +27,7 @@ import org.gradle.api.Action
 import org.gradle.api.GradleException
 import org.gradle.api.NamedDomainObjectCollection
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Configuration
 import org.gradle.api.plugins.ExtensionAware
 import org.gradle.api.provider.Provider
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -37,6 +38,7 @@ import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSetTree
 import org.jetbrains.kotlin.gradle.plugin.KotlinTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinAndroidTarget
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeCompilation
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTargetWithHostTests
 import org.jetbrains.kotlin.gradle.targets.js.dsl.KotlinJsTargetDsl
@@ -181,10 +183,11 @@ open class AndroidXMultiplatformExtension(val project: Project) {
     }
 
     /**
-     * Creates a Kotlin Native cinterop configuration for the given [nativeTarget] from the outputs
-     * of [nativeCompilation].
+     * Creates a Kotlin Native cinterop configuration for the given [nativeTarget] main compilation
+     * from the outputs of [nativeCompilation].
      *
-     * @param nativeTarget The kotlin native target for which a new cinterop will be added
+     * @param nativeTarget The kotlin native target for which a new cinterop will be added on the
+     * main compilation.
      * @param nativeCompilation The [MultiTargetNativeCompilation] which will be embedded into the
      * generated cinterop klib.
      * @param cinteropName The name of the cinterop definition. A matching "<cinteropName.def>" file
@@ -197,9 +200,57 @@ open class AndroidXMultiplatformExtension(val project: Project) {
         nativeCompilation: MultiTargetNativeCompilation,
         cinteropName: String = nativeCompilation.archiveName
     ) {
-        nativeCompilation.configureCinterop(
-            kotlinNativeTarget = nativeTarget,
+        createCinterop(
+            kotlinNativeCompilation = nativeTarget.compilations.getByName(
+                KotlinCompilation.MAIN_COMPILATION_NAME
+            ) as KotlinNativeCompilation,
+            nativeCompilation = nativeCompilation,
             cinteropName = cinteropName
+        )
+    }
+
+    /**
+     * Creates a Kotlin Native cinterop configuration for the given [kotlinNativeCompilation] from
+     * the outputs of [nativeCompilation].
+     *
+     * @param kotlinNativeCompilation The kotlin native compilation for which a new cinterop will
+     * be added
+     * @param nativeCompilation The [MultiTargetNativeCompilation] which will be embedded into the
+     * generated cinterop klib.
+     * @param cinteropName The name of the cinterop definition. A matching "<cinteropName.def>" file
+     * needs to be present in the default cinterop location
+     * (src/nativeInterop/cinterop/<cinteropName.def>).
+     */
+    @JvmOverloads
+    fun createCinterop(
+        kotlinNativeCompilation: KotlinNativeCompilation,
+        nativeCompilation: MultiTargetNativeCompilation,
+        cinteropName: String = nativeCompilation.archiveName
+    ) {
+        nativeCompilation.configureCinterop(
+            kotlinNativeCompilation = kotlinNativeCompilation,
+            cinteropName = cinteropName
+        )
+    }
+
+    /**
+     * Creates a Kotlin Native cinterop configuration for the given [kotlinNativeCompilation] from
+     * the single output of a configuration.
+     *
+     * @param kotlinNativeCompilation The kotlin native compilation for which a new cinterop will
+     * be added
+     * @param configuration The configuration to resolve. It is expected for the
+     * configuration to contain a single file of the archive file to be referenced in the C interop
+     * definition file.
+     */
+    fun createCinteropFromArchiveConfiguration(
+        kotlinNativeCompilation: KotlinNativeCompilation,
+        configuration: Configuration
+    ) {
+        configureCinterop(
+            project,
+            kotlinNativeCompilation,
+            configuration
         )
     }
 

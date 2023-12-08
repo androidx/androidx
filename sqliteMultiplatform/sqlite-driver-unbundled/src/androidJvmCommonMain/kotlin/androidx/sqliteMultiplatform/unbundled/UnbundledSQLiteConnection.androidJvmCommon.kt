@@ -13,9 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+@file:JvmName("UnbundledSQLiteConnectionKt")
 
 package androidx.sqliteMultiplatform.unbundled
 
-expect class SimpleDatabaseSubject() {
-    fun openDatabaseAndReadVersion(): String
+import androidx.sqliteMultiplatform.SQLiteConnection
+import androidx.sqliteMultiplatform.SQLiteStatement
+
+actual class UnbundledSQLiteConnection(
+    private val connectionPointer: Long
+) : SQLiteConnection {
+    override fun prepare(sql: String): SQLiteStatement {
+        val statementPointer = nativePrepare(connectionPointer, sql)
+        return UnbundledSQLiteStatement(connectionPointer, statementPointer)
+    }
+
+    override fun close() {
+        nativeClose(connectionPointer)
+    }
 }
+
+private external fun nativePrepare(pointer: Long, sql: String): Long
+private external fun nativeClose(pointer: Long)
