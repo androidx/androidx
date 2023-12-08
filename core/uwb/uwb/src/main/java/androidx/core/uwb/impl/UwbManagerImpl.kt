@@ -30,6 +30,7 @@ import androidx.core.uwb.UwbControleeSessionScope
 import androidx.core.uwb.UwbControllerSessionScope
 import androidx.core.uwb.UwbManager
 import androidx.core.uwb.backend.IUwb
+import androidx.core.uwb.exceptions.UwbServiceNotAvailableException
 import androidx.core.uwb.helper.checkSystemFeature
 import androidx.core.uwb.helper.handleApiException
 import com.google.android.gms.common.ConnectionResult
@@ -88,7 +89,8 @@ internal class UwbManagerImpl(private val context: Context) : UwbManager {
             Nearby.getUwbControllerClient(context) else Nearby.getUwbControleeClient(context)
         if (!uwbClient.isAvailable().await()) {
             Log.e(TAG, "Uwb availability : false")
-            throw RuntimeException("Cannot start a ranging session when UWB is unavailable")
+            throw UwbServiceNotAvailableException("Cannot start a ranging session when UWB is " +
+                "unavailable")
         }
         try {
             val nearbyLocalAddress = uwbClient.localAddress.await()
