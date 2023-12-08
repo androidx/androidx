@@ -64,7 +64,6 @@ dependencies {
     // Guava
     implementation(libs.guavaAndroid)
     implementation("androidx.viewpager2:viewpager2:1.0.0")
-    implementation(project(':camera:camera-camera2-pipe-integration'))
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -78,7 +77,6 @@ dependencies {
         exclude(group:"androidx.test")
     }
     androidTestImplementation(project(":internal-testutils-runtime"))
-    androidTestImplementation(project(":concurrent:concurrent-futures"))
     androidTestCompileOnly(project(":camera:camera-extensions-stub"))
 
     // Testing resource dependency for manifest
