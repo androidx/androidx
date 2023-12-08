@@ -1,13 +1,16 @@
 # Baseline profile rules for androidx.compose.ui.text
 # =============================================
 
+HSPLandroidx/compose/ui/text/AndroidParagraph**->**(**)**
 HSPLandroidx/compose/ui/text/AnnotatedString**->**(**)**
 HSPLandroidx/compose/ui/text/MultiParagraph;->**(**)**
 HSPLandroidx/compose/ui/text/MultiParagraphIntrinsics**->**(**)**
 HSPLandroidx/compose/ui/text/ParagraphInfo;->**(**)**
 HSPLandroidx/compose/ui/text/ParagraphIntrinsicInfo;->**(**)**
 HSPLandroidx/compose/ui/text/ParagraphStyle;->**(**)**
+HSPLandroidx/compose/ui/text/ParagraphStyleKt;->**(**)**
 HSPLandroidx/compose/ui/text/ParagraphKt;->**(**)**
+HSPLandroidx/compose/ui/text/PlatformTextStyle;->**(**)**
 HSPLandroidx/compose/ui/text/SpanStyle;->**(**)**
 HSPLandroidx/compose/ui/text/SpanStyleKt;->**(**)**
 HSPLandroidx/compose/ui/text/TextLayoutInput;->**(**)**
@@ -15,9 +18,10 @@ HSPLandroidx/compose/ui/text/TextLayoutResult;->**(**)**
 HSPLandroidx/compose/ui/text/TextPainter;->**(**)**
 HSPLandroidx/compose/ui/text/TextRange**->**(**)**
 HSPLandroidx/compose/ui/text/TextStyle**->**(**)**
-HSPLandroidx/compose/ui/text/android/BoringLayoutFactory;->**(**)**
+HSPLandroidx/compose/ui/text/android/BoringLayoutFactory**->**(**)**
 HSPLandroidx/compose/ui/text/android/CharSequenceCharacterIterator;->**(**)**
 HSPLandroidx/compose/ui/text/android/LayoutIntrinsics**->**(**)**
+HSPLandroidx/compose/ui/text/android/Paint**->**(**)**
 HSPLandroidx/compose/ui/text/android/StaticLayoutFactory**->**(**)**
 HSPLandroidx/compose/ui/text/android/StaticLayoutParams;->**(**)**
 HSPLandroidx/compose/ui/text/android/TextAlignmentAdapter;->**(**)**
@@ -62,27 +66,34 @@ HSPLandroidx/compose/ui/text/input/TransformedText;->**(**)**
 HSPLandroidx/compose/ui/text/intl/AndroidLocale**->**(**)**
 HSPLandroidx/compose/ui/text/intl/Locale**->**(**)**
 HSPLandroidx/compose/ui/text/platform/AndroidAccessibility**->**(**)**
-HSPLandroidx/compose/ui/text/platform/AndroidParagraph;->**(**)**
-HSPLandroidx/compose/ui/text/platform/AndroidParagraphIntrinsics;->**(**)**
-HSPLandroidx/compose/ui/text/platform/AndroidParagraphIntrinsics_androidKt;->**(**)**
+HSPLandroidx/compose/ui/text/platform/AndroidParagraphIntrinsics**->**(**)**
 HSPLandroidx/compose/ui/text/platform/AndroidParagraph_androidKt;->**(**)**
 HSPLandroidx/compose/ui/text/platform/AndroidTextPaint;->**(**)**
+HSPLandroidx/compose/ui/text/platform/DefaultImpl;->**(**)**
+HSPLandroidx/compose/ui/text/platform/DispatcherKt;->**(**)**
+HSPLandroidx/compose/ui/text/platform/EmojiCompatStatus;->**(**)**
+HSPLandroidx/compose/ui/text/platform/ImmutableBool;->**(**)**
 HSPLandroidx/compose/ui/text/platform/SynchronizedObject;->**(**)**
 HSPLandroidx/compose/ui/text/platform/TypefaceDirtyTracker;->**(**)**
 HSPLandroidx/compose/ui/text/platform/TypefaceAdapter;->**(**)**
 HSPLandroidx/compose/ui/text/platform/TypefaceAdapterHelperMethods;->**(**)**
+HSPLandroidx/compose/ui/text/platform/URLSpanCache;->**(**)**
 HSPLandroidx/compose/ui/text/platform/extensions/SpanRange;->**(**)**
 HSPLandroidx/compose/ui/text/platform/extensions/SpannableExtensions_androidKt;->**(**)**
 HSPLandroidx/compose/ui/text/platform/extensions/TextPaintExtensions_androidKt;->**(**)**
 HSPLandroidx/compose/ui/text/style/BaselineShift**->**(**)**
 HSPLandroidx/compose/ui/text/style/ColorStyle;->**(**)**
+HSPLandroidx/compose/ui/text/style/LineHeightStyle;->**(**)**
+HSPLandroidx/compose/ui/text/style/LineHeightStyle$Alignment;->**(**)**
 HSPLandroidx/compose/ui/text/style/ResolvedTextDirection;->**(**)**
 HSPLandroidx/compose/ui/text/style/TextAlign;->**(**)**
 HSPLandroidx/compose/ui/text/style/TextDecoration;->**(**)**
 HSPLandroidx/compose/ui/text/style/TextDrawStyle**->**(**)**
 HSPLandroidx/compose/ui/text/style/TextDirection;->**(**)**
+HSPLandroidx/compose/ui/text/style/TextForegroundStyle**;->**(**)**
 HSPLandroidx/compose/ui/text/style/TextGeometricTransform;->**(**)**
 HSPLandroidx/compose/ui/text/style/TextIndent;->**(**)**
+HSPLandroidx/compose/ui/text/style/TextMotion;->**(**)**
 
 Landroidx/compose/ui/text/**;
 
