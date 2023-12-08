@@ -467,11 +467,17 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
 
                 dependencyToDerivedStates.removeScope(value)
                 dependencies.forEachKey { dependency ->
+                    if (dependency is StateObjectImpl) {
+                        dependency.recordReadIn(ReaderKind.SnapshotStateObserver)
+                    }
                     dependencyToDerivedStates.add(dependency, value)
                 }
             }
 
             if (previousToken == -1) {
+                if (value is StateObjectImpl) {
+                    value.recordReadIn(ReaderKind.SnapshotStateObserver)
+                }
                 valueToScopes.add(value, currentScope)
             }
         }
@@ -571,6 +577,12 @@ class SnapshotStateObserver(private val onChangedExecutor: (callback: () -> Unit
             val invalidated = invalidated
 
             changes.fastForEach { value ->
+                if (value is StateObjectImpl &&
+                    !value.isReadIn(ReaderKind.SnapshotStateObserver)
+                ) {
+                    return@fastForEach
+                }
+
                 if (value in dependencyToDerivedStates) {
                     // Find derived state that is invalidated by this change
                     dependencyToDerivedStates.forEachScopeOf(value) { derivedState ->

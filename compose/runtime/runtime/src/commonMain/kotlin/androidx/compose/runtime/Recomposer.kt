@@ -17,10 +17,13 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.collection.IdentityArraySet
+import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
 import androidx.compose.runtime.snapshots.MutableSnapshot
+import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotApplyResult
+import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastGroupBy
@@ -973,7 +976,16 @@ class Recomposer(
             val unregisterApplyObserver = Snapshot.registerApplyObserver { changed, _ ->
                 synchronized(stateLock) {
                     if (_state.value >= State.Idle) {
-                        snapshotInvalidations.addAll(changed)
+                        changed.fastForEach {
+                            if (
+                                it is StateObjectImpl &&
+                                    !it.isReadIn(ReaderKind.Composition)
+                            ) {
+                                // continue if we know that state is never read in composition
+                                return@fastForEach
+                            }
+                            snapshotInvalidations.add(it)
+                        }
                         deriveStateLocked()
                     } else null
                 }?.resume(Unit)
