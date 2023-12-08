@@ -67,7 +67,6 @@ import androidx.compose.ui.demos.input.TouchModeDemo
 import androidx.compose.ui.demos.keyinput.InterceptEnterToSendMessageDemo
 import androidx.compose.ui.demos.keyinput.KeyInputDemo
 import androidx.compose.ui.demos.modifier.CommunicatingModifierDemo
-import androidx.compose.ui.demos.modifier.TraverseModifierDemo
 import androidx.compose.ui.demos.recyclerview.RecyclerViewDemos
 import androidx.compose.ui.demos.viewinterop.AndroidInComposeDemos
 import androidx.compose.ui.demos.viewinterop.BottomSheetFragmentNestedScrollInteropDemo
@@ -84,6 +83,7 @@ import androidx.compose.ui.demos.viewinterop.ScrollingAndroidViewsDemo
 import androidx.compose.ui.demos.viewinterop.ViewComposeViewNestedScrollInteropDemo
 import androidx.compose.ui.demos.viewinterop.ViewInteropDemo
 import androidx.compose.ui.samples.NestedScrollConnectionSample
+import androidx.compose.ui.samples.TraverseModifierDemo
 
 private val GestureDemos = DemoCategory(
     "Gestures",
