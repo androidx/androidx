@@ -27,14 +27,11 @@ import android.os.HandlerThread;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.camera2.interop.Camera2CameraInfo;
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraXThreads;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.OutputSurfaceConfiguration;
 import androidx.camera.core.impl.RestrictedCameraControl;
@@ -43,6 +40,8 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.core.impl.SessionProcessorSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.extensions.internal.ExtensionsUtils;
+import androidx.camera.extensions.internal.RequestOptionConfig;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -166,14 +165,13 @@ abstract class SessionProcessorBase implements SessionProcessor {
 
     @NonNull
     @Override
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     public final SessionConfig initSession(@NonNull CameraInfo cameraInfo,
             @NonNull OutputSurfaceConfiguration outputSurfaceConfiguration) {
-        Camera2CameraInfo camera2CameraInfo = Camera2CameraInfo.from(cameraInfo);
+        CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) cameraInfo;
         Map<String, CameraCharacteristics> characteristicsMap =
-                camera2CameraInfo.getCameraCharacteristicsMap();
+                ExtensionsUtils.getCameraCharacteristicsMap(cameraInfoInternal);
         Camera2SessionConfig camera2SessionConfig = initSessionInternal(
-                camera2CameraInfo.getCameraId(), characteristicsMap, outputSurfaceConfiguration);
+                cameraInfoInternal.getCameraId(), characteristicsMap, outputSurfaceConfiguration);
 
         SessionConfig.Builder sessionConfigBuilder = new SessionConfig.Builder();
         synchronized (mLock) {
@@ -203,7 +201,7 @@ abstract class SessionProcessorBase implements SessionProcessor {
             }
         }
 
-        Camera2ImplConfig.Builder camera2ConfigurationBuilder = new Camera2ImplConfig.Builder();
+        RequestOptionConfig.Builder camera2ConfigurationBuilder = new RequestOptionConfig.Builder();
         for (CaptureRequest.Key<?> key : camera2SessionConfig.getSessionParameters().keySet()) {
             @SuppressWarnings("unchecked")
             CaptureRequest.Key<Object> objKey = (CaptureRequest.Key<Object>) key;
@@ -218,7 +216,7 @@ abstract class SessionProcessorBase implements SessionProcessor {
                 CameraXThreads.TAG + "extensions_image_reader");
         mImageReaderHandlerThread.start();
 
-        mCameraId = camera2CameraInfo.getCameraId();
+        mCameraId = cameraInfoInternal.getCameraId();
         Logger.d(TAG, "initSession: cameraId=" + mCameraId);
         return sessionConfigBuilder.build();
     }

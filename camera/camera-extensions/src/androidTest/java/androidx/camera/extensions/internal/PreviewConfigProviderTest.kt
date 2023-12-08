@@ -22,9 +22,9 @@ import android.hardware.camera2.CameraCharacteristics
 import android.util.Pair
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.extensions.ExtensionMode
 import androidx.camera.extensions.impl.PreviewExtenderImpl
@@ -146,8 +146,8 @@ class PreviewConfigProviderTest {
 
     private fun generatePreviewSupportedResolutions(): List<Pair<Int, Array<Size>>> {
         val formatResolutionsPairList = mutableListOf<Pair<Int, Array<Size>>>()
-        val cameraInfo = cameraProvider.availableCameraInfos[0]
-        val characteristics = Camera2CameraInfo.extractCameraCharacteristics(cameraInfo)
+        val cameraInfo = cameraProvider.availableCameraInfos[0] as CameraInfoInternal
+        val characteristics = cameraInfo.cameraCharacteristics as CameraCharacteristics
         val map = characteristics[CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP]
 
         // Retrieves originally supported resolutions from CameraCharacteristics for PRIVATE

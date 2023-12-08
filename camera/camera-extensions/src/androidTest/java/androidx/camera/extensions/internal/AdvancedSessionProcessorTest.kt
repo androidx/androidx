@@ -25,6 +25,7 @@ import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
+import android.hardware.camera2.params.OutputConfiguration
 import android.hardware.camera2.params.SessionConfiguration
 import android.media.ImageReader
 import android.media.ImageWriter
@@ -34,11 +35,6 @@ import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.impl.Camera2ImplConfig
-import androidx.camera.camera2.internal.Camera2CameraInfoImpl
-import androidx.camera.camera2.internal.compat.CameraManagerCompat
-import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat
-import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
 import androidx.camera.core.CameraSelector
@@ -49,6 +45,7 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.CameraConfig
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
@@ -67,6 +64,7 @@ import androidx.camera.extensions.impl.advanced.RequestProcessorImpl
 import androidx.camera.extensions.impl.advanced.SessionProcessorImpl
 import androidx.camera.extensions.internal.sessionprocessor.AdvancedSessionProcessor
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.SurfaceTextureProvider.SurfaceTextureCallback
@@ -206,7 +204,7 @@ class AdvancedSessionProcessorTest {
             CaptureRequest.JPEG_QUALITY to 0
         )
 
-        val config = Camera2ImplConfig.Builder().also {
+        val config = RequestOptionConfig.Builder().also {
             for (key in parametersMap.keys) {
                 @Suppress("UNCHECKED_CAST")
                 val anyKey = key as CaptureRequest.Key<Any>
@@ -237,15 +235,19 @@ class AdvancedSessionProcessorTest {
             assertThat(realtimeCaptureLatencyEstimate?.second).isEqualTo(10L)
         }
 
+    @RequiresApi(28)
     private suspend fun assumeAllowsSharedSurface() = withContext(Dispatchers.Main) {
         val imageReader = ImageReader.newInstance(640, 480, ImageFormat.YUV_420_888, 2)
-        val maxSharedSurfaceCount =
-            OutputConfigurationCompat(imageReader.surface).maxSharedSurfaceCount
+        val outputConfiguration = OutputConfiguration(imageReader.surface)
+        val maxSharedSurfaceCount = outputConfiguration.maxSharedSurfaceCount
         imageReader.close()
 
         val camera = cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
-        val hardwareLevel = Camera2CameraInfo.from(camera.cameraInfo)
-            .getCameraCharacteristic(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
+        val cameraCharacteristics = (camera.cameraInfo as CameraInfoInternal)
+            .cameraCharacteristics as CameraCharacteristics
+
+        val hardwareLevel = cameraCharacteristics
+            .get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)
         assumeTrue(maxSharedSurfaceCount > 1 &&
             hardwareLevel != CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY)
     }
@@ -302,7 +304,7 @@ class AdvancedSessionProcessorTest {
             return emptyList()
         }
         return CameraUtil.getPhysicalCameraIds(
-            Camera2CameraInfo.from(cameraInfos.get(0)).cameraId
+            (cameraInfos.get(0) as CameraInfoInternal).cameraId
         )
     }
 
@@ -392,7 +394,7 @@ class AdvancedSessionProcessorTest {
         fakeSessionProcessImpl.sessionType = sessionTypeToVerify
         val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl,
             emptyList(), object : VendorExtender {}, context)
-        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val fakeCameraInfo = FakeCameraInfoInternal("0", context)
         val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
         val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 
@@ -413,7 +415,7 @@ class AdvancedSessionProcessorTest {
         fakeSessionProcessImpl.sessionType = -1
         val advancedSessionProcessor = AdvancedSessionProcessor(fakeSessionProcessImpl,
             emptyList(), object : VendorExtender {}, context)
-        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val fakeCameraInfo = FakeCameraInfoInternal("0", context)
         val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
         val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 

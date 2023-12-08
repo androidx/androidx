@@ -103,6 +103,14 @@ class CameraInfoAdapter @Inject constructor(
     override fun getLensFacing(): Int =
         getCameraSelectorLensFacing(cameraProperties.metadata[CameraCharacteristics.LENS_FACING]!!)
 
+    override fun getCameraCharacteristics(): Any {
+        TODO("Not yet implemented")
+    }
+
+    override fun getPhysicalCameraCharacteristics(physicalCameraId: String): Any? {
+        TODO("Not yet implemented")
+    }
+
     @CameraSelector.LensFacing
     private fun getCameraSelectorLensFacing(lensFacingInt: Int): Int {
         return when (lensFacingInt) {
