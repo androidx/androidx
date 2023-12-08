@@ -216,72 +216,49 @@ class PaneScaffoldDirectiveTest {
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_alwaysAvoidHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allVerticalHingeBounds = allHingeBounds,
-                    occludingVerticalHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.AlwaysAvoid
         )
 
-        assertThat(scaffoldDirective.excludedBounds).isEqualTo(allHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.getBounds())
     }
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_avoidOccludingHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allVerticalHingeBounds = allHingeBounds,
-                    occludingVerticalHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.AvoidOccluding
         )
 
-        assertThat(scaffoldDirective.excludedBounds).isEqualTo(occludingHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.subList(0, 2).getBounds())
+    }
+
+    @Test
+    fun test_calculateStandardPaneScaffoldDirective_avoidSeparatingHinge() {
+        val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+            WindowAdaptiveInfo(
+                WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
+                Posture(hingeList = hingeList)
+            ),
+            HingePolicy.AvoidSeparating
+        )
+
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.subList(2, 3).getBounds())
     }
 
     @Test
     fun test_calculateStandardPaneScaffoldDirective_neverAvoidHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateStandardPaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allVerticalHingeBounds = allHingeBounds,
-                    occludingVerticalHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.NeverAvoid
         )
@@ -291,76 +268,80 @@ class PaneScaffoldDirectiveTest {
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_alwaysAvoidHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allVerticalHingeBounds = allHingeBounds,
-                    occludingVerticalHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.AlwaysAvoid
         )
 
-        assertThat(scaffoldDirective.excludedBounds).isEqualTo(allHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.getBounds())
     }
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_avoidOccludingHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allVerticalHingeBounds = allHingeBounds,
-                    occludingVerticalHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.AvoidOccluding
         )
 
-        assertThat(scaffoldDirective.excludedBounds).isEqualTo(occludingHingeBounds)
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.subList(0, 2).getBounds())
+    }
+
+    @Test
+    fun test_calculateDensePaneScaffoldDirective_avoidSeparatingHinge() {
+        val scaffoldDirective = calculateDensePaneScaffoldDirective(
+            WindowAdaptiveInfo(
+                WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
+                Posture(hingeList = hingeList)
+            ),
+            HingePolicy.AvoidSeparating
+        )
+
+        assertThat(scaffoldDirective.excludedBounds).isEqualTo(hingeList.subList(2, 3).getBounds())
     }
 
     @Test
     fun test_calculateDensePaneScaffoldDirective_neverAvoidHinge() {
-        val occludingHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-        )
-        val allHingeBounds = listOf(
-            Rect(0F, 0F, 1F, 1F),
-            Rect(1F, 1F, 2F, 2F),
-            Rect(2F, 2F, 3F, 3F)
-        )
         val scaffoldDirective = calculateDensePaneScaffoldDirective(
             WindowAdaptiveInfo(
                 WindowSizeClass.calculateFromSize(DpSize(700.dp, 800.dp)),
-                Posture(
-                    allVerticalHingeBounds = allHingeBounds,
-                    occludingVerticalHingeBounds = occludingHingeBounds
-                )
+                Posture(hingeList = hingeList)
             ),
             HingePolicy.NeverAvoid
         )
 
         assertThat(scaffoldDirective.excludedBounds).isEmpty()
     }
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private val hingeList = listOf(
+    HingeInfo(
+        bounds = Rect(0F, 0F, 1F, 1F),
+        isVertical = true,
+        isSeparating = false,
+        isOccluding = true
+    ),
+    HingeInfo(
+        bounds = Rect(1F, 1F, 2F, 2F),
+        isVertical = true,
+        isSeparating = false,
+        isOccluding = true
+    ),
+    HingeInfo(
+        bounds = Rect(2F, 2F, 3F, 3F),
+        isVertical = true,
+        isSeparating = true,
+        isOccluding = false
+    ),
+)
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+private fun List<HingeInfo>.getBounds(): List<Rect> {
+    return map { it.bounds }
 }
