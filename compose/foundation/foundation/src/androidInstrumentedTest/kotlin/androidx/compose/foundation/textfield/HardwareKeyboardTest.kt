@@ -28,16 +28,18 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.nativeKeyCode
+import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalTextInputService
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyPress
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
@@ -582,9 +584,9 @@ class HardwareKeyboardTest {
         sequence: SequenceScope.() -> Unit,
     ) {
         val inputService = TextInputService(mock())
-        val focusRequester = FocusRequester()
+        lateinit var clipboardManager: ClipboardManager
         rule.setContent {
-            LocalClipboardManager.current.setText(AnnotatedString("InitialTestText"))
+            clipboardManager = LocalClipboardManager.current
             CompositionLocalProvider(
                 LocalTextInputService provides inputService
             ) {
@@ -594,14 +596,17 @@ class HardwareKeyboardTest {
                         fontFamily = TEST_FONT_FAMILY,
                         fontSize = 10.sp
                     ),
-                    modifier = modifier.focusRequester(focusRequester),
+                    modifier = modifier.testTag("textfield"),
                     onValueChange = onValueChange,
                     singleLine = singleLine,
                 )
             }
         }
 
-        rule.runOnIdle { focusRequester.requestFocus() }
+        rule.onNodeWithTag("textfield").requestFocus()
+        rule.runOnIdle {
+            clipboardManager.setText(AnnotatedString("InitialTestText"))
+        }
 
         sequence(SequenceScope(value) { rule.onNode(hasSetTextAction()) })
     }
