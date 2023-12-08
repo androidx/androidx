@@ -16,7 +16,11 @@
 
 package androidx.compose.material3.adaptive
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
@@ -28,6 +32,7 @@ import androidx.compose.ui.Modifier
  * @param modifier [Modifier] of the scaffold layout.
  * @param scaffoldState the state of the scaffold, which provides the current scaffold directive
  *        and scaffold value.
+ * @param windowInsets window insets that the scaffold will respect.
  * @param extraPane the list pane of the scaffold. See [ListDetailPaneScaffoldRole.Extra].
  * @param detailPane the list pane of the scaffold. See [ListDetailPaneScaffoldRole.Detail].
  */
@@ -37,6 +42,7 @@ fun ListDetailPaneScaffold(
     listPane: @Composable ThreePaneScaffoldScope.() -> Unit,
     modifier: Modifier = Modifier,
     scaffoldState: ThreePaneScaffoldState = calculateListDetailPaneScaffoldState(),
+    windowInsets: WindowInsets = ListDetailPaneScaffoldDefaults.windowInsets,
     extraPane: (@Composable ThreePaneScaffoldScope.() -> Unit)? = null,
     detailPane: @Composable ThreePaneScaffoldScope.() -> Unit
 ) {
@@ -45,6 +51,7 @@ fun ListDetailPaneScaffold(
         scaffoldDirective = scaffoldState.scaffoldDirective,
         scaffoldValue = scaffoldState.scaffoldValue,
         paneOrder = ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder,
+        windowInsets = windowInsets,
         secondaryPane = listPane,
         tertiaryPane = extraPane,
         primaryPane = detailPane
@@ -86,6 +93,13 @@ fun calculateListDetailPaneScaffoldState(
  */
 @ExperimentalMaterial3AdaptiveApi
 object ListDetailPaneScaffoldDefaults {
+    /**
+     * Default insets that will be used and consumed by [ListDetailPaneScaffold]. By default it will
+     * be the union of [WindowInsets.Companion.systemBars] and
+     * [WindowInsets.Companion.displayCutout].
+     */
+    val windowInsets @Composable get() = WindowInsets.systemBars.union(WindowInsets.displayCutout)
+
     /**
      * Creates a default [ThreePaneScaffoldAdaptStrategies] for [ListDetailPaneScaffold].
      *

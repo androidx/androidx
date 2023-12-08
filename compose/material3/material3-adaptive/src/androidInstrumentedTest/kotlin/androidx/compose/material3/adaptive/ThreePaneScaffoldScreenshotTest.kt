@@ -17,6 +17,7 @@
 package androidx.compose.material3.adaptive
 
 import android.os.Build
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.assertAgainstGolden
 import androidx.compose.ui.test.captureToImage
@@ -118,6 +119,48 @@ class ThreePaneScaffoldScreenshotTest {
             .captureToImage()
             .assertAgainstGolden(screenshotRule, "threePaneScaffold_listDetail_dense_expanded")
     }
+
+    @Test
+    fun threePaneScaffold_insets_compact_size_window() {
+        val mockInsets = WindowInsets(100.dp, 10.dp, 20.dp, 50.dp)
+        rule.setContent {
+            SampleThreePaneScaffoldWithInsets(mockInsets)
+        }
+
+        rule.onNodeWithTag(ThreePaneScaffoldTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "threePaneScaffold_insets_compact")
+    }
+
+    @Test
+    fun threePaneScaffold_insets_medium_size_window() {
+        val mockInsets = WindowInsets(100.dp, 10.dp, 20.dp, 50.dp)
+        rule.setContentWithSimulatedSize(
+            simulatedWidth = 700.dp,
+            simulatedHeight = 500.dp
+        ) {
+            SampleThreePaneScaffoldWithInsets(mockInsets)
+        }
+
+        rule.onNodeWithTag(ThreePaneScaffoldTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "threePaneScaffold_insets_medium")
+    }
+
+    @Test
+    fun threePaneScaffold_insets_expanded_size_window() {
+        val mockInsets = WindowInsets(100.dp, 10.dp, 20.dp, 50.dp)
+        rule.setContentWithSimulatedSize(
+            simulatedWidth = 1024.dp,
+            simulatedHeight = 800.dp
+        ) {
+            SampleThreePaneScaffoldWithInsets(mockInsets)
+        }
+
+        rule.onNodeWithTag(ThreePaneScaffoldTestTag)
+            .captureToImage()
+            .assertAgainstGolden(screenshotRule, "threePaneScaffold_insets_expanded")
+    }
 }
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
@@ -149,5 +192,24 @@ private fun SampleThreePaneScaffoldDenseMode() {
         scaffoldDirective,
         scaffoldValue,
         ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder
+    )
+}
+
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@Composable
+private fun SampleThreePaneScaffoldWithInsets(
+    windowInsets: WindowInsets
+) {
+    val scaffoldDirective = calculateStandardPaneScaffoldDirective(
+        currentWindowAdaptiveInfo()
+    )
+    val scaffoldValue = calculateThreePaneScaffoldValue(
+        scaffoldDirective.maxHorizontalPartitions
+    )
+    SampleThreePaneScaffold(
+        scaffoldDirective,
+        scaffoldValue,
+        ThreePaneScaffoldDefaults.ListDetailLayoutPaneOrder,
+        windowInsets
     )
 }
