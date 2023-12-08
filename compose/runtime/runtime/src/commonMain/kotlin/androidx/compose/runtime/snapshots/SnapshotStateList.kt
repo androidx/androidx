@@ -31,7 +31,7 @@ import kotlin.jvm.JvmName
  * @see androidx.compose.runtime.mutableStateListOf
  */
 @Stable
-class SnapshotStateList<T> : MutableList<T>, StateObject, RandomAccess {
+class SnapshotStateList<T> : StateObject, MutableList<T>, RandomAccess {
     override var firstStateRecord: StateRecord =
         StateListStateRecord<T>(persistentListOf())
         private set
