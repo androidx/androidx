@@ -28,41 +28,57 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 /**
- * The navigation integration entry point of [ThreePaneScaffold] implementations.
+ * The common interface of the default navigation implementations for different [ThreePaneScaffold].
  *
- * You can use [rememberListDetailPaneScaffoldNavigator] or
+ * In general, we suggest you to use [rememberListDetailPaneScaffoldNavigator] or
  * [rememberSupportingPaneScaffoldNavigator] to get remembered default instances of this interface
  * for [ListDetailPaneScaffold] and [SupportingPaneScaffold], respectively. Those default
- * implementations work independently from any navigation frameworks. Developers can also
- * integrate with other navigation frameworks by implementing this interface if needed.
+ * implementations work independently from any navigation frameworks.
+ *
+ * If you need to integrate with existing navigation frameworks or implement your own custom
+ * navigation logic, usually creating whole new APIs that's tailored for your own solution will be
+ * recommended, instead of implementing this interface. But we recommend you refer to the API design
+ * and the default implementation to get better understanding and address the intricacies of
+ * navigation in an adaptive scenario.
  */
 @ExperimentalMaterial3AdaptiveApi
 @Stable
 interface ThreePaneScaffoldNavigator {
     /**
      * The current scaffold state provided by the navigator. It's supposed to be auto-updated
-     * whenever a navigation operation is performed.
+     * whenever a navigation operation is performed when implementing the interface.
      */
     val scaffoldState: ThreePaneScaffoldState
 
     /**
-     * Navigates to a new pane destination.
+     * Navigates to a new pane destination. The new destination is supposed to have the highest
+     * priority when calculating the new [scaffoldState]. When implementing this method, please
+     * ensure the new destination pane will be expanded or adapted in a reasonable way so it
+     * provides users the sense that the new destination is the pane under current usage.
+     *
+     * @param pane the new destination.
      */
     fun navigateTo(pane: ThreePaneScaffoldRole)
 
     /**
-     * Returns `true` if there is a previous destination to navigate back to.
+     * Returns `true` if there is a previous destination to navigate back to. When implementing this
+     * function, please make sure the logic is consistent with [navigateBack].
      *
-     * @param scaffoldValueMustChange `true` if the navigation operation should only be performed
-     *        when there are actual layout value changes.
+     * @param scaffoldValueMustChange `true` if we should skip all backstack entries without any
+     *        scaffold value changes and if there's no backstack entry can provide a different
+     *        scaffold value, the function should return `false`. See [navigateBack] for more
+     *        detailed info.
      */
     fun canNavigateBack(scaffoldValueMustChange: Boolean = true): Boolean
 
     /**
      * Navigates to the previous destination.
      *
-     * @param popUntilScaffoldValueChange `true` if the backstack should be popped until the layout
-     *        value changes.
+     * @param popUntilScaffoldValueChange `true` if we should skip all backstack entries without any
+     *        scaffold value changes. This may happen in a multi-pane scenario that both the current
+     *        destination and the last destination are both shown and just popping one backstack
+     *        entry won't cause scaffold value change. In this case, people may want to keep popping
+     *        backstack entries until there's a value change.
      */
     fun navigateBack(popUntilScaffoldValueChange: Boolean = true): Boolean
 }
