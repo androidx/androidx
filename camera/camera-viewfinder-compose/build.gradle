@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
 import androidx.build.Publish
 
 plugins {
@@ -35,7 +34,6 @@ android {
 
 androidx {
     name = "androidx.camera:camera-viewfinder-compose"
-    type = LibraryType.PUBLISHED_LIBRARY
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
     description = "Composable ViewFinder implementation for CameraX"
