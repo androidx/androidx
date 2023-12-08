@@ -16,7 +16,6 @@
 
 package androidx.compose.material3.adaptive
 
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.util.fastForEach
 import androidx.window.layout.FoldingFeature
@@ -28,43 +27,18 @@ import androidx.window.layout.FoldingFeature
 @ExperimentalMaterial3AdaptiveApi
 fun calculatePosture(foldingFeatures: List<FoldingFeature>): Posture {
     var isTableTop = false
-    val separatingVerticalHingeBounds = mutableListOf<Rect>()
-    val occludingVerticalHingeBounds = mutableListOf<Rect>()
-    val allVerticalHingeBounds = mutableListOf<Rect>()
-    val separatingHorizontalHingeBounds = mutableListOf<Rect>()
-    val occludingHorizontalHingeBounds = mutableListOf<Rect>()
-    val allHorizontalHingeBounds = mutableListOf<Rect>()
+    val hingeList = mutableListOf<HingeInfo>()
     foldingFeatures.fastForEach {
         if (it.orientation == FoldingFeature.Orientation.HORIZONTAL &&
             it.state == FoldingFeature.State.HALF_OPENED) {
             isTableTop = true
         }
-        val hingeBounds = it.bounds.toComposeRect()
-        if (it.orientation == FoldingFeature.Orientation.VERTICAL) {
-            allVerticalHingeBounds.add(hingeBounds)
-            if (it.isSeparating) {
-                separatingVerticalHingeBounds.add(hingeBounds)
-            }
-            if (it.occlusionType == FoldingFeature.OcclusionType.FULL) {
-                occludingVerticalHingeBounds.add(hingeBounds)
-            }
-        } else if (it.orientation == FoldingFeature.Orientation.HORIZONTAL) {
-            allHorizontalHingeBounds.add(hingeBounds)
-            if (it.isSeparating) {
-                separatingHorizontalHingeBounds.add(hingeBounds)
-            }
-            if (it.occlusionType == FoldingFeature.OcclusionType.FULL) {
-                occludingHorizontalHingeBounds.add(hingeBounds)
-            }
-        }
+        hingeList.add(HingeInfo(
+            bounds = it.bounds.toComposeRect(),
+            isVertical = it.orientation == FoldingFeature.Orientation.VERTICAL,
+            isSeparating = it.isSeparating,
+            isOccluding = it.occlusionType == FoldingFeature.OcclusionType.FULL
+        ))
     }
-    return Posture(
-        isTableTop,
-        separatingVerticalHingeBounds,
-        occludingVerticalHingeBounds,
-        allVerticalHingeBounds,
-        separatingHorizontalHingeBounds,
-        occludingHorizontalHingeBounds,
-        allHorizontalHingeBounds
-    )
+    return Posture(isTableTop, hingeList)
 }
