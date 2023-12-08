@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.Icon
-import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.SplitToggleButton
 import androidx.wear.compose.material3.Switch
 import androidx.wear.compose.material3.Text
@@ -39,18 +38,13 @@ fun ToggleButtonWithCheckbox() {
     var checked by remember { mutableStateOf(true) }
     ToggleButton(
         label = {
-            Text("Checkbox", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("Checkbox", maxLines = 3, overflow = TextOverflow.Ellipsis)
         },
         secondaryLabel = {
-            Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
-        selectionControl = {
-            Checkbox(
-                checked = checked,
-                enabled = true,
-            )
-        },
+        toggleControl = { Checkbox() },
         onCheckedChange = { checked = it },
         icon = {
             Icon(
@@ -68,48 +62,14 @@ fun ToggleButtonWithSwitch() {
     var checked by remember { mutableStateOf(true) }
     ToggleButton(
         label = {
-            Text("Switch", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("Switch", maxLines = 3, overflow = TextOverflow.Ellipsis)
         },
         secondaryLabel = {
-            Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("With secondary label", maxLines = 2, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
-        selectionControl = {
-            Switch(
-                checked = checked,
-                enabled = true,
-            )
-        },
+        toggleControl = { Switch() },
         onCheckedChange = { checked = it },
-        icon = {
-            Icon(
-                Icons.Filled.Favorite,
-                contentDescription = "Favorite icon"
-            )
-        },
-        enabled = true,
-    )
-}
-
-@Sampled
-@Composable
-fun ToggleButtonWithRadioButton() {
-    var selected by remember { mutableStateOf(true) }
-    ToggleButton(
-        label = {
-            Text("Radio button", maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        secondaryLabel = {
-            Text("With secondary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        checked = selected,
-        selectionControl = {
-            RadioButton(
-                selected = selected,
-                enabled = true,
-            )
-        },
-        onCheckedChange = { selected = it },
         icon = {
             Icon(
                 Icons.Filled.Favorite,
@@ -126,15 +86,10 @@ fun SplitToggleButtonWithCheckbox() {
     var checked by remember { mutableStateOf(true) }
     SplitToggleButton(
         label = {
-            Text("Split with CheckboxIcon", maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text("Split with CheckboxIcon", maxLines = 3, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
-        selectionControl = {
-            Checkbox(
-                checked = checked,
-                enabled = true,
-            )
-        },
+        toggleControl = { Checkbox() },
         onCheckedChange = { checked = it },
         onClick = {
             /* Do something */
@@ -149,39 +104,11 @@ fun SplitToggleButtonWithSwitch() {
     var checked by remember { mutableStateOf(true) }
     SplitToggleButton(
         label = {
-            Text("Split with CheckboxIcon", maxLines = 2, overflow = TextOverflow.Ellipsis)
+            Text("Split with CheckboxIcon", maxLines = 3, overflow = TextOverflow.Ellipsis)
         },
         checked = checked,
-        selectionControl = {
-            Switch(
-                checked = checked,
-                enabled = true,
-            )
-        },
+        toggleControl = { Switch() },
         onCheckedChange = { checked = it },
-        onClick = {
-            /* Do something */
-        },
-        enabled = true,
-    )
-}
-
-@Sampled
-@Composable
-fun SplitToggleButtonWithRadioButton() {
-    var selected by remember { mutableStateOf(true) }
-    SplitToggleButton(
-        label = {
-            Text("Split with CheckboxIcon", maxLines = 2, overflow = TextOverflow.Ellipsis)
-        },
-        checked = selected,
-        selectionControl = {
-            Checkbox(
-                checked = selected,
-                enabled = true,
-            )
-        },
-        onCheckedChange = { selected = it },
         onClick = {
             /* Do something */
         },

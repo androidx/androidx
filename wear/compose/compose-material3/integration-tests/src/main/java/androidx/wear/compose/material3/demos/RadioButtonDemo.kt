@@ -19,11 +19,12 @@ package androidx.wear.compose.material3.demos
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -31,72 +32,59 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
-import androidx.wear.compose.material3.Switch
+import androidx.wear.compose.material3.RadioButton
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.ToggleButton
 
 @Composable
-fun ToggleButtonDemo() {
+fun RadioButtonDemo() {
+    var selectedRadioIndex by remember { mutableIntStateOf(0) }
     ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().selectableGroup(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            ListHeader { Text("Checkbox") }
+            ListHeader { Text("Radio Button") }
         }
         item {
-            DemoToggleCheckbox(enabled = true, initiallyChecked = true)
+            DemoRadioButton(
+                enabled = true,
+                selected = selectedRadioIndex == 0,
+                onSelected = { selectedRadioIndex = 0 }
+            )
         }
         item {
-            DemoToggleCheckbox(enabled = true, initiallyChecked = false)
+            DemoRadioButton(
+                enabled = true,
+                selected = selectedRadioIndex == 1,
+                onSelected = { selectedRadioIndex = 1 }
+            )
         }
         item {
-            ListHeader { Text("Disabled Checkbox") }
+            ListHeader { Text("Disabled Radio Button") }
         }
         item {
-            DemoToggleCheckbox(enabled = false, initiallyChecked = true)
+            DemoRadioButton(enabled = false, selected = true)
         }
         item {
-            DemoToggleCheckbox(enabled = false, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Switch") }
-        }
-        item {
-            DemoToggleSwitch(enabled = true, initiallyChecked = true)
-        }
-        item {
-            DemoToggleSwitch(enabled = true, initiallyChecked = false)
-        }
-        item {
-            ListHeader { Text("Disabled Switch") }
-        }
-        item {
-            DemoToggleSwitch(enabled = false, initiallyChecked = true)
-        }
-        item {
-            DemoToggleSwitch(enabled = false, initiallyChecked = false)
+            DemoRadioButton(enabled = false, selected = false)
         }
         item {
             ListHeader { Text("Icon") }
         }
         item {
-            DemoToggleCheckbox(
+            DemoRadioButton(
                 enabled = true,
-                initiallyChecked = true,
-                primary = "Primary label",
+                selected = true,
             ) {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite")
             }
         }
         item {
-            DemoToggleCheckbox(
+            DemoRadioButton(
                 enabled = true,
-                initiallyChecked = true,
-                primary = "Primary label",
+                selected = true,
                 secondary = "Secondary label"
             ) {
                 Icon(imageVector = Icons.Filled.Favorite, contentDescription = "Favorite")
@@ -106,24 +94,24 @@ fun ToggleButtonDemo() {
             ListHeader { Text("Multi-line") }
         }
         item {
-            DemoToggleCheckbox(
+            DemoRadioButton(
                 enabled = true,
-                initiallyChecked = true,
+                selected = true,
                 primary = "8:15AM",
                 secondary = "Mon, Tue, Wed"
             )
         }
         item {
-            DemoToggleCheckbox(
+            DemoRadioButton(
                 enabled = true,
-                initiallyChecked = true,
+                selected = true,
                 primary = "Primary Label with 3 lines of content max"
             )
         }
         item {
-            DemoToggleCheckbox(
+            DemoRadioButton(
                 enabled = true,
-                initiallyChecked = true,
+                selected = true,
                 primary = "Primary Label with 3 lines of content max",
                 secondary = "Secondary label with 2 lines"
             )
@@ -132,59 +120,38 @@ fun ToggleButtonDemo() {
 }
 
 @Composable
-private fun DemoToggleCheckbox(
+private fun DemoRadioButton(
     enabled: Boolean,
-    initiallyChecked: Boolean,
+    selected: Boolean,
+    onSelected: () -> Unit = {},
     primary: String = "Primary label",
-    secondary: String = "",
+    secondary: String? = null,
     content: (@Composable BoxScope.() -> Unit)? = null,
 ) {
-    var checked by remember { mutableStateOf(initiallyChecked) }
-    ToggleButton(
+    RadioButton(
+        icon = content,
         label = {
             Text(
                 primary,
-                modifier = Modifier.fillMaxWidth(),
+                Modifier.fillMaxWidth(),
                 maxLines = 3,
                 textAlign = TextAlign.Start,
                 overflow = TextOverflow.Ellipsis
             )
         },
-        icon = content,
-        checked = checked,
-        toggleControl = { Checkbox() },
-        onCheckedChange = { checked = it },
-        enabled = enabled,
-        secondaryLabel = {
-            if (secondary.isNotEmpty()) {
+        secondaryLabel = secondary?.let {
+            {
                 Text(
                     secondary,
-                    modifier = Modifier.fillMaxWidth(),
+                    Modifier.fillMaxWidth(),
                     maxLines = 2,
                     textAlign = TextAlign.Start,
                     overflow = TextOverflow.Ellipsis
                 )
             }
-        }
-    )
-}
-
-@Composable
-private fun DemoToggleSwitch(enabled: Boolean, initiallyChecked: Boolean) {
-    var checked by remember { mutableStateOf(initiallyChecked) }
-    ToggleButton(
-        label = {
-            Text(
-                "Primary label",
-                modifier = Modifier.fillMaxWidth(),
-                maxLines = 3,
-                textAlign = TextAlign.Start,
-                overflow = TextOverflow.Ellipsis
-            )
         },
-        checked = checked,
-        toggleControl = { Switch() },
-        onCheckedChange = { checked = it },
+        selected = selected,
+        onSelected = onSelected,
         enabled = enabled,
     )
 }

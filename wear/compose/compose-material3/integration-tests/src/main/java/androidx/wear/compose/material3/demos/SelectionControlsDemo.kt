@@ -18,196 +18,66 @@ package androidx.wear.compose.material3.demos
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
-import androidx.wear.compose.material3.Checkbox
 import androidx.wear.compose.material3.ListHeader
 import androidx.wear.compose.material3.RadioButton
-import androidx.wear.compose.material3.Switch
 import androidx.wear.compose.material3.Text
-import androidx.wear.compose.material3.ToggleButton
 
 @Composable
-fun CheckboxDemos() {
+fun RadioDemos() {
+    var selectedIndex by remember { mutableIntStateOf(0) }
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         item {
-            ListHeader { Text(text = "Checkbox") }
+            ListHeader { Text(text = "Radio control") }
         }
         item {
-            CheckboxDemo(initialChecked = false, enabled = true)
-        }
-        item {
-            CheckboxDemo(initialChecked = true, enabled = true)
-        }
-        item {
-            ListHeader { Text(text = "Disabled Checkbox") }
-        }
-        item {
-            CheckboxDemo(initialChecked = false, enabled = false)
-        }
-        item {
-            CheckboxDemo(initialChecked = true, enabled = false)
-        }
-    }
-}
-
-@Composable
-fun SwitchDemos() {
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        item {
-            ListHeader { Text(text = "Switch") }
-        }
-        item {
-            SwitchDemo(initialChecked = false, enabled = true)
-        }
-        item {
-            SwitchDemo(initialChecked = true, enabled = true)
-        }
-        item {
-            ListHeader { Text(text = "Disabled Switch") }
-        }
-        item {
-            SwitchDemo(initialChecked = false, enabled = false)
-        }
-        item {
-            SwitchDemo(initialChecked = true, enabled = false)
-        }
-        item {
-            ListHeader { Text(text = "RTL Switch") }
-        }
-        item {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                SwitchDemo(initialChecked = false, enabled = true)
-            }
-        }
-        item {
-            CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Rtl) {
-                SwitchDemo(initialChecked = true, enabled = true)
-            }
-        }
-    }
-}
-
-@Composable
-fun RadioButtonDemos() {
-    var selected by remember { mutableStateOf(false) }
-    ScalingLazyColumn(
-        modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-
-        item {
-            ListHeader { Text(text = "Radio Button") }
-        }
-        item {
-            RadioButtonDemo(
-                selected = selected,
-                onSelectedChanged = { if (!selected) selected = true },
+            RadioDemo(
+                selected = selectedIndex == 0,
+                onSelected = { selectedIndex = 0 },
                 enabled = true
             )
         }
         item {
-            RadioButtonDemo(
-                selected = !selected,
-                onSelectedChanged = { if (selected) selected = false },
+            RadioDemo(
+                selected = selectedIndex == 1,
+                onSelected = { selectedIndex = 1 },
                 enabled = true
             )
         }
         item {
-            ListHeader { Text(text = "Disabled Radio Button", textAlign = TextAlign.Center) }
+            ListHeader { Text(text = "Disabled Radio control", textAlign = TextAlign.Center) }
         }
         item {
-            RadioButtonDemo(selected = false, enabled = false)
+            RadioDemo(selected = false, enabled = false)
         }
         item {
-            RadioButtonDemo(selected = true, enabled = false)
+            RadioDemo(selected = true, enabled = false)
         }
     }
 }
 
 @Composable
-fun CheckboxDemo(initialChecked: Boolean, enabled: Boolean) {
-    var checked by remember { mutableStateOf(initialChecked) }
-    ToggleButton(
-        label = {
-            Text("Checkbox", maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        checked = checked,
-        selectionControl = {
-            Checkbox(
-                checked = checked,
-                enabled = enabled,
-                modifier = Modifier.semantics {
-                    this.contentDescription =
-                        if (checked) "On" else "Off"
-                }
-            )
-        },
-        onCheckedChange = { checked = it },
-        enabled = enabled,
-    )
-}
-
-@Composable
-fun SwitchDemo(initialChecked: Boolean, enabled: Boolean) {
-    var checked by remember { mutableStateOf(initialChecked) }
-    ToggleButton(
-        label = {
-            Text("Switch", maxLines = 1, overflow = TextOverflow.Ellipsis)
-        },
-        checked = checked,
-        selectionControl = {
-            Switch(
-                checked = checked,
-                enabled = enabled,
-                modifier = Modifier.semantics {
-                    this.contentDescription =
-                        if (checked) "On" else "Off"
-                }
-            )
-        },
-        onCheckedChange = { checked = it },
-        enabled = enabled,
-    )
-}
-
-@Composable
-fun RadioButtonDemo(
+private fun RadioDemo(
     selected: Boolean,
     enabled: Boolean,
-    onSelectedChanged: (Boolean) -> Unit = {}
+    onSelected: () -> Unit = {}
 ) {
-    ToggleButton(
+    RadioButton(
         label = {
-            Text("Radio button", maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text("Primary label", maxLines = 1, overflow = TextOverflow.Ellipsis)
         },
-        checked = selected,
-        selectionControl = {
-            RadioButton(
-                selected = selected,
-                enabled = enabled,
-                modifier = Modifier.semantics {
-                    this.contentDescription =
-                        if (selected) "On" else "Off"
-                }
-            )
-        },
-        onCheckedChange = onSelectedChanged,
+        selected = selected,
+        onSelected = onSelected,
         enabled = enabled,
     )
 }
