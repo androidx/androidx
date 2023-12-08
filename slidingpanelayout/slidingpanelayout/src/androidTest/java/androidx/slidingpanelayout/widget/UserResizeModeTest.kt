@@ -212,6 +212,39 @@ class UserResizeModeTest {
             .isEqualTo(secondChildExpectedWidth)
         testPadding("after divider position change")
     }
+
+    @Test
+    fun zeroSpaceForOnePane() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        spl.splitDividerPosition = 0
+        spl.measureAndLayoutForTest()
+        assertWithMessage("left pane has zero width")
+            .that(spl[0].width)
+            .isEqualTo(0)
+        spl.splitDividerPosition = spl.width
+        spl.measureAndLayoutForTest()
+        assertWithMessage("right pane has zero width")
+            .that(spl[1].width)
+            .isEqualTo(0)
+    }
+
+    @Test
+    fun zeroSpaceForOnePanePaddedLayout() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        spl.splitDividerPosition = 0
+        spl.setPadding(4, 0, 8, 0)
+        spl.measureAndLayoutForTest()
+        assertWithMessage("left pane has zero width")
+            .that(spl[0].width)
+            .isEqualTo(0)
+        spl.splitDividerPosition = spl.width
+        spl.measureAndLayoutForTest()
+        assertWithMessage("right pane has zero width")
+            .that(spl[1].width)
+            .isEqualTo(0)
+    }
 }
 
 private fun View.drawToBitmap(): Bitmap {
