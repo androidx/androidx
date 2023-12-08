@@ -172,7 +172,6 @@ fun getApiLintArgs(targetsJavaConsumers: Boolean): List<String> {
                     "MethodNameTense",
                     "UseIcu",
                     "NoByteOrShort",
-                    "CommonArgsFirst",
                     "GetterOnBuilder",
                     "CallbackMethodName",
                     "StaticFinalBuilder",
