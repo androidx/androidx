@@ -71,7 +71,6 @@ kapt {
 androidx {
     name = "Camera2 Pipe"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.CAMERA_PIPE
     inceptionYear = "2020"
     description = "A set of opinionated camera interfaces and implementations on top of Camera2 " +
             "that will form a flexible shim layer to power Frameserver and CameraX."
