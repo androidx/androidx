@@ -88,4 +88,15 @@ class EasingTest {
             assertTrue(t in 0.0f..1.0f)
         }
     }
+
+    @Test
+    fun canSolveCubicForFractionsCloseToOne() {
+        val curve = CubicBezierEasing(0.4f, 0.0f, 0.2f, 1.0f)
+
+        // Test the last 16 ulps until 1.0f
+        for (i in 0x3f7ffff0..0x3f7fffff) {
+            val t = curve.transform(floatFromBits(i))
+            assertTrue(t in 0.0f..1.0f)
+        }
+    }
 }
