@@ -107,4 +107,48 @@ class LayoutUtilsKtTest {
             a++
         }
     }
+
+    @Test
+    fun fixedCoerce_BigToTiny() {
+        val subject = Constraints.fixedCoerceHeightAndWidthForBits(
+            BigConstraintValue,
+            BigConstraintValue
+        )
+        assertThat(subject).isEqualTo(
+            Constraints.fixed(BigConstraintValue - 1, TinyConstraintValue - 1)
+        )
+    }
+
+    @Test
+    fun fixdCoerce_MediumToSmall() {
+        val subject = Constraints.fixedCoerceHeightAndWidthForBits(
+            MediumConstraintValue - 1,
+            BigConstraintValue
+        )
+        assertThat(subject).isEqualTo(
+            Constraints.fixed(MediumConstraintValue - 1, SmallConstraintValue - 1)
+        )
+    }
+
+    @Test
+    fun fixdCoerce_SmallToMedium() {
+        val subject = Constraints.fixedCoerceHeightAndWidthForBits(
+            SmallConstraintValue - 1,
+            BigConstraintValue
+        )
+        assertThat(subject).isEqualTo(
+            Constraints.fixed(SmallConstraintValue - 1, MediumConstraintValue - 1)
+        )
+    }
+
+    @Test
+    fun fixdCoerce_TinyToBig() {
+        val subject = Constraints.fixedCoerceHeightAndWidthForBits(
+            TinyConstraintValue - 1,
+            BigConstraintValue
+        )
+        assertThat(subject).isEqualTo(
+            Constraints.fixed(TinyConstraintValue - 1, BigConstraintValue - 1)
+        )
+    }
 }
