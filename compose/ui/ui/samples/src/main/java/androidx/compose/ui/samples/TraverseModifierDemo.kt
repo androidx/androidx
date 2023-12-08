@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.demos.modifier
+package androidx.compose.ui.samples
 
+import androidx.annotation.Sampled
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -119,6 +120,7 @@ const val DESCENDANTS_LABEL = "Descendants"
  *        ⤷ Box F (NON-TRAVERSABLE Box)
  */
 @OptIn(ExperimentalMaterialApi::class)
+@Sampled
 @Composable
 fun TraverseModifierDemo() {
 
