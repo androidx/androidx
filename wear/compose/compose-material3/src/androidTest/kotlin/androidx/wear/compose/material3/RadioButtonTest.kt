@@ -19,7 +19,9 @@ package androidx.wear.compose.material3
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,10 +39,10 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
-import androidx.compose.ui.test.assertIsOff
-import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.isToggleable
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onChildAt
 import androidx.compose.ui.test.onNodeWithTag
@@ -48,21 +50,19 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.wear.compose.material3.samples.SplitToggleButtonWithCheckbox
-import androidx.wear.compose.material3.samples.SplitToggleButtonWithSwitch
-import androidx.wear.compose.material3.samples.ToggleButtonWithCheckbox
-import androidx.wear.compose.material3.samples.ToggleButtonWithSwitch
+import androidx.wear.compose.material3.samples.RadioButton
+import androidx.wear.compose.material3.samples.SplitRadioButton
 import org.junit.Rule
 import org.junit.Test
 
-class ToggleButtonTest {
+class RadioButtonTest {
     @get:Rule
     val rule = createComposeRule()
 
     @Test
-    fun supports_testtag() {
+    fun radio_button_supports_testtag() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
+            RadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -71,9 +71,9 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_button_supports_testtag() {
+    fun split_radio_button_supports_testtag() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
+            SplitRadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -82,25 +82,23 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun toggle_button_samples_build() {
+    fun radio_button_samples_build() {
         rule.setContentWithTheme {
-            ToggleButtonWithCheckbox()
-            ToggleButtonWithSwitch()
+            RadioButton()
         }
     }
 
     @Test
-    fun split_toggle_button_samples_build() {
+    fun split_radio_button_samples_build() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithCheckbox()
-            SplitToggleButtonWithSwitch()
+            SplitRadioButton()
         }
     }
 
     @Test
-    fun has_clickaction_when_enabled() {
+    fun radio_button_has_clickaction_when_enabled() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
+            RadioButtonWithDefaults(
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -110,9 +108,9 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_button_has_clickaction_when_enabled() {
+    fun split_radio_button_has_clickaction_when_enabled() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
+            SplitRadioButtonWithDefaults(
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -122,9 +120,9 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun has_clickaction_when_disabled() {
+    fun radio_button_has_clickaction_when_disabled() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
+            RadioButtonWithDefaults(
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -134,9 +132,9 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_button_has_clickaction_when_disabled() {
+    fun split_radio_button_has_clickaction_when_disabled() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
+            SplitRadioButtonWithDefaults(
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -146,31 +144,31 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun is_toggleable() {
+    fun radio_button_is_selectable() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
+            RadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
-        rule.onNode(isToggleable()).assertExists()
+        rule.onNode(isSelectable()).assertExists()
     }
 
     @Test
-    fun split_button_is_toggleable() {
+    fun split_radio_button_is_selectable() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
+            SplitRadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
-        rule.onNode(isToggleable()).assertExists()
+        rule.onNode(isSelectable()).assertExists()
     }
 
     @Test
-    fun split_button_is_clickable() {
+    fun split_radio_button_is_clickable() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
+            SplitRadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -178,9 +176,9 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun is_correctly_enabled() {
+    fun radio_button_is_correctly_enabled() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
+            RadioButtonWithDefaults(
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -190,9 +188,9 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_button_is_correctly_enabled() {
+    fun split_radio_button_is_correctly_enabled() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
+            SplitRadioButtonWithDefaults(
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -202,9 +200,9 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun is_correctly_disabled() {
+    fun radio_button_is_correctly_disabled() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
+            RadioButtonWithDefaults(
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -214,9 +212,9 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_button_is_correctly_disabled() {
+    fun split_radio_button_is_correctly_disabled() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
+            SplitRadioButtonWithDefaults(
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -226,60 +224,60 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun is_on_when_checked() {
+    fun radio_button_is_correctly_selected() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
-                checked = true,
+            RadioButtonWithDefaults(
+                selected = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).assertIsOn()
+        rule.onNodeWithTag(TEST_TAG).assertIsSelected()
     }
 
     @Test
-    fun split_button_is_on_when_checked() {
+    fun split_radio_button_is_correctly_selected() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
-                checked = true,
+            SplitRadioButtonWithDefaults(
+                selected = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(1).assertIsOn()
+        rule.onNodeWithTag(TEST_TAG).onChildAt(1).assertIsSelected()
     }
 
     @Test
-    fun is_off_when_unchecked() {
+    fun radio_button_is_correctly_unselected() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
-                checked = false,
+            RadioButtonWithDefaults(
+                selected = false,
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).assertIsOff()
+        rule.onNodeWithTag(TEST_TAG).assertIsNotSelected()
     }
 
     @Test
-    fun split_button_is_off_when_unchecked() {
+    fun split_radio_button_is_correctly_unselected() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
-                checked = false,
+            SplitRadioButtonWithDefaults(
+                selected = false,
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
 
-        rule.onNodeWithTag(TEST_TAG).onChildAt(1).assertIsOff()
+        rule.onNodeWithTag(TEST_TAG).onChildAt(1).assertIsNotSelected()
     }
 
     @Test
-    fun responds_to_toggle_on() {
+    fun radio_button_responds_to_selection() {
         rule.setContentWithTheme {
-            val (checked, onCheckedChange) = remember { mutableStateOf(false) }
-            ToggleButtonWithDefaults(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
+            val (selectedIndex, onIndexSelected) = remember { mutableStateOf(0) }
+            RadioButtonWithDefaults(
+                selected = selectedIndex == 1,
+                onSelected = { onIndexSelected(1) },
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -287,57 +285,18 @@ class ToggleButtonTest {
 
         rule
             .onNodeWithTag(TEST_TAG)
-            .assertIsOff()
+            .assertIsNotSelected()
             .performClick()
-            .assertIsOn()
+            .assertIsSelected()
     }
 
     @Test
-    fun split_button_responds_to_toggle_on() {
+    fun split_radio_button_responds_to_selection() {
         rule.setContentWithTheme {
-            val (checked, onCheckedChange) = remember { mutableStateOf(false) }
-            SplitToggleButtonWithDefaults(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .onChildAt(1)
-            .assertIsOff()
-            .performClick()
-            .assertIsOn()
-    }
-
-    @Test
-    fun responds_to_toggle_off() {
-        rule.setContentWithTheme {
-            val (checked, onCheckedChange) = remember { mutableStateOf(true) }
-            ToggleButtonWithDefaults(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
-                enabled = true,
-                modifier = Modifier.testTag(TEST_TAG)
-            )
-        }
-
-        rule
-            .onNodeWithTag(TEST_TAG)
-            .assertIsOn()
-            .performClick()
-            .assertIsOff()
-    }
-
-    @Test
-    fun split_button_responds_to_toggle_off() {
-        rule.setContentWithTheme {
-            val (checked, onCheckedChange) = remember { mutableStateOf(true) }
-            SplitToggleButtonWithDefaults(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
+            val (selectedIndex, onIndexSelected) = remember { mutableStateOf(0) }
+            SplitRadioButtonWithDefaults(
+                selected = selectedIndex == 1,
+                onSelected = { onIndexSelected(1) },
                 enabled = true,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -346,18 +305,76 @@ class ToggleButtonTest {
         rule
             .onNodeWithTag(TEST_TAG)
             .onChildAt(1)
-            .assertIsOn()
+            .assertIsNotSelected()
             .performClick()
-            .assertIsOff()
+            .assertIsSelected()
     }
 
     @Test
-    fun does_not_toggle_when_disabled() {
+    fun radio_button_group_supports_single_selection() {
+        val buttonA = "A"
+        val buttonB = "B"
         rule.setContentWithTheme {
-            val (checked, onCheckedChange) = remember { mutableStateOf(false) }
-            ToggleButtonWithDefaults(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
+            Column(modifier = Modifier.selectableGroup()) {
+                val (selectedIndex, onIndexSelected) = remember { mutableStateOf(0) }
+                RadioButtonWithDefaults(
+                    selected = selectedIndex == 0,
+                    onSelected = { onIndexSelected(0) },
+                    enabled = true,
+                    modifier = Modifier.testTag(buttonA)
+                )
+                RadioButtonWithDefaults(
+                    selected = selectedIndex == 1,
+                    onSelected = { onIndexSelected(1) },
+                    enabled = true,
+                    modifier = Modifier.testTag(buttonB)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(buttonA).assertIsSelected()
+        rule.onNodeWithTag(buttonB).assertIsNotSelected()
+        rule.onNodeWithTag(buttonB).performClick()
+        rule.onNodeWithTag(buttonA).assertIsNotSelected()
+        rule.onNodeWithTag(buttonB).assertIsSelected()
+    }
+
+    @Test
+    fun split_button_supports_single_selection() {
+        val buttonA = "A"
+        val buttonB = "B"
+        rule.setContentWithTheme {
+            Column(modifier = Modifier.selectableGroup()) {
+                val (selectedIndex, onIndexSelected) = remember { mutableStateOf(0) }
+                SplitRadioButtonWithDefaults(
+                    selected = selectedIndex == 0,
+                    onSelected = { onIndexSelected(0) },
+                    enabled = true,
+                    modifier = Modifier.testTag(buttonA)
+                )
+                SplitRadioButtonWithDefaults(
+                    selected = selectedIndex == 1,
+                    onSelected = { onIndexSelected(1) },
+                    enabled = true,
+                    modifier = Modifier.testTag(buttonB)
+                )
+            }
+        }
+
+        rule.onNodeWithTag(buttonA).onChildAt(1).assertIsSelected()
+        rule.onNodeWithTag(buttonB).onChildAt(1).assertIsNotSelected()
+        rule.onNodeWithTag(buttonB).onChildAt(1).performClick()
+        rule.onNodeWithTag(buttonA).onChildAt(1).assertIsNotSelected()
+        rule.onNodeWithTag(buttonB).onChildAt(1).assertIsSelected()
+    }
+
+    @Test
+    fun radio_button_is_not_selected_when_disabled() {
+        rule.setContentWithTheme {
+            val (selectedIndex, onIndexSelected) = remember { mutableStateOf(0) }
+            RadioButtonWithDefaults(
+                selected = selectedIndex == 1,
+                onSelected = { onIndexSelected(1) },
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -365,18 +382,18 @@ class ToggleButtonTest {
 
         rule
             .onNodeWithTag(TEST_TAG)
-            .assertIsOff()
+            .assertIsNotSelected()
             .performClick()
-            .assertIsOff()
+            .assertIsNotSelected()
     }
 
     @Test
-    fun split_button_does_not_toggle_when_disabled() {
+    fun split_radio_button_is_not_selected_when_disabled() {
         rule.setContentWithTheme {
-            val (checked, onCheckedChange) = remember { mutableStateOf(false) }
-            SplitToggleButtonWithDefaults(
-                checked = checked,
-                onCheckedChange = onCheckedChange,
+            val (selectedIndex, onIndexSelected) = remember { mutableStateOf(0) }
+            SplitRadioButtonWithDefaults(
+                selected = selectedIndex == 1,
+                onSelected = { onIndexSelected(1) },
                 enabled = false,
                 modifier = Modifier.testTag(TEST_TAG)
             )
@@ -385,15 +402,15 @@ class ToggleButtonTest {
         rule
             .onNodeWithTag(TEST_TAG)
             .onChildAt(1)
-            .assertIsOff()
+            .assertIsNotSelected()
             .performClick()
-            .assertIsOff()
+            .assertIsNotSelected()
     }
 
     @Test
     fun can_override_role() {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
+            RadioButtonWithDefaults(
                 modifier = Modifier
                     .testTag(TEST_TAG)
                     .semantics {
@@ -414,7 +431,7 @@ class ToggleButtonTest {
     @Test
     fun split_button_clickable_has_role_button() {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
+            SplitRadioButtonWithDefaults(
                 modifier = Modifier.testTag(TEST_TAG)
             )
         }
@@ -435,9 +452,9 @@ class ToggleButtonTest {
         val textContent = "abc"
 
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
-                checked = true,
-                onCheckedChange = {},
+            RadioButtonWithDefaults(
+                selected = true,
+                onSelected = {},
                 label = {
                     Text(text = textContent)
                 }
@@ -452,9 +469,9 @@ class ToggleButtonTest {
         val textContent = "abc"
 
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
-                checked = true,
-                onCheckedChange = {},
+            SplitRadioButtonWithDefaults(
+                selected = true,
+                onSelected = {},
                 label = {
                     Text(text = textContent)
                 }
@@ -465,16 +482,16 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun toggle_button_hasAdjustableHeight() {
+    fun radio_button_hasAdjustableHeight() {
         val minHeight: Dp = 53.dp
 
         rule.setContentWithThemeForSizeAssertions {
-            ToggleButtonWithDefaults(
+            RadioButtonWithDefaults(
                 label = {
                     Text(
-                        text = "ToggleButton text spanning over multiple lines of text " +
+                        text = "RadioButton text spanning over multiple lines of text " +
                             "to test height is adjustable. This should exceed the minimum height" +
-                            " for the ToggleButton."
+                            " for the RadioButton."
                     )
                 },
                 secondaryLabel = {
@@ -487,11 +504,11 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun split_toggle_button_hasAdjustableHeight() {
+    fun split_radio_button_hasAdjustableHeight() {
         val minHeight: Dp = 53.dp
 
         rule.setContentWithThemeForSizeAssertions {
-            SplitToggleButtonWithDefaults(
+            SplitRadioButtonWithDefaults(
                 label = {
                     Text(
                         text = "Primary label with 3 lines of text."
@@ -499,9 +516,9 @@ class ToggleButtonTest {
                 },
                 secondaryLabel = {
                     Text(
-                        text = "SplitToggleButton text spanning over multiple lines of text " +
+                        text = "SplitRadioButton text spanning over multiple lines of text " +
                             "to test height is adjustable. This should exceed the minimum height" +
-                            " for the SplitToggleButton."
+                            " for the SplitRadioButton."
                     )
                 }
             )
@@ -509,69 +526,69 @@ class ToggleButtonTest {
     }
 
     @Test
-    fun toggle_button_height_defaults_52dp() {
+    fun radio_button_height_defaults_52dp() {
         rule.setContentWithThemeForSizeAssertions {
-            ToggleButtonWithDefaults()
+            RadioButtonWithDefaults()
         }.assertHeightIsEqualTo(52.dp)
     }
 
     @Test
-    fun split_toggle_button_height_defaults_52dp() {
+    fun split_radio_button_height_defaults_52dp() {
         rule.setContentWithThemeForSizeAssertions {
-            SplitToggleButtonWithDefaults()
+            SplitRadioButtonWithDefaults()
         }.assertHeightIsEqualTo(52.dp)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun toggle_button_allows_checked_background_color_override() =
-        verifyToggleButtonBackgroundColor(
-            checked = true,
+    fun radio_button_allows_checked_background_color_override() =
+        verifyRadioButtonBackgroundColor(
+            selected = true,
             enabled = true,
-            expectedColor = CHECKED_COLOR
+            expectedColor = SELECTED_COLOR
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun toggle_button_allows_unchecked_background_color_override() =
-        verifyToggleButtonBackgroundColor(
-            checked = false,
+    fun radio_button_allows_unchecked_background_color_override() =
+        verifyRadioButtonBackgroundColor(
+            selected = false,
             enabled = true,
-            expectedColor = UNCHECKED_COLOR
+            expectedColor = UNSELECTED_COLOR
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun split_toggle_button_allows_checked_background_color_override() =
-        verifySplitToggleButtonBackgroundColor(
-            checked = true,
+    fun split_radio_button_allows_checked_background_color_override() =
+        verifySplitRadioButtonBackgroundColor(
+            selected = true,
             enabled = true,
-            expectedColor = CHECKED_COLOR
+            expectedColor = SELECTED_COLOR
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    fun split_toggle_button_allows_unchecked_background_color_override() =
-        verifySplitToggleButtonBackgroundColor(
-            checked = false,
+    fun split_radio_button_allows_unchecked_background_color_override() =
+        verifySplitRadioButtonBackgroundColor(
+            selected = false,
             enabled = true,
-            expectedColor = UNCHECKED_COLOR
+            expectedColor = UNSELECTED_COLOR
         )
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun verifyToggleButtonBackgroundColor(
-        checked: Boolean,
+    private fun verifyRadioButtonBackgroundColor(
+        selected: Boolean,
         enabled: Boolean,
         expectedColor: Color
     ) {
         rule.setContentWithTheme {
-            ToggleButtonWithDefaults(
-                checked = checked,
-                colors = ToggleButtonDefaults.toggleButtonColors(
-                    checkedContainerColor = CHECKED_COLOR,
-                    uncheckedContainerColor = UNCHECKED_COLOR
+            RadioButtonWithDefaults(
+                selected = selected,
+                colors = RadioButtonDefaults.radioButtonColors(
+                    selectedContainerColor = SELECTED_COLOR,
+                    unselectedContainerColor = UNSELECTED_COLOR
                 ),
-                onCheckedChange = {},
+                onSelected = {},
                 enabled = enabled,
                 modifier = Modifier.testTag(TEST_TAG),
             )
@@ -583,19 +600,19 @@ class ToggleButtonTest {
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    private fun verifySplitToggleButtonBackgroundColor(
-        checked: Boolean,
+    private fun verifySplitRadioButtonBackgroundColor(
+        selected: Boolean,
         enabled: Boolean,
         expectedColor: Color
     ) {
         rule.setContentWithTheme {
-            SplitToggleButtonWithDefaults(
-                checked = checked,
-                colors = ToggleButtonDefaults.splitToggleButtonColors(
-                    checkedContainerColor = CHECKED_COLOR,
-                    uncheckedContainerColor = UNCHECKED_COLOR
+            SplitRadioButtonWithDefaults(
+                selected = selected,
+                colors = RadioButtonDefaults.splitRadioButtonColors(
+                    selectedContainerColor = SELECTED_COLOR,
+                    unselectedContainerColor = UNSELECTED_COLOR
                 ),
-                onCheckedChange = {},
+                onSelected = {},
                 enabled = enabled,
                 modifier = Modifier.testTag(TEST_TAG),
             )
@@ -608,55 +625,55 @@ class ToggleButtonTest {
 }
 
 @Composable
-private fun ToggleButtonWithDefaults(
+private fun RadioButtonWithDefaults(
     modifier: Modifier = Modifier,
-    checked: Boolean = true,
+    selected: Boolean = true,
     enabled: Boolean = true,
-    colors: ToggleButtonColors = ToggleButtonDefaults.toggleButtonColors(),
-    onCheckedChange: (Boolean) -> Unit = {},
+    colors: RadioButtonColors = RadioButtonDefaults.radioButtonColors(),
+    onSelected: () -> Unit = {},
     label: @Composable RowScope.() -> Unit = {
         Text("Primary")
     },
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
     icon: @Composable (BoxScope.() -> Unit)? = null,
-    toggleControl: @Composable ToggleControlScope.() -> Unit = { Checkbox() }
+    selectionControl: @Composable SelectionControlScope.() -> Unit = { Radio() }
 ) =
-    ToggleButton(
+    RadioButton(
         modifier = modifier,
-        checked = checked,
+        selected = selected,
         enabled = enabled,
         colors = colors,
-        onCheckedChange = onCheckedChange,
+        onSelected = onSelected,
         label = label,
         secondaryLabel = secondaryLabel,
         icon = icon,
-        toggleControl = toggleControl
+        selectionControl = selectionControl
     )
 
 @Composable
-private fun SplitToggleButtonWithDefaults(
+private fun SplitRadioButtonWithDefaults(
     modifier: Modifier = Modifier,
-    checked: Boolean = true,
+    selected: Boolean = true,
     enabled: Boolean = true,
-    colors: SplitToggleButtonColors = ToggleButtonDefaults.splitToggleButtonColors(),
-    onCheckedChange: (Boolean) -> Unit = {},
+    colors: SplitRadioButtonColors = RadioButtonDefaults.splitRadioButtonColors(),
+    onSelected: () -> Unit = {},
     onClick: () -> Unit = {},
     label: @Composable RowScope.() -> Unit = {
         Text("Primary")
     },
     secondaryLabel: @Composable (RowScope.() -> Unit)? = null,
-    toggleControl: @Composable ToggleControlScope.() -> Unit = { Checkbox() }
-) = SplitToggleButton(
+    selectionControl: @Composable SelectionControlScope.() -> Unit = { Radio() }
+) = SplitRadioButton(
     modifier = modifier,
     colors = colors,
-    checked = checked,
+    selected = selected,
     enabled = enabled,
-    onCheckedChange = onCheckedChange,
+    onSelected = onSelected,
     label = label,
     secondaryLabel = secondaryLabel,
     onClick = onClick,
-    toggleControl = toggleControl,
+    selectionControl = selectionControl,
 )
 
-private val CHECKED_COLOR = Color(0xFFA020F0)
-private val UNCHECKED_COLOR = Color(0xFFFFA500)
+private val SELECTED_COLOR = Color(0xFFA020F0)
+private val UNSELECTED_COLOR = Color(0xFFFFA500)

@@ -1058,7 +1058,7 @@ private fun ToggleButtonWithDefaults(
     checked = checked,
     onCheckedChange = onCheckedChange,
     label = label,
-    selectionControl = selectionControl,
+    toggleControl = selectionControl,
     modifier = modifier,
     icon = icon,
     secondaryLabel = secondaryLabel,
@@ -1067,8 +1067,8 @@ private fun ToggleButtonWithDefaults(
     interactionSource = interactionSource,
     contentPadding = contentPadding,
     shape = shape,
-    selectionControlWidth = selectionControlWidth,
-    selectionControlHeight = selectionControlHeight,
+    toggleControlWidth = selectionControlWidth,
+    toggleControlHeight = selectionControlHeight,
     ripple = EmptyIndication,
 )
 
@@ -1107,7 +1107,7 @@ private fun SplitToggleButtonWithDefaults(
     onCheckedChange = onCheckedChange,
     label = label,
     onClick = onClick,
-    selectionControl = selectionControl,
+    toggleControl = selectionControl,
     modifier = modifier,
     secondaryLabel = secondaryLabel,
     backgroundColor = backgroundColor,
