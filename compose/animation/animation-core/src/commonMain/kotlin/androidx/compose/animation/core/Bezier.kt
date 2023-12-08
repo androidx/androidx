@@ -28,8 +28,11 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 private const val Tau = Math.PI * 2.0
-private const val Epsilon = 1.5e-7
-private const val FloatEpsilon = 1.5e-7f
+private const val Epsilon = 1e-7
+// We use a fairly high epsilon here because it's post double->float conversion
+// and because we use a fast approximation of cbrt(). The epsilon we use here is
+// the max error of fastCbrt() in the -1f..1f range.
+private const val FloatEpsilon = 8.3446500e-7f
 
 /**
  * Evaluate the specified [segment] at position [t] and returns the X
