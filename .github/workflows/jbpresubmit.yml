@@ -5,7 +5,8 @@
 
 # The aim of this workflow is to run checks and some tests before submitting the CL upstream.
 name: JB-COMPOSE-variant of AndroidX Presubmits
-on: {}
+on:
+  workflow_dispatch:
 
 jobs:
   setup:

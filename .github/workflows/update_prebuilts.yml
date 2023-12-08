@@ -2,7 +2,9 @@
 # To run it, navigate to https://github.com/androidx/androidx/actions/workflows/update_prebuilts.yml
 # and click "Run workflow"
 name: Update Prebuilts
-on: {}
+on:
+  workflow_dispatch:
+
 jobs:
   update-prebuilts:
     runs-on: ubuntu-latest

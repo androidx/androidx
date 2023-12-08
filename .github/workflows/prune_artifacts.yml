@@ -1,5 +1,6 @@
 name: "Prune old artifacts"
-on: {}
+on:
+  workflow_dispatch:
 
 jobs:
   delete-artifacts:

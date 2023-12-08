@@ -1,5 +1,6 @@
 name: Scorecards supply-chain security
-on: {}
+on:
+  workflow_dispatch:
 
 # Declare default permissions as read only.
 permissions: read-all
