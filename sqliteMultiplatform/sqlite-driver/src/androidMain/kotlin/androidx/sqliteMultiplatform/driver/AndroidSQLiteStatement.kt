@@ -151,14 +151,13 @@ internal sealed class AndroidSQLiteStatement(
         }
 
         private fun bindTo(query: SQLiteProgram) {
-            argumentTypes.forEachIndexed { index, type ->
-                val bindIndex = index + 1
-                when (type) {
-                    ColumnType.LONG -> query.bindLong(bindIndex, arguments[index] as Long)
-                    ColumnType.DOUBLE -> query.bindDouble(bindIndex, arguments[index] as Double)
-                    ColumnType.STRING -> query.bindString(bindIndex, arguments[index] as String)
-                    ColumnType.BLOB -> query.bindBlob(bindIndex, arguments[index] as ByteArray)
-                    ColumnType.NULL -> query.bindNull(bindIndex)
+            for (index in 1 until argumentTypes.size) {
+                when (argumentTypes[index]) {
+                    ColumnType.LONG -> query.bindLong(index, arguments[index] as Long)
+                    ColumnType.DOUBLE -> query.bindDouble(index, arguments[index] as Double)
+                    ColumnType.STRING -> query.bindString(index, arguments[index] as String)
+                    ColumnType.BLOB -> query.bindBlob(index, arguments[index] as ByteArray)
+                    ColumnType.NULL -> query.bindNull(index)
                 }
             }
         }

@@ -21,17 +21,15 @@ import java.nio.file.StandardCopyOption
 import java.util.Locale
 
 internal actual object NativeLibraryLoader {
-    // TODO b/304281116 Generate this via gradle so it is consistent
-    actual fun loadLibrary(
-        name: String
-    ) {
+    // TODO(b/304281116): Generate this via Gradle so it is consistent.
+    actual fun loadLibrary(name: String) {
         try {
             System.loadLibrary(name)
             return
         } catch (error: Throwable) {
-            // looks like we are not on android, continue
+            // looks like we are not on Android, continue
         }
-        // TODO This implementation is temporary, should be updated with b/304281116
+        // TODO(b/304281116): Temporary loading implementation
         val osName =
             System.getProperty("os.name")?.lowercase(Locale.US) ?: error("Cannot read osName")
         val osArch =
@@ -52,11 +50,7 @@ internal actual object NativeLibraryLoader {
             else -> error("Unsupported architecture: $osArch")
         }
         val resourceFolder = "${osPrefix}_$archSuffix"
-        val ext = if (osPrefix == "linux") {
-            "so"
-        } else {
-            "dylib"
-        }
+        val ext = if (osPrefix == "linux") { "so" } else { "dylib" }
         val resourceName = "$resourceFolder/lib$name.$ext"
         val nativeLibCopy = Files.createTempFile("androidx_$name", null)
         nativeLibCopy.toFile().deleteOnExit()

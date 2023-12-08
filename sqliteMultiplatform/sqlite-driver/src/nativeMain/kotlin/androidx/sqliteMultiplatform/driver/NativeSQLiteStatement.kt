@@ -16,6 +16,7 @@
 
 package androidx.sqliteMultiplatform.driver
 
+import androidx.annotation.RestrictTo
 import androidx.sqliteMultiplatform.SQLiteStatement
 import cnames.structs.sqlite3
 import cnames.structs.sqlite3_stmt
@@ -53,14 +54,15 @@ import sqlite3.sqlite3_step
  *  * (b/307917224) index out of bounds handling
  *  * (b/304295573) busy / locked handling
  */
-internal class NativeSQLiteStatement(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
+class NativeSQLiteStatement(
     private val dbPointer: CPointer<sqlite3>,
     private val stmtPointer: CPointer<sqlite3_stmt>
 ) : SQLiteStatement {
     override fun bindBlob(index: Int, value: ByteArray) {
         sqlite3_bind_blob(
             stmtPointer,
-            index + 1,
+            index,
             value.toCValues(),
             value.size,
             SQLITE_TRANSIENT
@@ -68,22 +70,23 @@ internal class NativeSQLiteStatement(
     }
 
     override fun bindLong(index: Int, value: Long) {
-        sqlite3_bind_int64(stmtPointer, index + 1, value)
+        sqlite3_bind_int64(stmtPointer, index, value)
     }
 
     override fun bindDouble(index: Int, value: Double) {
-        sqlite3_bind_double(stmtPointer, index + 1, value)
+        sqlite3_bind_double(stmtPointer, index, value)
     }
 
     override fun bindText(index: Int, value: String) {
-        sqlite3_bind_text(stmtPointer, index + 1, value, value.length, SQLITE_TRANSIENT)
+        sqlite3_bind_text(stmtPointer, index, value, value.length, SQLITE_TRANSIENT)
     }
 
     override fun bindNull(index: Int) {
-        sqlite3_bind_null(stmtPointer, index + 1)
+        sqlite3_bind_null(stmtPointer, index)
     }
 
     override fun getText(index: Int): String {
+        // Kotlin/Native uses UTF-8 character encoding by default.
         val value = sqlite3_column_text(stmtPointer, index)
         if (sqlite3_errcode(dbPointer) == SQLITE_NOMEM) {
             throw OutOfMemoryError()

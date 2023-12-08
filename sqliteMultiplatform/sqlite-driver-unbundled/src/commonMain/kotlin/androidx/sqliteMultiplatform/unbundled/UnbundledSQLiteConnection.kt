@@ -16,12 +16,6 @@
 
 package androidx.sqliteMultiplatform.unbundled
 
-actual class SimpleDatabaseSubject actual constructor() {
-    actual external fun openDatabaseAndReadVersion(): String
-    companion object {
-        init {
-            // implementation is in src/androidJvmCommonTest/jni
-            NativeLibraryLoader.loadLibrary("testJniImplementation")
-        }
-    }
-}
+import androidx.sqliteMultiplatform.SQLiteConnection
+
+expect class UnbundledSQLiteConnection : SQLiteConnection
