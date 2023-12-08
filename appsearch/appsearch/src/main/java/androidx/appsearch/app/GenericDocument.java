@@ -1250,9 +1250,7 @@ public class GenericDocument {
          *
          * <p>The GenericDocument is deep copied, i.e. changes to the new GenericDocument
          * returned by this function will NOT affect the original GenericDocument.
-         * <!--@exportToFramework:hide-->
          */
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public Builder(@NonNull GenericDocument document) {
             this(BundleUtil.deepCopy(document.getBundle()));
         }
