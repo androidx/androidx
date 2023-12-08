@@ -143,7 +143,13 @@ fun BasicSwipeToDismissBox(
         val contentScrimColor = LocalSwipeToDismissContentScrimColor.current
 
         val progress by remember(state) {
-            derivedStateOf { ((state.swipeableState.offset ?: 0f) / maxWidthPx).coerceIn(0f, 1f) }
+            derivedStateOf {
+                if (state.swipeableState.offset?.isNaN() == true || maxWidthPx == 0f) {
+                    0f
+                } else {
+                    ((state.swipeableState.offset ?: 0f) / maxWidthPx).coerceIn(0f, 1f)
+                }
+            }
         }
         val isSwiping by remember { derivedStateOf { progress > 0 } }
         var squeezeMode by remember {
