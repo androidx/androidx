@@ -19,8 +19,8 @@ package androidx.paging
 import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.Dispatchers
 
-class TestPagingDataDiffer<T : Any>(mainContext: CoroutineContext = Dispatchers.Main) :
-    PagingDataDiffer<T>(noopDifferCallback, mainContext) {
+class TestPagingDataPresenter<T : Any>(mainContext: CoroutineContext = Dispatchers.Main) :
+    PagingDataPresenter<T>(noopDifferCallback, mainContext) {
 
     val currentList: List<T> get() = List(size) { i -> get(i)!! }
 

@@ -25,7 +25,7 @@ import androidx.paging.LoadStates
 import androidx.paging.NullPaddedList
 import androidx.paging.Pager
 import androidx.paging.PagingData
-import androidx.paging.PagingDataDiffer
+import androidx.paging.PagingDataPresenter
 import androidx.paging.testing.ErrorRecovery.RETRY
 import androidx.paging.testing.ErrorRecovery.RETURN_CURRENT_SNAPSHOT
 import androidx.paging.testing.ErrorRecovery.THROW
@@ -84,8 +84,10 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
         }
     }
 
-    // PagingDataDiffer will collect from coroutineContext instead of main dispatcher
-    val differ = object : CompletablePagingDataDiffer<Value>(callback, coroutineContext) {
+    // PagingDataPresenter will collect from coroutineContext instead of main dispatcher
+    val presenter = object : CompletablePagingDataPresenter<Value>(
+        callback, coroutineContext
+    ) {
         override suspend fun presentNewList(
             previousList: NullPaddedList<Value>,
             newList: NullPaddedList<Value>,
@@ -100,7 +102,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
              * This initial lastAccessedIndex is necessary because initial load
              * key may not be 0, for example when [Pager].initialKey != 0. It is calculated
              * based on [ItemSnapshotList.placeholdersBefore] + [1/2 initial load size] to match
-             * the initial ViewportHint that [PagingDataDiffer.presentNewList] sends on
+             * the initial ViewportHint that [PagingDataPresenter.presentNewList] sends on
              * first generation to auto-trigger prefetches on either direction.
              *
              * Any subsequent SnapshotLoader loads are based on the index tracked by
@@ -112,7 +114,7 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
         }
     }
 
-    loader = SnapshotLoader(differ, onError)
+    loader = SnapshotLoader(presenter, onError)
 
     /**
      * Launches collection on this [Pager.flow].
@@ -122,9 +124,9 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
     val collectPagingData = launch {
         this@asSnapshot.collectLatest {
             incrementGeneration(loader)
-            differ.collectFrom(it)
+            presenter.collectFrom(it)
         }
-        differ.hasCompleted.value = true
+        presenter.hasCompleted.value = true
     }
 
     /**
@@ -135,9 +137,9 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
      * is idle.
      */
     try {
-        differ.awaitNotLoading(onError)
+        presenter.awaitNotLoading(onError)
         loader.loadOperations()
-        differ.awaitNotLoading(onError)
+        presenter.awaitNotLoading(onError)
     } catch (stub: ReturnSnapshotStub) {
         // we just want to stub and return snapshot early
     } catch (throwable: Throwable) {
@@ -146,13 +148,13 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
         collectPagingData.cancelAndJoin()
     }
 
-    differ.snapshot().items
+    presenter.snapshot().items
 }
 
-internal abstract class CompletablePagingDataDiffer<Value : Any>(
+internal abstract class CompletablePagingDataPresenter<Value : Any>(
     differCallback: DifferCallback,
     mainContext: CoroutineContext,
-) : PagingDataDiffer<Value>(differCallback, mainContext) {
+) : PagingDataPresenter<Value>(differCallback, mainContext) {
     /**
      * Marker that the underlying Flow<PagingData> has completed - e.g., every possible generation
      * of data has been loaded completely.
@@ -190,7 +192,7 @@ internal abstract class CompletablePagingDataDiffer<Value : Any>(
  * incoming `Loading` state.
  */
 @OptIn(kotlinx.coroutines.FlowPreview::class)
-internal suspend fun <Value : Any> CompletablePagingDataDiffer<Value>.awaitNotLoading(
+internal suspend fun <Value : Any> CompletablePagingDataPresenter<Value>.awaitNotLoading(
     errorHandler: LoadErrorHandler
 ) {
     val state = completableLoadStateFlow.filterNotNull().debounce(1).filter {
@@ -202,7 +204,7 @@ internal suspend fun <Value : Any> CompletablePagingDataDiffer<Value>.awaitNotLo
     }
 }
 
-internal fun <Value : Any> PagingDataDiffer<Value>.handleLoadError(
+internal fun <Value : Any> PagingDataPresenter<Value>.handleLoadError(
     state: CombinedLoadStates,
     errorHandler: LoadErrorHandler
 ) {
