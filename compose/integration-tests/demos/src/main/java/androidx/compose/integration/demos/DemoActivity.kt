@@ -19,6 +19,7 @@ package androidx.compose.integration.demos
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.os.StrictMode
 import android.view.View
 import android.view.Window
 import androidx.activity.OnBackPressedCallback
@@ -71,6 +72,14 @@ class DemoActivity : FragmentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        StrictMode.setVmPolicy(
+            StrictMode.VmPolicy.Builder()
+                .detectLeakedClosableObjects()
+                .penaltyLog()
+                .penaltyDeath()
+                .build()
+        )
 
         val rootDemo = when (val demoName = intent.getStringExtra(DEMO_NAME)) {
             null -> AllDemosCategory
