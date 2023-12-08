@@ -46,6 +46,9 @@ val WearMaterial3Demos = DemoCategory(
                 ComposableDemo("Child Button") {
                     ChildButtonDemo()
                 },
+                ComposableDemo("Compact Button") {
+                    CompactButtonDemo()
+                },
                 ComposableDemo("Multiline Button") {
                     MultilineButtonDemo()
                 },

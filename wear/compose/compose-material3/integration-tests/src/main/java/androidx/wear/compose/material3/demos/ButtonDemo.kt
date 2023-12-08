@@ -31,6 +31,7 @@ import androidx.wear.compose.material3.Button
 import androidx.wear.compose.material3.ButtonColors
 import androidx.wear.compose.material3.ButtonDefaults
 import androidx.wear.compose.material3.ChildButton
+import androidx.wear.compose.material3.CompactButton
 import androidx.wear.compose.material3.FilledTonalButton
 import androidx.wear.compose.material3.Icon
 import androidx.wear.compose.material3.ListHeader
@@ -38,8 +39,11 @@ import androidx.wear.compose.material3.OutlinedButton
 import androidx.wear.compose.material3.Text
 import androidx.wear.compose.material3.samples.ButtonSample
 import androidx.wear.compose.material3.samples.ChildButtonSample
+import androidx.wear.compose.material3.samples.CompactButtonSample
 import androidx.wear.compose.material3.samples.FilledTonalButtonSample
+import androidx.wear.compose.material3.samples.FilledTonalCompactButtonSample
 import androidx.wear.compose.material3.samples.OutlinedButtonSample
+import androidx.wear.compose.material3.samples.OutlinedCompactButtonSample
 import androidx.wear.compose.material3.samples.SimpleButtonSample
 import androidx.wear.compose.material3.samples.SimpleChildButtonSample
 import androidx.wear.compose.material3.samples.SimpleFilledTonalButtonSample
@@ -229,6 +233,108 @@ fun ChildButtonDemo() {
                 },
                 enabled = false
             )
+        }
+    }
+}
+
+@Composable
+fun CompactButtonDemo() {
+    ScalingLazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        item {
+            ListHeader {
+                Text("2 slot compact button")
+            }
+        }
+        item {
+            CompactButtonSample()
+        }
+        item {
+            FilledTonalCompactButtonSample()
+        }
+        item {
+            OutlinedCompactButtonSample()
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
+                colors = ButtonDefaults.childButtonColors()
+            ) {
+                Text("Child Compact Button")
+            }
+        }
+        item {
+            ListHeader {
+                Text("Icon only compact button")
+            }
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                icon = { StandardIcon(ButtonDefaults.SmallIconSize) }
+            )
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
+                colors = ButtonDefaults.filledTonalButtonColors()
+            )
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
+                colors = ButtonDefaults.outlinedButtonColors(),
+                border = ButtonDefaults.outlinedButtonBorder(enabled = true)
+            )
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
+                colors = ButtonDefaults.childButtonColors()
+            )
+        }
+        item {
+            ListHeader {
+                Text("Text only compact button")
+            }
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+            ) {
+                Text("Filled compact button")
+            }
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                colors = ButtonDefaults.filledTonalButtonColors()
+            ) {
+                Text("Filled tonal compact button")
+            }
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                colors = ButtonDefaults.outlinedButtonColors(),
+                border = ButtonDefaults.outlinedButtonBorder(enabled = true)
+            ) {
+                Text("Outlined compact button")
+            }
+        }
+        item {
+            CompactButton(
+                onClick = { /* Do something */ },
+                colors = ButtonDefaults.childButtonColors()
+            ) {
+                Text("Child compact button")
+            }
         }
     }
 }

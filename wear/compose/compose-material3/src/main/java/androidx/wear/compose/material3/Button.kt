@@ -36,6 +36,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
@@ -695,6 +696,121 @@ fun ChildButton(
 )
 
 /**
+ * A Wear Material3 [CompactButton] that offers two slots and a specific layout for an
+ * icon and label. Both the icon and label are optional however it is expected that at least one
+ * will be provided.
+ *
+ * The [CompactButton] is Stadium shaped and has a max height designed to take no more
+ * than one line of text and/or one icon. The default max height
+ * is [ButtonDefaults.CompactButtonHeight]. This includes a visible button height of 32.dp
+ * and 8.dp of padding above and below the button in order to meet accessibility guidelines that
+ * request a minimum of 48.dp height and width of tappable area.
+ *
+ * If an icon is provided then the labels should be "start" aligned, e.g. left aligned in
+ * left-to-right mode so that the text starts next to the icon.
+ *
+ * The items are laid out as follows.
+ *
+ * 1. If a label is provided then the button will be laid out with the optional icon at the
+ * start of a row followed by the label with a default max height of
+ * [ButtonDefaults.CompactButtonHeight].
+ *
+ * 2. If only an icon is provided it will be laid out vertically and horizontally centered with a
+ * default height of [ButtonDefaults.CompactButtonHeight] and the default width of
+ * [ButtonDefaults.IconOnlyCompactButtonWidth]
+ *
+ * If neither icon nor label is provided then the button will displayed like an icon only button but
+ * with no contents or background color.
+ *
+ * [CompactButton] takes the [ButtonDefaults.filledButtonColors] color scheme by default,
+ * with colored background, contrasting content color and no border. This is a high-emphasis button
+ * for the primary, most important or most common action on a screen.
+ *
+ * Other recommended [ButtonColors] for different levels of emphasis are:
+ * [ButtonDefaults.filledTonalButtonColors], [ButtonDefaults.outlinedButtonColors] and
+ * [ButtonDefaults.childButtonColors].
+ * Buttons can also take an image background using [ButtonDefaults.imageBackgroundButtonColors].
+ *
+ * [CompactButton] can be enabled or disabled. A disabled button will not respond
+ * to click events.
+ *
+ * TODO(b/261838497) Add Material3 samples and UX guidance links
+ *
+ * Example of a [CompactButton] with an icon and a label
+ * @sample androidx.wear.compose.material3.samples.CompactButtonSample
+ *
+ * Example of a [CompactButton] with an icon and label and with
+ * [ButtonDefaults.filledTonalButtonColors]
+ * @sample androidx.wear.compose.material3.samples.FilledTonalCompactButtonSample
+ *
+ * Example of a [CompactButton] with an icon and label and with
+ * [ButtonDefaults.outlinedButtonBorder] and [ButtonDefaults.outlinedButtonColors]
+ * @sample androidx.wear.compose.material3.samples.OutlinedCompactButtonSample
+ *
+ * @param onClick Will be called when the user clicks the button
+ * @param modifier Modifier to be applied to the button
+ * @param label A slot for providing the button's main label. The contents are expected to be text
+ * which is "start" aligned if there is an icon preset and "center" aligned if not.
+ * @param icon A slot for providing the button's icon. The contents are expected to be a
+ * horizontally and vertically aligned icon of size [ButtonDefaults.SmallIconSize] when used
+ * with a label or [ButtonDefaults.IconSize] when used as the only content in the button. In order
+ * to correctly render when the button is not enabled the icon must set its
+ * alpha value to [LocalContentAlpha].
+ * @param colors [ButtonColors] that will be used to resolve the background and content color for
+ * this button in different states. See [ButtonDefaults.filledButtonColors].
+ * @param enabled Controls the enabled state of the button. When `false`, this button will not
+ * be clickable
+ * @param interactionSource The [MutableInteractionSource] representing the stream of
+ * [Interaction]s for this button. You can create and pass in your own remembered
+ * [MutableInteractionSource] if you want to observe [Interaction]s and customize the
+ * appearance / behavior of this button in different [Interaction]s.
+ * @param contentPadding The spacing values to apply internally between the container and the
+ * content
+ * @param shape Defines the button's shape. It is strongly recommended to use the default as this
+ * shape is a key characteristic of the Wear Material3 Theme
+ * @param border Optional [BorderStroke] that will be used to resolve the border for this
+ * button in different states.
+ */
+@Composable
+public fun CompactButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    icon: (@Composable BoxScope.() -> Unit)? = null,
+    enabled: Boolean = true,
+    shape: Shape = CircleShape,
+    colors: ButtonColors = ButtonDefaults.filledButtonColors(),
+    border: BorderStroke? = null,
+    contentPadding: PaddingValues = ButtonDefaults.CompactButtonContentPadding,
+    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    label: (@Composable RowScope.() -> Unit)? = null,
+) {
+    androidx.wear.compose.materialcore.CompactChip(
+        onClick = onClick,
+        background = { colors.containerPainter(enabled = it) },
+        modifier = modifier.height(ButtonDefaults.CompactButtonHeight),
+        label = provideNullableScopeContent(
+            contentColor = colors.contentColor(enabled = enabled),
+            textStyle = MaterialTheme.typography.labelSmall,
+            content = label
+        ),
+        icon = provideNullableScopeContent(
+            contentColor = colors.iconColor(enabled = enabled),
+            content = icon
+        ),
+        enabled = enabled,
+        interactionSource = interactionSource,
+        contentPadding = contentPadding,
+        shape = shape,
+        border = { rememberUpdatedState(border) },
+        defaultIconOnlyCompactChipWidth = ButtonDefaults.IconOnlyCompactButtonWidth,
+        defaultCompactChipTapTargetPadding = ButtonDefaults.CompactButtonTapTargetPadding,
+        defaultIconSpacing = ButtonDefaults.IconSpacing,
+        role = Role.Button,
+        ripple = rippleOrFallbackImplementation()
+    )
+}
+
+/**
  * Contains the default values used by [Button]
  */
 object ButtonDefaults {
@@ -994,27 +1110,6 @@ object ButtonDefaults {
         }
     }
 
-    val ButtonHorizontalPadding = 14.dp
-    val ButtonVerticalPadding = 6.dp
-
-    /**
-     * The default content padding used by [Button]
-     */
-    val ContentPadding: PaddingValues = PaddingValues(
-        horizontal = ButtonHorizontalPadding,
-        vertical = ButtonVerticalPadding,
-    )
-
-    /**
-     * The default size of the icon when used inside a [Button].
-     */
-    val IconSize: Dp = FilledButtonTokens.IconSize
-
-    /**
-     * The size of the icon when used inside a Large "Avatar" [Button].
-     */
-    val LargeIconSize: Dp = FilledButtonTokens.IconLargeSize
-
     /**
      * Creates a [ButtonColors] that represents the default background and content colors used in
      * a [Button].
@@ -1059,11 +1154,76 @@ object ButtonDefaults {
         disabledIconColor = disabledIconColor
     )
 
+    val ButtonHorizontalPadding = 14.dp
+    val ButtonVerticalPadding = 6.dp
+
+    /**
+     * The default content padding used by [Button]
+     */
+    val ContentPadding: PaddingValues = PaddingValues(
+        horizontal = ButtonHorizontalPadding,
+        vertical = ButtonVerticalPadding,
+    )
+
+    /**
+     * The default size of the icon when used inside a [Button].
+     */
+    val IconSize: Dp = FilledButtonTokens.IconSize
+
+    /**
+     * The size of the icon when used inside a Large "Avatar" [Button].
+     */
+    val LargeIconSize: Dp = FilledButtonTokens.IconLargeSize
+
     /**
      * The default height applied for the [Button].
      * Note that you can override it by applying Modifier.heightIn directly on [Button].
      */
     val Height = FilledButtonTokens.ContainerHeight
+
+    val CompactButtonHorizontalPadding = 12.dp
+    val CompactButtonVerticalPadding = 0.dp
+
+    /**
+     * The default content padding used by [CompactButton]
+     */
+    val CompactButtonContentPadding: PaddingValues = PaddingValues(
+        start = CompactButtonHorizontalPadding,
+        top = CompactButtonVerticalPadding,
+        end = CompactButtonHorizontalPadding,
+        bottom = CompactButtonVerticalPadding
+    )
+
+    /**
+     * The height applied for the [CompactButton]. This includes a
+     * visible button height of 32.dp and 8.dp of padding above and below the button
+     * in order to meet accessibility guidelines that
+     * request a minimum of 48.dp height and width of tappable area.
+     *
+     * Note that you can override it by adjusting Modifier.height and Modifier.padding directly on
+     * [CompactButton].
+     */
+    val CompactButtonHeight = 48.dp
+
+    /**
+     * The size of the icon when used inside a "[CompactButton].
+     */
+    val SmallIconSize: Dp = 20.dp
+
+    /**
+     * The default padding to be provided around a [CompactButton] in order to ensure that its
+     * tappable area meets minimum UX guidance.
+     */
+    val CompactButtonTapTargetPadding: PaddingValues = PaddingValues(
+        top = 8.dp,
+        bottom = 8.dp
+    )
+
+    /**
+     * The default width applied for the [CompactButton] when it has no label provided.
+     * Note that you can override it by applying Modifier.width directly on [CompactButton].
+     */
+    internal val IconOnlyCompactButtonWidth = 52.dp
 
     /**
      * The default size of the spacing between an icon and a text when they are used inside a
