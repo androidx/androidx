@@ -163,6 +163,23 @@ message DataTypeCondition {
   reserved 4 to max;  // Next ID
 }
 
+message DebouncedDataTypeCondition {
+  oneof dataType {
+    DataType delta = 1;
+    DataType aggregate = 2;
+  }
+  optional Value threshold = 3;
+  optional ComparisonType comparison_type = 4;
+  optional int32 initial_delay_seconds = 5;
+  optional int32 duration_at_threshold_seconds = 6;
+  reserved 7 to max;  // Next ID
+}
+
+message DebouncedGoal {
+  optional DebouncedDataTypeCondition debounced_data_type_condition = 1;
+  reserved 2 to max;  // Next ID
+}
+
 message ExerciseCapabilities {
   message TypeToCapabilitiesEntry {
     optional ExerciseType type = 1;
@@ -205,8 +222,8 @@ message ExerciseConfig {
   optional ExerciseTypeConfig exercise_type_config = 10;
   repeated BatchingMode batching_mode_overrides = 11 [packed = true];
   repeated ExerciseEventType exercise_event_types = 12 [packed = true];
-  reserved 9;
-  reserved 13 to max;  // Next ID
+  repeated DebouncedGoal debounced_goals = 15;
+  reserved 9, 13, 14, 16 to max;
 }
 
 message ExerciseInfo {
@@ -441,8 +458,9 @@ message ExerciseTypeCapabilities {
   optional bool is_auto_pause_and_resume_supported = 4;
   optional bool is_laps_supported = 5;
   repeated ExerciseEventCapabilities supported_exercise_events = 7;
-  reserved 6;
-  reserved 8 to max;  // Next ID
+  repeated SupportedGoalEntry supported_delta_debounced_goals = 8;
+  repeated SupportedGoalEntry supported_aggregate_debounced_goals = 9;
+  reserved 6, 10 to max;
 }
 
 message ExerciseUpdate {
@@ -469,8 +487,9 @@ message ExerciseUpdate {
   optional ExerciseConfig exercise_config = 7;
   optional ActiveDurationCheckpoint active_duration_checkpoint = 10;
   optional ExerciseEndReason exercise_end_reason = 11;
+  repeated DebouncedGoal latest_achieved_debounced_goals = 13;
 
-  reserved 12 to max;  // Next ID
+  reserved 12, 14 to max;
 }
 
 enum ExerciseEndReason {

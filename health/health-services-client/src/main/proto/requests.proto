@@ -128,3 +128,9 @@ message UpdateExerciseTypeConfigRequest {
   optional ExerciseTypeConfig config = 2;
   reserved 3 to max;  // Next ID
 }
+
+message DebouncedGoalRequest {
+  optional string package_name = 1;
+  optional DebouncedGoal debounced_goal = 2;
+  reserved 3 to max;  // Next ID
+}
