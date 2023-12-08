@@ -87,10 +87,21 @@ internal fun finalMaxLines(softWrap: Boolean, overflow: TextOverflow, maxLinesIn
     return if (overwriteMaxLines) 1 else maxLinesIn.coerceAtLeast(1)
 }
 
-private const val BigConstraintValue = (1 shl 18) - 1
-private const val MediumConstraintValue = (1 shl 16) - 1
-private const val SmallConstraintValue = (1 shl 15) - 1
-private const val TinyConstraintValue = (1 shl 13) - 1
+/**
+ * Constraints are packed see [Constraints] implementation.
+ *
+ * These constants are the largest values that each slot can hold. The following pairings are the
+ * only ones allowed:
+ *
+ * (Big, Tiny), (Tiny, Big)
+ * (Medium, Small), (Small, Medium)
+ *
+ * For more information see [Constraints] implementation
+ */
+internal const val BigConstraintValue = (1 shl 18) - 1
+internal const val MediumConstraintValue = (1 shl 16) - 1
+internal const val SmallConstraintValue = (1 shl 15) - 1
+internal const val TinyConstraintValue = (1 shl 13) - 1
 
 /**
  * Make constraints that never throw from being too large. Prefer to keep accurate width information
