@@ -72,6 +72,7 @@ dependencies {
     samples("androidx.compose.foundation:foundation-samples:1.6.0-beta02")
     kmpDocs("androidx.compose.material3:material3:1.2.0-alpha12")
     kmpDocs("androidx.compose.material3:material3-adaptive:1.0.0-alpha02")
+    kmpDocs("androidx.compose.material3:material3-adaptive-navigation-suite:1.0.0-alpha01")
     samples("androidx.compose.material3:material3-adaptive-navigation-suite-samples:1.2.0-alpha12")
     samples("androidx.compose.material3:material3-adaptive-samples:1.2.0-alpha12")
     samples("androidx.compose.material3:material3-samples:1.2.0-alpha12")
