@@ -23,6 +23,7 @@ import android.graphics.ColorFilter
 import android.graphics.PixelFormat
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.os.Build
 import android.os.Parcelable
 import android.util.SparseArray
 import android.view.MotionEvent
@@ -33,6 +34,7 @@ import android.view.ViewGroup.LayoutParams
 import androidx.core.view.get
 import androidx.slidingpanelayout.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertWithMessage
@@ -243,6 +245,52 @@ class UserResizeModeTest {
         spl.measureAndLayoutForTest()
         assertWithMessage("right pane has zero width")
             .that(spl[1].width)
+            .isEqualTo(0)
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.Q)
+    fun gestureExclusionRectsUpdated() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+
+        fun View.assertHasExclusionRects() {
+            assertWithMessage("systemGestureExclusionRects.size")
+                .that(systemGestureExclusionRects.size)
+                .isAtLeast(1)
+        }
+
+        val initialExclusionRect = Rect()
+        spl.assertHasExclusionRects()
+        // assumption: the divider rect is always the first in this config
+        initialExclusionRect.set(spl.systemGestureExclusionRects[0])
+
+        spl.splitDividerPosition = 0
+        spl.measureAndLayoutForTest()
+        spl.assertHasExclusionRects()
+        val dividerZeroExclusionRect = Rect().apply { set(spl.systemGestureExclusionRects[0]) }
+
+        assertWithMessage("initial rect/divider zero rect")
+            .that(dividerZeroExclusionRect)
+            .isNotEqualTo(initialExclusionRect)
+
+        val hMidpoint = spl.height / 2
+        assertWithMessage("exclusion $dividerZeroExclusionRect contains (0, $hMidpoint)")
+            .that(dividerZeroExclusionRect.contains(0, hMidpoint))
+            .isTrue()
+
+        spl.splitDividerPosition = spl.width
+        spl.measureAndLayoutForTest()
+        val dividerWidthExclusionRect = Rect().apply { set(spl.systemGestureExclusionRects[0]) }
+
+        assertWithMessage("exclusion $dividerZeroExclusionRect contains (${spl.width}, $hMidpoint)")
+            .that(dividerWidthExclusionRect.contains(spl.width, hMidpoint))
+            .isTrue()
+
+        spl.isUserResizingEnabled = false
+        spl.measureAndLayoutForTest()
+        assertWithMessage("gesture exclusion omitted for isUserResizingEnabled = false")
+            .that(spl.systemGestureExclusionRects.size)
             .isEqualTo(0)
     }
 }

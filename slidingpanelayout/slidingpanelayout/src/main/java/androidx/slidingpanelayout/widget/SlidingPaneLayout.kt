@@ -302,6 +302,9 @@ open class SlidingPaneLayout @JvmOverloads constructor(
      */
     private var slideRange = 0
 
+    private val touchTargetMin =
+        (context.resources.displayMetrics.density * MIN_TOUCH_TARGET_SIZE).roundToInt()
+
     private val overlappingPaneHandler = OverlappingPaneHandler()
     private val draggableDividerHandler = DraggableDividerHandler()
 
@@ -405,6 +408,11 @@ open class SlidingPaneLayout @JvmOverloads constructor(
 
     private var userResizingDividerDrawable: Drawable? = null
 
+    // Reused/preallocated gesture exclusion data
+    private val computedDividerExclusionRect = Rect()
+    private val dividerGestureExclusionRect = Rect()
+    private val gestureExclusionRectsList = listOf(dividerGestureExclusionRect)
+
     /**
      * Set a [Drawable] to display when [isUserResizingEnabled] is `true` and multiple panes are
      * visible without overlapping. This forms the visual touch target for dragging.
@@ -426,7 +434,8 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 }
                 drawable.setVisible(visibility == VISIBLE, false)
             }
-            invalidate()
+            // don't just invalidate; layout performs some extra state computation for the divider
+            requestLayout()
         }
     }
 
@@ -583,6 +592,26 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
     }
 
+    private fun computeDividerTargetRect(outRect: Rect, dividerPositionX: Int): Rect {
+        val divider = userResizingDividerDrawable
+        if (divider == null) {
+            outRect.setEmpty()
+            return outRect
+        }
+
+        val touchTargetMin = touchTargetMin
+        val dividerWidth = divider.intrinsicWidth
+        val dividerHeight = divider.intrinsicHeight
+        val width = max(dividerWidth, touchTargetMin)
+        val height = max(dividerHeight, touchTargetMin)
+        val left = dividerPositionX - width / 2
+        val right = left + width
+        val top = (this.height - paddingTop - paddingBottom) / 2 + paddingTop - height / 2
+        val bottom = top + height
+        outRect.set(left, top, right, bottom)
+        return outRect
+    }
+
     /**
      * Set a listener to be notified of panel slide events. Note that this method is deprecated
      * and you should use [addPanelSlideListener] to add a listener and
@@ -706,6 +735,25 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 dividerLeft + intrinsicWidth,
                 dividerTop + intrinsicHeight
             )
+        }
+    }
+
+    private fun updateGestureExclusion(dividerPositionX: Int) {
+        if (dividerPositionX < 0) {
+            computedDividerExclusionRect.setEmpty()
+        } else {
+            computeDividerTargetRect(computedDividerExclusionRect, dividerPositionX)
+        }
+
+        // Setting gesture exclusion rects makes the framework do some work; avoid it if we can.
+        if (computedDividerExclusionRect != dividerGestureExclusionRect) {
+            if (computedDividerExclusionRect.isEmpty) {
+                ViewCompat.setSystemGestureExclusionRects(this, emptyList())
+            } else {
+                dividerGestureExclusionRect.set(computedDividerExclusionRect)
+                // dividerGestureExclusionRect is already in gestureExclusionRectsList
+                ViewCompat.setSystemGestureExclusionRects(this, gestureExclusionRectsList)
+            }
         }
     }
 
@@ -1113,8 +1161,11 @@ open class SlidingPaneLayout @JvmOverloads constructor(
             nextXStart += child.width + abs(nextXOffset)
         }
         if (isUserResizable) {
+            updateGestureExclusion(visualDividerPosition)
             // Force the divider to update and draw
             invalidate()
+        } else {
+            updateGestureExclusion(-1)
         }
         if (awaitingFirstLayout) {
             if (isSlideable) {
@@ -2130,33 +2181,12 @@ open class SlidingPaneLayout @JvmOverloads constructor(
     private inner class DraggableDividerHandler : AbsDraggableDividerHandler(
         touchSlop = ViewConfiguration.get(context).scaledTouchSlop
     ) {
-        private val touchTargetMin =
-            (context.resources.displayMetrics.density * MIN_TOUCH_TARGET_SIZE).roundToInt()
+        private val tmpTargetRect = Rect()
 
         // Implementation note: this doesn't use the drawable bounds directly since drawing
         // is what configures the bounds; this function may be checked prior to that update step
-        override fun dividerBoundsContains(x: Int, y: Int): Boolean = userResizingDividerDrawable
-            ?.let { divider ->
-                val dividerWidth = divider.intrinsicWidth
-                val dividerHeight = divider.intrinsicHeight
-                val visualDividerPosition = visualDividerPosition
-                val inHorizontal = if (dividerWidth < touchTargetMin) {
-                    val left = visualDividerPosition - touchTargetMin / 2
-                    x >= left && x < left + touchTargetMin
-                } else {
-                    val left = visualDividerPosition - dividerWidth / 2
-                    x >= left && x < left + dividerWidth
-                }
-                val paddedVerticalCenter = (height - paddingTop - paddingBottom) / 2 + paddingTop
-                val inVertical = if (dividerHeight < touchTargetMin) {
-                    val top = paddedVerticalCenter - touchTargetMin / 2
-                    y >= top && y < top + touchTargetMin
-                } else {
-                    val top = paddedVerticalCenter - dividerHeight / 2
-                    y >= top && y < top + dividerHeight
-                }
-                inHorizontal && inVertical
-            } == true
+        override fun dividerBoundsContains(x: Int, y: Int): Boolean =
+            computeDividerTargetRect(tmpTargetRect, visualDividerPosition).contains(x, y)
 
         override fun clampDraggingDividerPosition(proposedPositionX: Int): Int {
             val leftChild: View
