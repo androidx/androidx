@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.uikit
 
+import androidx.compose.runtime.ExperimentalComposeApi
+
 /**
  * Configuration of ComposeUIViewController behavior.
  */
@@ -30,6 +32,9 @@ class ComposeUIViewControllerConfiguration {
      * UIViewController lifetime events.
      */
     var delegate = object : ComposeUIViewControllerDelegate {}
+
+    @ExperimentalComposeApi
+    var platformLayers: Boolean = false
 }
 
 /**
