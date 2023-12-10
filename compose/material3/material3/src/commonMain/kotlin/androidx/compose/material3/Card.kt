@@ -44,6 +44,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.unit.Dp
 
 /**
@@ -443,6 +444,13 @@ object CardDefaults {
     /**
      * Creates a [CardColors] that represents the default container and content colors used in a
      * [Card].
+     */
+    @Composable
+    fun cardColors() = MaterialTheme.colorScheme.defaultCardColors
+
+    /**
+     * Creates a [CardColors] that represents the default container and content colors used in a
+     * [Card].
      *
      * @param containerColor the container color of this [Card] when enabled.
      * @param contentColor the content color of this [Card] when enabled.
@@ -451,23 +459,44 @@ object CardDefaults {
      */
     @Composable
     fun cardColors(
-        containerColor: Color = FilledCardTokens.ContainerColor.value,
-        contentColor: Color = contentColorFor(containerColor),
-        disabledContainerColor: Color =
-            FilledCardTokens.DisabledContainerColor.value
-                .copy(alpha = FilledCardTokens.DisabledContainerOpacity)
-                .compositeOver(
-                    MaterialTheme.colorScheme.surfaceColorAtElevation(
-                        FilledCardTokens.DisabledContainerElevation
-                    )
-                ),
-        disabledContentColor: Color = contentColorFor(containerColor).copy(DisabledAlpha),
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledContentColor: Color = Color.Unspecified,
     ): CardColors = CardColors(
         containerColor = containerColor,
         contentColor = contentColor,
         disabledContainerColor = disabledContainerColor,
         disabledContentColor = disabledContentColor
     )
+
+    internal val ColorScheme.defaultCardColors: CardColors
+        get() {
+            return defaultCardColorsCached ?: CardColors(
+                containerColor = fromToken(FilledCardTokens.ContainerColor),
+                contentColor = contentColorFor(fromToken(FilledCardTokens.ContainerColor)),
+                disabledContainerColor = fromToken(
+                    FilledCardTokens.DisabledContainerColor
+                )
+                    .copy(alpha = FilledCardTokens.DisabledContainerOpacity)
+                    .compositeOver(
+                        surfaceColorAtElevation(
+                            FilledCardTokens.DisabledContainerElevation
+                        )
+                    ),
+                disabledContentColor =
+                contentColorFor(fromToken(FilledCardTokens.ContainerColor)).copy(DisabledAlpha),
+            ).also {
+                defaultCardColorsCached = it
+            }
+        }
+
+    /**
+     * Creates a [CardColors] that represents the default container and content colors used in an
+     * [ElevatedCard].
+     */
+    @Composable
+    fun elevatedCardColors() = MaterialTheme.colorScheme.defaultElevatedCardColors
 
     /**
      * Creates a [CardColors] that represents the default container and content colors used in an
@@ -499,6 +528,33 @@ object CardDefaults {
             disabledContentColor = disabledContentColor
         )
 
+    internal val ColorScheme.defaultElevatedCardColors: CardColors
+        get() {
+            return defaultElevatedCardColorsCached ?: CardColors(
+                containerColor = fromToken(ElevatedCardTokens.ContainerColor),
+                contentColor = contentColorFor(fromToken(ElevatedCardTokens.ContainerColor)),
+                disabledContainerColor =
+                fromToken(ElevatedCardTokens.DisabledContainerColor)
+                    .copy(alpha = ElevatedCardTokens.DisabledContainerOpacity)
+                    .compositeOver(
+                        surfaceColorAtElevation(
+                            ElevatedCardTokens.DisabledContainerElevation
+                        )
+                    ),
+                disabledContentColor =
+                contentColorFor(fromToken(ElevatedCardTokens.ContainerColor)).copy(DisabledAlpha),
+            ).also {
+                defaultElevatedCardColorsCached = it
+            }
+        }
+
+    /**
+     * Creates a [CardColors] that represents the default container and content colors used in an
+     * [OutlinedCard].
+     */
+    @Composable
+    fun outlinedCardColors() = MaterialTheme.colorScheme.defaultOutlinedCardColors
+
     /**
      * Creates a [CardColors] that represents the default container and content colors used in an
      * [OutlinedCard].
@@ -510,17 +566,29 @@ object CardDefaults {
      */
     @Composable
     fun outlinedCardColors(
-        containerColor: Color = OutlinedCardTokens.ContainerColor.value,
-        contentColor: Color = contentColorFor(containerColor),
-        disabledContainerColor: Color = containerColor,
-        disabledContentColor: Color = contentColor.copy(DisabledAlpha),
-    ): CardColors =
-        CardColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            disabledContainerColor = disabledContainerColor,
-            disabledContentColor = disabledContentColor
-        )
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledContentColor: Color = Color.Unspecified,
+    ): CardColors = MaterialTheme.colorScheme.defaultOutlinedCardColors.copy(
+        containerColor = containerColor,
+        contentColor = contentColor,
+        disabledContainerColor = disabledContainerColor,
+        disabledContentColor = disabledContentColor
+    )
+
+    internal val ColorScheme.defaultOutlinedCardColors: CardColors
+        get() {
+            return defaultOutlinedCardColorsCached ?: CardColors(
+                containerColor = fromToken(OutlinedCardTokens.ContainerColor),
+                contentColor = contentColorFor(fromToken(OutlinedCardTokens.ContainerColor)),
+                disabledContainerColor = fromToken(OutlinedCardTokens.ContainerColor),
+                disabledContentColor =
+                contentColorFor(fromToken(OutlinedCardTokens.ContainerColor)).copy(DisabledAlpha),
+            ).also {
+                defaultOutlinedCardColorsCached = it
+            }
+        }
 
     /**
      * Creates a [BorderStroke] that represents the default border used in [OutlinedCard].
@@ -733,6 +801,22 @@ class CardColors constructor(
     val disabledContainerColor: Color,
     val disabledContentColor: Color,
 ) {
+    /**
+     * Returns a copy of this CardColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        containerColor: Color = this.containerColor,
+        contentColor: Color = this.contentColor,
+        disabledContainerColor: Color = this.disabledContainerColor,
+        disabledContentColor: Color = this.disabledContentColor
+    ) = CardColors(
+        containerColor.takeOrElse { this.containerColor },
+        contentColor.takeOrElse { this.contentColor },
+        disabledContainerColor.takeOrElse { this.disabledContainerColor },
+        disabledContentColor.takeOrElse { this.disabledContentColor },
+    )
+
     /**
      * Represents the container color for this card, depending on [enabled].
      *

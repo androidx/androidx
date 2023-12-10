@@ -405,6 +405,16 @@ class ColorScheme(
             ")"
     }
 
+    internal var defaultButtonColorsCached: ButtonColors? = null
+    internal var defaultElevatedButtonColorsCached: ButtonColors? = null
+    internal var defaultFilledTonalButtonColorsCached: ButtonColors? = null
+    internal var defaultOutlinedButtonColorsCached: ButtonColors? = null
+    internal var defaultTextButtonColorsCached: ButtonColors? = null
+
+    internal var defaultCardColorsCached: CardColors? = null
+    internal var defaultElevatedCardColorsCached: CardColors? = null
+    internal var defaultOutlinedCardColorsCached: CardColors? = null
+
     internal var defaultAssistChipColorsCached: ChipColors? = null
     internal var defaultElevatedAssistChipColorsCached: ChipColors? = null
     internal var defaultSuggestionChipColorsCached: ChipColors? = null
@@ -412,6 +422,17 @@ class ColorScheme(
     internal var defaultFilterChipColorsCached: SelectableChipColors? = null
     internal var defaultElevatedFilterChipColorsCached: SelectableChipColors? = null
     internal var defaultInputChipColorsCached: SelectableChipColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultTopAppBarColorsCached: TopAppBarColors? = null
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultCenterAlignedTopAppBarColorsCached: TopAppBarColors? = null
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultMediumTopAppBarColorsCached: TopAppBarColors? = null
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultLargeTopAppBarColorsCached: TopAppBarColors? = null
+
+    internal var defaultCheckboxColorsCached: CheckboxColors? = null
 }
 
 /**
