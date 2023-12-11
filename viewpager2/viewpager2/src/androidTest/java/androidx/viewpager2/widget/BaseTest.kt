@@ -403,12 +403,6 @@ open class BaseTest {
         }
 
         waitForRenderLatch.await(5, TimeUnit.SECONDS)
-
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-            // Give slow devices some time to warm up,
-            // to prevent severe frame drops in the smooth scroll
-            Thread.sleep(1000)
-        }
     }
 
     fun ViewPager2.addWaitForLayoutChangeLatch(): CountDownLatch {

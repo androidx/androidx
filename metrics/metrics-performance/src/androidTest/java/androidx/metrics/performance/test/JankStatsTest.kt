@@ -15,7 +15,6 @@
  */
 package androidx.metrics.performance.test
 
-import android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1
 import android.view.Choreographer
 import androidx.metrics.performance.FrameData
 import androidx.metrics.performance.FrameDataApi24
@@ -28,7 +27,6 @@ import androidx.test.annotation.UiThreadTest
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import androidx.test.filters.SdkSuppress
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.math.max
@@ -428,23 +426,6 @@ class JankStatsTest {
         latch.await(5, TimeUnit.SECONDS)
 
         latchedListener.reset()
-    }
-
-    /**
-     * JankStats doesn't do anything pre API 16. But it would be nice to not crash running
-     * code that calls JankStats functionality on that version. This test just calls basic APIs
-     * to make sure they don't crash.
-     */
-    @SdkSuppress(maxSdkVersion = ICE_CREAM_SANDWICH_MR1)
-    @Test
-    fun testPreAPI16() {
-        delayedActivityRule.getScenario().onActivity {
-            val state0 = StateInfo("Testing State 0", "sampleStateA")
-            val state1 = StateInfo("Testing State 1", "sampleStateB")
-            metricsState.putState(state0.key, state0.value)
-            metricsState.putSingleFrameState(state1.key, state1.value)
-        }
-        runDelayTest(0, NUM_FRAMES, latchedListener)
     }
 
     @Test
