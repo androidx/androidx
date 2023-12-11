@@ -578,7 +578,11 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         ViewCompat.setAccessibilityDelegate(this, AccessibilityDelegate())
         ViewCompat.setImportantForAccessibility(this, ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES)
 
-        context.withStyledAttributes(attrs, R.styleable.SlidingPaneLayout) {
+        context.withStyledAttributes(
+            attrs,
+            R.styleable.SlidingPaneLayout,
+            defStyleRes = R.style.Widget_SlidingPaneLayout
+        ) {
             isOverlappingEnabled =
                 getBoolean(R.styleable.SlidingPaneLayout_isOverlappingEnabled, true)
             isUserResizingEnabled =

@@ -31,6 +31,8 @@ import android.view.View
 import android.view.View.MeasureSpec
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams
+import androidx.core.graphics.alpha
+import androidx.core.graphics.get
 import androidx.core.view.get
 import androidx.slidingpanelayout.test.R
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -293,6 +295,25 @@ class UserResizeModeTest {
             .that(spl.systemGestureExclusionRects.size)
             .isEqualTo(0)
     }
+
+    @Test
+    fun defaultDividerDraws() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context, setDividerDrawable = false)
+        val bitmap = spl.drawToBitmap()
+        var hasNonTransparentPixel = false
+        outer@for (h in 0 until bitmap.height) {
+            for (w in 0 until bitmap.width) {
+                if (bitmap[w, h].alpha > 0) {
+                    hasNonTransparentPixel = true
+                    break@outer
+                }
+            }
+        }
+        assertWithMessage("non-transparent pixels were drawn")
+            .that(hasNonTransparentPixel)
+            .isTrue()
+    }
 }
 
 private fun View.drawToBitmap(): Bitmap {
@@ -302,7 +323,10 @@ private fun View.drawToBitmap(): Bitmap {
     return bitmap
 }
 
-private fun createTestSpl(context: Context): SlidingPaneLayout = SlidingPaneLayout(context).apply {
+private fun createTestSpl(
+    context: Context,
+    setDividerDrawable: Boolean = true
+): SlidingPaneLayout = SlidingPaneLayout(context).apply {
     addView(
         TestPaneView(context).apply {
             minimumWidth = 30
@@ -323,7 +347,9 @@ private fun createTestSpl(context: Context): SlidingPaneLayout = SlidingPaneLayo
     )
     isUserResizingEnabled = true
     isOverlappingEnabled = false
-    setUserResizingDividerDrawable(TestDividerDrawable())
+    if (setDividerDrawable) {
+        setUserResizingDividerDrawable(TestDividerDrawable())
+    }
     measureAndLayoutForTest()
 }
 
