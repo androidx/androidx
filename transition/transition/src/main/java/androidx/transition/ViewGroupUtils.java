@@ -41,13 +41,6 @@ class ViewGroupUtils {
     private static boolean sGetChildDrawingOrderMethodFetched;
 
     /**
-     * Backward-compatible {@link ViewGroup#getOverlay()}.
-     */
-    static ViewGroupOverlayImpl getOverlay(@NonNull ViewGroup group) {
-        return new ViewGroupOverlayApi18(group);
-    }
-
-    /**
      * Provides access to the hidden ViewGroup#suppressLayout method.
      */
     static void suppressLayout(@NonNull ViewGroup group, boolean suppress) {

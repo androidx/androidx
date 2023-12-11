@@ -2598,7 +2598,7 @@ package androidx.core.text {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean equalsWithoutTextDirection(androidx.core.text.PrecomputedTextCompat.Params);
     method @RequiresApi(23) public int getBreakStrategy();
     method @RequiresApi(23) public int getHyphenationFrequency();
-    method @RequiresApi(18) public android.text.TextDirectionHeuristic? getTextDirection();
+    method public android.text.TextDirectionHeuristic? getTextDirection();
     method public android.text.TextPaint getTextPaint();
   }
 
@@ -2607,7 +2607,7 @@ package androidx.core.text {
     method public androidx.core.text.PrecomputedTextCompat.Params build();
     method @RequiresApi(23) public androidx.core.text.PrecomputedTextCompat.Params.Builder! setBreakStrategy(int);
     method @RequiresApi(23) public androidx.core.text.PrecomputedTextCompat.Params.Builder! setHyphenationFrequency(int);
-    method @RequiresApi(18) public androidx.core.text.PrecomputedTextCompat.Params.Builder! setTextDirection(android.text.TextDirectionHeuristic);
+    method public androidx.core.text.PrecomputedTextCompat.Params.Builder! setTextDirection(android.text.TextDirectionHeuristic);
   }
 
   public interface TextDirectionHeuristicCompat {

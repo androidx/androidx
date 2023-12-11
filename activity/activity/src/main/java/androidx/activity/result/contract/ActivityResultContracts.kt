@@ -422,7 +422,6 @@ class ActivityResultContracts private constructor() {
      * This can be extended to override [createIntent] if you wish to pass additional
      * extras to the Intent created by `super.createIntent()`.
      */
-    @RequiresApi(18)
     open class GetMultipleContents :
         ActivityResultContract<String, List<@JvmSuppressWildcards Uri>>() {
         @CallSuper
@@ -444,7 +443,6 @@ class ActivityResultContracts private constructor() {
             }?.getClipDataUris() ?: emptyList()
         }
 
-        @RequiresApi(18)
         internal companion object {
             internal fun Intent.getClipDataUris(): List<Uri> {
                 // Use a LinkedHashSet to maintain any ordering that may be

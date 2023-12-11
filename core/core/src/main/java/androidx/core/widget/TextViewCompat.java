@@ -852,7 +852,6 @@ public final class TextViewCompat {
      *
      * @return the current {@link TextDirectionHeuristic}.
      */
-    @RequiresApi(18)
     private static TextDirectionHeuristic getTextDirectionHeuristic(@NonNull TextView textView) {
         if (textView.getTransformationMethod() instanceof PasswordTransformationMethod) {
             // passwords fields should be LTR

@@ -177,7 +177,6 @@ public class PrecomputedTextCompat implements Spannable {
              * @return PrecomputedTextCompat.Builder instance
              * @see StaticLayout.Builder#setTextDirection
              */
-            @RequiresApi(18)
             public Builder setTextDirection(@NonNull TextDirectionHeuristic textDir) {
                 mTextDir = textDir;
                 return this;
@@ -236,7 +235,6 @@ public class PrecomputedTextCompat implements Spannable {
          *
          * @return the {@link TextDirectionHeuristic}
          */
-        @RequiresApi(18)
         public @Nullable TextDirectionHeuristic getTextDirection() {
             return mTextDir;
         }
