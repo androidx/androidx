@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
-package androidx.compose.ui.input
+package androidx.compose.foundation.text.input.internal
 
 import android.graphics.Matrix
 import android.graphics.RectF
@@ -39,7 +37,6 @@ import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.build
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
@@ -58,7 +55,6 @@ import kotlin.math.ceil
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@Suppress("DEPRECATION")
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class CursorAnchorInfoBuilderTest {

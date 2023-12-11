@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
+package androidx.compose.foundation.text.input.internal
 
-package androidx.compose.ui.input
-
-import android.view.Choreographer
 import android.view.View
 import android.view.inputmethod.CursorAnchorInfo
 import android.view.inputmethod.EditorInfo
@@ -26,7 +23,6 @@ import android.view.inputmethod.InputConnection
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Matrix
-import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.MultiParagraph
 import androidx.compose.ui.text.TextLayoutInput
@@ -39,25 +35,23 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.createFontFamilyResolver
 import androidx.compose.ui.text.font.toFontFamily
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.InputMethodManager
 import androidx.compose.ui.text.input.OffsetMapping
-import androidx.compose.ui.text.input.RecordingInputConnection
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TextInputServiceAndroid
-import androidx.compose.ui.text.input.asExecutor
-import androidx.compose.ui.text.input.build
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.sp
-import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import androidx.testutils.fonts.R
 import kotlin.math.ceil
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -70,25 +64,16 @@ import org.mockito.kotlin.verify
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class TextInputServiceAndroidCursorAnchorInfoTest {
-    private val context = InstrumentationRegistry.getInstrumentation().context
+class LegacyTextInputMethodRequestCursorAnchorInfoTest {
+    private val context = getInstrumentation().context
+    private val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
     private val defaultDensity = Density(density = 1f)
     private val fontFamilyMeasureFont =
         Font(resId = R.font.sample_font, weight = FontWeight.Normal, style = FontStyle.Normal)
             .toFontFamily()
     private val rootPosition = Offset(1.2f, 3.4f)
-    private val positionCalculator = object : PositionCalculator {
-        override fun screenToLocal(positionOnScreen: Offset): Offset =
-            positionOnScreen - rootPosition
 
-        override fun localToScreen(localPosition: Offset): Offset = localPosition + rootPosition
-
-        override fun localToScreen(localTransform: androidx.compose.ui.graphics.Matrix) {
-            localTransform.translate(rootPosition.x, rootPosition.y)
-        }
-    }
-
-    private lateinit var textInputService: TextInputServiceAndroid
+    private lateinit var textInputService: LegacyTextInputMethodRequest
     private lateinit var inputMethodManager: InputMethodManager
     private lateinit var inputConnection: RecordingInputConnection
 
@@ -97,25 +82,26 @@ class TextInputServiceAndroidCursorAnchorInfoTest {
 
     @Before
     fun setup() {
-        val view = View(InstrumentationRegistry.getInstrumentation().context)
-        inputMethodManager = mock() { on { isActive() } doReturn true }
-        // Choreographer must be retrieved on main thread.
-        val choreographer = Espresso.onIdle { Choreographer.getInstance() }
-        textInputService =
-            TextInputServiceAndroid(
-                view,
-                positionCalculator,
-                inputMethodManager,
-                inputCommandProcessorExecutor = choreographer.asExecutor()
-            )
+        inputMethodManager = mock { on { isActive() } doReturn true }
+        textInputService = LegacyTextInputMethodRequest(
+            view = View(context),
+            localToScreen = { matrix ->
+                matrix.translate(rootPosition.x, rootPosition.y)
+            },
+            inputMethodManager = inputMethodManager
+        )
         textInputService.startInput(
             value = TextFieldValue(""),
             imeOptions = ImeOptions.Default,
             onEditCommand = {},
             onImeActionPerformed = {}
         )
-        inputConnection =
-            textInputService.createInputConnection(EditorInfo()) as RecordingInputConnection
+        inputConnection = textInputService.createInputConnection(EditorInfo())
+    }
+
+    @After
+    fun tearDown() {
+        coroutineScope.cancel()
     }
 
     @Test

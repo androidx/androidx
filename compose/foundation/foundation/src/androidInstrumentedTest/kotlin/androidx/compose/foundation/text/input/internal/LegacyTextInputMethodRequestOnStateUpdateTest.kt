@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
+package androidx.compose.foundation.text.input.internal
 
-package androidx.compose.ui.input
-
-import android.view.Choreographer
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.InputMethodManager
-import androidx.compose.ui.text.input.RecordingInputConnection
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TextInputServiceAndroid
-import androidx.compose.ui.text.input.asExecutor
-import androidx.test.espresso.Espresso
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,24 +42,21 @@ import org.mockito.kotlin.verify
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
-class TextInputServiceAndroidOnStateUpdateTest {
+class LegacyTextInputMethodRequestOnStateUpdateTest {
 
-    private lateinit var textInputService: TextInputServiceAndroid
+    private lateinit var textInputService: LegacyTextInputMethodRequest
     private lateinit var inputMethodManager: InputMethodManager
     private lateinit var inputConnection: RecordingInputConnection
+    private val coroutineScope = CoroutineScope(Dispatchers.Unconfined)
 
     @Before
     fun setup() {
-        val view = View(InstrumentationRegistry.getInstrumentation().context)
-        inputMethodManager = mock()
-        // Choreographer must be retrieved on main thread.
-        val choreographer = Espresso.onIdle { Choreographer.getInstance() }
-        textInputService = TextInputServiceAndroid(
-                view,
-                mock(),
-                inputMethodManager,
-                inputCommandProcessorExecutor = choreographer.asExecutor()
-            )
+        inputMethodManager = mock<InputMethodManager>()
+        textInputService = LegacyTextInputMethodRequest(
+            view = View(getInstrumentation().targetContext),
+            localToScreen = {},
+            inputMethodManager = inputMethodManager
+        )
         textInputService.startInput(
             value = TextFieldValue(""),
             imeOptions = ImeOptions.Default,
@@ -71,7 +64,11 @@ class TextInputServiceAndroidOnStateUpdateTest {
             onImeActionPerformed = {}
         )
         inputConnection = textInputService.createInputConnection(EditorInfo())
-            as RecordingInputConnection
+    }
+
+    @After
+    fun tearDown() {
+        coroutineScope.cancel()
     }
 
     @Test
@@ -85,7 +82,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
         verify(inputMethodManager, times(1)).restartInput()
         verify(inputMethodManager, never()).updateSelection(any(), any(), any(), any())
 
-        assertThat(inputConnection.mTextFieldValue).isEqualTo(newValue)
+        assertThat(inputConnection.textFieldValue).isEqualTo(newValue)
         assertThat(textInputService.state).isEqualTo(newValue)
     }
 
@@ -100,7 +97,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
         verify(inputMethodManager, times(1)).restartInput()
         verify(inputMethodManager, never()).updateSelection(any(), any(), any(), any())
 
-        assertThat(inputConnection.mTextFieldValue).isEqualTo(newValue)
+        assertThat(inputConnection.textFieldValue).isEqualTo(newValue)
         assertThat(textInputService.state).isEqualTo(newValue)
     }
 
@@ -115,7 +112,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
         verify(inputMethodManager, never()).restartInput()
         verify(inputMethodManager, times(1)).updateSelection(any(), any(), any(), any())
 
-        assertThat(inputConnection.mTextFieldValue).isEqualTo(newValue)
+        assertThat(inputConnection.textFieldValue).isEqualTo(newValue)
         assertThat(textInputService.state).isEqualTo(newValue)
     }
 
@@ -136,7 +133,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
         verify(inputMethodManager, never()).restartInput()
         verify(inputMethodManager, times(1)).updateSelection(any(), any(), any(), any())
 
-        assertThat(inputConnection.mTextFieldValue).isEqualTo(value)
+        assertThat(inputConnection.textFieldValue).isEqualTo(value)
         assertThat(textInputService.state).isEqualTo(value)
     }
 
@@ -177,7 +174,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
         verify(inputMethodManager, never()).restartInput()
         verify(inputMethodManager, times(1)).updateSelection(any(), any(), any(), any())
 
-        assertThat(inputConnection.mTextFieldValue).isEqualTo(newValue)
+        assertThat(inputConnection.textFieldValue).isEqualTo(newValue)
         assertThat(textInputService.state).isEqualTo(newValue)
     }
 
@@ -192,7 +189,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
         verify(inputMethodManager, never()).restartInput()
         verify(inputMethodManager, never()).updateSelection(any(), any(), any(), any())
 
-        assertThat(inputConnection.mTextFieldValue).isEqualTo(value)
+        assertThat(inputConnection.textFieldValue).isEqualTo(value)
         assertThat(textInputService.state).isEqualTo(value)
     }
 
@@ -209,8 +206,7 @@ class TextInputServiceAndroidOnStateUpdateTest {
 
         // recreate the connection
         inputConnection = textInputService.createInputConnection(EditorInfo())
-            as RecordingInputConnection
 
-        assertThat(inputConnection.mTextFieldValue).isEqualTo(value)
+        assertThat(inputConnection.textFieldValue).isEqualTo(value)
     }
 }

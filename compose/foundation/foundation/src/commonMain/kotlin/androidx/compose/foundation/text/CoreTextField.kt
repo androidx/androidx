@@ -25,6 +25,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.text.input.internal.createLegacyPlatformTextInputServiceAdapter
+import androidx.compose.foundation.text.input.internal.legacyTextInputAdapter
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.SelectionHandleAnchor
 import androidx.compose.foundation.text.selection.SelectionHandleInfo
@@ -83,7 +85,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.platform.LocalTextToolbar
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.SoftwareKeyboardController
@@ -215,10 +216,12 @@ internal fun CoreTextField(
         @Composable { innerTextField -> innerTextField() }
 ) {
     val focusRequester = remember { FocusRequester() }
+    val legacyTextInputServiceAdapter = remember { createLegacyPlatformTextInputServiceAdapter() }
+    val textInputService: TextInputService = remember {
+        TextInputService(legacyTextInputServiceAdapter)
+    }
 
     // CompositionLocals
-    // If the text field is disabled or read-only, we should not deal with the input service
-    val textInputService = LocalTextInputService.current
     val density = LocalDensity.current
     val fontFamilyResolver = LocalFontFamilyResolver.current
     val selectionBackgroundColor = LocalTextSelectionColors.current.backgroundColor
@@ -306,36 +309,34 @@ internal fun CoreTextField(
         }
         state.hasFocus = it.isFocused
 
-        if (textInputService != null) {
-            if (state.hasFocus && enabled && !readOnly) {
-                startInputSession(
-                    textInputService,
-                    state,
-                    value,
-                    imeOptions,
-                    offsetMapping
-                )
-            } else {
-                endInputSession(state)
-            }
+        if (state.hasFocus && enabled && !readOnly) {
+            startInputSession(
+                textInputService,
+                state,
+                value,
+                imeOptions,
+                offsetMapping
+            )
+        } else {
+            endInputSession(state)
+        }
 
-            // The focusable modifier itself will request the entire focusable be brought into view
-            // when it gains focus – in this case, that's the decoration box. However, since text
-            // fields may have their own internal scrolling, and the decoration box can do anything,
-            // we also need to specifically request that the cursor itself be brought into view.
-            // TODO(b/216790855) If this request happens after the focusable's request, the field
-            //  will only be scrolled far enough to show the cursor, _not_ the entire decoration
-            //  box.
-            if (it.isFocused) {
-                state.layoutResult?.let { layoutResult ->
-                    coroutineScope.launch {
-                        bringIntoViewRequester.bringSelectionEndIntoView(
-                            value,
-                            state.textDelegate,
-                            layoutResult.value,
-                            offsetMapping
-                        )
-                    }
+        // The focusable modifier itself will request the entire focusable be brought into view
+        // when it gains focus – in this case, that's the decoration box. However, since text
+        // fields may have their own internal scrolling, and the decoration box can do anything,
+        // we also need to specifically request that the cursor itself be brought into view.
+        // TODO(b/216790855) If this request happens after the focusable's request, the field
+        //  will only be scrolled far enough to show the cursor, _not_ the entire decoration
+        //  box.
+        if (it.isFocused) {
+            state.layoutResult?.let { layoutResult ->
+                coroutineScope.launch {
+                    bringIntoViewRequester.bringSelectionEndIntoView(
+                        value,
+                        state.textDelegate,
+                        layoutResult.value,
+                        offsetMapping
+                    )
                 }
             }
         }
@@ -343,30 +344,28 @@ internal fun CoreTextField(
     }
 
     // Hide the keyboard if made disabled or read-only while focused (b/237308379).
-    if (textInputService != null) {
-        val writeable by rememberUpdatedState(enabled && !readOnly)
-        LaunchedEffect(Unit) {
-            try {
-                snapshotFlow { writeable }.collect { writeable ->
-                    // When hasFocus changes, the session will be stopped/started in the focus
-                    // handler so we don't need to handle its changes here.
-                    if (writeable && state.hasFocus) {
-                        startInputSession(
-                            textInputService,
-                            state,
-                            manager.value,
-                            imeOptions,
-                            offsetMapping
-                        )
-                    } else {
-                        endInputSession(state)
-                    }
+    val writeable by rememberUpdatedState(enabled && !readOnly)
+    LaunchedEffect(Unit) {
+        try {
+            snapshotFlow { writeable }.collect { writeable ->
+                // When hasFocus changes, the session will be stopped/started in the focus
+                // handler so we don't need to handle its changes here.
+                if (writeable && state.hasFocus) {
+                    startInputSession(
+                        textInputService,
+                        state,
+                        manager.value,
+                        imeOptions,
+                        offsetMapping
+                    )
+                } else {
+                    endInputSession(state)
                 }
-            } finally {
-                // TODO(b/230536793) This is a workaround since we don't get an explicit focus blur
-                //  event when the text field is removed from the composition entirely.
-                endInputSession(state)
             }
+        } finally {
+            // TODO(b/230536793) This is a workaround since we don't get an explicit focus blur
+            //  event when the text field is removed from the composition entirely.
+            endInputSession(state)
         }
     }
 
@@ -594,7 +593,7 @@ internal fun CoreTextField(
     }
 
     DisposableEffect(imeOptions) {
-        if (textInputService != null && state.hasFocus) {
+        if (state.hasFocus) {
             state.inputSession = TextFieldDelegate.restartInput(
                 textInputService = textInputService,
                 value = value,
@@ -623,6 +622,7 @@ internal fun CoreTextField(
     // Modifiers that should be applied to the outer text field container. Usually those include
     // gesture and semantics modifiers.
     val decorationBoxModifier = modifier
+        .legacyTextInputAdapter(legacyTextInputServiceAdapter)
         .then(focusModifier)
         .interceptDPadAndMoveFocus(state, focusManager)
         .previewKeyEventToDeselectOnBack(state, manager)

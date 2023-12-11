@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
-package androidx.compose.ui.text.input
+package androidx.compose.foundation.text.input.internal
 
 import android.view.KeyEvent
+import androidx.compose.ui.text.input.EditCommand
+import androidx.compose.ui.text.input.ImeAction
 
 /**
  * An interface of listening IME events.
  */
-@Deprecated(
-    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
-        "code. A copy of this class in foundation is used by the legacy BasicTextField."
-)
 internal interface InputEventCallback2 {
     /**
      * Called when IME sends some input events.

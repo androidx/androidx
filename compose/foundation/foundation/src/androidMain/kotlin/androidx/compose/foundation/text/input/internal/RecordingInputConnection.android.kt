@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.input
+package androidx.compose.foundation.text.input.internal
 
 import android.os.Build
 import android.os.Bundle
@@ -29,6 +29,19 @@ import android.view.inputmethod.ExtractedText
 import android.view.inputmethod.ExtractedTextRequest
 import android.view.inputmethod.InputConnection
 import android.view.inputmethod.InputContentInfo
+import androidx.compose.ui.text.input.CommitTextCommand
+import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
+import androidx.compose.ui.text.input.DeleteSurroundingTextInCodePointsCommand
+import androidx.compose.ui.text.input.EditCommand
+import androidx.compose.ui.text.input.FinishComposingTextCommand
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.SetComposingRegionCommand
+import androidx.compose.ui.text.input.SetComposingTextCommand
+import androidx.compose.ui.text.input.SetSelectionCommand
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.getSelectedText
+import androidx.compose.ui.text.input.getTextAfterSelection
+import androidx.compose.ui.text.input.getTextBeforeSelection
 
 internal const val DEBUG = false
 internal const val TAG = "RecordingIC"
@@ -41,22 +54,17 @@ private const val DEBUG_CLASS = "RecordingInputConnection"
  * @param eventCallback An input event listener.
  * @param autoCorrect Whether autoCorrect is enabled.
  */
-@Deprecated(
-    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
-        "code. A copy of this class in foundation is used by the legacy BasicTextField."
-)
 internal class RecordingInputConnection(
     initState: TextFieldValue,
-    @Suppress("DEPRECATION")
     val eventCallback: InputEventCallback2,
     val autoCorrect: Boolean
 ) : InputConnection {
 
-    // The depth of the batch session. 0 means no session.
+    /** The depth of the batch session. 0 means no session. */
     private var batchDepth: Int = 0
 
-    // The input state.
-    internal var mTextFieldValue: TextFieldValue = initState
+    /** The input state. */
+    internal var textFieldValue: TextFieldValue = initState
         set(value) {
             if (DEBUG) { logDebug("mTextFieldValue : $field -> $value") }
             field = value
@@ -77,7 +85,7 @@ internal class RecordingInputConnection(
      */
     private var extractedTextMonitorMode = false
 
-    // The recoding editing ops.
+    /** The recoding editing ops. */
     private val editCommands = mutableListOf<EditCommand>()
 
     private var isActive: Boolean = true
@@ -98,14 +106,13 @@ internal class RecordingInputConnection(
      */
     fun updateInputState(
         state: TextFieldValue,
-        @Suppress("DEPRECATION")
         inputMethodManager: InputMethodManager,
     ) {
         if (!isActive) return
 
         if (DEBUG) { logDebug("RecordingInputConnection.updateInputState: $state") }
 
-        mTextFieldValue = state
+        textFieldValue = state
 
         if (extractedTextMonitorMode) {
             inputMethodManager.updateExtractedText(
@@ -129,7 +136,7 @@ internal class RecordingInputConnection(
         )
     }
 
-    // Add edit op to internal list with wrapping batch edit.
+    /** Add edit op to internal list with wrapping batch edit. */
     private fun addEditCommandWithBatch(editCommand: EditCommand) {
         beginBatchEditInternal()
         try {
@@ -139,9 +146,7 @@ internal class RecordingInputConnection(
         }
     }
 
-    // /////////////////////////////////////////////////////////////////////////////////////////////
-    // Callbacks for text editing session
-    // /////////////////////////////////////////////////////////////////////////////////////////////
+    // region Callbacks for text editing session
 
     override fun beginBatchEdit(): Boolean = ensureActive {
         if (DEBUG) { logDebug("beginBatchEdit()") }
@@ -175,9 +180,8 @@ internal class RecordingInputConnection(
         eventCallback.onConnectionClosed(this)
     }
 
-    // /////////////////////////////////////////////////////////////////////////////////////////////
-    // Callbacks for text editing
-    // /////////////////////////////////////////////////////////////////////////////////////////////
+    // endregion
+    // region Callbacks for text editing
 
     override fun commitText(text: CharSequence?, newCursorPosition: Int): Boolean = ensureActive {
         if (DEBUG) { logDebug("commitText(\"$text\", $newCursorPosition)") }
@@ -233,31 +237,30 @@ internal class RecordingInputConnection(
         return true
     }
 
-    // /////////////////////////////////////////////////////////////////////////////////////////////
-    // Callbacks for retrieving editing buffers
-    // /////////////////////////////////////////////////////////////////////////////////////////////
+    // endregion
+    // region Callbacks for retrieving editing buffers
 
     override fun getTextBeforeCursor(maxChars: Int, flags: Int): CharSequence {
         // TODO(b/135556699) should return styled text
-        val result = mTextFieldValue.getTextBeforeSelection(maxChars).toString()
+        val result = textFieldValue.getTextBeforeSelection(maxChars).toString()
         if (DEBUG) { logDebug("getTextBeforeCursor($maxChars, $flags): $result") }
         return result
     }
 
     override fun getTextAfterCursor(maxChars: Int, flags: Int): CharSequence {
         // TODO(b/135556699) should return styled text
-        val result = mTextFieldValue.getTextAfterSelection(maxChars).toString()
+        val result = textFieldValue.getTextAfterSelection(maxChars).toString()
         if (DEBUG) { logDebug("getTextAfterCursor($maxChars, $flags): $result") }
         return result
     }
 
     override fun getSelectedText(flags: Int): CharSequence? {
         // https://source.chromium.org/chromium/chromium/src/+/master:content/public/android/java/src/org/chromium/content/browser/input/TextInputState.java;l=56;drc=0e20d1eb38227949805a4c0e9d5cdeddc8d23637
-        val result: CharSequence? = if (mTextFieldValue.selection.collapsed) {
+        val result: CharSequence? = if (textFieldValue.selection.collapsed) {
             null
         } else {
             // TODO(b/135556699) should return styled text
-            mTextFieldValue.getSelectedText().toString()
+            textFieldValue.getSelectedText().toString()
         }
         if (DEBUG) { logDebug("getSelectedText($flags): $result") }
         return result
@@ -324,7 +327,7 @@ internal class RecordingInputConnection(
             currentExtractedTextRequestToken = request?.token ?: 0
         }
         // TODO(b/135556699) should return styled text
-        val extractedText = mTextFieldValue.toExtractedText()
+        val extractedText = textFieldValue.toExtractedText()
 
         if (DEBUG) {
             with(extractedText) {
@@ -343,15 +346,14 @@ internal class RecordingInputConnection(
         return extractedText
     }
 
-    // /////////////////////////////////////////////////////////////////////////////////////////////
-    // Editor action and Key events.
-    // /////////////////////////////////////////////////////////////////////////////////////////////
+    // endregion
+    // region Editor action and Key events.
 
     override fun performContextMenuAction(id: Int): Boolean = ensureActive {
         if (DEBUG) { logDebug("performContextMenuAction($id)") }
         when (id) {
             android.R.id.selectAll -> {
-                addEditCommandWithBatch(SetSelectionCommand(0, mTextFieldValue.text.length))
+                addEditCommandWithBatch(SetSelectionCommand(0, textFieldValue.text.length))
             }
             // TODO(siyamed): Need proper connection to cut/copy/paste
             android.R.id.cut -> sendSynthesizedKeyEvent(KeyEvent.KEYCODE_CUT)
@@ -392,9 +394,8 @@ internal class RecordingInputConnection(
         return true
     }
 
-    // /////////////////////////////////////////////////////////////////////////////////////////////
-    // Unsupported callbacks
-    // /////////////////////////////////////////////////////////////////////////////////////////////
+    // endregion
+    // region Unsupported callbacks
 
     override fun commitCompletion(text: CompletionInfo?): Boolean = ensureActive {
         if (DEBUG) { logDebug("commitCompletion(${text?.text})") }
@@ -435,7 +436,7 @@ internal class RecordingInputConnection(
 
     override fun getCursorCapsMode(reqModes: Int): Int {
         if (DEBUG) { logDebug("getCursorCapsMode($reqModes)") }
-        return TextUtils.getCapsMode(mTextFieldValue.text, mTextFieldValue.selection.min, reqModes)
+        return TextUtils.getCapsMode(textFieldValue.text, textFieldValue.selection.min, reqModes)
     }
 
     override fun performPrivateCommand(action: String?, data: Bundle?): Boolean = ensureActive {
@@ -455,4 +456,18 @@ internal class RecordingInputConnection(
     private fun logDebug(message: String) {
         if (DEBUG) { Log.d(TAG, "$DEBUG_CLASS.$message, $isActive") }
     }
+
+    // endregion
+}
+
+private fun TextFieldValue.toExtractedText(): ExtractedText {
+    val res = ExtractedText()
+    res.text = text
+    res.startOffset = 0
+    res.partialEndOffset = text.length
+    res.partialStartOffset = -1 // -1 means full text
+    res.selectionStart = selection.min
+    res.selectionEnd = selection.max
+    res.flags = if ('\n' in text) 0 else ExtractedText.FLAG_SINGLE_LINE
+    return res
 }

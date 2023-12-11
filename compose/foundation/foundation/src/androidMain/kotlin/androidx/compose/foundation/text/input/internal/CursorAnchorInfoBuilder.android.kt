@@ -1,5 +1,5 @@
 /*
- * Copyright 2022 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.text.input
+package androidx.compose.foundation.text.input.internal
 
 import android.graphics.Matrix
 import android.os.Build
@@ -26,6 +26,8 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.toAndroidRectF
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.ResolvedTextDirection
 
 /**
@@ -45,10 +47,6 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
  * @param includeEditorBounds whether to include editor bounds info in the CursorAnchorInfo
  * @param includeLineBounds whether to include line bounds info in the CursorAnchorInfo
  */
-@Deprecated(
-    "Only exists to support the legacy TextInputService APIs. It is not used by any Compose " +
-        "code. A copy of this function in foundation is used by the legacy BasicTextField."
-)
 internal fun CursorAnchorInfo.Builder.build(
     textFieldValue: TextFieldValue,
     offsetMapping: OffsetMapping,

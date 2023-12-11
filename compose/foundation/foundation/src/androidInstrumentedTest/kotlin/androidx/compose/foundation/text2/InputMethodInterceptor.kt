@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text2
 
+import android.os.Looper
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
@@ -27,11 +28,15 @@ import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.PlatformTextInputMethodTestOverride
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
+import com.google.common.truth.IntegerSubject
+import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.reflect.KClass
+import kotlin.test.assertNotNull
 import kotlinx.coroutines.awaitCancellation
 
 /**
- * Helper class for testing integration of [BasicTextField2] with the platform IME.
+ * Helper class for testing integration of BasicTextField and BasicTextField2 with the platform IME.
  */
 class InputMethodInterceptor(private val rule: ComposeContentTestRule) {
 
@@ -39,30 +44,95 @@ class InputMethodInterceptor(private val rule: ComposeContentTestRule) {
     private val editorInfo = EditorInfo()
     private var inputConnection: InputConnection? = null
 
+    /**
+     * The total number of sessions that have been requested on this interceptor, including the
+     * current one if active.
+     */
+    private var sessionCount = 0
+
+    /**
+     * Asserts that there is an active session.
+     *
+     * Can be called from any thread, including main and test runner.
+     */
     fun assertSessionActive() {
-        rule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Expected a text input session to be active")
                 .that(currentRequest).isNotNull()
         }
     }
 
+    /**
+     * Asserts that there is no active session.
+     *
+     * Can be called from any thread, including main and test runner.
+     */
     fun assertNoSessionActive() {
-        rule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Expected no text input session to be active")
                 .that(currentRequest).isNull()
         }
     }
 
+    /**
+     * Returns a subject that will assert on the total number of sessions requested on this
+     * interceptor, including the current one if active.
+     */
+    fun assertThatSessionCount(): IntegerSubject = assertThat(runOnIdle { sessionCount })
+
+    /**
+     * Runs [block] on the main thread and passes it the [PlatformTextInputMethodRequest]
+     * for the current input session.
+     *
+     * @throws AssertionError if no session is active.
+     */
+    inline fun <reified T : PlatformTextInputMethodRequest> withCurrentRequest(
+        noinline block: T.() -> Unit
+    ) {
+        withCurrentRequest(T::class, block)
+    }
+
+    /**
+     * Runs [block] on the main thread and passes it the [PlatformTextInputMethodRequest]
+     * for the current input session.
+     *
+     * @throws AssertionError if no session is active.
+     */
+    fun <T : PlatformTextInputMethodRequest> withCurrentRequest(
+        asClass: KClass<T>,
+        block: T.() -> Unit
+    ) {
+        runOnIdle {
+            val currentRequest =
+                assertNotNull(currentRequest, "Expected a text input session to be active")
+            assertThat(currentRequest).isInstanceOf(asClass.java)
+            @Suppress("UNCHECKED_CAST")
+            block(currentRequest as T)
+        }
+    }
+
+    /**
+     * Runs [block] on the main thread and passes it the [EditorInfo] configured by the current
+     * input session.
+     *
+     * @throws AssertionError if no session is active.
+     */
     fun withEditorInfo(block: EditorInfo.() -> Unit) {
-        rule.runOnIdle {
+        runOnIdle {
             assertWithMessage("Expected a text input session to be active")
                 .that(currentRequest).isNotNull()
             block(editorInfo)
         }
     }
 
+    /**
+     * Runs [block] on the main thread and passes it the [InputConnection] created by the current
+     * input session.
+     *
+     * @throws AssertionError if no session is active.
+     */
     fun withInputConnection(block: InputConnection.() -> Unit) {
-        rule.runOnIdle {
+        runOnIdle {
             val inputConnection = checkNotNull(inputConnection) {
                 "Tried to read inputConnection while no session was active"
             }
@@ -72,22 +142,44 @@ class InputMethodInterceptor(private val rule: ComposeContentTestRule) {
 
     /**
      * Sets the content of the test, overriding the [PlatformTextInputSession] handler.
+     *
+     * This is just a convenience method for calling `rule.setContent` and then calling this class's
+     * [Content] method yourself.
      */
-    @OptIn(ExperimentalTestApi::class)
     fun setContent(content: @Composable () -> Unit) {
         rule.setContent {
-            val view = LocalView.current
-            val sessionHandler = remember { SessionHandler(view) }
-            PlatformTextInputMethodTestOverride(
-                sessionHandler = sessionHandler,
-                content = content
-            )
+            Content(content)
+        }
+    }
+
+    /**
+     * Wraps the content of the test to override the [PlatformTextInputSession] handler.
+     *
+     * @see setContent
+     */
+    @OptIn(ExperimentalTestApi::class)
+    @Composable
+    fun Content(content: @Composable () -> Unit) {
+        val view = LocalView.current
+        val sessionHandler = remember { SessionHandler(view) }
+        PlatformTextInputMethodTestOverride(
+            sessionHandler = sessionHandler,
+            content = content
+        )
+    }
+
+    private fun <T> runOnIdle(block: () -> T): T {
+        return if (Looper.myLooper() != Looper.getMainLooper()) {
+            rule.runOnIdle(block)
+        } else {
+            block()
         }
     }
 
     private inner class SessionHandler(override val view: View) : PlatformTextInputSession {
         override suspend fun startInputMethod(request: PlatformTextInputMethodRequest): Nothing {
             currentRequest = request
+            sessionCount++
             try {
                 inputConnection = request.createInputConnection(editorInfo)
                 awaitCancellation()
