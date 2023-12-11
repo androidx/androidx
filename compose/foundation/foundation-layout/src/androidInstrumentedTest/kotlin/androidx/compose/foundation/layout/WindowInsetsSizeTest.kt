@@ -62,6 +62,9 @@ class WindowInsetsSizeTest {
     @After
     fun teardown() {
         WindowInsetsHolder.setUseTestInsets(false)
+        rule.runOnUiThread {
+            rule.activity.finish()
+        }
     }
 
     @OptIn(ExperimentalLayoutApi::class)
