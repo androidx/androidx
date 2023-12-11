@@ -19,7 +19,7 @@ package androidx.baselineprofile.gradle.utils
 import com.android.build.api.AndroidPluginVersion
 
 // Minimum AGP version required
-internal val MIN_AGP_VERSION_REQUIRED = AndroidPluginVersion(8, 0, 0).beta(1)
+internal val MIN_AGP_VERSION_REQUIRED = AndroidPluginVersion(8, 0, 0)
 internal val MAX_AGP_VERSION_REQUIRED = AndroidPluginVersion(8, 3, 0)
 
 // Prefix for the build type baseline profile
