@@ -26,9 +26,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissValue
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberSwipeToDismissState
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -40,15 +40,15 @@ import androidx.compose.ui.tooling.preview.Preview
 @Composable
 @ExperimentalMaterial3Api
 fun SwipeToDismissListItems() {
-    val dismissState = rememberSwipeToDismissState()
+    val dismissState = rememberSwipeToDismissBoxState()
     SwipeToDismissBox(
         state = dismissState,
         backgroundContent = {
             val color by animateColorAsState(
                 when (dismissState.targetValue) {
-                    SwipeToDismissValue.Settled -> Color.LightGray
-                    SwipeToDismissValue.StartToEnd -> Color.Green
-                    SwipeToDismissValue.EndToStart -> Color.Red
+                    SwipeToDismissBoxValue.Settled -> Color.LightGray
+                    SwipeToDismissBoxValue.StartToEnd -> Color.Green
+                    SwipeToDismissBoxValue.EndToStart -> Color.Red
                 }
             )
             Box(Modifier.fillMaxSize().background(color))
