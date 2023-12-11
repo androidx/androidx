@@ -18,11 +18,13 @@ package androidx.compose.foundation.pager
 
 import androidx.compose.foundation.AutoTestFrameClock
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Density
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
@@ -520,6 +522,36 @@ class PagerSnapPositionTest(val config: ParamConfig) : BasePagerTest(config) {
 
         rule.runOnIdle {
             assertThat(pagerState.currentPageOffsetFraction).isWithin(0.1f).of(-0.25f)
+        }
+    }
+
+    @Test
+    fun snapPosition_shouldNotInfluenceMaxScroll() {
+        val PageSize = object : PageSize {
+            override fun Density.calculateMainAxisPageSize(
+                availableSpace: Int,
+                pageSpacing: Int
+            ): Int {
+                return (availableSpace + pageSpacing) / 2
+            }
+        }
+        createPager(modifier = Modifier.fillMaxSize(), pageSize = { PageSize })
+
+        // Reset
+        rule.runOnIdle {
+            scope.launch {
+                pagerState.scrollToPage(DefaultPageCount - 2)
+            }
+        }
+        rule.waitForIdle()
+        val velocity = with(rule.density) { 2 * MinFlingVelocityDp.roundToPx() }.toFloat()
+        val forwardDelta = (pageSize) * scrollForwardSign
+        onPager().performTouchInput {
+            swipeWithVelocityAcrossMainAxis(velocity, forwardDelta.toFloat())
+        }
+
+        rule.runOnIdle {
+            assertThat(pagerState.canScrollForward).isFalse()
         }
     }
 
