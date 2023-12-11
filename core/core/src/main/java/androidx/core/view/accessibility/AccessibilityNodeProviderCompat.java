@@ -37,11 +37,11 @@ import java.util.List;
  * accessibility services and managing accessibility focus. </aside>
  */
 public class AccessibilityNodeProviderCompat {
-    @RequiresApi(16)
-    static class AccessibilityNodeProviderApi16 extends AccessibilityNodeProvider {
+
+    static class AccessibilityNodeProviderApi19 extends AccessibilityNodeProvider {
         final AccessibilityNodeProviderCompat mCompat;
 
-        AccessibilityNodeProviderApi16(AccessibilityNodeProviderCompat compat) {
+        AccessibilityNodeProviderApi19(AccessibilityNodeProviderCompat compat) {
             mCompat = compat;
         }
 
@@ -77,13 +77,6 @@ public class AccessibilityNodeProviderCompat {
         @Override
         public boolean performAction(int virtualViewId, int action, Bundle arguments) {
             return mCompat.performAction(virtualViewId, action, arguments);
-        }
-    }
-
-    @RequiresApi(19)
-    static class AccessibilityNodeProviderApi19 extends AccessibilityNodeProviderApi16 {
-        AccessibilityNodeProviderApi19(AccessibilityNodeProviderCompat compat) {
-            super(compat);
         }
 
         @Override

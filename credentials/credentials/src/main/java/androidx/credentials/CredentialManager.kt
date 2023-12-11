@@ -83,7 +83,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  *
  *
  */
-@RequiresApi(16)
 @SuppressLint("ObsoleteSdkInt") // Accommodate dependencies with a lower min sdk requirement
 interface CredentialManager {
     companion object {

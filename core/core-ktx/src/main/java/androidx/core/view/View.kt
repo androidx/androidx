@@ -24,7 +24,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewParent
-import androidx.annotation.DoNotInline
 import androidx.annotation.Px
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.applyCanvas
@@ -207,13 +206,12 @@ public inline fun View.postDelayed(delayInMillis: Long, crossinline action: () -
  *
  * @return the created Runnable
  */
-@RequiresApi(16)
 public fun View.postOnAnimationDelayed(
     delayInMillis: Long,
     action: () -> Unit
 ): Runnable {
     val runnable = Runnable { action() }
-    Api16Impl.postOnAnimationDelayed(this, runnable, delayInMillis)
+    postOnAnimationDelayed(runnable, delayInMillis)
     return runnable
 }
 
@@ -416,16 +414,3 @@ public val View.allViews: Sequence<View>
             yieldAll(this@allViews.descendants)
         }
     }
-
-@RequiresApi(16)
-private object Api16Impl {
-    @JvmStatic
-    @DoNotInline
-    fun postOnAnimationDelayed(
-        view: View,
-        action: Runnable,
-        delayInMillis: Long
-    ) {
-        view.postOnAnimationDelayed(action, delayInMillis)
-    }
-}

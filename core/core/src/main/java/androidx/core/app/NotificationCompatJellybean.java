@@ -23,7 +23,6 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.util.SparseArray;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.graphics.drawable.IconCompat;
 
 import java.lang.reflect.Field;
@@ -33,7 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@RequiresApi(16)
 class NotificationCompatJellybean {
     public static final String TAG = "NotificationCompat";
 

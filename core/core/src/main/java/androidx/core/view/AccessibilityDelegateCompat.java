@@ -32,7 +32,6 @@ import android.view.accessibility.AccessibilityNodeProvider;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.R;
 import androidx.core.view.accessibility.AccessibilityClickableSpanCompat;
@@ -117,7 +116,6 @@ public class AccessibilityDelegateCompat {
         }
 
         @Override
-        @RequiresApi(16)
         public AccessibilityNodeProvider getAccessibilityNodeProvider(View host) {
             AccessibilityNodeProviderCompat provider =
                     mCompat.getAccessibilityNodeProvider(host);

@@ -178,14 +178,14 @@ package androidx.room {
     field public static final int SET_NULL = 3; // 0x3
   }
 
-  @RequiresApi(16) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Fts3 {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Fts3 {
     method public abstract String tokenizer() default androidx.room.FtsOptions.TOKENIZER_SIMPLE;
     method public abstract String[] tokenizerArgs();
     property public abstract String tokenizer;
     property public abstract String[] tokenizerArgs;
   }
 
-  @RequiresApi(16) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Fts4 {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.CLASS) public @interface Fts4 {
     method public abstract Class<?> contentEntity() default java.lang.Object;
     method public abstract String languageId() default "";
     method public abstract androidx.room.FtsOptions.MatchInfo matchInfo() default androidx.room.FtsOptions.MatchInfo.FTS4;
@@ -413,7 +413,7 @@ package androidx.room {
     property @androidx.room.OnConflictStrategy public abstract int onConflict;
   }
 
-  @RequiresApi(16) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Upsert {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface Upsert {
     method public abstract Class<?> entity() default java.lang.Object;
     property public abstract Class<?> entity;
   }

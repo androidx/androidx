@@ -21,7 +21,6 @@ import android.os.Message
 import android.view.Choreographer
 import android.view.View
 import android.view.ViewTreeObserver
-import androidx.annotation.RequiresApi
 import java.lang.ref.WeakReference
 import java.lang.reflect.Field
 
@@ -145,7 +144,6 @@ internal abstract class OnFrameListenerDelegate {
  * timing details. This listener delegates to a list of OnFrameListenerDelegate objects,
  * which do the work of sending that data to JankStats instance clients.
  */
-@RequiresApi(16)
 internal open class DelegatingOnPreDrawListener(
     decorView: View,
     val choreographer: Choreographer,
