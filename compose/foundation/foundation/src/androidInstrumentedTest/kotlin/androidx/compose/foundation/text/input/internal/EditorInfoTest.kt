@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package androidx.compose.foundation.text2.input.internal
+package androidx.compose.foundation.text.input.internal
 
 import android.text.InputType
 import android.view.inputmethod.EditorInfo
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.text.input.internal.update
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PlatformImeOptions
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
-@OptIn(ExperimentalFoundationApi::class)
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class EditorInfoTest {
@@ -536,6 +534,19 @@ class EditorInfoTest {
 
         assertThat(info.initialSelStart).isEqualTo(selection.start)
         assertThat(info.initialSelEnd).isEqualTo(selection.end)
+    }
+
+    @Test
+    fun test_privateImeOptions_is_set() {
+        val info = EditorInfo()
+        val privateImeOptions = "testOptions"
+        info.update(
+            ImeOptions(
+                platformImeOptions = PlatformImeOptions(privateImeOptions)
+            )
+        )
+
+        assertThat(info.privateImeOptions).isEqualTo(privateImeOptions)
     }
 
     private fun EditorInfo.update(imeOptions: ImeOptions) {

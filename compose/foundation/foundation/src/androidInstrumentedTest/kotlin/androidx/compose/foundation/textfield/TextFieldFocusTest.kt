@@ -35,7 +35,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.CoreTextField
-import androidx.compose.foundation.text.KeyboardHelper
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text2.InputMethodInterceptor
 import androidx.compose.foundation.text2.TestSoftwareKeyboardController
@@ -302,14 +301,12 @@ class TextFieldFocusTest {
         wrapContent: @Composable (@Composable () -> Unit) -> Unit = { it() }
     ) {
         val focusRequester = FocusRequester()
-        val keyboardHelper = KeyboardHelper(rule)
 
         inputMethodInterceptor.setContent {
             wrapContent {
-                keyboardHelper.initialize()
 
                 runEffect {
-                    assertThat(keyboardHelper.isSoftwareKeyboardShown()).isFalse()
+                    inputMethodInterceptor.assertNoSessionActive()
                     focusRequester.requestFocus()
                 }
 
@@ -321,13 +318,7 @@ class TextFieldFocusTest {
             }
         }
 
-        keyboardHelper.waitForKeyboardVisibility(visible = true)
-
-        // Ensure the keyboard doesn't leak in to the next test. Can't do this at the start of the
-        // test since the KeyboardHelper won't be initialized until composition runs, and this test
-        // is checking behavior that all happens on the first frame.
-        keyboardHelper.hideKeyboard()
-        keyboardHelper.waitForKeyboardVisibility(visible = false)
+        inputMethodInterceptor.assertSessionActive()
     }
 
     @SdkSuppress(minSdkVersion = 22) // b/266742195

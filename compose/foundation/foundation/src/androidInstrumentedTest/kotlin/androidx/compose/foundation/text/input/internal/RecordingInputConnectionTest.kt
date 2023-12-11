@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
-package androidx.compose.ui.input
+package androidx.compose.foundation.text.input.internal
 
 import android.os.Build
 import android.view.KeyEvent
@@ -28,8 +26,6 @@ import androidx.compose.ui.text.input.DeleteSurroundingTextCommand
 import androidx.compose.ui.text.input.DeleteSurroundingTextInCodePointsCommand
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.FinishComposingTextCommand
-import androidx.compose.ui.text.input.InputEventCallback2
-import androidx.compose.ui.text.input.RecordingInputConnection
 import androidx.compose.ui.text.input.SetComposingRegionCommand
 import androidx.compose.ui.text.input.SetComposingTextCommand
 import androidx.compose.ui.text.input.SetSelectionCommand
@@ -72,7 +68,7 @@ class RecordingInputConnectionTest {
         assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("")
 
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        ic.mTextFieldValue = TextFieldValue(
+        ic.textFieldValue = TextFieldValue(
             text = "Hello, World",
             selection = TextRange.Zero
         )
@@ -81,7 +77,7 @@ class RecordingInputConnectionTest {
         assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("Hello, World")
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        ic.mTextFieldValue = TextFieldValue(
+        ic.textFieldValue = TextFieldValue(
             text = "Hello, World",
             selection = TextRange(1)
         )
@@ -90,7 +86,7 @@ class RecordingInputConnectionTest {
         assertThat(ic.getTextAfterCursor(100, 0)).isEqualTo("ello, World")
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        ic.mTextFieldValue = TextFieldValue(
+        ic.textFieldValue = TextFieldValue(
             text = "Hello, World",
             selection = TextRange(12)
         )
@@ -102,7 +98,7 @@ class RecordingInputConnectionTest {
     @Test
     fun getTextBeforeAndAfterCursorTest_maxCharTest() {
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        ic.mTextFieldValue = TextFieldValue(
+        ic.textFieldValue = TextFieldValue(
             text = "Hello, World",
             selection = TextRange.Zero
         )
@@ -111,7 +107,7 @@ class RecordingInputConnectionTest {
         assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("Hello")
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        ic.mTextFieldValue = TextFieldValue(
+        ic.textFieldValue = TextFieldValue(
             text = "Hello, World",
             selection = TextRange(1)
         )
@@ -120,7 +116,7 @@ class RecordingInputConnectionTest {
         assertThat(ic.getTextAfterCursor(5, 0)).isEqualTo("ello,")
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        ic.mTextFieldValue = TextFieldValue(
+        ic.textFieldValue = TextFieldValue(
             text = "Hello, World",
             selection = TextRange(12)
         )
@@ -132,7 +128,7 @@ class RecordingInputConnectionTest {
     @Test
     fun getSelectedTextTest() {
         // Set "Hello, World", and place the cursor at the beginning of the text.
-        ic.mTextFieldValue = TextFieldValue(
+        ic.textFieldValue = TextFieldValue(
             text = "Hello, World",
             selection = TextRange.Zero
         )
@@ -140,7 +136,7 @@ class RecordingInputConnectionTest {
         assertThat(ic.getSelectedText(0)).isNull()
 
         // Set "Hello, World", and place the cursor between "H" and "e".
-        ic.mTextFieldValue = TextFieldValue(
+        ic.textFieldValue = TextFieldValue(
             text = "Hello, World",
             selection = TextRange(0, 1)
         )
@@ -148,7 +144,7 @@ class RecordingInputConnectionTest {
         assertThat(ic.getSelectedText(0)).isEqualTo("H")
 
         // Set "Hello, World", and place the cursor at the end of the text.
-        ic.mTextFieldValue = TextFieldValue(
+        ic.textFieldValue = TextFieldValue(
             text = "Hello, World",
             selection = TextRange(0, 12)
         )
@@ -255,7 +251,7 @@ class RecordingInputConnectionTest {
     fun commitTextTest() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // Inserting "Hello, " into the empty text field.
         assertThat(ic.commitText("Hello, ", 1)).isTrue()
@@ -270,7 +266,7 @@ class RecordingInputConnectionTest {
     fun commitTextTest_batchSession() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // IME set text "Hello, World." with two commitText API within the single batch session.
         // Do not callback to listener during batch session.
@@ -295,7 +291,7 @@ class RecordingInputConnectionTest {
     fun setComposingRegion() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Mark first "H" as composition.
         assertThat(ic.setComposingRegion(0, 1)).isTrue()
@@ -310,7 +306,7 @@ class RecordingInputConnectionTest {
     fun setComposingRegion_batchSession() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -334,7 +330,7 @@ class RecordingInputConnectionTest {
     fun setComposingTextTest() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // Inserting "Hello, " into the empty text field.
         assertThat(ic.setComposingText("Hello, ", 1)).isTrue()
@@ -349,7 +345,7 @@ class RecordingInputConnectionTest {
     fun setComposingTextTest_batchSession() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // IME set text "Hello, World." with two setComposingText API within the single batch
         // session. Do not callback to listener during batch session.
@@ -374,7 +370,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingText() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Delete first "Hello, " characters
         assertTrue(ic.deleteSurroundingText(0, 6))
@@ -389,7 +385,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingText_batchSession() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -413,7 +409,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingTextInCodePoints() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Delete first "Hello, " characters
         assertThat(ic.deleteSurroundingTextInCodePoints(0, 6)).isTrue()
@@ -428,7 +424,7 @@ class RecordingInputConnectionTest {
     fun deleteSurroundingTextInCodePoints_batchSession() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -452,7 +448,7 @@ class RecordingInputConnectionTest {
     fun setSelection() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Select "Hello, "
         assertThat(ic.setSelection(0, 6)).isTrue()
@@ -467,7 +463,7 @@ class RecordingInputConnectionTest {
     fun setSelection_batchSession() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -491,7 +487,7 @@ class RecordingInputConnectionTest {
     fun finishComposingText() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "Hello, World.", selection = TextRange.Zero)
 
         // Cancel any ongoing composition. In this example, there is no composition range, but
         // should record the API call
@@ -507,7 +503,7 @@ class RecordingInputConnectionTest {
     fun finishComposingText_batchSession() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "Hello, World", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()
@@ -531,7 +527,7 @@ class RecordingInputConnectionTest {
     fun mixedAPICalls_batchSession() {
         val captor = argumentCaptor<List<EditCommand>>()
 
-        ic.mTextFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
+        ic.textFieldValue = TextFieldValue(text = "", selection = TextRange.Zero)
 
         // Do not callback to listener during batch session.
         ic.beginBatchEdit()

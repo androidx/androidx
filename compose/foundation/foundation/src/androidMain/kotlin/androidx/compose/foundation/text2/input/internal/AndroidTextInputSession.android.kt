@@ -18,19 +18,16 @@
 
 package androidx.compose.foundation.text2.input.internal
 
-import android.text.InputType
 import android.util.Log
 import android.view.KeyEvent
-import android.view.inputmethod.EditorInfo
 import androidx.annotation.VisibleForTesting
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.text.input.internal.update
 import androidx.compose.foundation.text2.input.TextFieldCharSequence
 import androidx.compose.ui.platform.PlatformTextInputSession
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
-import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.core.view.inputmethod.EditorInfoCompat
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -119,113 +116,11 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                     cursorUpdatesController.requestUpdates(cursorUpdateMode)
                 }
             }
-            outAttrs.update(state.text, imeOptions)
+            outAttrs.update(state.text, state.text.selectionInChars, imeOptions)
             StatelessInputConnection(textInputSession)
         }
     }
 }
-
-/**
- * Fills necessary info of EditorInfo.
- */
-internal fun EditorInfo.update(textFieldValue: TextFieldCharSequence, imeOptions: ImeOptions) {
-    this.imeOptions = when (imeOptions.imeAction) {
-        ImeAction.Default -> {
-            if (imeOptions.singleLine) {
-                // this is the last resort to enable single line
-                // Android IME still shows return key even if multi line is not send
-                // TextView.java#onCreateInputConnection
-                EditorInfo.IME_ACTION_DONE
-            } else {
-                EditorInfo.IME_ACTION_UNSPECIFIED
-            }
-        }
-
-        ImeAction.None -> EditorInfo.IME_ACTION_NONE
-        ImeAction.Go -> EditorInfo.IME_ACTION_GO
-        ImeAction.Next -> EditorInfo.IME_ACTION_NEXT
-        ImeAction.Previous -> EditorInfo.IME_ACTION_PREVIOUS
-        ImeAction.Search -> EditorInfo.IME_ACTION_SEARCH
-        ImeAction.Send -> EditorInfo.IME_ACTION_SEND
-        ImeAction.Done -> EditorInfo.IME_ACTION_DONE
-        else -> error("invalid ImeAction")
-    }
-
-    this.inputType = when (imeOptions.keyboardType) {
-        KeyboardType.Text -> InputType.TYPE_CLASS_TEXT
-        KeyboardType.Ascii -> {
-            this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_FORCE_ASCII
-            InputType.TYPE_CLASS_TEXT
-        }
-
-        KeyboardType.Number ->
-            InputType.TYPE_CLASS_NUMBER
-
-        KeyboardType.Phone ->
-            InputType.TYPE_CLASS_PHONE
-
-        KeyboardType.Uri ->
-            InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_URI
-
-        KeyboardType.Email ->
-            InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-
-        KeyboardType.Password ->
-            InputType.TYPE_CLASS_TEXT or EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
-
-        KeyboardType.NumberPassword ->
-            InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_VARIATION_PASSWORD
-
-        KeyboardType.Decimal ->
-            InputType.TYPE_CLASS_NUMBER or EditorInfo.TYPE_NUMBER_FLAG_DECIMAL
-
-        else -> error("Invalid Keyboard Type")
-    }
-
-    if (!imeOptions.singleLine) {
-        if (hasFlag(this.inputType, InputType.TYPE_CLASS_TEXT)) {
-            // TextView.java#setInputTypeSingleLine
-            this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_MULTI_LINE
-
-            if (imeOptions.imeAction == ImeAction.Default) {
-                this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_ENTER_ACTION
-            }
-        }
-    }
-
-    if (hasFlag(this.inputType, InputType.TYPE_CLASS_TEXT)) {
-        when (imeOptions.capitalization) {
-            KeyboardCapitalization.Characters -> {
-                this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS
-            }
-
-            KeyboardCapitalization.Words -> {
-                this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_CAP_WORDS
-            }
-
-            KeyboardCapitalization.Sentences -> {
-                this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_CAP_SENTENCES
-            }
-
-            else -> {
-                /* do nothing */
-            }
-        }
-
-        if (imeOptions.autoCorrect) {
-            this.inputType = this.inputType or InputType.TYPE_TEXT_FLAG_AUTO_CORRECT
-        }
-    }
-
-    this.initialSelStart = textFieldValue.selectionInChars.start
-    this.initialSelEnd = textFieldValue.selectionInChars.end
-
-    EditorInfoCompat.setInitialSurroundingText(this, textFieldValue)
-
-    this.imeOptions = this.imeOptions or EditorInfo.IME_FLAG_NO_FULLSCREEN
-}
-
-private fun hasFlag(bits: Int, flag: Int): Boolean = (bits and flag) == flag
 
 private fun logDebug(tag: String = TAG, content: () -> String) {
     if (TIA_DEBUG) {
