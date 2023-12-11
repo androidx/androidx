@@ -19,7 +19,6 @@ import android.app.Instrumentation
 import android.os.Bundle
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import androidx.annotation.RequiresApi
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.test.annotation.UiThreadTest
@@ -197,7 +196,6 @@ class FragmentTest {
         }
     }
 
-    @RequiresApi(16) // ViewTreeObserver.OnDrawListener was added in API 16
     private fun waitForHalfFadeIn(fragment: Fragment) {
         if (fragment.view == null) {
             activityRule.waitForExecution()

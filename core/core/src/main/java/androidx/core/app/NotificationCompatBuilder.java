@@ -57,13 +57,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     private final Notification.Builder mBuilder;
     private final NotificationCompat.Builder mBuilderCompat;
 
-    // @RequiresApi(16) - uncomment when lint bug is fixed.
     private RemoteViews mContentView;
-    // @RequiresApi(16) - uncomment when lint bug is fixed.
     private RemoteViews mBigContentView;
-    // @RequiresApi(16) - uncomment when lint bug is fixed.
     private final List<Bundle> mActionExtrasList = new ArrayList<>();
-    // @RequiresApi(16) - uncomment when lint bug is fixed.
     private final Bundle mExtras = new Bundle();
     // @RequiresApi(20) - uncomment when lint bug is fixed.
     private int mGroupAlertBehavior;
@@ -108,55 +104,54 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         if (Build.VERSION.SDK_INT < 21) {
             mBuilder.setSound(n.sound, n.audioStreamType);
         }
-        if (Build.VERSION.SDK_INT >= 16) {
-            Api16Impl.setPriority(
-                    Api16Impl.setUsesChronometer(Api16Impl.setSubText(mBuilder, b.mSubText),
-                            b.mUseChronometer), b.mPriority);
 
-            // CallStyle notifications add special actions in pre-specified positions, in addition
-            // to any provided custom actions. Because there's no way to remove Actions once they're
-            // added to Notification.Builder in Versions < 24, we add them here where we have
-            // access to NotificationCompatBuilder, rather than in CallStyle.apply where we have
-            // to add to the Notification.Builder directly.
-            if (Build.VERSION.SDK_INT >= 20
-                    && (b.mStyle instanceof NotificationCompat.CallStyle)) {
-                // Retrieves call style actions, including contextual and system actions.
-                List<NotificationCompat.Action> actionsList =
-                        ((NotificationCompat.CallStyle) b.mStyle).getActionsListWithSystemActions();
-                // Adds the actions to the builder in the proper order.
-                for (NotificationCompat.Action action : actionsList) {
-                    addAction(action);
-                }
-            } else {
-                for (NotificationCompat.Action action : b.mActions) {
-                    addAction(action);
-                }
-            }
+        Notification.Builder builder = mBuilder.setSubText(b.mSubText);
+        Notification.Builder builder1 = builder.setUsesChronometer(b.mUseChronometer);
+        builder1.setPriority(b.mPriority);
 
-            if (b.mExtras != null) {
-                mExtras.putAll(b.mExtras);
+        // CallStyle notifications add special actions in pre-specified positions, in addition
+        // to any provided custom actions. Because there's no way to remove Actions once they're
+        // added to Notification.Builder in Versions < 24, we add them here where we have
+        // access to NotificationCompatBuilder, rather than in CallStyle.apply where we have
+        // to add to the Notification.Builder directly.
+        if (Build.VERSION.SDK_INT >= 20
+                && (b.mStyle instanceof NotificationCompat.CallStyle)) {
+            // Retrieves call style actions, including contextual and system actions.
+            List<NotificationCompat.Action> actionsList =
+                    ((NotificationCompat.CallStyle) b.mStyle).getActionsListWithSystemActions();
+            // Adds the actions to the builder in the proper order.
+            for (NotificationCompat.Action action : actionsList) {
+                addAction(action);
             }
-            if (Build.VERSION.SDK_INT < 20) {
-                if (b.mLocalOnly) {
-                    mExtras.putBoolean(NotificationCompatExtras.EXTRA_LOCAL_ONLY, true);
-                }
-                if (b.mGroupKey != null) {
-                    mExtras.putString(NotificationCompatExtras.EXTRA_GROUP_KEY, b.mGroupKey);
-                    if (b.mGroupSummary) {
-                        mExtras.putBoolean(NotificationCompatExtras.EXTRA_GROUP_SUMMARY, true);
-                    } else {
-                        mExtras.putBoolean(
-                                NotificationManagerCompat.EXTRA_USE_SIDE_CHANNEL, true);
-                    }
-                }
-                if (b.mSortKey != null) {
-                    mExtras.putString(NotificationCompatExtras.EXTRA_SORT_KEY, b.mSortKey);
-                }
+        } else {
+            for (NotificationCompat.Action action : b.mActions) {
+                addAction(action);
             }
-
-            mContentView = b.mContentView;
-            mBigContentView = b.mBigContentView;
         }
+
+        if (b.mExtras != null) {
+            mExtras.putAll(b.mExtras);
+        }
+        if (Build.VERSION.SDK_INT < 20) {
+            if (b.mLocalOnly) {
+                mExtras.putBoolean(NotificationCompatExtras.EXTRA_LOCAL_ONLY, true);
+            }
+            if (b.mGroupKey != null) {
+                mExtras.putString(NotificationCompatExtras.EXTRA_GROUP_KEY, b.mGroupKey);
+                if (b.mGroupSummary) {
+                    mExtras.putBoolean(NotificationCompatExtras.EXTRA_GROUP_SUMMARY, true);
+                } else {
+                    mExtras.putBoolean(
+                            NotificationManagerCompat.EXTRA_USE_SIDE_CHANNEL, true);
+                }
+            }
+            if (b.mSortKey != null) {
+                mExtras.putString(NotificationCompatExtras.EXTRA_SORT_KEY, b.mSortKey);
+            }
+        }
+
+        mContentView = b.mContentView;
+        mBigContentView = b.mBigContentView;
         mBuilder.setShowWhen(b.mShowWhen);
         if (Build.VERSION.SDK_INT < 21) {
             final List<String> people = combineLists(getPeople(b.mPersonList), b.mPeople);
@@ -432,9 +427,9 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
     @SuppressWarnings("deprecation")
     protected Notification buildInternal() {
         if (Build.VERSION.SDK_INT >= 26) {
-            return Api16Impl.build(mBuilder);
+            return mBuilder.build();
         } else if (Build.VERSION.SDK_INT >= 24) {
-            Notification notification =  Api16Impl.build(mBuilder);
+            Notification notification = mBuilder.build();
 
             if (mGroupAlertBehavior != GROUP_ALERT_ALL) {
                 // if is summary and only children should alert
@@ -454,7 +449,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             return notification;
         } else if (Build.VERSION.SDK_INT >= 21) {
             mBuilder.setExtras(mExtras);
-            Notification notification = Api16Impl.build(mBuilder);
+            Notification notification = mBuilder.build();
             if (mContentView != null) {
                 notification.contentView = mContentView;
             }
@@ -482,7 +477,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
             return notification;
         } else if (Build.VERSION.SDK_INT >= 20) {
             mBuilder.setExtras(mExtras);
-            Notification notification = Api16Impl.build(mBuilder);
+            Notification notification = mBuilder.build();
             if (mContentView != null) {
                 notification.contentView = mContentView;
             }
@@ -515,7 +510,7 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
                         NotificationCompatExtras.EXTRA_ACTION_EXTRAS, actionExtrasMap);
             }
             mBuilder.setExtras(mExtras);
-            Notification notification = Api16Impl.build(mBuilder);
+            Notification notification = mBuilder.build();
             if (mContentView != null) {
                 notification.contentView = mContentView;
             }
@@ -531,36 +526,6 @@ class NotificationCompatBuilder implements NotificationBuilderWithBuilderAccesso
         notification.vibrate = null;
         notification.defaults &= ~DEFAULT_SOUND;
         notification.defaults &= ~DEFAULT_VIBRATE;
-    }
-
-    /**
-     * A class for wrapping calls to {@link NotificationCompatBuilder} methods which
-     * were added in API 16; these calls must be wrapped to avoid performance issues.
-     * See the UnsafeNewApiCall lint rule for more details.
-     */
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() { }
-
-        @DoNotInline
-        static Notification.Builder setSubText(Notification.Builder builder, CharSequence text) {
-            return builder.setSubText(text);
-        }
-
-        @DoNotInline
-        static Notification.Builder setUsesChronometer(Notification.Builder builder, boolean b) {
-            return builder.setUsesChronometer(b);
-        }
-
-        @DoNotInline
-        static Notification.Builder setPriority(Notification.Builder builder, int pri) {
-            return builder.setPriority(pri);
-        }
-
-        @DoNotInline
-        static Notification build(Notification.Builder builder) {
-            return builder.build();
-        }
     }
 
     /**

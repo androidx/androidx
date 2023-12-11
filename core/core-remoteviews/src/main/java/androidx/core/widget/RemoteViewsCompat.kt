@@ -2031,7 +2031,6 @@ public object RemoteViewsCompat {
      * @param viewId The id of the target view
      * @param pad The padding between the compound drawables and the text, in pixels.
      */
-    @RequiresApi(16)
     @JvmStatic
     public fun RemoteViews.setTextViewCompoundDrawablePadding(@IdRes viewId: Int, @Px pad: Int) {
         requireSdk(16, "setCompoundDrawablePadding")
@@ -3609,7 +3608,6 @@ public object RemoteViewsCompat {
      * @param inflatedId A positive integer used to identify the inflated view or
      * [android.view.View.NO_ID] if the inflated view should keep its id.
      */
-    @RequiresApi(16)
     @JvmStatic
     public fun RemoteViews.setViewStubInflatedId(@IdRes viewId: Int, inflatedId: Int) {
         requireSdk(16, "setInflatedId")
@@ -3624,7 +3622,6 @@ public object RemoteViewsCompat {
      * @param viewId The id of the target view
      * @param layoutResource A valid layout resource identifier (different from 0).
      */
-    @RequiresApi(16)
     @JvmStatic
     public fun RemoteViews.setViewStubLayoutResource(
         @IdRes viewId: Int,
