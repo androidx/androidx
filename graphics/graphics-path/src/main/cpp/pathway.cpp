@@ -25,12 +25,6 @@
 #define JNI_CLASS_NAME "androidx/graphics/path/PathIteratorPreApi34Impl"
 #define JNI_CLASS_NAME_CONVERTER "androidx/graphics/path/ConicConverter"
 
-#if !defined(NDEBUG)
-#include <android/log.h>
-#define ANDROID_LOG_TAG "PathIterator"
-#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, ANDROID_LOG_TAG, __VA_ARGS__)
-#endif
-
 struct {
     jclass jniClass;
     jfieldID nativePath;
@@ -166,41 +160,41 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void*) {
         if (pathsClass == nullptr) return JNI_ERR;
 
         static const JNINativeMethod methods[] = {
-                {
-                    (char*) "createInternalPathIterator",
-                    (char*) "(Landroid/graphics/Path;IF)J",
-                    reinterpret_cast<void*>(createPathIterator)
-                },
-                {
-                    (char*) "destroyInternalPathIterator",
-                    (char*) "(J)V",
-                    reinterpret_cast<void*>(destroyPathIterator)
-                },
-                {
-                    (char*) "internalPathIteratorHasNext",
-                    (char*) "(J)Z",
-                    reinterpret_cast<void*>(pathIteratorHasNext)
-                },
-                {
-                    (char*) "internalPathIteratorNext",
-                    (char*) "(J[FI)I",
-                    reinterpret_cast<void*>(pathIteratorNext)
-                },
-                {
-                    (char*) "internalPathIteratorPeek",
-                    (char*) "(J)I",
-                    reinterpret_cast<void*>(pathIteratorPeek)
-                },
-                {
-                    (char*) "internalPathIteratorRawSize",
-                    (char*) "(J)I",
-                    reinterpret_cast<void*>(pathIteratorRawSize)
-                },
-                {
-                    (char*) "internalPathIteratorSize",
-                    (char*) "(J)I",
-                    reinterpret_cast<void*>(pathIteratorSize)
-                },
+            {
+                (char*) "createInternalPathIterator",
+                (char*) "(Landroid/graphics/Path;IF)J",
+                reinterpret_cast<void*>(createPathIterator)
+            },
+            {
+                (char*) "destroyInternalPathIterator",
+                (char*) "(J)V",
+                reinterpret_cast<void*>(destroyPathIterator)
+            },
+            {
+                (char*) "internalPathIteratorHasNext",
+                (char*) "(J)Z",
+                reinterpret_cast<void*>(pathIteratorHasNext)
+            },
+            {
+                (char*) "internalPathIteratorNext",
+                (char*) "(J[FI)I",
+                reinterpret_cast<void*>(pathIteratorNext)
+            },
+            {
+                (char*) "internalPathIteratorPeek",
+                (char*) "(J)I",
+                reinterpret_cast<void*>(pathIteratorPeek)
+            },
+            {
+                (char*) "internalPathIteratorRawSize",
+                (char*) "(J)I",
+                reinterpret_cast<void*>(pathIteratorRawSize)
+            },
+            {
+                (char*) "internalPathIteratorSize",
+                (char*) "(J)I",
+                reinterpret_cast<void*>(pathIteratorSize)
+            },
         };
 
         int result = env->RegisterNatives(
@@ -213,15 +207,15 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void*) {
         jclass converterClass = env->FindClass(JNI_CLASS_NAME_CONVERTER);
         if (converterClass == nullptr) return JNI_ERR;
         static const JNINativeMethod methods2[] = {
-                {
-                    (char *) "internalConicToQuadratics",
-                    (char *) "([FI[FFF)I",
-                    reinterpret_cast<void*>(conicToQuadraticsWrapper)
-                },
+            {
+                (char *) "internalConicToQuadratics",
+                (char *) "([FI[FFF)I",
+                reinterpret_cast<void*>(conicToQuadraticsWrapper)
+            },
         };
 
         result = env->RegisterNatives(
-                converterClass, methods2, sizeof(methods2) / sizeof(JNINativeMethod)
+            converterClass, methods2, sizeof(methods2) / sizeof(JNINativeMethod)
         );
         if (result != JNI_OK) return result;
 
