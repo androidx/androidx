@@ -120,16 +120,7 @@ public final class IntentCompat {
     @NonNull
     public static Intent makeMainSelectorActivity(@NonNull String selectorAction,
             @NonNull String selectorCategory) {
-        if (Build.VERSION.SDK_INT >= 15) {
-            return Api15Impl.makeMainSelectorActivity(selectorAction, selectorCategory);
-        } else {
-            // Before api 15 you couldn't set a selector intent.
-            // Fall back and just return an intent with the requested action/category,
-            // even though it won't be a proper "main" intent.
-            Intent intent = new Intent(selectorAction);
-            intent.addCategory(selectorCategory);
-            return intent;
-        }
+        return Intent.makeMainSelectorActivity(selectorAction, selectorCategory);
     }
 
     /**
@@ -295,18 +286,6 @@ public final class IntentCompat {
             return Api33Impl.getParcelableArrayListExtra(in, name, clazz);
         } else {
             return (ArrayList<T>) in.getParcelableArrayListExtra(name);
-        }
-    }
-
-    @RequiresApi(15)
-    static class Api15Impl {
-        private Api15Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static Intent makeMainSelectorActivity(String selectorAction, String selectorCategory) {
-            return Intent.makeMainSelectorActivity(selectorAction, selectorCategory);
         }
     }
 

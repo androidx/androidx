@@ -17,7 +17,6 @@
 package androidx.room.integration.kotlintestapp.test
 
 import android.content.Context
-import android.os.Build
 import android.os.StrictMode
 import android.os.StrictMode.ThreadPolicy
 import androidx.arch.core.executor.ArchTaskExecutor
@@ -1017,16 +1016,11 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     database.endTransaction()
                 }
             } catch (ex: IllegalStateException) {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                    assertThat(ex).hasMessageThat()
-                        .contains(
-                            "Cannot perform this operation because there is no current " +
-                                "transaction"
-                        )
-                } else {
-                    assertThat(ex).hasMessageThat()
-                        .contains("Don't have database lock")
-                }
+                assertThat(ex).hasMessageThat()
+                    .contains(
+                        "Cannot perform this operation because there is no current " +
+                            "transaction"
+                    )
             }
         }
     }
@@ -1044,16 +1038,11 @@ class SuspendingQueryTest : TestDatabaseTest() {
                     throw RuntimeException()
                 }
             } catch (ex: IllegalStateException) {
-                if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                    assertThat(ex).hasMessageThat()
-                        .contains(
-                            "Cannot perform this operation because there is no current " +
-                                "transaction"
-                        )
-                } else {
-                    assertThat(ex).hasMessageThat()
-                        .contains("Don't have database lock")
-                }
+                assertThat(ex).hasMessageThat()
+                    .contains(
+                        "Cannot perform this operation because there is no current " +
+                            "transaction"
+                    )
             }
         }
     }

@@ -142,15 +142,7 @@ fun findColumnIndexBySuffix(columnNames: Array<String>, name: String): Int {
  * closes the Cursor.
  */
 inline fun <R> Cursor.useCursor(block: (Cursor) -> R): R {
-    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-        return this.use(block)
-    } else {
-        try {
-            return block(this)
-        } finally {
-            this.close()
-        }
-    }
+    return this.use(block)
 }
 
 /**
