@@ -21,7 +21,6 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.FullSpan
 import androidx.compose.foundation.lazy.staggeredgrid.LazyStaggeredGridLaneInfo.Companion.Unset
-import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -111,59 +110,57 @@ internal fun LazyLayoutMeasureScope.measureStaggeredGrid(
     val initialItemIndices: IntArray
     val initialItemOffsets: IntArray
 
-    Snapshot.withoutReadObservation {
-        // ensure scroll position is up to date
-        val firstVisibleIndices =
-            state.updateScrollPositionIfTheFirstItemWasMoved(
-                itemProvider,
-                state.scrollPosition.indices
-            )
-        val firstVisibleOffsets = state.scrollPosition.scrollOffsets
+    // ensure scroll position is up to date
+    val firstVisibleIndices =
+        state.updateScrollPositionIfTheFirstItemWasMoved(
+            itemProvider,
+            state.scrollPosition.indices
+        )
+    val firstVisibleOffsets = state.scrollPosition.scrollOffsets
 
-        initialItemIndices =
-            if (firstVisibleIndices.size == context.laneCount) {
-                firstVisibleIndices
-            } else {
-                // Grid got resized (or we are in a initial state)
-                // Adjust indices accordingly
-                context.laneInfo.reset()
-                IntArray(context.laneCount).apply {
-                    // Try to adjust indices in case grid got resized
-                    for (lane in indices) {
-                        this[lane] = if (
-                            lane < firstVisibleIndices.size && firstVisibleIndices[lane] != Unset
-                        ) {
-                            firstVisibleIndices[lane]
+    initialItemIndices =
+        if (firstVisibleIndices.size == context.laneCount) {
+            firstVisibleIndices
+        } else {
+            // Grid got resized (or we are in a initial state)
+            // Adjust indices accordingly
+            context.laneInfo.reset()
+            IntArray(context.laneCount).apply {
+                // Try to adjust indices in case grid got resized
+                for (lane in indices) {
+                    this[lane] = if (
+                        lane < firstVisibleIndices.size && firstVisibleIndices[lane] != Unset
+                    ) {
+                        firstVisibleIndices[lane]
+                    } else {
+                        if (lane == 0) {
+                            0
                         } else {
-                            if (lane == 0) {
-                                0
-                            } else {
-                                maxInRange(SpanRange(0, lane)) + 1
-                            }
+                            maxInRange(SpanRange(0, lane)) + 1
                         }
-                        // Ensure spans are updated to be in correct range
-                        context.laneInfo.setLane(this[lane], lane)
+                    }
+                    // Ensure spans are updated to be in correct range
+                    context.laneInfo.setLane(this[lane], lane)
+                }
+            }
+        }
+    initialItemOffsets =
+        if (firstVisibleOffsets.size == context.laneCount) {
+            firstVisibleOffsets
+        } else {
+            // Grid got resized (or we are in a initial state)
+            // Adjust offsets accordingly
+            IntArray(context.laneCount).apply {
+                // Adjust offsets to match previously set ones
+                for (lane in indices) {
+                    this[lane] = if (lane < firstVisibleOffsets.size) {
+                        firstVisibleOffsets[lane]
+                    } else {
+                        if (lane == 0) 0 else this[lane - 1]
                     }
                 }
             }
-        initialItemOffsets =
-            if (firstVisibleOffsets.size == context.laneCount) {
-                firstVisibleOffsets
-            } else {
-                // Grid got resized (or we are in a initial state)
-                // Adjust offsets accordingly
-                IntArray(context.laneCount).apply {
-                    // Adjust offsets to match previously set ones
-                    for (lane in indices) {
-                        this[lane] = if (lane < firstVisibleOffsets.size) {
-                            firstVisibleOffsets[lane]
-                        } else {
-                            if (lane == 0) 0 else this[lane - 1]
-                        }
-                    }
-                }
-            }
-    }
+        }
 
     return context.measure(
         initialScrollDelta = state.scrollToBeConsumed.fastRoundToInt(),
