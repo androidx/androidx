@@ -573,6 +573,25 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         onUserResizingDividerClickListener = listener
     }
 
+    private var userResizeBehavior = USER_RESIZE_RELAYOUT_WHEN_COMPLETE
+
+    /**
+     * Configure the [UserResizeBehavior] that will be used to adjust the [splitDividerPosition]
+     * when [isUserResizable] and the user drags the divider from side to side.
+     *
+     * The default is [USER_RESIZE_RELAYOUT_WHEN_COMPLETE], which will adjust the position to
+     * a freeform position respecting the minimum width of each pane when the user lets go of the
+     * divider. [USER_RESIZE_RELAYOUT_WHEN_MOVED] will resize both panes live as the user drags,
+     * though for complex layouts this can carry negative performance implications.
+     *
+     * This property can be set from layout xml as the `userResizeBehavior` attribute, using
+     * `relayoutWhenComplete` or `relayoutWhenMoved` to set [USER_RESIZE_RELAYOUT_WHEN_COMPLETE]
+     * or [USER_RESIZE_RELAYOUT_WHEN_MOVED], respectively.
+     */
+    fun setUserResizeBehavior(userResizeBehavior: UserResizeBehavior) {
+        this.userResizeBehavior = userResizeBehavior
+    }
+
     init {
         setWillNotDraw(false)
         ViewCompat.setAccessibilityDelegate(this, AccessibilityDelegate())
@@ -593,6 +612,16 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 R.styleable.SlidingPaneLayout_isChildClippingToResizeDividerEnabled,
                 true
             )
+            // Constants used in this `when` are defined in attrs.xml
+            userResizeBehavior = when (
+                val behaviorConstant = getInt(R.styleable.SlidingPaneLayout_userResizeBehavior, 0)
+            ) {
+                // relayoutWhenComplete
+                0 -> USER_RESIZE_RELAYOUT_WHEN_COMPLETE
+                // relayoutWhenMoved
+                1 -> USER_RESIZE_RELAYOUT_WHEN_MOVED
+                else -> error("$behaviorConstant is not a valid userResizeBehavior value")
+            }
         }
     }
 
@@ -2211,16 +2240,21 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
 
         override fun onUserResizeStarted() {
+            userResizeBehavior.onUserResizeStarted(this@SlidingPaneLayout, dragPositionX)
             drawableStateChanged()
         }
 
         override fun onUserResizeProgress() {
+            userResizeBehavior.onUserResizeProgress(this@SlidingPaneLayout, dragPositionX)
             invalidate()
         }
 
         override fun onUserResizeComplete(wasCancelled: Boolean) {
-            // TODO: Snapping hooks
-            if (!wasCancelled) splitDividerPosition = dragPositionX
+            if (wasCancelled) {
+                userResizeBehavior.onUserResizeCancelled(this@SlidingPaneLayout, dragPositionX)
+            } else {
+                userResizeBehavior.onUserResizeComplete(this@SlidingPaneLayout, dragPositionX)
+            }
             invalidate()
         }
 
@@ -2316,6 +2350,48 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         }
     }
 
+    /**
+     * Policy implementation for user resizing. See [USER_RESIZE_RELAYOUT_WHEN_COMPLETE] or
+     * [USER_RESIZE_RELAYOUT_WHEN_MOVED] for default implementations, or this interface may be
+     * implemented externally to apply additional behaviors such as snapping to predefined
+     * breakpoints.
+     */
+    interface UserResizeBehavior {
+        /**
+         * Called when a user resize begins and the user is now dragging the divider.
+         *
+         * @param slidingPaneLayout the layout being manipulated in case of stateless behaviors
+         * @param dividerPositionX the X coordinate of the divider being dragged in pixels
+         */
+        fun onUserResizeStarted(slidingPaneLayout: SlidingPaneLayout, dividerPositionX: Int)
+
+        /**
+         * Called when a user resize has progressed to a new divider position.
+         *
+         * @param slidingPaneLayout the layout being manipulated in case of stateless behaviors
+         * @param dividerPositionX the X coordinate of the divider being dragged in pixels
+         */
+        fun onUserResizeProgress(slidingPaneLayout: SlidingPaneLayout, dividerPositionX: Int)
+
+        /**
+         * Called when a user resize completed successfully; the user let go of the divider with
+         * intent to reposition it.
+         *
+         * @param slidingPaneLayout the layout being manipulated in case of stateless behaviors
+         * @param dividerPositionX the X coordinate of the divider being dragged in pixels
+         */
+        fun onUserResizeComplete(slidingPaneLayout: SlidingPaneLayout, dividerPositionX: Int)
+
+        /**
+         * Called when a user resize has been cancelled; typically another ancestor view has
+         * intercepted the touch event stream for the gesture.
+         *
+         * @param slidingPaneLayout the layout being manipulated in case of stateless behaviors
+         * @param dividerPositionX the X coordinate of the divider being dragged in pixels
+         */
+        fun onUserResizeCancelled(slidingPaneLayout: SlidingPaneLayout, dividerPositionX: Int)
+    }
+
     companion object {
         /**
          * User can freely swipe between list and detail panes.
@@ -2344,5 +2420,80 @@ open class SlidingPaneLayout @JvmOverloads constructor(
          * Value for [splitDividerPosition] indicating that
          */
         const val SPLIT_DIVIDER_POSITION_AUTO = -1
+
+        /**
+         * [UserResizeBehavior] where the divider can be released at any position respecting the
+         * minimum sizes of each pane view. Relayout occurs only when the divider is released.
+         *
+         * See [setUserResizeBehavior].
+         */
+        @JvmField
+        val USER_RESIZE_RELAYOUT_WHEN_COMPLETE: UserResizeBehavior = object : UserResizeBehavior {
+            override fun onUserResizeStarted(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+
+            override fun onUserResizeProgress(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+
+            override fun onUserResizeComplete(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                slidingPaneLayout.splitDividerPosition = dividerPositionX
+            }
+
+            override fun onUserResizeCancelled(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+        }
+
+        /**
+         * [UserResizeBehavior] where the divider can be released at any position respecting the
+         * minimum sizes of each pane view, but relayout will occur on each frame when the divider
+         * is moved. This setting can have significant performance implications on complex layouts.
+         *
+         * See [setUserResizeBehavior].
+         */
+        @JvmField
+        val USER_RESIZE_RELAYOUT_WHEN_MOVED: UserResizeBehavior = object : UserResizeBehavior {
+            override fun onUserResizeStarted(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+
+            override fun onUserResizeProgress(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                slidingPaneLayout.splitDividerPosition = dividerPositionX
+            }
+
+            override fun onUserResizeComplete(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+
+            override fun onUserResizeCancelled(
+                slidingPaneLayout: SlidingPaneLayout,
+                dividerPositionX: Int
+            ) {
+                // Do nothing
+            }
+        }
     }
 }

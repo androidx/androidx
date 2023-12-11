@@ -72,6 +72,58 @@ class UserResizeModeTest {
             .that(spl.isLayoutRequested)
             .isTrue()
         spl.measureAndLayoutForTest()
+        assertWithMessage("splitDividerPosition")
+            .that(spl.splitDividerPosition)
+            .isEqualTo(30)
+        assertWithMessage("leftPane width after drag")
+            .that(leftPane.width)
+            .isEqualTo(30)
+        assertWithMessage("rightPane width after drag")
+            .that(rightPane.width)
+            .isEqualTo(70)
+    }
+
+    @Test
+    fun layoutWithUserResizeEnabledLive() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        spl.setUserResizeBehavior(SlidingPaneLayout.USER_RESIZE_RELAYOUT_WHEN_MOVED)
+        val leftPane = spl[0]
+        val rightPane = spl[1]
+
+        assertWithMessage("leftPane width").that(leftPane.width).isEqualTo(50)
+        assertWithMessage("rightPane width").that(rightPane.width).isEqualTo(50)
+
+        spl.onTouchEvent(downEvent(50f, 50f))
+        spl.onTouchEvent(moveEvent(25f, 50f))
+        assertWithMessage("divider dragging").that(spl.isDividerDragging).isTrue()
+        assertWithMessage("layout requested with drag in progress")
+            .that(spl.isLayoutRequested)
+            .isTrue()
+        spl.measureAndLayoutForTest()
+        assertWithMessage("splitDividerPosition")
+            .that(spl.splitDividerPosition)
+            .isEqualTo(30)
+        assertWithMessage("leftPane width during drag")
+            .that(leftPane.width)
+            .isEqualTo(30)
+        assertWithMessage("rightPane width during drag")
+            .that(rightPane.width)
+            .isEqualTo(70)
+
+        spl.onTouchEvent(upEvent(25f, 50f))
+        assertWithMessage("visualDividerPosition")
+            .that(spl.visualDividerPosition)
+            .isEqualTo(30)
+        assertWithMessage("splitDividerPosition")
+            .that(spl.splitDividerPosition)
+            .isEqualTo(30)
+        assertWithMessage("leftPane width after drag")
+            .that(leftPane.width)
+            .isEqualTo(30)
+        assertWithMessage("rightPane width after drag")
+            .that(rightPane.width)
+            .isEqualTo(70)
     }
 
     @Test
