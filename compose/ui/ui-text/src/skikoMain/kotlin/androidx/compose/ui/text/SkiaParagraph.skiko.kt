@@ -188,15 +188,16 @@ internal class SkiaParagraph(
     private fun lineMetricsForOffset(offset: Int): LineMetrics? {
         checkOffsetIsValid(offset)
         val metrics = lineMetrics
-        for (line in metrics) {
-            if (offset < line.endIncludingNewline) {
-                return line
-            }
-        }
         if (metrics.isEmpty()) {
             return null
         }
-        return metrics.last()
+
+        val index = metrics.asList().binarySearch {
+            if (offset >= it.endIncludingNewline) -1 else 1
+        }
+
+        // The search will always return a negative value because the comparison never returns 0
+        return metrics[(-index - 1).coerceAtMost(metrics.lastIndex)]
     }
 
     override fun getLineHeight(lineIndex: Int) =
