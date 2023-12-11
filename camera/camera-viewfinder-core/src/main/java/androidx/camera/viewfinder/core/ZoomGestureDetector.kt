@@ -111,22 +111,6 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
      * If not set, this is enabled by default.
      */
     var isQuickZoomEnabled: Boolean = true
-        set(enabled) {
-            field = enabled
-            if (field && gestureDetector == null) {
-                val gestureListener: GestureDetector.SimpleOnGestureListener =
-                    object : GestureDetector.SimpleOnGestureListener() {
-                        override fun onDoubleTap(e: MotionEvent): Boolean {
-                            // Double tap: start watching for a swipe
-                            anchoredZoomStartX = e.x
-                            anchoredZoomStartY = e.y
-                            anchoredZoomMode = ANCHORED_ZOOM_MODE_DOUBLE_TAP
-                            return true
-                        }
-                    }
-                gestureDetector = GestureDetector(context, gestureListener)
-            }
-        }
 
     /**
      * Whether the stylus zoom gesture, in which the user uses a stylus and presses the button,
@@ -195,7 +179,16 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
     private var anchoredZoomStartX = 0f
     private var anchoredZoomStartY = 0f
     private var anchoredZoomMode = ANCHORED_ZOOM_MODE_NONE
-    private var gestureDetector: GestureDetector? = null
+    private var gestureDetector: GestureDetector =
+        GestureDetector(context, object : GestureDetector.SimpleOnGestureListener() {
+            override fun onDoubleTap(e: MotionEvent): Boolean {
+                // Double tap: start watching for a swipe
+                anchoredZoomStartX = e.x
+                anchoredZoomStartY = e.y
+                anchoredZoomMode = ANCHORED_ZOOM_MODE_DOUBLE_TAP
+                return true
+            }
+        })
     private var eventBeforeOrAboveStartingGestureEvent = false
 
     /**
@@ -218,7 +211,7 @@ class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
 
         // Forward the event to check for double tap gesture
         if (isQuickZoomEnabled) {
-            gestureDetector!!.onTouchEvent(event)
+            gestureDetector.onTouchEvent(event)
         }
 
         val count = event.pointerCount
