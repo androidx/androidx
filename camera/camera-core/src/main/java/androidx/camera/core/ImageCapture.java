@@ -498,8 +498,8 @@ public final class ImageCapture extends UseCase {
     /**
      * Get the flash mode.
      *
-     * @return the flashMode. Value is {@link #FLASH_MODE_AUTO}, {@link #FLASH_MODE_ON}, or
-     * {@link #FLASH_MODE_OFF}.
+     * @return the flashMode. Value is {@link #FLASH_MODE_AUTO}, {@link #FLASH_MODE_ON},
+     * {@link #FLASH_MODE_SCREEN}, or {@link #FLASH_MODE_OFF}.
      */
     @FlashMode
     public int getFlashMode() {
