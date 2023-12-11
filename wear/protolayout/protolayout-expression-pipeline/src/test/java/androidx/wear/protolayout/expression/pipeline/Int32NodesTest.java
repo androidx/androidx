@@ -23,7 +23,6 @@ import static androidx.wear.protolayout.expression.proto.DynamicProto.Arithmetic
 import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32RoundMode.ROUND_MODE_CEILING;
 import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32RoundMode.ROUND_MODE_FLOOR;
 import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32RoundMode.ROUND_MODE_ROUND;
-import static androidx.wear.protolayout.expression.proto.DynamicProto.FloatToInt32RoundMode.ROUND_MODE_UNDEFINED;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -657,10 +656,14 @@ public class Int32NodesTest {
     }
 
     @Test
-    public void testFloatToInt32Node__unknownRoundType_throws() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> evaluateFloatToInt32Expression(12.34f, ROUND_MODE_UNDEFINED));
+    public void testFloatToInt32Node_unspecifiedRoundingMode_defaultsToFloor() {
+        assertThat(evaluateFloatToInt32Expression(12.001f)).isEqualTo(12);
+        assertThat(evaluateFloatToInt32Expression(12.999f)).isEqualTo(12);
+        assertThat(evaluateFloatToInt32Expression(13.000f)).isEqualTo(13);
+    }
+
+    @Test
+    public void testFloatToInt32Node__unrecognizedRoundType_throws() {
         assertThrows(
                 IllegalArgumentException.class,
                 () -> evaluateFloatToInt32Expression(12.34f, -1 /* UNRECOGNIZED */));
@@ -697,6 +700,18 @@ public class Int32NodesTest {
                         DynamicProto.FloatToInt32Op.newBuilder()
                                 .setRoundModeValue(roundMode)
                                 .build(),
+                        new AddToListCallback<>(results));
+        node.getIncomingCallback().onPreUpdate();
+        node.getIncomingCallback().onData(value);
+
+        return results.get(0);
+    }
+
+    private static int evaluateFloatToInt32Expression(float value) {
+        List<Integer> results = new ArrayList<>();
+        Int32Nodes.FloatToInt32Node node =
+                new Int32Nodes.FloatToInt32Node(
+                        DynamicProto.FloatToInt32Op.newBuilder().build(),
                         new AddToListCallback<>(results));
         node.getIncomingCallback().onPreUpdate();
         node.getIncomingCallback().onData(value);
