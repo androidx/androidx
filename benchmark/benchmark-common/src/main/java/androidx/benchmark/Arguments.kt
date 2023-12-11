@@ -16,7 +16,6 @@
 
 package androidx.benchmark
 
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.annotation.RestrictTo
@@ -91,14 +90,11 @@ object Arguments {
         val argumentName = "profiling.mode"
         val argumentValue = getBenchmarkArgument(argumentName, "DEFAULT_VAL")
         if (argumentValue == "DEFAULT_VAL") {
-            return if (Build.VERSION.SDK_INT in 22..30) {
-                MethodTracing to true
-            } else {
-                // Method tracing can corrupt the stack on API 21, see b/300658578
-                // On API 31+ (where ART mainline updates are available), it causes regressions in
-                // jit behavior, see b/303686344
-                null to true
-            }
+            // NOTE: Method tracing currently off by default, as it is unsafe in many OS versions
+            // API 21 (b/300658578) Can corrupt the stack
+            // API 29/30 (b/313868903) causes regressions in subsequent benchmark runs, but no jit
+            // API 31+ (b/303686344) can causes regressions with jit depending on mainline version
+            return null to true
         }
 
         val profiler = Profiler.getByName(argumentValue)
