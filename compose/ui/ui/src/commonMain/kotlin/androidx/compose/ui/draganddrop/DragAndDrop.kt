@@ -36,67 +36,6 @@ expect class DragAndDropEvent
 internal expect val DragAndDropEvent.positionInRoot: Offset
 
 /**
- * A factory method for creating a [DragAndDropTarget] to receive transfer data from a
- * drag and drop session.
- *
- * @param onDrop The item has been dropped inside this [DragAndDropTarget].
- * returning true indicates that the [DragAndDropEvent] was consumed, false indicates it was
- * rejected.
- * @see [DragAndDropTarget.onDrop]
- *
- * @param onStarted The drag and drop session has begun. This gives this [DragAndDropTarget]
- * an opportunity to present itself in a way to indicate it is capable of receiving a
- * drag and drop gesture.
- * @see [DragAndDropTarget.onStarted]
- *
- * @param onEntered The item being dropped has entered into the bounds of this [DragAndDropTarget].
- * @see [DragAndDropTarget.onEntered]
- *
- * @param onMoved The item being dropped has moved within the bounds of this [DragAndDropTarget].
- * @see [DragAndDropTarget.onMoved]
- *
- * @param onChanged The event in the current drag and drop session has changed within
- * the bounds of this [DragAndDropTarget].
- * @see [DragAndDropTarget.onChanged]
- *
- * @param onExited The item being dropped has moved outside the bounds of this [DragAndDropTarget].
- * @see [DragAndDropTarget.onExited]
- *
- * @param onEnded The drag and drop gesture is complete.
- * @see [DragAndDropTarget.onEnded]
- */
-fun DragAndDropTarget(
-    onDrop: (event: DragAndDropEvent) -> Boolean,
-    onStarted: ((event: DragAndDropEvent) -> Unit)? = null,
-    onEntered: ((event: DragAndDropEvent) -> Unit)? = null,
-    onMoved: ((event: DragAndDropEvent) -> Unit)? = null,
-    onChanged: ((event: DragAndDropEvent) -> Unit)? = null,
-    onExited: ((event: DragAndDropEvent) -> Unit)? = null,
-    onEnded: ((event: DragAndDropEvent) -> Unit)? = null,
-): DragAndDropTarget = object : DragAndDropTarget {
-    override fun onDrop(event: DragAndDropEvent): Boolean =
-        onDrop.invoke(event)
-
-    override fun onStarted(event: DragAndDropEvent) =
-        onStarted?.invoke(event) ?: Unit
-
-    override fun onEntered(event: DragAndDropEvent) =
-        onEntered?.invoke(event) ?: Unit
-
-    override fun onMoved(event: DragAndDropEvent) =
-        onMoved?.invoke(event) ?: Unit
-
-    override fun onExited(event: DragAndDropEvent) =
-        onExited?.invoke(event) ?: Unit
-
-    override fun onChanged(event: DragAndDropEvent) =
-        onChanged?.invoke(event) ?: Unit
-
-    override fun onEnded(event: DragAndDropEvent) =
-        onEnded?.invoke(event) ?: Unit
-}
-
-/**
  * Provides a means of receiving a transfer data from a drag and drop session.
  */
 interface DragAndDropTarget {
