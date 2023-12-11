@@ -2619,13 +2619,13 @@ package androidx.compose.ui.node {
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void forceAccessibilityForTesting();
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.semantics.SemanticsOwner getSemanticsOwner();
-    method public androidx.compose.ui.text.input.TextInputService getTextInputService();
+    method @Deprecated public androidx.compose.ui.text.input.TextInputService getTextInputService();
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public default void measureAndLayoutForTest();
     method public boolean sendKeyEvent(android.view.KeyEvent keyEvent);
     method @SuppressCompatibility @androidx.compose.ui.ExperimentalComposeUiApi public void setAccessibilityEventBatchIntervalMillis(long accessibilityInterval);
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract androidx.compose.ui.semantics.SemanticsOwner semanticsOwner;
-    property public abstract androidx.compose.ui.text.input.TextInputService textInputService;
+    property @Deprecated public abstract androidx.compose.ui.text.input.TextInputService textInputService;
   }
 
   public interface SemanticsModifierNode extends androidx.compose.ui.node.DelegatableNode {
@@ -2783,7 +2783,7 @@ package androidx.compose.ui.platform {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> getLocalInputModeManager();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> getLocalLayoutDirection();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController> getLocalSoftwareKeyboardController();
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService> getLocalTextInputService();
+    method @Deprecated public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService> getLocalTextInputService();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> getLocalTextToolbar();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> getLocalUriHandler();
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.ViewConfiguration> getLocalViewConfiguration();
@@ -2799,7 +2799,7 @@ package androidx.compose.ui.platform {
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.input.InputModeManager> LocalInputModeManager;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.unit.LayoutDirection> LocalLayoutDirection;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.SoftwareKeyboardController> LocalSoftwareKeyboardController;
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService> LocalTextInputService;
+    property @Deprecated public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.text.input.TextInputService> LocalTextInputService;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.TextToolbar> LocalTextToolbar;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.UriHandler> LocalUriHandler;
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.platform.ViewConfiguration> LocalViewConfiguration;

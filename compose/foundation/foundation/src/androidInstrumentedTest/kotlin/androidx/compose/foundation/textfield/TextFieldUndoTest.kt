@@ -19,7 +19,6 @@ package androidx.compose.foundation.textfield
 import android.view.KeyEvent
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -28,18 +27,15 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 import androidx.compose.ui.input.key.nativeKeyCode
-import androidx.compose.ui.platform.LocalTextInputService
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.performKeyPress
-import androidx.compose.ui.text.input.TextInputService
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.mockito.kotlin.mock
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
@@ -51,21 +47,16 @@ class TextFieldUndoTest {
     @OptIn(ExperimentalComposeUiApi::class)
     @Test
     fun undo_redo() {
-        val textInputService = TextInputService(mock())
         val state = mutableStateOf("hi")
         val focusFequester = FocusRequester()
         rule.setContent {
-            CompositionLocalProvider(
-                LocalTextInputService provides textInputService
-            ) {
-                BasicTextField(
-                    value = state.value,
-                    modifier = Modifier.focusRequester(focusFequester),
-                    onValueChange = {
-                        state.value = it
-                    }
-                )
-            }
+            BasicTextField(
+                value = state.value,
+                modifier = Modifier.focusRequester(focusFequester),
+                onValueChange = {
+                    state.value = it
+                }
+            )
         }
 
         rule.runOnIdle { focusFequester.requestFocus() }
