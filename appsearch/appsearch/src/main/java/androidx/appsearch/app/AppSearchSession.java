@@ -192,8 +192,9 @@ public interface AppSearchSession extends Closeable {
      * <p>propertyDefined takes a string specifying the property of interest and matches all
      * documents of any type that defines the specified property
      * (ex. `propertyDefined("sender.name")`). Note that propertyDefined will match so long as
-     * the document's type defines the specified property. It does NOT require that the document
-     * actually hold any values for this property.
+     * the document's type defines the specified property. Unlike the "hasProperty" function
+     * below, this function does NOT require that the document actually hold any values for this
+     * property.
      *
      * <p>{@link Features#NUMERIC_SEARCH}: This feature covers numeric search expressions. In the
      * query language, the values of properties that have
@@ -208,6 +209,19 @@ public interface AppSearchSession extends Closeable {
      * (quotation marks).
      *
      * <p>Ex. `"foo/bar" OR baz` will ensure that 'foo/bar' is treated as a single 'verbatim' token.
+     *
+     * <p>{@link Features#LIST_FILTER_HAS_PROPERTY_FUNCTION}: This feature covers the
+     * "hasProperty" function in query expressions, which takes a string specifying the property
+     * of interest and matches all documents that hold values for this property. Not to be
+     * confused with the "propertyDefined" function, which checks whether a document's schema
+     * has defined the property, instead of whether a document itself has this property.
+     *
+     * <p>Ex. `foo hasProperty("sender.name")` will return all documents that have the term "foo"
+     * AND have values in the property "sender.name". Consider two documents, documentA and
+     * documentB, of the same schema with an optional property "sender.name". If documentA sets
+     * "foo" in this property but documentB does not, then `hasProperty("sender.name")` will only
+     * match documentA. However, `propertyDefined("sender.name")` will match both documentA and
+     * documentB, regardless of whether a value is actually set.
      *
      * <p>The availability of each of these features can be checked by calling
      * {@link Features#isFeatureSupported} with the desired feature.

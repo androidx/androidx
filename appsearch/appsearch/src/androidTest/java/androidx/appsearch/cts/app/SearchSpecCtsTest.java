@@ -117,6 +117,22 @@ public class SearchSpecCtsTest {
         assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
     }
 
+    // TODO(b/309826655): Flag guard this test.
+    @Test
+    public void testBuildSearchSpec_hasProperty() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setNumericSearchEnabled(true)
+                .setVerbatimSearchEnabled(true)
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterHasPropertyFunctionEnabled(true)
+                .build();
+
+        assertThat(searchSpec.isNumericSearchEnabled()).isTrue();
+        assertThat(searchSpec.isVerbatimSearchEnabled()).isTrue();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
+        assertThat(searchSpec.isListFilterHasPropertyFunctionEnabled()).isTrue();
+    }
+
     @Test
     public void testGetProjectionTypePropertyMasks() {
         SearchSpec searchSpec = new SearchSpec.Builder()
@@ -404,6 +420,24 @@ public class SearchSpecCtsTest {
         assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isFalse();
     }
 
+    // TODO(b/309826655): Flag guard this test.
+    @Test
+    public void testSetFeatureEnabledToFalse_hasProperty() {
+        SearchSpec.Builder builder = new SearchSpec.Builder();
+        SearchSpec searchSpec = builder
+                .setListFilterQueryLanguageEnabled(true)
+                .setListFilterHasPropertyFunctionEnabled(true)
+                .build();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isTrue();
+        assertThat(searchSpec.isListFilterHasPropertyFunctionEnabled()).isTrue();
+
+        searchSpec = builder
+                .setListFilterQueryLanguageEnabled(false)
+                .setListFilterHasPropertyFunctionEnabled(false)
+                .build();
+        assertThat(searchSpec.isListFilterQueryLanguageEnabled()).isFalse();
+        assertThat(searchSpec.isListFilterHasPropertyFunctionEnabled()).isFalse();
+    }
 
     @Test
     public void testInvalidAdvancedRanking() {

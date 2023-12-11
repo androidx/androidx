@@ -83,6 +83,11 @@ public final class SearchSpecToGmsConverter {
                                 + "LIST_FILTER_QUERY_LANGUAGE) are not supported with this "
                                 + "backend/Android API level combination.");
             }
+            if (jetpackSearchSpec.isListFilterHasPropertyFunctionEnabled()) {
+                // TODO(b/309826655): Remove this once the hasProperty function becomes available.
+                throw new UnsupportedOperationException(Features.LIST_FILTER_HAS_PROPERTY_FUNCTION
+                        + " is not available on this AppSearch implementation.");
+            }
         }
 
         if (!jetpackSearchSpec.getPropertyWeights().isEmpty()) {

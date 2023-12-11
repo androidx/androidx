@@ -26,4 +26,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_SAFE_PARCELABLE).isEqualTo(
                 "com.android.appsearch.flags.enable_safe_parcelable");
     }
+
+    @Test
+    public void testFlagValue_enableListFilterHasPropertyFunction() {
+        assertThat(Flags.FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION).isEqualTo(
+                "com.android.appsearch.flags.enable_list_filter_has_property_function");
+    }
 }
