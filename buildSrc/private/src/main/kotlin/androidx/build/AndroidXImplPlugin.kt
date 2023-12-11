@@ -1359,25 +1359,26 @@ fun Project.validateProjectParser(extension: AndroidXExtension) {
         if (!extension.runProjectParser) return@whenReady
 
         val parsed = project.parse()
+        val errorPrefix = "ProjectParser error parsing ${project.path}."
         check(extension.type == parsed.libraryType) {
-            "ProjectParser incorrectly computed libraryType = ${parsed.libraryType} " +
+            "$errorPrefix Incorrectly computed libraryType = ${parsed.libraryType} " +
                 "instead of ${extension.type}"
         }
         check(extension.publish == parsed.publish) {
-            "ProjectParser incorrectly computed publish = ${parsed.publish} " +
+            "$errorPrefix Incorrectly computed publish = ${parsed.publish} " +
                 "instead of ${extension.publish}"
         }
         check(extension.shouldPublish() == parsed.shouldPublish()) {
-            "ProjectParser incorrectly computed shouldPublish() = ${parsed.shouldPublish()} " +
+            "$errorPrefix Incorrectly computed shouldPublish() = ${parsed.shouldPublish()} " +
                 "instead of ${extension.shouldPublish()}"
         }
         check(extension.shouldRelease() == parsed.shouldRelease()) {
-            "ProjectParser incorrectly computed shouldRelease() = ${parsed.shouldRelease()} " +
+            "$errorPrefix Incorrectly computed shouldRelease() = ${parsed.shouldRelease()} " +
                 "instead of ${extension.shouldRelease()}"
         }
         check(extension.projectDirectlySpecifiesMavenVersion == parsed.specifiesVersion) {
-            "ProjectParser incorrectly computed specifiesVersion = ${parsed.specifiesVersion}" +
-                "instead of ${extension.projectDirectlySpecifiesMavenVersion}"
+            "$errorPrefix Incorrectly computed specifiesVersion = ${parsed.specifiesVersion} " +
+                " instead of ${extension.projectDirectlySpecifiesMavenVersion}"
         }
     }
 }
