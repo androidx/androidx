@@ -3108,7 +3108,7 @@ class CompositionTests {
             }
         }
 
-        val effectiveHash = compositeHash xor (parentHash rol 3)
+        val effectiveHash = compositeHash xor (parentHash rol 6)
         assertEquals(0, effectiveHash)
     }
 
@@ -3123,8 +3123,8 @@ class CompositionTests {
             }
         }
 
-        val effectiveHash = compositeHash xor (parentHash rol 3)
-        assertEquals(1, effectiveHash)
+        val effectiveHash = compositeHash xor (parentHash rol 6)
+        assertEquals(8, effectiveHash)
     }
 
     @Test // regression test for b/188015757
