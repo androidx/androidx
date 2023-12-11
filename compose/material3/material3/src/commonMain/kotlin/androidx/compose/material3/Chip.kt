@@ -53,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.layout.layoutId
@@ -1503,6 +1504,13 @@ object SuggestionChipDefaults {
     /**
      * Creates a [ChipColors] that represents the default container, label, and icon colors used in
      * a flat [SuggestionChip].
+     */
+    @Composable
+    fun suggestionChipColors() = MaterialTheme.colorScheme.defaultSuggestionChipColors
+
+    /**
+     * Creates a [ChipColors] that represents the default container, label, and icon colors used in
+     * a flat [SuggestionChip].
      *
      * @param containerColor the container color of this chip when enabled
      * @param labelColor the label color of this chip when enabled
@@ -1513,15 +1521,13 @@ object SuggestionChipDefaults {
      */
     @Composable
     fun suggestionChipColors(
-        containerColor: Color = Color.Transparent,
-        labelColor: Color = SuggestionChipTokens.LabelTextColor.value,
-        iconContentColor: Color = SuggestionChipTokens.LeadingIconColor.value,
-        disabledContainerColor: Color = Color.Transparent,
-        disabledLabelColor: Color = SuggestionChipTokens.DisabledLabelTextColor.value
-            .copy(alpha = SuggestionChipTokens.DisabledLabelTextOpacity),
-        disabledIconContentColor: Color = SuggestionChipTokens.DisabledLeadingIconColor.value
-            .copy(alpha = SuggestionChipTokens.DisabledLeadingIconOpacity)
-    ): ChipColors = ChipColors(
+        containerColor: Color = Color.Unspecified,
+        labelColor: Color = Color.Unspecified,
+        iconContentColor: Color = Color.Unspecified,
+        disabledContainerColor: Color = Color.Unspecified,
+        disabledLabelColor: Color = Color.Unspecified,
+        disabledIconContentColor: Color = Color.Unspecified
+    ): ChipColors = MaterialTheme.colorScheme.defaultSuggestionChipColors.copy(
         containerColor = containerColor,
         labelColor = labelColor,
         leadingIconContentColor = iconContentColor,
@@ -1529,8 +1535,7 @@ object SuggestionChipDefaults {
         disabledContainerColor = disabledContainerColor,
         disabledLabelColor = disabledLabelColor,
         disabledLeadingIconContentColor = disabledIconContentColor,
-        disabledTrailingIconContentColor = Color.Unspecified
-    )
+        disabledTrailingIconContentColor = Color.Unspecified)
 
     /**
      * Creates a [ChipElevation] that will animate between the provided values according to the
@@ -2222,6 +2227,29 @@ class ChipColors constructor(
     // TODO(b/113855296): Support other states: hover, focus, drag
 ) {
     /**
+     * Returns a copy of this ChipColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        containerColor: Color = this.containerColor,
+        labelColor: Color = this.labelColor,
+        leadingIconContentColor: Color = this.leadingIconContentColor,
+        trailingIconContentColor: Color = this.trailingIconContentColor,
+        disabledContainerColor: Color = this.disabledContainerColor,
+        disabledLabelColor: Color = this.disabledLabelColor,
+        disabledLeadingIconContentColor: Color = this.disabledLeadingIconContentColor,
+        disabledTrailingIconContentColor: Color = this.disabledTrailingIconContentColor
+    ) = ChipColors(
+       containerColor.takeOrElse { this.containerColor },
+       labelColor.takeOrElse { this.labelColor },
+       leadingIconContentColor.takeOrElse { this.leadingIconContentColor },
+       trailingIconContentColor.takeOrElse { this.trailingIconContentColor },
+       disabledContainerColor.takeOrElse { this.disabledContainerColor },
+       disabledLabelColor.takeOrElse { this.disabledLabelColor },
+       disabledLeadingIconContentColor.takeOrElse { this.disabledLeadingIconContentColor },
+       disabledTrailingIconContentColor.takeOrElse { this.disabledTrailingIconContentColor }
+    )
+    /**
      * Represents the container color for this chip, depending on [enabled].
      *
      * @param enabled whether the chip is enabled
@@ -2286,6 +2314,26 @@ class ChipColors constructor(
         return result
     }
 }
+
+internal val ColorScheme.defaultSuggestionChipColors: ChipColors
+    get() {
+        return defaultSuggestionChipColorsCached ?: ChipColors(
+            containerColor = Color.Transparent,
+            labelColor = fromToken(SuggestionChipTokens.LabelTextColor),
+            leadingIconContentColor = fromToken(SuggestionChipTokens.LeadingIconColor),
+            trailingIconContentColor = Color.Unspecified,
+            disabledContainerColor = Color.Transparent,
+            disabledLabelColor = fromToken(SuggestionChipTokens.DisabledLabelTextColor)
+                .copy(alpha = SuggestionChipTokens.DisabledLabelTextOpacity),
+            disabledLeadingIconContentColor =
+            fromToken(SuggestionChipTokens.DisabledLeadingIconColor)
+                .copy(alpha = SuggestionChipTokens.DisabledLeadingIconOpacity),
+            disabledTrailingIconContentColor = Color.Unspecified
+
+        ).also {
+            defaultSuggestionChipColorsCached = it
+        }
+    }
 
 /**
  * Represents the container and content colors used in a selectable chip in different states.
