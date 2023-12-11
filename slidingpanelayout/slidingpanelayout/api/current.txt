@@ -43,6 +43,7 @@ package androidx.slidingpanelayout.widget {
     method public void setShadowResourceRight(@DrawableRes int resId);
     method @Deprecated public void setSliderFadeColor(int);
     method public final void setSplitDividerPosition(int);
+    method public final void setUserResizeBehavior(androidx.slidingpanelayout.widget.SlidingPaneLayout.UserResizeBehavior userResizeBehavior);
     method public final void setUserResizingDividerDrawable(android.graphics.drawable.Drawable? drawable);
     method public final void setUserResizingDividerDrawable(@DrawableRes int resId);
     method public final void setUserResizingEnabled(boolean);
@@ -66,6 +67,8 @@ package androidx.slidingpanelayout.widget {
     field public static final int LOCK_MODE_LOCKED_OPEN = 1; // 0x1
     field public static final int LOCK_MODE_UNLOCKED = 0; // 0x0
     field public static final int SPLIT_DIVIDER_POSITION_AUTO = -1; // 0xffffffff
+    field public static final androidx.slidingpanelayout.widget.SlidingPaneLayout.UserResizeBehavior USER_RESIZE_RELAYOUT_WHEN_COMPLETE;
+    field public static final androidx.slidingpanelayout.widget.SlidingPaneLayout.UserResizeBehavior USER_RESIZE_RELAYOUT_WHEN_MOVED;
   }
 
   public static final class SlidingPaneLayout.Companion {
@@ -96,6 +99,13 @@ package androidx.slidingpanelayout.widget {
 
   public static fun interface SlidingPaneLayout.SlideableStateListener {
     method public void onSlideableStateChanged(boolean isSlideable);
+  }
+
+  public static interface SlidingPaneLayout.UserResizeBehavior {
+    method public void onUserResizeCancelled(androidx.slidingpanelayout.widget.SlidingPaneLayout slidingPaneLayout, int dividerPositionX);
+    method public void onUserResizeComplete(androidx.slidingpanelayout.widget.SlidingPaneLayout slidingPaneLayout, int dividerPositionX);
+    method public void onUserResizeProgress(androidx.slidingpanelayout.widget.SlidingPaneLayout slidingPaneLayout, int dividerPositionX);
+    method public void onUserResizeStarted(androidx.slidingpanelayout.widget.SlidingPaneLayout slidingPaneLayout, int dividerPositionX);
   }
 
 }
