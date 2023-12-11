@@ -64,5 +64,9 @@ package @RequiresApi(21) androidx.camera.viewfinder.surface {
   public static final class ViewfinderSurfaceRequest.Result.Companion {
   }
 
+  public final class ViewfinderSurfaceRequestUtil {
+    method @RequiresApi(21) public static androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder populateFromCharacteristics(androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Builder, android.hardware.camera2.CameraCharacteristics cameraCharacteristics);
+  }
+
 }
 
