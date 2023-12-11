@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.packFloats
 
 /**
  * Default identifier for the root group if a Vector graphic
@@ -168,7 +169,8 @@ fun rememberVectorPainter(
 @Composable
 fun rememberVectorPainter(image: ImageVector): VectorPainter {
     val density = LocalDensity.current
-    return remember(image.genId, density) {
+    val key = packFloats(image.genId.toFloat(), density.density)
+    return remember(key) {
         createVectorPainterFromImageVector(
             density,
             image,
