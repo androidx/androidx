@@ -18,9 +18,7 @@
 
 #include <jni.h>
 
-#include <sys/system_properties.h>
-
-#include <mutex>
+#include <android/api-level.h>
 
 #define JNI_CLASS_NAME "androidx/graphics/path/PathIteratorPreApi34Impl"
 #define JNI_CLASS_NAME_CONVERTER "androidx/graphics/path/ConicConverter"
@@ -29,18 +27,6 @@ struct {
     jclass jniClass;
     jfieldID nativePath;
 } sPath{};
-
-uint32_t sApiLevel = 0;
-std::once_flag sApiLevelOnceFlag;
-
-static uint32_t api_level() {
-    std::call_once(sApiLevelOnceFlag, []() {
-        char sdkVersion[PROP_VALUE_MAX];
-        __system_property_get("ro.build.version.sdk", sdkVersion);
-        sApiLevel = atoi(sdkVersion); // NOLINT(cert-err34-c)
-    });
-    return sApiLevel;
-}
 
 static jlong createPathIterator(JNIEnv* env, jobject,
         jobject path_, jint conicEvaluation_, jfloat tolerance_) {
@@ -54,7 +40,7 @@ static jlong createPathIterator(JNIEnv* env, jobject,
     int count;
     PathIterator::VerbDirection direction;
 
-    const uint32_t apiLevel = api_level();
+    const uint32_t apiLevel = android_get_device_api_level();
     if (apiLevel >= 30) {
         auto* ref = reinterpret_cast<PathRef30*>(path->pathRef);
         points = ref->points;
@@ -208,8 +194,8 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void*) {
         if (converterClass == nullptr) return JNI_ERR;
         static const JNINativeMethod methods2[] = {
             {
-                (char *) "internalConicToQuadratics",
-                (char *) "([FI[FFF)I",
+                (char*) "internalConicToQuadratics",
+                (char*) "([FI[FFF)I",
                 reinterpret_cast<void*>(conicToQuadraticsWrapper)
             },
         };
