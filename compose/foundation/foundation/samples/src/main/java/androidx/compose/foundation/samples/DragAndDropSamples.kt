@@ -190,23 +190,27 @@ fun TextDragAndDropTargetSample(
             .fillMaxSize()
             .dragAndDropTarget(
                 shouldStartDragAndDrop = accept@{ startEvent ->
-                    val hasValidMimeType = startEvent.mimeTypes().any { eventMimeType ->
-                        validMimeTypePrefixes.any(eventMimeType::startsWith)
-                    }
+                    val hasValidMimeType = startEvent
+                        .mimeTypes()
+                        .any { eventMimeType ->
+                            validMimeTypePrefixes.any(eventMimeType::startsWith)
+                        }
                     hasValidMimeType
                 },
-                target = DragAndDropTarget(
-                    onStarted = {
+                target = object : DragAndDropTarget {
+                    override fun onStarted(event: DragAndDropEvent) {
                         backgroundColor = Color.DarkGray.copy(alpha = 0.2f)
-                    },
-                    onDrop = { event ->
+                    }
+
+                    override fun onDrop(event: DragAndDropEvent): Boolean {
                         onDragAndDropEventDropped(event)
-                        true
-                    },
-                    onEnded = {
+                        return true
+                    }
+
+                    override fun onEnded(event: DragAndDropEvent) {
                         backgroundColor = Color.Transparent
                     }
-                ),
+                },
             )
             .background(backgroundColor)
             .border(
@@ -416,28 +420,33 @@ private fun Modifier.stateDropTarget(
     shouldStartDragAndDrop = { startEvent ->
         startEvent.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_INTENT)
     },
-    target = DragAndDropTarget(
-        onStarted = {
+    target = object : DragAndDropTarget {
+        override fun onStarted(event: DragAndDropEvent) {
             state.onStarted()
-        },
-        onEntered = {
-            println("Entered ${state.name}")
+        }
+
+        override fun onEntered(event: DragAndDropEvent) {
             state.onEntered()
-        },
-        onMoved = {
+            println("Entered ${state.name}")
+        }
+
+        override fun onMoved(event: DragAndDropEvent) {
             println("Moved in ${state.name}")
-        },
-        onExited = {
+        }
+
+        override fun onExited(event: DragAndDropEvent) {
             println("Exited ${state.name}")
             state.onExited()
-        },
-        onEnded = {
+        }
+
+        override fun onEnded(event: DragAndDropEvent) {
             println("Ended in ${state.name}")
             state.onEnded()
-        },
-        onDrop = { event ->
+        }
+
+        override fun onDrop(event: DragAndDropEvent): Boolean {
             println("Dropped items in ${state.name}")
-            when (val transferredColor = event.toAndroidDragEvent().clipData.color()) {
+            return when (val transferredColor = event.toAndroidDragEvent().clipData.color()) {
                 null -> false
                 else -> {
                     state.onDropped(transferredColor)
@@ -445,7 +454,7 @@ private fun Modifier.stateDropTarget(
                 }
             }
         }
-    ),
+    }
 )
 
 @Stable
