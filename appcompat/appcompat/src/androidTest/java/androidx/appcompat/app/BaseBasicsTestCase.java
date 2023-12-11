@@ -149,7 +149,6 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
 
     @Test
     @SdkSuppress(maxSdkVersion = 20)
-    @RequiresApi(16)
     public void testFitSystemWindowsReachesContent() throws Throwable {
         final A activity = mActivityTestRule.getActivity();
         if (!canShowSystemUi(activity)) {
@@ -387,7 +386,6 @@ public abstract class BaseBasicsTestCase<A extends BaseTestActivity> {
         verify(apCallback).onSupportActionModeFinished(any(ActionMode.class));
     }
 
-    @RequiresApi(16)
     private WindowInsetsCompat waitForWindowInsets(@NonNull final View view) throws Throwable {
         final CountDownLatch latch = new CountDownLatch(1);
         final AtomicReference<WindowInsetsCompat> received = new AtomicReference<>();

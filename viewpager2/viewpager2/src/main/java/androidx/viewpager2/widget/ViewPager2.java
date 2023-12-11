@@ -957,7 +957,6 @@ public final class ViewPager2 extends ViewGroup {
         mAccessibilityProvider.onInitializeAccessibilityNodeInfo(info);
     }
 
-    @RequiresApi(16)
     @Override
     public boolean performAccessibilityAction(int action, @Nullable Bundle arguments) {
         if (mAccessibilityProvider.handlesPerformAccessibilityAction(action, arguments)) {

@@ -709,16 +709,14 @@ public class AccessibilityDelegateCompatTest extends
         mView.requestSendAccessibilityEvent(childView, event);
         verify(mockDelegate).onRequestSendAccessibilityEvent(mView, childView, event);
 
-        if (Build.VERSION.SDK_INT >= 16) {
-            mView.getAccessibilityNodeProvider();
-            verify(mockDelegate).getAccessibilityNodeProvider(mView);
+        mView.getAccessibilityNodeProvider();
+        verify(mockDelegate).getAccessibilityNodeProvider(mView);
 
-            final Bundle bundle = new Bundle();
-            mView.performAccessibilityAction(
-                    AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
-            verify(mockDelegate).performAccessibilityAction(
-                    mView, AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
-        }
+        final Bundle bundle = new Bundle();
+        mView.performAccessibilityAction(
+                AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
+        verify(mockDelegate).performAccessibilityAction(
+                mView, AccessibilityNodeInfoCompat.ACTION_ACCESSIBILITY_FOCUS, bundle);
     }
 
     private void assertMockBridgedAccessibilityDelegateCompatWorkingOnView(

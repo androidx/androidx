@@ -640,7 +640,7 @@ public final class PrintHelper {
             @Override
             protected Throwable doInBackground(Void... params) {
                 try {
-                    if (Api16Impl.isCanceled(cancellationSignal)) {
+                    if (cancellationSignal.isCanceled()) {
                         return null;
                     }
 
@@ -650,7 +650,7 @@ public final class PrintHelper {
                     Bitmap maybeGrayscale = convertBitmapForColorMode(bitmap,
                             Api19Impl.getColorMode(pdfAttributes));
 
-                    if (Api16Impl.isCanceled(cancellationSignal)) {
+                    if (cancellationSignal.isCanceled()) {
                         return null;
                     }
 
@@ -695,7 +695,7 @@ public final class PrintHelper {
                         // Finish the page.
                         Api19Impl.finishPage(pdfDocument, page);
 
-                        if (Api16Impl.isCanceled(cancellationSignal)) {
+                        if (cancellationSignal.isCanceled()) {
                             return null;
                         }
 
@@ -725,7 +725,7 @@ public final class PrintHelper {
 
             @Override
             protected void onPostExecute(Throwable throwable) {
-                if (Api16Impl.isCanceled(cancellationSignal)) {
+                if (cancellationSignal.isCanceled()) {
                     // Cancelled.
                     Api19Impl.onWriteCancelled(writeResultCallback);
                 } else if (throwable == null) {
@@ -839,19 +839,6 @@ public final class PrintHelper {
         c.setBitmap(null);
 
         return grayscale;
-    }
-
-    @RequiresApi(16)
-    static class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static boolean isCanceled(CancellationSignal cancellationSignal) {
-            return cancellationSignal.isCanceled();
-        }
-
     }
 
     @RequiresApi(19)

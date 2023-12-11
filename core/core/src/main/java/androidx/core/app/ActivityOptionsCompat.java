@@ -243,7 +243,6 @@ public class ActivityOptionsCompat {
         return new ActivityOptionsCompat();
     }
 
-    @RequiresApi(16)
     private static class ActivityOptionsCompatImpl extends ActivityOptionsCompat {
         private final ActivityOptions mActivityOptions;
 

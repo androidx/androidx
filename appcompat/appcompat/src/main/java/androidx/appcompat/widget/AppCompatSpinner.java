@@ -640,11 +640,7 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
                         }
                         final ViewTreeObserver vto = getViewTreeObserver();
                         if (vto != null) {
-                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                                Api16Impl.removeOnGlobalLayoutListener(vto, this);
-                            } else {
-                                vto.removeGlobalOnLayoutListener(this);
-                            }
+                            vto.removeOnGlobalLayoutListener(this);
                         }
                     }
                 };
@@ -1155,21 +1151,6 @@ public class AppCompatSpinner extends Spinner implements TintableBackgroundView 
         @DoNotInline
         static void setTextDirection(@NonNull View view, int textDirection) {
             view.setTextDirection(textDirection);
-        }
-    }
-
-    @RequiresApi(16)
-    private static final class Api16Impl {
-        private Api16Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static void removeOnGlobalLayoutListener(
-                @NonNull ViewTreeObserver viewTreeObserver,
-                @Nullable OnGlobalLayoutListener victim
-        ) {
-            viewTreeObserver.removeOnGlobalLayoutListener(victim);
         }
     }
 }
