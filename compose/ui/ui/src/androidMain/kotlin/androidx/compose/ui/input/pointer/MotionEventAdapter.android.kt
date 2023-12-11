@@ -25,6 +25,7 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_HOVER_ENTER
 import android.view.MotionEvent.ACTION_HOVER_EXIT
 import android.view.MotionEvent.ACTION_HOVER_MOVE
+import android.view.MotionEvent.ACTION_OUTSIDE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_SCROLL
@@ -85,7 +86,7 @@ internal class MotionEventAdapter {
         positionCalculator: PositionCalculator
     ): PointerInputEvent? {
         val action = motionEvent.actionMasked
-        if (action == ACTION_CANCEL) {
+        if (action == ACTION_CANCEL || action == ACTION_OUTSIDE) {
             motionEventToComposePointerIdMap.clear()
             canHover.clear()
             return null
