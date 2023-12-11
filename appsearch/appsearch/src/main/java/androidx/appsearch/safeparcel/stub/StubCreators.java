@@ -19,7 +19,9 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.app.SearchSuggestionResult;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.StorageInfo;
+import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.app.VisibilityDocument;
+import androidx.appsearch.app.VisibilityPermissionConfig;
 import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.safeparcel.PropertyConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.DocumentIndexingConfigParcel;
@@ -85,6 +87,15 @@ public class StubCreators {
 
     /** Stub creator for {@link androidx.appsearch.app.VisibilityDocument}. */
     public static class VisibilityDocumentCreator extends AbstractCreator<VisibilityDocument> {
+    }
+
+    /** Stub creator for {@link VisibilityConfig}. */
+    public static class VisibilityConfigCreator extends AbstractCreator<VisibilityConfig> {
+    }
+
+    /** Stub creator for {@link VisibilityPermissionConfig}. */
+    public static class VisibilityPermissionConfigCreator extends
+            AbstractCreator<VisibilityPermissionConfig> {
     }
 
     /** Stub creator for {@link androidx.appsearch.stats.SchemaMigrationStats}. */
