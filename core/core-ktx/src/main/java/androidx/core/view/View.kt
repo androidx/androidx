@@ -65,7 +65,7 @@ public inline fun View.doOnNextLayout(crossinline action: (view: View) -> Unit) 
  * @see doOnNextLayout
  */
 public inline fun View.doOnLayout(crossinline action: (view: View) -> Unit) {
-    if (ViewCompat.isLaidOut(this) && !isLayoutRequested) {
+    if (isLaidOut && !isLayoutRequested) {
         action(this)
     } else {
         doOnNextLayout {
@@ -93,7 +93,7 @@ public inline fun View.doOnPreDraw(
  * @see doOnDetach
  */
 public inline fun View.doOnAttach(crossinline action: (view: View) -> Unit) {
-    if (ViewCompat.isAttachedToWindow(this)) {
+    if (isAttachedToWindow) {
         action(this)
     } else {
         addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
@@ -117,7 +117,7 @@ public inline fun View.doOnAttach(crossinline action: (view: View) -> Unit) {
  * @see doOnAttach
  */
 public inline fun View.doOnDetach(crossinline action: (view: View) -> Unit) {
-    if (!ViewCompat.isAttachedToWindow(this)) {
+    if (!isAttachedToWindow) {
         action(this)
     } else {
         addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
@@ -232,7 +232,7 @@ public fun View.postOnAnimationDelayed(
  * @param config Bitmap config of the desired bitmap. Defaults to [Bitmap.Config.ARGB_8888].
  */
 public fun View.drawToBitmap(config: Bitmap.Config = Bitmap.Config.ARGB_8888): Bitmap {
-    if (!ViewCompat.isLaidOut(this)) {
+    if (!isLaidOut) {
         throw IllegalStateException("View needs to be laid out before calling drawToBitmap()")
     }
     return Bitmap.createBitmap(width, height, config).applyCanvas {
