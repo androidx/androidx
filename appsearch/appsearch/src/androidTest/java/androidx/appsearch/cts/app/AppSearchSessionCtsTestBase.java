@@ -741,6 +741,57 @@ public abstract class AppSearchSessionCtsTestBase {
     }
 
     @Test
+    public void testSetSchema_publiclyVisible() throws Exception {
+        assumeTrue(mDb1.getFeatures()
+                .isFeatureSupported(Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE));
+
+        PackageIdentifier pkg = new PackageIdentifier(mContext.getPackageName(), new byte[32]);
+        SetSchemaRequest request = new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA)
+                .setPubliclyVisibleSchema("builtin:Email", pkg).build();
+
+        mDb1.setSchemaAsync(request).get();
+        GetSchemaResponse getSchemaResponse = mDb1.getSchemaAsync().get();
+
+        assertThat(getSchemaResponse.getSchemas()).containsExactly(AppSearchEmail.SCHEMA);
+        assertThat(getSchemaResponse.getPubliclyVisibleSchemas())
+                .isEqualTo(ImmutableMap.of("builtin:Email", pkg));
+
+        AppSearchEmail email = new AppSearchEmail.Builder("namespace", "id1")
+                .setSubject("testPut example").build();
+
+        // mDb1 and mDb2 are in the same package, so we can't REALLY test out public acl. But we
+        // can make sure they their own documents under the Public ACL.
+        AppSearchBatchResult<String, Void> putResult =
+                checkIsBatchResultSuccess(mDb1.putAsync(
+                        new PutDocumentsRequest.Builder().addGenericDocuments(email).build()));
+        assertThat(putResult.getSuccesses()).containsExactly("id1", null);
+        assertThat(putResult.getFailures()).isEmpty();
+
+        GetByDocumentIdRequest getByDocumentIdRequest =
+                new GetByDocumentIdRequest.Builder("namespace")
+                        .addIds("id1")
+                        .build();
+        List<GenericDocument> outDocuments = doGet(mDb1, getByDocumentIdRequest);
+        assertThat(outDocuments).hasSize(1);
+        assertThat(outDocuments).containsExactly(email);
+    }
+
+    @Test
+    public void testSetSchema_publiclyVisible_unsupported() {
+        assumeFalse(mDb1.getFeatures()
+                .isFeatureSupported(Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE));
+
+        SetSchemaRequest request = new SetSchemaRequest.Builder()
+                .addSchemas(new AppSearchSchema.Builder("Email").build())
+                .setPubliclyVisibleSchema("Email",
+                        new PackageIdentifier(mContext.getPackageName(), new byte[32])).build();
+        Exception e = assertThrows(UnsupportedOperationException.class,
+                () -> mDb1.setSchemaAsync(request).get());
+        assertThat(e.getMessage()).isEqualTo("Publicly visible schema are not supported on this "
+                + "AppSearch implementation.");
+    }
+
+    @Test
     public void testGetSchema_longPropertyIndexingType() throws Exception {
         assumeTrue(mDb1.getFeatures().isFeatureSupported(Features.NUMERIC_SEARCH));
         AppSearchSchema inSchema = new AppSearchSchema.Builder("Test")

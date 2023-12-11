@@ -74,6 +74,7 @@ import com.google.android.icing.proto.StorageInfoProto;
 import com.google.android.icing.proto.StringIndexingConfig;
 import com.google.android.icing.proto.TermMatchType;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -4733,6 +4734,202 @@ public class AppSearchImplTest {
         assertThat(getResponse.getSchemas()).containsExactly(schemas.get(0));
         assertThat(getResponse.getSchemaTypesNotDisplayedBySystem()).containsExactly("VisibleType");
         assertThat(getResponse.getVersion()).isEqualTo(1);
+    }
+
+    @Test
+    public void testGetSchema_global_publicAcl() throws Exception {
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("PublicTypeA").build(),
+                new AppSearchSchema.Builder("PublicTypeB").build(),
+                new AppSearchSchema.Builder("PublicTypeC").build());
+
+        PackageIdentifier pkgA = new PackageIdentifier("A", new byte[32]);
+        PackageIdentifier pkgB = new PackageIdentifier("B", new byte[32]);
+        PackageIdentifier pkgC = new PackageIdentifier("C", new byte[32]);
+
+        // Create a new mAppSearchImpl with a mock Visibility Checker
+        mAppSearchImpl.close();
+        File tempFolder = mTemporaryFolder.newFolder();
+
+        // Package A is visible to package B & C, package B is visible to package C (based on
+        // canPackageQuery, which we are mocking).
+        Map<String, Set<String>> packageCanSee = ImmutableMap.of(
+                "A", ImmutableSet.of("A"),
+                "B", ImmutableSet.of("A", "B"),
+                "C", ImmutableSet.of("A", "B", "C"));
+        final VisibilityChecker publicAclMockChecker =
+                (callerAccess, packageName, prefixedSchema, visibilityStore) -> {
+                    VisibilityConfig param = visibilityStore.getVisibility(prefixedSchema);
+
+                    return packageCanSee.get(callerAccess.getCallingPackageName())
+                            .contains(param.getPubliclyVisibleTargetPackage()
+                                    .getPackageName());
+                };
+
+        mAppSearchImpl = AppSearchImpl.create(
+                tempFolder,
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new LocalStorageIcingOptionsConfig()
+                ),
+                /*initStatsBuilder=*/ null,
+                ALWAYS_OPTIMIZE,
+                publicAclMockChecker);
+
+        List<VisibilityConfig> visibilityConfigs = ImmutableList.of(
+                new VisibilityConfig.Builder("PublicTypeA")
+                        .setPubliclyVisibleTargetPackage(pkgA).build(),
+                new VisibilityConfig.Builder("PublicTypeB")
+                        .setPubliclyVisibleTargetPackage(pkgB).build(),
+                new VisibilityConfig.Builder("PublicTypeC")
+                        .setPubliclyVisibleTargetPackage(pkgC).build());
+
+        // Add the three schema types, each with their own publicly visible target package.
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                visibilityConfigs,
+                /*forceOverride=*/true,
+                /*version=*/1,
+                /*setSchemaStatsBuilder=*/null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        // Verify access to schemas based on calling package
+        GetSchemaResponse getResponse = mAppSearchImpl.getSchema(
+                "package",
+                "database",
+                new CallerAccess(pkgA.getPackageName()));
+        assertThat(getResponse.getSchemas()).containsExactly(schemas.get(0));
+        assertThat(getResponse.getPubliclyVisibleSchemas()).containsKey("PublicTypeA");
+
+        getResponse = mAppSearchImpl.getSchema(
+                "package",
+                "database",
+                new CallerAccess(pkgB.getPackageName()));
+        assertThat(getResponse.getSchemas()).containsExactly(schemas.get(0), schemas.get(1));
+        assertThat(getResponse.getPubliclyVisibleSchemas()).containsKey("PublicTypeA");
+        assertThat(getResponse.getPubliclyVisibleSchemas()).containsKey("PublicTypeB");
+
+        getResponse = mAppSearchImpl.getSchema(
+                "package",
+                "database",
+                new CallerAccess(pkgC.getPackageName()));
+        assertThat(getResponse.getSchemas()).containsExactlyElementsIn(schemas);
+        assertThat(getResponse.getPubliclyVisibleSchemas()).containsKey("PublicTypeA");
+        assertThat(getResponse.getPubliclyVisibleSchemas()).containsKey("PublicTypeB");
+        assertThat(getResponse.getPubliclyVisibleSchemas()).containsKey("PublicTypeC");
+    }
+
+    @Test
+    public void testGetSchema_global_publicAcl_removal() throws Exception {
+        // This test to ensure the proper documents are created through setSchema, then removed
+        // when setSchema is called again
+        List<AppSearchSchema> schemas = ImmutableList.of(
+                new AppSearchSchema.Builder("PublicTypeA").build(),
+                new AppSearchSchema.Builder("PublicTypeB").build(),
+                new AppSearchSchema.Builder("PublicTypeC").build());
+
+        PackageIdentifier pkgA = new PackageIdentifier("A", new byte[32]);
+        PackageIdentifier pkgB = new PackageIdentifier("B", new byte[32]);
+        PackageIdentifier pkgC = new PackageIdentifier("C", new byte[32]);
+
+        // Create a new mAppSearchImpl with a mock Visibility Checker
+        mAppSearchImpl.close();
+        File tempFolder = mTemporaryFolder.newFolder();
+
+        // Package A is visible to package B & C, package B is visible to package C (based on
+        // canPackageQuery, which we are mocking).
+        Map<String, Set<String>> packageCanSee = ImmutableMap.of(
+                "A", ImmutableSet.of("A"),
+                "B", ImmutableSet.of("A", "B"),
+                "C", ImmutableSet.of("A", "B", "C"));
+        final VisibilityChecker publicAclMockChecker =
+                (callerAccess, packageName, prefixedSchema, visibilityStore) -> {
+                    VisibilityConfig param = visibilityStore.getVisibility(prefixedSchema);
+
+                    return packageCanSee.get(callerAccess.getCallingPackageName())
+                            .contains(param.getPubliclyVisibleTargetPackage().getPackageName());
+                };
+
+        mAppSearchImpl = AppSearchImpl.create(
+                tempFolder,
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new LocalStorageIcingOptionsConfig()
+                ),
+                /*initStatsBuilder=*/ null,
+                ALWAYS_OPTIMIZE,
+                publicAclMockChecker);
+
+        List<VisibilityConfig> visibilityConfigs = ImmutableList.of(
+                new VisibilityConfig.Builder("PublicTypeA")
+                        .setPubliclyVisibleTargetPackage(pkgA).build(),
+                new VisibilityConfig.Builder("PublicTypeB")
+                        .setPubliclyVisibleTargetPackage(pkgB).build(),
+                new VisibilityConfig.Builder("PublicTypeC")
+                        .setPubliclyVisibleTargetPackage(pkgC).build());
+
+        // Add two schema types that are not displayed by the system.
+        InternalSetSchemaResponse internalSetSchemaResponse = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                visibilityConfigs,
+                /*forceOverride=*/true,
+                /*version=*/1,
+                /*setSchemaStatsBuilder=*/null);
+        assertThat(internalSetSchemaResponse.isSuccess()).isTrue();
+
+        // Now check for documents
+        GenericDocument visibilityOverlayA = mAppSearchImpl.getDocument(VISIBILITY_PACKAGE_NAME,
+                VISIBILITY_DATABASE_NAME, VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                "package$database/PublicTypeA", Collections.emptyMap());
+        GenericDocument visibilityOverlayB = mAppSearchImpl.getDocument(VISIBILITY_PACKAGE_NAME,
+                VISIBILITY_DATABASE_NAME, VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                "package$database/PublicTypeB", Collections.emptyMap());
+        GenericDocument visibilityOverlayC = mAppSearchImpl.getDocument(VISIBILITY_PACKAGE_NAME,
+                VISIBILITY_DATABASE_NAME, VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                "package$database/PublicTypeC", Collections.emptyMap());
+
+        assertThat(visibilityOverlayA.getPropertyString("publiclyVisibleTargetPackage"))
+                .isEqualTo("A");
+        assertThat(visibilityOverlayB.getPropertyString("publiclyVisibleTargetPackage"))
+                .isEqualTo("B");
+        assertThat(visibilityOverlayC.getPropertyString("publiclyVisibleTargetPackage"))
+                .isEqualTo("C");
+
+        // now undo the "public" setting
+        visibilityConfigs = ImmutableList.of(new VisibilityConfig.Builder("PublicTypeA").build(),
+                new VisibilityConfig.Builder("PublicTypeB").build(),
+                new VisibilityConfig.Builder("PublicTypeC").build());
+
+        InternalSetSchemaResponse internalSetSchemaResponseRemoved = mAppSearchImpl.setSchema(
+                "package",
+                "database",
+                schemas,
+                visibilityConfigs,
+                /*forceOverride=*/true,
+                /*version=*/1,
+                /*setSchemaStatsBuilder=*/null);
+        assertThat(internalSetSchemaResponseRemoved.isSuccess()).isTrue();
+
+        // Now check for documents again
+        Exception e = assertThrows(AppSearchException.class, () -> mAppSearchImpl.getDocument(
+                VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
+                VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                "package$database/PublicTypeA", Collections.emptyMap()));
+        assertThat(e.getMessage()).endsWith("not found.");
+        e = assertThrows(AppSearchException.class, () -> mAppSearchImpl.getDocument(
+                VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
+                VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                "package$database/PublicTypeB", Collections.emptyMap()));
+        assertThat(e.getMessage()).endsWith("not found.");
+        e = assertThrows(AppSearchException.class, () -> mAppSearchImpl.getDocument(
+                VISIBILITY_PACKAGE_NAME, VISIBILITY_DATABASE_NAME,
+                VisibilityConfig.PUBLIC_ACL_OVERLAY_NAMESPACE,
+                "package$database/PublicTypeC", Collections.emptyMap()));
+        assertThat(e.getMessage()).endsWith("not found.");
     }
 
     @Test

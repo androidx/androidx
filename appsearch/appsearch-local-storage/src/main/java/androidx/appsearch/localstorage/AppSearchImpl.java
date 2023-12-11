@@ -929,6 +929,14 @@ public final class AppSearchImpl implements Closeable {
                             responseBuilder.setRequiredPermissionsForSchemaTypeVisibility(typeName,
                                     visibleToPermissionsSet);
                         }
+
+                        // Check for Visibility properties from the overlay
+                        PackageIdentifier publiclyVisibleFromPackage =
+                                visibilityConfig.getPubliclyVisibleTargetPackage();
+                        if (publiclyVisibleFromPackage != null) {
+                            responseBuilder.setPubliclyVisibleSchema(
+                                    typeName, publiclyVisibleFromPackage);
+                        }
                     }
                 }
             }
