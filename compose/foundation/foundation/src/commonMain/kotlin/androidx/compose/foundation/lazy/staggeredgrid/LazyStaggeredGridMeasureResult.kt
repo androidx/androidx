@@ -137,7 +137,7 @@ internal fun LazyStaggeredGridLayoutInfo.findVisibleItem(
 
 internal class LazyStaggeredGridMeasureResult(
     val firstVisibleItemIndices: IntArray,
-    val firstVisibleItemScrollOffsets: IntArray,
+    var firstVisibleItemScrollOffsets: IntArray,
     var consumedScroll: Float,
     val measureResult: MeasureResult,
     var canScrollForward: Boolean,
@@ -208,8 +208,8 @@ internal class LazyStaggeredGridMeasureResult(
                 if (!canApply) return false
             }
         }
-        repeat(firstVisibleItemScrollOffsets.size) { index ->
-            firstVisibleItemScrollOffsets[index] -= delta
+        firstVisibleItemScrollOffsets = IntArray(firstVisibleItemScrollOffsets.size) { index ->
+            firstVisibleItemScrollOffsets[index] - delta
         }
         visibleItemsInfo.fastForEach {
             it.applyScrollDelta(delta)

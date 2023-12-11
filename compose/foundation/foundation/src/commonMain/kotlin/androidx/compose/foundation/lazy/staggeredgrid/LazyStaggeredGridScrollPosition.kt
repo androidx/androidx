@@ -20,10 +20,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.lazy.layout.LazyLayoutItemProvider
 import androidx.compose.foundation.lazy.layout.LazyLayoutNearestRangeState
 import androidx.compose.foundation.lazy.layout.findIndexByKey
-import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.util.fastFirstOrNull
@@ -33,12 +31,12 @@ internal class LazyStaggeredGridScrollPosition(
     initialIndices: IntArray,
     initialOffsets: IntArray,
     private val fillIndices: (targetIndex: Int, laneCount: Int) -> IntArray
-) : SnapshotMutationPolicy<IntArray> {
-    var indices by mutableStateOf(initialIndices, this)
+) {
+    var indices = initialIndices
         private set
     var index by mutableIntStateOf(calculateFirstVisibleIndex(initialIndices))
         private set
-    var scrollOffsets by mutableStateOf(initialOffsets, this)
+    var scrollOffsets = initialOffsets
         private set
     var scrollOffset by mutableIntStateOf(
         calculateFirstVisibleScrollOffset(initialIndices, initialOffsets)
@@ -160,9 +158,6 @@ internal class LazyStaggeredGridScrollPosition(
         this.scrollOffsets = offsets
         this.scrollOffset = calculateFirstVisibleScrollOffset(indices, offsets)
     }
-
-    // mutation policy for int arrays
-    override fun equivalent(a: IntArray, b: IntArray) = a.contentEquals(b)
 }
 
 /**
