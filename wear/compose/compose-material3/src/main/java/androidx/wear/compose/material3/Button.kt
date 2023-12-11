@@ -31,6 +31,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -117,9 +118,9 @@ fun Button(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit,
-) = Button(
+) = ButtonImpl(
     onClick = onClick,
-    modifier = modifier,
+    modifier = modifier.buttonSizeModifier(),
     enabled = enabled,
     shape = shape,
     labelFont = FilledButtonTokens.LabelFont.value,
@@ -187,9 +188,9 @@ fun FilledTonalButton(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit,
-) = Button(
+) = ButtonImpl(
     onClick = onClick,
-    modifier = modifier,
+    modifier = modifier.buttonSizeModifier(),
     enabled = enabled,
     shape = shape,
     labelFont = FilledTonalButtonTokens.LabelFont.value,
@@ -256,9 +257,9 @@ fun OutlinedButton(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit,
-) = Button(
+) = ButtonImpl(
     onClick = onClick,
-    modifier = modifier,
+    modifier = modifier.buttonSizeModifier(),
     enabled = enabled,
     shape = shape,
     labelFont = OutlinedButtonTokens.LabelFont.value,
@@ -325,9 +326,9 @@ fun ChildButton(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit,
-) = Button(
+) = ButtonImpl(
     onClick = onClick,
-    modifier = modifier,
+    modifier = modifier.buttonSizeModifier(),
     enabled = enabled,
     shape = shape,
     labelFont = OutlinedButtonTokens.LabelFont.value,
@@ -411,9 +412,9 @@ fun Button(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     label: @Composable RowScope.() -> Unit,
-) = Button(
+) = ButtonImpl(
     onClick = onClick,
-    modifier = modifier,
+    modifier = modifier.buttonSizeModifier(),
     secondaryLabel = secondaryLabel,
     icon = icon,
     enabled = enabled,
@@ -504,9 +505,9 @@ fun FilledTonalButton(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     label: @Composable RowScope.() -> Unit,
-) = Button(
+) = ButtonImpl(
     onClick = onClick,
-    modifier = modifier,
+    modifier = modifier.buttonSizeModifier(),
     secondaryLabel = secondaryLabel,
     icon = icon,
     enabled = enabled,
@@ -592,9 +593,9 @@ fun OutlinedButton(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     label: @Composable RowScope.() -> Unit,
-) = Button(
+) = ButtonImpl(
     onClick = onClick,
-    modifier = modifier,
+    modifier = modifier.buttonSizeModifier(),
     secondaryLabel = secondaryLabel,
     icon = icon,
     enabled = enabled,
@@ -679,9 +680,9 @@ fun ChildButton(
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     label: @Composable RowScope.() -> Unit,
-) = Button(
+) = ButtonImpl(
     onClick = onClick,
-    modifier = modifier,
+    modifier = modifier.buttonSizeModifier(),
     secondaryLabel = secondaryLabel,
     icon = icon,
     enabled = enabled,
@@ -772,7 +773,7 @@ fun ChildButton(
  * button in different states.
  */
 @Composable
-public fun CompactButton(
+fun CompactButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     icon: (@Composable BoxScope.() -> Unit)? = null,
@@ -784,30 +785,50 @@ public fun CompactButton(
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     label: (@Composable RowScope.() -> Unit)? = null,
 ) {
-    androidx.wear.compose.materialcore.CompactChip(
-        onClick = onClick,
-        background = { colors.containerPainter(enabled = it) },
-        modifier = modifier.height(ButtonDefaults.CompactButtonHeight),
-        label = provideNullableScopeContent(
-            contentColor = colors.contentColor(enabled = enabled),
-            textStyle = MaterialTheme.typography.labelSmall,
-            content = label
-        ),
-        icon = provideNullableScopeContent(
-            contentColor = colors.iconColor(enabled = enabled),
-            content = icon
-        ),
-        enabled = enabled,
-        interactionSource = interactionSource,
-        contentPadding = contentPadding,
-        shape = shape,
-        border = { rememberUpdatedState(border) },
-        defaultIconOnlyCompactChipWidth = ButtonDefaults.IconOnlyCompactButtonWidth,
-        defaultCompactChipTapTargetPadding = ButtonDefaults.CompactButtonTapTargetPadding,
-        defaultIconSpacing = ButtonDefaults.IconSpacing,
-        role = Role.Button,
-        ripple = rippleOrFallbackImplementation()
-    )
+    if (label != null) {
+        ButtonImpl(
+            onClick = onClick,
+            modifier = modifier.compactButtonModifier()
+                .padding(ButtonDefaults.CompactButtonTapTargetPadding),
+            secondaryLabel = null,
+            icon = icon,
+            enabled = enabled,
+            shape = shape,
+            labelFont = MaterialTheme.typography.labelSmall,
+            secondaryLabelFont = null,
+            colors = colors,
+            border = border,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+            label = label
+        )
+    } else {
+        // Icon only compact chips have their own layout with a specific width and center aligned
+        // content. We use the base simple single slot Button under the covers.
+        ButtonImpl(
+            onClick = onClick,
+            modifier = modifier.compactButtonModifier()
+                .width(ButtonDefaults.IconOnlyCompactButtonWidth)
+                .padding(ButtonDefaults.CompactButtonTapTargetPadding),
+            enabled = enabled,
+            shape = shape,
+            labelFont = MaterialTheme.typography.labelSmall,
+            colors = colors,
+            border = border,
+            contentPadding = contentPadding,
+            interactionSource = interactionSource,
+        ) {
+            // Use a box to fill and center align the icon into the single slot of the
+            // Button
+            Box(modifier = Modifier
+                .fillMaxSize()
+                .wrapContentSize(align = Alignment.Center)) {
+                if (icon != null) {
+                    icon()
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -1363,12 +1384,21 @@ class ButtonColors constructor(
     }
 }
 
+@Composable
+private fun Modifier.buttonSizeModifier(): Modifier =
+    this.defaultMinSize(minHeight = ButtonDefaults.Height)
+        .height(IntrinsicSize.Min)
+
+@Composable
+private fun Modifier.compactButtonModifier(): Modifier =
+    this.height(ButtonDefaults.CompactButtonHeight)
+
 /**
  * Button with label. This allows to use the token values for
  * individual buttons instead of relying on common values.
  */
 @Composable
-private fun Button(
+private fun ButtonImpl(
     onClick: () -> Unit,
     modifier: Modifier,
     enabled: Boolean,
@@ -1387,8 +1417,6 @@ private fun Button(
         ) else modifier
     Row(
         modifier = borderModifier
-            .defaultMinSize(minHeight = ButtonDefaults.Height)
-            .height(IntrinsicSize.Min)
             .clip(shape = shape)
             .width(intrinsicSize = IntrinsicSize.Max)
             .paint(
@@ -1416,7 +1444,7 @@ private fun Button(
  * individual buttons instead of relying on common values.
  */
 @Composable
-private fun Button(
+private fun ButtonImpl(
     onClick: () -> Unit,
     modifier: Modifier,
     secondaryLabel: (@Composable RowScope.() -> Unit)?,
@@ -1424,14 +1452,14 @@ private fun Button(
     enabled: Boolean,
     shape: Shape,
     labelFont: TextStyle,
-    secondaryLabelFont: TextStyle,
+    secondaryLabelFont: TextStyle?,
     colors: ButtonColors,
     border: BorderStroke?,
     contentPadding: PaddingValues,
     interactionSource: MutableInteractionSource,
     label: @Composable RowScope.() -> Unit
 ) {
-    Button(
+    ButtonImpl(
         onClick = onClick,
         modifier = modifier,
         enabled = enabled,
@@ -1463,14 +1491,14 @@ private fun Button(
                         label
                     )
                 )
-                secondaryLabel?.let {
-                    Row(
-                        content = provideScopeContent(
-                            colors.secondaryContentColor(enabled),
-                            secondaryLabelFont,
-                            secondaryLabel
-                        )
-                    )
+                if (secondaryLabel != null && secondaryLabelFont != null) {
+                   Row(
+                       content = provideScopeContent(
+                           colors.secondaryContentColor(enabled),
+                           secondaryLabelFont,
+                           secondaryLabel
+                       )
+                   )
                 }
             }
         }
