@@ -17,11 +17,11 @@
 package androidx.sqlite.db.framework
 
 import android.content.Context
+import androidx.kruth.assertThat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth.assertThat
 import kotlin.concurrent.thread
 import org.junit.Before
 import org.junit.Test
