@@ -136,6 +136,7 @@ class FloatNodes {
 
         private final AnimatableFixedFloat mProtoNode;
         private final DynamicTypeValueReceiverWithPreUpdate<Float> mDownstream;
+        private boolean mFirstUpdateFromAnimatorDone = false;
 
         AnimatableFixedFloatNode(
                 AnimatableFixedFloat protoNode,
@@ -146,7 +147,14 @@ class FloatNodes {
             this.mProtoNode = protoNode;
             this.mDownstream = downstream;
             mQuotaAwareAnimator.addUpdateCallback(
-                    animatedValue -> mDownstream.onData((Float) animatedValue));
+                    animatedValue -> {
+                        // The onPreUpdate has already been called once before the first update.
+                        if (mFirstUpdateFromAnimatorDone) {
+                            mDownstream.onPreUpdate();
+                        }
+                        mDownstream.onData((Float) animatedValue);
+                        mFirstUpdateFromAnimatorDone = true;
+                    });
         }
 
         @Override
@@ -161,6 +169,9 @@ class FloatNodes {
             if (isValid(mProtoNode.getFromValue()) && isValid(mProtoNode.getToValue())) {
                 mQuotaAwareAnimator.setFloatValues(
                         mProtoNode.getFromValue(), mProtoNode.getToValue());
+                // For the first update from the animator with the above from & to values, the
+                // onPreUpdate has already been called.
+                mFirstUpdateFromAnimatorDone = false;
                 startOrSkipAnimator();
             } else {
                 mDownstream.onInvalidated();
@@ -182,6 +193,7 @@ class FloatNodes {
 
         @Nullable Float mCurrentValue = null;
         int mPendingCalls = 0;
+        private boolean mFirstUpdateFromAnimatorDone = false;
 
         // Static analysis complains about calling methods of parent class AnimatableNode under
         // initialization but mInputCallback is only used after the constructor is finished.
@@ -196,8 +208,13 @@ class FloatNodes {
             mQuotaAwareAnimator.addUpdateCallback(
                     animatedValue -> {
                         if (mPendingCalls == 0) {
+                            // The onPreUpdate has already been called once before the first update.
+                            if (mFirstUpdateFromAnimatorDone) {
+                                mDownstream.onPreUpdate();
+                            }
                             mCurrentValue = (Float) animatedValue;
                             mDownstream.onData(mCurrentValue);
+                            mFirstUpdateFromAnimatorDone = true;
                         }
                     });
             this.mInputCallback =
@@ -223,6 +240,9 @@ class FloatNodes {
                                     mDownstream.onData(mCurrentValue);
                                 } else {
                                     mQuotaAwareAnimator.setFloatValues(mCurrentValue, newData);
+                                    // For the first update from the animator with the above from &
+                                    // to values, the onPreUpdate has already been called.
+                                    mFirstUpdateFromAnimatorDone = false;
                                     startOrSkipAnimator();
                                 }
                             }
