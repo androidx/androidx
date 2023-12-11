@@ -37,6 +37,7 @@ import android.hardware.camera2.params.SessionConfiguration
 import android.hardware.camera2.params.SessionConfiguration.SESSION_REGULAR
 import android.media.ImageReader
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.HandlerThread
@@ -45,6 +46,7 @@ import android.util.Log
 import android.util.Size
 import android.view.Menu
 import android.view.MenuItem
+import android.view.ScaleGestureDetector
 import android.view.Surface
 import android.view.TextureView
 import android.view.View
@@ -55,6 +57,7 @@ import android.widget.ImageButton
 import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
@@ -349,6 +352,23 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
      */
     private var toast: Toast? = null
 
+    private var zoomRatio: Float = 1.0f
+
+    /**
+     * Define a scale gesture detector to respond to pinch events and call setZoom on
+     * Camera.Parameters.
+     */
+    private val scaleGestureListener =
+        object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            override fun onScaleBegin(detector: ScaleGestureDetector): Boolean = hasZoomSupport()
+
+            override fun onScale(detector: ScaleGestureDetector): Boolean {
+                // Set the zoom level
+                startZoom(detector.scaleFactor)
+                return true
+            }
+        }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate()")
@@ -394,6 +414,7 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         enableUiControl(false)
         setupUiControl()
         setupVideoStabilizationModeView()
+        enableZoomGesture()
     }
 
     private fun setupForRequestMode() {
@@ -576,6 +597,13 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         findViewById<Button>(R.id.PhotoToggle).isEnabled = enabled
         findViewById<Button>(R.id.Switch).isEnabled = enabled
         findViewById<Button>(R.id.Picture).isEnabled = enabled
+    }
+
+    private fun enableZoomGesture() {
+        val scaleGestureDetector = ScaleGestureDetector(this, scaleGestureListener)
+        textureView.setOnTouchListener { _, event ->
+            event != null && scaleGestureDetector.onTouchEvent(event)
+        }
     }
 
     private fun setupUiControl() {
@@ -984,36 +1012,44 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
         }
 
         try {
-            val captureBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
-            captureBuilder.addTarget(previewSurface!!)
-            val videoStabilizationMode = if (videoStabilizationToggleView.isChecked) {
-                CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
-            } else {
-                CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
-            }
-
-            captureBuilder.set(
-                CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
-                videoStabilizationMode
-            )
-
-            if (captureSession is CameraCaptureSession) {
-                captureSession.setRepeatingRequest(
-                    captureBuilder.build(),
-                    captureCallbacksNormalMode,
-                    normalModeCaptureHandler
-                )
-            } else {
-                (captureSession as CameraExtensionSession).setRepeatingRequest(
-                    captureBuilder.build(),
-                    cameraTaskDispatcher.asExecutor(), captureCallbacks
-                )
-            }
+            setRepeatingRequest(device, captureSession)
             cont.resume(captureSession)
         } catch (e: CameraAccessException) {
             Log.e(TAG, e.toString())
             cont.resumeWithException(
                 RuntimeException("Failed to create capture session.")
+            )
+        }
+    }
+
+    private fun setRepeatingRequest(
+        device: CameraDevice,
+        captureSession: Any
+    ) {
+        val captureBuilder = device.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW)
+        captureBuilder.addTarget(previewSurface!!)
+        val videoStabilizationMode = if (videoStabilizationToggleView.isChecked) {
+            CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+        } else {
+            CameraMetadata.CONTROL_VIDEO_STABILIZATION_MODE_OFF
+        }
+
+        captureBuilder.set(
+            CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE,
+            videoStabilizationMode
+        )
+
+        captureBuilder.set(CaptureRequest.CONTROL_ZOOM_RATIO, zoomRatio)
+        if (captureSession is CameraCaptureSession) {
+            captureSession.setRepeatingRequest(
+                captureBuilder.build(),
+                captureCallbacksNormalMode,
+                normalModeCaptureHandler
+            )
+        } else {
+            (captureSession as CameraExtensionSession).setRepeatingRequest(
+                captureBuilder.build(),
+                cameraTaskDispatcher.asExecutor(), captureCallbacks
             )
         }
     }
@@ -1340,6 +1376,56 @@ class Camera2ExtensionsActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    private fun startZoom(scaleFactor: Float) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+
+        zoomRatio =
+            (zoomRatio * scaleFactor).coerceIn(
+                1.0f,
+                ZoomUtil.maxZoom(cameraManager.getCameraCharacteristics(currentCameraId))
+            )
+        Log.d(TAG, "onScale: $zoomRatio")
+        setRepeatingRequest(cameraDevice!!, cameraCaptureSession!!)
+    }
+
+    /** Not all cameras have zoom support. Returns true if zoom is supported otherwise false. */
+    private fun hasZoomSupport(): Boolean = if (cameraCaptureSession is CameraCaptureSession) {
+        ZoomUtil.hasZoomSupport(currentCameraId, cameraManager)
+    } else if (cameraCaptureSession is CameraExtensionSession &&
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
+    ) {
+        ZoomUtilExtensions.hasZoomSupport(currentCameraId, cameraManager, currentExtensionMode)
+    } else {
+        false
+    }
+
+    @RequiresApi(33)
+    private object ZoomUtilExtensions {
+        @JvmStatic
+        @DoNotInline
+        fun hasZoomSupport(
+            cameraId: String,
+            cameraManager: CameraManager,
+            extensionMode: Int
+        ): Boolean =
+            cameraManager.getCameraExtensionCharacteristics(cameraId)
+                .getAvailableCaptureRequestKeys(extensionMode)
+                .contains(CaptureRequest.CONTROL_ZOOM_RATIO)
+    }
+
+    @RequiresApi(31)
+    private object ZoomUtil {
+        @DoNotInline
+        fun hasZoomSupport(cameraId: String, cameraManager: CameraManager): Boolean {
+            val characteristics = cameraManager.getCameraCharacteristics(cameraId)
+            val availableCaptureRequestKeys = characteristics.availableCaptureRequestKeys
+            return availableCaptureRequestKeys.contains(CaptureRequest.CONTROL_ZOOM_RATIO)
+        }
+
+        fun maxZoom(characteristics: CameraCharacteristics): Float =
+            characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM) ?: 1.0f
     }
 }
 
