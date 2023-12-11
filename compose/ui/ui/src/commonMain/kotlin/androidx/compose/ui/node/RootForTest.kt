@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.node
 
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -40,6 +42,7 @@ interface RootForTest {
     /**
      * The service handling text input.
      */
+    @Deprecated("Use PlatformTextInputModifierNode instead.")
     val textInputService: TextInputService
 
     /**

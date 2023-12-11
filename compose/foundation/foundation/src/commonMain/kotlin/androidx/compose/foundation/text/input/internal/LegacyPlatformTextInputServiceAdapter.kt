@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.foundation.text.input.internal
 
 import androidx.compose.ui.layout.LayoutCoordinates

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:Suppress("DEPRECATION")
+
 package androidx.compose.ui.platform
 
 import androidx.annotation.RestrictTo
@@ -134,6 +136,7 @@ val LocalLayoutDirection = staticCompositionLocalOf<LayoutDirection> {
 /**
  * The CompositionLocal to provide communication with platform text input service.
  */
+@Deprecated("Use PlatformTextInputModifierNode instead.")
 val LocalTextInputService = staticCompositionLocalOf<TextInputService?> { null }
 
 /**
