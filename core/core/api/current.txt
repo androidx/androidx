@@ -2012,7 +2012,7 @@ package androidx.core.os {
     method @Deprecated public static void setCounter(String, int);
   }
 
-  @RequiresApi(17) public class UserHandleCompat {
+  public class UserHandleCompat {
     method public static android.os.UserHandle getUserHandleForUid(int);
   }
 

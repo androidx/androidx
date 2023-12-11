@@ -1914,7 +1914,6 @@ public object RemoteViewsCompat {
      * @param format A date/time formatting pattern as described in
      * [android.text.format.DateFormat].
      */
-    @RequiresApi(17)
     @JvmStatic
     public fun RemoteViews.setTextClockFormat12Hour(@IdRes viewId: Int, format: CharSequence?) {
         requireSdk(17, "setFormat12Hour")
@@ -1954,7 +1953,6 @@ public object RemoteViewsCompat {
      * @param format A date/time formatting pattern as described in
      * [android.text.format.DateFormat].
      */
-    @RequiresApi(17)
     @JvmStatic
     public fun RemoteViews.setTextClockFormat24Hour(@IdRes viewId: Int, format: CharSequence?) {
         requireSdk(17, "setFormat24Hour")
@@ -1994,7 +1992,6 @@ public object RemoteViewsCompat {
      * @param timeZone The desired time zone's ID as specified in [java.util.TimeZone] or null to
      * use the time zone specified by the user (system time zone).
      */
-    @RequiresApi(17)
     @JvmStatic
     public fun RemoteViews.setTextClockTimeZone(@IdRes viewId: Int, timeZone: String?) {
         requireSdk(17, "setTimeZone")
@@ -3360,7 +3357,6 @@ public object RemoteViewsCompat {
      * [android.view.View.LAYOUT_DIRECTION_RTL], [android.view.View.LAYOUT_DIRECTION_INHERIT], or
      * [android.view.View.LAYOUT_DIRECTION_LOCALE].
      */
-    @RequiresApi(17)
     @JvmStatic
     public fun RemoteViews.setViewLayoutDirection(@IdRes viewId: Int, layoutDirection: Int) {
         requireSdk(17, "setLayoutDirection")

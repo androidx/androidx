@@ -18,11 +18,9 @@
 
 package androidx.core.view
 
-import android.annotation.SuppressLint
 import android.view.View
 import android.view.ViewGroup
 import androidx.annotation.Px
-import androidx.annotation.RequiresApi
 
 /**
  * Returns the view at [index].
@@ -159,8 +157,6 @@ public inline fun ViewGroup.MarginLayoutParams.updateMargins(
  *
  * @see ViewGroup.MarginLayoutParams.setMargins
  */
-@SuppressLint("ClassVerificationFailure") // Can't work around this for default arguments.
-@RequiresApi(17)
 public inline fun ViewGroup.MarginLayoutParams.updateMarginsRelative(
     @Px start: Int = marginStart,
     @Px top: Int = topMargin,
