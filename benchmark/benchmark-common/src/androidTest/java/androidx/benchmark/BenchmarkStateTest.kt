@@ -17,7 +17,6 @@
 package androidx.benchmark
 
 import android.Manifest
-import android.os.Build
 import androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.FlakyTest
@@ -168,8 +167,7 @@ class BenchmarkStateTest {
             if (simplifiedTimingOnlyMode) 0 else BenchmarkState.REPEAT_COUNT_ALLOCATION
         val expectedCount = report.warmupIterations +
             report.repeatIterations * expectedRepeatCount +
-            // method tracing phase by default only when API in 22..33, and simplified timing off
-            if (Build.VERSION.SDK_INT in 22..30 && !simplifiedTimingOnlyMode) 1 else 0
+            if (Arguments.profiler == MethodTracing && !simplifiedTimingOnlyMode) 1 else 0
         assertEquals(expectedCount, total)
 
         if (Arguments.iterations != null) {
