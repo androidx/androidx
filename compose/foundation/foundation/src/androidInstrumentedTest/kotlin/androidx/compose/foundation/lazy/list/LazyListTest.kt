@@ -3197,6 +3197,47 @@ class LazyListTest(orientation: Orientation) : BaseLazyListTestWithOrientation(o
         }
     }
 
+    @Test
+    fun layoutModifierIsNotRepeated() {
+        val itemSize = with(rule.density) { 30.toDp() }
+        var userScrollEnabled by mutableStateOf(true)
+        rule.setContentWithTestViewConfiguration {
+            LazyColumnOrRow(
+                Modifier
+                    .mainAxisSize(itemSize * 3)
+                    .layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        val itemSizePx = itemSize.roundToPx()
+                        layout(placeable.width, placeable.height) {
+                            val offset = if (vertical) {
+                                IntOffset(0, itemSizePx)
+                            } else {
+                                IntOffset(itemSizePx, 0)
+                            }
+                            placeable.place(offset)
+                        }
+                    }
+                    .testTag(LazyListTag),
+                userScrollEnabled = true,
+            ) {
+                items(5) {
+                    Spacer(
+                        Modifier
+                            .size(itemSize)
+                            .testTag("$it"))
+                }
+            }
+        }
+
+        rule.onNodeWithTag(LazyListTag)
+            .assertStartPositionInRootIsEqualTo(itemSize)
+
+        userScrollEnabled = false
+
+        rule.onNodeWithTag(LazyListTag)
+            .assertStartPositionInRootIsEqualTo(itemSize)
+    }
+
     // ********************* END OF TESTS *********************
     // Helper functions, etc. live below here
 
