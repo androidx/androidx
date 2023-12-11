@@ -21,6 +21,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
@@ -36,6 +38,8 @@ import androidx.webkit.WebViewAssetLoader.InternalStoragePathHandler;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Objects;
+import java.util.concurrent.Executors;
 
 /**
  * An {@link Activity} to show case a use case of using {@link InternalStoragePathHandler}.
@@ -46,6 +50,7 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
 
     @NonNull private File mPublicDir;
     @NonNull private File mDemoFile;
+    @NonNull private WebView mWebView;
 
     private static class MyWebViewClient extends WebViewClient {
         private final WebViewAssetLoader mAssetLoader;
@@ -84,7 +89,7 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
         setTitle(R.string.asset_loader_internal_storage_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        WebView webView = findViewById(R.id.webview_asset_loader_webview);
+        mWebView = findViewById(R.id.webview_asset_loader_webview);
 
         mPublicDir = new File(getFilesDir(), "public");
         mDemoFile = new File(mPublicDir, "some_text.html");
@@ -94,17 +99,37 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
         WebViewAssetLoader assetLoader = new WebViewAssetLoader.Builder().addPathHandler(
                 "/public_data/", new InternalStoragePathHandler(this, mPublicDir)).build();
 
-        webView.setWebViewClient(new MyWebViewClient(assetLoader));
+        mWebView.setWebViewClient(new MyWebViewClient(assetLoader));
 
         // Write the demo file asynchronously and then load the file after it's written.
-        writeFileInBackgroundAndShowInWebView(webView);
+        Executors.newSingleThreadExecutor().execute(() -> {
+                    writeFileOnBackgroundThread();
+                    new Handler(Looper.getMainLooper()).post(this::loadFileAssetInWebView);
+                }
+        );
     }
 
-    @SuppressWarnings("deprecation") /* b/180503860 */
-    private void writeFileInBackgroundAndShowInWebView(WebView webView) {
-        new WriteFileTask(webView, mDemoFile, DEMO_HTML_CONTENT).execute();
+    private void writeFileOnBackgroundThread() {
+        //noinspection ResultOfMethodCallIgnored
+        Objects.requireNonNull(mDemoFile.getParentFile()).mkdirs();
+        try (FileOutputStream fos = new FileOutputStream(mDemoFile)) {
+            fos.write(DEMO_HTML_CONTENT.getBytes(UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
+    private void loadFileAssetInWebView() {
+        Uri path = new Uri.Builder()
+                .scheme("https")
+                .authority(WebViewAssetLoader.DEFAULT_DOMAIN)
+                .appendPath("public_data")
+                .appendPath("some_text.html")
+                .build();
+        mWebView.loadUrl(path.toString());
+    }
+
+    /** @noinspection ResultOfMethodCallIgnored*/
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -113,40 +138,4 @@ public class AssetLoaderInternalStorageActivity extends AppCompatActivity {
         mPublicDir.delete();
     }
 
-    // Writes to file asynchronously in the background thread.
-    @SuppressWarnings("deprecation") /* b/180503860 */
-    private static class WriteFileTask extends android.os.AsyncTask<Void, Void, Void> {
-        @NonNull private final WebView mWebView;
-        @NonNull private final File mFile;
-        @NonNull private final String mContent;
-
-        WriteFileTask(@NonNull WebView webView, @NonNull File file, @NonNull String content) {
-            mWebView = webView;
-            mFile = file;
-            mContent = content;
-        }
-
-        @Override
-        protected Void doInBackground(Void... params) {
-            mFile.getParentFile().mkdirs();
-            try (FileOutputStream fos = new FileOutputStream(mFile)) {
-                fos.write(mContent.getBytes(UTF_8));
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-            Uri path = new Uri.Builder()
-                    .scheme("https")
-                    .authority(WebViewAssetLoader.DEFAULT_DOMAIN)
-                    .appendPath("public_data")
-                    .appendPath("some_text.html")
-                    .build();
-            mWebView.loadUrl(path.toString());
-        }
-
-    }
 }
