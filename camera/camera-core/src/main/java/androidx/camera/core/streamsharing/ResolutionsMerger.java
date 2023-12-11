@@ -196,6 +196,12 @@ public class ResolutionsMerger {
         Set<Size> sizesTooLarge = new HashSet<>(candidates);
         for (UseCaseConfig<?> childConfig : mChildrenConfigs) {
             List<Size> childSizes = getSortedChildSizes(childConfig);
+            if (childSizes.isEmpty()) {
+                // When the list is empty, which means no child required resolutions are supported,
+                // make the parent list to be empty to reflect this.
+                return new ArrayList<>();
+            }
+
             candidates = filterOutParentSizeThatIsTooSmall(childSizes, candidates);
             sizesTooLarge.retainAll(getParentSizesThatAreTooLarge(childSizes, candidates));
         }
@@ -215,10 +221,6 @@ public class ResolutionsMerger {
      *
      * <p>Notes that the input {@code childConfig} is expected to be one of the values that use to
      * construct the {@link ResolutionsMerger}, if not an IllegalArgumentException will be thrown.
-     *
-     * <p>When {@link SupportedOutputSizesSorter#getSortedSupportedOutputSizes(UseCaseConfig)}
-     * returns an empty list, which means no child required resolution is supported, an
-     * IllegalArgumentException will also be thrown.
      */
     @NonNull
     private List<Size> getSortedChildSizes(@NonNull UseCaseConfig<?> childConfig) {
@@ -233,10 +235,6 @@ public class ResolutionsMerger {
         }
 
         List<Size> childSizes = mSizeSorter.getSortedSupportedOutputSizes(childConfig);
-        if (childSizes.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "No supported resolution for child config: " + childConfig);
-        }
         mChildSizesCache.put(childConfig, childSizes);
 
         return childSizes;
@@ -379,10 +377,13 @@ public class ResolutionsMerger {
     @NonNull
     static List<Size> filterOutParentSizeThatIsTooSmall(
             @NonNull Collection<Size> childSizes, @NonNull List<Size> sortedParentSizes) {
-        int n = sortedParentSizes.size();
+        if (childSizes.isEmpty() || sortedParentSizes.isEmpty()) {
+            return new ArrayList<>();
+        }
 
         // Find the smallest parent size that can be cropped to at least one child size without
         // upscaling by using binary search.
+        int n = sortedParentSizes.size();
         int lo = 0;
         int hi = n - 1;
         while (lo < hi) {
@@ -430,10 +431,13 @@ public class ResolutionsMerger {
     @NonNull
     static List<Size> getParentSizesThatAreTooLarge(@NonNull Collection<Size> childSizes,
             @NonNull List<Size> sortedParentSizes) {
-        int n = sortedParentSizes.size();
+        if (childSizes.isEmpty() || sortedParentSizes.isEmpty()) {
+            return new ArrayList<>();
+        }
 
         // Find the smallest parent size that can be cropped to all child sizes without upscaling
         // by using binary search.
+        int n = sortedParentSizes.size();
         int lo = 0;
         int hi = n - 1;
         while (lo < hi) {

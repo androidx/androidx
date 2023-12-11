@@ -44,8 +44,8 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ResolutionsMergerTest {
 
-    @Test(expected = IllegalArgumentException::class)
-    fun getMergedResolutions_whenNoSupportedChildSize_throwsException() {
+    @Test
+    fun getMergedResolutions_whenNoSupportedChildSize_returnEmptyList() {
         // Arrange.
         val sensorSize = SIZE_3264_2448 // 4:3
         val config1 = createUseCaseConfig()
@@ -64,6 +64,7 @@ class ResolutionsMergerTest {
         // Act & Assert.
         val parentConfig = MutableOptionsBundle.create()
         merger.getMergedResolutions(parentConfig)
+        assertThat(merger.getMergedResolutions(parentConfig)).isEmpty()
     }
 
     @Test
