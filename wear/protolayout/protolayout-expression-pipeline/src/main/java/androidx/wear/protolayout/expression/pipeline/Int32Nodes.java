@@ -185,13 +185,14 @@ class Int32Nodes {
                     downstream,
                     x -> {
                         switch (protoNode.getRoundMode()) {
+                            case ROUND_MODE_UNDEFINED:
+                                // Round mode defaults to floor.
                             case ROUND_MODE_FLOOR:
                                 return (int) Math.floor(x);
                             case ROUND_MODE_ROUND:
                                 return Math.round(x);
                             case ROUND_MODE_CEILING:
                                 return (int) Math.ceil(x);
-                            case ROUND_MODE_UNDEFINED:
                             case UNRECOGNIZED:
                                 break;
                         }
