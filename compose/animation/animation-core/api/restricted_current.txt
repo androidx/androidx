@@ -625,6 +625,7 @@ package androidx.compose.animation.core {
     method public long getTotalDurationNanos();
     method public java.util.List<androidx.compose.animation.core.Transition<?>> getTransitions();
     method public boolean isRunning();
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void seek(S initialState, S targetState, long playTimeNanos);
     property public final java.util.List<androidx.compose.animation.core.Transition<S>.TransitionAnimationState<?,?>> animations;
     property public final S currentState;
     property @SuppressCompatibility @androidx.compose.animation.core.InternalAnimationApi public final boolean hasInitialValueAnimations;
