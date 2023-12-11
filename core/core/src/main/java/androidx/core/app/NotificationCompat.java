@@ -5622,8 +5622,8 @@ public class NotificationCompat {
         @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 24) {
-                Api16Impl.setStyle(builder.getBuilder(),
-                        Api24Impl.createDecoratedCustomViewStyle());
+                Notification.Builder builder1 = builder.getBuilder();
+                builder1.setStyle(Api24Impl.createDecoratedCustomViewStyle());
 
             }
         }
@@ -5737,47 +5737,8 @@ public class NotificationCompat {
             if (!tombstone) {
                 button.setOnClickPendingIntent(R.id.action_container, action.actionIntent);
             }
-            if (Build.VERSION.SDK_INT >= 15) {
-                Api15Impl.setContentDescription(button, R.id.action_container, action.title);
-            }
+            button.setContentDescription(R.id.action_container, action.title);
             return button;
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.DecoratedCustomViewStyle} methods which
-         * were added in API 15; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         */
-        @RequiresApi(15)
-        static class Api15Impl {
-            private Api15Impl() { }
-
-            @DoNotInline
-            static void setContentDescription(RemoteViews remoteViews, int viewId,
-                    CharSequence contentDescription) {
-                remoteViews.setContentDescription(viewId, contentDescription);
-            }
-        }
-
-        /**
-         * A class for wrapping calls to {@link Notification.DecoratedCustomViewStyle} methods which
-         * were added in API 16; these calls must be wrapped to avoid performance issues.
-         * See the UnsafeNewApiCall lint rule for more details.
-         * Note that the runtime converts NewApi classes to Object during init, but only for
-         * initialized classes; if setStyle is passed style objects from newer API versions, if
-         * the type of those objects will be unknown, and a VerifyError will occur. To prevent
-         * this, we explicitly cast the provided style Object to Notification.Style.
-         */
-        @RequiresApi(16)
-        static class Api16Impl {
-            private Api16Impl() { }
-
-            @DoNotInline
-            static Notification.Builder setStyle(Notification.Builder builder,
-                    Object style) {
-                return builder.setStyle((Notification.Style) style);
-            }
-
         }
 
         /**
@@ -5790,7 +5751,7 @@ public class NotificationCompat {
             private Api24Impl() { }
 
             @DoNotInline
-            static Notification.DecoratedCustomViewStyle createDecoratedCustomViewStyle() {
+            static Notification.Style createDecoratedCustomViewStyle() {
                 return new Notification.DecoratedCustomViewStyle();
             }
 
