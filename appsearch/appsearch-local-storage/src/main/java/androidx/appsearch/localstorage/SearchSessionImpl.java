@@ -45,7 +45,7 @@ import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.app.StorageInfo;
-import androidx.appsearch.app.VisibilityDocument;
+import androidx.appsearch.app.VisibilityConfig;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.localstorage.stats.OptimizeStats;
 import androidx.appsearch.localstorage.stats.RemoveStats;
@@ -126,15 +126,15 @@ class SearchSessionImpl implements AppSearchSession {
                         mPackageName, mDatabaseName);
             }
 
-            // Extract a Map<schema, VisibilityDocument> from the request.
-            List<VisibilityDocument> visibilityDocuments = VisibilityDocument
-                    .toVisibilityDocuments(request);
+            List<VisibilityConfig> visibilityConfigs =
+                    VisibilityConfig.toVisibilityConfigs(request);
 
             Map<String, Migrator> migrators = request.getMigrators();
             // No need to trigger migration if user never set migrator.
             if (migrators.size() == 0) {
                 SetSchemaResponse setSchemaResponse = setSchemaNoMigrations(request,
-                        visibilityDocuments, firstSetSchemaStatsBuilder);
+                        visibilityConfigs,
+                        firstSetSchemaStatsBuilder);
 
                 long dispatchNotificationStartTimeMillis = SystemClock.elapsedRealtime();
                 // Schedule a task to dispatch change notifications. See requirements for where the
@@ -174,7 +174,7 @@ class SearchSessionImpl implements AppSearchSession {
             // No need to trigger migration if no migrator is active.
             if (activeMigrators.size() == 0) {
                 SetSchemaResponse setSchemaResponse = setSchemaNoMigrations(request,
-                        visibilityDocuments, firstSetSchemaStatsBuilder);
+                        visibilityConfigs, firstSetSchemaStatsBuilder);
                 if (firstSetSchemaStatsBuilder != null) {
                     firstSetSchemaStatsBuilder.setTotalLatencyMillis(
                             (int) (SystemClock.elapsedRealtime() - startMillis));
@@ -194,7 +194,7 @@ class SearchSessionImpl implements AppSearchSession {
                     mPackageName,
                     mDatabaseName,
                     new ArrayList<>(request.getSchemas()),
-                    visibilityDocuments,
+                    visibilityConfigs,
                     /*forceOverride=*/false,
                     request.getVersion(),
                     firstSetSchemaStatsBuilder);
@@ -233,7 +233,7 @@ class SearchSessionImpl implements AppSearchSession {
                             mPackageName,
                             mDatabaseName,
                             new ArrayList<>(request.getSchemas()),
-                            visibilityDocuments,
+                            visibilityConfigs,
                             /*forceOverride=*/ true,
                             request.getVersion(),
                             secondSetSchemaStatsBuilder);
@@ -585,7 +585,7 @@ class SearchSessionImpl implements AppSearchSession {
      * forceoverride in the request.
      */
     private SetSchemaResponse setSchemaNoMigrations(@NonNull SetSchemaRequest request,
-            @NonNull List<VisibilityDocument> visibilityDocuments,
+            @NonNull List<VisibilityConfig> visibilityConfigs,
             @Nullable SetSchemaStats.Builder setSchemaStatsBuilder)
             throws AppSearchException {
         if (setSchemaStatsBuilder != null) {
@@ -595,7 +595,7 @@ class SearchSessionImpl implements AppSearchSession {
                 mPackageName,
                 mDatabaseName,
                 new ArrayList<>(request.getSchemas()),
-                visibilityDocuments,
+                visibilityConfigs,
                 request.isForceOverride(),
                 request.getVersion(),
                 setSchemaStatsBuilder);
