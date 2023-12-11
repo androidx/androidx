@@ -101,6 +101,9 @@ final class FeaturesImpl implements Features {
                 // TODO(b/309826655) : Update when feature is ready in service-appsearch.
                 // fall through
             case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
+                // TODO(b/309826655) : Update when feature is ready in service-appsearch.
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
                 // TODO(b/296088047) : Update when feature is ready in service-appsearch.
                 return false;
             default:

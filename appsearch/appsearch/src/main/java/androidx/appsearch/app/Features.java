@@ -189,6 +189,12 @@ public interface Features {
     String SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG = "SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG";
 
     /**
+     * Feature for {@link #isFeatureSupported(String)}. This feature covers
+     * {@link SetSchemaRequest.Builder#setPubliclyVisibleSchema(String, PackageIdentifier)}.
+     */
+    String SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE = "SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE";
+
+    /**
      * Returns whether a feature is supported at run-time. Feature support depends on the
      * feature in question, the AppSearch backend being used and the Android version of the
      * device.

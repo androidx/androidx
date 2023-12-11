@@ -106,6 +106,9 @@ final class FeaturesImpl implements Features {
                 // fall through
             case Features.SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG:
                 // TODO(b/296088047) : Update to reflect support in Android U+ once this feature is
+                // fall through
+            case Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE:
+                // TODO(b/275592563) : Update to reflect support in Android U+ once this feature is
                 //  synced over into service-appsearch.
                 return false;
             default:
