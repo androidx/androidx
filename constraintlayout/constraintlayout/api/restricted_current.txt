@@ -563,7 +563,7 @@ package androidx.constraintlayout.motion.widget {
     method @Deprecated public void rebuildMotion();
     method public void rebuildScene();
     method public boolean removeTransitionListener(androidx.constraintlayout.motion.widget.MotionLayout.TransitionListener!);
-    method @RequiresApi(api=android.os.Build.VERSION_CODES.JELLY_BEAN_MR1) public void rotateTo(int, int);
+    method public void rotateTo(int, int);
     method public void scheduleTransitionTo(int);
     method public void setDebugMode(int);
     method public void setDelayedApplicationOfInitialState(boolean);

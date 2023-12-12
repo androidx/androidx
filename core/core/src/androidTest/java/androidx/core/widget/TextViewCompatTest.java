@@ -47,7 +47,6 @@ import android.content.res.Resources;
 import android.graphics.Paint;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Looper;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.support.v4.testutils.TestUtils;
@@ -681,19 +680,15 @@ public class TextViewCompatTest extends BaseInstrumentationTestCase<TextViewTest
 
         TextViewCompat.setLineHeight(mTextView, 100);
         assertEquals(100, mTextView.getLineHeight());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            assertNotEquals(lineSpacingExtra, mTextView.getLineSpacingExtra(), 0);
-            assertNotEquals(lineSpacingMultiplier, mTextView.getLineSpacingMultiplier(), 0);
-        }
+        assertNotEquals(lineSpacingExtra, mTextView.getLineSpacingExtra(), 0);
+        assertNotEquals(lineSpacingMultiplier, mTextView.getLineSpacingMultiplier(), 0);
 
         TextViewCompat.setLineHeight(mTextView, 200);
         assertEquals(200, mTextView.getLineHeight());
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            mTextView.setLineSpacing(lineSpacingExtra, lineSpacingMultiplier);
-            assertEquals(lineSpacingExtra, mTextView.getLineSpacingExtra(), 0);
-            assertEquals(lineSpacingMultiplier, mTextView.getLineSpacingMultiplier(), 0);
-        }
+        mTextView.setLineSpacing(lineSpacingExtra, lineSpacingMultiplier);
+        assertEquals(lineSpacingExtra, mTextView.getLineSpacingExtra(), 0);
+        assertEquals(lineSpacingMultiplier, mTextView.getLineSpacingMultiplier(), 0);
     }
 
     @UiThreadTest

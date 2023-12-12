@@ -1614,17 +1614,13 @@ public class ConstraintLayout extends ViewGroup {
         mMeasurer.captureLayoutInfo(widthMeasureSpec, heightMeasureSpec, paddingY, paddingBottom,
                 paddingWidth, paddingHeight);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            int paddingStart = Math.max(0, getPaddingStart());
-            int paddingEnd = Math.max(0, getPaddingEnd());
-            if (paddingStart > 0 || paddingEnd > 0) {
-                if (isRtl()) {
-                    paddingX = paddingEnd;
-                } else {
-                    paddingX = paddingStart;
-                }
+        int paddingStart = Math.max(0, getPaddingStart());
+        int paddingEnd = Math.max(0, getPaddingEnd());
+        if (paddingStart > 0 || paddingEnd > 0) {
+            if (isRtl()) {
+                paddingX = paddingEnd;
             } else {
-                paddingX = Math.max(0, getPaddingLeft());
+                paddingX = paddingStart;
             }
         } else {
             paddingX = Math.max(0, getPaddingLeft());
@@ -1798,12 +1794,9 @@ public class ConstraintLayout extends ViewGroup {
     }
 
     protected boolean isRtl() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            boolean isRtlSupported = (getContext().getApplicationInfo().flags
-                    & ApplicationInfo.FLAG_SUPPORTS_RTL) != 0;
-            return isRtlSupported && (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());
-        }
-        return false;
+        boolean isRtlSupported = (getContext().getApplicationInfo().flags
+                & ApplicationInfo.FLAG_SUPPORTS_RTL) != 0;
+        return isRtlSupported && (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());
     }
 
     /**
@@ -1812,11 +1805,7 @@ public class ConstraintLayout extends ViewGroup {
      */
     private int getPaddingWidth() {
         int widthPadding = Math.max(0, getPaddingLeft()) + Math.max(0, getPaddingRight());
-        int rtlPadding = 0;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            rtlPadding = Math.max(0, getPaddingStart()) + Math.max(0, getPaddingEnd());
-        }
+        int rtlPadding = Math.max(0, getPaddingStart()) + Math.max(0, getPaddingEnd());
         if (rtlPadding > 0) {
             widthPadding = rtlPadding;
         }
@@ -2800,10 +2789,8 @@ public class ConstraintLayout extends ViewGroup {
                 this.rightMargin = marginSource.rightMargin;
                 this.topMargin = marginSource.topMargin;
                 this.bottomMargin = marginSource.bottomMargin;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                    this.setMarginStart(marginSource.getMarginStart());
-                    this.setMarginEnd(marginSource.getMarginEnd());
-                }
+                this.setMarginStart(marginSource.getMarginStart());
+                this.setMarginEnd(marginSource.getMarginEnd());
             }
 
             if (!(params instanceof LayoutParams)) {
@@ -3690,7 +3677,6 @@ public class ConstraintLayout extends ViewGroup {
          * {@inheritDoc}
          */
         @Override
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
         public void resolveLayoutDirection(int layoutDirection) {
             ///////////////////////////////////////////////////////////////////////////////////////
             // Layout margins handling TODO: re-activate in 3.0
@@ -3727,11 +3713,8 @@ public class ConstraintLayout extends ViewGroup {
             int originalLeftMargin = leftMargin;
             int originalRightMargin = rightMargin;
 
-            boolean isRtl = false;
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                super.resolveLayoutDirection(layoutDirection);
-                isRtl = (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());
-            }
+            super.resolveLayoutDirection(layoutDirection);
+            boolean isRtl = (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());
             ///////////////////////////////////////////////////////////////////////////////////////
 
             mResolvedRightToLeft = UNSET;

@@ -19,7 +19,6 @@ package androidx.room.integration.testapp.test;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.database.sqlite.SQLiteConstraintException;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,7 +35,6 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-import androidx.test.filters.SdkSuppress;
 
 import org.junit.After;
 import org.junit.Before;
@@ -49,7 +47,6 @@ import java.util.UUID;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.JELLY_BEAN)
 public class EntityUpsertionAdapterTest{
     private TestDatabase mTestDatabase;
     private PetDao mPetDao;
