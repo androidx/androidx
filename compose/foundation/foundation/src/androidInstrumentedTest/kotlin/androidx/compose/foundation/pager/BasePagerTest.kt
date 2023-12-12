@@ -128,7 +128,7 @@ open class BasePagerTest(private val config: ParamConfig) :
         reverseLayout: Boolean = config.reverseLayout,
         snapPositionalThreshold: Float = 0.5f,
         key: ((index: Int) -> Any)? = null,
-        snapPosition: SnapPosition = SnapPosition.Start,
+        snapPosition: SnapPosition = config.snapPosition,
         pageContent: @Composable PagerScope.(page: Int) -> Unit = { Page(index = it) }
     ) {
 
