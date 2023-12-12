@@ -25,29 +25,30 @@ import kotlinx.cinterop.CPointer
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
-import kotlinx.cinterop.utf8
+import kotlinx.cinterop.utf16
 import kotlinx.cinterop.value
 import sqlite3.SQLITE_OK
 import sqlite3.sqlite3_close_v2
-import sqlite3.sqlite3_prepare_v2
+import sqlite3.sqlite3_prepare16_v2
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled
+@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 class NativeSQLiteConnection(
     private val dbPointer: CPointer<sqlite3>
 ) : SQLiteConnection {
     override fun prepare(sql: String): SQLiteStatement = memScoped {
         val stmtPointer = allocPointerTo<sqlite3_stmt>()
-        // Kotlin/Native uses UTF-8 character encoding by default.
-        val sqlUtf8 = sql.utf8
-        val resultCode = sqlite3_prepare_v2(
+        // Kotlin/Native uses UTF-16 character encoding by default.
+        val sqlUtf16 = sql.utf16
+        val resultCode = sqlite3_prepare16_v2(
             db = dbPointer,
-            zSql = sqlUtf8,
-            nByte = sqlUtf8.size,
+            zSql = sqlUtf16,
+            nByte = sqlUtf16.size,
             ppStmt = stmtPointer.ptr,
             pzTail = null
         )
         if (resultCode != SQLITE_OK) {
-            error("Error preparing statement - $resultCode")
+            throwSQLiteException(resultCode, dbPointer.getErrorMsg())
         }
         NativeSQLiteStatement(dbPointer, stmtPointer.value!!)
     }

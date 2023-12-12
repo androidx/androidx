@@ -33,6 +33,7 @@ import sqlite3.sqlite3_open_v2
  *  * (b/307917398) more open flags
  *  * (b/304295573) busy handler registering
  */
+@OptIn(kotlinx.cinterop.ExperimentalForeignApi::class)
 class NativeSQLiteDriver(
     val filename: String
 ) : SQLiteDriver {
@@ -45,7 +46,7 @@ class NativeSQLiteDriver(
             zVfs = null
         )
         if (resultCode != SQLITE_OK) {
-            error("Error opening database - $resultCode")
+            throwSQLiteException(resultCode, null)
         }
         NativeSQLiteConnection(dbPointer.value!!)
     }

@@ -14,34 +14,17 @@
  * limitations under the License.
  */
 
-import androidx.build.LibraryType
-import androidx.build.Publish
+package androidx.sqliteMultiplatform
 
-plugins {
-    id("AndroidXPlugin")
-}
+import androidx.annotation.RestrictTo
 
-androidXMultiplatform {
-    jvm()
-    mac()
-    linux()
-    ios()
-    androidNative()
-
-    sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation(project(":annotation:annotation"))
-            }
-        }
-    }
-}
-
-androidx {
-    name = "SQLite Common API"
-    type = LibraryType.UNSET
-    inceptionYear = "2023"
-    description = "SQLite Kotlin Multiplatform Common API"
-    publish = Publish.NONE
-}
+/**
+ * An exception that indicates that something has gone wrong and a error code was produced.
+ *
+ * See [Result and Error codes](https://www.sqlite.org/rescode.html)
+ */
+class SQLiteException
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+constructor(
+    message: String
+) : RuntimeException(message)

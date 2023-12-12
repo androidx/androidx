@@ -3,15 +3,35 @@
 #include <sstream>
 #include <stdlib.h>
 
-int throwException(JNIEnv *env, sqlite3* db, int errorCode) {
-    jclass exceptionClass = env->FindClass("java/lang/IllegalStateException");
-    std::stringstream errorMessage;
-    errorMessage << "Error code: " << errorCode;
-    if (db != nullptr) {
-        errorMessage << ", message: " <<  sqlite3_errmsg(db);
+/**
+ * Throws SQLiteException with the given error code and message.
+ *
+ * @return true if the exception was thrown, otherwise false.
+ */
+static bool throwSQLiteException(JNIEnv *env, int errorCode, const char *errorMsg) {
+    jclass exceptionClass = env->FindClass("androidx/sqliteMultiplatform/SQLiteException");
+    std::stringstream message;
+    message << "Error code: " << errorCode;
+    if (errorMsg != nullptr) {
+        message << ", message: " <<  errorMsg;
     }
-    int throwResult = env->ThrowNew(exceptionClass, errorMessage.str().c_str());
-    return throwResult;
+    int throwResult = env->ThrowNew(exceptionClass, message.str().c_str());
+    return throwResult == 0;
+}
+
+static bool throwIfNoRow(JNIEnv *env, sqlite3_stmt* stmt) {
+    int lastRc = sqlite3_errcode(sqlite3_db_handle(stmt));
+    if (lastRc != SQLITE_ROW) {
+        return throwSQLiteException(env, SQLITE_MISUSE, "no row");
+    }
+    return false;
+}
+
+static bool throwIfInvalidColumn(JNIEnv *env, sqlite3_stmt *stmt, int index) {
+    if (index < 0 || index >= sqlite3_column_count(stmt)) {
+        return throwSQLiteException(env, SQLITE_RANGE, "column index out of range");
+    }
+    return false;
 }
 
 extern "C" JNIEXPORT jlong JNICALL
@@ -25,7 +45,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteDriverKt_nativeOpen(
     int rc = sqlite3_open_v2(path, &db, openFlags, nullptr);
     env->ReleaseStringUTFChars(name, path);
     if (rc != SQLITE_OK) {
-        throwException(env, NULL, rc);
+        throwSQLiteException(env, rc, nullptr);
         return 0;
     }
     return reinterpret_cast<jlong>(db);
@@ -45,7 +65,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteConnectionKt_nativePr
     int rc = sqlite3_prepare16_v2(db, sql, sqlLength * sizeof(jchar), &stmt, nullptr);
     env->ReleaseStringCritical(sqlString, sql);
     if (rc != SQLITE_OK) {
-        throwException(env, db, rc);
+        throwSQLiteException(env, rc, sqlite3_errmsg(db));
         return 0;
     }
     return reinterpret_cast<jlong>(stmt);
@@ -73,7 +93,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBin
     int rc = sqlite3_bind_blob(stmt, index, blob, valueLength, SQLITE_TRANSIENT);
     env->ReleasePrimitiveArrayCritical(value, blob, JNI_ABORT);
     if (rc != SQLITE_OK) {
-        throwException(env, sqlite3_db_handle(stmt), rc);
+        throwSQLiteException(env, rc, sqlite3_errmsg(sqlite3_db_handle(stmt)));
     }
 }
 
@@ -87,7 +107,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBin
     sqlite3_stmt* stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
     int rc = sqlite3_bind_double(stmt, index, value);
     if (rc != SQLITE_OK) {
-        throwException(env, sqlite3_db_handle(stmt), rc);
+        throwSQLiteException(env, rc, sqlite3_errmsg(sqlite3_db_handle(stmt)));
     }
 }
 
@@ -101,7 +121,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBin
     sqlite3_stmt* stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
     int rc = sqlite3_bind_int64(stmt, index, value);
     if (rc != SQLITE_OK) {
-        throwException(env, sqlite3_db_handle(stmt), rc);
+        throwSQLiteException(env, rc, sqlite3_errmsg(sqlite3_db_handle(stmt)));
     }
 }
 
@@ -118,7 +138,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBin
     int rc = sqlite3_bind_text16(stmt, index, text, valueLength * sizeof(jchar), SQLITE_TRANSIENT);
     env->ReleaseStringCritical(value, text);
     if (rc != SQLITE_OK) {
-        throwException(env, sqlite3_db_handle(stmt), rc);
+        throwSQLiteException(env, rc, sqlite3_errmsg(sqlite3_db_handle(stmt)));
     }
 }
 
@@ -131,7 +151,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBin
     sqlite3_stmt* stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
     int rc = sqlite3_bind_null(stmt, index);
     if (rc != SQLITE_OK) {
-        throwException(env, sqlite3_db_handle(stmt), rc);
+        throwSQLiteException(env, rc, sqlite3_errmsg(sqlite3_db_handle(stmt)));
     }
 }
 
@@ -148,7 +168,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeSte
     if (rc == SQLITE_DONE) {
         return JNI_FALSE;
     }
-    throwException(env, sqlite3_db_handle(stmt), rc);
+    throwSQLiteException(env, rc, sqlite3_errmsg(sqlite3_db_handle(stmt)));
     return JNI_FALSE;
 }
 
@@ -159,6 +179,8 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
         jlong stmtPointer,
         jint index) {
     sqlite3_stmt *stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
+    if (throwIfNoRow(env, stmt)) return nullptr;
+    if (throwIfInvalidColumn(env, stmt, index)) return nullptr;
     const void *blob = sqlite3_column_blob(stmt, index);
     int size = sqlite3_column_bytes(stmt, index);
     // TODO(b/304297717): Use sqlite3_errcode() to check for out-of-memory
@@ -176,6 +198,8 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
         jlong stmtPointer,
         jint index) {
     sqlite3_stmt *stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
+    if (throwIfNoRow(env, stmt)) return 0.0;
+    if (throwIfInvalidColumn(env, stmt, index)) return 0.0;
     return sqlite3_column_double(stmt, index);
 }
 
@@ -186,6 +210,8 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
         jlong stmtPointer,
         jint index) {
     sqlite3_stmt *stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
+    if (throwIfNoRow(env, stmt)) return 0;
+    if (throwIfInvalidColumn(env, stmt, index)) return 0;
     return sqlite3_column_int64(stmt, index);
 }
 
@@ -196,6 +222,8 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
         jlong stmtPointer,
         jint index) {
     sqlite3_stmt *stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
+    if (throwIfNoRow(env, stmt)) return nullptr;
+    if (throwIfInvalidColumn(env, stmt, index)) return nullptr;
     // Java / jstring represents a string in UTF-16 encoding.
     const jchar *text = static_cast<const jchar*>(sqlite3_column_text16(stmt, index));
     if (text) {
@@ -222,6 +250,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
         jlong stmtPointer,
         jint index) {
     sqlite3_stmt *stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
+    if (throwIfInvalidColumn(env, stmt, index)) return nullptr;
     const char *name = sqlite3_column_name(stmt, index);
     if (name == NULL) {
         // TODO: throw out-of-memory exception
@@ -236,6 +265,8 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
         jlong stmtPointer,
         jint index) {
     sqlite3_stmt *stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
+    if (throwIfNoRow(env, stmt)) return 0;
+    if (throwIfInvalidColumn(env, stmt, index)) return 0;
     return sqlite3_column_type(stmt, index);
 }
 
@@ -245,7 +276,10 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeRes
         jclass clazz,
         jlong stmtPointer) {
     sqlite3_stmt* stmt = reinterpret_cast<sqlite3_stmt*>(stmtPointer);
-    sqlite3_reset(stmt);
+    int rc = sqlite3_reset(stmt);
+    if (rc != SQLITE_OK) {
+        throwSQLiteException(env, rc, sqlite3_errmsg(sqlite3_db_handle(stmt)));
+    }
 }
 
 extern "C" JNIEXPORT void JNICALL
