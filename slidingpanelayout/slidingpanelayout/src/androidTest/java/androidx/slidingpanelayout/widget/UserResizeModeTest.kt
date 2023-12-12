@@ -127,6 +127,27 @@ class UserResizeModeTest {
     }
 
     @Test
+    fun dragDividerWithTouchCapturingPanes() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context, childPanesAcceptTouchEvents = true)
+
+        spl.dispatchTouchEvent(downEvent(50f, 50f))
+        spl.dispatchTouchEvent(moveEvent(25f, 50f))
+        assertWithMessage("divider dragging").that(spl.isDividerDragging).isTrue()
+        spl.dispatchTouchEvent(upEvent(25f, 50f))
+        assertWithMessage("visualDividerPosition")
+            .that(spl.visualDividerPosition)
+            .isEqualTo(30)
+        assertWithMessage("SlidingPaneLayout.isLayoutRequested")
+            .that(spl.isLayoutRequested)
+            .isTrue()
+        spl.measureAndLayoutForTest()
+        assertWithMessage("splitDividerPosition")
+            .that(spl.splitDividerPosition)
+            .isEqualTo(30)
+    }
+
+    @Test
     fun dividerClickListenerInvoked() {
         val context = InstrumentationRegistry.getInstrumentation().context
         val spl = createTestSpl(context)
@@ -377,11 +398,13 @@ private fun View.drawToBitmap(): Bitmap {
 
 private fun createTestSpl(
     context: Context,
-    setDividerDrawable: Boolean = true
+    setDividerDrawable: Boolean = true,
+    childPanesAcceptTouchEvents: Boolean = false
 ): SlidingPaneLayout = SlidingPaneLayout(context).apply {
     addView(
         TestPaneView(context).apply {
             minimumWidth = 30
+            acceptTouchEvents = childPanesAcceptTouchEvents
             layoutParams = SlidingPaneLayout.LayoutParams(
                 LayoutParams.WRAP_CONTENT,
                 LayoutParams.MATCH_PARENT
@@ -391,6 +414,7 @@ private fun createTestSpl(
     addView(
         TestPaneView(context).apply {
             minimumWidth = 30
+            acceptTouchEvents = childPanesAcceptTouchEvents
             layoutParams = SlidingPaneLayout.LayoutParams(
                 LayoutParams.WRAP_CONTENT,
                 LayoutParams.MATCH_PARENT
@@ -426,6 +450,12 @@ private class TestDividerDrawable(
 
 private class TestPaneView(context: Context) : View(context) {
     val clipBoundsAtLastDraw = Rect()
+
+    var acceptTouchEvents = false
+
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        return super.onTouchEvent(event) || acceptTouchEvents
+    }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val widthSize = MeasureSpec.getSize(widthMeasureSpec)

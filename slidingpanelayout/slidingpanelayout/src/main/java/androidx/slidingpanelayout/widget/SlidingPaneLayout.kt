@@ -2297,24 +2297,52 @@ open class SlidingPaneLayout @JvmOverloads constructor(
         /** Called when the divider is touched and released without crossing [touchSlop] */
         open fun onDividerClicked() {}
 
+        private fun commonActionDown(ev: MotionEvent): Boolean = if (
+            dividerBoundsContains(ev.x.roundToInt(), ev.y.roundToInt())
+        ) {
+            xDown = ev.x
+            if (touchSlop == 0) {
+                isDragging = true
+                dragPositionX = clampDraggingDividerPosition(ev.x.roundToInt())
+                onUserResizeStarted()
+            }
+            true
+        } else false
+
+        private fun commonActionMove(ev: MotionEvent): Boolean = if (!xDown.isNaN()) {
+            var startedDrag = false
+            if (!isDragging) {
+                val dx = ev.x - xDown
+                if (abs(dx) >= touchSlop) {
+                    isDragging = true
+                    startedDrag = true
+                }
+            }
+            // Second if instead of else because isDragging can change above
+            if (isDragging) {
+                val newPosition = clampDraggingDividerPosition(ev.x.roundToInt())
+                dragPositionX = newPosition
+                if (startedDrag) onUserResizeStarted()
+                onUserResizeProgress()
+            }
+            true
+        } else false
+
         final override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+            when (ev.actionMasked) {
+                MotionEvent.ACTION_DOWN -> if (commonActionDown(ev) && isDragging) return true
+                MotionEvent.ACTION_MOVE -> if (commonActionMove(ev) && isDragging) return true
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    if (!isDragging) xDown = Float.NaN
+                }
+            }
             return false
         }
 
         final override fun onTouchEvent(
             ev: MotionEvent
         ): Boolean = when (val action = ev.actionMasked) {
-            MotionEvent.ACTION_DOWN -> if (
-                dividerBoundsContains(ev.x.roundToInt(), ev.y.roundToInt())
-            ) {
-                xDown = ev.x
-                if (touchSlop == 0) {
-                    isDragging = true
-                    dragPositionX = clampDraggingDividerPosition(ev.x.roundToInt())
-                    onUserResizeStarted()
-                }
-                true
-            } else false
+            MotionEvent.ACTION_DOWN -> commonActionDown(ev)
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> if (!xDown.isNaN()) {
                 xDown = Float.NaN
                 if (isDragging) {
@@ -2328,24 +2356,7 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                 true
             } else false
             // Moves are only valid if we got the initial down event
-            MotionEvent.ACTION_MOVE -> if (!xDown.isNaN()) {
-                var startedDrag = false
-                if (!isDragging) {
-                    val dx = ev.x - xDown
-                    if (abs(dx) >= touchSlop) {
-                        isDragging = true
-                        startedDrag = true
-                    }
-                }
-                // Second if instead of else because isDragging can change above
-                if (isDragging) {
-                    val newPosition = clampDraggingDividerPosition(ev.x.roundToInt())
-                    dragPositionX = newPosition
-                    if (startedDrag) onUserResizeStarted()
-                    onUserResizeProgress()
-                }
-                true
-            } else false
+            MotionEvent.ACTION_MOVE -> commonActionMove(ev)
             else -> false
         }
     }
