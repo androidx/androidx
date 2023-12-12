@@ -18,10 +18,10 @@ package androidx.sqlite.db.framework
 
 import android.content.Context
 import android.os.StrictMode
-import androidx.kruth.assertThat
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 

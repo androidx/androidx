@@ -14,52 +14,26 @@
  * limitations under the License.
  */
 
-
-import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("org.jetbrains.kotlin.android")
 }
 
-androidXMultiplatform {
-    android()
-    androidNative()
-    linux()
-    mac()
-    ios()
-
-    defaultPlatform(PlatformIdentifier.ANDROID)
-
-    sourceSets {
-        commonMain {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                api(project(":sqlite:sqlite"))
-            }
-        }
-        commonTest {
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(project(":kruth:kruth"))
-            }
-        }
-        androidMain {
-            dependsOn(commonMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.2.0")
-            }
-        }
-        androidInstrumentedTest {
-            dependsOn(commonTest)
-            dependencies {
-                implementation(libs.kotlinTestJunit)
-                implementation(libs.testRunner)
-                implementation(libs.testCore)
-            }
-        }
+dependencies {
+    api("androidx.annotation:annotation:1.2.0")
+    api(project(":sqlite:sqlite"))
+    implementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.kotlinStdlib)
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testRunner) {
+        exclude module: "support-annotations"
+        exclude module: "hamcrest-core"
     }
+    androidTestImplementation(libs.truth)
 }
 
 androidx {

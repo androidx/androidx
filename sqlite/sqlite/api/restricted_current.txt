@@ -1,35 +1,4 @@
 // Signature format: 4.0
-package androidx.sqlite {
-
-  public interface SQLiteConnection {
-    method public void close();
-    method public androidx.sqlite.SQLiteStatement prepare(String sql);
-  }
-
-  public interface SQLiteDriver {
-    method public androidx.sqlite.SQLiteConnection open();
-  }
-
-  public interface SQLiteStatement {
-    method public void bindBlob(int index, byte[] value);
-    method public void bindDouble(int index, double value);
-    method public void bindLong(int index, long value);
-    method public void bindNull(int index);
-    method public void bindText(int index, String value);
-    method public void close();
-    method public byte[] getBlob(int index);
-    method public int getColumnCount();
-    method public String getColumnName(int index);
-    method public double getDouble(int index);
-    method public long getLong(int index);
-    method public String getText(int index);
-    method public boolean isNull(int index);
-    method public void reset();
-    method public boolean step();
-  }
-
-}
-
 package androidx.sqlite.db {
 
   public final class SimpleSQLiteQuery implements androidx.sqlite.db.SupportSQLiteQuery {
