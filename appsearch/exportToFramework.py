@@ -197,8 +197,8 @@ class ExportToFramework:
                     'package androidx.appsearch.testutil;',
                     'package android.app.appsearch.testutil;')
             .replace(
-                    'androidx.appsearch.localstorage.LocalStorage',
-                    'android.app.appsearch.AppSearchManager')
+                    'import androidx.appsearch.localstorage.LocalStorage;',
+                    'import android.app.appsearch.AppSearchManager;')
             .replace('LocalStorage.', 'AppSearchManager.')
         )
         for shim in ['AppSearchSession', 'GlobalSearchSession', 'SearchResults']:
