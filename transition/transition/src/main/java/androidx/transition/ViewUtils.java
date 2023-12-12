@@ -81,20 +81,6 @@ class ViewUtils {
 
             };
 
-    /**
-     * Backward-compatible {@link View#getOverlay()}.
-     */
-    static ViewOverlayImpl getOverlay(@NonNull View view) {
-        return new ViewOverlayApi18(view);
-    }
-
-    /**
-     * Backward-compatible {@link View#getWindowId()}.
-     */
-    static @NonNull WindowIdImpl getWindowId(@NonNull View view) {
-        return new WindowIdApi18(view);
-    }
-
     static void setTransitionAlpha(@NonNull View view, float alpha) {
         IMPL.setTransitionAlpha(view, alpha);
     }

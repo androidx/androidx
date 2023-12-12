@@ -129,12 +129,12 @@ package androidx.core.widget {
     method @RequiresApi(31) public static void setSwitchTrackTintList(android.widget.RemoteViews, @IdRes int viewId, @ColorRes int resId);
     method @RequiresApi(31) public static void setSwitchTrackTintListAttr(android.widget.RemoteViews, @IdRes int viewId, @AttrRes int resId);
     method @RequiresApi(31) public static void setTextClockFormat12Hour(android.widget.RemoteViews, @IdRes int viewId, @StringRes int resId);
-    method @RequiresApi(17) public static void setTextClockFormat12Hour(android.widget.RemoteViews, @IdRes int viewId, CharSequence? format);
+    method public static void setTextClockFormat12Hour(android.widget.RemoteViews, @IdRes int viewId, CharSequence? format);
     method @RequiresApi(31) public static void setTextClockFormat12HourAttr(android.widget.RemoteViews, @IdRes int viewId, @AttrRes int resId);
     method @RequiresApi(31) public static void setTextClockFormat24Hour(android.widget.RemoteViews, @IdRes int viewId, @StringRes int resId);
-    method @RequiresApi(17) public static void setTextClockFormat24Hour(android.widget.RemoteViews, @IdRes int viewId, CharSequence? format);
+    method public static void setTextClockFormat24Hour(android.widget.RemoteViews, @IdRes int viewId, CharSequence? format);
     method @RequiresApi(31) public static void setTextClockFormat24HourAttr(android.widget.RemoteViews, @IdRes int viewId, @AttrRes int resId);
-    method @RequiresApi(17) public static void setTextClockTimeZone(android.widget.RemoteViews, @IdRes int viewId, String? timeZone);
+    method public static void setTextClockTimeZone(android.widget.RemoteViews, @IdRes int viewId, String? timeZone);
     method @RequiresApi(31) public static void setTextViewAllCaps(android.widget.RemoteViews, @IdRes int viewId, boolean allCaps);
     method public static void setTextViewAutoLinkMask(android.widget.RemoteViews, @IdRes int viewId, int mask);
     method @RequiresApi(31) public static void setTextViewCompoundDrawablePadding(android.widget.RemoteViews, @IdRes int viewId, float value, int unit);
@@ -239,7 +239,7 @@ package androidx.core.widget {
     method @RequiresApi(31) public static void setViewForegroundTintList(android.widget.RemoteViews, @IdRes int viewId, android.content.res.ColorStateList? notNightTint, android.content.res.ColorStateList? nightTint);
     method @RequiresApi(31) public static void setViewForegroundTintList(android.widget.RemoteViews, @IdRes int viewId, @ColorRes int resId);
     method @RequiresApi(31) public static void setViewForegroundTintListAttr(android.widget.RemoteViews, @IdRes int viewId, @AttrRes int resId);
-    method @RequiresApi(17) public static void setViewLayoutDirection(android.widget.RemoteViews, @IdRes int viewId, int layoutDirection);
+    method public static void setViewLayoutDirection(android.widget.RemoteViews, @IdRes int viewId, int layoutDirection);
     method @RequiresApi(31) public static void setViewMinimumHeight(android.widget.RemoteViews, @IdRes int viewId, float value, int unit);
     method @RequiresApi(24) public static void setViewMinimumHeight(android.widget.RemoteViews, @IdRes int viewId, @Px int minHeight);
     method @RequiresApi(31) public static void setViewMinimumHeightDimen(android.widget.RemoteViews, @IdRes int viewId, @DimenRes int resId);
