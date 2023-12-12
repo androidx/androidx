@@ -523,7 +523,7 @@ package androidx.compose.animation.core {
 
   @SuppressCompatibility @androidx.compose.animation.core.ExperimentalTransitionApi public final class SeekableTransitionState<S> extends androidx.compose.animation.core.TransitionState<S> {
     ctor public SeekableTransitionState(S initialState);
-    method public suspend Object? animateTo(optional S targetState, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? animateTo(optional S targetState, optional androidx.compose.animation.core.FiniteAnimationSpec<java.lang.Float>? animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public S getCurrentState();
     method @FloatRange(from=0.0, to=1.0) public float getFraction();
     method public S getTargetState();

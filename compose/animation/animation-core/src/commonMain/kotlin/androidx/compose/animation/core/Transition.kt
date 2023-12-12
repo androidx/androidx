@@ -45,9 +45,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastFold
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastRoundToInt
 import kotlin.math.max
 import kotlin.math.roundToLong
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
@@ -190,11 +194,6 @@ class MutableTransitionState<S>(initialState: S) : TransitionState<S>() {
 }
 
 /**
- * Default AnimationSpec used in [SeekableTransitionState].
- */
-private val DefaultSpring = spring(stiffness = Spring.StiffnessMedium, visibilityThreshold = 0.001f)
-
-/**
  * A [TransitionState] that can manipulate the progress of the [Transition] by seeking
  * with [snapTo] or animating with [animateTo].
  *
@@ -305,9 +304,17 @@ class SeekableTransitionState<S>(
         // Change what it does with the animation
         transition.setInitialAnimations(currentAnimatable)
         initialFractionAnimatables.forEach { animatable, duration ->
+            // If the coroutine that launched an animation has been stopped, we must still
+            // continue the animation to its conclusion. This can happen, for example, with
+            // a LaunchedEffect(key) when the key changes.
             if (!animatable.isRunning) {
                 coroutineScope.launch {
-                    animatable.animateTo(1f, animationSpec = DefaultSpring) {
+                    val currentPlayTime = (duration * animatable.value).roundToLong()
+                    val remainderMillis = ((duration - currentPlayTime) / MillisToNanos).toInt()
+                    animatable.animateTo(
+                        1f,
+                        animationSpec = tween(remainderMillis, 0, LinearEasing)
+                    ) {
                         val initialNanos = (value * duration).roundToLong()
                         val currentNanos =
                             (animatedFraction.value * transition.totalDurationNanos).roundToLong()
@@ -321,23 +328,25 @@ class SeekableTransitionState<S>(
     }
 
     /**
-     * Updates the current `targetState` to [targetState] and begins an animation to the new state
-     * with [animationSpec]. If the current `targetState` is the same as [targetState] then the
-     * current transition animation is continued using [animationSpec]. If a previous transition
+     * Updates the current `targetState` to [targetState] and begins an animation to the new state.
+     * If the current `targetState` is the same as [targetState] then the
+     * current transition animation is continued. If a previous transition
      * was interrupted, [currentState] is changed to the former `targetState` and the start values
      * are animated toward the former `targetState`.
      *
      * Upon completion of the animation, [currentState] will be changed to [targetState].
      *
      * @param targetState The state to animate towards.
-     * @param animationSpec The [FiniteAnimationSpec] to use for animating the fraction. This
-     * defaults to a spring animation with [Spring.StiffnessLow].
+     * @param animationSpec If provided, is used to animate the animation fraction. If `null`,
+     * the transition is linearly traversed based on the duration of the transition.
      */
+    @Suppress("DocumentExceptions")
     suspend fun animateTo(
         targetState: S = this.targetState,
-        animationSpec: FiniteAnimationSpec<Float> = DefaultSpring
+        animationSpec: FiniteAnimationSpec<Float>? = null
     ) {
         val transition = transition ?: return
+        var deferred: Deferred<Unit>? = null
         coroutineScope {
             if (targetState != this@SeekableTransitionState.targetState) {
                 animateInitialState(this@coroutineScope)
@@ -346,7 +355,42 @@ class SeekableTransitionState<S>(
                 this@SeekableTransitionState.currentState = this@SeekableTransitionState.targetState
                 this@SeekableTransitionState.targetState = targetState
             }
-            animateToTargetState(animationSpec)
+            if (animationSpec == null) {
+                val animated = animatedFraction
+                var relaunchAnimateToTargetState: ((Unit) -> Unit)? = null
+                // totalDurationNanos will notify when the value _may have_ changed. We don't
+                // want to change the animation unless the duration really changes.
+                var previousDuration = -1L
+                relaunchAnimateToTargetState = {
+                    if (animated == animatedFraction && animatedFraction.value < 1f) {
+                        observer.observeReads(
+                            Unit,
+                            relaunchAnimateToTargetState!!,
+                            recalculateTotalDurationNanos
+                        )
+                        if (previousDuration != totalDurationNanos) {
+                            previousDuration = totalDurationNanos
+                            val remainderMillis = (totalDurationNanos *
+                                (1f - animated.value) / MillisToNanos).fastRoundToInt()
+
+                            val spec = if (remainderMillis == 0) {
+                                animated.defaultSpringSpec
+                            } else {
+                                tween(remainderMillis, 0, LinearEasing)
+                            }
+                            deferred = async {
+                                animateToTargetState(spec)
+                            }
+                        }
+                    }
+                }
+                relaunchAnimateToTargetState(Unit)
+            } else {
+                animateToTargetState(animationSpec)
+            }
+        }
+        if (deferred?.isCancelled == true) {
+            throw CancellationException()
         }
     }
 
@@ -354,13 +398,8 @@ class SeekableTransitionState<S>(
      * Animates from the current fraction to the [targetState] (fraction = 1).
      *
      * Upon completion of the animation, [currentState] will be changed to [targetState].
-     *
-     * @param animationSpec The [FiniteAnimationSpec] to use for animating the fraction. This
-     * defaults to a spring animation with [Spring.StiffnessLow].
      */
-    private suspend fun animateToTargetState(
-        animationSpec: FiniteAnimationSpec<Float> = DefaultSpring
-    ) {
+    private suspend fun animateToTargetState(animationSpec: FiniteAnimationSpec<Float>) {
         val transition = transition ?: return
         if (currentState == targetState) {
             return
@@ -370,9 +409,9 @@ class SeekableTransitionState<S>(
         animated.animateTo(targetValue = 1f, animationSpec = animationSpec) {
             if (this === animatedFraction) {
                 seekToFraction()
-            } else {
-                val duration = initialFractionAnimatables[this]
-                val initialValueNanos = (duration * value).roundToLong()
+            } else if (this in initialFractionAnimatables) {
+                val durationNanos = initialFractionAnimatables[this]
+                val initialValueNanos = (durationNanos * value).roundToLong()
                 val playTimeNanos =
                     (animatedFraction.value * transition.totalDurationNanos).roundToLong()
                 transition.updateInitialValues(this, initialValueNanos, playTimeNanos)
