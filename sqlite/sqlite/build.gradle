@@ -14,21 +14,49 @@
  * limitations under the License.
  */
 
+import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
-dependencies {
-    api("androidx.annotation:annotation:1.0.0")
-    implementation(libs.kotlinStdlib)
-    testImplementation(libs.junit)
-    testImplementation(libs.mockitoCore4)
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.truth)
+androidXMultiplatform {
+    android()
+    ios()
+    jvm()
+    linux()
+    mac()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+        }
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+            }
+        }
+        androidMain {
+            dependsOn(commonMain)
+            dependencies {
+                api("androidx.annotation:annotation:1.0.0")
+            }
+        }
+        androidUnitTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.junit)
+                implementation(libs.mockitoCore4)
+                implementation(libs.truth)
+            }
+        }
+    }
 }
 
 android {
