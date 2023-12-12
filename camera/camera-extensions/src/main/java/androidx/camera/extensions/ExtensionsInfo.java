@@ -23,10 +23,8 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraProvider;
@@ -152,7 +150,6 @@ final class ExtensionsInfo {
      *                                  extension mode.
      */
     @Nullable
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     Range<Long> getEstimatedCaptureLatencyRange(
             @NonNull CameraSelector cameraSelector,
             @ExtensionMode.Mode int mode, @Nullable Size resolution) {

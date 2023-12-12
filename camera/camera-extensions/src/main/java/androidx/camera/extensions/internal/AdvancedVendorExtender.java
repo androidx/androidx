@@ -26,13 +26,11 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.camera2.interop.Camera2CameraInfo;
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.advanced.AdvancedExtenderImpl;
@@ -97,13 +95,13 @@ public class AdvancedVendorExtender implements VendorExtender {
         mMode = ExtensionMode.NONE;
     }
 
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @Override
     public void init(@NonNull CameraInfo cameraInfo) {
-        mCameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
+        CameraInfoInternal cameraInfoInternal = (CameraInfoInternal) cameraInfo;
+        mCameraId = cameraInfoInternal.getCameraId();
 
         Map<String, CameraCharacteristics> cameraCharacteristicsMap =
-                Camera2CameraInfo.from(cameraInfo).getCameraCharacteristicsMap();
+                ExtensionsUtils.getCameraCharacteristicsMap(cameraInfoInternal);
 
         mAdvancedExtenderImpl.init(mCameraId, cameraCharacteristicsMap);
     }

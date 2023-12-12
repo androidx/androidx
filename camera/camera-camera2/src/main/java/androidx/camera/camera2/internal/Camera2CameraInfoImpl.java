@@ -555,6 +555,29 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         return mCamera2CameraInfo;
     }
 
+    @NonNull
+    @Override
+    public Object getCameraCharacteristics() {
+        return mCameraCharacteristicsCompat.toCameraCharacteristics();
+    }
+
+    @Nullable
+    @Override
+    public Object getPhysicalCameraCharacteristics(@NonNull String physicalCameraId) {
+        try {
+            if (!mCameraCharacteristicsCompat.getPhysicalCameraIds().contains(physicalCameraId)) {
+                return null;
+            }
+            return mCameraManager.getCameraCharacteristicsCompat(physicalCameraId)
+                    .toCameraCharacteristics();
+        } catch (CameraAccessExceptionCompat e) {
+            Logger.e(TAG,
+                    "Failed to get CameraCharacteristics for cameraId " + physicalCameraId,
+                    e);
+        }
+        return null;
+    }
+
     /**
      * Returns a map consisting of the camera ids and the {@link CameraCharacteristics}s.
      *

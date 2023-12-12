@@ -26,8 +26,6 @@ import android.os.Build
 import android.util.Pair
 import android.util.Range
 import android.util.Size
-import androidx.camera.camera2.internal.Camera2CameraInfoImpl
-import androidx.camera.camera2.internal.compat.CameraManagerCompat
 import androidx.camera.core.impl.RestrictedCameraControl
 import androidx.camera.extensions.impl.CaptureStageImpl
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl
@@ -37,6 +35,7 @@ import androidx.camera.extensions.impl.advanced.OutputSurfaceConfigurationImpl
 import androidx.camera.extensions.impl.advanced.OutputSurfaceImpl
 import androidx.camera.extensions.impl.advanced.RequestProcessorImpl
 import androidx.camera.extensions.impl.advanced.SessionProcessorImpl
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeTrue
@@ -127,7 +126,7 @@ class SupportedCameraOperationsTest(
             vendorExtender = AdvancedVendorExtender(fakeAdvancedExtenderImpl)
         }
 
-        val cameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val cameraInfo = FakeCameraInfoInternal("0", context)
         vendorExtender!!.init(cameraInfo)
         val sessionProcessor = vendorExtender.createSessionProcessor(context)!!
         assertThat(sessionProcessor.supportedCameraOperations)

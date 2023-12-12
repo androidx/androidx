@@ -18,6 +18,9 @@ package androidx.camera.testing.fakes;
 
 import static androidx.camera.core.DynamicRange.SDR;
 
+import android.content.Context;
+import android.hardware.camera2.CameraAccessException;
+import android.hardware.camera2.CameraManager;
 import android.util.Range;
 import android.util.Rational;
 import android.util.Size;
@@ -25,6 +28,7 @@ import android.view.Surface;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
@@ -102,29 +106,48 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
 
     private Timebase mTimebase = Timebase.UPTIME;
 
+    @Nullable
+    private CameraManager mCameraManager;
+
     public FakeCameraInfoInternal() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ CameraSelector.LENS_FACING_BACK);
     }
 
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public FakeCameraInfoInternal(@NonNull String cameraId,
+            @NonNull Context context) {
+        this(cameraId, 0, CameraSelector.LENS_FACING_BACK, context);
+    }
+
     public FakeCameraInfoInternal(@NonNull String cameraId) {
-        this(cameraId, 0, CameraSelector.LENS_FACING_BACK);
+        this(cameraId, 0, CameraSelector.LENS_FACING_BACK, null);
     }
 
     public FakeCameraInfoInternal(@NonNull String cameraId,
             @CameraSelector.LensFacing int lensFacing) {
-        this(cameraId, 0, lensFacing);
+        this(cameraId, 0, lensFacing, null);
     }
 
     public FakeCameraInfoInternal(int sensorRotation, @CameraSelector.LensFacing int lensFacing) {
-        this("0", sensorRotation, lensFacing);
+        this("0", sensorRotation, lensFacing, null);
     }
 
     public FakeCameraInfoInternal(@NonNull String cameraId, int sensorRotation,
             @CameraSelector.LensFacing int lensFacing) {
+        this(cameraId, sensorRotation, lensFacing, null);
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public FakeCameraInfoInternal(@NonNull String cameraId, int sensorRotation,
+            @CameraSelector.LensFacing int lensFacing,
+            @Nullable Context context) {
         mCameraId = cameraId;
         mSensorRotation = sensorRotation;
         mLensFacing = lensFacing;
         mZoomLiveData = new MutableLiveData<>(ImmutableZoomState.create(1.0f, 4.0f, 1.0f, 0.0f));
+        if (context != null) {
+            mCameraManager = (CameraManager) context.getSystemService(Context.CAMERA_SERVICE);
+        }
     }
 
     /**
@@ -388,6 +411,28 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     public void setSupportedDynamicRanges(@NonNull Set<DynamicRange> dynamicRanges) {
         mSupportedDynamicRanges.clear();
         mSupportedDynamicRanges.addAll(dynamicRanges);
+    }
+
+    @NonNull
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public Object getCameraCharacteristics() {
+        try {
+            return mCameraManager.getCameraCharacteristics(mCameraId);
+        } catch (CameraAccessException e) {
+            throw new IllegalStateException("can't get CameraCharacteristics", e);
+        }
+    }
+
+    @Nullable
+    @Override
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public Object getPhysicalCameraCharacteristics(@NonNull String physicalCameraId) {
+        try {
+            return mCameraManager.getCameraCharacteristics(physicalCameraId);
+        } catch (CameraAccessException e) {
+            throw new IllegalStateException("can't get CameraCharacteristics", e);
+        }
     }
 
     @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
