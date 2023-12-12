@@ -563,7 +563,7 @@ class SeekableTransitionStateTest {
         rule.setContent {
             coroutineScope = rememberCoroutineScope()
             LaunchedEffect(seekableTransitionState) {
-                seekableTransitionState.animateTo(AnimStates.To, tween(easing = LinearEasing))
+                seekableTransitionState.animateTo(AnimStates.To)
             }
             val transition = rememberTransition(seekableTransitionState, label = "Test")
             val val1 = transition.animateInt(
@@ -689,7 +689,7 @@ class SeekableTransitionStateTest {
         rule.setContent {
             coroutineScope = rememberCoroutineScope()
             LaunchedEffect(seekableTransitionState) {
-                seekableTransitionState.animateTo(AnimStates.To, tween(easing = LinearEasing))
+                seekableTransitionState.animateTo(AnimStates.To)
             }
             val transition = rememberTransition(seekableTransitionState, label = "Test")
             val val1 = transition.animateInt(
@@ -750,7 +750,7 @@ class SeekableTransitionStateTest {
             assertEquals(533f, animatedValue3.toFloat(), 1f)
         }
         val animateToOther = coroutineScope.async {
-            seekableTransitionState.animateTo(AnimStates.Other, tween(easing = LinearEasing))
+            seekableTransitionState.animateTo(AnimStates.Other)
         }
 
         rule.runOnIdle {
@@ -802,7 +802,7 @@ class SeekableTransitionStateTest {
 
         rule.setContent {
             LaunchedEffect(seekableTransitionState, targetState) {
-                seekableTransitionState.animateTo(targetState, tween(easing = LinearEasing))
+                seekableTransitionState.animateTo(targetState)
             }
             val transition = rememberTransition(seekableTransitionState, label = "Test")
             val val1 = transition.animateInt(
@@ -1074,5 +1074,63 @@ class SeekableTransitionStateTest {
         rule.waitForIdle()
         rule.mainClock.advanceTimeByFrame()
         assertEquals(1000, animatedValue1)
+    }
+
+    @Test
+    fun animateToWithSpec() {
+        rule.mainClock.autoAdvance = false
+        val seekableTransitionState = SeekableTransitionState(AnimStates.From)
+        var animatedValue1 by mutableIntStateOf(-1)
+        lateinit var coroutineScope: CoroutineScope
+
+        rule.setContent {
+            coroutineScope = rememberCoroutineScope()
+            val transition = rememberTransition(seekableTransitionState, label = "Test")
+            val val1 = transition.animateInt(
+                label = "Value",
+                transitionSpec = { tween(durationMillis = 100, easing = LinearEasing) }
+            ) { state ->
+                when (state) {
+                    AnimStates.From -> 0
+                    else -> 1000
+                }
+            }
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .drawBehind {
+                        animatedValue1 = val1.value
+                    })
+        }
+        rule.waitForIdle()
+        coroutineScope.launch {
+            seekableTransitionState.snapTo(AnimStates.To, 0.5f)
+        }
+        rule.waitForIdle()
+        rule.mainClock.advanceTimeByFrame()
+        val deferred = coroutineScope.async {
+            seekableTransitionState.animateTo(animationSpec = tween(1000, 0, LinearEasing))
+        }
+        rule.mainClock.advanceTimeByFrame() // lock in the start time
+        rule.mainClock.advanceTimeBy(64)
+        rule.runOnIdle {
+            // should be 500 + 500 * 64/1000 = 532
+            assertEquals(532, animatedValue1)
+        }
+        rule.mainClock.advanceTimeBy(192)
+        rule.runOnIdle {
+            // should be 500 + 500 * 256/1000 = 628
+            assertEquals(628, animatedValue1)
+        }
+        rule.mainClock.advanceTimeBy(256)
+        rule.runOnIdle {
+            // should be 500 + 500 * 512/1000 = 756
+            assertEquals(756, animatedValue1)
+        }
+        rule.mainClock.advanceTimeBy(512)
+        rule.runOnIdle {
+            assertTrue(deferred.isCompleted)
+            assertEquals(1000, animatedValue1)
+        }
     }
 }
