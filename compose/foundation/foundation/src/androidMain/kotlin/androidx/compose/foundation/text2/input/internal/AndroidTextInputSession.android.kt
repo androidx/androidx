@@ -91,11 +91,11 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
         )
 
         startInputMethod { outAttrs ->
-            logDebug { "createInputConnection(value=\"${state.text}\")" }
+            logDebug { "createInputConnection(value=\"${state.visualText}\")" }
 
             val textInputSession = object : TextInputSession {
                 override val text: TextFieldCharSequence
-                    get() = state.text
+                    get() = state.visualText
 
                 override fun requestEdit(block: EditingBuffer.() -> Unit) {
                     state.editUntransformedTextAsUser(
@@ -116,7 +116,7 @@ internal suspend fun PlatformTextInputSession.platformSpecificTextInputSession(
                     cursorUpdatesController.requestUpdates(cursorUpdateMode)
                 }
             }
-            outAttrs.update(state.text, state.text.selectionInChars, imeOptions)
+            outAttrs.update(state.visualText, state.visualText.selectionInChars, imeOptions)
             StatelessInputConnection(textInputSession)
         }
     }

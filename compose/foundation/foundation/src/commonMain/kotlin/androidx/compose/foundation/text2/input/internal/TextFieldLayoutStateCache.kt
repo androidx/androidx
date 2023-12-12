@@ -146,7 +146,7 @@ internal class TextFieldLayoutStateCache : State<TextLayoutResult?>, StateObject
         nonMeasureInputs: NonMeasureInputs,
         measureInputs: MeasureInputs
     ): TextLayoutResult {
-        val visualText = nonMeasureInputs.textFieldState.text
+        val visualText = nonMeasureInputs.textFieldState.visualText
 
         // Use withCurrent here so the cache itself is never reported as a read state object. It
         // doesn't need to be, because it's always guaranteed to return the same value for the same

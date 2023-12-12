@@ -324,7 +324,7 @@ internal class TextFieldDecoratorModifierNode(
             val text = if (relativeToOriginal) {
                 textFieldState.untransformedText
             } else {
-                textFieldState.text
+                textFieldState.visualText
             }
             val selection = text.selectionInChars
 
