@@ -20,6 +20,9 @@
 
 #include <android/api-level.h>
 
+#include <cstdlib>
+#include <new>
+
 #define JNI_CLASS_NAME "androidx/graphics/path/PathIteratorPreApi34Impl"
 #define JNI_CLASS_NAME_CONVERTER "androidx/graphics/path/ConicConverter"
 
@@ -71,14 +74,17 @@ static jlong createPathIterator(JNIEnv* env, jobject,
         direction = PathIterator::VerbDirection::Backward;
     }
 
-    return jlong(new PathIterator(
+    PathIterator* iterator = static_cast<PathIterator*>(malloc(sizeof(PathIterator)));
+    return jlong(new(iterator) PathIterator(
             points, verbs, conicWeights, count, direction,
             PathIterator::ConicEvaluation(conicEvaluation_), tolerance_
     ));
 }
 
 static void destroyPathIterator(JNIEnv*, jobject, jlong pathIterator_) {
-    delete reinterpret_cast<PathIterator*>(pathIterator_);
+    PathIterator* iterator = reinterpret_cast<PathIterator*>(pathIterator_);
+    iterator->~PathIterator();
+    free(iterator);
 }
 
 static jboolean pathIteratorHasNext(JNIEnv*, jobject, jlong pathIterator_) {
