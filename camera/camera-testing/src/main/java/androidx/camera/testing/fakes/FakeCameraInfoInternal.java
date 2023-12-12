@@ -337,6 +337,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
         return mIsFocusMeteringSupported;
     }
 
+    @androidx.camera.core.ExperimentalZeroShutterLag
     @Override
     public boolean isZslSupported() {
         return false;

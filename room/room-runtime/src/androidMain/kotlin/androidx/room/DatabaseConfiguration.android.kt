@@ -210,6 +210,7 @@ constructor(
      * aren't required.
      *
      */
+    @OptIn(ExperimentalRoomApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated("This constructor is deprecated.")
     constructor(
@@ -275,6 +276,7 @@ constructor(
      * @param copyFromFile The pre-packaged database file.
      *
      */
+    @OptIn(ExperimentalRoomApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated("This constructor is deprecated.")
     constructor(
@@ -344,6 +346,7 @@ constructor(
      * pre-package database file will be copied from.
      *
      */
+    @OptIn(ExperimentalRoomApi::class)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated("This constructor is deprecated.")
     constructor(
@@ -415,6 +418,7 @@ constructor(
      * @param prepackagedDatabaseCallback The pre-packaged callback.
      *
      */
+    @OptIn(ExperimentalRoomApi::class)
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated("This constructor is deprecated.")
@@ -489,6 +493,7 @@ constructor(
      * @param typeConverters The type converters.
      *
      */
+    @OptIn(ExperimentalRoomApi::class)
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated("This constructor is deprecated.")
@@ -565,6 +570,7 @@ constructor(
      * @param autoMigrationSpecs The auto migration specs.
      *
      */
+    @OptIn(ExperimentalRoomApi::class)
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Deprecated("This constructor is deprecated.")

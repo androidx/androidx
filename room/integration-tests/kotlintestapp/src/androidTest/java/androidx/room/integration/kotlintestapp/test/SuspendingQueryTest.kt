@@ -154,6 +154,7 @@ class SuspendingQueryTest : TestDatabaseTest() {
         }
     }
 
+    @OptIn(androidx.room.ExperimentalRoomApi::class)
     @Test
     fun allBookSuspend_autoClose() {
         val context: Context = ApplicationProvider.getApplicationContext()

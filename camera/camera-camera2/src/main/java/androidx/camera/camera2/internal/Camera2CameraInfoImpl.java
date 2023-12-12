@@ -391,6 +391,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         }
     }
 
+    @OptIn(markerClass = androidx.camera.core.ExperimentalZeroShutterLag.class)
     @Override
     public boolean isZslSupported() {
         return Build.VERSION.SDK_INT >= 23 && isPrivateReprocessingSupported()

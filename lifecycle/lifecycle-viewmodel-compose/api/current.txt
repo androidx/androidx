@@ -8,7 +8,7 @@ package androidx.lifecycle.viewmodel.compose {
     field public static final androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner INSTANCE;
   }
 
-  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.RUNTIME) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface SavedStateHandleSaveableApi {
+  @SuppressCompatibility @kotlin.RequiresOptIn(level=kotlin.RequiresOptIn.Level.WARNING) @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget.FUNCTION) public @interface SavedStateHandleSaveableApi {
   }
 
   public final class SavedStateHandleSaverKt {
