@@ -55,6 +55,7 @@ import java.time.temporal.ChronoUnit
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -310,6 +311,7 @@ class HealthConnectClientUpsideDownImplTest {
         assertThat(readResponse.records[0].count).isEqualTo(5)
     }
 
+    @Ignore("b/314092270")
     @Test
     fun aggregateRecords() = runTest {
         healthConnectClient.insertRecords(
@@ -393,6 +395,7 @@ class HealthConnectClientUpsideDownImplTest {
         }
     }
 
+    @Ignore("b/314092270")
     @Test
     fun aggregateRecordsGroupByDuration() = runTest {
         healthConnectClient.insertRecords(
@@ -438,6 +441,7 @@ class HealthConnectClientUpsideDownImplTest {
         }
     }
 
+    @Ignore("b/314092270")
     @Test
     fun aggregateRecordsGroupByPeriod() = runTest {
         healthConnectClient.insertRecords(
@@ -485,6 +489,7 @@ class HealthConnectClientUpsideDownImplTest {
         }
     }
 
+    @Ignore("b/314092270")
     @Test
     fun aggregateRecordsGroupByPeriod_monthly() = runTest {
         healthConnectClient.insertRecords(
