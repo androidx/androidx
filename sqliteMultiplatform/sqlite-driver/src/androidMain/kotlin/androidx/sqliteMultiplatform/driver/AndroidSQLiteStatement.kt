@@ -52,41 +52,42 @@ internal sealed class AndroidSQLiteStatement(
         sql: String
     ) : AndroidSQLiteStatement(db, sql) {
 
-        // TODO(b/304299101): Optimize (avoid boxing)
-        private val arguments = mutableListOf<Any?>()
-        private val argumentTypes = mutableListOf<ColumnType>()
+        private var bindingTypes: IntArray = IntArray(0)
+        private var longBindings: LongArray = LongArray(0)
+        private var doubleBindings: DoubleArray = DoubleArray(0)
+        private var stringBindings: Array<String?> = emptyArray()
+        private var blobBindings: Array<ByteArray?> = emptyArray()
 
         // TODO(b/307918516): Synchronize
         private var cursor: Cursor? = null
 
         override fun bindBlob(index: Int, value: ByteArray) {
-            resizeForIndex(index)
-            argumentTypes[index] = ColumnType.BLOB
-            arguments[index] = value
+            ensureCapacity(COLUMN_TYPE_BLOB, index)
+            bindingTypes[index] = COLUMN_TYPE_BLOB
+            blobBindings[index] = value
         }
 
         override fun bindDouble(index: Int, value: Double) {
-            resizeForIndex(index)
-            argumentTypes[index] = ColumnType.DOUBLE
-            arguments[index] = value
+            ensureCapacity(COLUMN_TYPE_DOUBLE, index)
+            bindingTypes[index] = COLUMN_TYPE_DOUBLE
+            doubleBindings[index] = value
         }
 
         override fun bindLong(index: Int, value: Long) {
-            resizeForIndex(index)
-            argumentTypes[index] = ColumnType.LONG
-            arguments[index] = value
+            ensureCapacity(COLUMN_TYPE_LONG, index)
+            bindingTypes[index] = COLUMN_TYPE_LONG
+            longBindings[index] = value
         }
 
         override fun bindText(index: Int, value: String) {
-            resizeForIndex(index)
-            argumentTypes[index] = ColumnType.STRING
-            arguments[index] = value
+            ensureCapacity(COLUMN_TYPE_STRING, index)
+            bindingTypes[index] = COLUMN_TYPE_STRING
+            stringBindings[index] = value
         }
 
         override fun bindNull(index: Int) {
-            resizeForIndex(index)
-            argumentTypes[index] = ColumnType.NULL
-            arguments[index] = null
+            ensureCapacity(COLUMN_TYPE_NULL, index)
+            bindingTypes[index] = COLUMN_TYPE_NULL
         }
 
         override fun getBlob(index: Int): ByteArray = withExceptionCatch {
@@ -133,8 +134,11 @@ internal sealed class AndroidSQLiteStatement(
         }
 
         override fun reset(): Unit = withExceptionCatch {
-            arguments.clear()
-            argumentTypes.clear()
+            bindingTypes = IntArray(0)
+            longBindings = LongArray(0)
+            doubleBindings = DoubleArray(0)
+            stringBindings = emptyArray()
+            blobBindings = emptyArray()
             cursor?.close()
             cursor = null
         }
@@ -144,34 +148,53 @@ internal sealed class AndroidSQLiteStatement(
             reset()
         }
 
-        private fun resizeForIndex(index: Int) {
-            if (argumentTypes.size > index) return
-            for (i in argumentTypes.size..index) {
-                argumentTypes.add(ColumnType.NULL)
-                arguments.add(null)
+        private fun ensureCapacity(columnType: Int, index: Int) {
+            val requiredSize = index + 1
+            if (bindingTypes.size < requiredSize) {
+                bindingTypes = bindingTypes.copyOf(requiredSize)
+            }
+            when (columnType) {
+                COLUMN_TYPE_LONG -> {
+                    if (longBindings.size < requiredSize) {
+                        longBindings = longBindings.copyOf(requiredSize)
+                    }
+                }
+                COLUMN_TYPE_DOUBLE -> {
+                    if (doubleBindings.size < requiredSize) {
+                        doubleBindings = doubleBindings.copyOf(requiredSize)
+                    }
+                }
+                COLUMN_TYPE_STRING -> {
+                    if (stringBindings.size < requiredSize) {
+                        stringBindings = stringBindings.copyOf(requiredSize)
+                    }
+                }
+                COLUMN_TYPE_BLOB -> {
+                    if (blobBindings.size < requiredSize) {
+                        blobBindings = blobBindings.copyOf(requiredSize)
+                    }
+                }
             }
         }
 
         private fun bindTo(query: SQLiteProgram) {
-            for (index in 1 until argumentTypes.size) {
-                when (argumentTypes[index]) {
-                    ColumnType.LONG -> query.bindLong(index, arguments[index] as Long)
-                    ColumnType.DOUBLE -> query.bindDouble(index, arguments[index] as Double)
-                    ColumnType.STRING -> query.bindString(index, arguments[index] as String)
-                    ColumnType.BLOB -> query.bindBlob(index, arguments[index] as ByteArray)
-                    ColumnType.NULL -> query.bindNull(index)
+            for (index in 1 until bindingTypes.size) {
+                when (bindingTypes[index]) {
+                    COLUMN_TYPE_LONG -> query.bindLong(index, longBindings[index])
+                    COLUMN_TYPE_DOUBLE -> query.bindDouble(index, doubleBindings[index])
+                    COLUMN_TYPE_STRING -> query.bindString(index, stringBindings[index])
+                    COLUMN_TYPE_BLOB -> query.bindBlob(index, blobBindings[index])
+                    COLUMN_TYPE_NULL -> query.bindNull(index)
                 }
             }
         }
 
         companion object {
-            private enum class ColumnType {
-                LONG,
-                DOUBLE,
-                STRING,
-                BLOB,
-                NULL,
-            }
+            private const val COLUMN_TYPE_LONG = 1
+            private const val COLUMN_TYPE_DOUBLE = 2
+            private const val COLUMN_TYPE_STRING = 3
+            private const val COLUMN_TYPE_BLOB = 4
+            private const val COLUMN_TYPE_NULL = 5
         }
     }
 
