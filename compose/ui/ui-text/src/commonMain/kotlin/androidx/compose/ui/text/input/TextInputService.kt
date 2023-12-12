@@ -77,6 +77,8 @@ open class TextInputService(private val platformTextInputService: PlatformTextIn
     @InternalTextApi
     fun startInput() {
         platformTextInputService.startInput()
+        val nextSession = TextInputSession(this, platformTextInputService)
+        _currentInputSession.set(nextSession)
     }
 
     /**
