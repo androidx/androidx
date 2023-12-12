@@ -61,7 +61,8 @@ android {
                     "-ffunction-sections",
                     "-fdata-sections",
                     "-Wl,--gc-sections",
-                    "-Wl,-Bsymbolic-functions"
+                    "-Wl,-Bsymbolic-functions",
+                    "-nostdlib++"
                 ])
             }
         }
