@@ -39,12 +39,19 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.CacheDrawScope
+import androidx.compose.ui.draw.DrawResult
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.Dp
@@ -72,6 +79,10 @@ import kotlinx.coroutines.withTimeout
  *
  * @sample androidx.compose.material3.samples.PlainTooltipWithManualInvocationSample
  *
+ * Plain tooltip with caret shown on long press:
+ *
+ * @sample androidx.compose.material3.samples.PlainTooltipWithCaret
+ *
  * Tooltip that is invoked when the anchor is long pressed:
  *
  * @sample androidx.compose.material3.samples.RichTooltipSample
@@ -98,7 +109,7 @@ import kotlinx.coroutines.withTimeout
 @ExperimentalMaterial3Api
 fun TooltipBox(
     positionProvider: PopupPositionProvider,
-    tooltip: @Composable () -> Unit,
+    tooltip: @Composable CaretScope.() -> Unit,
     state: TooltipState,
     modifier: Modifier = Modifier,
     focusable: Boolean = true,
@@ -106,15 +117,50 @@ fun TooltipBox(
     content: @Composable () -> Unit,
 ) {
     val transition = updateTransition(state.transition, label = "tooltip transition")
+    var anchorBounds: LayoutCoordinates? by remember { mutableStateOf(null) }
+    val scope = remember {
+        object : CaretScope {
+            override fun Modifier.drawCaret(
+                draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
+            ): Modifier =
+                this.drawWithCache { draw(anchorBounds) }
+        }
+    }
+
+    val wrappedContent: @Composable () -> Unit = {
+        Box(
+            modifier = Modifier.onGloballyPositioned { anchorBounds = it }
+        ) {
+            content()
+        }
+    }
+
     BasicTooltipBox(
         positionProvider = positionProvider,
-        tooltip = { Box(Modifier.animateTooltip(transition)) { tooltip() } },
+        tooltip = { Box(Modifier.animateTooltip(transition)) { scope.tooltip() } },
         focusable = focusable,
         enableUserInput = enableUserInput,
         state = state,
         modifier = modifier,
-        content = content
+        content = wrappedContent
     )
+}
+
+/**
+ * Caret scope for [TooltipBox] to be used to obtain the [LayoutCoordinates] of the
+ * anchor content, and to draw a caret for the tooltip.
+ */
+@ExperimentalMaterial3Api
+interface CaretScope {
+    /**
+     * [Modifier] that is used to draw the caret for the tooltip. A [LayoutCoordinates] will
+     * be provided that can be used to obtain the bounds of the anchor content, which can be used
+     * to draw the caret more precisely. [PlainTooltip] and [RichTooltip] have
+     * default implementations for their caret.
+     */
+    fun Modifier.drawCaret(
+        draw: CacheDrawScope.(LayoutCoordinates?) -> DrawResult
+    ): Modifier
 }
 
 /**
@@ -123,48 +169,41 @@ fun TooltipBox(
  * Usually used with [TooltipBox].
  *
  * @param modifier the [Modifier] to be applied to the tooltip.
+ * @param caretProperties [CaretProperties] for the caret of the tooltip, if a default
+ * caret is desired with a specific dimension. Please see [TooltipDefaults.caretProperties] to
+ * see the default dimensions. Pass in null for this parameter if no caret is desired.
+ * @param shape the [Shape] that should be applied to the tooltip container.
  * @param contentColor [Color] that will be applied to the tooltip's content.
  * @param containerColor [Color] that will be applied to the tooltip's container.
  * @param tonalElevation the tonal elevation of the tooltip.
  * @param shadowElevation the shadow elevation of the tooltip.
- * @param shape the [Shape] that should be applied to the tooltip container.
  * @param content the composable that will be used to populate the tooltip's content.
  */
 @Composable
 @ExperimentalMaterial3Api
-fun PlainTooltip(
+expect fun CaretScope.PlainTooltip(
     modifier: Modifier = Modifier,
+    caretProperties: (CaretProperties)? = null,
+    shape: Shape = TooltipDefaults.plainTooltipContainerShape,
     contentColor: Color = TooltipDefaults.plainTooltipContentColor,
     containerColor: Color = TooltipDefaults.plainTooltipContainerColor,
     tonalElevation: Dp = 0.dp,
     shadowElevation: Dp = 0.dp,
-    shape: Shape = TooltipDefaults.plainTooltipContainerShape,
     content: @Composable () -> Unit
-) {
-    Surface(
-        shape = shape,
-        color = containerColor,
-        tonalElevation = tonalElevation,
-        shadowElevation = shadowElevation
-    ) {
-        Box(modifier = modifier
-            .sizeIn(
-                minWidth = TooltipMinWidth,
-                maxWidth = PlainTooltipMaxWidth,
-                minHeight = TooltipMinHeight
-            )
-            .padding(PlainTooltipContentPadding)
-        ) {
-            val textStyle =
-                MaterialTheme.typography.fromToken(PlainTooltipTokens.SupportingTextFont)
-            CompositionLocalProvider(
-                LocalContentColor provides contentColor,
-                LocalTextStyle provides textStyle,
-                content = content
-            )
-        }
-    }
-}
+)
+
+/**
+ * Properties for the caret of the tooltip if enabled.
+ *
+ * @param caretHeight the height of the caret
+ * @param caretWidth the width of the caret
+ */
+@Stable
+@ExperimentalMaterial3Api
+data class CaretProperties(
+    val caretHeight: Dp,
+    val caretWidth: Dp
+)
 
 /**
  * Rich text tooltip that allows the user to pass in a title, text, and action.
@@ -175,10 +214,10 @@ fun PlainTooltip(
  * @param modifier the [Modifier] to be applied to the tooltip.
  * @param title An optional title for the tooltip.
  * @param action An optional action for the tooltip.
+ * @param shape the [Shape] that should be applied to the tooltip container.
  * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
  * @param tonalElevation the tonal elevation of the tooltip.
  * @param shadowElevation the shadow elevation of the tooltip.
- * @param shape the [Shape] that should be applied to the tooltip container.
  * @param text the composable that will be used to populate the rich tooltip's text.
  */
 @Composable
@@ -187,10 +226,10 @@ fun RichTooltip(
     modifier: Modifier = Modifier,
     title: (@Composable () -> Unit)? = null,
     action: (@Composable () -> Unit)? = null,
+    shape: Shape = TooltipDefaults.richTooltipContainerShape,
     colors: RichTooltipColors = TooltipDefaults.richTooltipColors(),
     tonalElevation: Dp = RichTooltipTokens.ContainerElevation,
     shadowElevation: Dp = RichTooltipTokens.ContainerElevation,
-    shape: Shape = TooltipDefaults.richTooltipContainerShape,
     text: @Composable () -> Unit
 ) {
     Surface(
@@ -280,6 +319,12 @@ object TooltipDefaults {
      */
     val richTooltipContainerShape: Shape @Composable get() =
         RichTooltipTokens.ContainerShape.value
+
+    /**
+     * The default [CaretProperties] for tooltips.
+     */
+    val caretProperties: CaretProperties =
+        CaretProperties(8.dp, 16.dp)
 
     /**
      * Method to create a [RichTooltipColors] for [RichTooltip]
@@ -564,7 +609,7 @@ private fun Modifier.textVerticalPadding(
     }
 }
 
-private fun Modifier.animateTooltip(
+internal fun Modifier.animateTooltip(
     transition: Transition<Boolean>
 ): Modifier = composed(
     inspectorInfo = debugInspectorInfo {
@@ -617,13 +662,13 @@ private fun Modifier.animateTooltip(
     )
 }
 
-private val SpacingBetweenTooltipAndAnchor = 4.dp
+internal val SpacingBetweenTooltipAndAnchor = 4.dp
 internal val TooltipMinHeight = 24.dp
 internal val TooltipMinWidth = 40.dp
-private val PlainTooltipMaxWidth = 200.dp
+internal val PlainTooltipMaxWidth = 200.dp
 private val PlainTooltipVerticalPadding = 4.dp
 private val PlainTooltipHorizontalPadding = 8.dp
-private val PlainTooltipContentPadding =
+internal val PlainTooltipContentPadding =
     PaddingValues(PlainTooltipHorizontalPadding, PlainTooltipVerticalPadding)
 private val RichTooltipMaxWidth = 320.dp
 internal val RichTooltipHorizontalPadding = 16.dp

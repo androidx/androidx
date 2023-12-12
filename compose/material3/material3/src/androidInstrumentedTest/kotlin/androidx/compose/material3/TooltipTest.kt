@@ -23,6 +23,8 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertLeftPositionInRootIsEqualTo
@@ -33,7 +35,12 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.PopupPositionProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
@@ -383,6 +390,113 @@ class TooltipTest {
     }
 
     @Test
+    fun plainTooltipPositioning_tooltipCollideWithTopOfScreen_flipToBelowAnchor() {
+        // Test Anchor Bounds
+        val anchorPosition = IntOffset(0, 0)
+        val anchorSize = IntSize(10, 20)
+        val anchorBounds = IntRect(anchorPosition, anchorSize)
+
+        // Test window size
+        val screenWidth = 500
+        val screenHeight = 1000
+        val windowSize = IntSize(screenWidth, screenHeight)
+
+        // Tooltip that will be large enough to collide with the top of the screen.
+        val popupSize = IntSize(500, 500)
+
+        // Plain tooltip positioning
+        lateinit var positionProvider: PopupPositionProvider
+        rule.setContent {
+            positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider()
+        }
+
+        val tooltipPosition = positionProvider.calculatePosition(
+            anchorBounds = anchorBounds,
+            windowSize = windowSize,
+            layoutDirection = LayoutDirection.Ltr,
+            popupContentSize = popupSize
+        )
+
+        val tooltipBounds = IntRect(tooltipPosition, popupSize)
+
+        // The tooltip should be placed below the anchor, since it's colliding with top of screen.
+        assertThat(tooltipBounds.top > anchorBounds.bottom).isTrue()
+    }
+
+    @Test
+    fun richTooltipPositioning_tooltipCollideWithTopOfScreen_flipToBelowAnchor() {
+        // Test Anchor Bounds
+        val anchorPosition = IntOffset(0, 0)
+        val anchorSize = IntSize(10, 20)
+        val anchorBounds = IntRect(anchorPosition, anchorSize)
+
+        // Test window size
+        val screenWidth = 500
+        val screenHeight = 1000
+        val windowSize = IntSize(screenWidth, screenHeight)
+
+        // Tooltip that will be large enough to collide with the top of the screen.
+        val popupSize = IntSize(500, 500)
+
+        // Rich tooltip positioning
+        lateinit var positionProvider: PopupPositionProvider
+        rule.setContent {
+            positionProvider = TooltipDefaults.rememberRichTooltipPositionProvider()
+        }
+
+        val tooltipPosition = positionProvider.calculatePosition(
+            anchorBounds = anchorBounds,
+            windowSize = windowSize,
+            layoutDirection = LayoutDirection.Ltr,
+            popupContentSize = popupSize
+        )
+
+        val tooltipBounds = IntRect(tooltipPosition, popupSize)
+
+        // The tooltip should be placed below the anchor, since it's colliding with top of screen.
+        assertThat(tooltipBounds.top > anchorBounds.bottom).isTrue()
+    }
+
+    @Test
+    fun plainTooltip_caretAnchorPositioning() {
+        var anchorBounds = Rect.Zero
+        rule.setContent {
+            TooltipBox(
+                positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+                state = rememberTooltipState(initialIsVisible = true, isPersistent = true),
+                tooltip = {
+                    PlainTooltip(
+                        modifier = Modifier.drawCaret {
+                            it?.let { anchorBounds = it.boundsInWindow() }
+                            onDrawBehind {}
+                        }
+                    ) {}
+                }
+            ) {
+                Icon(
+                    Icons.Filled.Favorite,
+                    modifier = Modifier.testTag(AnchorTestTag),
+                    contentDescription = null
+                )
+            }
+        }
+
+        rule.waitForIdle()
+        val expectedAnchorBoundsDp =
+            rule.onNodeWithTag(AnchorTestTag, true).getUnclippedBoundsInRoot()
+        val expectedAnchorBounds = with(rule.density) {
+            Rect(
+                expectedAnchorBoundsDp.left.roundToPx().toFloat(),
+                expectedAnchorBoundsDp.top.roundToPx().toFloat(),
+                expectedAnchorBoundsDp.right.roundToPx().toFloat(),
+                expectedAnchorBoundsDp.bottom.roundToPx().toFloat()
+            )
+        }
+
+        assertThat(anchorBounds == expectedAnchorBounds).isTrue()
+    }
+
+    @Test
     fun tooltipSync_global_onlyOneVisible() {
         val topTooltipTag = "Top Tooltip"
         val bottomTooltipTag = " Bottom Tooltip"
@@ -577,7 +691,8 @@ class TooltipTest {
     }
 }
 
-private const val ContainerTestTag = "Container"
-private const val TextTestTag = "Text"
-private const val SubheadTestTag = "Subhead"
 private const val ActionTestTag = "Action"
+private const val AnchorTestTag = "Anchor"
+private const val ContainerTestTag = "Container"
+private const val SubheadTestTag = "Subhead"
+private const val TextTestTag = "Text"
