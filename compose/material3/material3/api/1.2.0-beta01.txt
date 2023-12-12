@@ -168,6 +168,7 @@ package androidx.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class ButtonColors {
     ctor public ButtonColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
+    method public androidx.compose.material3.ButtonColors copy(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public long getContainerColor();
     method public long getContentColor();
     method public long getDisabledContainerColor();
@@ -179,10 +180,13 @@ package androidx.compose.material3 {
   }
 
   public final class ButtonDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors buttonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors buttonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonElevation buttonElevation(optional float defaultElevation, optional float pressedElevation, optional float focusedElevation, optional float hoveredElevation, optional float disabledElevation);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors elevatedButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors elevatedButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonElevation elevatedButtonElevation(optional float defaultElevation, optional float pressedElevation, optional float focusedElevation, optional float hoveredElevation, optional float disabledElevation);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors filledTonalButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors filledTonalButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonElevation filledTonalButtonElevation(optional float defaultElevation, optional float pressedElevation, optional float focusedElevation, optional float hoveredElevation, optional float disabledElevation);
     method public androidx.compose.foundation.layout.PaddingValues getButtonWithIconContentPadding();
@@ -199,7 +203,9 @@ package androidx.compose.material3 {
     method public androidx.compose.foundation.layout.PaddingValues getTextButtonContentPadding();
     method public androidx.compose.foundation.layout.PaddingValues getTextButtonWithIconContentPadding();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getTextShape();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors outlinedButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors outlinedButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors textButtonColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.ButtonColors textButtonColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     property public final androidx.compose.foundation.layout.PaddingValues ButtonWithIconContentPadding;
     property public final androidx.compose.foundation.layout.PaddingValues ContentPadding;
@@ -239,6 +245,7 @@ package androidx.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class CardColors {
     ctor public CardColors(long containerColor, long contentColor, long disabledContainerColor, long disabledContentColor);
+    method public androidx.compose.material3.CardColors copy(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method public long getContainerColor();
     method public long getContentColor();
     method public long getDisabledContainerColor();
@@ -250,14 +257,17 @@ package androidx.compose.material3 {
   }
 
   public final class CardDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.CardColors cardColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.CardColors cardColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.CardElevation cardElevation(optional float defaultElevation, optional float pressedElevation, optional float focusedElevation, optional float hoveredElevation, optional float draggedElevation, optional float disabledElevation);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.CardColors elevatedCardColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.CardColors elevatedCardColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.CardElevation elevatedCardElevation(optional float defaultElevation, optional float pressedElevation, optional float focusedElevation, optional float hoveredElevation, optional float draggedElevation, optional float disabledElevation);
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getElevatedShape();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getOutlinedShape();
     method @androidx.compose.runtime.Composable public androidx.compose.ui.graphics.Shape getShape();
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.BorderStroke outlinedCardBorder(optional boolean enabled);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.CardColors outlinedCardColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.CardColors outlinedCardColors(optional long containerColor, optional long contentColor, optional long disabledContainerColor, optional long disabledContentColor);
     method @androidx.compose.runtime.Composable public androidx.compose.material3.CardElevation outlinedCardElevation(optional float defaultElevation, optional float pressedElevation, optional float focusedElevation, optional float hoveredElevation, optional float draggedElevation, optional float disabledElevation);
     property @androidx.compose.runtime.Composable public final androidx.compose.ui.graphics.Shape elevatedShape;
@@ -280,6 +290,7 @@ package androidx.compose.material3 {
 
   @androidx.compose.runtime.Immutable public final class CheckboxColors {
     ctor public CheckboxColors(long checkedCheckmarkColor, long uncheckedCheckmarkColor, long checkedBoxColor, long uncheckedBoxColor, long disabledCheckedBoxColor, long disabledUncheckedBoxColor, long disabledIndeterminateBoxColor, long checkedBorderColor, long uncheckedBorderColor, long disabledBorderColor, long disabledUncheckedBorderColor, long disabledIndeterminateBorderColor);
+    method public androidx.compose.material3.CheckboxColors copy(optional long checkedCheckmarkColor, optional long uncheckedCheckmarkColor, optional long checkedBoxColor, optional long uncheckedBoxColor, optional long disabledCheckedBoxColor, optional long disabledUncheckedBoxColor, optional long disabledIndeterminateBoxColor, optional long checkedBorderColor, optional long uncheckedBorderColor, optional long disabledBorderColor, optional long disabledUncheckedBorderColor, optional long disabledIndeterminateBorderColor);
     method public long getCheckedBorderColor();
     method public long getCheckedBoxColor();
     method public long getCheckedCheckmarkColor();
@@ -307,6 +318,7 @@ package androidx.compose.material3 {
   }
 
   public final class CheckboxDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.CheckboxColors colors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.CheckboxColors colors(optional long checkedColor, optional long uncheckedColor, optional long checkmarkColor, optional long disabledCheckedColor, optional long disabledUncheckedColor, optional long disabledIndeterminateColor);
     field public static final androidx.compose.material3.CheckboxDefaults INSTANCE;
   }
@@ -1928,6 +1940,7 @@ package androidx.compose.material3 {
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Stable public final class TopAppBarColors {
     ctor public TopAppBarColors(long containerColor, long scrolledContainerColor, long navigationIconContentColor, long titleContentColor, long actionIconContentColor);
+    method public androidx.compose.material3.TopAppBarColors copy(optional long containerColor, optional long scrolledContainerColor, optional long navigationIconContentColor, optional long titleContentColor, optional long actionIconContentColor);
     method public long getActionIconContentColor();
     method public long getContainerColor();
     method public long getNavigationIconContentColor();
@@ -1941,14 +1954,18 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public final class TopAppBarDefaults {
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarColors centerAlignedTopAppBarColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarColors centerAlignedTopAppBarColors(optional long containerColor, optional long scrolledContainerColor, optional long navigationIconContentColor, optional long titleContentColor, optional long actionIconContentColor);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarScrollBehavior enterAlwaysScrollBehavior(optional androidx.compose.material3.TopAppBarState state, optional kotlin.jvm.functions.Function0<java.lang.Boolean> canScroll, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float>? snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float>? flingAnimationSpec);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarScrollBehavior exitUntilCollapsedScrollBehavior(optional androidx.compose.material3.TopAppBarState state, optional kotlin.jvm.functions.Function0<java.lang.Boolean> canScroll, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float>? snapAnimationSpec, optional androidx.compose.animation.core.DecayAnimationSpec<java.lang.Float>? flingAnimationSpec);
     method @androidx.compose.runtime.Composable public androidx.compose.foundation.layout.WindowInsets getWindowInsets();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarColors largeTopAppBarColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarColors largeTopAppBarColors(optional long containerColor, optional long scrolledContainerColor, optional long navigationIconContentColor, optional long titleContentColor, optional long actionIconContentColor);
-    method @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarColors mediumTopAppBarColors(optional long containerColor, optional long scrolledContainerColor, optional long navigationIconContentColor, optional long titleContentColor, optional long actionIconContentColor);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarColors mediumTopAppBarColors();
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarColors mediumTopAppBarColors(optional long containerColor, optional long navigationIconContentColor, optional long scrolledContainerColor, optional long titleContentColor, optional long actionIconContentColor);
     method @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarScrollBehavior pinnedScrollBehavior(optional androidx.compose.material3.TopAppBarState state, optional kotlin.jvm.functions.Function0<java.lang.Boolean> canScroll);
     method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarColors smallTopAppBarColors(optional long containerColor, optional long scrolledContainerColor, optional long navigationIconContentColor, optional long titleContentColor, optional long actionIconContentColor);
+    method @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarColors topAppBarColors();
     method @androidx.compose.runtime.Composable public androidx.compose.material3.TopAppBarColors topAppBarColors(optional long containerColor, optional long scrolledContainerColor, optional long navigationIconContentColor, optional long titleContentColor, optional long actionIconContentColor);
     property @androidx.compose.runtime.Composable public final androidx.compose.foundation.layout.WindowInsets windowInsets;
     field public static final androidx.compose.material3.TopAppBarDefaults INSTANCE;

@@ -67,6 +67,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.AlignmentLine
@@ -691,6 +692,14 @@ object TopAppBarDefaults {
     /**
      * Creates a [TopAppBarColors] for small [TopAppBar]. The default implementation animates
      * between the provided colors according to the Material Design specification.
+     */
+
+    @Composable
+    fun topAppBarColors() = MaterialTheme.colorScheme.defaultTopAppBarColors
+
+    /**
+     * Creates a [TopAppBarColors] for small [TopAppBar]. The default implementation animates
+     * between the provided colors according to the Material Design specification.
      *
      * @param containerColor the container color
      * @param scrolledContainerColor the container color when content is scrolled behind it
@@ -701,22 +710,37 @@ object TopAppBarDefaults {
      */
     @Composable
     fun topAppBarColors(
-        containerColor: Color = TopAppBarSmallTokens.ContainerColor.value,
-        scrolledContainerColor: Color = MaterialTheme.colorScheme.applyTonalElevation(
-            backgroundColor = containerColor,
-            elevation = TopAppBarSmallTokens.OnScrollContainerElevation
-        ),
-        navigationIconContentColor: Color = TopAppBarSmallTokens.LeadingIconColor.value,
-        titleContentColor: Color = TopAppBarSmallTokens.HeadlineColor.value,
-        actionIconContentColor: Color = TopAppBarSmallTokens.TrailingIconColor.value,
-    ): TopAppBarColors =
-        TopAppBarColors(
-            containerColor,
-            scrolledContainerColor,
-            navigationIconContentColor,
-            titleContentColor,
-            actionIconContentColor
-        )
+        containerColor: Color = Color.Unspecified,
+        scrolledContainerColor: Color = Color.Unspecified,
+        navigationIconContentColor: Color = Color.Unspecified,
+        titleContentColor: Color = Color.Unspecified,
+        actionIconContentColor: Color = Color.Unspecified,
+    ): TopAppBarColors = MaterialTheme.colorScheme.defaultTopAppBarColors.copy(
+        containerColor,
+        scrolledContainerColor,
+        navigationIconContentColor,
+        titleContentColor,
+        actionIconContentColor
+    )
+
+    internal val ColorScheme.defaultTopAppBarColors: TopAppBarColors
+        get() {
+            return defaultTopAppBarColorsCached ?: TopAppBarColors(
+                containerColor = fromToken(TopAppBarSmallTokens.ContainerColor),
+                scrolledContainerColor =
+                if (fromToken(TopAppBarSmallTokens.ContainerColor) == surface) {
+                    surfaceColorAtElevation(
+                        elevation = TopAppBarSmallTokens.OnScrollContainerElevation)
+                } else {
+                    fromToken(TopAppBarSmallTokens.ContainerColor)
+                },
+                navigationIconContentColor = fromToken(TopAppBarSmallTokens.LeadingIconColor),
+                titleContentColor = fromToken(TopAppBarSmallTokens.HeadlineColor),
+                actionIconContentColor = fromToken(TopAppBarSmallTokens.TrailingIconColor),
+            ).also {
+                defaultTopAppBarColorsCached = it
+            }
+        }
 
     /**
      * Creates a [TopAppBarColors] for small [TopAppBar]s. The default implementation animates
@@ -768,6 +792,15 @@ object TopAppBarDefaults {
     /**
      * Creates a [TopAppBarColors] for [CenterAlignedTopAppBar]s. The default implementation
      * animates between the provided colors according to the Material Design specification.
+     */
+
+    @Composable
+    fun centerAlignedTopAppBarColors() =
+        MaterialTheme.colorScheme.defaultCenterAlignedTopAppBarColors
+
+    /**
+     * Creates a [TopAppBarColors] for [CenterAlignedTopAppBar]s. The default implementation
+     * animates between the provided colors according to the Material Design specification.
      *
      * @param containerColor the container color
      * @param scrolledContainerColor the container color when content is scrolled behind it
@@ -778,22 +811,47 @@ object TopAppBarDefaults {
      */
     @Composable
     fun centerAlignedTopAppBarColors(
-        containerColor: Color = TopAppBarSmallCenteredTokens.ContainerColor.value,
-        scrolledContainerColor: Color = MaterialTheme.colorScheme.applyTonalElevation(
-            backgroundColor = containerColor,
-            elevation = TopAppBarSmallTokens.OnScrollContainerElevation
-        ),
-        navigationIconContentColor: Color = TopAppBarSmallCenteredTokens.LeadingIconColor.value,
-        titleContentColor: Color = TopAppBarSmallCenteredTokens.HeadlineColor.value,
-        actionIconContentColor: Color = TopAppBarSmallCenteredTokens.TrailingIconColor.value,
-    ): TopAppBarColors =
-        TopAppBarColors(
+        containerColor: Color = Color.Unspecified,
+        scrolledContainerColor: Color = Color.Unspecified,
+        navigationIconContentColor: Color = Color.Unspecified,
+        titleContentColor: Color = Color.Unspecified,
+        actionIconContentColor: Color = Color.Unspecified,
+    ): TopAppBarColors = MaterialTheme.colorScheme.defaultCenterAlignedTopAppBarColors.copy(
             containerColor,
             scrolledContainerColor,
             navigationIconContentColor,
             titleContentColor,
             actionIconContentColor
         )
+
+    internal val ColorScheme.defaultCenterAlignedTopAppBarColors: TopAppBarColors
+        get() {
+            return defaultCenterAlignedTopAppBarColorsCached ?: TopAppBarColors(
+                containerColor = fromToken(TopAppBarSmallCenteredTokens.ContainerColor),
+                scrolledContainerColor =
+                if (fromToken(TopAppBarSmallCenteredTokens.ContainerColor) == surface) {
+                    surfaceColorAtElevation(
+                        elevation = TopAppBarSmallTokens.OnScrollContainerElevation
+                    )
+                } else {
+                    fromToken(TopAppBarSmallCenteredTokens.ContainerColor)
+                },
+                navigationIconContentColor =
+                fromToken(TopAppBarSmallCenteredTokens.LeadingIconColor),
+                titleContentColor = fromToken(TopAppBarSmallCenteredTokens.HeadlineColor),
+                actionIconContentColor = fromToken(TopAppBarSmallCenteredTokens.TrailingIconColor),
+            ).also {
+                defaultCenterAlignedTopAppBarColorsCached = it
+            }
+        }
+
+    /**
+     * Creates a [TopAppBarColors] for [MediumTopAppBar]s. The default implementation interpolates
+     * between the provided colors as the top app bar scrolls according to the Material Design
+     * specification.
+     */
+    @Composable
+    fun mediumTopAppBarColors() = MaterialTheme.colorScheme.defaultMediumTopAppBarColors
 
     /**
      * Creates a [TopAppBarColors] for [MediumTopAppBar]s. The default implementation interpolates
@@ -809,16 +867,12 @@ object TopAppBarDefaults {
      */
     @Composable
     fun mediumTopAppBarColors(
-        containerColor: Color = TopAppBarMediumTokens.ContainerColor.value,
-        scrolledContainerColor: Color = MaterialTheme.colorScheme.applyTonalElevation(
-            backgroundColor = containerColor,
-            elevation = TopAppBarSmallTokens.OnScrollContainerElevation
-        ),
-        navigationIconContentColor: Color = TopAppBarMediumTokens.LeadingIconColor.value,
-        titleContentColor: Color = TopAppBarMediumTokens.HeadlineColor.value,
-        actionIconContentColor: Color = TopAppBarMediumTokens.TrailingIconColor.value,
-    ): TopAppBarColors =
-        TopAppBarColors(
+        containerColor: Color = Color.Unspecified,
+        navigationIconContentColor: Color = Color.Unspecified,
+        scrolledContainerColor: Color = Color.Unspecified,
+        titleContentColor: Color = Color.Unspecified,
+        actionIconContentColor: Color = Color.Unspecified,
+    ): TopAppBarColors = MaterialTheme.colorScheme.defaultMediumTopAppBarColors.copy(
             containerColor,
             scrolledContainerColor,
             navigationIconContentColor,
@@ -826,7 +880,33 @@ object TopAppBarDefaults {
             actionIconContentColor
         )
 
+    internal val ColorScheme.defaultMediumTopAppBarColors: TopAppBarColors
+        get() {
+            return defaultMediumTopAppBarColorsCached ?: TopAppBarColors(
+                containerColor = fromToken(TopAppBarMediumTokens.ContainerColor),
+            scrolledContainerColor =
+            if (fromToken(TopAppBarMediumTokens.ContainerColor) == surface) {
+                surfaceColorAtElevation(elevation = TopAppBarSmallTokens.OnScrollContainerElevation)
+            } else {
+                fromToken(TopAppBarMediumTokens.ContainerColor)
+            },
+            navigationIconContentColor = fromToken(TopAppBarMediumTokens.LeadingIconColor),
+            titleContentColor = fromToken(TopAppBarMediumTokens.HeadlineColor),
+            actionIconContentColor = fromToken(TopAppBarMediumTokens.TrailingIconColor),
+            ).also {
+                defaultMediumTopAppBarColorsCached = it
+            }
+        }
+
     /**
+     * Creates a [TopAppBarColors] for [LargeTopAppBar]s. The default implementation interpolates
+     * between the provided colors as the top app bar scrolls according to the Material Design
+     * specification.
+     */
+    @Composable
+    fun largeTopAppBarColors() = MaterialTheme.colorScheme.defaultLargeTopAppBarColors
+
+/**
      * Creates a [TopAppBarColors] for [LargeTopAppBar]s. The default implementation interpolates
      * between the provided colors as the top app bar scrolls according to the Material Design
      * specification.
@@ -840,22 +920,38 @@ object TopAppBarDefaults {
      */
     @Composable
     fun largeTopAppBarColors(
-        containerColor: Color = TopAppBarLargeTokens.ContainerColor.value,
-        scrolledContainerColor: Color = MaterialTheme.colorScheme.applyTonalElevation(
-            backgroundColor = containerColor,
-            elevation = TopAppBarSmallTokens.OnScrollContainerElevation
-        ),
-        navigationIconContentColor: Color = TopAppBarLargeTokens.LeadingIconColor.value,
-        titleContentColor: Color = TopAppBarLargeTokens.HeadlineColor.value,
-        actionIconContentColor: Color = TopAppBarLargeTokens.TrailingIconColor.value,
-    ): TopAppBarColors =
-        TopAppBarColors(
+        containerColor: Color = Color.Unspecified,
+        scrolledContainerColor: Color = Color.Unspecified,
+        navigationIconContentColor: Color = Color.Unspecified,
+        titleContentColor: Color = Color.Unspecified,
+        actionIconContentColor: Color = Color.Unspecified,
+    ): TopAppBarColors = MaterialTheme.colorScheme.defaultLargeTopAppBarColors.copy(
             containerColor,
             scrolledContainerColor,
             navigationIconContentColor,
             titleContentColor,
             actionIconContentColor
         )
+
+    internal val ColorScheme.defaultLargeTopAppBarColors: TopAppBarColors
+        get() {
+            return defaultLargeTopAppBarColorsCached ?: TopAppBarColors(
+                containerColor = fromToken(TopAppBarLargeTokens.ContainerColor),
+                scrolledContainerColor =
+                if (fromToken(TopAppBarLargeTokens.ContainerColor) == surface) {
+                    surfaceColorAtElevation(
+                        elevation = TopAppBarSmallTokens.OnScrollContainerElevation
+                    )
+                } else {
+                    fromToken(TopAppBarLargeTokens.ContainerColor)
+                },
+                navigationIconContentColor = fromToken(TopAppBarLargeTokens.LeadingIconColor),
+                titleContentColor = fromToken(TopAppBarLargeTokens.HeadlineColor),
+                actionIconContentColor = fromToken(TopAppBarLargeTokens.TrailingIconColor),
+            ).also {
+                defaultLargeTopAppBarColorsCached = it
+            }
+        }
 
     /**
      * Returns a pinned [TopAppBarScrollBehavior] that tracks nested-scroll callbacks and
@@ -1088,6 +1184,23 @@ class TopAppBarColors constructor(
     val titleContentColor: Color,
     val actionIconContentColor: Color,
 ) {
+    /**
+     * Returns a copy of this TopAppBarColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        containerColor: Color = this.containerColor,
+        scrolledContainerColor: Color = this.scrolledContainerColor,
+        navigationIconContentColor: Color = this.navigationIconContentColor,
+        titleContentColor: Color = this.titleContentColor,
+        actionIconContentColor: Color = this.actionIconContentColor,
+        ) = TopAppBarColors(
+        containerColor.takeOrElse { this.containerColor },
+        scrolledContainerColor.takeOrElse { this.scrolledContainerColor },
+        navigationIconContentColor.takeOrElse { this.navigationIconContentColor },
+        titleContentColor.takeOrElse { this.titleContentColor },
+        actionIconContentColor.takeOrElse { this.actionIconContentColor },
+    )
 
     /**
      * Represents the container color used for the top app bar.
