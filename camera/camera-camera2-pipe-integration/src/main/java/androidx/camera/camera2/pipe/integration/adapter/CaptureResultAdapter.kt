@@ -245,11 +245,6 @@ private fun FrameMetadata.getTimestamp(): Long = getOrDefault(CaptureResult.SENS
 
 @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
 private fun FrameMetadata.populateExifData(exifData: ExifData.Builder) {
-    // Set dimensions
-    this[CaptureResult.SCALER_CROP_REGION]?.let { cropRegion ->
-        exifData.setImageWidth(cropRegion.width()).setImageHeight(cropRegion.height())
-    }
-
     // Set orientation
     try {
         this[CaptureResult.JPEG_ORIENTATION]?.let { jpegOrientation ->

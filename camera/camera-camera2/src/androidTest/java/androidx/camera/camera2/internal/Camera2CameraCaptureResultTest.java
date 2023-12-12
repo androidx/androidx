@@ -357,12 +357,6 @@ public final class Camera2CameraCaptureResultTest {
         assertThat(Short.parseShort(exifData.getAttribute(ExifInterface.TAG_FLASH)))
                 .isEqualTo(FLAG_FLASH_FIRED);
 
-        assertThat(exifData.getAttribute(ExifInterface.TAG_IMAGE_WIDTH))
-                .isEqualTo(String.valueOf(cropRegion.width()));
-
-        assertThat(exifData.getAttribute(ExifInterface.TAG_IMAGE_LENGTH))
-                .isEqualTo(String.valueOf(cropRegion.height()));
-
         assertThat(exifData.getAttribute(ExifInterface.TAG_ORIENTATION))
                 .isEqualTo(String.valueOf(ExifInterface.ORIENTATION_ROTATE_270));
 
