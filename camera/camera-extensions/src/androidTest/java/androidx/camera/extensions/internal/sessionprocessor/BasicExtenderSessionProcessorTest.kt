@@ -34,10 +34,6 @@ import android.util.Pair
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.internal.Camera2CameraInfoImpl
-import androidx.camera.camera2.internal.compat.CameraManagerCompat
-import androidx.camera.camera2.interop.Camera2CameraInfo
-import androidx.camera.camera2.interop.Camera2Interop
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraFilter
 import androidx.camera.core.CameraInfo
@@ -51,6 +47,7 @@ import androidx.camera.core.ImageReaderProxys
 import androidx.camera.core.Preview
 import androidx.camera.core.UseCaseGroup
 import androidx.camera.core.impl.CameraConfig
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.Config
 import androidx.camera.core.impl.ExtendedCameraConfigProviderStore
 import androidx.camera.core.impl.Identifier
@@ -77,7 +74,9 @@ import androidx.camera.extensions.internal.BasicVendorExtender
 import androidx.camera.extensions.internal.ClientVersion
 import androidx.camera.extensions.internal.ExtensionVersion
 import androidx.camera.extensions.internal.Version
+import androidx.camera.extensions.util.ExtensionsTestUtil
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.testing.fakes.FakeCameraInfoInternal
 import androidx.camera.testing.impl.CameraUtil
 import androidx.camera.testing.impl.SurfaceTextureProvider
 import androidx.camera.testing.impl.fakes.FakeLifecycleOwner
@@ -178,7 +177,9 @@ class BasicExtenderSessionProcessorTest(
         val camera = withContext(Dispatchers.Main) {
             cameraProvider.bindToLifecycle(fakeLifecycleOwner, cameraSelector)
         }
-        val hardwareLevel = Camera2CameraInfo.from(camera.cameraInfo).getCameraCharacteristic(
+        val cameraCharacteristics =
+            (camera.cameraInfo as CameraInfoInternal).cameraCharacteristics as CameraCharacteristics
+        val hardwareLevel = cameraCharacteristics.get(
             CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
         )
 
@@ -228,7 +229,7 @@ class BasicExtenderSessionProcessorTest(
         fakeCaptureExtenderImpl.sessionType = sessionTypeToVerify
         fakePreviewExtenderImpl.sessionType = sessionTypeToVerify
 
-        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val fakeCameraInfo = FakeCameraInfoInternal("0", context)
         val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
         val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 
@@ -247,7 +248,7 @@ class BasicExtenderSessionProcessorTest(
         fakeCaptureExtenderImpl.sessionType = 2
         fakePreviewExtenderImpl.sessionType = 3
 
-        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val fakeCameraInfo = FakeCameraInfoInternal("0", context)
         val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
         val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 
@@ -266,7 +267,7 @@ class BasicExtenderSessionProcessorTest(
         fakeCaptureExtenderImpl.sessionType = -1
         fakePreviewExtenderImpl.sessionType = -1
 
-        val fakeCameraInfo = Camera2CameraInfoImpl("0", CameraManagerCompat.from(context))
+        val fakeCameraInfo = FakeCameraInfoInternal("0", context)
         val previewOutputSurface = createOutputSurface(640, 480, ImageFormat.YUV_420_888)
         val imageCaptureSurface = createOutputSurface(640, 480, ImageFormat.JPEG)
 
@@ -460,8 +461,9 @@ class BasicExtenderSessionProcessorTest(
     fun repeatingRequest_containsPreviewCaptureStagesParameters(): Unit = runBlocking {
         val previewBuilder = Preview.Builder()
         val resultMonitor = ResultMonitor()
-        Camera2Interop.Extender(previewBuilder)
-            .setSessionCaptureCallback(object : CameraCaptureSession.CaptureCallback() {
+        ExtensionsTestUtil.setCamera2SessionCaptureCallback(
+            previewBuilder,
+            object : CameraCaptureSession.CaptureCallback() {
                 override fun onCaptureCompleted(
                     session: CameraCaptureSession,
                     request: CaptureRequest,
@@ -502,8 +504,8 @@ class BasicExtenderSessionProcessorTest(
         assumeTrue(previewProcessorType == PROCESSOR_TYPE_REQUEST_UPDATE_ONLY)
         val previewBuilder = Preview.Builder()
         val resultMonitor = ResultMonitor()
-        Camera2Interop.Extender(previewBuilder)
-            .setSessionCaptureCallback(object : CameraCaptureSession.CaptureCallback() {
+        ExtensionsTestUtil.setCamera2SessionCaptureCallback(previewBuilder,
+            object : CameraCaptureSession.CaptureCallback() {
                 override fun onCaptureCompleted(
                     session: CameraCaptureSession,
                     request: CaptureRequest,

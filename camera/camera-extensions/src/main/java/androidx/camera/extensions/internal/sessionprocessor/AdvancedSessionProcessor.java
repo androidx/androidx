@@ -30,12 +30,7 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
-import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.camera2.interop.CaptureRequestOptions;
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -54,6 +49,7 @@ import androidx.camera.extensions.impl.advanced.RequestProcessorImpl;
 import androidx.camera.extensions.impl.advanced.SessionProcessorImpl;
 import androidx.camera.extensions.internal.ClientVersion;
 import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.RequestOptionConfig;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
 import androidx.core.util.Preconditions;
@@ -167,14 +163,13 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         mImpl.setParameters(map);
     }
 
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @NonNull
     private static HashMap<CaptureRequest.Key<?>, Object> convertConfigToMap(
             @NonNull Config parameters) {
         HashMap<CaptureRequest.Key<?>, Object> map = new HashMap<>();
 
-        CaptureRequestOptions options =
-                CaptureRequestOptions.Builder.from(parameters).build();
+        RequestOptionConfig options =
+                RequestOptionConfig.Builder.from(parameters).build();
 
         for (Config.Option<?> option : options.listOptions()) {
             @SuppressWarnings("unchecked")
@@ -397,7 +392,6 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         private final int mTemplateId;
 
         @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-        @OptIn(markerClass = ExperimentalCamera2Interop.class)
         RequestAdapter(@NonNull RequestProcessorImpl.Request implRequest) {
             mImplRequest = implRequest;
 
@@ -407,15 +401,14 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
             }
             mTargetOutputConfigIds = targetOutputConfigIds;
 
-            Camera2ImplConfig.Builder camera2ConfigBuilder = new Camera2ImplConfig.Builder();
+            RequestOptionConfig.Builder optionBuilder = new RequestOptionConfig.Builder();
             for (CaptureRequest.Key<?> key : implRequest.getParameters().keySet()) {
                 @SuppressWarnings("unchecked")
                 CaptureRequest.Key<Object> objKey = (CaptureRequest.Key<Object>) key;
-                camera2ConfigBuilder.setCaptureRequestOption(objKey,
+                optionBuilder.setCaptureRequestOption(objKey,
                         implRequest.getParameters().get(objKey));
             }
-            mParameters = camera2ConfigBuilder.build();
-
+            mParameters = optionBuilder.build();
             mTemplateId = implRequest.getTemplateId();
         }
 
@@ -513,8 +506,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         public void onCaptureProgressed(
                 @NonNull RequestProcessor.Request request,
                 @NonNull CameraCaptureResult cameraCaptureResult) {
-            CaptureResult captureResult =
-                    Camera2CameraCaptureResultConverter.getCaptureResult(cameraCaptureResult);
+            CaptureResult captureResult = cameraCaptureResult.getCaptureResult();
             Preconditions.checkArgument(captureResult != null,
                     "Cannot get CaptureResult from the cameraCaptureResult ");
             mCallback.onCaptureProgressed(getImplRequest(request), captureResult);
@@ -524,8 +516,7 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         public void onCaptureCompleted(
                 @NonNull RequestProcessor.Request request,
                 @Nullable CameraCaptureResult cameraCaptureResult) {
-            CaptureResult captureResult =
-                    Camera2CameraCaptureResultConverter.getCaptureResult(cameraCaptureResult);
+            CaptureResult captureResult = cameraCaptureResult.getCaptureResult();
             Preconditions.checkArgument(captureResult instanceof TotalCaptureResult,
                     "CaptureResult in cameraCaptureResult is not a TotalCaptureResult");
             mCallback.onCaptureCompleted(getImplRequest(request),
@@ -536,11 +527,10 @@ public class AdvancedSessionProcessor extends SessionProcessorBase {
         public void onCaptureFailed(
                 @NonNull RequestProcessor.Request request,
                 @Nullable CameraCaptureFailure cameraCaptureFailure) {
-            CaptureFailure captureFailure =
-                    Camera2CameraCaptureResultConverter.getCaptureFailure(cameraCaptureFailure);
-            Preconditions.checkArgument(captureFailure != null,
+            Object captureFailure = cameraCaptureFailure.getCaptureFailure();
+            Preconditions.checkArgument(captureFailure instanceof CaptureFailure,
                     "CameraCaptureFailure does not contain CaptureFailure.");
-            mCallback.onCaptureFailed(getImplRequest(request), captureFailure);
+            mCallback.onCaptureFailed(getImplRequest(request), (CaptureFailure) captureFailure);
         }
 
         @Override

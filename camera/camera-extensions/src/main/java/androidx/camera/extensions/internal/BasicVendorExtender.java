@@ -29,13 +29,11 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.VisibleForTesting;
-import androidx.camera.camera2.interop.Camera2CameraInfo;
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.core.impl.SessionProcessor;
 import androidx.camera.extensions.ExtensionMode;
@@ -75,7 +73,7 @@ public class BasicVendorExtender implements VendorExtender {
             new ExtensionDisabledValidator();
     private PreviewExtenderImpl mPreviewExtenderImpl = null;
     private ImageCaptureExtenderImpl mImageCaptureExtenderImpl = null;
-    private CameraInfo mCameraInfo;
+    private CameraInfoInternal mCameraInfo;
     private String mCameraId;
     private CameraCharacteristics mCameraCharacteristics;
     private AvailableKeysRetriever mAvailableKeysRetriever = new AvailableKeysRetriever();
@@ -158,18 +156,16 @@ public class BasicVendorExtender implements VendorExtender {
                 && mImageCaptureExtenderImpl.isExtensionAvailable(cameraId, cameraCharacteristics);
     }
 
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     @Override
     public void init(@NonNull CameraInfo cameraInfo) {
-        mCameraInfo = cameraInfo;
+        mCameraInfo = (CameraInfoInternal) cameraInfo;
 
         if (mPreviewExtenderImpl == null || mImageCaptureExtenderImpl == null) {
             return;
         }
 
-        mCameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
-        mCameraCharacteristics =
-                Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
+        mCameraId = mCameraInfo.getCameraId();
+        mCameraCharacteristics = (CameraCharacteristics) mCameraInfo.getCameraCharacteristics();
         mPreviewExtenderImpl.init(mCameraId, mCameraCharacteristics);
         mImageCaptureExtenderImpl.init(mCameraId, mCameraCharacteristics);
 
@@ -192,11 +188,9 @@ public class BasicVendorExtender implements VendorExtender {
         return null;
     }
 
-    @OptIn(markerClass = ExperimentalCamera2Interop.class)
     private Size[] getOutputSizes(int imageFormat) {
-        StreamConfigurationMap map = Camera2CameraInfo.from(mCameraInfo)
-                .getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-
+        StreamConfigurationMap map =
+                mCameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
         return map.getOutputSizes(imageFormat);
     }
 

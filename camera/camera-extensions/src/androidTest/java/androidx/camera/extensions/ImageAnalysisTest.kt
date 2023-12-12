@@ -22,12 +22,12 @@ import android.hardware.camera2.CameraCharacteristics
 import android.util.Pair
 import android.util.Size
 import androidx.camera.camera2.Camera2Config
-import androidx.camera.camera2.interop.Camera2CameraInfo
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.Preview
+import androidx.camera.core.impl.CameraInfoInternal
 import androidx.camera.core.impl.ImageFormatConstants
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.extensions.impl.ExtensionsTestlibControl
@@ -159,8 +159,10 @@ class ImageAnalysisTest(
     }
 
     private fun getOutputSizes(imageFormat: Int): Array<Size> {
-        val map = Camera2CameraInfo.from(camera.cameraInfo)
-            .getCameraCharacteristic(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+        val cameraCharacteristics =
+            (camera.cameraInfo as CameraInfoInternal).cameraCharacteristics as CameraCharacteristics
+        val map =
+            cameraCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
         return map.getOutputSizes(imageFormat)
     }
 

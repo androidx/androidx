@@ -25,12 +25,15 @@ import static androidx.camera.extensions.impl.ExtensionsTestlibControl.Implement
 import static androidx.camera.extensions.impl.ExtensionsTestlibControl.ImplementationType.TESTLIB_ADVANCED;
 import static androidx.camera.extensions.impl.ExtensionsTestlibControl.ImplementationType.TESTLIB_BASIC;
 
+import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ExtendableBuilder;
+import androidx.camera.core.impl.Config;
 import androidx.camera.extensions.ExtensionMode;
 import androidx.camera.extensions.impl.ExtensionsTestlibControl;
 import androidx.camera.extensions.internal.AdvancedVendorExtender;
@@ -51,6 +54,10 @@ import java.util.List;
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class ExtensionsTestUtil {
+    public static final Config.Option<CameraCaptureSession.CaptureCallback>
+            SESSION_CAPTURE_CALLBACK_OPTION =
+            Config.Option.create("camera2.cameraCaptureSession.captureCallback",
+                    CameraCaptureSession.CaptureCallback.class);
 
     /**
      * Returns the parameters which contains the combination of implementationType, extensions
@@ -180,5 +187,17 @@ public class ExtensionsTestUtil {
      */
     public static boolean extensionsDisabledByQuirk() {
         return new ExtensionDisabledValidator().shouldDisableExtension();
+    }
+
+    /**
+     * Sets the camera2 repeating request capture callback to the use case builder.
+     */
+    public static <T> void setCamera2SessionCaptureCallback(
+            ExtendableBuilder<T> usecaseBuilder,
+            @NonNull CameraCaptureSession.CaptureCallback captureCallback) {
+        usecaseBuilder.getMutableConfig().insertOption(
+                SESSION_CAPTURE_CALLBACK_OPTION,
+                captureCallback
+        );
     }
 }

@@ -26,7 +26,6 @@ plugins {
 dependencies {
     api(libs.guavaListenableFuture)
     api(project(":camera:camera-core"))
-    implementation(project(":camera:camera-camera2"))
     implementation("androidx.core:core:1.0.0")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
     implementation(libs.autoValueAnnotations)
@@ -54,6 +53,7 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(libs.truth)
     androidTestImplementation(libs.multidex)
+    androidTestImplementation(project(":camera:camera-camera2"))
     androidTestImplementation(project(":camera:camera-lifecycle"))
     androidTestImplementation(project(":camera:camera-testing")) {
         // Ensure camera-testing does not pull in androidx.test dependencies

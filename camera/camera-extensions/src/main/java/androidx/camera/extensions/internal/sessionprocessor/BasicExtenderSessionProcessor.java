@@ -33,11 +33,7 @@ import android.util.Size;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
-import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
-import androidx.camera.camera2.interop.CaptureRequestOptions;
-import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -54,6 +50,7 @@ import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 import androidx.camera.extensions.internal.ClientVersion;
 import androidx.camera.extensions.internal.ExtensionVersion;
+import androidx.camera.extensions.internal.RequestOptionConfig;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.compat.workaround.OnEnableDisableSessionDurationCheck;
@@ -69,7 +66,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * A {@link SessionProcessor} based on OEMs' basic extender implementation.
  */
-@OptIn(markerClass = ExperimentalCamera2Interop.class)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public class BasicExtenderSessionProcessor extends SessionProcessorBase {
     private static final String TAG = "BasicSessionProcessor";
@@ -257,8 +253,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         synchronized (mLock) {
             HashMap<CaptureRequest.Key<?>, Object> map = new HashMap<>();
 
-            CaptureRequestOptions options =
-                    CaptureRequestOptions.Builder.from(config).build();
+            RequestOptionConfig options =
+                    RequestOptionConfig.Builder.from(config).build();
 
             for (Config.Option<?> option : options.listOptions()) {
                 @SuppressWarnings("unchecked")
@@ -437,9 +433,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
             @Override
             public void onCaptureCompleted(@NonNull RequestProcessor.Request request,
                     @NonNull CameraCaptureResult cameraCaptureResult) {
-                CaptureResult captureResult =
-                        Camera2CameraCaptureResultConverter.getCaptureResult(
-                                cameraCaptureResult);
+                CaptureResult captureResult = cameraCaptureResult.getCaptureResult();
                 Preconditions.checkArgument(captureResult instanceof TotalCaptureResult,
                         "Cannot get TotalCaptureResult from the cameraCaptureResult ");
                 TotalCaptureResult totalCaptureResult = (TotalCaptureResult) captureResult;
@@ -543,9 +537,7 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
             @Override
             public void onCaptureCompleted(@NonNull RequestProcessor.Request request,
                     @NonNull CameraCaptureResult cameraCaptureResult) {
-                CaptureResult captureResult =
-                        Camera2CameraCaptureResultConverter.getCaptureResult(
-                                cameraCaptureResult);
+                CaptureResult captureResult = cameraCaptureResult.getCaptureResult();
                 Preconditions.checkArgument(captureResult instanceof TotalCaptureResult,
                         "Cannot get capture TotalCaptureResult from the cameraCaptureResult ");
                 TotalCaptureResult totalCaptureResult = (TotalCaptureResult) captureResult;
@@ -653,8 +645,8 @@ public class BasicExtenderSessionProcessor extends SessionProcessorBase {
         applyParameters(builder);
         applyPreviewStagesParameters(builder);
 
-        CaptureRequestOptions options =
-                CaptureRequestOptions.Builder.from(config).build();
+        RequestOptionConfig options =
+                RequestOptionConfig.Builder.from(config).build();
         for (Config.Option<?> option : options.listOptions()) {
             @SuppressWarnings("unchecked")
             CaptureRequest.Key<Object> key = (CaptureRequest.Key<Object>) option.getToken();

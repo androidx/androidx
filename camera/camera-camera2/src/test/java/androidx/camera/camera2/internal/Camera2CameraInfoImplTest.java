@@ -823,6 +823,53 @@ public class Camera2CameraInfoImplTest {
         assertThat(cameraInfo.querySupportedDynamicRanges(Collections.emptySet())).isEmpty();
     }
 
+    @Test
+    public void getCameraCharacteristics_returnCorrectValue() throws CameraAccessExceptionCompat {
+        init(/* hasAvailableCapabilities = */ true);
+
+        final CameraInfoInternal cameraInfo =
+                new Camera2CameraInfoImpl(CAMERA0_ID, mCameraManagerCompat);
+
+        CameraCharacteristics cameraCharacteristic =
+                (CameraCharacteristics) cameraInfo.getCameraCharacteristics();
+        assertThat(cameraCharacteristic.get(CameraCharacteristics.SENSOR_ORIENTATION))
+                .isEqualTo(CAMERA0_SENSOR_ORIENTATION);
+    }
+
+    @Test
+    @Config(minSdk = 28)
+    public void getPhysicalCameraCharacteristicsByCameraId_returnCorrectValue()
+            throws CameraAccessExceptionCompat {
+        // Arrange: setup logical camera id "0" with physical camera ids ("2", "3") and
+        // camera id "4"
+        CameraCharacteristics characteristics0 = mock(CameraCharacteristics.class);
+        when(characteristics0.getPhysicalCameraIds()).thenReturn(
+                new HashSet<>(Arrays.asList("2", "3")));
+        CameraCharacteristics characteristics2 = mock(CameraCharacteristics.class);
+        CameraCharacteristics characteristics3 = mock(CameraCharacteristics.class);
+        CameraCharacteristics characteristics4 = mock(CameraCharacteristics.class);
+        ShadowCameraManager shadowCameraManager =
+                Shadow.extract(ApplicationProvider.getApplicationContext()
+                        .getSystemService(Context.CAMERA_SERVICE));
+        shadowCameraManager.addCamera("0", characteristics0);
+        shadowCameraManager.addCamera("2", characteristics2);
+        shadowCameraManager.addCamera("3", characteristics3);
+        shadowCameraManager.addCamera("4", characteristics4);
+
+        mCameraManagerCompat =
+                CameraManagerCompat.from((Context) ApplicationProvider.getApplicationContext());
+        final CameraInfoInternal cameraInfo = new Camera2CameraInfoImpl("0",
+                mCameraManagerCompat);
+
+        // Act / Assert:  Ensures getPhysicalCameraCharacteristics returns the correct instance
+        // for physical camera id "2" and "3" and null for id "4".
+        assertThat(cameraInfo.getPhysicalCameraCharacteristics("2"))
+                .isSameInstanceAs(characteristics2);
+        assertThat(cameraInfo.getPhysicalCameraCharacteristics("3"))
+                .isSameInstanceAs(characteristics3);
+        assertThat(cameraInfo.getPhysicalCameraCharacteristics("4")).isNull();
+    }
+
     private CameraManagerCompat initCameraManagerWithPhysicalIds(
             List<Pair<String, CameraCharacteristics>> cameraIdsAndCharacteristicsList) {
         FakeCameraManagerImpl cameraManagerImpl = new FakeCameraManagerImpl();
