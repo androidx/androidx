@@ -19,6 +19,7 @@ package androidx.sqliteMultiplatform.driver
 import androidx.annotation.RestrictTo
 import androidx.sqliteMultiplatform.SQLiteConnection
 import androidx.sqliteMultiplatform.SQLiteStatement
+import androidx.sqliteMultiplatform.throwSQLiteException
 import cnames.structs.sqlite3
 import cnames.structs.sqlite3_stmt
 import kotlinx.cinterop.CPointer
@@ -27,6 +28,7 @@ import kotlinx.cinterop.memScoped
 import kotlinx.cinterop.ptr
 import kotlinx.cinterop.utf16
 import kotlinx.cinterop.value
+import sqlite3.SQLITE_MISUSE
 import sqlite3.SQLITE_OK
 import sqlite3.sqlite3_close_v2
 import sqlite3.sqlite3_prepare16_v2
@@ -36,7 +38,13 @@ import sqlite3.sqlite3_prepare16_v2
 class NativeSQLiteConnection(
     private val dbPointer: CPointer<sqlite3>
 ) : SQLiteConnection {
+
+    private var isClosed = false
+
     override fun prepare(sql: String): SQLiteStatement = memScoped {
+        if (isClosed) {
+            throwSQLiteException(SQLITE_MISUSE, "connection is closed")
+        }
         val stmtPointer = allocPointerTo<sqlite3_stmt>()
         // Kotlin/Native uses UTF-16 character encoding by default.
         val sqlUtf16 = sql.utf16
@@ -55,5 +63,6 @@ class NativeSQLiteConnection(
 
     override fun close() {
         sqlite3_close_v2(dbPointer)
+        isClosed = true
     }
 }
