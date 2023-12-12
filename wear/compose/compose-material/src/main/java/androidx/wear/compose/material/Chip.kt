@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -55,6 +56,7 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -184,34 +186,17 @@ public fun Chip(
     role: Role? = Role.Button,
     content: @Composable RowScope.() -> Unit,
 ) {
-    val borderStroke = border.borderStroke(enabled).value
-    val rowModifier = if (borderStroke != null) modifier.border(
-        border = borderStroke,
-        shape = shape
-    ) else modifier
-    Row(
-        modifier = rowModifier
-            .defaultMinSize(minHeight = ChipDefaults.Height)
-            .height(IntrinsicSize.Min)
-            .clip(shape = shape)
-            .width(intrinsicSize = IntrinsicSize.Max)
-            .paint(
-                painter = colors.background(enabled).value,
-                contentScale = ContentScale.Crop
-            )
-            .clickable(
-                enabled = enabled,
-                onClick = onClick,
-                role = role,
-                indication = rippleOrFallbackImplementation(),
-                interactionSource = interactionSource,
-            )
-            .padding(contentPadding),
-        content = provideScopeContent(
-            colors.contentColor(enabled = enabled),
-            MaterialTheme.typography.button,
-            content
-        )
+    ChipImpl(
+        onClick = onClick,
+        colors = colors,
+        border = border,
+        modifier = modifier.chipSizeModifier(),
+        enabled = enabled,
+        contentPadding = contentPadding,
+        shape = shape,
+        interactionSource = interactionSource,
+        role = role,
+        content = content
     )
 }
 
@@ -375,52 +360,21 @@ public fun Chip(
     shape: Shape = MaterialTheme.shapes.small,
     border: ChipBorder = ChipDefaults.chipBorder()
 ) {
-    Chip(
-        modifier = modifier
-            .defaultMinSize(minHeight = ChipDefaults.Height)
-            .height(IntrinsicSize.Min),
+    ChipImpl(
         onClick = onClick,
+        label = label,
+        labelTypography = MaterialTheme.typography.button,
+        modifier = modifier.chipSizeModifier(),
+        secondaryLabel = secondaryLabel,
+        icon = icon,
         colors = colors,
-        border = border,
         enabled = enabled,
+        interactionSource = interactionSource,
         contentPadding = contentPadding,
         shape = shape,
-        interactionSource = interactionSource,
-        role = Role.Button
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            // Fill the container height but not its width as chips have fixed size height but we
-            // want them to be able to fit their content
-            modifier = Modifier.fillMaxHeight()
-        ) {
-            if (icon != null) {
-                Box(
-                    modifier = Modifier.wrapContentSize(align = Alignment.Center),
-                    content = provideIcon(colors.iconColor(enabled), icon)
-                )
-                Spacer(modifier = Modifier.size(ChipDefaults.IconSpacing))
-            }
-            Column {
-                Row(
-                    content = provideScopeContent(
-                        colors.contentColor(enabled = enabled),
-                        MaterialTheme.typography.button,
-                        label
-                    )
-                )
-                secondaryLabel?.let {
-                    Row(
-                        content = provideScopeContent(
-                            colors.secondaryContentColor(enabled = enabled),
-                            textStyle = MaterialTheme.typography.caption2,
-                            secondaryLabel
-                        )
-                    )
-                }
-            }
-        }
-    }
+        border = border,
+        defaultIconSpacing = ChipDefaults.IconSpacing
+    )
 }
 
 /**
@@ -684,30 +638,52 @@ public fun CompactChip(
     shape: Shape = MaterialTheme.shapes.small,
     border: ChipBorder = ChipDefaults.chipBorder()
 ) {
-    androidx.wear.compose.materialcore.CompactChip(
-        modifier = modifier.height(ChipDefaults.CompactChipHeight),
-        onClick = onClick,
-        background = { colors.background(enabled = it) },
-        label = label?.let { provideScopeContent(
-            colors.contentColor(enabled = enabled),
-            MaterialTheme.typography.caption1,
-            label
-        ) },
-        icon = icon?.let { provideIcon(
-            colors.iconColor(enabled = enabled),
-            icon
-        ) },
-        enabled = enabled,
-        interactionSource = interactionSource,
-        contentPadding = contentPadding,
-        shape = shape,
-        border = { border.borderStroke(enabled = it) },
-        defaultIconOnlyCompactChipWidth = ChipDefaults.IconOnlyCompactChipWidth,
-        defaultCompactChipTapTargetPadding = ChipDefaults.CompactChipTapTargetPadding,
-        defaultIconSpacing = ChipDefaults.IconSpacing,
-        role = Role.Button,
-        ripple = rippleOrFallbackImplementation()
-    )
+    if (label != null) {
+        ChipImpl(
+            modifier = modifier
+                .compactChipModifier()
+                .padding(ChipDefaults.CompactChipTapTargetPadding),
+            label = label,
+            labelTypography = MaterialTheme.typography.caption1,
+            onClick = onClick,
+            colors = colors,
+            secondaryLabel = null,
+            icon = icon,
+            enabled = enabled,
+            interactionSource = interactionSource,
+            contentPadding = contentPadding,
+            shape = shape,
+            border = border,
+            defaultIconSpacing = ChipDefaults.IconSpacing,
+        )
+    } else {
+        // Icon only compact chips have their own layout with a specific width and center aligned
+        // content. We use the base simple single slot Chip under the covers.
+        ChipImpl(
+            modifier = modifier
+                .compactChipModifier()
+                .width(ChipDefaults.IconOnlyCompactChipWidth)
+                .padding(ChipDefaults.CompactChipTapTargetPadding),
+            onClick = onClick,
+            colors = colors,
+            border = border,
+            enabled = enabled,
+            contentPadding = contentPadding,
+            shape = shape,
+            interactionSource = interactionSource,
+        ) {
+            // Use a box to fill and center align the icon into the single slot of the Chip
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(align = Alignment.Center)
+            ) {
+                if (icon != null) {
+                    icon()
+                }
+            }
+        }
+    }
 }
 
 /**
@@ -1407,5 +1383,117 @@ private class DefaultChipBorder(
         var result = borderStroke.hashCode()
         result = 31 * result + disabledBorderStroke.hashCode()
         return result
+    }
+}
+
+@Composable
+private fun Modifier.chipSizeModifier() =
+    this.defaultMinSize(minHeight = ChipDefaults.Height)
+        .height(IntrinsicSize.Min)
+
+@Composable
+private fun Modifier.compactChipModifier() =
+    this.height(ChipDefaults.CompactChipHeight)
+
+@Composable
+private fun ChipImpl(
+    onClick: () -> Unit,
+    colors: ChipColors,
+    border: ChipBorder?,
+    modifier: Modifier,
+    enabled: Boolean,
+    contentPadding: PaddingValues,
+    shape: Shape,
+    interactionSource: MutableInteractionSource,
+    role: Role? = Role.Button,
+    content: @Composable RowScope.() -> Unit,
+) {
+    val borderStroke = border?.borderStroke(enabled)?.value
+    val borderModifier = if (borderStroke != null) modifier.border(
+        border = borderStroke,
+        shape = shape
+    ) else modifier
+    Row(
+        modifier = borderModifier
+            .clip(shape = shape)
+            .width(intrinsicSize = IntrinsicSize.Max)
+            .paint(
+                painter = colors.background(enabled).value,
+                contentScale = ContentScale.Crop
+            )
+            .clickable(
+                enabled = enabled,
+                onClick = onClick,
+                role = role,
+                indication = rippleOrFallbackImplementation(),
+                interactionSource = interactionSource,
+            )
+            .padding(contentPadding),
+        content = provideScopeContent(
+            colors.contentColor(enabled = enabled),
+            MaterialTheme.typography.button,
+            content
+        )
+    )
+}
+
+@Composable
+private fun ChipImpl(
+    label: @Composable RowScope.() -> Unit,
+    labelTypography: TextStyle,
+    onClick: () -> Unit,
+    modifier: Modifier,
+    secondaryLabel: (@Composable RowScope.() -> Unit)?,
+    icon: (@Composable BoxScope.() -> Unit)?,
+    colors: ChipColors,
+    enabled: Boolean,
+    interactionSource: MutableInteractionSource,
+    contentPadding: PaddingValues,
+    shape: Shape,
+    border: ChipBorder?,
+    defaultIconSpacing: Dp
+) {
+    ChipImpl(
+        onClick = onClick,
+        modifier = modifier,
+        colors = colors,
+        border = border,
+        enabled = enabled,
+        contentPadding = contentPadding,
+        shape = shape,
+        interactionSource = interactionSource,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            // Fill the container height but not its width as chips have fixed size height but we
+            // want them to be able to fit their content
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            if (icon != null) {
+                Box(
+                    modifier = Modifier.wrapContentSize(align = Alignment.Center),
+                    content = provideIcon(colors.iconColor(enabled), icon)
+                )
+                Spacer(modifier = Modifier.size(defaultIconSpacing))
+            }
+            Column {
+                Row(
+                    content = provideScopeContent(
+                        colors.contentColor(enabled),
+                        labelTypography,
+                        label
+                    )
+                )
+                secondaryLabel?.let {
+                    Row(
+                        content = provideScopeContent(
+                            colors.secondaryContentColor(enabled),
+                            MaterialTheme.typography.caption2,
+                            secondaryLabel
+                        )
+                    )
+                }
+            }
+        }
     }
 }
