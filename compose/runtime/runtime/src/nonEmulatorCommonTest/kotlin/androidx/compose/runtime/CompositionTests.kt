@@ -4037,6 +4037,28 @@ class CompositionTests {
         revalidate()
     }
 
+    @Composable
+    fun goBoom(): Boolean {
+
+        return true
+    }
+
+    @Test
+    fun earlyReturnFromInlined() = compositionTest {
+        compose {
+            run {
+                if (true) {
+                    return@run
+                } else {
+                    Text("")
+                    return@run
+                }
+            }
+        }
+
+        validate { }
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch {
