@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.viewfinder.core
+package androidx.camera.viewfinder.core
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -24,7 +24,7 @@ import android.view.View
 import android.view.ViewConfiguration
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
-import androidx.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener
+import androidx.camera.viewfinder.core.ZoomGestureDetector.OnZoomGestureListener
 import kotlin.math.abs
 import kotlin.math.hypot
 
