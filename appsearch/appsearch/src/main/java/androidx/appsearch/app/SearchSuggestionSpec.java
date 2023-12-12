@@ -18,6 +18,8 @@ package androidx.appsearch.app;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
@@ -29,6 +31,9 @@ import androidx.appsearch.annotation.Document;
 import androidx.appsearch.annotation.FlaggedApi;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.flags.Flags;
+import androidx.appsearch.safeparcel.AbstractSafeParcelable;
+import androidx.appsearch.safeparcel.SafeParcelable;
+import androidx.appsearch.safeparcel.stub.StubCreators.SearchSuggestionSpecCreator;
 import androidx.appsearch.util.BundleUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -50,24 +55,47 @@ import java.util.Set;
  *
  * @see AppSearchSession#searchSuggestionAsync
  */
-public final class SearchSuggestionSpec {
-    static final String NAMESPACE_FIELD = "namespace";
-    static final String SCHEMA_FIELD = "schema";
-    static final String PROPERTY_FIELD = "property";
-    static final String DOCUMENT_IDS_FIELD = "documentIds";
-    static final String MAXIMUM_RESULT_COUNT_FIELD = "maximumResultCount";
-    static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
-    private final Bundle mBundle;
+@SafeParcelable.Class(creator = "SearchSuggestionSpecCreator")
+public final class SearchSuggestionSpec extends AbstractSafeParcelable {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE)
+    @NonNull public static final Parcelable.Creator<SearchSuggestionSpec> CREATOR =
+            new SearchSuggestionSpecCreator();
+    @Field(id = 1, getter = "getFilterNamespaces")
+    private final List<String> mFilterNamespaces;
+    @Field(id = 2, getter = "getFilterSchemas")
+    private final List<String> mFilterSchemas;
+    // Maps are not supported by SafeParcelable fields, using Bundle instead. Here the key is
+    // schema type and value is a list of target property paths in that schema to search over.
+    @Field(id = 3)
+    final Bundle mFilterProperties;
+    // Maps are not supported by SafeParcelable fields, using Bundle instead. Here the key is
+    // namespace and value is a list of target document ids in that namespace to search over.
+    @Field(id = 4)
+    final Bundle mFilterDocumentIds;
+    @Field(id = 5, getter = "getMaximumResultCount")
     private final int mMaximumResultCount;
+    @Field(id = 6, getter = "getRankingStrategy")
+    private final int mRankingStrategy;
 
     /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public SearchSuggestionSpec(@NonNull Bundle bundle) {
-        Preconditions.checkNotNull(bundle);
-        mBundle = bundle;
-        mMaximumResultCount = bundle.getInt(MAXIMUM_RESULT_COUNT_FIELD);
-        Preconditions.checkArgument(mMaximumResultCount >= 1,
+    @Constructor
+    public SearchSuggestionSpec(
+            @Param(id = 1) @NonNull List<String> filterNamespaces,
+            @Param(id = 2) @NonNull List<String> filterSchemas,
+            @Param(id = 3) @NonNull Bundle filterProperties,
+            @Param(id = 4) @NonNull Bundle filterDocumentIds,
+            @Param(id = 5) @SuggestionRankingStrategy int rankingStrategy,
+            @Param(id = 6) int maximumResultCount) {
+        Preconditions.checkArgument(maximumResultCount >= 1,
                 "MaximumResultCount must be positive.");
+        mFilterNamespaces = Preconditions.checkNotNull(filterNamespaces);
+        mFilterSchemas = Preconditions.checkNotNull(filterSchemas);
+        mFilterProperties = Preconditions.checkNotNull(filterProperties);
+        mFilterDocumentIds = Preconditions.checkNotNull(filterDocumentIds);
+        mRankingStrategy = rankingStrategy;
+        mMaximumResultCount = maximumResultCount;
     }
 
     /**
@@ -114,17 +142,6 @@ public final class SearchSuggestionSpec {
     public static final int SUGGESTION_RANKING_STRATEGY_NONE = 2;
 
     /**
-     * Returns the {@link Bundle} populated by this builder.
-     *
-     * @exportToFramework:hide
-     */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @NonNull
-    public Bundle getBundle() {
-        return mBundle;
-    }
-
-    /**
      * Returns the maximum number of wanted suggestion that will be returned in the result object.
      */
     public int getMaximumResultCount() {
@@ -138,17 +155,16 @@ public final class SearchSuggestionSpec {
      */
     @NonNull
     public List<String> getFilterNamespaces() {
-        List<String> namespaces = mBundle.getStringArrayList(NAMESPACE_FIELD);
-        if (namespaces == null) {
+        if (mFilterNamespaces == null) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableList(namespaces);
+        return Collections.unmodifiableList(mFilterNamespaces);
     }
 
     /** Returns the ranking strategy. */
     @SuggestionRankingStrategy
     public int getRankingStrategy() {
-        return mBundle.getInt(RANKING_STRATEGY_FIELD);
+        return mRankingStrategy;
     }
 
     /**
@@ -158,11 +174,10 @@ public final class SearchSuggestionSpec {
      */
     @NonNull
     public List<String> getFilterSchemas() {
-        List<String> schemaTypes = mBundle.getStringArrayList(SCHEMA_FIELD);
-        if (schemaTypes == null) {
+        if (mFilterSchemas == null) {
             return Collections.emptyList();
         }
-        return Collections.unmodifiableList(schemaTypes);
+        return Collections.unmodifiableList(mFilterSchemas);
     }
 
     /**
@@ -180,13 +195,11 @@ public final class SearchSuggestionSpec {
     @NonNull
     @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
     public Map<String, List<String>> getFilterProperties() {
-        Bundle typePropertyPathsBundle = Preconditions.checkNotNull(
-                mBundle.getBundle(PROPERTY_FIELD));
-        Set<String> schemas = typePropertyPathsBundle.keySet();
+        Set<String> schemas = mFilterProperties.keySet();
         Map<String, List<String>> typePropertyPathsMap = new ArrayMap<>(schemas.size());
         for (String schema : schemas) {
             typePropertyPathsMap.put(schema, Preconditions.checkNotNull(
-                    typePropertyPathsBundle.getStringArrayList(schema)));
+                    mFilterProperties.getStringArrayList(schema)));
         }
         return typePropertyPathsMap;
     }
@@ -205,13 +218,11 @@ public final class SearchSuggestionSpec {
      */
     @NonNull
     public Map<String, List<String>> getFilterDocumentIds() {
-        Bundle documentIdsBundle = Preconditions.checkNotNull(
-                mBundle.getBundle(DOCUMENT_IDS_FIELD));
-        Set<String> namespaces = documentIdsBundle.keySet();
+        Set<String> namespaces = mFilterDocumentIds.keySet();
         Map<String, List<String>> documentIdsMap = new ArrayMap<>(namespaces.size());
         for (String namespace : namespaces) {
             documentIdsMap.put(namespace, Preconditions.checkNotNull(
-                    documentIdsBundle.getStringArrayList(namespace)));
+                    mFilterDocumentIds.getStringArrayList(namespace)));
         }
         return documentIdsMap;
     }
@@ -328,7 +339,7 @@ public final class SearchSuggestionSpec {
         @SuppressLint("MissingGetterMatchingBuilder")
         @CanIgnoreReturnValue
         @NonNull
-        public Builder addFilterDocumentClasses(@NonNull Class<?>... documentClasses)
+        public Builder addFilterDocumentClasses(@NonNull java.lang.Class<?>... documentClasses)
                 throws AppSearchException {
             Preconditions.checkNotNull(documentClasses);
             resetIfBuilt();
@@ -353,12 +364,13 @@ public final class SearchSuggestionSpec {
         @CanIgnoreReturnValue
         @NonNull
         public Builder addFilterDocumentClasses(
-                @NonNull Collection<? extends Class<?>> documentClasses) throws AppSearchException {
+                @NonNull Collection<? extends java.lang.Class<?>> documentClasses)
+                throws AppSearchException {
             Preconditions.checkNotNull(documentClasses);
             resetIfBuilt();
             List<String> schemas = new ArrayList<>(documentClasses.size());
             DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
-            for (Class<?> documentClass : documentClasses) {
+            for (java.lang.Class<?> documentClass : documentClasses) {
                 DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
                 schemas.add(factory.getSchemaName());
             }
@@ -465,7 +477,7 @@ public final class SearchSuggestionSpec {
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
-        public Builder addFilterProperties(@NonNull Class<?> documentClass,
+        public Builder addFilterProperties(@NonNull java.lang.Class<?> documentClass,
                 @NonNull Collection<String> propertyPaths) throws AppSearchException {
             Preconditions.checkNotNull(documentClass);
             Preconditions.checkNotNull(propertyPaths);
@@ -498,7 +510,7 @@ public final class SearchSuggestionSpec {
         @RequiresFeature(
                 enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
                 name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
-        public Builder addFilterPropertyPaths(@NonNull Class<?> documentClass,
+        public Builder addFilterPropertyPaths(@NonNull java.lang.Class<?> documentClass,
                 @NonNull Collection<PropertyPath> propertyPaths) throws AppSearchException {
             Preconditions.checkNotNull(documentClass);
             Preconditions.checkNotNull(propertyPaths);
@@ -549,7 +561,6 @@ public final class SearchSuggestionSpec {
         /** Constructs a new {@link SearchSpec} from the contents of this builder. */
         @NonNull
         public SearchSuggestionSpec build() {
-            Bundle bundle = new Bundle();
             if (!mSchemas.isEmpty()) {
                 Set<String> schemaFilter = new ArraySet<>(mSchemas);
                 for (String schema : mTypePropertyFilters.keySet()) {
@@ -570,14 +581,14 @@ public final class SearchSuggestionSpec {
                     }
                 }
             }
-            bundle.putStringArrayList(NAMESPACE_FIELD, mNamespaces);
-            bundle.putStringArrayList(SCHEMA_FIELD, mSchemas);
-            bundle.putBundle(PROPERTY_FIELD, mTypePropertyFilters);
-            bundle.putBundle(DOCUMENT_IDS_FIELD, mDocumentIds);
-            bundle.putInt(MAXIMUM_RESULT_COUNT_FIELD, mTotalResultCount);
-            bundle.putInt(RANKING_STRATEGY_FIELD, mRankingStrategy);
             mBuilt = true;
-            return new SearchSuggestionSpec(bundle);
+            return new SearchSuggestionSpec(
+                    mNamespaces,
+                    mSchemas,
+                    mTypePropertyFilters,
+                    mDocumentIds,
+                    mRankingStrategy,
+                    mTotalResultCount);
         }
 
         private void resetIfBuilt() {
@@ -589,5 +600,12 @@ public final class SearchSuggestionSpec {
                 mBuilt = false;
             }
         }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE)
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        SearchSuggestionSpecCreator.writeToParcel(this, dest, flags);
     }
 }
