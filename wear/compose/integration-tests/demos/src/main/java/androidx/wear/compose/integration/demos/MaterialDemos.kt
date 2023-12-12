@@ -111,8 +111,8 @@ val WearMaterialDemos = DemoCategory(
                         ComposableDemo("Customized PageIndicator") {
                             CustomizedHorizontalPageIndicator()
                         },
-                        ComposableDemo("Pager with Indicator") {
-                            PagerWithIndicator()
+                        ComposableDemo("Pager with Indicator") { params ->
+                            PagerWithIndicator(params.swipeToDismissBoxState)
                         }
                     )
                 )
