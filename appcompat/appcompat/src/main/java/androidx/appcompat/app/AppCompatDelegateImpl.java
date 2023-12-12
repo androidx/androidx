@@ -422,8 +422,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
             }
 
             try {
-                ContextThemeWrapperCompatApi17Impl.applyOverrideConfiguration(
-                        (android.view.ContextThemeWrapper) baseContext, config);
+                ((android.view.ContextThemeWrapper) baseContext).applyOverrideConfiguration(config);
                 return baseContext;
             } catch (IllegalStateException e) {
                 if (DEBUG) {
@@ -523,21 +522,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
         }
 
         return super.attachBaseContext2(wrappedContext);
-    }
-
-    /**
-     * Helper for accessing new APIs on {@link android.view.ContextThemeWrapper}.
-     */
-    @RequiresApi(17)
-    private static class ContextThemeWrapperCompatApi17Impl {
-        private ContextThemeWrapperCompatApi17Impl() {
-            // This class is non-instantiable.
-        }
-
-        static void applyOverrideConfiguration(android.view.ContextThemeWrapper context,
-                Configuration overrideConfiguration) {
-            context.applyOverrideConfiguration(overrideConfiguration);
-        }
     }
 
     @Override
@@ -2627,7 +2611,6 @@ class AppCompatDelegateImpl extends AppCompatDelegate
     }
 
     @Override
-    @RequiresApi(17)
     public void setLocalNightMode(@NightMode int mode) {
         if (DEBUG) {
             Log.d(TAG, String.format("setLocalNightMode. New: %d, Current: %d",

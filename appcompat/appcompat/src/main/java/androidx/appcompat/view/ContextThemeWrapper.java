@@ -24,7 +24,6 @@ import android.content.res.Resources;
 import android.os.Build;
 import android.view.LayoutInflater;
 
-import androidx.annotation.DoNotInline;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.StyleRes;
 import androidx.appcompat.R;
@@ -125,15 +124,10 @@ public class ContextThemeWrapper extends ContextWrapper {
                 // 26+, this will avoid pulling in resources that share a backing implementation
                 // with the application context.
                 mResources = super.getResources();
-            } else if (Build.VERSION.SDK_INT >= 17) {
-                final Context resContext =
-                        Api17Impl.createConfigurationContext(this, mOverrideConfiguration);
-                mResources = resContext.getResources();
             } else {
-                Resources res = super.getResources();
-                Configuration newConfig = new Configuration(res.getConfiguration());
-                newConfig.updateFrom(mOverrideConfiguration);
-                mResources = new Resources(res.getAssets(), res.getDisplayMetrics(), newConfig);
+                final Context resContext =
+                        createConfigurationContext(mOverrideConfiguration);
+                mResources = resContext.getResources();
             }
         }
         return mResources;
@@ -232,19 +226,6 @@ public class ContextThemeWrapper extends ContextWrapper {
         }
 
         return overrideConfiguration.equals(sEmptyConfig);
-    }
-
-    @RequiresApi(17)
-    static class Api17Impl {
-        private Api17Impl() {
-            // This class is not instantiable.
-        }
-
-        @DoNotInline
-        static Context createConfigurationContext(ContextThemeWrapper contextThemeWrapper,
-                Configuration overrideConfiguration) {
-            return contextThemeWrapper.createConfigurationContext(overrideConfiguration);
-        }
     }
 }
 

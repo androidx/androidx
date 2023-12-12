@@ -38,6 +38,7 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowId;
 import android.view.animation.AnimationUtils;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -838,7 +839,7 @@ public abstract class Transition implements Cloneable {
                             minStartDelay = Math.min(delay, minStartDelay);
                         }
                         AnimationInfo info = new AnimationInfo(view, getName(), this,
-                                ViewUtils.getWindowId(sceneRoot), infoValues, animator);
+                                sceneRoot.getWindowId(), infoValues, animator);
                         if (hasSeekController) {
                             AnimatorSet set = new AnimatorSet();
                             set.play(animator);
@@ -1885,7 +1886,7 @@ public abstract class Transition implements Cloneable {
 
         ArrayMap<Animator, AnimationInfo> runningAnimators = getRunningAnimators();
         int numOldAnims = runningAnimators.size();
-        WindowIdImpl windowId = ViewUtils.getWindowId(sceneRoot);
+        WindowId windowId = sceneRoot.getWindowId();
         for (int i = numOldAnims - 1; i >= 0; i--) {
             Animator anim = runningAnimators.keyAt(i);
             if (anim != null) {
@@ -2097,7 +2098,7 @@ public abstract class Transition implements Cloneable {
             return;
         }
 
-        WindowIdImpl windowId = ViewUtils.getWindowId(sceneRoot);
+        WindowId windowId = sceneRoot.getWindowId();
         final ArrayMap<Animator, AnimationInfo> oldAnimators = new ArrayMap<>(runningAnimators);
         runningAnimators.clear();
 
@@ -2578,13 +2579,13 @@ public abstract class Transition implements Cloneable {
 
         TransitionValues mValues;
 
-        WindowIdImpl mWindowId;
+        WindowId mWindowId;
 
         Transition mTransition;
 
         Animator mAnimator;
 
-        AnimationInfo(View view, String name, Transition transition, WindowIdImpl windowId,
+        AnimationInfo(View view, String name, Transition transition, WindowId windowId,
                 TransitionValues values, Animator animator) {
             mView = view;
             mName = name;

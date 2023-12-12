@@ -311,7 +311,7 @@ package androidx.appcompat.app {
     method public abstract void setContentView(@LayoutRes int);
     method public static void setDefaultNightMode(@androidx.appcompat.app.AppCompatDelegate.NightMode int);
     method public abstract void setHandleNativeActionModesEnabled(boolean);
-    method @RequiresApi(17) public abstract void setLocalNightMode(@androidx.appcompat.app.AppCompatDelegate.NightMode int);
+    method public abstract void setLocalNightMode(@androidx.appcompat.app.AppCompatDelegate.NightMode int);
     method @CallSuper @RequiresApi(33) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher?);
     method public abstract void setSupportActionBar(androidx.appcompat.widget.Toolbar?);
     method public void setTheme(@StyleRes int);

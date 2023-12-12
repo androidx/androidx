@@ -351,7 +351,7 @@ package androidx.core.text {
   }
 
   public final class LocaleKt {
-    method @RequiresApi(17) public static inline int getLayoutDirection(java.util.Locale);
+    method public static inline int getLayoutDirection(java.util.Locale);
   }
 
   public final class SpannableStringBuilderKt {
@@ -407,11 +407,11 @@ package androidx.core.util {
   }
 
   public final class AtomicFileKt {
-    method @RequiresApi(17) public static inline byte[] readBytes(android.util.AtomicFile);
-    method @RequiresApi(17) public static String readText(android.util.AtomicFile, optional java.nio.charset.Charset charset);
-    method @RequiresApi(17) public static inline void tryWrite(android.util.AtomicFile, kotlin.jvm.functions.Function1<? super java.io.FileOutputStream,kotlin.Unit> block);
-    method @RequiresApi(17) public static void writeBytes(android.util.AtomicFile, byte[] array);
-    method @RequiresApi(17) public static void writeText(android.util.AtomicFile, String text, optional java.nio.charset.Charset charset);
+    method public static inline byte[] readBytes(android.util.AtomicFile);
+    method public static String readText(android.util.AtomicFile, optional java.nio.charset.Charset charset);
+    method public static inline void tryWrite(android.util.AtomicFile, kotlin.jvm.functions.Function1<? super java.io.FileOutputStream,kotlin.Unit> block);
+    method public static void writeBytes(android.util.AtomicFile, byte[] array);
+    method public static void writeText(android.util.AtomicFile, String text, optional java.nio.charset.Charset charset);
   }
 
   @RequiresApi(24) public final class ConsumerKt {
@@ -535,21 +535,21 @@ package androidx.core.util {
   }
 
   public final class SparseLongArrayKt {
-    method @RequiresApi(18) public static inline operator boolean contains(android.util.SparseLongArray, int key);
-    method @RequiresApi(18) public static inline boolean containsKey(android.util.SparseLongArray, int key);
-    method @RequiresApi(18) public static inline boolean containsValue(android.util.SparseLongArray, long value);
-    method @RequiresApi(18) public static inline void forEach(android.util.SparseLongArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,kotlin.Unit> action);
-    method @RequiresApi(18) public static inline long getOrDefault(android.util.SparseLongArray, int key, long defaultValue);
-    method @RequiresApi(18) public static inline long getOrElse(android.util.SparseLongArray, int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
-    method @RequiresApi(18) public static inline int getSize(android.util.SparseLongArray);
-    method @RequiresApi(18) public static inline boolean isEmpty(android.util.SparseLongArray);
-    method @RequiresApi(18) public static inline boolean isNotEmpty(android.util.SparseLongArray);
-    method @RequiresApi(18) public static kotlin.collections.IntIterator keyIterator(android.util.SparseLongArray);
-    method @RequiresApi(18) public static operator android.util.SparseLongArray plus(android.util.SparseLongArray, android.util.SparseLongArray other);
-    method @RequiresApi(18) public static void putAll(android.util.SparseLongArray, android.util.SparseLongArray other);
-    method @RequiresApi(18) public static boolean remove(android.util.SparseLongArray, int key, long value);
-    method @RequiresApi(18) public static inline operator void set(android.util.SparseLongArray, int key, long value);
-    method @RequiresApi(18) public static kotlin.collections.LongIterator valueIterator(android.util.SparseLongArray);
+    method public static inline operator boolean contains(android.util.SparseLongArray, int key);
+    method public static inline boolean containsKey(android.util.SparseLongArray, int key);
+    method public static inline boolean containsValue(android.util.SparseLongArray, long value);
+    method public static inline void forEach(android.util.SparseLongArray, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super java.lang.Long,kotlin.Unit> action);
+    method public static inline long getOrDefault(android.util.SparseLongArray, int key, long defaultValue);
+    method public static inline long getOrElse(android.util.SparseLongArray, int key, kotlin.jvm.functions.Function0<java.lang.Long> defaultValue);
+    method public static inline int getSize(android.util.SparseLongArray);
+    method public static inline boolean isEmpty(android.util.SparseLongArray);
+    method public static inline boolean isNotEmpty(android.util.SparseLongArray);
+    method public static kotlin.collections.IntIterator keyIterator(android.util.SparseLongArray);
+    method public static operator android.util.SparseLongArray plus(android.util.SparseLongArray, android.util.SparseLongArray other);
+    method public static void putAll(android.util.SparseLongArray, android.util.SparseLongArray other);
+    method public static boolean remove(android.util.SparseLongArray, int key, long value);
+    method public static inline operator void set(android.util.SparseLongArray, int key, long value);
+    method public static kotlin.collections.LongIterator valueIterator(android.util.SparseLongArray);
   }
 
 }
@@ -586,7 +586,7 @@ package androidx.core.view {
     method public static inline operator void plusAssign(android.view.ViewGroup, android.view.View view);
     method public static inline void setMargins(android.view.ViewGroup.MarginLayoutParams, @Px int size);
     method public static inline void updateMargins(android.view.ViewGroup.MarginLayoutParams, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
-    method @RequiresApi(17) public static inline void updateMarginsRelative(android.view.ViewGroup.MarginLayoutParams, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
+    method public static inline void updateMarginsRelative(android.view.ViewGroup.MarginLayoutParams, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
   }
 
   public final class ViewKt {
@@ -616,7 +616,7 @@ package androidx.core.view {
     method public static inline void updateLayoutParams(android.view.View, kotlin.jvm.functions.Function1<? super android.view.ViewGroup.LayoutParams,kotlin.Unit> block);
     method public static inline <reified T extends android.view.ViewGroup.LayoutParams> void updateLayoutParamsTyped(android.view.View, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> block);
     method public static inline void updatePadding(android.view.View, optional @Px int left, optional @Px int top, optional @Px int right, optional @Px int bottom);
-    method @RequiresApi(17) public static inline void updatePaddingRelative(android.view.View, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
+    method public static inline void updatePaddingRelative(android.view.View, optional @Px int start, optional @Px int top, optional @Px int end, optional @Px int bottom);
   }
 
 }

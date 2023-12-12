@@ -18,14 +18,12 @@
 
 package androidx.core.view
 
-import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.MarginLayoutParams
 import android.view.ViewParent
 import androidx.annotation.Px
-import androidx.annotation.RequiresApi
 import androidx.core.graphics.applyCanvas
 
 /**
@@ -141,8 +139,6 @@ public inline fun View.doOnDetach(crossinline action: (view: View) -> Unit) {
  *
  * @see View.setPaddingRelative
  */
-@SuppressLint("ClassVerificationFailure") // Can't work around this for default arguments.
-@RequiresApi(17)
 public inline fun View.updatePaddingRelative(
     @Px start: Int = paddingStart,
     @Px top: Int = paddingTop,
