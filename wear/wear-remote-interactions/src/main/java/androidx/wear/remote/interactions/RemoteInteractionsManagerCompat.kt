@@ -27,7 +27,7 @@ import java.util.function.Consumer
 internal open class RemoteInteractionsManagerCompat(context: Context) : IRemoteInteractionsManager {
 
     // TODO(b/307543793): Reuse the generalized `WearApiVersionHelper` once available.
-    private val wearApiVersion: WearApiVersion = WearApiVersion()
+    private val wearApiVersion: WearApiVersion = WearApiVersion(context)
 
     private val remoteInteractionsManager: RemoteInteractionsManager? =
         if (isAvailabilityStatusApiSupported)
