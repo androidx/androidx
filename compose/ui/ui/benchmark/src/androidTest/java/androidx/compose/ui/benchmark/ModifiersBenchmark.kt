@@ -41,6 +41,7 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.ripple
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -96,7 +97,15 @@ class ModifiersBenchmark(
         fun data(): Collection<Array<Any>> = listOf(
             *modifier("Modifier") { Modifier },
             *modifier("emptyElement", true) { Modifier.emptyElement() },
+            // (discouraged) composed overload that defaults to LocalIndication. Since we don't
+            // provide MaterialTheme in this benchmark, it will just be the debug indication
             *modifier("clickable", true) { Modifier.clickable { capture(it) } },
+            // overload with explicit InteractionSource parameter and a ripple - this more
+            // accurately models how clickable is used in common components like Button.
+            *modifier("clickableWithRipple", true) { Modifier.clickable(
+                interactionSource = interactionSource,
+                indication = ripple()
+            ) { capture(it) } },
             *modifier("semantics", true) { Modifier.semantics { capture(it) } },
             *modifier("pointerInput") { Modifier.pointerInput(it) { capture(it) } },
             *modifier("focusable") { Modifier.focusable() },
