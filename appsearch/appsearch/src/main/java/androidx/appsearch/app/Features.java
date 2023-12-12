@@ -28,7 +28,7 @@ import androidx.annotation.RestrictTo;
  * Android API level, on that device.
  */
 
-// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/Features.java)
+// @exportToFramework:copyToPath(../../../cts/tests/appsearch/testutils/src/android/app/appsearch/testutil/external/Features.java)
 public interface Features {
 
     /**

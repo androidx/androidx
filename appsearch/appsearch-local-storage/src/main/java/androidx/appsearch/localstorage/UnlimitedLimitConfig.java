@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// @exportToFramework:copyToPath(testing/testutils/src/android/app/appsearch/testutil/external/UnlimitedLimitConfig.java)
+// @exportToFramework:copyToPath(../../../cts/tests/appsearch/testutils/src/android/app/appsearch/testutil/external/UnlimitedLimitConfig.java)
 package androidx.appsearch.localstorage;
 
 import androidx.annotation.RestrictTo;
