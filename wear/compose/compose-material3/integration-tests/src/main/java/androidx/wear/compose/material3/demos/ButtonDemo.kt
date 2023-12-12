@@ -263,7 +263,7 @@ fun CompactButtonDemo() {
                 icon = { StandardIcon(ButtonDefaults.SmallIconSize) },
                 colors = ButtonDefaults.childButtonColors()
             ) {
-                Text("Child Compact Button")
+                Text("Child Compact Button", maxLines = 1)
             }
         }
         item {
@@ -308,7 +308,7 @@ fun CompactButtonDemo() {
             CompactButton(
                 onClick = { /* Do something */ },
             ) {
-                Text("Filled compact button")
+                Text("Filled compact button", maxLines = 1)
             }
         }
         item {
@@ -316,7 +316,7 @@ fun CompactButtonDemo() {
                 onClick = { /* Do something */ },
                 colors = ButtonDefaults.filledTonalButtonColors()
             ) {
-                Text("Filled tonal compact button")
+                Text("Filled tonal compact button", maxLines = 1)
             }
         }
         item {
@@ -325,7 +325,7 @@ fun CompactButtonDemo() {
                 colors = ButtonDefaults.outlinedButtonColors(),
                 border = ButtonDefaults.outlinedButtonBorder(enabled = true)
             ) {
-                Text("Outlined compact button")
+                Text("Outlined compact button", maxLines = 1)
             }
         }
         item {
@@ -333,7 +333,7 @@ fun CompactButtonDemo() {
                 onClick = { /* Do something */ },
                 colors = ButtonDefaults.childButtonColors()
             ) {
-                Text("Child compact button")
+                Text("Child compact button", maxLines = 1)
             }
         }
     }

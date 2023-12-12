@@ -149,7 +149,7 @@ fun CompactButtonSample() {
             )
         }
     ) {
-        Text("Compact Button")
+        Text("Compact Button", maxLines = 1)
     }
 }
 
@@ -167,7 +167,7 @@ fun FilledTonalCompactButtonSample() {
         },
         colors = ButtonDefaults.filledTonalButtonColors()
     ) {
-        Text("Filled Tonal Compact Button")
+        Text("Filled Tonal Compact Button", maxLines = 1)
     }
 }
 
@@ -186,6 +186,6 @@ fun OutlinedCompactButtonSample() {
         colors = ButtonDefaults.outlinedButtonColors(),
         border = ButtonDefaults.outlinedButtonBorder(enabled = true)
     ) {
-        Text("Show More")
+        Text("Show More", maxLines = 1)
     }
 }
