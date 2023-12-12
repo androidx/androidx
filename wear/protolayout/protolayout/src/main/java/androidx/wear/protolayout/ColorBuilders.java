@@ -539,7 +539,7 @@ public final class ColorBuilders {
             @SafeVarargs
             public Builder(@NonNull ColorStop... colorStops) {
                 if (colorStops.length < 2 || colorStops.length > 10) {
-                    throw new IllegalStateException(
+                    throw new IllegalArgumentException(
                             "Size of colorStops must not be less than 2 or greater than 10. Got "
                                     + colorStops.length);
                 }
@@ -563,7 +563,7 @@ public final class ColorBuilders {
             @SafeVarargs
             public Builder(@NonNull ColorProp... colors) {
                 if (colors.length < 2 || colors.length > 10) {
-                    throw new IllegalStateException(
+                    throw new IllegalArgumentException(
                             "Size of colors must not be less than 2 or greater than 10. Got "
                                     + colors.length);
                 }
