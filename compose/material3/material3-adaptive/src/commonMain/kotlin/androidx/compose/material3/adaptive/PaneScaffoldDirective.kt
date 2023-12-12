@@ -202,6 +202,15 @@ class PaneScaffoldDirective(
         result = 31 * result + verticalPartitionSpacerSize.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "PaneScaffoldDirective(contentPadding=$contentPadding, " +
+            "maxHorizontalPartitions=$maxHorizontalPartitions, " +
+            "horizontalPartitionSpacerSize=$horizontalPartitionSpacerSize, " +
+            "maxVerticalPartitions=$maxVerticalPartitions, " +
+            "verticalPartitionSpacerSize=$verticalPartitionSpacerSize, " +
+            "number of excluded bounds=${excludedBounds.size})"
+    }
 }
 
 /** Policies that indicate how hinges are supposed to be addressed in an adaptive layout. */

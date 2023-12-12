@@ -46,4 +46,8 @@ class WindowAdaptiveInfo(
         result = 31 * result + windowPosture.hashCode()
         return result
     }
+
+    override fun toString(): String {
+        return "WindowAdaptiveInfo(windowSizeClass=$windowSizeClass, windowPosture=$windowPosture)"
+    }
 }
