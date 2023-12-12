@@ -107,6 +107,12 @@ class ThreePaneScaffoldValue(
         return result
     }
 
+    override fun toString(): String {
+        return "ThreePaneScaffoldValue(primary=$primary, " +
+            "secondary=$secondary, " +
+            "tertiary=$tertiary)"
+    }
+
     operator fun get(role: ThreePaneScaffoldRole): PaneAdaptedValue =
         when (role) {
             ThreePaneScaffoldRole.Primary -> primary
