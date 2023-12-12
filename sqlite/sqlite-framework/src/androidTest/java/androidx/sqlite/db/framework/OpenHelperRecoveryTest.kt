@@ -18,11 +18,11 @@ package androidx.sqlite.db.framework
 
 import android.content.Context
 import android.database.sqlite.SQLiteException
-import androidx.kruth.assertThat
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
+import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Test
