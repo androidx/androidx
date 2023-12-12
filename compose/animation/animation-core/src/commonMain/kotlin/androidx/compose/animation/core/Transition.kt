@@ -19,6 +19,7 @@
 package androidx.compose.animation.core
 
 import androidx.annotation.FloatRange
+import androidx.annotation.RestrictTo
 import androidx.collection.MutableObjectLongMap
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -700,10 +701,8 @@ class Transition<S> @PublishedApi internal constructor(
      *
      * __Caveat:__ This function puts [Transition] in a manual playtime setting mode. From then on
      * the [Transition] will not resume normal animation runs.
-     *
-     * // TODO: Replace @suppress with @RestrictTo
-     * @suppress
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @OptIn(InternalAnimationApi::class)
     @JvmName("seek")
     fun setPlaytimeAfterInitialAndTargetStateEstablished(
