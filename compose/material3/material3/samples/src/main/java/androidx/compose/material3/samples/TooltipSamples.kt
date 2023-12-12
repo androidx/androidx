@@ -104,6 +104,32 @@ fun PlainTooltipWithManualInvocationSample() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Sampled
 @Composable
+fun PlainTooltipWithCaret() {
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = {
+            PlainTooltip(
+                caretProperties = TooltipDefaults.caretProperties
+            ) {
+                Text("Add to favorites")
+            }
+        },
+        state = rememberTooltipState()
+    ) {
+        IconButton(
+            onClick = { /* Icon button's click event */ }
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Favorite,
+                contentDescription = "Localized Description"
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Sampled
+@Composable
 fun RichTooltipSample() {
     val tooltipState = rememberTooltipState(isPersistent = true)
     val scope = rememberCoroutineScope()
