@@ -68,8 +68,12 @@ public class GlContext {
     @NonNull
     private final Map<Surface, EglSurface> mRegisteredSurfaces = new HashMap<>();
 
+    @Nullable
+    private Thread mGlThread;
+
     void init() {
         checkState(Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY), "Already initialized");
+        mGlThread = Thread.currentThread();
 
         // Create EGLDisplay.
         mEglDisplay = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
@@ -136,6 +140,7 @@ public class GlContext {
      */
     void registerSurface(@NonNull Surface surface) {
         checkInitialized();
+        checkGlThread();
         if (!mRegisteredSurfaces.containsKey(surface)) {
             mRegisteredSurfaces.put(surface, null);
         }
@@ -148,6 +153,7 @@ public class GlContext {
      */
     void unregisterSurface(@NonNull Surface surface) {
         checkInitialized();
+        checkGlThread();
         if (requireNonNull(mCurrentSurface).getSurface() == surface) {
             // If the current surface is being unregistered, switch to the temporary surface.
             makeCurrent(requireNonNull(mTempSurface));
@@ -168,6 +174,7 @@ public class GlContext {
      */
     void drawAndSwap(@NonNull Surface surface, long timestampNs) {
         checkInitialized();
+        checkGlThread();
         checkState(mRegisteredSurfaces.containsKey(surface), "The Surface is not registered.");
 
         // Get or create the EGLSurface.
@@ -199,6 +206,7 @@ public class GlContext {
     }
 
     void release() {
+        checkGlThread();
         if (!Objects.equals(mEglDisplay, EGL14.EGL_NO_DISPLAY)) {
             EGL14.eglMakeCurrent(
                     mEglDisplay, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE,
@@ -282,6 +290,11 @@ public class GlContext {
 
     private void checkInitialized() {
         checkState(isInitialized(), "GlContext is not initialized");
+    }
+
+    private void checkGlThread() {
+        checkState(Objects.equals(mGlThread, Thread.currentThread()),
+                "Must be called from the same thread that initializes this GlContext");
     }
 
     private boolean isInitialized() {
