@@ -18,15 +18,23 @@ package androidx.compose.material3.benchmark
 
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
+import androidx.compose.material3.ElevatedAssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.testutils.LayeredComposeTestCase
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.testutils.benchmark.benchmarkFirstCompose
@@ -91,6 +99,7 @@ internal class ChipTestCase(
     private val type: ChipType
 ) : LayeredComposeTestCase() {
 
+    private var selected by mutableStateOf(false)
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun MeasuredContent() {
@@ -107,6 +116,45 @@ internal class ChipTestCase(
                         )
                     }
                 )
+
+            ChipType.ElevatedAssist ->
+                ElevatedAssistChip(
+                    onClick = { /* Do something! */ },
+                    label = { Text("Assist Chip") },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Filled.Settings,
+                            contentDescription = "Localized description",
+                            Modifier.size(AssistChipDefaults.IconSize)
+                        )
+                    }
+                )
+
+            ChipType.Filter ->
+            FilterChip(
+                selected = selected,
+                onClick = { selected = !selected },
+                label = { Text("Filter chip") },
+                leadingIcon = if (selected) {
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Done,
+                            contentDescription = "Localized Description",
+                            modifier = Modifier.size(FilterChipDefaults.IconSize)
+                        )
+                    }
+                } else {
+                    null
+                }
+            )
+
+            ChipType.Input ->
+                InputChip(
+                    selected = selected,
+                    onClick = { selected = !selected },
+                    label = { Text("Input Chip") },
+                )
+
             ChipType.Suggestion ->
                 SuggestionChip(
                     onClick = { /* Do something! */ },
@@ -131,5 +179,5 @@ internal class ChipTestCase(
 }
 
 enum class ChipType {
-    Assist, Suggestion
+    Assist, ElevatedAssist, Filter, Input, Suggestion,
 }
