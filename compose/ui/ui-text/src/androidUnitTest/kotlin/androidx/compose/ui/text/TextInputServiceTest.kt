@@ -143,6 +143,19 @@ class TextInputServiceTest {
         verify(platformService, times(1)).showSoftwareKeyboard()
     }
 
+    @OptIn(InternalTextApi::class)
+    @Test
+    fun showSoftwareKeyboard_afterNullaryStartInput() {
+        val platformService = mock<PlatformTextInputService>()
+
+        val textInputService = TextInputService(platformService)
+
+        textInputService.startInput()
+
+        textInputService.showSoftwareKeyboard()
+        verify(platformService, times(1)).showSoftwareKeyboard()
+    }
+
     @Test
     fun showSoftwareKeyboard_with_a_second_valid_session() {
         val platformService = mock<PlatformTextInputService>()
