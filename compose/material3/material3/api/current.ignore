@@ -1,7 +1,0 @@
-// Baseline format: 1.0
-AddedMethod: androidx.compose.material3.SuggestionChipDefaults#suggestionChipColors():
-    Added method androidx.compose.material3.SuggestionChipDefaults.suggestionChipColors()
-
-
-RemovedMethod: androidx.compose.material3.SuggestionChipDefaults#suggestionChipColor():
-    Removed method androidx.compose.material3.SuggestionChipDefaults.suggestionChipColor()
