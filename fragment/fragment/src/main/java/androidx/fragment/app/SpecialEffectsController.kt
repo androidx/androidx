@@ -387,7 +387,7 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
      * Commit all of the given operations.
      *
      * This commits all of the effects of the operations. When the last started special effect is
-     * completed, [Operation.completeSpecialEffect] will call [Operation.complete] automatically.
+     * completed, [Operation.completeEffect] will call [Operation.complete] automatically.
      *
      * @param operations the list of operations to execute in order.
      */
@@ -735,18 +735,6 @@ internal abstract class SpecialEffectsController(val container: ViewGroup) {
         @CallSuper
         open fun onStart() {
             isStarted = true
-        }
-
-        /**
-         * Complete a [androidx.core.os.CancellationSignal].
-         *
-         * This calls through to [Operation.complete] when the last special effect is
-         * complete.
-         */
-        fun completeSpecialEffect() {
-            if (effects.isEmpty()) {
-                complete()
-            }
         }
 
         /**
