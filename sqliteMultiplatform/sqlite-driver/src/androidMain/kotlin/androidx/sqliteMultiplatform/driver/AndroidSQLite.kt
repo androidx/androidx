@@ -16,24 +16,19 @@
 
 package androidx.sqliteMultiplatform.driver
 
-import android.database.sqlite.SQLiteDatabase
-import androidx.sqliteMultiplatform.SQLiteConnection
-import androidx.sqliteMultiplatform.SQLiteStatement
-import androidx.sqliteMultiplatform.driver.ResultCode.SQLITE_MISUSE
-import androidx.sqliteMultiplatform.throwSQLiteException
+import androidx.sqliteMultiplatform.SQLiteException
 
-internal class AndroidSQLiteConnection(
-    private val db: SQLiteDatabase
-) : SQLiteConnection {
-    override fun prepare(sql: String): SQLiteStatement {
-        if (db.isOpen) {
-            return AndroidSQLiteStatement.create(db, sql)
-        } else {
-            throwSQLiteException(SQLITE_MISUSE, "connection is closed")
-        }
-    }
+private typealias FrameworkSQLiteException = android.database.sqlite.SQLiteException
 
-    override fun close() {
-        db.close()
+internal inline fun <T> withExceptionCatch(block: () -> T): T {
+    try {
+        return block.invoke()
+    } catch (ex: FrameworkSQLiteException) {
+        // TODO(b/304297717): Parse error code from exception.
+        throw SQLiteException(ex.message ?: "")
     }
+}
+
+internal object ResultCode {
+    const val SQLITE_MISUSE = 21
 }

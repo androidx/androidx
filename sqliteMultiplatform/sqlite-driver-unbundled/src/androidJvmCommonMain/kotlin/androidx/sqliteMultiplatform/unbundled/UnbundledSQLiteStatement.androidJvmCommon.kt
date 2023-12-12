@@ -18,69 +18,95 @@
 package androidx.sqliteMultiplatform.unbundled
 
 import androidx.sqliteMultiplatform.SQLiteStatement
+import androidx.sqliteMultiplatform.throwSQLiteException
+import androidx.sqliteMultiplatform.unbundled.ResultCode.SQLITE_MISUSE
 
 actual class UnbundledSQLiteStatement(
     private val connectionPointer: Long,
     private val statementPointer: Long
 ) : SQLiteStatement {
+
+    private var isClosed = false
+
     override fun bindBlob(index: Int, value: ByteArray) {
+        throwIfClosed()
         nativeBindBlob(statementPointer, index, value)
     }
 
     override fun bindDouble(index: Int, value: Double) {
+        throwIfClosed()
         nativeBindDouble(statementPointer, index, value)
     }
 
     override fun bindLong(index: Int, value: Long) {
+        throwIfClosed()
         nativeBindLong(statementPointer, index, value)
     }
 
     override fun bindText(index: Int, value: String) {
+        throwIfClosed()
         nativeBindText(statementPointer, index, value)
     }
 
     override fun bindNull(index: Int) {
+        throwIfClosed()
         nativeBindNull(statementPointer, index)
     }
 
     override fun getBlob(index: Int): ByteArray {
+        throwIfClosed()
         return nativeGetBlob(statementPointer, index)
     }
 
     override fun getDouble(index: Int): Double {
+        throwIfClosed()
         return nativeGetDouble(statementPointer, index)
     }
 
     override fun getLong(index: Int): Long {
+        throwIfClosed()
         return nativeGetLong(statementPointer, index)
     }
 
     override fun getText(index: Int): String {
+        throwIfClosed()
         return nativeGetText(statementPointer, index)
     }
 
     override fun isNull(index: Int): Boolean {
+        throwIfClosed()
         return nativeGetColumnType(statementPointer, index) == COLUMN_TYPE_NULL
     }
 
     override fun getColumnCount(): Int {
+        throwIfClosed()
         return nativeGetColumnCount(statementPointer)
     }
 
     override fun getColumnName(index: Int): String {
+        throwIfClosed()
         return nativeGetColumnName(statementPointer, index)
     }
 
     override fun step(): Boolean {
+        throwIfClosed()
         return nativeStep(statementPointer)
     }
 
     override fun reset() {
+        throwIfClosed()
         nativeReset(statementPointer)
     }
 
     override fun close() {
         nativeClose(statementPointer)
+        isClosed = true
+    }
+
+    private fun throwIfClosed() {
+        if (isClosed) {
+            throwSQLiteException(SQLITE_MISUSE, "statement is closed")
+        }
     }
 
     companion object {

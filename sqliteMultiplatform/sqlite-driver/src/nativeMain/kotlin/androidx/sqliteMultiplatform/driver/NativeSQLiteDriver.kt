@@ -18,6 +18,7 @@ package androidx.sqliteMultiplatform.driver
 
 import androidx.sqliteMultiplatform.SQLiteConnection
 import androidx.sqliteMultiplatform.SQLiteDriver
+import androidx.sqliteMultiplatform.throwSQLiteException
 import cnames.structs.sqlite3
 import kotlinx.cinterop.allocPointerTo
 import kotlinx.cinterop.memScoped

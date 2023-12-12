@@ -18,6 +18,7 @@ package androidx.sqliteMultiplatform.driver
 
 import androidx.annotation.RestrictTo
 import androidx.sqliteMultiplatform.SQLiteStatement
+import androidx.sqliteMultiplatform.throwSQLiteException
 import cnames.structs.sqlite3
 import cnames.structs.sqlite3_stmt
 import kotlinx.cinterop.CPointer
@@ -65,7 +66,11 @@ class NativeSQLiteStatement(
     private val dbPointer: CPointer<sqlite3>,
     private val stmtPointer: CPointer<sqlite3_stmt>
 ) : SQLiteStatement {
+
+    private var isClosed = false
+
     override fun bindBlob(index: Int, value: ByteArray) {
+        throwIfClosed()
         val resultCode = sqlite3_bind_blob(
             stmtPointer,
             index,
@@ -79,6 +84,7 @@ class NativeSQLiteStatement(
     }
 
     override fun bindLong(index: Int, value: Long) {
+        throwIfClosed()
         val resultCode = sqlite3_bind_int64(stmtPointer, index, value)
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, dbPointer.getErrorMsg())
@@ -86,6 +92,7 @@ class NativeSQLiteStatement(
     }
 
     override fun bindDouble(index: Int, value: Double) {
+        throwIfClosed()
         val resultCode = sqlite3_bind_double(stmtPointer, index, value)
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, dbPointer.getErrorMsg())
@@ -93,6 +100,7 @@ class NativeSQLiteStatement(
     }
 
     override fun bindText(index: Int, value: String) {
+        throwIfClosed()
         val valueUtf16 = value.utf16
         val resultCode = sqlite3_bind_text16(
             stmtPointer, index, valueUtf16, valueUtf16.size, SQLITE_TRANSIENT
@@ -103,6 +111,7 @@ class NativeSQLiteStatement(
     }
 
     override fun bindNull(index: Int) {
+        throwIfClosed()
         val resultCode = sqlite3_bind_null(stmtPointer, index)
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, dbPointer.getErrorMsg())
@@ -110,6 +119,7 @@ class NativeSQLiteStatement(
     }
 
     override fun getText(index: Int): String {
+        throwIfClosed()
         throwIfNoRow()
         throwIfInvalidColumn(index)
         // Kotlin/Native uses UTF-16 character encoding by default.
@@ -121,12 +131,14 @@ class NativeSQLiteStatement(
     }
 
     override fun getLong(index: Int): Long {
+        throwIfClosed()
         throwIfNoRow()
         throwIfInvalidColumn(index)
         return sqlite3_column_int64(stmtPointer, index)
     }
 
     override fun getBlob(index: Int): ByteArray {
+        throwIfClosed()
         throwIfNoRow()
         throwIfInvalidColumn(index)
         val blob = sqlite3_column_blob(stmtPointer, index)
@@ -138,32 +150,38 @@ class NativeSQLiteStatement(
     }
 
     override fun getDouble(index: Int): Double {
+        throwIfClosed()
         throwIfNoRow()
         throwIfInvalidColumn(index)
         return sqlite3_column_double(stmtPointer, index)
     }
 
     override fun isNull(index: Int): Boolean {
+        throwIfClosed()
         return getColumnType(index) == SQLITE_NULL
     }
 
     private fun getColumnType(index: Int): Int {
+        throwIfClosed()
         throwIfNoRow()
         throwIfInvalidColumn(index)
         return sqlite3_column_type(stmtPointer, index)
     }
 
     override fun getColumnCount(): Int {
+        throwIfClosed()
         return sqlite3_column_count(stmtPointer)
     }
 
     override fun getColumnName(index: Int): String {
+        throwIfClosed()
         throwIfInvalidColumn(index)
         val namePointer = sqlite3_column_name16(stmtPointer, index) ?: throw OutOfMemoryError()
         return namePointer.reinterpret<UShortVar>().toKStringFromUtf16()
     }
 
     override fun step(): Boolean {
+        throwIfClosed()
         val resultCode = sqlite3_step(stmtPointer)
         return when (resultCode) {
             SQLITE_ROW -> true
@@ -173,6 +191,7 @@ class NativeSQLiteStatement(
     }
 
     override fun reset() {
+        throwIfClosed()
         val resultCode = sqlite3_reset(stmtPointer)
         if (resultCode != SQLITE_OK) {
             throwSQLiteException(resultCode, dbPointer.getErrorMsg())
@@ -181,6 +200,13 @@ class NativeSQLiteStatement(
 
     override fun close() {
         sqlite3_finalize(stmtPointer)
+        isClosed = true
+    }
+
+    private fun throwIfClosed() {
+        if (isClosed) {
+            throwSQLiteException(SQLITE_MISUSE, "statement is closed")
+        }
     }
 
     private fun throwIfNoRow() {
