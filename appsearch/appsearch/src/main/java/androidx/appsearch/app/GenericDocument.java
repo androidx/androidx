@@ -27,8 +27,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.annotation.FlaggedApi;
 import androidx.appsearch.app.PropertyPath.PathSegment;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.Flags;
 import androidx.appsearch.util.BundleUtil;
 import androidx.appsearch.util.IndentingStringBuilder;
 import androidx.core.util.Preconditions;
@@ -1251,6 +1253,7 @@ public class GenericDocument {
          * <p>The GenericDocument is deep copied, i.e. changes to the new GenericDocument
          * returned by this function will NOT affect the original GenericDocument.
          */
+        @FlaggedApi(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_COPY_CONSTRUCTOR)
         public Builder(@NonNull GenericDocument document) {
             this(BundleUtil.deepCopy(document.getBundle()));
         }

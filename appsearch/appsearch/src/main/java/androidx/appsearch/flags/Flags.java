@@ -55,6 +55,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_GROUPING_TYPE_PER_SCHEMA =
             FLAG_PREFIX + "enable_grouping_type_per_schema";
 
+    /** Enable GenericDocument to take another GenericDocument to copy construct. */
+    public static final String FLAG_ENABLE_GENERIC_DOCUMENT_COPY_CONSTRUCTOR =
+            FLAG_PREFIX + "enable_generic_document_copy_constructor";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -73,4 +77,10 @@ public final class Flags {
     public static boolean enableGroupingTypePerSchema() {
         return true;
     }
+
+    /** Whether Generic Document Copy Constructing should be enabled. */
+    public static boolean enableGenericDocumentCopyConstructor() {
+        return true;
+    }
+
 }

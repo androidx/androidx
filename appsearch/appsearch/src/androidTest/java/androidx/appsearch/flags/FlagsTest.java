@@ -38,4 +38,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_GROUPING_TYPE_PER_SCHEMA).isEqualTo(
                 "com.android.appsearch.flags.enable_grouping_type_per_schema");
     }
+
+    @Test
+    public void testFlagValue_enableGenericDocumentCopyConstructor() {
+        assertThat(Flags.FLAG_ENABLE_GENERIC_DOCUMENT_COPY_CONSTRUCTOR).isEqualTo("com.android"
+                + ".appsearch.flags.enable_generic_document_copy_constructor");
+    }
 }
