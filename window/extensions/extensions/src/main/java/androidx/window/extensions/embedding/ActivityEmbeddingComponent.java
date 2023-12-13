@@ -22,6 +22,7 @@ import android.os.IBinder;
 import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.WindowExtensions;
 import androidx.window.extensions.core.util.function.Consumer;
@@ -29,6 +30,7 @@ import androidx.window.extensions.core.util.function.Function;
 
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 
 /**
  * Extension component definition that is used by the WindowManager library to trigger custom
@@ -57,8 +59,7 @@ public interface ActivityEmbeddingComponent {
     /**
      * Sets the callback that notifies WM Jetpack about changes in split states from the Extensions
      * Sidecar implementation. The listener should be registered for the lifetime of the process.
-     * There are no threading guarantees where the events are dispatched from. All messages are
-     * re-posted to the executors provided by developers.
+     * There are no threading guarantees where the events are dispatched from.
      *
      * @param consumer the callback to notify {@link SplitInfo} list changes
      */
@@ -222,6 +223,148 @@ public interface ActivityEmbeddingComponent {
     @RequiresVendorApiLevel(level = 3)
     default void updateSplitAttributes(@NonNull IBinder splitInfoToken,
             @NonNull SplitAttributes splitAttributes) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Returns the {@link ParentContainerInfo} by the {@link ActivityStack} token, or {@code null}
+     * if there's not such {@link ActivityStack} associated with the {@code token}.
+     *
+     * @param activityStackToken the token of an {@link ActivityStack}.
+     */
+    @RequiresVendorApiLevel(level = 5)
+    @Nullable
+    default ParentContainerInfo getParentContainerInfo(@NonNull IBinder activityStackToken) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Sets a function to compute the {@link ActivityStackAttributes} for the ActivityStack given
+     * for the current window and device state provided in
+     * {@link ActivityStackAttributesCalculatorParams}.
+     * <p>
+     * This calculator function is only triggered if the {@link ActivityStack#getTag()} is
+     * specified. Similar to {@link #setSplitAttributesCalculator(Function)}, the calculator
+     * function is triggered when there's parent window or device state update or a launching
+     * standalone {@link ActivityStack} with {@link ActivityStack#getTag()} specified.
+     *
+     * @param calculator The calculator function to calculate {@link ActivityStackAttributes} based
+     *                   on {@link ActivityStackAttributesCalculatorParams}.
+     */
+    @RequiresVendorApiLevel(level = 5)
+    default void setActivityStackAttributesCalculator(@NonNull Function<
+            ActivityStackAttributesCalculatorParams, ActivityStackAttributes> calculator) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Clears the calculator function previously set by
+     * {@link #setActivityStackAttributesCalculator(Function)}
+     */
+    @RequiresVendorApiLevel(level = 5)
+    default void clearActivityStackAttributesCalculator() {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Updates {@link ActivityStackAttributes} to an {@link ActivityStack} specified with
+     * {@code token} and applies the change directly. If there's no such an {@link ActivityStack},
+     * this method is no-op.
+     *
+     * @param token The {@link ActivityStack} to update.
+     * @param activityStackAttributes The attributes to be applied
+     */
+    @RequiresVendorApiLevel(level = 5)
+    default void updateActivityStackAttributes(@NonNull IBinder token,
+            @NonNull ActivityStackAttributes activityStackAttributes) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Gets the {@link ActivityStack}'s token by {@code tag}, or {@code null} if there's no
+     * {@link ActivityStack} associated with the {@code tag}. For example, the {@link ActivityStack}
+     * is dismissed before the is method is called.
+     * <p>
+     * The {@link ActivityStack} token can be obtained immediately after the {@link ActivityStack}
+     * is created. This method is usually used when Activity Embedding library wants to
+     * {@link #updateActivityStackAttributes} before receiving
+     * the {@link ActivityStack} record from the callback set by
+     * {@link  #registerActivityStackCallback}.
+     * <p>
+     * For example, an app launches an overlay container and calls
+     * {@link #updateActivityStackAttributes} immediately right before the overlay
+     * {@link ActivityStack} is received from {@link #registerActivityStackCallback}.
+     *
+     * @param tag A unique identifier of an {@link ActivityStack} if set
+     * @return The {@link ActivityStack}'s token that the tag is associated with, or {@code null}
+     * if there's no such an {@link ActivityStack}.
+     */
+    @RequiresVendorApiLevel(level = 5)
+    @Nullable
+    default IBinder getActivityStackToken(@NonNull String tag) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Registers a callback that notifies WindowManager Jetpack about changes in
+     * {@link ActivityStack}.
+     * <p>
+     * In most cases, {@link ActivityStack} are a part of {@link SplitInfo} as
+     * {@link SplitInfo#getPrimaryActivityStack() the primary ActivityStack} or
+     * {@link SplitInfo#getSecondaryActivityStack() the secondary ActivityStack} of a
+     * {@link SplitInfo}.
+     * <p>
+     * However, there are some cases that {@link ActivityStack} is standalone and usually
+     * expanded. Cases are:
+     * <ul>
+     *   <li>A started {@link Activity} matches {@link ActivityRule} with
+     *   {@link ActivityRule#shouldAlwaysExpand()} {@code true}.
+     *
+     *   <li>The {@code ActivityStack} is an overlay {@code ActivityStack}.
+     *
+     *   <li>The associated {@link ActivityStack activityStacks} of a {@code ActivityStack} are
+     *   dismissed by {@link #finishActivityStacks(Set)}.
+     *
+     *   <li>One {@link ActivityStack} of {@link SplitInfo}(Either
+     *   {@link SplitInfo#getPrimaryActivityStack() the primary ActivityStack} or
+     *   {@link SplitInfo#getSecondaryActivityStack() the secondary ActivityStack}) is
+     *   empty and finished, while the other {@link ActivityStack} is not finished with the
+     *   finishing {@link ActivityStack}.
+     *   <p>
+     *   An example is a pair of activities matches a {@link SplitPairRule}, and its
+     *   {@link SplitPairRule#getFinishPrimaryWithSecondary()} is {@link SplitRule#FINISH_NEVER}.
+     *   Then if the last activity of
+     *   {@link SplitInfo#getSecondaryActivityStack() the secondary ActivityStack}) is finished,
+     *   {@link SplitInfo#getPrimaryActivityStack() the primary ActivityStack} will still remain.
+     * </ul>
+     *
+     * @param executor the executor to dispatch {@link ActivityStack} list changes.
+     * @param callback the callback to notify {@link ActivityStack} list changes.
+     *
+     * @see ActivityEmbeddingComponent#finishActivityStacks(Set)
+     */
+    @RequiresVendorApiLevel(level = 5)
+    default void registerActivityStackCallback(@NonNull Executor executor,
+            @NonNull Consumer<List<ActivityStack>> callback) {
+        throw new UnsupportedOperationException("This method must not be called unless there is a"
+                + " corresponding override implementation on the device.");
+    }
+
+    /**
+     * Removes the callback previously registered in {@link #registerActivityStackCallback}, or
+     * no-op if the callback hasn't been registered yet.
+     *
+     * @param callback The callback to remove, which should have been registered.
+     */
+    @RequiresVendorApiLevel(level = 5)
+    default void unregisterActivityStackCallback(
+            @NonNull Consumer<List<ActivityStack>> callback) {
         throw new UnsupportedOperationException("This method must not be called unless there is a"
                 + " corresponding override implementation on the device.");
     }

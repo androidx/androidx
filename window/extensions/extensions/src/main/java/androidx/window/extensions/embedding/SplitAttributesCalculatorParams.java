@@ -17,12 +17,11 @@
 package androidx.window.extensions.embedding;
 
 import android.content.res.Configuration;
-import android.os.Build;
 import android.view.WindowMetrics;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
+import androidx.window.extensions.RequiresVendorApiLevel;
 import androidx.window.extensions.layout.WindowLayoutInfo;
 
 /**
@@ -32,8 +31,8 @@ import androidx.window.extensions.layout.WindowLayoutInfo;
  * {@link SplitRule} by {@link #getSplitRuleTag()} if {@link SplitRule#getTag()} is specified.
  *
  * @see ActivityEmbeddingComponent#clearSplitAttributesCalculator()
- * Since {@link androidx.window.extensions.WindowExtensions#VENDOR_API_LEVEL_2}
  */
+@RequiresVendorApiLevel(level = 2)
 public class SplitAttributesCalculatorParams {
     @NonNull
     private final WindowMetrics mParentWindowMetrics;
@@ -121,29 +120,11 @@ public class SplitAttributesCalculatorParams {
     @Override
     public String toString() {
         return getClass().getSimpleName() + ":{"
-                + "windowMetrics=" + windowMetricsToString(mParentWindowMetrics)
+                + "windowMetrics=" + WindowMetricsCompat.toString(mParentWindowMetrics)
                 + ", configuration=" + mParentConfiguration
                 + ", windowLayoutInfo=" + mParentWindowLayoutInfo
                 + ", defaultSplitAttributes=" + mDefaultSplitAttributes
                 + ", areDefaultConstraintsSatisfied=" + mAreDefaultConstraintsSatisfied
                 + ", tag=" + mSplitRuleTag + "}";
-    }
-
-    private static String windowMetricsToString(@NonNull WindowMetrics windowMetrics) {
-        // TODO(b/187712731): Use WindowMetrics#toString after it's implemented in U.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            return Api30Impl.windowMetricsToString(windowMetrics);
-        }
-        throw new UnsupportedOperationException("WindowMetrics didn't exist in R.");
-    }
-
-    @RequiresApi(30)
-    private static final class Api30Impl {
-        static String windowMetricsToString(@NonNull WindowMetrics windowMetrics) {
-            return WindowMetrics.class.getSimpleName() + ":{"
-                    + "bounds=" + windowMetrics.getBounds()
-                    + ", windowInsets=" + windowMetrics.getWindowInsets()
-                    + "}";
-        }
     }
 }
