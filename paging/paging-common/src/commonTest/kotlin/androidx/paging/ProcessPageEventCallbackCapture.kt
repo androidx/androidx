@@ -16,7 +16,7 @@
 
 package androidx.paging
 
-import androidx.paging.PagePresenter.ProcessPageEventCallback
+import androidx.paging.PageStore.ProcessPageEventCallback
 
 sealed class PresenterEvent
 data class ChangeEvent(val position: Int, val count: Int) : PresenterEvent()
