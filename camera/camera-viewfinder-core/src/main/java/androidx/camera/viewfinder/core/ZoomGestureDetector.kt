@@ -37,12 +37,16 @@ import kotlin.math.hypot
  *
  * This class should only be used with [MotionEvent]s reported via touch.
  *
- * To use this class:
- * - Create an instance of the `ZoomGestureDetector` for your [View]
- * - In the [View.onTouchEvent] method ensure you call [onTouchEvent]. The methods defined in your
- * callback will be executed when the events occur.
+ * To use this class to do pinch-to-zoom on the viewfinder:
+ * - In the [OnZoomGestureListener.onZoom], get the [scaleFactor] and set it to
+ * `CameraControl.setZoomRatio` if the factor is in the range of `ZoomState.getMinZoomRatio` and
+ * `ZoomState.getMaxZoomRatio`. Then create an instance of the `ZoomGestureDetector` with the
+ * [OnZoomGestureListener].
+ * - In the [View.onTouchEvent], call [onTouchEvent] and pass the [MotionEvent] to the
+ * `ZoomGestureDetector`.
+ *
+ * @sample androidx.camera.viewfinder.core.samples.onTouchEventSample
  */
-// TODO(b/314701735): update the documentation with examples using camera classes.
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 class ZoomGestureDetector @SuppressLint("ExecutorRegistration") constructor(
