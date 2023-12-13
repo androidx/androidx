@@ -225,7 +225,7 @@ internal class TextFieldCoreModifierNode(
             changeObserverJob = coroutineScope.launch {
                 // Animate the cursor even when animations are disabled by the system.
                 withContext(FixedMotionDurationScale) {
-                    snapshotFlow { textFieldState.text }
+                    snapshotFlow { textFieldState.visualText }
                         .collectLatest {
                             // ensure that the value is always 1f _this_ frame by calling snapTo
                             cursorAlpha.snapTo(1f)
@@ -255,7 +255,7 @@ internal class TextFieldCoreModifierNode(
 
     override fun ContentDrawScope.draw() {
         drawContent()
-        val value = textFieldState.text
+        val value = textFieldState.visualText
         val textLayoutResult = textLayoutState.layoutResult ?: return
 
         if (value.selectionInChars.collapsed) {
@@ -282,7 +282,7 @@ internal class TextFieldCoreModifierNode(
         return layout(placeable.width, height) {
             // we may need to update the scroll state to bring the cursor back into view after
             // layout is completed.
-            val currSelection = textFieldState.text.selectionInChars
+            val currSelection = textFieldState.visualText.selectionInChars
             val offsetToFollow = calculateOffsetToFollow(currSelection)
 
             val cursorRectInScroller = if (offsetToFollow >= 0) {
@@ -332,7 +332,7 @@ internal class TextFieldCoreModifierNode(
         return layout(width, placeable.height) {
             // we may need to update the scroll state to bring the cursor back into view before
             // layout is updated.
-            val currSelection = textFieldState.text.selectionInChars
+            val currSelection = textFieldState.visualText.selectionInChars
             val offsetToFollow = calculateOffsetToFollow(currSelection)
 
             val cursorRectInScroller = if (offsetToFollow >= 0) {

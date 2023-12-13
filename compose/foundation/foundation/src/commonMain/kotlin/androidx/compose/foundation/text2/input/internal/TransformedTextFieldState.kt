@@ -33,7 +33,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
  * A mutable view of a [TextFieldState] where the text and selection values are transformed by a
  * [CodepointTransformation].
  *
- * [text] returns the transformed text, with selection and composition mapped to the corresponding
+ * [visualText] returns the transformed text, with selection and composition mapped to the corresponding
  * offsets from the untransformed text. The transformed text is cached in a
  * [derived state][derivedStateOf] and only recalculated when the [TextFieldState] changes or some
  * state read by the [CodepointTransformation] changes.
@@ -56,7 +56,7 @@ internal class TransformedTextFieldState(
     private val inputTransformation: InputTransformation?,
     private val codepointTransformation: CodepointTransformation?,
 ) {
-    private val transformedText: State<TransformedText?>? =
+    private val codepointTransformedText: State<TransformedText?>? =
         // Don't allocate a derived state object if we don't need it, they're expensive.
         codepointTransformation?.let { transformation ->
             derivedStateOf {
@@ -66,19 +66,19 @@ internal class TransformedTextFieldState(
         }
 
     /**
-     * The text that should be presented to the user in most cases. Ifa  [CodepointTransformation]
-     * is specified, this text has the transformation applied. If there's no transformation,
-     * this will be the same as [untransformedText].
-     */
-    val text: TextFieldCharSequence
-        get() = transformedText?.value?.text ?: textFieldState.text
-
-    /**
      * The raw text in the underlying [TextFieldState]. This text does not have any
      * [CodepointTransformation] applied.
      */
     val untransformedText: TextFieldCharSequence
         get() = textFieldState.text
+
+    /**
+     * The text that should drawn in most cases. If a [CodepointTransformation] is specified, this
+     * text has the transformation applied. If there's no transformation, this will be the same as
+     * [untransformedText].
+     */
+    val visualText: TextFieldCharSequence
+        get() = codepointTransformedText?.value?.text ?: textFieldState.text
 
     fun placeCursorBeforeCharAt(transformedOffset: Int) {
         selectCharsIn(TextRange(transformedOffset))
@@ -206,7 +206,7 @@ internal class TransformedTextFieldState(
     }
 
     /**
-     * Maps an [offset] in the untransformed text to the corresponding offset or range in [text].
+     * Maps an [offset] in the untransformed text to the corresponding offset or range in [visualText].
      *
      * An untransformed offset will map to non-collapsed range if the offset is in the middle of
      * a surrogate pair in the untransformed text, in which case it will return the range of the
@@ -219,12 +219,12 @@ internal class TransformedTextFieldState(
      * @see mapFromTransformed
      */
     fun mapToTransformed(offset: Int): TextRange {
-        val mapping = transformedText?.value?.offsetMapping ?: return TextRange(offset)
+        val mapping = codepointTransformedText?.value?.offsetMapping ?: return TextRange(offset)
         return mapping.mapFromSource(offset)
     }
 
     /**
-     * Maps a [range] in the untransformed text to the corresponding range in [text].
+     * Maps a [range] in the untransformed text to the corresponding range in [visualText].
      *
      * If there is no transformation, or the transformation does not change the text, [range]
      * will be returned.
@@ -232,12 +232,12 @@ internal class TransformedTextFieldState(
      * @see mapFromTransformed
      */
     fun mapToTransformed(range: TextRange): TextRange {
-        val mapping = transformedText?.value?.offsetMapping ?: return range
+        val mapping = codepointTransformedText?.value?.offsetMapping ?: return range
         return mapToTransformed(range, mapping)
     }
 
     /**
-     * Maps an [offset] in [text] to the corresponding offset in the untransformed text.
+     * Maps an [offset] in [visualText] to the corresponding offset in the untransformed text.
      *
      * Multiple transformed offsets may map to the same untransformed offset. In particular, any
      * offset in the middle of a surrogate pair will map to offset of the corresponding codepoint
@@ -249,12 +249,12 @@ internal class TransformedTextFieldState(
      * @see mapToTransformed
      */
     fun mapFromTransformed(offset: Int): Int {
-        val mapping = transformedText?.value?.offsetMapping ?: return offset
+        val mapping = codepointTransformedText?.value?.offsetMapping ?: return offset
         return mapping.mapFromDest(offset).min
     }
 
     /**
-     * Maps a [range] in [text] to the corresponding range in the untransformed text.
+     * Maps a [range] in [visualText] to the corresponding range in the untransformed text.
      *
      * If there is no transformation, or the transformation does not change the text, [range]
      * will be returned.
@@ -262,7 +262,7 @@ internal class TransformedTextFieldState(
      * @see mapToTransformed
      */
     fun mapFromTransformed(range: TextRange): TextRange {
-        val mapping = transformedText?.value?.offsetMapping ?: return range
+        val mapping = codepointTransformedText?.value?.offsetMapping ?: return range
         return mapFromTransformed(range, mapping)
     }
 
@@ -298,8 +298,8 @@ internal class TransformedTextFieldState(
     override fun toString(): String = "TransformedTextFieldState(" +
         "textFieldState=$textFieldState, " +
         "codepointTransformation=$codepointTransformation, " +
-        "transformedText=$transformedText, " +
-        "text=\"$text\"" +
+        "codepointTransformedText=$codepointTransformedText, " +
+        "visualText=\"$visualText\"" +
         ")"
 
     private data class TransformedText(

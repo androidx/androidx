@@ -211,7 +211,7 @@ internal class TextFieldSelectionState(
         // because that would stop the drag gesture defined on it. Instead, we allow the handle
         // to be visible as long as it's being dragged.
         // Visible bounds calculation lags one frame behind to let auto-scrolling settle.
-        val text = textFieldState.text
+        val text = textFieldState.visualText
         val visible = showCursorHandle &&
             text.selectionInChars.collapsed &&
             text.isNotEmpty() &&
@@ -253,7 +253,7 @@ internal class TextFieldSelectionState(
      */
     val cursorRect: Rect by derivedStateOf {
         val layoutResult = textLayoutState.layoutResult ?: return@derivedStateOf Rect.Zero
-        val value = textFieldState.text
+        val value = textFieldState.visualText
         if (!value.selectionInChars.collapsed) return@derivedStateOf Rect.Zero
         val cursorRect = layoutResult.getCursorRect(value.selectionInChars.start)
 
@@ -439,7 +439,7 @@ internal class TextFieldSelectionState(
 
                 if (editable && isFocused) {
                     showKeyboard()
-                    if (textFieldState.text.isNotEmpty()) {
+                    if (textFieldState.visualText.isNotEmpty()) {
                         showCursorHandle = true
                     }
 
@@ -467,7 +467,7 @@ internal class TextFieldSelectionState(
                     // reset selection, otherwise a previous selection may be used
                     // as context for creating the next selection
                     textFieldCharSequence = TextFieldCharSequence(
-                        textFieldState.text,
+                        textFieldState.visualText,
                         TextRange.Zero
                     ),
                     startOffset = index,
@@ -517,7 +517,7 @@ internal class TextFieldSelectionState(
                     val newSelection = TextRange(offset)
 
                     // Nothing changed, skip onValueChange hand hapticFeedback.
-                    if (newSelection == textFieldState.text.selectionInChars) return@onDrag
+                    if (newSelection == textFieldState.visualText.selectionInChars) return@onDrag
 
                     change.consume()
                     // TODO: only perform haptic feedback if filter does not override the change
@@ -575,13 +575,13 @@ internal class TextFieldSelectionState(
                     showCursorHandle = true
                     updateTextToolbarState(TextToolbarState.Cursor)
                 } else {
-                    if (textFieldState.text.isEmpty()) return@onDragStart
+                    if (textFieldState.visualText.isEmpty()) return@onDragStart
                     val offset = textLayoutState.getOffsetForPosition(dragStartOffset)
                     val newSelection = updateSelection(
                         // reset selection, otherwise a previous selection may be used
                         // as context for creating the next selection
                         textFieldCharSequence = TextFieldCharSequence(
-                            textFieldState.text,
+                            textFieldState.visualText,
                             TextRange.Zero
                         ),
                         startOffset = offset,
@@ -601,7 +601,7 @@ internal class TextFieldSelectionState(
             onDragCancel = { onDragStop() },
             onDrag = onDrag@{ _, dragAmount ->
                 // selection never started, did not consume any drag
-                if (textFieldState.text.isEmpty()) return@onDrag
+                if (textFieldState.visualText.isEmpty()) return@onDrag
 
                 dragTotalDistance += dragAmount
 
@@ -649,9 +649,9 @@ internal class TextFieldSelectionState(
                     adjustment = SelectionAdjustment.Word
                 }
 
-                val prevSelection = textFieldState.text.selectionInChars
+                val prevSelection = textFieldState.visualText.selectionInChars
                 var newSelection = updateSelection(
-                    textFieldCharSequence = textFieldState.text,
+                    textFieldCharSequence = textFieldState.visualText,
                     startOffset = startOffset,
                     endOffset = endOffset,
                     isStartHandle = false,
@@ -763,18 +763,18 @@ internal class TextFieldSelectionState(
                     val startOffset = if (isStartHandle) {
                         layoutResult.getOffsetForPosition(handleDragPosition)
                     } else {
-                        textFieldState.text.selectionInChars.start
+                        textFieldState.visualText.selectionInChars.start
                     }
 
                     val endOffset = if (isStartHandle) {
-                        textFieldState.text.selectionInChars.end
+                        textFieldState.visualText.selectionInChars.end
                     } else {
                         layoutResult.getOffsetForPosition(handleDragPosition)
                     }
 
-                    val prevSelection = textFieldState.text.selectionInChars
+                    val prevSelection = textFieldState.visualText.selectionInChars
                     val newSelection = updateSelection(
-                        textFieldCharSequence = textFieldState.text,
+                        textFieldCharSequence = textFieldState.visualText,
                         startOffset = startOffset,
                         endOffset = endOffset,
                         isStartHandle = isStartHandle,
@@ -799,7 +799,7 @@ internal class TextFieldSelectionState(
     }
 
     private suspend fun observeTextChanges() {
-        snapshotFlow { textFieldState.text }
+        snapshotFlow { textFieldState.visualText }
             .distinctUntilChanged(TextFieldCharSequence::contentEquals)
             // first value needs to be dropped because it cannot be compared to a prior value
             .drop(1)
@@ -826,7 +826,7 @@ internal class TextFieldSelectionState(
      */
     private suspend fun observeTextToolbarVisibility() {
         snapshotFlow {
-            val isCollapsed = textFieldState.text.selectionInChars.collapsed
+            val isCollapsed = textFieldState.visualText.selectionInChars.collapsed
             val textToolbarStateVisible =
                 isCollapsed && textToolbarState == TextToolbarState.Cursor ||
                     !isCollapsed && textToolbarState == TextToolbarState.Selection
@@ -878,7 +878,7 @@ internal class TextFieldSelectionState(
      * handle's horizontal coordinates, and the right is the rightmost handle's coordinates.
      */
     private fun getContentRect(): Rect {
-        val text = textFieldState.text
+        val text = textFieldState.visualText
         // accept cursor position as content rect when selection is collapsed
         // contentRect is defined in text layout node coordinates, so it needs to be realigned to
         // the root container.
@@ -922,7 +922,7 @@ internal class TextFieldSelectionState(
 
         val layoutResult = textLayoutState.layoutResult ?: return TextFieldHandleState.Hidden
 
-        val selection = textFieldState.text.selectionInChars
+        val selection = textFieldState.visualText.selectionInChars
 
         if (selection.collapsed) return TextFieldHandleState.Hidden
 
@@ -956,7 +956,7 @@ internal class TextFieldSelectionState(
 
     private fun getHandlePosition(isStartHandle: Boolean): Offset {
         val layoutResult = textLayoutState.layoutResult ?: return Offset.Zero
-        val selection = textFieldState.text.selectionInChars
+        val selection = textFieldState.visualText.selectionInChars
         val offset = if (isStartHandle) {
             selection.start
         } else {
@@ -1015,7 +1015,7 @@ internal class TextFieldSelectionState(
      * after the selection.
      */
     fun cut() {
-        val text = textFieldState.text
+        val text = textFieldState.visualText
         if (text.selectionInChars.collapsed) return
 
         clipboardManager?.setText(AnnotatedString(text.getSelectedText().toString()))
@@ -1034,7 +1034,7 @@ internal class TextFieldSelectionState(
      * selected text.
      */
     fun copy(cancelSelection: Boolean = true) {
-        val text = textFieldState.text
+        val text = textFieldState.visualText
         if (text.selectionInChars.collapsed) return
 
         clipboardManager?.setText(AnnotatedString(text.getSelectedText().toString()))
@@ -1070,7 +1070,7 @@ internal class TextFieldSelectionState(
      * @param contentRect Rectangle region where the toolbar will be anchored.
      */
     private fun showTextToolbar(contentRect: Rect) {
-        val selection = textFieldState.text.selectionInChars
+        val selection = textFieldState.visualText.selectionInChars
 
         val paste: (() -> Unit)? = if (editable && clipboardManager?.hasText() == true) {
             {
@@ -1093,7 +1093,7 @@ internal class TextFieldSelectionState(
             }
         } else null
 
-        val selectAll: (() -> Unit)? = if (selection.length != textFieldState.text.length) {
+        val selectAll: (() -> Unit)? = if (selection.length != textFieldState.visualText.length) {
             {
                 textFieldState.selectAll()
                 updateTextToolbarState(TextToolbarState.Selection)
@@ -1110,7 +1110,7 @@ internal class TextFieldSelectionState(
     }
 
     fun deselect() {
-        if (!textFieldState.text.selectionInChars.collapsed) {
+        if (!textFieldState.visualText.selectionInChars.collapsed) {
             textFieldState.collapseSelectionToEnd()
         }
 
