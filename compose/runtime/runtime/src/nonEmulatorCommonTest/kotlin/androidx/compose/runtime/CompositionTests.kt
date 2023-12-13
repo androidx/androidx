@@ -4059,6 +4059,20 @@ class CompositionTests {
         validate { }
     }
 
+    @Composable private fun key() = "key"
+
+    @Test
+    fun remember_withComposableParam() = compositionTest {
+        compose {
+            val text = remember(key()) { "" }
+            Text(text)
+        }
+
+        validate {
+            Text("")
+        }
+    }
+
     private inline fun CoroutineScope.withGlobalSnapshotManager(block: CoroutineScope.() -> Unit) {
         val channel = Channel<Unit>(Channel.CONFLATED)
         val job = launch {
