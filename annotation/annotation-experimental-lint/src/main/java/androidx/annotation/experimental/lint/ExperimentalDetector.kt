@@ -100,7 +100,7 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         // functional interface being implemented.
         val superClass = (lambda.functionalInterfaceType as? PsiClassReferenceType)?.resolve()
         superClass?.toUElementOfType<UClass>()?.methods
-            ?.first { method -> method.isAbstract() }
+            ?.firstOrNull { method -> method.isAbstract() }
             ?.let { superMethod ->
                 checkMethodOverride(context, lambda, superMethod)
             }
