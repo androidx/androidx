@@ -23,6 +23,9 @@ import androidx.sqlite.use
 import kotlin.test.Test
 
 class BundledSQLiteDriverTest : BaseConformanceTest() {
+
+    override val driverType = TestDriverType.BUNDLED
+
     override fun getDriver(): SQLiteDriver {
         return BundledSQLiteDriver(filename = ":memory:")
     }

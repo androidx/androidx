@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteProgram
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.ResultCode.SQLITE_MISUSE
+import androidx.sqlite.driver.ResultCode.SQLITE_RANGE
 import androidx.sqlite.throwSQLiteException
 
 private typealias FrameworkStatement = android.database.sqlite.SQLiteStatement
@@ -105,27 +106,37 @@ internal sealed class AndroidSQLiteStatement(
 
         override fun getBlob(index: Int): ByteArray = withExceptionCatch {
             throwIfClosed()
-            return cursor?.getBlob(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.getBlob(index)
         }
 
         override fun getDouble(index: Int): Double = withExceptionCatch {
             throwIfClosed()
-            return cursor?.getDouble(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.getDouble(index)
         }
 
         override fun getLong(index: Int): Long = withExceptionCatch {
             throwIfClosed()
-            return cursor?.getLong(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.getLong(index)
         }
 
         override fun getText(index: Int): String = withExceptionCatch {
             throwIfClosed()
-            return cursor?.getString(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.getString(index)
         }
 
         override fun isNull(index: Int): Boolean = withExceptionCatch {
             throwIfClosed()
-            return cursor?.isNull(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.isNull(index)
         }
 
         override fun getColumnCount(): Int = withExceptionCatch {
@@ -135,7 +146,9 @@ internal sealed class AndroidSQLiteStatement(
 
         override fun getColumnName(index: Int): String = withExceptionCatch {
             throwIfClosed()
-            return cursor?.getColumnName(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.getColumnName(index)
         }
 
         override fun step(): Boolean = withExceptionCatch {
@@ -210,6 +223,16 @@ internal sealed class AndroidSQLiteStatement(
                     COLUMN_TYPE_BLOB -> query.bindBlob(index, blobBindings[index])
                     COLUMN_TYPE_NULL -> query.bindNull(index)
                 }
+            }
+        }
+
+        private fun throwIfNoRow(): Cursor {
+            return cursor ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+        }
+
+        private fun throwIfInvalidColumn(c: Cursor, index: Int) {
+            if (index < 0 || index >= c.columnCount) {
+                throwSQLiteException(SQLITE_RANGE, "column index out of range")
             }
         }
 

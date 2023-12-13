@@ -21,16 +21,12 @@ import kotlin.test.Ignore
 
 class AndroidSQLiteDriverTest : BaseConformanceTest() {
 
+    override val driverType = TestDriverType.ANDROID_FRAMEWORK
+
     override fun getDriver(): SQLiteDriver {
         return AndroidSQLiteDriver(":memory:")
     }
 
     @Ignore // TODO(b/304297717): Align exception checking test with native.
     override fun bindInvalidParam() {}
-
-    @Ignore // TODO(b/304297717): Align exception checking test with native.
-    override fun readInvalidColumn() {}
-
-    @Ignore // TODO(b/304297717): Align exception checking test with native.
-    override fun readColumnNameWithoutStep() {}
 }

@@ -20,6 +20,8 @@ import androidx.sqlite.SQLiteDriver
 
 class NativeSQLiteDriverTest : BaseConformanceTest() {
 
+    override val driverType = TestDriverType.NATIVE_FRAMEWORK
+
     override fun getDriver(): SQLiteDriver {
         return NativeSQLiteDriver(":memory:")
     }

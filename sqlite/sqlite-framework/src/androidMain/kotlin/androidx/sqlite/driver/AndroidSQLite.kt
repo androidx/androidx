@@ -31,4 +31,5 @@ internal inline fun <T> withExceptionCatch(block: () -> T): T {
 
 internal object ResultCode {
     const val SQLITE_MISUSE = 21
+    const val SQLITE_RANGE = 25
 }
