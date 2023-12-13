@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,59 +13,37 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-import androidx.build.PlatformIdentifier
-import androidx.build.Publish
-
 plugins {
     id("AndroidXPlugin")
-    id("com.android.library")
 }
 
 androidXMultiplatform {
-    android()
     androidNative()
-    ios()
     jvm()
-    linux()
     mac()
-
-    defaultPlatform(PlatformIdentifier.ANDROID)
+    linux()
+    ios()
 
     sourceSets {
         commonMain {
             dependencies {
+                api(project(":sqlite:sqlite"))
                 implementation(libs.kotlinStdlib)
-                api(project(":annotation:annotation"))
-            }
-        }
-        commonTest {
-            dependencies {
                 implementation(libs.kotlinTest)
+                implementation(project(":kruth:kruth"))
             }
         }
-        androidMain {
+        jvmMain {
             dependsOn(commonMain)
-        }
-        androidUnitTest {
-            dependsOn(commonTest)
             dependencies {
-                implementation(libs.junit)
-                implementation(libs.mockitoCore4)
-                implementation(libs.truth)
+                implementation(libs.kotlinTestJunit)
             }
         }
     }
 }
 
-android {
-    namespace "androidx.sqlite.db"
-}
-
 androidx {
-    name = "SQLite"
-    publish = Publish.SNAPSHOT_AND_RELEASE
-    inceptionYear = "2017"
-    description = "SQLite API"
-    metalavaK2UastEnabled = true
+    name = "SQLite Driver Coformance Base Tests"
+    inceptionYear = "2023"
+    description = "SQLite Kotlin driver coformance base tests"
 }
