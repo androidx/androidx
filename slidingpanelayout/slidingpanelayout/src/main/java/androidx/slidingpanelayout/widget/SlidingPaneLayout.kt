@@ -1009,7 +1009,8 @@ open class SlidingPaneLayout @JvmOverloads constructor(
                                 (lp.weight * widthToDistribute / weightSum).roundToInt()
                             measuredWidth + addedWidth
                         } else { // Explicit dividing line is defined
-                            val clampedPos = dividerPos.coerceIn(paddingLeft, width - paddingRight)
+                            val clampedPos = dividerPos.coerceAtMost(width - paddingRight)
+                                .coerceAtLeast(paddingLeft)
                             val availableWidthDivider = clampedPos - paddingLeft
                             if ((index == 0) xor isLayoutRtl) {
                                 availableWidthDivider - lp.horizontalMargin
