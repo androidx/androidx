@@ -17,12 +17,13 @@
 package androidx.appsearch.safeparcel;
 
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.safeparcel.stub.StubCreators.PropertyParcelCreator;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -36,7 +37,9 @@ import java.util.Objects;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @SafeParcelable.Class(creator = "PropertyParcelCreator")
-public final class PropertyParcel extends AbstractSafeParcelable {
+// This won't be used to send data over binder, and we have to use Parcelable for code sync purpose.
+@SuppressLint("BanParcelableUsage")
+public final class PropertyParcel extends AbstractSafeParcelable implements Parcelable {
     @NonNull public static final PropertyParcelCreator CREATOR = new PropertyParcelCreator();
 
     @NonNull
@@ -231,6 +234,16 @@ public final class PropertyParcel extends AbstractSafeParcelable {
                 && Arrays.equals(mDocumentValues, otherPropertyParcel.mDocumentValues);
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel dest, int flags) {
+        PropertyParcelCreator.writeToParcel(this, dest, flags);
+    }
+
     /** Builder for {@link PropertyParcel}. */
     public static final class Builder {
         private String mPropertyName;
@@ -299,10 +312,5 @@ public final class PropertyParcel extends AbstractSafeParcelable {
                     mBytesValues,
                     mDocumentValues);
         }
-    }
-
-    @Override
-    public void writeToParcel(@NonNull Parcel dest, int flags) {
-        PropertyParcelCreator.writeToParcel(this, dest, flags);
     }
 }
