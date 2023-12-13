@@ -29,10 +29,14 @@ import androidx.compose.ui.interop.LocalLayerContainer
 import androidx.compose.ui.interop.LocalUIViewController
 import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.WindowInfoImpl
+import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.scene.ComposeSceneLayer
+import androidx.compose.ui.scene.ComposeSceneMediator
 import androidx.compose.ui.scene.MultiLayerComposeScene
+import androidx.compose.ui.scene.SceneLayout
 import androidx.compose.ui.scene.SingleLayerComposeScene
+import androidx.compose.ui.scene.UIViewComposeSceneLayer
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.InterfaceOrientation
 import androidx.compose.ui.uikit.LocalInterfaceOrientation
@@ -41,6 +45,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.fastForEach
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.roundToInt
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ExportObjCClass
@@ -76,7 +81,6 @@ internal class ComposeContainer(
 ) : UIViewController(nibName = null, bundle = null) {
 
     private var isInsideSwiftUI = false
-    private var composeSceneMediator: ComposeSceneMediator? = null
     private val layers: MutableList<UIViewComposeSceneLayer> = mutableListOf()
     private val layoutDirection get() = getLayoutDirection()
 
@@ -92,6 +96,15 @@ internal class ComposeContainer(
     private val windowInfo = WindowInfoImpl().also {
         it.isWindowFocused = true
     }
+    private val mediator: ComposeSceneMediator = ComposeSceneMediator(
+        viewController = this,
+        configuration = configuration,
+        focusStack = focusStack,
+        windowInfo = windowInfo,
+        coroutineContext = coroutineDispatcher,
+        renderingUIViewFactory = ::createSkikoUIView,
+        composeSceneFactory = ::createComposeScene,
+    )
 
     /*
      * On iOS >= 13.0 interfaceOrientation will be deduced from [UIWindowScene] of [UIWindow]
@@ -116,7 +129,7 @@ internal class ComposeContainer(
     @ObjCAction
     fun viewSafeAreaInsetsDidChange() {
         // super.viewSafeAreaInsetsDidChange() // TODO: call super after Kotlin 1.8.20
-        composeSceneMediator?.viewSafeAreaInsetsDidChange()
+        mediator.viewSafeAreaInsetsDidChange()
         layers.fastForEach {
             it.viewSafeAreaInsetsDidChange()
         }
@@ -160,7 +173,7 @@ internal class ComposeContainer(
             )
         }
         windowInfo.containerSize = size
-        composeSceneMediator?.viewWillLayoutSubviews()
+        mediator.viewWillLayoutSubviews()
         layers.fastForEach {
             it.viewWillLayoutSubviews()
         }
@@ -189,7 +202,7 @@ internal class ComposeContainer(
             return
         }
 
-        composeSceneMediator?.viewWillTransitionToSize(
+        mediator.viewWillTransitionToSize(
             targetSize = size,
             coordinator = withTransitionCoordinator,
         )
@@ -212,7 +225,7 @@ internal class ComposeContainer(
 
     override fun viewDidAppear(animated: Boolean) {
         super.viewDidAppear(animated)
-        composeSceneMediator?.viewDidAppear(animated)
+        mediator.viewDidAppear(animated)
         layers.fastForEach {
             it.viewDidAppear(animated)
         }
@@ -222,7 +235,7 @@ internal class ComposeContainer(
     // viewDidUnload() is deprecated and not called.
     override fun viewWillDisappear(animated: Boolean) {
         super.viewWillDisappear(animated)
-        composeSceneMediator?.viewWillDisappear(animated)
+        mediator.viewWillDisappear(animated)
         layers.fastForEach {
             it.viewWillDisappear(animated)
         }
@@ -247,18 +260,44 @@ internal class ComposeContainer(
         super.didReceiveMemoryWarning()
     }
 
-    @OptIn(ExperimentalComposeApi::class)
-    private fun setContent(content: @Composable () -> Unit) {
-        if (composeSceneMediator != null) {
-            return // already attached
-        }
+    fun createComposeSceneContext(platformContext: PlatformContext): ComposeSceneContext =
+        ComposeSceneContextImpl(platformContext)
 
-        val mediator = if (configuration.platformLayers) {
-            createSingleLayerComposeSceneMediator()
-        } else {
-            createMultiLayerComposeSceneMediator()
-        }
-        composeSceneMediator = mediator
+    private fun createSkikoUIView(renderRelegate: RenderingUIView.Delegate): RenderingUIView =
+        RenderingUIView(
+            renderDelegate = renderRelegate,
+            transparency = false,
+        )
+
+    @OptIn(ExperimentalComposeApi::class)
+    private fun createComposeScene(
+        density: Density,
+        invalidate: () -> Unit,
+        platformContext: PlatformContext,
+        coroutineContext: CoroutineContext,
+    ): ComposeScene = if (configuration.platformLayers) {
+        SingleLayerComposeScene(
+            coroutineContext = coroutineContext,
+            density = density,
+            invalidate = invalidate,
+            layoutDirection = layoutDirection,
+            composeSceneContext = ComposeSceneContextImpl(
+                platformContext = platformContext
+            ),
+        )
+    } else {
+        MultiLayerComposeScene(
+            coroutineContext = coroutineContext,
+            composeSceneContext = ComposeSceneContextImpl(
+                platformContext = platformContext
+            ),
+            density = density,
+            invalidate = invalidate,
+            layoutDirection = layoutDirection,
+        )
+    }
+
+    private fun setContent(content: @Composable () -> Unit) {
         mediator.setContent {
             ProvideContainerCompositionLocals(this) {
                 content()
@@ -268,53 +307,12 @@ internal class ComposeContainer(
     }
 
     private fun dispose() {
-        composeSceneMediator?.dispose()
-        composeSceneMediator = null
+        mediator.dispose()
         layers.fastForEach {
             it.close()
         }
 
     }
-
-    private fun createSingleLayerComposeSceneMediator(): ComposeSceneMediator =
-        ComposeSceneMediator(
-            viewController = this,
-            configuration = configuration,
-            focusStack = focusStack,
-            windowInfo = windowInfo,
-            transparency = false,
-            coroutineContext = coroutineDispatcher,
-        ) { mediator: ComposeSceneMediator ->
-            SingleLayerComposeScene(
-                coroutineContext = coroutineDispatcher,
-                density = mediator.densityProvider(),
-                invalidate = mediator::onComposeSceneInvalidate,
-                layoutDirection = layoutDirection,
-                composeSceneContext = ComposeSceneContextImpl(
-                    platformContext = mediator.platformContext
-                ),
-            )
-        }
-
-    private fun createMultiLayerComposeSceneMediator(): ComposeSceneMediator =
-        ComposeSceneMediator(
-            viewController = this,
-            configuration = configuration,
-            focusStack = focusStack,
-            windowInfo = windowInfo,
-            transparency = false,
-            coroutineContext = coroutineDispatcher,
-        ) { mediator ->
-            MultiLayerComposeScene(
-                coroutineContext = coroutineDispatcher,
-                composeSceneContext = ComposeSceneContextImpl(
-                    platformContext = mediator.platformContext
-                ),
-                density = mediator.densityProvider(),
-                invalidate = mediator::onComposeSceneInvalidate,
-                layoutDirection = layoutDirection,
-            )
-        }
 
     fun attachLayer(layer: UIViewComposeSceneLayer) {
         layers.add(layer)
@@ -341,8 +339,7 @@ internal class ComposeContainer(
                 focusStack = if (focusable) focusStack else null,
                 windowInfo = windowInfo,
                 compositionContext = compositionContext,
-                compositionLocalContext = composeSceneMediator?.compositionLocalContext,
-                composeSceneContext = this,
+                compositionLocalContext = mediator.compositionLocalContext,
             )
     }
 

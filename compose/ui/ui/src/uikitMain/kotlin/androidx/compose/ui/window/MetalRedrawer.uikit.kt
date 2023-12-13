@@ -328,12 +328,14 @@ internal class MetalRedrawer(
             }
 
             // Perform timestep and record all draw commands into [Picture]
-            pictureRecorder.beginRecording(Rect(
-                left = 0f,
-                top = 0f,
-                width.toFloat(),
-                height.toFloat()
-            )).also { canvas ->
+            pictureRecorder.beginRecording(
+                Rect(
+                    left = 0f,
+                    top = 0f,
+                    width.toFloat(),
+                    height.toFloat()
+                )
+            ).also { canvas ->
                 canvas.clear(if (transparency) Color.TRANSPARENT else Color.WHITE)
                 callbacks.render(canvas, lastRenderTimestamp)
             }

@@ -16,138 +16,55 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.interop.UIKitInteropTransaction
-import kotlinx.cinterop.*
-import org.jetbrains.skia.Canvas
+import androidx.compose.ui.scene.toDpOffset
+import androidx.compose.ui.unit.DpOffset
+import kotlinx.cinterop.CValue
+import kotlinx.cinterop.readValue
+import kotlinx.cinterop.useContents
 import org.jetbrains.skiko.SkikoInputModifiers
 import org.jetbrains.skiko.SkikoKey
 import org.jetbrains.skiko.SkikoKeyboardEvent
 import org.jetbrains.skiko.SkikoKeyboardEventKind
-import platform.CoreGraphics.*
-import platform.Foundation.*
-import platform.Metal.MTLCreateSystemDefaultDevice
-import platform.Metal.MTLDeviceProtocol
-import platform.Metal.MTLPixelFormatBGRA8Unorm
-import platform.QuartzCore.CAMetalLayer
-import platform.UIKit.*
+import platform.CoreGraphics.CGPoint
+import platform.CoreGraphics.CGRectZero
+import platform.UIKit.UIEvent
+import platform.UIKit.UIKeyModifierAlternate
+import platform.UIKit.UIKeyModifierCommand
+import platform.UIKit.UIKeyModifierControl
+import platform.UIKit.UIKeyModifierShift
+import platform.UIKit.UIPress
+import platform.UIKit.UIPressesEvent
+import platform.UIKit.UIView
 
-internal class SkikoUIView(
+internal enum class UITouchesEventPhase {
+    BEGAN, MOVED, ENDED, CANCELLED
+}
+
+internal class InteractionUIView(
     private val keyboardEventHandler: KeyboardEventHandler,
-    private val delegate: SkikoUIViewDelegate,
-    private val transparency: Boolean,
-) : UIView(
-    frame = CGRectMake(
-        x = 0.0,
-        y = 0.0,
-        width = 1.0, // TODO: Non-zero size need to first render with ComposeSceneLayer
-        height = 1.0
-    )
-) {
+    private val touchesDelegate: Delegate,
+    private val updateTouchesCount: (count: Int) -> Unit,
+    private val checkBounds: (point: DpOffset) -> Boolean,
+) : UIView(CGRectZero.readValue()) {
 
-    companion object : UIViewMeta() {
-        override fun layerClass() = CAMetalLayer
+    interface Delegate {
+        fun pointInside(point: CValue<CGPoint>, event: UIEvent?): Boolean
+        fun onTouchesEvent(view: UIView, event: UIEvent, phase: UITouchesEventPhase)
     }
 
-    var onAttachedToWindow: (() -> Unit)? = null
-    private val _isReadyToShowContent: MutableState<Boolean> = mutableStateOf(false)
-    val isReadyToShowContent: State<Boolean> = _isReadyToShowContent
-
-    private val _device: MTLDeviceProtocol =
-        MTLCreateSystemDefaultDevice() ?: throw IllegalStateException("Metal is not supported on this system")
-    private val _metalLayer: CAMetalLayer get() = layer as CAMetalLayer
-    private val _redrawer: MetalRedrawer = MetalRedrawer(
-        _metalLayer,
-        callbacks = object : MetalRedrawerCallbacks {
-            override fun render(canvas: Canvas, targetTimestamp: NSTimeInterval) {
-                delegate.render(canvas, targetTimestamp)
-            }
-
-            override fun retrieveInteropTransaction(): UIKitInteropTransaction =
-                delegate.retrieveInteropTransaction()
-        },
-        transparency = transparency,
-    )
-
-    /*
+    /**
      * When there at least one tracked touch, we need notify redrawer about it. It should schedule CADisplayLink which
      * affects frequency of polling UITouch events on high frequency display and forces it to match display refresh rate.
      */
     private var _touchesCount = 0
         set(value) {
             field = value
-
-            val needHighFrequencyPolling = value > 0
-
-            _redrawer.needsProactiveDisplayLink = needHighFrequencyPolling
+            updateTouchesCount(value)
         }
 
     init {
         multipleTouchEnabled = true
         userInteractionEnabled = true
-        opaque = !transparency
-
-        _metalLayer.also {
-            // Workaround for KN compiler bug
-            // Type mismatch: inferred type is platform.Metal.MTLDeviceProtocol but objcnames.protocols.MTLDeviceProtocol? was expected
-            @Suppress("USELESS_CAST")
-            it.device = _device as objcnames.protocols.MTLDeviceProtocol?
-
-            it.pixelFormat = MTLPixelFormatBGRA8Unorm
-            doubleArrayOf(0.0, 0.0, 0.0, 0.0).usePinned { pinned ->
-                it.backgroundColor = CGColorCreate(CGColorSpaceCreateDeviceRGB(), pinned.addressOf(0))
-            }
-            it.setOpaque(!transparency)//todo check if remove
-            it.framebufferOnly = false
-        }
-    }
-
-    fun needRedraw() = _redrawer.needRedraw()
-
-    var isForcedToPresentWithTransactionEveryFrame by _redrawer::isForcedToPresentWithTransactionEveryFrame
-
-    fun dispose() {
-        _redrawer.dispose()
-        removeFromSuperview()
-    }
-
-    override fun didMoveToWindow() {
-        super.didMoveToWindow()
-
-        window?.screen?.let {
-            contentScaleFactor = it.scale
-            _redrawer.maximumFramesPerSecond = it.maximumFramesPerSecond
-        }
-        if (window != null) {
-            onAttachedToWindow?.invoke()
-            _isReadyToShowContent.value = true
-        }
-    }
-
-    override fun layoutSubviews() {
-        super.layoutSubviews()
-        updateMetalLayerSize()
-    }
-
-    internal fun updateMetalLayerSize() {
-        val scaledSize = bounds.useContents {
-            CGSizeMake(size.width * contentScaleFactor, size.height * contentScaleFactor)
-        }
-
-        // If drawableSize is zero in any dimension it means that it's a first layout
-        // we need to synchronously dispatch first draw and block until it's presented
-        // so user doesn't have a flicker
-        val needsSynchronousDraw = _metalLayer.drawableSize.useContents {
-            width == 0.0 || height == 0.0
-        }
-
-        _metalLayer.drawableSize = scaledSize
-
-        if (needsSynchronousDraw) {
-            _redrawer.drawSynchronously()
-        }
     }
 
     override fun canBecomeFirstResponder() = true
@@ -165,9 +82,10 @@ internal class SkikoUIView(
     /**
      * https://developer.apple.com/documentation/uikit/uiview/1622533-point
      */
-    override fun pointInside(point: CValue<CGPoint>, withEvent: UIEvent?): Boolean =
-        delegate.pointInside(point, withEvent)
-
+    override fun pointInside(point: CValue<CGPoint>, withEvent: UIEvent?): Boolean {
+        val pointOffset = point.useContents { this.toDpOffset() }
+        return checkBounds(pointOffset) && touchesDelegate.pointInside(point, withEvent)
+    }
 
     override fun touchesBegan(touches: Set<*>, withEvent: UIEvent?) {
         super.touchesBegan(touches, withEvent)
@@ -175,7 +93,7 @@ internal class SkikoUIView(
         _touchesCount += touches.size
 
         withEvent?.let { event ->
-            delegate.onTouchesEvent(this, event, UITouchesEventPhase.BEGAN)
+            touchesDelegate.onTouchesEvent(this, event, UITouchesEventPhase.BEGAN)
         }
     }
 
@@ -185,7 +103,7 @@ internal class SkikoUIView(
         _touchesCount -= touches.size
 
         withEvent?.let { event ->
-            delegate.onTouchesEvent(this, event, UITouchesEventPhase.ENDED)
+            touchesDelegate.onTouchesEvent(this, event, UITouchesEventPhase.ENDED)
         }
     }
 
@@ -193,7 +111,7 @@ internal class SkikoUIView(
         super.touchesMoved(touches, withEvent)
 
         withEvent?.let { event ->
-            delegate.onTouchesEvent(this, event, UITouchesEventPhase.MOVED)
+            touchesDelegate.onTouchesEvent(this, event, UITouchesEventPhase.MOVED)
         }
     }
 
@@ -203,7 +121,7 @@ internal class SkikoUIView(
         _touchesCount -= touches.size
 
         withEvent?.let { event ->
-            delegate.onTouchesEvent(this, event, UITouchesEventPhase.CANCELLED)
+            touchesDelegate.onTouchesEvent(this, event, UITouchesEventPhase.CANCELLED)
         }
     }
 

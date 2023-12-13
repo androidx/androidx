@@ -18,6 +18,7 @@ package androidx.compose.ui.window
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.scene.ComposeSceneFocusManager
+import androidx.compose.ui.scene.ComposeSceneMediator
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.OnFocusBehavior
 import androidx.compose.ui.unit.DpRect
@@ -176,10 +177,7 @@ internal class KeyboardVisibilityListenerImpl(
         focusedRect: DpRect,
         keyboardHeight: Double
     ): Double {
-        val viewHeight = composeSceneMediator.view.frame.useContents {
-            size.height
-        }
-
+        val viewHeight = composeSceneMediator.getViewHeight()
         val hiddenPartOfFocusedElement: Double =
             keyboardHeight - viewHeight + focusedRect.bottom.value
         return if (hiddenPartOfFocusedElement > 0) {

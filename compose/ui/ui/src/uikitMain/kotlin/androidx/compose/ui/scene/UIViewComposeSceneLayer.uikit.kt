@@ -14,21 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.window
+package androidx.compose.ui.scene
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.WindowInfo
-import androidx.compose.ui.scene.ComposeSceneContext
-import androidx.compose.ui.scene.ComposeSceneLayer
-import androidx.compose.ui.scene.SingleLayerComposeScene
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.window.ComposeContainer
+import androidx.compose.ui.window.FocusStack
+import androidx.compose.ui.window.ProvideContainerCompositionLocals
+import androidx.compose.ui.window.RenderingUIView
+import kotlin.coroutines.CoroutineContext
 import kotlinx.cinterop.CValue
 import platform.CoreGraphics.CGSize
 import platform.UIKit.UIView
@@ -43,32 +46,45 @@ internal class UIViewComposeSceneLayer(
     windowInfo: WindowInfo,
     compositionContext: CompositionContext,
     compositionLocalContext: CompositionLocalContext?,
-    composeSceneContext: ComposeSceneContext,
 ) : ComposeSceneLayer {
 
-    private val mediator = ComposeSceneMediator(
-        viewController = composeContainer,
-        configuration = configuration,
-        focusStack = focusStack,
-        windowInfo = windowInfo,
-        transparency = true,
-        coroutineContext = compositionContext.effectCoroutineContext,
-    ) { mediator: ComposeSceneMediator ->
-        SingleLayerComposeScene(
+    private val mediator by lazy {
+        ComposeSceneMediator(
+            viewController = composeContainer,
+            configuration = configuration,
+            focusStack = focusStack,
+            windowInfo = windowInfo,
             coroutineContext = compositionContext.effectCoroutineContext,
-            composeSceneContext = object : ComposeSceneContext by composeSceneContext {
-                override val platformContext get() = mediator.platformContext
-            },
-            density = density,
-            invalidate = mediator::onComposeSceneInvalidate,
-            layoutDirection = layoutDirection,
-        )
+            renderingUIViewFactory = ::createSkikoUIView,
+            composeSceneFactory = ::createComposeScene,
+        ).also {
+            it.compositionLocalContext = compositionLocalContext
+        }
     }
 
     init {
-        mediator.compositionLocalContext = compositionLocalContext
         composeContainer.attachLayer(this)
     }
+
+    private fun createSkikoUIView(renderDelegate: RenderingUIView.Delegate): RenderingUIView =
+        RenderingUIView(
+            renderDelegate = renderDelegate,
+            transparency = true,
+        )
+
+    private fun createComposeScene(
+        density: Density,
+        invalidate: () -> Unit,
+        platformContext: PlatformContext,
+        coroutineContext: CoroutineContext,
+    ): ComposeScene =
+        SingleLayerComposeScene(
+            coroutineContext = coroutineContext,
+            composeSceneContext = composeContainer.createComposeSceneContext(platformContext),
+            density = density,
+            invalidate = invalidate,
+            layoutDirection = layoutDirection,
+        )
 
     override var density: Density = density
         set(value) {
@@ -79,7 +95,7 @@ internal class UIViewComposeSceneLayer(
             //todo set to scene
         }
     override var bounds: IntRect
-        get() = mediator.getViewBounds()
+        get() = mediator.getBoundsInPx()
         set(value) {
             mediator.setLayout(
                 SceneLayout.Bounds(rect = value)

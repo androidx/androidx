@@ -24,6 +24,7 @@ import androidx.compose.ui.window.DensityProvider
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.IntermediateTextInputUIView
 import androidx.compose.ui.window.KeyboardEventHandler
+import androidx.compose.ui.scene.getConstraintsToFillParent
 import kotlin.math.absoluteValue
 import kotlin.math.min
 import org.jetbrains.skia.BreakIterator
@@ -111,12 +112,7 @@ internal class UIKitTextInputService(
             rootView.addSubview(it)
             it.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activateConstraints(
-                listOf(
-                    it.leftAnchor.constraintEqualToAnchor(rootView.leftAnchor),
-                    it.rightAnchor.constraintEqualToAnchor(rootView.rightAnchor),
-                    it.topAnchor.constraintEqualToAnchor(rootView.topAnchor),
-                    it.bottomAnchor.constraintEqualToAnchor(rootView.bottomAnchor),
-                )
+                getConstraintsToFillParent(it, rootView)
             )
         }
         textUIView?.input = createSkikoInput(value)
