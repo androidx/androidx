@@ -25,6 +25,7 @@ import androidx.paging.LoadStates
 import androidx.paging.NullPaddedList
 import androidx.paging.Pager
 import androidx.paging.PagingData
+import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import androidx.paging.testing.ErrorRecovery.RETRY
 import androidx.paging.testing.ErrorRecovery.RETURN_CURRENT_SNAPSHOT
@@ -111,6 +112,27 @@ public suspend fun <Value : Any> Flow<PagingData<Value>>.asSnapshot(
             val lastLoadedIndex = snapshot().placeholdersBefore + (snapshot().items.size / 2)
             loader.generations.value.lastAccessedIndex.set(lastLoadedIndex)
             return null
+        }
+
+        override suspend fun presentPagingDataEvent(event: PagingDataEvent<Value>) {
+            /**
+             * We only care about callbacks for prepend inserts so that we can adjust
+             * the lastAccessedIndex. For more detail, refer to docs on method
+             * #computeIndexOffset in SnapshotLoader.
+             */
+            if (event is PagingDataEvent.Prepend) {
+                val insertSize = event.inserted.size
+                val placeholdersChangedCount = minOf(event.oldPlaceholdersBefore, insertSize)
+                val itemsInsertedCount = insertSize - placeholdersChangedCount
+                val itemsInsertedPos = 0
+
+                if (itemsInsertedCount > 0) {
+                    loader.onDataSetChanged(
+                        loader.generations.value,
+                        LoaderCallback(ON_INSERTED, itemsInsertedPos, itemsInsertedCount)
+                    )
+                }
+            }
         }
     }
 
