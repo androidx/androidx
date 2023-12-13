@@ -129,7 +129,7 @@ internal class PathIteratorApi34Impl(
      * them on ensuing calls to next(). The converter is only ever called if
      * [conicEvaluation] is set to [ConicEvaluation.AsQuadratics].
      */
-    var conicConverter = ConicConverter()
+    private val conicConverter = ConicConverter()
 
     /**
      * The platform does not expose a calculateSize() method, so we implement our own. In the
