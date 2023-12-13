@@ -112,6 +112,10 @@ fun Morph.toPath(progress: Float, scale: Float = 1f, path: Path = Path()): Path 
 
 internal const val DEBUG = false
 
+internal inline fun outputToLog(message: String) {
+    println(message)
+}
+
 internal inline fun debugLog(message: String) {
     if (DEBUG) {
         println(message)

@@ -16,6 +16,7 @@
 
 package androidx.graphics.shapes.testcompose
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.compose.animation.core.Animatable
@@ -122,8 +123,20 @@ internal fun PolygonComposableImpl(
             })
 }
 
+fun outputShapeInfo(activity: FragmentActivity, info: String) {
+    // Output to logcat and also share intent
+    println(info)
+    val sendIntent: Intent = Intent().apply {
+        action = Intent.ACTION_SEND
+        putExtra(Intent.EXTRA_TEXT, info)
+        type = "text/plain"
+    }
+    val shareIntent = Intent.createChooser(sendIntent, null)
+    activity.startActivity(shareIntent)
+}
+
 @Composable
-fun MainScreen() {
+fun MainScreen(activity: MainActivity) {
     var editing by remember { mutableStateOf<ShapeParameters?>(null) }
     var selectedShape = remember { mutableIntStateOf(0) }
     val shapes = remember {
@@ -133,7 +146,7 @@ fun MainScreen() {
             ShapeParameters(
                 sides = 8,
                 roundness = 1f,
-                shapeId = ShapeParameters.ShapeId.Circle
+                shapeId = ShapeParameters.ShapeId.Circle,
             ),
             //
             ShapeParameters(
@@ -237,7 +250,9 @@ fun MainScreen() {
         )
     }
     editing?.let {
-        ShapeEditor(it) { editing = null }
+        ShapeEditor(it, output = { outputString -> outputShapeInfo(activity, outputString) }) {
+            editing = null
+        }
     } ?: MorphScreen(shapes, selectedShape) { editing = shapes[selectedShape.intValue] }
 }
 
@@ -345,7 +360,7 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         setContent(parent = null) {
             MaterialTheme {
-                MainScreen()
+                MainScreen(this)
             }
         }
     }
