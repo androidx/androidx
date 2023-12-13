@@ -13,16 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("UnbundledSQLiteConnectionKt")
+@file:JvmName("BundledSQLiteConnectionKt")
 
-package androidx.sqliteMultiplatform.unbundled
+package androidx.sqlite.driver.bundled
 
-import androidx.sqliteMultiplatform.SQLiteConnection
-import androidx.sqliteMultiplatform.SQLiteStatement
-import androidx.sqliteMultiplatform.throwSQLiteException
-import androidx.sqliteMultiplatform.unbundled.ResultCode.SQLITE_MISUSE
+import androidx.annotation.RestrictTo
+import androidx.sqlite.SQLiteConnection
+import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.driver.bundled.ResultCode.SQLITE_MISUSE
+import androidx.sqlite.throwSQLiteException
 
-actual class UnbundledSQLiteConnection(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+actual class BundledSQLiteConnection(
     private val connectionPointer: Long
 ) : SQLiteConnection {
 
@@ -33,7 +35,7 @@ actual class UnbundledSQLiteConnection(
             throwSQLiteException(SQLITE_MISUSE, "connection is closed")
         }
         val statementPointer = nativePrepare(connectionPointer, sql)
-        return UnbundledSQLiteStatement(connectionPointer, statementPointer)
+        return BundledSQLiteStatement(connectionPointer, statementPointer)
     }
 
     override fun close() {

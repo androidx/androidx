@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.sqliteMultiplatform.unbundled
+package androidx.sqlite.driver.bundled
 
-actual typealias UnbundledSQLiteStatement =
-    androidx.sqliteMultiplatform.driver.NativeSQLiteStatement
+import androidx.sqlite.SQLiteStatement
+
+expect class BundledSQLiteStatement : SQLiteStatement

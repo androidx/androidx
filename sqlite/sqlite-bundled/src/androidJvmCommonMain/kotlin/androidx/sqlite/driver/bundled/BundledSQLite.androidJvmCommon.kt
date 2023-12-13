@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.sqliteMultiplatform.unbundled
+package androidx.sqlite.driver.bundled
 
-import androidx.sqliteMultiplatform.SQLiteStatement
-
-expect class UnbundledSQLiteStatement : SQLiteStatement
+internal object ResultCode {
+    const val SQLITE_MISUSE = 21
+}

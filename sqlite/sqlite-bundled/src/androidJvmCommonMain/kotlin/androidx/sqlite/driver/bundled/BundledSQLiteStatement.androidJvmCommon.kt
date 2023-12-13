@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:JvmName("UnbundledSQLiteStatementKt")
+@file:JvmName("BundledSQLiteStatementKt")
 
-package androidx.sqliteMultiplatform.unbundled
+package androidx.sqlite.driver.bundled
 
-import androidx.sqliteMultiplatform.SQLiteStatement
-import androidx.sqliteMultiplatform.throwSQLiteException
-import androidx.sqliteMultiplatform.unbundled.ResultCode.SQLITE_MISUSE
+import androidx.annotation.RestrictTo
+import androidx.sqlite.SQLiteStatement
+import androidx.sqlite.driver.bundled.ResultCode.SQLITE_MISUSE
+import androidx.sqlite.throwSQLiteException
 
-actual class UnbundledSQLiteStatement(
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+actual class BundledSQLiteStatement(
     private val connectionPointer: Long,
     private val statementPointer: Long
 ) : SQLiteStatement {

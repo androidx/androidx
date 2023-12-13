@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.sqliteMultiplatform.unbundled
+package androidx.sqlite.driver.bundled
 
 import androidx.kruth.assertThat
-import androidx.sqliteMultiplatform.BaseConformanceTest
-import androidx.sqliteMultiplatform.SQLiteDriver
-import androidx.sqliteMultiplatform.use
+import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.driver.BaseConformanceTest
+import androidx.sqlite.use
 import kotlin.test.Test
 
-class UnbundledSQLiteDriverTest : BaseConformanceTest() {
+class BundledSQLiteDriverTest : BaseConformanceTest() {
     override fun getDriver(): SQLiteDriver {
-        return UnbundledSQLiteDriver(filename = ":memory:")
+        return BundledSQLiteDriver(filename = ":memory:")
     }
 
     @Test
@@ -35,7 +35,7 @@ class UnbundledSQLiteDriverTest : BaseConformanceTest() {
                 it.step()
                 it.getText(0)
             }
-            // The unbundled androidx SQLite version compiled and statically included
+            // The bundled androidx SQLite version compiled and statically included
             assertThat(version).isEqualTo("3.42.0")
         } finally {
             connection.close()

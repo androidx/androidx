@@ -14,8 +14,10 @@
  * limitations under the License.
  */
 
-package androidx.sqliteMultiplatform.unbundled
+package androidx.sqlite.driver.bundled
 
-internal object ResultCode {
-    const val SQLITE_MISUSE = 21
+internal actual object NativeLibraryLoader {
+    actual fun loadLibrary(name: String) {
+        // no-op, we are already in native code
+    }
 }

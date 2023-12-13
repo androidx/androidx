@@ -1,1 +1,1 @@
-Unbundled SQLite Driver's JNI bindings.
+Bundled SQLite Driver's JNI bindings.

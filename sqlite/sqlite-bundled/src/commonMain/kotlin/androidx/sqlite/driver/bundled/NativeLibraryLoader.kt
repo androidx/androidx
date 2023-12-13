@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.sqliteMultiplatform.unbundled
+package androidx.sqlite.driver.bundled
 
 internal expect object NativeLibraryLoader {
     /**

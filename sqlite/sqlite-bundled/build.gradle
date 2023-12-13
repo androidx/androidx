@@ -16,7 +16,6 @@
 
 import androidx.build.AndroidXConfig
 import androidx.build.KmpPlatformsKt
-import androidx.build.LibraryType
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
 import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
@@ -87,8 +86,9 @@ androidXMultiplatform {
             KonanTarget.MACOS_X64,
             KonanTarget.LINUX_X64,
     ].collect { it.INSTANCE } // Use INSTANCE to get object class instance from kotlin
+
     // Define C compilation of SQLite (sqlite3.c)
-    def sqliteCompilation = createNativeCompilation("androidXUnbundledSqlite") {
+    def sqliteCompilation = createNativeCompilation("androidXBundledSqlite") {
         configureEachTarget { nativeCompilation ->
             // add SQLite header
             nativeCompilation.includes.from(
@@ -168,7 +168,7 @@ androidXMultiplatform {
         //                                 commonMain
         //              ┌───────────────────────────────────────────┐
         //              ▼                                           ▼
-        //     androidJvmCommonMain                        nativeCommonMain
+        //     androidJvmCommonMain                             nativeMain
         //     ┌────────────────┐                       ┌──────────┬────────────┐
         //     │                │                       │          │            │
         //     ▼                ▼                       ▼          ▼            ▼
@@ -182,7 +182,7 @@ androidXMultiplatform {
         //              ┌───────────────────────────────────────────┐
         //              │                                           │
         //              ▼                                           ▼
-        //       androidJvmCommonTest                      nativeCommonTest
+        //       androidJvmCommonTest                           nativeTest
         //    ┌────────────────────┐                      ┌─────────┬─────────────┐
         //    │                    │                      │         │             │
         //    ▼                    ▼                      ▼         ▼             ▼
@@ -190,7 +190,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
-                api(project(":sqliteMultiplatform:sqlite"))
+                api(project(":sqlite:sqlite"))
             }
         }
         sharedTest {
@@ -202,7 +202,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(libs.kotlinTestAnnotationsCommon)
                 implementation(project(":kruth:kruth"))
-                implementation(project(":sqliteMultiplatform:conformanceTest"))
+                implementation(project(":sqlite:integration-tests:driver-conformance-test"))
             }
         }
         androidJvmCommonMain {
@@ -230,13 +230,13 @@ androidXMultiplatform {
             }
         }
         if (nativeEnabled) {
-            nativeCommonMain {
+            nativeMain {
                 dependsOn(commonMain)
                 dependencies {
-                    implementation(project(":sqliteMultiplatform:sqlite-driver"))
+                    implementation(project(":sqlite:sqlite-framework"))
                 }
             }
-            nativeCommonTest {
+            nativeTest {
                 dependsOn(sharedTest)
             }
         }
@@ -244,10 +244,10 @@ androidXMultiplatform {
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
-                    dependsOn(nativeCommonMain)
+                    dependsOn(nativeMain)
                 }
                 target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeCommonTest)
+                    dependsOn(nativeTest)
                 }
             }
         }
@@ -255,14 +255,13 @@ androidXMultiplatform {
 }
 
 android {
-    namespace "androidx.sqliteMultiplatform.driver.unbundled"
+    namespace "androidx.sqlite.driver.bundled"
 }
 
 androidx {
-    name = "SQLite Unbundled KMP Implementation"
-    type = LibraryType.UNSET
+    name = "SQLite Bundled Integration"
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2023"
-    description = "SQLite Kotlin Multiplatform Implementation with Unbundled SQLite"
-    publish = Publish.NONE
+    description = "The implementation of SQLite library using the bundled SQLite."
     metalavaK2UastEnabled = false
 }

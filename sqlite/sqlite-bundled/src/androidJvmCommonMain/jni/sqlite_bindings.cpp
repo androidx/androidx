@@ -9,7 +9,7 @@
  * @return true if the exception was thrown, otherwise false.
  */
 static bool throwSQLiteException(JNIEnv *env, int errorCode, const char *errorMsg) {
-    jclass exceptionClass = env->FindClass("androidx/sqliteMultiplatform/SQLiteException");
+    jclass exceptionClass = env->FindClass("androidx/sqlite/SQLiteException");
     std::stringstream message;
     message << "Error code: " << errorCode;
     if (errorMsg != nullptr) {
@@ -35,7 +35,7 @@ static bool throwIfInvalidColumn(JNIEnv *env, sqlite3_stmt *stmt, int index) {
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteDriverKt_nativeOpen(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteDriverKt_nativeOpen(
         JNIEnv* env,
         jclass clazz,
         jstring name) {
@@ -52,7 +52,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteDriverKt_nativeOpen(
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteConnectionKt_nativePrepare(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteConnectionKt_nativePrepare(
         JNIEnv* env,
         jclass clazz,
         jlong dbPointer,
@@ -72,7 +72,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteConnectionKt_nativePr
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteConnectionKt_nativeClose(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteConnectionKt_nativeClose(
         JNIEnv* env,
         jclass clazz,
         jlong dbPointer) {
@@ -81,7 +81,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteConnectionKt_nativeCl
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBindBlob(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeBindBlob(
         JNIEnv* env,
         jclass clazz,
         jlong stmtPointer,
@@ -98,7 +98,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBin
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBindDouble(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeBindDouble(
         JNIEnv* env,
         jclass clazz,
         jlong stmtPointer,
@@ -112,7 +112,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBin
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBindLong(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeBindLong(
         JNIEnv* env,
         jclass clazz,
         jlong stmtPointer,
@@ -126,7 +126,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBin
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBindText(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeBindText(
         JNIEnv* env,
         jclass clazz,
         jlong stmtPointer,
@@ -143,7 +143,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBin
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBindNull(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeBindNull(
         JNIEnv* env,
         jclass clazz,
         jlong stmtPointer,
@@ -156,7 +156,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeBin
 }
 
 extern "C" JNIEXPORT jboolean JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeStep(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeStep(
         JNIEnv *env,
         jclass clazz,
         jlong stmtPointer) {
@@ -173,7 +173,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeSte
 }
 
 extern "C" JNIEXPORT jbyteArray JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGetBlob(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeGetBlob(
         JNIEnv *env,
         jclass clazz,
         jlong stmtPointer,
@@ -192,7 +192,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
 }
 
 extern "C" JNIEXPORT jdouble JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGetDouble(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeGetDouble(
         JNIEnv *env,
         jclass clazz,
         jlong stmtPointer,
@@ -204,7 +204,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
 }
 
 extern "C" JNIEXPORT jlong JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGetLong(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeGetLong(
         JNIEnv *env,
         jclass clazz,
         jlong stmtPointer,
@@ -216,7 +216,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGetText(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeGetText(
         JNIEnv *env,
         jclass clazz,
         jlong stmtPointer,
@@ -235,7 +235,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGetColumnCount(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeGetColumnCount(
         JNIEnv *env,
         jclass clazz,
         jlong stmtPointer) {
@@ -244,7 +244,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
 }
 
 extern "C" JNIEXPORT jstring JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGetColumnName(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeGetColumnName(
         JNIEnv *env,
         jclass clazz,
         jlong stmtPointer,
@@ -259,7 +259,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGetColumnType(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeGetColumnType(
         JNIEnv *env,
         jclass clazz,
         jlong stmtPointer,
@@ -271,7 +271,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeGet
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeReset(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeReset(
         JNIEnv* env,
         jclass clazz,
         jlong stmtPointer) {
@@ -283,7 +283,7 @@ Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeRes
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_androidx_sqliteMultiplatform_unbundled_UnbundledSQLiteStatementKt_nativeClose(
+Java_androidx_sqlite_driver_bundled_BundledSQLiteStatementKt_nativeClose(
         JNIEnv* env,
         jclass clazz,
         jlong stmtPointer) {

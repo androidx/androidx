@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.sqliteMultiplatform.unbundled
+@file:RestrictTo(RestrictTo.Scope.LIBRARY)
 
-import androidx.sqliteMultiplatform.SQLiteConnection
+package androidx.sqlite.driver.bundled
 
-expect class UnbundledSQLiteConnection : SQLiteConnection
+import androidx.annotation.RestrictTo
+
+actual typealias BundledSQLiteConnection =
+    androidx.sqlite.driver.NativeSQLiteConnection

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.sqliteMultiplatform.unbundled
+package androidx.sqlite.driver.bundled
 
-import androidx.sqliteMultiplatform.SQLiteDriver
+import androidx.sqlite.SQLiteConnection
 
-expect class UnbundledSQLiteDriver(filename: String) : SQLiteDriver
+expect class BundledSQLiteConnection : SQLiteConnection

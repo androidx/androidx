@@ -14,10 +14,8 @@
  * limitations under the License.
  */
 
-package androidx.sqliteMultiplatform.unbundled
+package androidx.sqlite.driver.bundled
 
-internal actual object NativeLibraryLoader {
-    actual fun loadLibrary(name: String) {
-        // no-op, we are already in native code
-    }
-}
+import androidx.sqlite.SQLiteDriver
+
+expect class BundledSQLiteDriver(filename: String) : SQLiteDriver
