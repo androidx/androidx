@@ -51,6 +51,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION =
             FLAG_PREFIX + "enable_list_filter_has_property_function";
 
+    /** Enable Schema Type Grouping related features. */
+    public static final String FLAG_ENABLE_GROUPING_TYPE_PER_SCHEMA =
+            FLAG_PREFIX + "enable_grouping_type_per_schema";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -62,6 +66,11 @@ public final class Flags {
 
     /** Whether the "hasProperty" function in list filter query expressions should be enabled. */
     public static boolean enableListFilterHasPropertyFunction() {
+        return true;
+    }
+
+    /** Whether Schema Type Grouping should be enabled. */
+    public static boolean enableGroupingTypePerSchema() {
         return true;
     }
 }
