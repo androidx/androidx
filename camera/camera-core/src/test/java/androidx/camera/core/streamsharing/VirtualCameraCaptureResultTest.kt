@@ -61,13 +61,15 @@ class VirtualCameraCaptureResultTest {
         // Arrange.
         val baseCameraCaptureResult = FakeCameraCaptureResult()
             .apply {
-            timestamp = 2L
-            aeState = CameraCaptureMetaData.AeState.CONVERGED
-            afState = CameraCaptureMetaData.AfState.LOCKED_FOCUSED
-            awbState = CameraCaptureMetaData.AwbState.CONVERGED
-            flashState = CameraCaptureMetaData.FlashState.FIRED
-            afMode = CameraCaptureMetaData.AfMode.ON_CONTINUOUS_AUTO
-        }
+                timestamp = 2L
+                aeState = CameraCaptureMetaData.AeState.CONVERGED
+                afState = CameraCaptureMetaData.AfState.LOCKED_FOCUSED
+                awbState = CameraCaptureMetaData.AwbState.CONVERGED
+                flashState = CameraCaptureMetaData.FlashState.FIRED
+                afMode = CameraCaptureMetaData.AfMode.ON_CONTINUOUS_AUTO
+                aeMode = CameraCaptureMetaData.AeMode.ON
+                awbMode = CameraCaptureMetaData.AwbMode.AUTO
+            }
         // Act.
         val result = VirtualCameraCaptureResult(TAG_BUNDLE, baseCameraCaptureResult)
         // Assert.
@@ -78,5 +80,7 @@ class VirtualCameraCaptureResultTest {
         assertThat(result.awbState).isEqualTo(baseCameraCaptureResult.awbState)
         assertThat(result.flashState).isEqualTo(baseCameraCaptureResult.flashState)
         assertThat(result.afMode).isEqualTo(baseCameraCaptureResult.afMode)
+        assertThat(result.aeMode).isEqualTo(baseCameraCaptureResult.aeMode)
+        assertThat(result.awbMode).isEqualTo(baseCameraCaptureResult.awbMode)
     }
 }

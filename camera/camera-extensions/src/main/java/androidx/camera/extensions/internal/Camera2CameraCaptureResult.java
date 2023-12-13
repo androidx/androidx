@@ -207,6 +207,62 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
         return CameraCaptureMetaData.FlashState.UNKNOWN;
     }
 
+    @NonNull
+    @Override
+    public CameraCaptureMetaData.AeMode getAeMode() {
+        Integer aeMode = mCaptureResult.get(CaptureResult.CONTROL_AE_MODE);
+        if (aeMode == null) {
+            return CameraCaptureMetaData.AeMode.UNKNOWN;
+        }
+        switch (aeMode) {
+            case CaptureResult.CONTROL_AE_MODE_OFF:
+                return CameraCaptureMetaData.AeMode.OFF;
+            case CaptureResult.CONTROL_AE_MODE_ON:
+                return CameraCaptureMetaData.AeMode.ON;
+            case CaptureResult.CONTROL_AE_MODE_ON_AUTO_FLASH:
+                return CameraCaptureMetaData.AeMode.ON_AUTO_FLASH;
+            case CaptureResult.CONTROL_AE_MODE_ON_ALWAYS_FLASH:
+                return CameraCaptureMetaData.AeMode.ON_ALWAYS_FLASH;
+            case CaptureResult.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE:
+                return CameraCaptureMetaData.AeMode.ON_AUTO_FLASH_REDEYE;
+            case CaptureResult.CONTROL_AE_MODE_ON_EXTERNAL_FLASH:
+                return CameraCaptureMetaData.AeMode.ON_EXTERNAL_FLASH;
+            default:
+                return CameraCaptureMetaData.AeMode.UNKNOWN;
+        }
+    }
+
+    @NonNull
+    @Override
+    public CameraCaptureMetaData.AwbMode getAwbMode() {
+        Integer awbMode = mCaptureResult.get(CaptureResult.CONTROL_AWB_MODE);
+        if (awbMode == null) {
+            return CameraCaptureMetaData.AwbMode.UNKNOWN;
+        }
+        switch (awbMode) {
+            case CaptureResult.CONTROL_AWB_MODE_OFF:
+                return CameraCaptureMetaData.AwbMode.OFF;
+            case CaptureResult.CONTROL_AWB_MODE_AUTO:
+                return CameraCaptureMetaData.AwbMode.AUTO;
+            case CaptureResult.CONTROL_AWB_MODE_INCANDESCENT:
+                return CameraCaptureMetaData.AwbMode.INCANDESCENT;
+            case CaptureResult.CONTROL_AWB_MODE_FLUORESCENT:
+                return CameraCaptureMetaData.AwbMode.FLUORESCENT;
+            case CaptureResult.CONTROL_AWB_MODE_WARM_FLUORESCENT:
+                return CameraCaptureMetaData.AwbMode.WARM_FLUORESCENT;
+            case CaptureResult.CONTROL_AWB_MODE_DAYLIGHT:
+                return CameraCaptureMetaData.AwbMode.DAYLIGHT;
+            case CaptureResult.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT:
+                return CameraCaptureMetaData.AwbMode.CLOUDY_DAYLIGHT;
+            case CaptureResult.CONTROL_AWB_MODE_TWILIGHT:
+                return CameraCaptureMetaData.AwbMode.TWILIGHT;
+            case CaptureResult.CONTROL_AWB_MODE_SHADE:
+                return CameraCaptureMetaData.AwbMode.SHADE;
+            default:
+                return CameraCaptureMetaData.AwbMode.UNKNOWN;
+        }
+    }
+
     /** {@inheritDoc} */
     @Override
     public long getTimestamp() {
