@@ -154,49 +154,45 @@ public abstract class PagingDataDiffer<T : Any>(
                      * synchronize fetcher/presenter in the correct calculation of the
                      * next anchorPosition.
                      */
-                    if (event is Insert && event.loadType == REFRESH) {
-                        presentNewList(
-                            pages = event.pages,
-                            placeholdersBefore = event.placeholdersBefore,
-                            placeholdersAfter = event.placeholdersAfter,
-                            dispatchLoadStates = true,
-                            sourceLoadStates = event.sourceLoadStates,
-                            mediatorLoadStates = event.mediatorLoadStates,
-                            newHintReceiver = pagingData.hintReceiver
-                        )
-                    } else if (event is StaticList) {
-                        presentNewList(
-                            pages = listOf(
-                                TransformablePage(
-                                    originalPageOffset = 0,
-                                    data = event.data,
-                                )
-                            ),
-                            placeholdersBefore = 0,
-                            placeholdersAfter = 0,
-                            dispatchLoadStates = event.sourceLoadStates != null ||
-                                event.mediatorLoadStates != null,
-                            sourceLoadStates = event.sourceLoadStates,
-                            mediatorLoadStates = event.mediatorLoadStates,
-                            newHintReceiver = pagingData.hintReceiver
-                        )
-                    } else {
-                        if (postEvents()) {
-                            yield()
+                    when {
+                        event is StaticList -> {
+                            presentNewList(
+                                pages = listOf(
+                                    TransformablePage(
+                                        originalPageOffset = 0,
+                                        data = event.data,
+                                    )
+                                ),
+                                placeholdersBefore = 0,
+                                placeholdersAfter = 0,
+                                dispatchLoadStates = event.sourceLoadStates != null ||
+                                    event.mediatorLoadStates != null,
+                                sourceLoadStates = event.sourceLoadStates,
+                                mediatorLoadStates = event.mediatorLoadStates,
+                                newHintReceiver = pagingData.hintReceiver
+                            )
                         }
-
-                        // Send event to presenter to be shown to the UI.
-                        presenter.processEvent(event, processPageEventCallback)
-
-                        // Reset lastAccessedIndexUnfulfilled if a page is dropped, to avoid
-                        // infinite loops when maxSize is insufficiently large.
-                        if (event is Drop) {
-                            lastAccessedIndexUnfulfilled = false
+                        event is Insert && (event.loadType == REFRESH) -> {
+                            presentNewList(
+                                pages = event.pages,
+                                placeholdersBefore = event.placeholdersBefore,
+                                placeholdersAfter = event.placeholdersAfter,
+                                dispatchLoadStates = true,
+                                sourceLoadStates = event.sourceLoadStates,
+                                mediatorLoadStates = event.mediatorLoadStates,
+                                newHintReceiver = pagingData.hintReceiver
+                            )
                         }
+                        event is Insert -> {
+                            if (postEvents()) {
+                                yield()
+                            }
 
-                        // If index points to a placeholder after transformations, resend it unless
-                        // there are no more items to load.
-                        if (event is Insert) {
+                            // Process APPEND/PREPEND to be shown to the UI
+                            presenter.processEvent(event, processPageEventCallback)
+
+                            // If index points to a placeholder after transformations, resend it unless
+                            // there are no more items to load.
                             val source = combinedLoadStatesCollection.stateFlow.value?.source
                             checkNotNull(source) {
                                 "PagingDataDiffer.combinedLoadStatesCollection.stateFlow should" +
@@ -205,7 +201,7 @@ public abstract class PagingDataDiffer<T : Any>(
                             val prependDone = source.prepend.endOfPaginationReached
                             val appendDone = source.append.endOfPaginationReached
                             val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
-                                    !(event.loadType == APPEND && appendDone)
+                                !(event.loadType == APPEND && appendDone)
 
                             /**
                              *  If the insert is empty due to aggressive filtering, another hint
@@ -237,8 +233,24 @@ public abstract class PagingDataDiffer<T : Any>(
                                 }
                             }
                         }
-                    }
+                        event is Drop -> {
+                            if (postEvents()) {
+                                yield()
+                            }
 
+                            // Process DROP to be shown to the UI
+                            presenter.processEvent(event, processPageEventCallback)
+
+                            // Reset lastAccessedIndexUnfulfilled if a page is dropped, to avoid
+                            // infinite loops when maxSize is insufficiently large.
+                            lastAccessedIndexUnfulfilled = false
+                        }
+                        event is PageEvent.LoadStateUpdate ->
+                            processPageEventCallback.onStateUpdate(
+                                source = event.source,
+                                mediator = event.mediator,
+                            )
+                    }
                     // Notify page updates after presenter processes them.
                     //
                     // Note: This is not redundant with LoadStates because it does not de-dupe

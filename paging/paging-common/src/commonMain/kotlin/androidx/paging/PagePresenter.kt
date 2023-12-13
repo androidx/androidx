@@ -108,15 +108,9 @@ internal class PagePresenter<T : Any>(
         when (pageEvent) {
             is PageEvent.Insert -> insertPage(pageEvent, callback)
             is PageEvent.Drop -> dropPages(pageEvent, callback)
-            is PageEvent.LoadStateUpdate -> {
-                callback.onStateUpdate(
-                    source = pageEvent.source,
-                    mediator = pageEvent.mediator,
-                )
-            }
-            is PageEvent.StaticList -> throw IllegalStateException(
-                """Paging received an event to display a static list, while still actively loading
-                |from an existing generation of PagingData. If you see this exception, it is most
+            else -> throw IllegalStateException(
+                """Paging received an event to process StaticList or LoadStateUpdate while 
+                |processing Inserts and Drops. If you see this exception, it is most
                 |likely a bug in the library. Please file a bug so we can fix it at:
                 |$BUGANIZER_URL""".trimMargin()
             )
