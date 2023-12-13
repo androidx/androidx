@@ -232,6 +232,7 @@ public final class SearchSpec {
             enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
             name = Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA)
     // @exportToFramework:endStrip()
+    @FlaggedApi(Flags.FLAG_ENABLE_GROUPING_TYPE_PER_SCHEMA)
     public static final int GROUPING_TYPE_PER_SCHEMA = 1 << 2;
 
     private final Bundle mBundle;
