@@ -26,7 +26,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutorService;
 
-// TODO(b/227356108): move this test to cts test once we un-hide search suggestion API.
 public class AppSearchSessionLocalInternalTest extends AppSearchSessionInternalTestBase {
     @Override
     protected ListenableFuture<AppSearchSession> createSearchSessionAsync(@NonNull String dbName) {

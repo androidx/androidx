@@ -587,6 +587,38 @@ public class SearchSpecCtsTest {
     }
 
     @Test
+    public void testGetPropertyFiltersTypePropertyMasks() {
+        SearchSpec searchSpec = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addFilterProperties("TypeA", ImmutableList.of("field1", "field2.subfield2"))
+                .addFilterProperties("TypeB", ImmutableList.of("field7"))
+                .addFilterProperties("TypeC", ImmutableList.of())
+                .build();
+
+        Map<String, List<String>> typePropertyPathMap = searchSpec.getFilterProperties();
+        assertThat(typePropertyPathMap.keySet())
+                .containsExactly("TypeA", "TypeB", "TypeC");
+        assertThat(typePropertyPathMap.get("TypeA")).containsExactly("field1", "field2.subfield2");
+        assertThat(typePropertyPathMap.get("TypeB")).containsExactly("field7");
+        assertThat(typePropertyPathMap.get("TypeC")).isEmpty();
+    }
+
+    @Test
+    public void testBuilder_throwsException_whenTypePropertyFilterNotInSchemaFilter() {
+        SearchSpec.Builder searchSpecBuilder = new SearchSpec.Builder()
+                .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                .addFilterSchemas("Schema1", "Schema2")
+                .addFilterPropertyPaths("Schema3", ImmutableList.of(
+                        new PropertyPath("field1"), new PropertyPath("field2.subfield2")));
+
+        IllegalStateException exception =
+                assertThrows(IllegalStateException.class, searchSpecBuilder::build);
+        assertThat(exception.getMessage())
+                .isEqualTo("The schema: Schema3 exists in the property filter but doesn't"
+                        + " exist in the schema filter.");
+    }
+
+    @Test
     public void testRebuild() {
         JoinSpec originalJoinSpec = new JoinSpec.Builder("entityId")
                 .setNestedSearch("joe", new SearchSpec.Builder().addFilterSchemas("Action").build())

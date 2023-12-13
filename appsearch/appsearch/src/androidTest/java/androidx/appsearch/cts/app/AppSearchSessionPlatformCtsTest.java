@@ -202,5 +202,4 @@ public class AppSearchSessionPlatformCtsTest extends AppSearchSessionCtsTestBase
     @Override
     @Test
     public void testQuery_advancedRankingWithJoin() throws Exception { }
-
 }

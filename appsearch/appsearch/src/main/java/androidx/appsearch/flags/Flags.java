@@ -59,6 +59,13 @@ public final class Flags {
     public static final String FLAG_ENABLE_GENERIC_DOCUMENT_COPY_CONSTRUCTOR =
             FLAG_PREFIX + "enable_generic_document_copy_constructor";
 
+    /**
+     * Enable the {@link androidx.appsearch.app.SearchSpec.Builder#addFilterProperties} and
+     * {@link androidx.appsearch.app.SearchSuggestionSpec.Builder#addFilterProperties}.
+     */
+    public static final String FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES =
+            FLAG_PREFIX + "enable_search_spec_filter_properties";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -83,4 +90,12 @@ public final class Flags {
         return true;
     }
 
+    /**
+     * Whether the {@link androidx.appsearch.app.SearchSpec.Builder#addFilterProperties} and
+     * {@link androidx.appsearch.app.SearchSuggestionSpec.Builder#addFilterProperties} should be
+     * enabled.
+     */
+    public static boolean enableSearchSpecFilterProperties() {
+        return true;
+    }
 }

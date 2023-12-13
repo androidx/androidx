@@ -22,10 +22,13 @@ import android.os.Bundle;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.Document;
+import androidx.appsearch.annotation.FlaggedApi;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.Flags;
 import androidx.appsearch.util.BundleUtil;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
@@ -173,12 +176,9 @@ public final class SearchSuggestionSpec {
      *
      * <p>Calling this function repeatedly is inefficient. Prefer to retain the Map returned
      * by this function, rather than calling it multiple times.
-     *
-     * @exportToFramework:hide
      */
-    // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
     @NonNull
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
     public Map<String, List<String>> getFilterProperties() {
         Bundle typePropertyPathsBundle = Preconditions.checkNotNull(
                 mBundle.getBundle(PROPERTY_FIELD));
@@ -385,11 +385,14 @@ public final class SearchSuggestionSpec {
          * @param propertyPaths The String version of {@link PropertyPath}. A dot-delimited
          *                      sequence of property names indicating which property in the
          *                      document these snippets correspond to.
-         * @exportToFramework:hide
          */
-        // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
+        // @exportToFramework:endStrip()
+        @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
         public Builder addFilterProperties(@NonNull String schema,
                 @NonNull Collection<String> propertyPaths) {
             Preconditions.checkNotNull(schema);
@@ -418,12 +421,16 @@ public final class SearchSuggestionSpec {
          *
          * @param schema the {@link AppSearchSchema} that contains the target properties
          * @param propertyPaths The {@link PropertyPath} to search suggestion over
-         *
-         * @exportToFramework:hide
          */
-        // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // Getter method is getFilterProperties
+        @SuppressLint("MissingGetterMatchingBuilder")
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
+        // @exportToFramework:endStrip()
+        @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
         public Builder addFilterPropertyPaths(@NonNull String schema,
                 @NonNull Collection<PropertyPath> propertyPaths) {
             Preconditions.checkNotNull(schema);
@@ -453,11 +460,11 @@ public final class SearchSuggestionSpec {
          * @param propertyPaths The String version of {@link PropertyPath}. A
          * {@code dot-delimited sequence of property names indicating which property in the
          * document these snippets correspond to.
-         * @exportToFramework:hide
          */
-        // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
         public Builder addFilterProperties(@NonNull Class<?> documentClass,
                 @NonNull Collection<String> propertyPaths) throws AppSearchException {
             Preconditions.checkNotNull(documentClass);
@@ -484,11 +491,13 @@ public final class SearchSuggestionSpec {
          *
          * @param documentClass class annotated with {@link Document}.
          * @param propertyPaths The {@link PropertyPath} to search suggestion over
-         * @exportToFramework:hide
          */
-        // TODO(b/228240987) migrate this API when we support property restrict for multiple terms
         @NonNull
-        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        // Getter method is getFilterProperties
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES)
         public Builder addFilterPropertyPaths(@NonNull Class<?> documentClass,
                 @NonNull Collection<PropertyPath> propertyPaths) throws AppSearchException {
             Preconditions.checkNotNull(documentClass);

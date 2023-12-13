@@ -263,6 +263,7 @@ package androidx.appsearch.app {
     field public static final String SCHEMA_ADD_PARENT_TYPE = "SCHEMA_ADD_PARENT_TYPE";
     field public static final String SCHEMA_SET_DELETION_PROPAGATION = "SCHEMA_SET_DELETION_PROPAGATION";
     field public static final String SEARCH_RESULT_MATCH_INFO_SUBMATCH = "SEARCH_RESULT_MATCH_INFO_SUBMATCH";
+    field public static final String SEARCH_SPEC_ADD_FILTER_PROPERTIES = "SEARCH_SPEC_ADD_FILTER_PROPERTIES";
     field public static final String SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION = "SEARCH_SPEC_ADVANCED_RANKING_EXPRESSION";
     field public static final String SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA = "SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA";
     field public static final String SEARCH_SPEC_PROPERTY_WEIGHTS = "SEARCH_SPEC_PROPERTY_WEIGHTS";
@@ -530,6 +531,7 @@ package androidx.appsearch.app {
     method public String getAdvancedRankingExpression();
     method public java.util.List<java.lang.String!> getFilterNamespaces();
     method public java.util.List<java.lang.String!> getFilterPackageNames();
+    method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getFilterProperties();
     method public java.util.List<java.lang.String!> getFilterSchemas();
     method public androidx.appsearch.app.JoinSpec? getJoinSpec();
     method public int getMaxSnippetSize();
@@ -554,7 +556,7 @@ package androidx.appsearch.app {
     field @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_GROUPING_TYPE_PER_SCHEMA) public static final int GROUPING_TYPE_PER_SCHEMA = 4; // 0x4
     field public static final int ORDER_ASCENDING = 1; // 0x1
     field public static final int ORDER_DESCENDING = 0; // 0x0
-    field public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
+    field @Deprecated public static final String PROJECTION_SCHEMA_TYPE_WILDCARD = "*";
     field public static final int RANKING_STRATEGY_ADVANCED_RANKING_EXPRESSION = 9; // 0x9
     field public static final int RANKING_STRATEGY_CREATION_TIMESTAMP = 2; // 0x2
     field public static final int RANKING_STRATEGY_DOCUMENT_SCORE = 1; // 0x1
@@ -565,6 +567,7 @@ package androidx.appsearch.app {
     field public static final int RANKING_STRATEGY_SYSTEM_USAGE_LAST_USED_TIMESTAMP = 7; // 0x7
     field public static final int RANKING_STRATEGY_USAGE_COUNT = 4; // 0x4
     field public static final int RANKING_STRATEGY_USAGE_LAST_USED_TIMESTAMP = 5; // 0x5
+    field public static final String SCHEMA_TYPE_WILDCARD = "*";
     field public static final int TERM_MATCH_EXACT_ONLY = 1; // 0x1
     field public static final int TERM_MATCH_PREFIX = 2; // 0x2
   }
@@ -577,6 +580,10 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSpec.Builder addFilterNamespaces(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addFilterPackageNames(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addFilterPackageNames(java.util.Collection<java.lang.String!>);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES) public androidx.appsearch.app.SearchSpec.Builder addFilterProperties(Class<?>, java.util.Collection<java.lang.String!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES) public androidx.appsearch.app.SearchSpec.Builder addFilterProperties(String, java.util.Collection<java.lang.String!>);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES) public androidx.appsearch.app.SearchSpec.Builder addFilterPropertyPaths(Class<?>, java.util.Collection<androidx.appsearch.app.PropertyPath!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES) public androidx.appsearch.app.SearchSpec.Builder addFilterPropertyPaths(String, java.util.Collection<androidx.appsearch.app.PropertyPath!>);
     method public androidx.appsearch.app.SearchSpec.Builder addFilterSchemas(java.lang.String!...);
     method public androidx.appsearch.app.SearchSpec.Builder addFilterSchemas(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSpec.Builder addProjection(String, java.util.Collection<java.lang.String!>);
@@ -617,6 +624,7 @@ package androidx.appsearch.app {
   public final class SearchSuggestionSpec {
     method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getFilterDocumentIds();
     method public java.util.List<java.lang.String!> getFilterNamespaces();
+    method public java.util.Map<java.lang.String!,java.util.List<java.lang.String!>!> getFilterProperties();
     method public java.util.List<java.lang.String!> getFilterSchemas();
     method public int getMaximumResultCount();
     method public int getRankingStrategy();
@@ -633,6 +641,10 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SearchSuggestionSpec.Builder addFilterDocumentIds(String, java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSuggestionSpec.Builder addFilterNamespaces(java.lang.String!...);
     method public androidx.appsearch.app.SearchSuggestionSpec.Builder addFilterNamespaces(java.util.Collection<java.lang.String!>);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES) public androidx.appsearch.app.SearchSuggestionSpec.Builder addFilterProperties(Class<?>, java.util.Collection<java.lang.String!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES) public androidx.appsearch.app.SearchSuggestionSpec.Builder addFilterProperties(String, java.util.Collection<java.lang.String!>);
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES) public androidx.appsearch.app.SearchSuggestionSpec.Builder addFilterPropertyPaths(Class<?>, java.util.Collection<androidx.appsearch.app.PropertyPath!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.SEARCH_SPEC_ADD_FILTER_PROPERTIES) public androidx.appsearch.app.SearchSuggestionSpec.Builder addFilterPropertyPaths(String, java.util.Collection<androidx.appsearch.app.PropertyPath!>);
     method public androidx.appsearch.app.SearchSuggestionSpec.Builder addFilterSchemas(java.lang.String!...);
     method public androidx.appsearch.app.SearchSuggestionSpec.Builder addFilterSchemas(java.util.Collection<java.lang.String!>);
     method public androidx.appsearch.app.SearchSuggestionSpec build();
