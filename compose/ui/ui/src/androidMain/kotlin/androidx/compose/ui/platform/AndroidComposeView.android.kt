@@ -137,6 +137,7 @@ import androidx.compose.ui.input.pointer.PointerInputEventProcessor
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PositionCalculator
 import androidx.compose.ui.input.pointer.ProcessResult
+import androidx.compose.ui.input.pointer.SuspendingPointerInputModifierNode
 import androidx.compose.ui.input.rotary.RotaryScrollEvent
 import androidx.compose.ui.input.rotary.onRotaryScrollEvent
 import androidx.compose.ui.layout.Placeable
@@ -154,6 +155,7 @@ import androidx.compose.ui.node.OwnedLayer
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.OwnerSnapshotObserver
 import androidx.compose.ui.node.RootForTest
+import androidx.compose.ui.node.visitSubtree
 import androidx.compose.ui.platform.MotionEventVerifierApi29.isValidMotionEvent
 import androidx.compose.ui.semantics.EmptySemanticsElement
 import androidx.compose.ui.semantics.SemanticsOwner
@@ -200,7 +202,7 @@ internal var platformTextInputServiceInterceptor:
 @OptIn(ExperimentalComposeUiApi::class, InternalComposeUiApi::class)
 internal class AndroidComposeView(
     context: Context,
-    override val coroutineContext: CoroutineContext
+    coroutineContext: CoroutineContext
 ) : ViewGroup(context), Owner, ViewRootForTest, PositionCalculator, DefaultLifecycleObserver {
 
     /**
@@ -237,6 +239,31 @@ internal class AndroidComposeView(
     )
 
     private val dragAndDropModifierOnDragListener = DragAndDropModifierOnDragListener(::startDrag)
+
+    override var coroutineContext: CoroutineContext = coroutineContext
+        // In some rare cases, the CoroutineContext is cancelled (because the parent
+        // CompositionContext containing the CoroutineContext is no longer associated with this
+        // class). Changing this CoroutineContext to the new CompositionContext's CoroutineContext
+        // needs to cancel all Pointer Input Nodes relying on the old CoroutineContext.
+        // See [Wrapper.android.kt] for more details.
+        set(value) {
+            field = value
+
+            val headModifierNode = root.nodes.head
+
+            // Reset head Modifier.Node's pointer input handler (that is, the underlying
+            // coroutine used to run the handler for input pointer events).
+            if (headModifierNode is SuspendingPointerInputModifierNode) {
+                headModifierNode.resetPointerInputHandler()
+            }
+
+            // Reset all other Modifier.Node's pointer input handler in the chain.
+            headModifierNode.visitSubtree(Nodes.PointerInput) {
+                if (it is SuspendingPointerInputModifierNode) {
+                    it.resetPointerInputHandler()
+                }
+            }
+        }
 
     override val dragAndDropManager: DragAndDropManager = dragAndDropModifierOnDragListener
 
