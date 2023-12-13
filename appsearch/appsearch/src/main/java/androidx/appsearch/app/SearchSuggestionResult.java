@@ -36,8 +36,9 @@ import androidx.core.util.Preconditions;
 @SafeParcelable.Class(creator = "SearchSuggestionResultCreator")
 public final class SearchSuggestionResult extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE)
-    @NonNull public static final Parcelable.Creator<SearchSuggestionResult> CREATOR =
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
+    @NonNull
+    public static final Parcelable.Creator<SearchSuggestionResult> CREATOR =
             new SearchSuggestionResultCreator();
 
     @Field(id = 1, getter = "getSuggestedResult")
@@ -102,7 +103,7 @@ public final class SearchSuggestionResult extends AbstractSafeParcelable {
             return this;
         }
 
-        /** Build a {@link SearchSuggestionResult} object*/
+        /** Build a {@link SearchSuggestionResult} object */
         @NonNull
         public SearchSuggestionResult build() {
             return new SearchSuggestionResult(mSuggestedResult);
@@ -110,7 +111,7 @@ public final class SearchSuggestionResult extends AbstractSafeParcelable {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         SearchSuggestionResultCreator.writeToParcel(this, dest, flags);

@@ -22,9 +22,9 @@ import org.junit.Test;
 
 public class FlagsTest {
     @Test
-    public void testFlagValue_enableSafeParcelable() {
-        assertThat(Flags.FLAG_ENABLE_SAFE_PARCELABLE).isEqualTo(
-                "com.android.appsearch.flags.enable_safe_parcelable");
+    public void testFlagValue_enableSafeParcelable2() {
+        assertThat(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2).isEqualTo(
+                "com.android.appsearch.flags.enable_safe_parcelable_2");
     }
 
     @Test
