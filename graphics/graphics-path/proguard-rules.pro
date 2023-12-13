@@ -1,3 +1,3 @@
--keepclasseswithmembernames,includedescriptorclasses class * {
+-keepclasseswithmembers class androidx.graphics.path.** {
     native <methods>;
 }
