@@ -18,15 +18,13 @@ package androidx.appsearch.app;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Bundle;
-
 import org.junit.Test;
 
 /** Tests for private APIs of {@link SearchSpec}. */
 public class SearchSpecInternalTest {
 
     @Test
-    public void testGetBundle() {
+    public void testSearchSpecBuilder() {
         SearchSpec searchSpec = new SearchSpec.Builder()
                 .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
                 .addFilterNamespaces("namespace1", "namespace2")
@@ -43,23 +41,21 @@ public class SearchSpecInternalTest {
                 .setListFilterQueryLanguageEnabled(true)
                 .build();
 
-        Bundle bundle = searchSpec.getBundle();
-        assertThat(bundle.getInt(SearchSpec.TERM_MATCH_TYPE_FIELD))
-                .isEqualTo(SearchSpec.TERM_MATCH_PREFIX);
-        assertThat(bundle.getStringArrayList(SearchSpec.NAMESPACE_FIELD)).containsExactly(
+        assertThat(searchSpec.getTermMatch()).isEqualTo(SearchSpec.TERM_MATCH_PREFIX);
+        assertThat(searchSpec.getFilterNamespaces()).containsExactly(
                 "namespace1", "namespace2");
-        assertThat(bundle.getStringArrayList(SearchSpec.SCHEMA_FIELD)).containsExactly(
+        assertThat(searchSpec.getFilterSchemas()).containsExactly(
                 "schemaTypes1", "schemaTypes2");
-        assertThat(bundle.getStringArrayList(SearchSpec.PACKAGE_NAME_FIELD)).containsExactly(
+        assertThat(searchSpec.getFilterPackageNames()).containsExactly(
                 "package1", "package2");
-        assertThat(bundle.getInt(SearchSpec.SNIPPET_COUNT_FIELD)).isEqualTo(5);
-        assertThat(bundle.getInt(SearchSpec.SNIPPET_COUNT_PER_PROPERTY_FIELD)).isEqualTo(10);
-        assertThat(bundle.getInt(SearchSpec.MAX_SNIPPET_FIELD)).isEqualTo(15);
-        assertThat(bundle.getInt(SearchSpec.NUM_PER_PAGE_FIELD)).isEqualTo(42);
-        assertThat(bundle.getInt(SearchSpec.ORDER_FIELD)).isEqualTo(SearchSpec.ORDER_ASCENDING);
-        assertThat(bundle.getInt(SearchSpec.RANKING_STRATEGY_FIELD))
+        assertThat(searchSpec.getSnippetCount()).isEqualTo(5);
+        assertThat(searchSpec.getSnippetCountPerProperty()).isEqualTo(10);
+        assertThat(searchSpec.getMaxSnippetSize()).isEqualTo(15);
+        assertThat(searchSpec.getResultCountPerPage()).isEqualTo(42);
+        assertThat(searchSpec.getOrder()).isEqualTo(SearchSpec.ORDER_ASCENDING);
+        assertThat(searchSpec.getRankingStrategy())
                 .isEqualTo(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE);
-        assertThat(bundle.getStringArrayList(SearchSpec.ENABLED_FEATURES_FIELD)).containsExactly(
+        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
                 Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
                 Features.LIST_FILTER_QUERY_LANGUAGE);
     }
@@ -74,8 +70,7 @@ public class SearchSpecInternalTest {
                 .setListFilterHasPropertyFunctionEnabled(true)
                 .build();
 
-        Bundle bundle = searchSpec.getBundle();
-        assertThat(bundle.getStringArrayList(SearchSpec.ENABLED_FEATURES_FIELD)).containsExactly(
+        assertThat(searchSpec.getEnabledFeatures()).containsExactly(
                 Features.NUMERIC_SEARCH, Features.VERBATIM_SEARCH,
                 Features.LIST_FILTER_QUERY_LANGUAGE, Features.LIST_FILTER_HAS_PROPERTY_FUNCTION);
     }
