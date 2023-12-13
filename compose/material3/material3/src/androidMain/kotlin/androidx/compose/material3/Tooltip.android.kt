@@ -18,9 +18,13 @@ package androidx.compose.material3
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
+import androidx.compose.foundation.layout.requiredHeightIn
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.tokens.PlainTooltipTokens
+import androidx.compose.material3.tokens.RichTooltipTokens
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -58,7 +62,7 @@ import androidx.compose.ui.unit.dp
 @ExperimentalMaterial3Api
 actual fun CaretScope.PlainTooltip(
     modifier: Modifier,
-    caretProperties: (CaretProperties)?,
+    caretProperties: CaretProperties?,
     shape: Shape,
     contentColor: Color,
     containerColor: Color,
@@ -66,23 +70,23 @@ actual fun CaretScope.PlainTooltip(
     shadowElevation: Dp,
     content: @Composable () -> Unit
 ) {
-    val customModifier =
+    val drawCaretModifier =
         if (caretProperties != null) {
             val density = LocalDensity.current
             val configuration = LocalConfiguration.current
             Modifier.drawCaret { anchorLayoutCoordinates ->
-                    drawCaretWithPath(
-                        density,
-                        configuration,
-                        containerColor,
-                        caretProperties,
-                        anchorLayoutCoordinates
-                    )
-                }.then(modifier)
+                drawCaretWithPath(
+                    CaretType.Plain,
+                    density,
+                    configuration,
+                    containerColor,
+                    caretProperties,
+                    anchorLayoutCoordinates
+                )
+            }.then(modifier)
         } else modifier
-
     Surface(
-        modifier = customModifier,
+        modifier = drawCaretModifier,
         shape = shape,
         color = containerColor,
         tonalElevation = tonalElevation,
@@ -108,8 +112,123 @@ actual fun CaretScope.PlainTooltip(
     }
 }
 
+/**
+ * Rich text tooltip that allows the user to pass in a title, text, and action.
+ * Tooltips are used to provide a descriptive message.
+ *
+ * Usually used with [TooltipBox]
+ *
+ * @param modifier the [Modifier] to be applied to the tooltip.
+ * @param title An optional title for the tooltip.
+ * @param action An optional action for the tooltip.
+ * @param caretProperties [CaretProperties] for the caret of the tooltip, if a default
+ * caret is desired with a specific dimension. Pass in null for this parameter if no
+ * caret is desired.
+ * @param shape the [Shape] that should be applied to the tooltip container.
+ * @param colors [RichTooltipColors] that will be applied to the tooltip's container and content.
+ * @param tonalElevation the tonal elevation of the tooltip.
+ * @param shadowElevation the shadow elevation of the tooltip.
+ * @param text the composable that will be used to populate the rich tooltip's text.
+ */
+@Composable
+@ExperimentalMaterial3Api
+actual fun CaretScope.RichTooltip(
+    modifier: Modifier,
+    title: (@Composable () -> Unit)?,
+    action: (@Composable () -> Unit)?,
+    caretProperties: CaretProperties?,
+    shape: Shape,
+    colors: RichTooltipColors,
+    tonalElevation: Dp,
+    shadowElevation: Dp,
+    text: @Composable () -> Unit
+) {
+    val absoluteElevation = LocalAbsoluteTonalElevation.current + tonalElevation
+    val elevatedColor =
+        MaterialTheme.colorScheme.applyTonalElevation(
+            colors.containerColor,
+            absoluteElevation
+        )
+    val drawCaretModifier =
+        if (caretProperties != null) {
+            val density = LocalDensity.current
+            val configuration = LocalConfiguration.current
+            Modifier.drawCaret { anchorLayoutCoordinates ->
+                drawCaretWithPath(
+                    CaretType.Rich,
+                    density,
+                    configuration,
+                    elevatedColor,
+                    caretProperties,
+                    anchorLayoutCoordinates
+                )
+            }.then(modifier)
+        } else modifier
+    Surface(
+        modifier = drawCaretModifier
+            .sizeIn(
+                minWidth = TooltipMinWidth,
+                maxWidth = RichTooltipMaxWidth,
+                minHeight = TooltipMinHeight
+            ),
+        shape = shape,
+        color = colors.containerColor,
+        tonalElevation = tonalElevation,
+        shadowElevation = shadowElevation
+    ) {
+        val actionLabelTextStyle =
+            MaterialTheme.typography.fromToken(RichTooltipTokens.ActionLabelTextFont)
+        val subheadTextStyle =
+            MaterialTheme.typography.fromToken(RichTooltipTokens.SubheadFont)
+        val supportingTextStyle =
+            MaterialTheme.typography.fromToken(RichTooltipTokens.SupportingTextFont)
+
+        Column(
+            modifier = Modifier.padding(horizontal = RichTooltipHorizontalPadding)
+        ) {
+            title?.let {
+                Box(
+                    modifier = Modifier.paddingFromBaseline(top = HeightToSubheadFirstLine)
+                ) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.titleContentColor,
+                        LocalTextStyle provides subheadTextStyle,
+                        content = it
+                    )
+                }
+            }
+            Box(
+                modifier = Modifier.textVerticalPadding(
+                    title != null,
+                    action != null
+                )
+            ) {
+                CompositionLocalProvider(
+                    LocalContentColor provides colors.contentColor,
+                    LocalTextStyle provides supportingTextStyle,
+                    content = text
+                )
+            }
+            action?.let {
+                Box(
+                    modifier = Modifier
+                        .requiredHeightIn(min = ActionLabelMinHeight)
+                        .padding(bottom = ActionLabelBottomPadding)
+                ) {
+                    CompositionLocalProvider(
+                        LocalContentColor provides colors.actionContentColor,
+                        LocalTextStyle provides actionLabelTextStyle,
+                        content = it
+                    )
+                }
+            }
+        }
+    }
+}
+
 @ExperimentalMaterial3Api
 private fun CacheDrawScope.drawCaretWithPath(
+    caretType: CaretType,
     density: Density,
     configuration: Configuration,
     containerColor: Color,
@@ -140,18 +259,46 @@ private fun CacheDrawScope.drawCaretWithPath(
         val isCaretTop = anchorTop - tooltipHeight - tooltipAnchorSpacing < 0
         val caretY = if (isCaretTop) { 0f } else { tooltipHeight }
 
-        val position =
-            if (anchorMid + tooltipWidth / 2 > screenWidthPx) {
-                val anchorMidFromRightScreenEdge =
-                    screenWidthPx - anchorMid
-                val caretX = tooltipWidth - anchorMidFromRightScreenEdge
-                Offset(caretX, caretY)
-            } else {
-                val tooltipLeft =
-                    anchorLeft - (this.size.width / 2 - anchorWidth / 2)
-                val caretX = anchorMid - maxOf(tooltipLeft, 0f)
-                Offset(caretX, caretY)
+        val position: Offset
+        if (caretType == CaretType.Plain) {
+            position =
+                if (anchorMid + tooltipWidth / 2 > screenWidthPx) {
+                    // Caret needs to be near the right
+                    val anchorMidFromRightScreenEdge =
+                        screenWidthPx - anchorMid
+                    val caretX = tooltipWidth - anchorMidFromRightScreenEdge
+                    Offset(caretX, caretY)
+                } else {
+                    // Caret needs to be near the left
+                    val tooltipLeft =
+                        anchorLeft - (this.size.width / 2 - anchorWidth / 2)
+                    val caretX = anchorMid - maxOf(tooltipLeft, 0f)
+                    Offset(caretX, caretY)
+                }
+        } else {
+            // Default the caret to the left
+            var preferredPosition = Offset(anchorMid - anchorLeft, caretY)
+            if (anchorLeft + tooltipWidth > screenWidthPx) {
+                // Need to move the caret to the right
+                preferredPosition = Offset(anchorMid - (anchorRight - tooltipWidth), caretY)
+                if (anchorRight - tooltipWidth < 0) {
+                    // Need to center the caret
+                    // Caret might need to be offset depending on where
+                    // the tooltip is placed relative to the anchor
+                    if (anchorLeft - tooltipWidth / 2 + anchorWidth / 2 <= 0) {
+                        preferredPosition = Offset(anchorMid, caretY)
+                    } else if (anchorRight + tooltipWidth / 2 - anchorWidth / 2 >= screenWidthPx) {
+                        val anchorMidFromRightScreenEdge =
+                            screenWidthPx - anchorMid
+                        val caretX = tooltipWidth - anchorMidFromRightScreenEdge
+                        preferredPosition = Offset(caretX, caretY)
+                    } else {
+                        preferredPosition = Offset(tooltipWidth / 2, caretY)
+                    }
+                }
             }
+            position = preferredPosition
+        }
 
         if (isCaretTop) {
             path.apply {
@@ -181,4 +328,9 @@ private fun CacheDrawScope.drawCaretWithPath(
             )
         }
     }
+}
+
+@ExperimentalMaterial3Api
+private enum class CaretType {
+    Plain, Rich
 }
