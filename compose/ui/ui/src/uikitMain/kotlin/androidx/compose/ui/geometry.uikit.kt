@@ -23,5 +23,13 @@ import platform.CoreGraphics.CGRectMake
 internal fun Rect.toCGRect() =
     CGRectMake(left.toDouble(), top.toDouble(), size.width.toDouble(), size.height.toDouble())
 
+internal fun Rect.toCGRect(density: Double) =
+    CGRectMake(
+        left / density,
+        top / density,
+        size.width / density,
+        size.height / density
+    )
+
 internal operator fun IntRect.div(divider: Float) =
     Rect(left / divider, top / divider, right / divider, bottom / divider)

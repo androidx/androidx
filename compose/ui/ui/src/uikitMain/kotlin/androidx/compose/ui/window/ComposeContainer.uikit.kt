@@ -282,7 +282,8 @@ internal class ComposeContainer(
             configuration = configuration,
             focusStack = focusStack,
             windowInfo = windowInfo,
-            transparency = false
+            transparency = false,
+            coroutineContext = coroutineDispatcher,
         ) { mediator: ComposeSceneMediator ->
             SingleLayerComposeScene(
                 coroutineContext = coroutineDispatcher,
@@ -302,6 +303,7 @@ internal class ComposeContainer(
             focusStack = focusStack,
             windowInfo = windowInfo,
             transparency = false,
+            coroutineContext = coroutineDispatcher,
         ) { mediator ->
             MultiLayerComposeScene(
                 coroutineContext = coroutineDispatcher,

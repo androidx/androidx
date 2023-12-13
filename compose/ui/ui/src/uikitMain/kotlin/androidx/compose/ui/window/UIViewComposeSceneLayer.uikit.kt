@@ -52,6 +52,7 @@ internal class UIViewComposeSceneLayer(
         focusStack = focusStack,
         windowInfo = windowInfo,
         transparency = true,
+        coroutineContext = compositionContext.effectCoroutineContext,
     ) { mediator: ComposeSceneMediator ->
         SingleLayerComposeScene(
             coroutineContext = compositionContext.effectCoroutineContext,
