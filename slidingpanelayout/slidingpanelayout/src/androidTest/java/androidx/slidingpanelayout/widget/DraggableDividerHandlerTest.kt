@@ -145,6 +145,20 @@ class DraggableDividerHandlerTest {
                 .isTrue()
         }
     }
+
+    @Test
+    fun interceptTouchEvents() {
+        object : SlidingPaneLayout.AbsDraggableDividerHandler(10) {
+            override fun dividerBoundsContains(x: Int, y: Int): Boolean = true
+        }.test {
+            performInterceptTouchEvent(downEvent(25f, 0f), false)
+            val interceptedMove = moveEvent(35f, 0f)
+            performInterceptTouchEvent(interceptedMove, true)
+            assertWithMessage("isDragging after onInterceptTouchEvent move")
+                .that(isDragging)
+                .isTrue()
+        }
+    }
 }
 
 private open class ExpectNoResizeEventsDividerHandler(
@@ -212,6 +226,9 @@ private class DraggableDividerHandlerTester(
     var lastY: Float = Float.NaN
         private set
 
+    val isDragging: Boolean
+        get() = draggableDividerHandler.isDragging
+
     fun down(x: Float, y: Float) {
         performTouchEvent(downEvent(x, y))
     }
@@ -230,7 +247,13 @@ private class DraggableDividerHandlerTester(
         performTouchEvent(cancelEvent())
     }
 
-    private fun performTouchEvent(event: MotionEvent) {
+    fun performInterceptTouchEvent(event: MotionEvent, expectReturn: Boolean) {
+        assertWithMessage("onInterceptTouchEvent(${MotionEvent.actionToString(event.action)})")
+            .that(draggableDividerHandler.onInterceptTouchEvent(event))
+            .isEqualTo(expectReturn)
+    }
+
+    fun performTouchEvent(event: MotionEvent) {
         lastAction = event.action
         lastX = event.x
         lastY = event.y
