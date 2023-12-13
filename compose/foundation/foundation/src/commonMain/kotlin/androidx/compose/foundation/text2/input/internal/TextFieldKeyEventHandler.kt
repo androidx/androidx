@@ -58,7 +58,7 @@ internal abstract class TextFieldKeyEventHandler {
         focusManager: FocusManager,
         keyboardController: SoftwareKeyboardController
     ): Boolean {
-        val selection = textFieldState.text.selectionInChars
+        val selection = textFieldState.visualText.selectionInChars
         return if (!selection.collapsed && event.cancelsTextSelection()) {
             textFieldSelectionState.deselect()
             true
