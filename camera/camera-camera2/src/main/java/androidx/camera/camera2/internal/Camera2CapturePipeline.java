@@ -27,9 +27,6 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_SCREEN;
 import static androidx.camera.core.ImageCapture.FLASH_TYPE_USE_TORCH_AS_FLASH;
 import static androidx.camera.core.ImageCapture.FlashMode;
 import static androidx.camera.core.ImageCapture.FlashType;
-import static androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
-import static androidx.camera.core.impl.CameraCaptureMetaData.AfState;
-import static androidx.camera.core.impl.CameraCaptureMetaData.AwbMode;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
@@ -57,12 +54,10 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
-import androidx.camera.core.impl.CameraCaptureMetaData.AeMode;
-import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
-import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResults;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.ConvergenceUtils;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -73,11 +68,8 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -90,46 +82,6 @@ import java.util.concurrent.atomic.AtomicReference;
 class Camera2CapturePipeline {
 
     private static final String TAG = "Camera2CapturePipeline";
-
-    private static final Set<AfState> AF_CONVERGED_STATE_SET =
-            Collections.unmodifiableSet(EnumSet.of(
-                    AfState.PASSIVE_FOCUSED,
-                    AfState.PASSIVE_NOT_FOCUSED,
-                    AfState.LOCKED_FOCUSED,
-                    AfState.LOCKED_NOT_FOCUSED
-            ));
-
-    private static final Set<AwbState> AWB_CONVERGED_STATE_SET =
-            Collections.unmodifiableSet(EnumSet.of(
-                    AwbState.CONVERGED,
-                    // Unknown means cannot get valid state from CaptureResult
-                    AwbState.UNKNOWN
-            ));
-
-    private static final Set<AeState> AE_CONVERGED_STATE_SET =
-            Collections.unmodifiableSet(EnumSet.of(
-                    AeState.CONVERGED,
-                    AeState.FLASH_REQUIRED,
-                    // Unknown means cannot get valid state from CaptureResult
-                    AeState.UNKNOWN
-            ));
-
-    private static final Set<AeState> AE_TORCH_AS_FLASH_CONVERGED_STATE_SET;
-
-    static {
-        EnumSet<AeState> aeStateSet = EnumSet.copyOf(AE_CONVERGED_STATE_SET);
-
-        // Some devices always show FLASH_REQUIRED when the torch is opened, so it cannot be
-        // treated as the AE converge signal.
-        aeStateSet.remove(AeState.FLASH_REQUIRED);
-
-        // AeState.UNKNOWN means it doesn't have valid AE info. For this kind of device, we tend
-        // to wait for a few more seconds for the auto exposure update. So the UNKNOWN state
-        // should not be treated as the AE converge signal.
-        aeStateSet.remove(AeState.UNKNOWN);
-
-        AE_TORCH_AS_FLASH_CONVERGED_STATE_SET = Collections.unmodifiableSet(aeStateSet);
-    }
 
     @NonNull
     private final Camera2CameraControlImpl mCameraControl;
@@ -450,30 +402,7 @@ class Camera2CapturePipeline {
 
         Camera2CameraCaptureResult captureResult = new Camera2CameraCaptureResult(
                 totalCaptureResult);
-
-        // If afMode is OFF or UNKNOWN , no need for waiting.
-        // otherwise wait until af is locked or focused.
-        boolean isAfReady = captureResult.getAfMode() == AfMode.OFF
-                || captureResult.getAfMode() == AfMode.UNKNOWN
-                || AF_CONVERGED_STATE_SET.contains(captureResult.getAfState());
-
-        boolean isAeReady;
-        boolean isAeModeOff = captureResult.getAeMode() == AeMode.OFF;
-        if (isTorchAsFlash) {
-            isAeReady = isAeModeOff
-                    || AE_TORCH_AS_FLASH_CONVERGED_STATE_SET.contains(captureResult.getAeState());
-        } else {
-            isAeReady = isAeModeOff || AE_CONVERGED_STATE_SET.contains(captureResult.getAeState());
-        }
-
-        boolean isAwbModeOff = captureResult.getAwbMode() == AwbMode.OFF;
-        boolean isAwbReady = isAwbModeOff
-                || AWB_CONVERGED_STATE_SET.contains(captureResult.getAwbState());
-
-        Logger.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
-                + " AF =" + captureResult.getAfState()
-                + " AWB=" + captureResult.getAwbState());
-        return isAfReady && isAeReady && isAwbReady;
+        return ConvergenceUtils.is3AConverged(captureResult, isTorchAsFlash);
     }
 
     interface PipelineTask {
