@@ -220,7 +220,7 @@ private fun macrobenchmark(
     scope.killProcess()
 
     inMemoryTrace("compile $packageName") {
-        compilationMode.resetAndCompile(packageName, killProcessBlock = scope::killProcess) {
+        compilationMode.resetAndCompile(scope) {
             setupBlock(scope)
             measureBlock(scope)
         }
@@ -247,6 +247,7 @@ private fun macrobenchmark(
                 }
 
                 scope.iteration = iteration
+
                 inMemoryTrace("setupBlock") {
                     setupBlock(scope)
                 }
@@ -371,6 +372,7 @@ private fun macrobenchmark(
             }
         }
 
+        @Suppress("NewApi") // Suppress spurious NewApi lint checks when using the `is` operator.
         val warmupIterations = when (compilationMode) {
             is CompilationMode.Partial -> compilationMode.warmupIterations
             else -> 0

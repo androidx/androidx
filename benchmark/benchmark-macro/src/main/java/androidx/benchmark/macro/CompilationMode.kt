@@ -73,11 +73,11 @@ import org.junit.AssumptionViolatedException
  */
 sealed class CompilationMode {
     internal fun resetAndCompile(
-        packageName: String,
+        scope: MacrobenchmarkScope,
         allowCompilationSkipping: Boolean = true,
-        killProcessBlock: () -> Unit,
-        warmupBlock: () -> Unit
+        warmupBlock: () -> Unit,
     ) {
+        val packageName = scope.packageName
         if (Build.VERSION.SDK_INT >= 24) {
             if (Arguments.enableCompilation || !allowCompilationSkipping) {
                 Log.d(TAG, "Resetting $packageName")
@@ -110,8 +110,8 @@ sealed class CompilationMode {
                     }
                 }
                 // Write skip file to stop profile installer from interfering with the benchmark
-                writeProfileInstallerSkipFile(packageName, killProcessBlock = killProcessBlock)
-                compileImpl(packageName, killProcessBlock, warmupBlock)
+                writeProfileInstallerSkipFile(scope)
+                compileImpl(scope, warmupBlock)
             } else {
                 Log.d(TAG, "Compilation is disabled, skipping compilation of $packageName")
             }
@@ -168,7 +168,10 @@ sealed class CompilationMode {
      * Writes a skip file via a [ProfileInstallReceiver] broadcast, so profile installation
      * does not interfere with benchmarks.
      */
-    private fun writeProfileInstallerSkipFile(packageName: String, killProcessBlock: () -> Unit) {
+    private fun writeProfileInstallerSkipFile(
+        scope: MacrobenchmarkScope
+    ) {
+        val packageName = scope.packageName
         val result = ProfileInstallBroadcast.skipFileOperation(packageName, "WRITE_SKIP_FILE")
         if (result != null) {
             Log.w(
@@ -180,14 +183,13 @@ sealed class CompilationMode {
             )
         }
         Log.d(TAG, "Killing process $packageName")
-        killProcessBlock()
+        scope.killProcess()
     }
 
     @RequiresApi(24)
     internal abstract fun compileImpl(
-        packageName: String,
-        killProcessBlock: () -> Unit,
-        warmupBlock: () -> Unit
+        scope: MacrobenchmarkScope,
+        warmupBlock: () -> Unit,
     )
 
     @RequiresApi(24)
@@ -206,8 +208,7 @@ sealed class CompilationMode {
         override fun toString(): String = "None"
 
         override fun compileImpl(
-            packageName: String,
-            killProcessBlock: () -> Unit,
+            scope: MacrobenchmarkScope,
             warmupBlock: () -> Unit
         ) {
             // nothing to do!
@@ -227,8 +228,7 @@ sealed class CompilationMode {
         override fun toString(): String = "Ignore"
 
         override fun compileImpl(
-            packageName: String,
-            killProcessBlock: () -> Unit,
+            scope: MacrobenchmarkScope,
             warmupBlock: () -> Unit
         ) {
             // Do nothing.
@@ -293,17 +293,17 @@ sealed class CompilationMode {
         }
 
         override fun compileImpl(
-            packageName: String,
-            killProcessBlock: () -> Unit,
+            scope: MacrobenchmarkScope,
             warmupBlock: () -> Unit
         ) {
+            val packageName = scope.packageName
             if (baselineProfileMode != BaselineProfileMode.Disable) {
                 // Ignores the presence of a skip file.
                 val installErrorString = ProfileInstallBroadcast.installProfile(packageName)
                 if (installErrorString == null) {
                     // baseline profile install success, kill process before compiling
                     Log.d(TAG, "Killing process $packageName")
-                    killProcessBlock()
+                    scope.killProcess()
                     cmdPackageCompile(packageName, "speed-profile")
                 } else {
                     if (baselineProfileMode == BaselineProfileMode.Require) {
@@ -314,35 +314,16 @@ sealed class CompilationMode {
                 }
             }
             if (warmupIterations > 0) {
-                repeat(this.warmupIterations) {
-                    warmupBlock()
-                }
-                // For speed profile compilation, ART team recommended to wait for 5 secs when app
-                // is in the foreground, dump the profile, wait for another 5 secs before
-                // speed-profile compilation.
-                Thread.sleep(5000)
-                val saveResult = ProfileInstallBroadcast.saveProfile(packageName)
-                if (saveResult == null) {
-                    killProcessBlock() // success, have to manually kill process
-                } else {
-                    if (Shell.isSessionRooted()) {
-                        // fallback on `killall -s SIGUSR1`, if available with root
-                        Log.d(
-                            TAG,
-                            "Unable to saveProfile with profileinstaller ($saveResult), trying kill"
-                        )
-                        val response = Shell.executeScriptCaptureStdoutStderr(
-                            "killall -s SIGUSR1 $packageName"
-                        )
-                        check(response.isBlank()) {
-                            "Failed to dump profile for $packageName ($response),\n" +
-                                " and failed to save profile with broadcast: $saveResult"
-                        }
-                    } else {
-                        throw RuntimeException(saveResult)
+                scope.flushArtProfiles = true
+                try {
+                    repeat(this.warmupIterations) {
+                        warmupBlock()
                     }
+                    scope.killProcessAndFlushArtProfiles()
+                    cmdPackageCompile(packageName, "speed-profile")
+                } finally {
+                    scope.flushArtProfiles = false
                 }
-                cmdPackageCompile(packageName, "speed-profile")
             }
         }
 
@@ -362,12 +343,11 @@ sealed class CompilationMode {
         override fun toString(): String = "Full"
 
         override fun compileImpl(
-            packageName: String,
-            killProcessBlock: () -> Unit,
+            scope: MacrobenchmarkScope,
             warmupBlock: () -> Unit
         ) {
             if (Build.VERSION.SDK_INT >= 24) {
-                cmdPackageCompile(packageName, "speed")
+                cmdPackageCompile(scope.packageName, "speed")
             }
             // Noop on older versions: apps are fully compiled at install time on API 23 and below
         }
@@ -389,8 +369,7 @@ sealed class CompilationMode {
         override fun toString(): String = "Interpreted"
 
         override fun compileImpl(
-            packageName: String,
-            killProcessBlock: () -> Unit,
+            scope: MacrobenchmarkScope,
             warmupBlock: () -> Unit
         ) {
             // Nothing to do - handled externally
