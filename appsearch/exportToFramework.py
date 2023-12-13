@@ -64,7 +64,8 @@ FRAMEWORK_API_ROOT = 'framework/java/external/android/app/appsearch'
 FRAMEWORK_API_TEST_ROOT = 'testing/coretests/src/android/app/appsearch/external'
 FRAMEWORK_IMPL_ROOT = 'service/java/com/android/server/appsearch/external'
 FRAMEWORK_IMPL_TEST_ROOT = 'testing/servicestests/src/com/android/server/appsearch/external'
-FRAMEWORK_TEST_UTIL_ROOT = '../../../cts/tests/appsearch/testutils/src/android/app/appsearch/testutil/external'
+FRAMEWORK_TEST_UTIL_ROOT = (
+    '../../../cts/tests/appsearch/testutils/src/android/app/appsearch/testutil/external')
 FRAMEWORK_TEST_UTIL_TEST_ROOT = 'testing/servicestests/src/android/app/appsearch/testutil/external'
 FRAMEWORK_CTS_TEST_ROOT = '../../../cts/tests/appsearch/src/com/android/cts/appsearch/external'
 GOOGLE_JAVA_FORMAT = (
@@ -88,19 +89,34 @@ class ExportToFramework:
                 os.remove(abs_path)
 
     def _TransformAndCopyFile(
-            self, source_path, dest_path, transform_func=None, ignore_skips=False):
+            self, source_path, default_dest_path, transform_func=None, ignore_skips=False):
+        """
+        Transforms the file located at 'source_path' and writes it into 'default_dest_path'.
+
+        An @exportToFramework:skip() directive will skip the copy process.
+        An @exportToFramework:copyToPath() directive will override default_dest_path with another
+          path relative to framework_appsearch_root (which is usually packages/modules/AppSearch)
+        """
         with open(source_path, 'r') as fh:
             contents = fh.read()
 
         if not ignore_skips and '@exportToFramework:skipFile()' in contents:
-            print('Skipping: "%s" -> "%s"' % (source_path, dest_path), file=sys.stderr)
+            print('Skipping: "%s" -> "%s"' % (source_path, default_dest_path), file=sys.stderr)
             return
 
-        copyToPath = re.search(r'@exportToFramework:copyToPath\(([^)]+)\)', contents)
-        if copyToPath:
-          dest_path = os.path.join(self._framework_appsearch_root, copyToPath.group(1))
+        copy_to_path = re.search(r'@exportToFramework:copyToPath\(([^)]+)\)', contents)
+        if copy_to_path:
+            dest_path = os.path.join(self._framework_appsearch_root, copy_to_path.group(1))
+        else:
+            dest_path = default_dest_path
 
+        self._TransformAndCopyFileToPath(source_path, dest_path, transform_func)
+
+    def _TransformAndCopyFileToPath(self, source_path, dest_path, transform_func=None):
+        """Transforms the file located at 'source_path' and writes it into 'dest_path'."""
         print('Copy: "%s" -> "%s"' % (source_path, dest_path), file=sys.stderr)
+        with open(source_path, 'r') as fh:
+            contents = fh.read()
         if transform_func:
             contents = transform_func(contents)
         os.makedirs(os.path.dirname(dest_path), exist_ok=True)

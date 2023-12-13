@@ -26,7 +26,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.app.Features;
+import androidx.appsearch.app.FeatureConstants;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchResult;
 import androidx.appsearch.app.SearchSpec;
@@ -347,9 +347,10 @@ public final class SearchSpecToProtoConverter {
                 && !mIcingOptionsConfig.getBuildPropertyExistenceMetadataHits()) {
             // This condition should never be reached as long as Features.isFeatureSupported() is
             // consistent with IcingOptionsConfig.
-            throw new UnsupportedOperationException(Features.LIST_FILTER_HAS_PROPERTY_FUNCTION
-                    + " is currently not operational because the building process for the "
-                    + "associated metadata has not yet been turned on.");
+            throw new UnsupportedOperationException(
+                    FeatureConstants.LIST_FILTER_HAS_PROPERTY_FUNCTION
+                            + " is currently not operational because the building process for the "
+                            + "associated metadata has not yet been turned on.");
         }
 
         // TODO(b/208654892) Remove this field once EXPERIMENTAL_ICING_ADVANCED_QUERY is fully
@@ -556,7 +557,7 @@ public final class SearchSpecToProtoConverter {
         List<String> result = new ArrayList<>();
         for (int i = 0; i < appSearchFeatures.size(); i++) {
             String appSearchFeature = appSearchFeatures.get(i);
-            if (appSearchFeature.equals(Features.LIST_FILTER_HAS_PROPERTY_FUNCTION)) {
+            if (appSearchFeature.equals(FeatureConstants.LIST_FILTER_HAS_PROPERTY_FUNCTION)) {
                 result.add("HAS_PROPERTY_FUNCTION");
             } else {
                 result.add(appSearchFeature);
