@@ -150,6 +150,7 @@ class WindowInsetsControllerTest {
             } else {
                 view.windowInsetsController?.hide(insetType)
             }
+            rule.activity.finish()
         }
     }
 
