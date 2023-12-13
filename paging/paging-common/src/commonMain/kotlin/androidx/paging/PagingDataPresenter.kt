@@ -40,7 +40,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
 
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class PagingDataDiffer<T : Any>(
+public abstract class PagingDataPresenter<T : Any>(
     private val differCallback: DifferCallback,
     private val mainContext: CoroutineContext = Dispatchers.Main,
     cachedPagingData: PagingData<T>? = null,
@@ -114,7 +114,7 @@ public abstract class PagingDataDiffer<T : Any>(
 
     /**
      * @param onListPresentable Call this synchronously right before dispatching updates to signal
-     * that this [PagingDataDiffer] should now consider [newList] as the presented list for
+     * that this [PagingDataPresenter] should now consider [newList] as the presented list for
      * presenter-level APIs such as [snapshot] and [peek]. This should be called before notifying
      * any callbacks that the user would expect to be synchronous with pageStore updates, such as
      * `ListUpdateCallback`, in case it's desirable to inspect pageStore state within those
@@ -195,8 +195,8 @@ public abstract class PagingDataDiffer<T : Any>(
                             // there are no more items to load.
                             val source = combinedLoadStatesCollection.stateFlow.value?.source
                             checkNotNull(source) {
-                                "PagingDataDiffer.combinedLoadStatesCollection.stateFlow should" +
-                                    "not hold null CombinedLoadStates after Insert event."
+                                "PagingDataPresenter.combinedLoadStatesCollection.stateFlow " +
+                                    "should not hold null CombinedLoadStates after Insert event."
                             }
                             val prependDone = source.prepend.endOfPaginationReached
                             val appendDone = source.append.endOfPaginationReached
@@ -205,9 +205,9 @@ public abstract class PagingDataDiffer<T : Any>(
 
                             /**
                              *  If the insert is empty due to aggressive filtering, another hint
-                             *  must be sent to fetcher-side to notify that PagingDataDiffer
+                             *  must be sent to fetcher-side to notify that PagingDataPresenter
                              *  received the page, since fetcher estimates prefetchDistance based on
-                             *  page indices presented by PagingDataDiffer and we cannot rely on a
+                             *  page indices presented by PagingDataPresenter and we cannot rely on a
                              *  new item being bound to trigger another hint since the presented
                              *  page is empty.
                              */
@@ -301,7 +301,7 @@ public abstract class PagingDataDiffer<T : Any>(
 
     /**
      * Retry any failed load requests that would result in a [LoadState.Error] update to this
-     * [PagingDataDiffer].
+     * [PagingDataPresenter].
      *
      * Unlike [refresh], this does not invalidate [PagingSource], it only retries failed loads
      * within the same generation of [PagingData].
@@ -316,7 +316,7 @@ public abstract class PagingDataDiffer<T : Any>(
     }
 
     /**
-     * Refresh the data presented by this [PagingDataDiffer].
+     * Refresh the data presented by this [PagingDataPresenter].
      *
      * [refresh] triggers the creation of a new [PagingData] with a new instance of [PagingSource]
      * to represent an updated snapshot of the backing dataset. If a [RemoteMediator] is set,
@@ -347,7 +347,7 @@ public abstract class PagingDataDiffer<T : Any>(
      * current [PagingData] changes.
      *
      * This flow is conflated. It buffers the last update to [CombinedLoadStates] and immediately
-     * delivers the current load states on collection, unless this [PagingDataDiffer] has not been
+     * delivers the current load states on collection, unless this [PagingDataPresenter] has not been
      * hooked up to a [PagingData] yet, and thus has no state to emit.
      *
      * @sample androidx.paging.samples.loadStateFlowSample
@@ -424,7 +424,7 @@ public abstract class PagingDataDiffer<T : Any>(
      * reflect the current [CombinedLoadStates].
      *
      * When a new listener is added, it will be immediately called with the current
-     * [CombinedLoadStates], unless this [PagingDataDiffer] has not been hooked up to a [PagingData]
+     * [CombinedLoadStates], unless this [PagingDataPresenter] has not been hooked up to a [PagingData]
      * yet, and thus has no state to emit.
      *
      * @param listener [LoadStates] listener to receive updates.
@@ -457,7 +457,7 @@ public abstract class PagingDataDiffer<T : Any>(
         newHintReceiver: HintReceiver,
     ) {
         require(!dispatchLoadStates || sourceLoadStates != null) {
-            "Cannot dispatch LoadStates in PagingDataDiffer without source LoadStates set."
+            "Cannot dispatch LoadStates in PagingDataPresenter without source LoadStates set."
         }
 
         lastAccessedIndexUnfulfilled = false

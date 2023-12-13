@@ -356,7 +356,7 @@ internal class PageStore<T : Any>(
     }
 
     /**
-     * Callback to communicate events from [PageStore] to [PagingDataDiffer]
+     * Callback to communicate events from [PageStore] to [PagingDataPresenter]
      */
     internal interface ProcessPageEventCallback {
         fun onChanged(position: Int, count: Int)

@@ -161,7 +161,7 @@ constructor(
     @Suppress("MemberVisibilityCanBePrivate") // synthetic access
     internal var inGetItem: Boolean = false
 
-    private val differBase = object : PagingDataDiffer<T>(differCallback, mainDispatcher) {
+    private val presenter = object : PagingDataPresenter<T>(differCallback, mainDispatcher) {
         override suspend fun presentNewList(
             previousList: NullPaddedList<T>,
             newList: NullPaddedList<T>,
@@ -225,7 +225,7 @@ constructor(
      */
     suspend fun submitData(pagingData: PagingData<T>) {
         submitDataId.incrementAndGet()
-        differBase.collectFrom(pagingData)
+        presenter.collectFrom(pagingData)
     }
 
     /**
@@ -246,7 +246,7 @@ constructor(
             // Check id when this job runs to ensure the last synchronous call submitData always
             // wins.
             if (submitDataId.get() == id) {
-                differBase.collectFrom(pagingData)
+                presenter.collectFrom(pagingData)
             }
         }
     }
@@ -263,7 +263,7 @@ constructor(
      *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
      */
     fun retry() {
-        differBase.retry()
+        presenter.retry()
     }
 
     /**
@@ -283,7 +283,7 @@ constructor(
      * @sample androidx.paging.samples.refreshSample
      */
     fun refresh() {
-        differBase.refresh()
+        presenter.refresh()
     }
 
     /**
@@ -298,7 +298,7 @@ constructor(
     fun getItem(@IntRange(from = 0) index: Int): T? {
         try {
             inGetItem = true
-            return differBase[index]
+            return presenter[index]
         } finally {
             inGetItem = false
         }
@@ -313,14 +313,14 @@ constructor(
      */
     @MainThread
     fun peek(@IntRange(from = 0) index: Int): T? {
-        return differBase.peek(index)
+        return presenter.peek(index)
     }
 
     /**
      * Returns a new [ItemSnapshotList] representing the currently presented items, including any
      * placeholders if they are enabled.
      */
-    fun snapshot(): ItemSnapshotList<T> = differBase.snapshot()
+    fun snapshot(): ItemSnapshotList<T> = presenter.snapshot()
 
     /**
      * Get the number of items currently presented by this Differ. This value can be directly
@@ -329,7 +329,7 @@ constructor(
      * @return Number of items being presented, including placeholders.
      */
     val itemCount: Int
-        get() = differBase.size
+        get() = presenter.size
 
     /**
      * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
@@ -340,7 +340,7 @@ constructor(
      *
      * @sample androidx.paging.samples.loadStateFlowSample
      */
-    val loadStateFlow: Flow<CombinedLoadStates> = differBase.loadStateFlow.filterNotNull()
+    val loadStateFlow: Flow<CombinedLoadStates> = presenter.loadStateFlow.filterNotNull()
 
     /**
      * A hot [Flow] that emits after the pages presented to the UI are updated, even if the
@@ -360,7 +360,7 @@ constructor(
      * update, which is useful in cases where you are simply updating UI and don't care about
      * tracking the exact number of page updates.
      */
-    val onPagesUpdatedFlow: Flow<Unit> = differBase.onPagesUpdatedFlow
+    val onPagesUpdatedFlow: Flow<Unit> = presenter.onPagesUpdatedFlow
 
     /**
      * Add a listener which triggers after the pages presented to the UI are updated, even if the
@@ -377,7 +377,7 @@ constructor(
      * @see removeOnPagesUpdatedListener
      */
     fun addOnPagesUpdatedListener(listener: () -> Unit) {
-        differBase.addOnPagesUpdatedListener(listener)
+        presenter.addOnPagesUpdatedListener(listener)
     }
 
     /**
@@ -389,7 +389,7 @@ constructor(
      * @see addOnPagesUpdatedListener
      */
     fun removeOnPagesUpdatedListener(listener: () -> Unit) {
-        differBase.removeOnPagesUpdatedListener(listener)
+        presenter.removeOnPagesUpdatedListener(listener)
     }
 
     /**
@@ -405,7 +405,7 @@ constructor(
      * @sample androidx.paging.samples.addLoadStateListenerSample
      */
     fun addLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
-        differBase.addLoadStateListener(listener)
+        presenter.addLoadStateListener(listener)
     }
 
     /**
@@ -415,6 +415,6 @@ constructor(
      * @see addLoadStateListener
      */
     fun removeLoadStateListener(listener: (CombinedLoadStates) -> Unit) {
-        differBase.removeLoadStateListener(listener)
+        presenter.removeLoadStateListener(listener)
     }
 }
