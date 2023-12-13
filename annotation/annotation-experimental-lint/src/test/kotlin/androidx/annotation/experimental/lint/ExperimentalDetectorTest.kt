@@ -20,6 +20,7 @@ package androidx.annotation.experimental.lint
 
 import com.android.tools.lint.checks.infrastructure.TestFile
 import com.android.tools.lint.checks.infrastructure.TestFiles.base64gzip
+import com.android.tools.lint.checks.infrastructure.TestFiles.java
 import com.android.tools.lint.checks.infrastructure.TestFiles.kotlin
 import com.android.tools.lint.checks.infrastructure.TestFiles.xml
 import com.android.tools.lint.checks.infrastructure.TestLintResult
@@ -365,6 +366,60 @@ src/sample/experimental/UseJavaPackageFromKt.kt:55: Error: This declaration is o
                     MyValue(42)
                   }
                 }
+                """.trimIndent()
+            )
+        )
+        check(*input).expectClean()
+    }
+
+    @Test
+    fun resolveSamInJava() {
+        val input = arrayOf(
+            java(
+                """
+                    public interface RunnableDelegate {
+                        boolean show(Runnable positiveCallback, Runnable negativeCallback);
+                    }
+
+                    public interface SomeResponse {}
+                    public interface GetAssertionResponseCallback {
+                        void onSignResponse(int status, SomeResponse response);
+                    }
+
+                    public class SomeRequest {
+                        private GetAssertionResponseCallback mCallback;
+
+                        public void handleGetAssertionRequest(
+                            GetAssertionResponseCallback callback
+                        ) {
+                            mCallback = callback;
+                        }
+
+                        public void onResult(SomeResponse response) {
+                            mCallback.onSignResponse(42, response);
+                        }
+                    }
+
+                    public interface ExtendedCallback extends GetAssertionResponseCallback {}
+
+                    class Test {
+                        private final RunnableDelegate mDelegate;
+                        void test() {
+                            if (mDelegate.show(() -> true, () -> false)) {
+                                return;
+                            }
+
+                            SomeRequest r = SomeRequest();
+                            r.handleGetAssertionRequest(
+                                (status, response) -> onSignResponse(status, response)
+                            );
+
+                            ExtendedCallback e = (status, response) -> {
+                                onSignResponse(status, response);
+                            };
+                        }
+                        void onSignResponse(int status, SomeResponse response) {}
+                    }
                 """.trimIndent()
             )
         )
