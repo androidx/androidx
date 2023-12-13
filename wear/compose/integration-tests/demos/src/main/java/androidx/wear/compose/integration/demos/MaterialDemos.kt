@@ -671,5 +671,6 @@ val WearMaterialDemos = DemoCategory(
                 ComposableDemo("Colors") { ThemeColors() },
             )
         ),
+        ComposableDemo("Settings Demo") { SettingsDemo() },
     ),
 )

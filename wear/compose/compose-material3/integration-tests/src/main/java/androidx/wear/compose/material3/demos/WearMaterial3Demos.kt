@@ -137,5 +137,6 @@ val WearMaterial3Demos = DemoCategory(
         ComposableDemo("HorizontalPageIndicator") {
             Centralize { HorizontalPageIndicatorSample() }
         },
+        ComposableDemo("Settings Demo") { SettingsDemo() }
     )
 )
