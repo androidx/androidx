@@ -37,6 +37,7 @@ import androidx.camera.camera2.pipe.integration.adapter.SessionConfigAdapter
 import androidx.camera.camera2.pipe.integration.adapter.SupportedSurfaceCombination
 import androidx.camera.camera2.pipe.integration.compat.quirk.CameraQuirks
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCameraDeviceOnCameraGraphCloseQuirk
+import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnDisconnectQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.CloseCaptureSessionOnVideoQuirk
 import androidx.camera.camera2.pipe.integration.compat.quirk.DeviceQuirks
 import androidx.camera.camera2.pipe.integration.config.CameraConfig
@@ -573,13 +574,9 @@ class UseCaseManager @Inject constructor(
                         containsVideo
                     ) {
                         true
-                    } else
-                    // TODO(b/277675483): From the current test results, older devices (Android
-                    //  version <= 8.1.0) seem to have a higher chance of encountering an issue where
-                    //  not closing the capture session would lead to CameraDevice.close stalling
-                    //  indefinitely. This version check might need to be further fine-turned down the
-                    //  line.
-                        Build.VERSION.SDK_INT <= Build.VERSION_CODES.O_MR1
+                    } else {
+                        DeviceQuirks[CloseCaptureSessionOnDisconnectQuirk::class.java] != null
+                    }
                 }
             val shouldCloseCameraDeviceOnClose =
                 DeviceQuirks[CloseCameraDeviceOnCameraGraphCloseQuirk::class.java] != null
@@ -603,7 +600,8 @@ class UseCaseManager @Inject constructor(
                 val isVideoStabilizationMode = config.videoStabilizationMode
 
                 if (isPreviewStabilizationMode == StabilizationMode.OFF ||
-                    isVideoStabilizationMode == StabilizationMode.OFF) {
+                    isVideoStabilizationMode == StabilizationMode.OFF
+                ) {
                     videoStabilizationMode = CaptureRequest.CONTROL_VIDEO_STABILIZATION_MODE_OFF
                 } else if (isPreviewStabilizationMode == StabilizationMode.ON) {
                     videoStabilizationMode =
