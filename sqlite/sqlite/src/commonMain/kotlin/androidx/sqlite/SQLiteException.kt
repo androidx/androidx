@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.sqliteMultiplatform
+package androidx.sqlite
 
 import androidx.annotation.RestrictTo
 

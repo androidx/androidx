@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.sqliteMultiplatform
+package androidx.sqlite
 
 import androidx.annotation.RestrictTo
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun SQLiteConnection.execSQL(sql: String) {
     prepare(sql).use { it.step() }
 }
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 fun <R> SQLiteStatement.use(block: (SQLiteStatement) -> R): R {
     try {
         return block.invoke(this)

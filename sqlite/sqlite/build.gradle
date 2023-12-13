@@ -36,6 +36,7 @@ androidXMultiplatform {
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
+                api(project(":annotation:annotation"))
             }
         }
         commonTest {
@@ -45,9 +46,6 @@ androidXMultiplatform {
         }
         androidMain {
             dependsOn(commonMain)
-            dependencies {
-                api("androidx.annotation:annotation:1.0.0")
-            }
         }
         androidUnitTest {
             dependsOn(commonTest)
@@ -68,6 +66,6 @@ androidx {
     name = "SQLite"
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
-    description = "Android DB"
+    description = "SQLite API"
     metalavaK2UastEnabled = true
 }
