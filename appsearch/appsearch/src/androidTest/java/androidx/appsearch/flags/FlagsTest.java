@@ -32,4 +32,10 @@ public class FlagsTest {
         assertThat(Flags.FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION).isEqualTo(
                 "com.android.appsearch.flags.enable_list_filter_has_property_function");
     }
+
+    @Test
+    public void testFlagValue_enableGroupingTypePerSchema() {
+        assertThat(Flags.FLAG_ENABLE_GROUPING_TYPE_PER_SCHEMA).isEqualTo(
+                "com.android.appsearch.flags.enable_grouping_type_per_schema");
+    }
 }
