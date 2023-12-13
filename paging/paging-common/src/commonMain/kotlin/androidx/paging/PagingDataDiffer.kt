@@ -24,7 +24,7 @@ import androidx.paging.LoadType.REFRESH
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert
 import androidx.paging.PageEvent.StaticList
-import androidx.paging.PagePresenter.ProcessPageEventCallback
+import androidx.paging.PageStore.ProcessPageEventCallback
 import androidx.paging.internal.BUGANIZER_URL
 import androidx.paging.internal.CopyOnWriteArrayList
 import androidx.paging.internal.appendMediatorStatesIfNotNull
@@ -47,7 +47,7 @@ public abstract class PagingDataDiffer<T : Any>(
 ) {
     private var hintReceiver: HintReceiver? = null
     private var uiReceiver: UiReceiver? = null
-    private var presenter: PagePresenter<T> = PagePresenter.initial(cachedPagingData?.cachedEvent())
+    private var pageStore: PageStore<T> = PageStore.initial(cachedPagingData?.cachedEvent())
     private val combinedLoadStatesCollection = MutableCombinedLoadStateCollection().apply {
         cachedPagingData?.cachedEvent()?.let { set(it.sourceLoadStates, it.mediatorLoadStates) }
     }
@@ -116,8 +116,8 @@ public abstract class PagingDataDiffer<T : Any>(
      * @param onListPresentable Call this synchronously right before dispatching updates to signal
      * that this [PagingDataDiffer] should now consider [newList] as the presented list for
      * presenter-level APIs such as [snapshot] and [peek]. This should be called before notifying
-     * any callbacks that the user would expect to be synchronous with presenter updates, such as
-     * `ListUpdateCallback`, in case it's desirable to inspect presenter state within those
+     * any callbacks that the user would expect to be synchronous with pageStore updates, such as
+     * `ListUpdateCallback`, in case it's desirable to inspect pageStore state within those
      * callbacks.
      *
      * @return Transformed result of [lastAccessedIndex] as an index of [newList] using the diff
@@ -147,11 +147,11 @@ public abstract class PagingDataDiffer<T : Any>(
                      * be sent to current generation.
                      *
                      * 2. the access hint sent from presentNewList will have the correct
-                     * placeholders and indexInPage adjusted according to new presenter's most
+                     * placeholders and indexInPage adjusted according to new pageStore's most
                      * recent state
                      *
                      * Ensuring that viewport hints are sent to the correct generation helps
-                     * synchronize fetcher/presenter in the correct calculation of the
+                     * synchronize fetcher/pageStore in the correct calculation of the
                      * next anchorPosition.
                      */
                     when {
@@ -189,7 +189,7 @@ public abstract class PagingDataDiffer<T : Any>(
                             }
 
                             // Process APPEND/PREPEND to be shown to the UI
-                            presenter.processEvent(event, processPageEventCallback)
+                            pageStore.processEvent(event, processPageEventCallback)
 
                             // If index points to a placeholder after transformations, resend it unless
                             // there are no more items to load.
@@ -219,13 +219,13 @@ public abstract class PagingDataDiffer<T : Any>(
                                 lastAccessedIndexUnfulfilled = false
                             } else if (lastAccessedIndexUnfulfilled || emptyInsert) {
                                 val shouldResendHint = emptyInsert ||
-                                    lastAccessedIndex < presenter.placeholdersBefore ||
-                                    lastAccessedIndex > presenter.placeholdersBefore +
-                                    presenter.storageCount
+                                    lastAccessedIndex < pageStore.placeholdersBefore ||
+                                    lastAccessedIndex > pageStore.placeholdersBefore +
+                                    pageStore.storageCount
 
                                 if (shouldResendHint) {
                                     hintReceiver?.accessHint(
-                                        presenter.accessHintForPresenterIndex(lastAccessedIndex)
+                                        pageStore.accessHintForPresenterIndex(lastAccessedIndex)
                                     )
                                 } else {
                                     // lastIndex fulfilled, so reset lastAccessedIndexUnfulfilled.
@@ -239,7 +239,7 @@ public abstract class PagingDataDiffer<T : Any>(
                             }
 
                             // Process DROP to be shown to the UI
-                            presenter.processEvent(event, processPageEventCallback)
+                            pageStore.processEvent(event, processPageEventCallback)
 
                             // Reset lastAccessedIndexUnfulfilled if a page is dropped, to avoid
                             // infinite loops when maxSize is insufficiently large.
@@ -251,7 +251,7 @@ public abstract class PagingDataDiffer<T : Any>(
                                 mediator = event.mediator,
                             )
                     }
-                    // Notify page updates after presenter processes them.
+                    // Notify page updates after pageStore processes them.
                     //
                     // Note: This is not redundant with LoadStates because it does not de-dupe
                     // in cases where LoadState does not change, which would happen on cached
@@ -277,8 +277,8 @@ public abstract class PagingDataDiffer<T : Any>(
         lastAccessedIndex = index
 
         log(VERBOSE) { "Accessing item index[$index]" }
-        hintReceiver?.accessHint(presenter.accessHintForPresenterIndex(index))
-        return presenter.get(index)
+        hintReceiver?.accessHint(pageStore.accessHintForPresenterIndex(index))
+        return pageStore.get(index)
     }
 
     /**
@@ -290,14 +290,14 @@ public abstract class PagingDataDiffer<T : Any>(
      */
     @MainThread
     public fun peek(@IntRange(from = 0) index: Int): T? {
-        return presenter.get(index)
+        return pageStore.get(index)
     }
 
     /**
      * Returns a new [ItemSnapshotList] representing the currently presented items, including any
      * placeholders if they are enabled.
      */
-    public fun snapshot(): ItemSnapshotList<T> = presenter.snapshot()
+    public fun snapshot(): ItemSnapshotList<T> = pageStore.snapshot()
 
     /**
      * Retry any failed load requests that would result in a [LoadState.Error] update to this
@@ -340,7 +340,7 @@ public abstract class PagingDataDiffer<T : Any>(
      * @return Total number of presented items, including placeholders.
      */
     public val size: Int
-        get() = presenter.size
+        get() = pageStore.size
 
     /**
      * A hot [Flow] of [CombinedLoadStates] that emits a snapshot whenever the loading state of the
@@ -462,18 +462,18 @@ public abstract class PagingDataDiffer<T : Any>(
 
         lastAccessedIndexUnfulfilled = false
 
-        val newPresenter = PagePresenter(
+        val newPresenter = PageStore(
             pages = pages,
             placeholdersBefore = placeholdersBefore,
             placeholdersAfter = placeholdersAfter,
         )
         var onListPresentableCalled = false
         val transformedLastAccessedIndex = presentNewList(
-            previousList = presenter,
+            previousList = pageStore,
             newList = newPresenter,
             lastAccessedIndex = lastAccessedIndex,
             onListPresentable = {
-                presenter = newPresenter
+                pageStore = newPresenter
                 onListPresentableCalled = true
                 hintReceiver = newHintReceiver
                 log(DEBUG) {
@@ -501,7 +501,7 @@ public abstract class PagingDataDiffer<T : Any>(
         // preserve the previous state.
         if (dispatchLoadStates) {
             // Dispatch LoadState updates as soon as we are done diffing, but after
-            // setting presenter.
+            // setting new pageStore.
             dispatchLoadStates(sourceLoadStates!!, mediatorLoadStates)
         }
 
@@ -529,7 +529,7 @@ public abstract class PagingDataDiffer<T : Any>(
 }
 
 /**
- * Callback for the presenter/adapter to listen to the state of pagination data.
+ * Callback for the pageStore/adapter to listen to the state of pagination data.
  *
  * Note that these won't map directly to PageEvents, since PageEvents can cause several adapter
  * events that should all be dispatched to the presentation layer at once - as part of the same

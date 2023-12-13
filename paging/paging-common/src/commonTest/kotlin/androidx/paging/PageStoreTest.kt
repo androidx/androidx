@@ -20,7 +20,7 @@ import androidx.kruth.assertThat
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
-import androidx.paging.PagePresenter.ProcessPageEventCallback
+import androidx.paging.PageStore.ProcessPageEventCallback
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -28,12 +28,12 @@ import kotlin.test.assertFailsWith
 import kotlin.test.fail
 
 @Suppress("TestFunctionName")
-internal fun <T : Any> PagePresenter(
+internal fun <T : Any> PageStore(
     pages: List<List<T>>,
     leadingNullCount: Int = COUNT_UNDEFINED,
     trailingNullCount: Int = COUNT_UNDEFINED,
     indexOfInitialPage: Int = 0
-) = PagePresenter(
+) = PageStore(
     localRefresh(
         pages = pages.mapIndexed { index, list ->
             TransformablePage(
@@ -46,7 +46,7 @@ internal fun <T : Any> PagePresenter(
     )
 )
 
-internal fun <T : Any> PagePresenter<T>.insertPage(
+internal fun <T : Any> PageStore<T>.insertPage(
     isPrepend: Boolean,
     page: List<T>,
     placeholdersRemaining: Int,
@@ -61,7 +61,7 @@ internal fun <T : Any> PagePresenter<T>.insertPage(
     callback
 )
 
-internal fun <T : Any> PagePresenter<T>.dropPages(
+internal fun <T : Any> PageStore<T>.dropPages(
     isPrepend: Boolean,
     minPageOffset: Int,
     maxPageOffset: Int,
@@ -77,10 +77,10 @@ internal fun <T : Any> PagePresenter<T>.dropPages(
     callback
 )
 
-internal fun <T : Any> PagePresenter<T>.asList() = List(size) { get(it) }
+internal fun <T : Any> PageStore<T>.asList() = List(size) { get(it) }
 
 @Suppress("SameParameterValue")
-class PagePresenterTest {
+class PageStoreTest {
     private fun verifyAppend(
         initialItems: Int,
         initialNulls: Int,
@@ -88,7 +88,7 @@ class PagePresenterTest {
         newNulls: Int = COUNT_UNDEFINED,
         events: List<PresenterEvent>
     ) {
-        val data = PagePresenter(
+        val data = PageStore(
             pages = mutableListOf(List(initialItems) { 'a' + it }),
             leadingNullCount = 0,
             trailingNullCount = initialNulls,
@@ -125,7 +125,7 @@ class PagePresenterTest {
         newNulls: Int,
         events: List<PresenterEvent>
     ) {
-        val data = PagePresenter(
+        val data = PageStore(
             pages = mutableListOf(List(initialItems) { 'z' + it - initialItems - 1 }),
             leadingNullCount = initialNulls,
             trailingNullCount = 0,
@@ -295,7 +295,7 @@ class PagePresenterTest {
             fail("require at least 2 pages")
         }
 
-        val data = PagePresenter(
+        val data = PageStore(
             pages = initialPages.toMutableList(),
             leadingNullCount = 0,
             trailingNullCount = initialNulls,
@@ -333,7 +333,7 @@ class PagePresenterTest {
             fail("require at least 2 pages")
         }
 
-        val data = PagePresenter(
+        val data = PageStore(
             pages = initialPages.reversed().toMutableList(),
             leadingNullCount = initialNulls,
             trailingNullCount = 0,
@@ -497,17 +497,17 @@ class PagePresenterTest {
 
     @Test
     fun getOutOfBounds() {
-        val presenter = PagePresenter(
+        val storage = PageStore(
             pages = mutableListOf(listOf('a')),
             leadingNullCount = 1,
             trailingNullCount = 1,
             indexOfInitialPage = 0
         )
         assertFailsWith<IndexOutOfBoundsException> {
-            presenter.get(-1)
+            storage.get(-1)
         }
         assertFailsWith<IndexOutOfBoundsException> {
-            presenter.get(4)
+            storage.get(4)
         }
     }
 
@@ -515,18 +515,18 @@ class PagePresenterTest {
 
     @Test
     fun snapshot_uncounted() {
-        val pagePresenter = PagePresenter(
+        val pageStore = PageStore(
             insertEvent = localRefresh(
                 pages = listOf(TransformablePage(listOf('a'))),
             )
         )
 
-        assertEquals<List<Char?>>(listOf('a'), pagePresenter.snapshot())
+        assertEquals<List<Char?>>(listOf('a'), pageStore.snapshot())
     }
 
     @Test
     fun snapshot_counted() {
-        val pagePresenter = PagePresenter(
+        val pageStore = PageStore(
             insertEvent = localRefresh(
                 pages = listOf(TransformablePage(listOf('a'))),
                 placeholdersBefore = 1,
@@ -534,7 +534,7 @@ class PagePresenterTest {
             )
         )
 
-        assertEquals(listOf(null, 'a', null, null, null), pagePresenter.snapshot())
+        assertEquals(listOf(null, 'a', null, null, null), pageStore.snapshot())
     }
 
     companion object {
