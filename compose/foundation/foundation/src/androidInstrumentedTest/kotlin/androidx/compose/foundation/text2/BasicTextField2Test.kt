@@ -44,6 +44,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.ClipboardManager
@@ -362,6 +364,47 @@ internal class BasicTextField2Test {
         rule.onNodeWithTag(Tag).assertIsFocused()
 
         inputMethodInterceptor.assertNoSessionActive()
+    }
+
+    @Test
+    fun textField_focus_doesNotShowSoftwareKeyboard_whenNotShowSoftwareKeyboard() {
+        val state = TextFieldState()
+        val focusRequester = FocusRequester()
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField2(
+                state = state,
+                keyboardOptions = KeyboardOptions(shouldShowKeyboardOnFocus = false),
+                modifier = Modifier.fillMaxSize().testTag(Tag).focusRequester(focusRequester)
+            )
+        }
+        rule.runOnUiThread {
+            focusRequester.requestFocus()
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag(Tag).assertIsFocused()
+
+        inputMethodInterceptor.assertNoSessionActive()
+    }
+
+    @Test
+    fun textField_tap_showSoftwareKeyboard_whenNotShowSoftwareKeyboard() {
+        val state = TextFieldState()
+        val focusRequester = FocusRequester()
+        inputMethodInterceptor.setTextFieldTestContent {
+            BasicTextField2(
+                state = state,
+                keyboardOptions = KeyboardOptions(shouldShowKeyboardOnFocus = false),
+                modifier = Modifier.fillMaxSize().testTag(Tag).focusRequester(focusRequester)
+            )
+        }
+        rule.runOnUiThread {
+            focusRequester.requestFocus()
+        }
+        rule.waitForIdle()
+        rule.onNodeWithTag(Tag).assertIsFocused()
+        rule.onNodeWithTag(Tag).performClick()
+
+        inputMethodInterceptor.assertSessionActive()
     }
 
     @Test

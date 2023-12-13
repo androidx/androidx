@@ -163,7 +163,12 @@ internal class TextFieldDecoratorModifierNode(
                     if (!isFocused) requestFocus()
                 },
                 showKeyboard = {
-                    requireKeyboardController().show()
+                    if (inputSessionJob != null) {
+                        // just reshow the keyboard in existing session
+                        requireKeyboardController().show()
+                    } else {
+                        startInputSession(true)
+                    }
                 }
             )
         }
@@ -277,7 +282,7 @@ internal class TextFieldDecoratorModifierNode(
         ) {
             if (writeable && isFocused) {
                 // The old session will be implicitly disposed.
-                startInputSession()
+                startInputSession(false)
             } else if (!writeable) {
                 // We were made read-only or disabled, hide the keyboard.
                 disposeInputSession()
@@ -414,7 +419,7 @@ internal class TextFieldDecoratorModifierNode(
         if (focusState.isFocused) {
             // Deselect when losing focus even if readonly.
             if (editable) {
-                startInputSession()
+                startInputSession(false)
                 // TODO(halilibo): bringIntoView
             }
         } else {
@@ -476,7 +481,9 @@ internal class TextFieldDecoratorModifierNode(
         }
     }
 
-    private fun startInputSession() {
+    private fun startInputSession(fromTap: Boolean) {
+        if (!fromTap && !keyboardOptions.shouldShowKeyboardOnFocus) return
+
         inputSessionJob = coroutineScope.launch {
             // This will automatically cancel the previous session, if any, so we don't need to
             // cancel the inputSessionJob ourselves.
@@ -504,7 +511,7 @@ internal class TextFieldDecoratorModifierNode(
     private fun startOrDisposeInputSessionOnWindowFocusChange() {
         if (windowInfo == null) return
         if (windowInfo?.isWindowFocused == true && isElementFocused) {
-            startInputSession()
+            startInputSession(false)
         } else {
             disposeInputSession()
         }
