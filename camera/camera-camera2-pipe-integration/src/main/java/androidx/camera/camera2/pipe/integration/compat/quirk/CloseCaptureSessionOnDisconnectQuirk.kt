@@ -41,7 +41,6 @@ import java.util.Locale
 class CloseCaptureSessionOnDisconnectQuirk : Quirk {
 
     companion object {
-
         @JvmStatic
         fun isEnabled(): Boolean {
             if (CameraQuirks.isImmediateSurfaceReleaseAllowed()) {
@@ -65,6 +64,14 @@ class CloseCaptureSessionOnDisconnectQuirk : Quirk {
                 // For CPH devices, the shutdown sequence oftentimes triggers ANR for the test app.
                 // As a result, we need to close the capture session to stop the captures, then
                 // release the Surfaces by FinalizeSessionOnCloseQuirk.
+                true
+            } else if (Build.HARDWARE.equals("qcom", ignoreCase = true) &&
+                Build.VERSION.SDK_INT <= Build.VERSION_CODES.S
+            ) {
+                // On qcom platforms from a certain era, switching capture sessions without closing
+                // the prior session then setting the repeating request immediately, puts the camera
+                // HAL in a bad state where it only produces a few frames before going into an
+                // unrecoverable error. See b/316048171 for context.
                 true
             } else {
                 // For Infinix devices, there is a service that actively kills apps that use
