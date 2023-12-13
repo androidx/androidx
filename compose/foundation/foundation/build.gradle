@@ -123,6 +123,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinReflect)
                 implementation(libs.mockitoCore4)
                 implementation(libs.mockitoKotlin4)
+                implementation(libs.byteBuddy)
                 implementation(project(":constraintlayout:constraintlayout-compose"))
             }
         }

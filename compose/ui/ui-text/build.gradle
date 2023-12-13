@@ -123,6 +123,7 @@ androidXMultiplatform {
                 implementation(libs.kotlinTest)
                 implementation(libs.mockitoCore4)
                 implementation(libs.mockitoKotlin4)
+                implementation(libs.byteBuddy)
             }
         }
 
