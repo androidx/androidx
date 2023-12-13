@@ -947,13 +947,14 @@ package androidx.car.app.mediaextensions.analytics.event {
     method public int getBrowseMode();
     method public String getBrowseNodeId();
     method public int getViewAction();
-    field public static final int BROWSE_MODE_LINK = 3; // 0x3
-    field public static final int BROWSE_MODE_LINK_BROWSE = 4; // 0x4
-    field public static final int BROWSE_MODE_SEARCH_BROWSE = 5; // 0x5
-    field public static final int BROWSE_MODE_SEARCH_RESULTS = 6; // 0x6
-    field public static final int BROWSE_MODE_TREE_BROWSE = 1; // 0x1
-    field public static final int BROWSE_MODE_TREE_ROOT = 0; // 0x0
-    field public static final int BROWSE_MODE_TREE_TAB = 2; // 0x2
+    field public static final int BROWSE_MODE_LINK = 4; // 0x4
+    field public static final int BROWSE_MODE_LINK_BROWSE = 5; // 0x5
+    field public static final int BROWSE_MODE_SEARCH_BROWSE = 6; // 0x6
+    field public static final int BROWSE_MODE_SEARCH_RESULTS = 7; // 0x7
+    field public static final int BROWSE_MODE_TREE_BROWSE = 2; // 0x2
+    field public static final int BROWSE_MODE_TREE_ROOT = 1; // 0x1
+    field public static final int BROWSE_MODE_TREE_TAB = 3; // 0x3
+    field public static final int BROWSE_MODE_UNKNOWN = 0; // 0x0
   }
 
   public class ErrorEvent extends androidx.car.app.mediaextensions.analytics.event.AnalyticsEvent {

@@ -39,27 +39,29 @@ import java.lang.annotation.Retention;
  */
 public class BrowseChangeEvent extends AnalyticsEvent {
 
+    /** Indicates an unknown browse mode type. */
+    public static final int BROWSE_MODE_UNKNOWN = 0;
     /** Indicates browsing media items tree root*/
-    public static final int BROWSE_MODE_TREE_ROOT = 0;
+    public static final int BROWSE_MODE_TREE_ROOT = 1;
     /** Indicates browsing under media items tree root*/
-    public static final int BROWSE_MODE_TREE_BROWSE = 1;
+    public static final int BROWSE_MODE_TREE_BROWSE = 2;
     /** Indicates browsing media items one level under root, i.e. tabs.*/
-    public static final int BROWSE_MODE_TREE_TAB = 2;
+    public static final int BROWSE_MODE_TREE_TAB = 3;
     /** Indicates browsing linked media item*/
-    public static final int BROWSE_MODE_LINK = 3;
+    public static final int BROWSE_MODE_LINK = 4;
     /** Indicates browsing media items under linked media item*/
-    public static final int BROWSE_MODE_LINK_BROWSE = 4;
+    public static final int BROWSE_MODE_LINK_BROWSE = 5;
     /** Indicates browsing media items under a search result media item*/
-    public static final int BROWSE_MODE_SEARCH_BROWSE = 5;
+    public static final int BROWSE_MODE_SEARCH_BROWSE = 6;
     /** Indicates browsing search results media items*/
-    public static final int BROWSE_MODE_SEARCH_RESULTS = 6;
+    public static final int BROWSE_MODE_SEARCH_RESULTS = 7;
 
 
     @Retention(SOURCE)
     @IntDef(
-            value = {BROWSE_MODE_TREE_ROOT, BROWSE_MODE_TREE_BROWSE, BROWSE_MODE_TREE_TAB,
-                    BROWSE_MODE_LINK, BROWSE_MODE_LINK_BROWSE, BROWSE_MODE_SEARCH_BROWSE,
-                    BROWSE_MODE_SEARCH_RESULTS}
+            value = {BROWSE_MODE_UNKNOWN, BROWSE_MODE_TREE_ROOT, BROWSE_MODE_TREE_BROWSE,
+                    BROWSE_MODE_TREE_TAB, BROWSE_MODE_LINK, BROWSE_MODE_LINK_BROWSE,
+                    BROWSE_MODE_SEARCH_BROWSE, BROWSE_MODE_SEARCH_RESULTS}
     )
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface BrowseMode {}
