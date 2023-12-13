@@ -17,6 +17,7 @@
 package androidx.appsearch.app;
 
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -34,8 +35,9 @@ import androidx.core.util.Preconditions;
  */
 @SafeParcelable.Class(creator = "SearchSuggestionResultCreator")
 public final class SearchSuggestionResult extends AbstractSafeParcelable {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE)
-    @NonNull static final SearchSuggestionResultCreator CREATOR =
+    @NonNull public static final Parcelable.Creator<SearchSuggestionResult> CREATOR =
             new SearchSuggestionResultCreator();
 
     @Field(id = 1, getter = "getSuggestedResult")
