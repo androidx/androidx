@@ -82,6 +82,8 @@ import androidx.compose.ui.text.input.VisualTransformation
  * for entering a credit card number:
  * @sample androidx.compose.foundation.samples.CreditCardSample
  *
+ * Note: This overload does not support [KeyboardOptions.shouldShowKeyboardOnFocus].
+ *
  * @param value the input [String] text to be shown in the text field
  * @param onValueChange the callback that is triggered when the input service updates the text. An
  * updated text comes as a parameter of the callback
@@ -231,6 +233,8 @@ fun BasicTextField(
  * If you want to add decorations to your text field, such as icon or similar, and increase the
  * hit target area, use the decoration box:
  * @sample androidx.compose.foundation.samples.TextFieldWithIconSample
+ *
+ * Note: This overload does not support [KeyboardOptions.shouldShowKeyboardOnFocus].
  *
  * @param value The [androidx.compose.ui.text.input.TextFieldValue] to be shown in the
  * [BasicTextField].
