@@ -194,7 +194,7 @@ CAMERA_EFFECTS = { group = "androidx.camera", atomicGroupVersion = "versions.CAM
 CAMERA_MLKIT_VISION = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA_MLKIT_VISION", overrideInclude = [ ":camera:camera-mlkit-vision" ] }
 CAMERA_PIPE = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA_PIPE", overrideInclude = [ ":camera:camera-camera2-pipe", ":camera:camera-camera2-pipe-integration" ] }
 CAMERA_TESTING = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA_TESTING", overrideInclude = [ ":camera:camera-testing" ] }
-CAMERA_VIEWFINDER = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA_VIEWFINDER", overrideInclude = [ ":camera:camera-viewfinder", ":camera:camera-viewfinder-core" ] }
+CAMERA_VIEWFINDER = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA_VIEWFINDER", overrideInclude = [ ":camera:camera-viewfinder", ":camera:camera-viewfinder-core", ":camera:camera-viewfinder-core:camera-viewfinder-core-samples" ] }
 CAMERA_VIEWFINDER_COMPOSE = { group = "androidx.camera", atomicGroupVersion = "versions.CAMERA_VIEWFINDER_COMPOSE", overrideInclude = [ ":camera:camera-viewfinder-compose" ] }
 CARDVIEW = { group = "androidx.cardview", atomicGroupVersion = "versions.CARDVIEW" }
 CAR_APP = { group = "androidx.car.app", atomicGroupVersion = "versions.CAR_APP" }
