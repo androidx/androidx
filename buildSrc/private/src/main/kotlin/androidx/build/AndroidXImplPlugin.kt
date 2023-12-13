@@ -37,6 +37,7 @@ import androidx.build.testConfiguration.TestModule
 import androidx.build.testConfiguration.addAppApkToTestConfigGeneration
 import androidx.build.testConfiguration.configureTestConfigGeneration
 import androidx.build.uptodatedness.TaskUpToDateValidator
+import com.android.build.api.artifact.Artifacts
 import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTarget
 import com.android.build.api.dsl.KotlinMultiplatformAndroidTestOnDeviceCompilation
@@ -93,6 +94,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.build.event.BuildEventsListenerRegistry
 import org.gradle.jvm.tasks.Jar
 import org.gradle.kotlin.dsl.KotlinClosure1
+import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.create
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.extra
@@ -579,6 +581,43 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
             AndroidMultiplatformApiTaskConfig,
             androidXExtension
         )
+
+        kotlinMultiplatformAndroidComponentsExtension.onVariant { variant ->
+            project.createVariantAarManifestTransformerTask(variant.name, variant.artifacts)
+        }
+
+        kotlinMultiplatformAndroidComponentsExtension.onVariant {
+            it.configureTests()
+        }
+
+        project.configurePublicResourcesStub(project.multiplatformExtension!!)
+        project.configureMultiplatformSourcesForAndroid { action ->
+            kotlinMultiplatformAndroidComponentsExtension.onVariant {
+                action(it.name)
+            }
+        }
+        project.configureVersionFileWriter(
+            project.multiplatformExtension!!,
+            androidXExtension
+        )
+        project.configureJavaCompilationWarnings(androidXExtension)
+
+        project.configureDependencyVerification(androidXExtension) { taskProvider ->
+            kotlinMultiplatformAndroidTarget.compilations.configureEach {
+                taskProvider.configure { task ->
+                    task.dependsOn(it.compileTaskProvider)
+                }
+            }
+        }
+
+        val reportLibraryMetrics = project.configureReportLibraryMetricsTask()
+        project.addToBuildOnServer(reportLibraryMetrics)
+
+        project.addToProjectMap(androidXExtension)
+        project.afterEvaluate {
+            project.addToBuildOnServer("assembleAndroidMain")
+            project.addToBuildOnServer("lint")
+        }
         project.setUpCheckDocsTask(androidXExtension)
     }
 
@@ -706,20 +745,7 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
 
         // Remove the android:targetSdkVersion element from the manifest used for AARs.
         libraryAndroidComponentsExtension.onVariants { variant ->
-            project.tasks
-                .register(
-                    variant.name + "AarManifestTransformer",
-                    AarManifestTransformerTask::class.java
-                )
-                .let { taskProvider ->
-                    variant.artifacts
-                        .use(taskProvider)
-                        .wiredWithFiles(
-                            AarManifestTransformerTask::aarFile,
-                            AarManifestTransformerTask::updatedAarFile
-                        )
-                        .toTransform(SingleArtifact.AAR)
-                }
+            project.createVariantAarManifestTransformerTask(variant.name, variant.artifacts)
         }
 
         project.extensions.getByType<com.android.build.api.dsl.LibraryExtension>().apply {
@@ -1282,6 +1308,27 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         return true
     }
 
+    private fun Project.createVariantAarManifestTransformerTask(
+        variantName: String,
+        artifacts: Artifacts
+    ) {
+        // Remove the android:targetSdkVersion element from the manifest used for AARs.
+        tasks
+            .register(
+                variantName + "AarManifestTransformer",
+                AarManifestTransformerTask::class.java
+            )
+            .let { taskProvider ->
+                artifacts
+                    .use(taskProvider)
+                    .wiredWithFiles(
+                        AarManifestTransformerTask::aarFile,
+                        AarManifestTransformerTask::updatedAarFile
+                    )
+                    .toTransform(SingleArtifact.AAR)
+            }
+    }
+
     companion object {
         const val CREATE_LIBRARY_BUILD_INFO_FILES_TASK = "createLibraryBuildInfoFiles"
         const val GENERATE_TEST_CONFIGURATION_TASK = "GenerateTestConfiguration"
@@ -1542,6 +1589,10 @@ private fun Project.enforceBanOnVersionRanges() {
         }
     }
 }
+
+internal fun Project.hasAndroidMultiplatformPlugin(): Boolean =
+    extensions.findByType(AndroidXMultiplatformExtension::class.java)?.hasAndroidMultiplatform()
+        ?: false
 
 internal fun String.camelCase() = replaceFirstChar {
     if (it.isLowerCase()) it.titlecase() else it.toString()
