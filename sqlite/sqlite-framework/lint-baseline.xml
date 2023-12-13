@@ -7,7 +7,7 @@
         errorLine1="                Thread.sleep(500)"
         errorLine2="                       ~~~~~">
         <location
-            file="src/main/java/androidx/sqlite/db/framework/FrameworkSQLiteOpenHelper.kt"/>
+            file="src/androidMain/kotlin/androidx/sqlite/db/framework/FrameworkSQLiteOpenHelper.kt"/>
     </issue>
 
 </issues>
