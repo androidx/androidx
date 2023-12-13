@@ -443,4 +443,33 @@ public class LayoutElementBuildersTest {
         assertThat(arcLine.getStrokeCap().getShadow().getColor().getArgb())
                 .isEqualTo(shadow.getColor().getArgb());
     }
+
+    @Test
+    public void arcs_withSetDirection() {
+        int arcLineDirection = LayoutElementBuilders.ARC_DIRECTION_COUNTER_CLOCKWISE;
+        int arcTextDirection = LayoutElementBuilders.ARC_DIRECTION_NORMAL;
+        int arcDirection = LayoutElementBuilders.ARC_DIRECTION_CLOCKWISE;
+
+        LayoutElementBuilders.Arc arc = new LayoutElementBuilders.Arc.Builder()
+                .setArcDirection(arcDirection)
+                .addContent(
+                        new LayoutElementBuilders.ArcLine.Builder()
+                                .setArcDirection(arcLineDirection)
+                                .build())
+                .addContent(
+                        new LayoutElementBuilders.ArcText.Builder()
+                                .setArcDirection(arcTextDirection)
+                                .build())
+                .build();
+
+        assertThat(arc.getArcDirection().getValue()).isEqualTo(arcDirection);
+        assertThat(
+                ((LayoutElementBuilders.ArcLine) arc.getContents().get(0))
+                        .getArcDirection().getValue())
+                .isEqualTo(arcLineDirection);
+        assertThat(
+                ((LayoutElementBuilders.ArcText) arc.getContents().get(1))
+                        .getArcDirection().getValue())
+                .isEqualTo(arcTextDirection);
+    }
 }

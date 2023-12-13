@@ -588,6 +588,10 @@ message Arc {
   // target may not be achievable if other non-expandable elements bring us past
   // this value.
   DegreesProp max_angle = 6;
+
+  // The direction in which child elements are laid out. If not set, defaults to
+  // ARC_DIRECTION_NORMAL.
+  ArcDirectionProp arc_direction = 7;
 }
 
 // A text element that can be used in an Arc.
@@ -601,6 +605,9 @@ message ArcText {
 
   // Modifiers for this element.
   ArcModifiers modifiers = 3;
+
+  // The direction in which this text is drawn. If not set, defaults to ARC_DIRECTION_CLOCKWISE.
+  ArcDirectionProp arc_direction = 4;
 }
 
 // A line that can be used in an Arc and renders as a round progress bar.
@@ -641,6 +648,9 @@ message ArcLine {
 
   // The line stroke cap. If not defined, defaults to STROKE_CAP_ROUND.
   StrokeCapProp stroke_cap = 6;
+
+  // The direction in which this line is drawn. If not set, defaults to ARC_DIRECTION_CLOCKWISE.
+  ArcDirectionProp arc_direction = 8;
 }
 
 // Styles to use for path endings
@@ -702,6 +712,26 @@ message ArcAdapter {
   // will be placed at the 3 o clock position, but itself will not be rotated.
   // If not defined, defaults to false.
   BoolProp rotate_contents = 2;
+}
+
+// Direction of drawing for any curved element.
+enum ArcDirection {
+  // Draws an element in Clockwise direction for LTR layout direction and
+  // Counter Clockwise for RTL.
+  ARC_DIRECTION_NORMAL = 0;
+
+  // Draws an element in Clockwise direction, independently of layout direction.
+  ARC_DIRECTION_CLOCKWISE = 1;
+
+  // Draws an element in Counter Clockwise direction, independently of layout
+  // direction.
+  ARC_DIRECTION_COUNTER_CLOCKWISE = 2;
+}
+
+// An extensible StrokeCap property.
+message ArcDirectionProp {
+  // The value.
+  ArcDirection value = 1;
 }
 
 // A layout element which can be defined by a renderer extension. The
