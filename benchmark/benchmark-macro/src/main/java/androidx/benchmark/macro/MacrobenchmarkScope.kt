@@ -399,7 +399,7 @@ public class MacrobenchmarkScope(
     internal fun killProcessAndFlushArtProfiles() {
         Log.d(TAG, "Flushing ART profiles for $packageName")
         // For speed profile compilation, ART team recommended to wait for 5 secs when app
-        // is in the foreground, dump the profile, wait for an additional 500ms before
+        // is in the foreground, dump the profile, wait for an additional second before
         // speed-profile compilation.
         @Suppress("BanThreadSleep")
         Thread.sleep(5000)

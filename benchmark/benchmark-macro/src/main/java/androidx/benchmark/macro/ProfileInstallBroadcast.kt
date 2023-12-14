@@ -160,9 +160,11 @@ internal object ProfileInstallBroadcast {
                     "https://developer.android.com/jetpack/androidx/releases/profileinstaller."
             }
             12 -> { // RESULT_SAVE_PROFILE_SIGNALLED
-                // For safety, since this is async, we wait before returning
-                // Empirically, this is extremely fast (< 10ms)
-                Thread.sleep(500)
+                // While this is observed to be fast for simple/sample apps,
+                // this can take up significantly longer on large apps
+                // especially on low end devices (see b/316082056)
+                @Suppress("BanThreadSleep")
+                Thread.sleep(1000)
                 null // success!
             }
             else -> {
