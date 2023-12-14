@@ -2659,7 +2659,7 @@ private class TestIndication(val onCreate: (InteractionSource) -> Unit) : Indica
  * @param onDetach lambda executed when the instance is detached
  * @param onAttach lambda executed when the instance is created with [create]
  */
-private class TestIndicationNodeFactory(
+internal class TestIndicationNodeFactory(
     val onDetach: () -> Unit = {},
     val onAttach: ((InteractionSource, CoroutineScope) -> Unit)
 ) : IndicationNodeFactory {
