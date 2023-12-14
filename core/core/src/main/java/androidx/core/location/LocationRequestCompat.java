@@ -228,7 +228,6 @@ public final class LocationRequestCompat {
      * @see LocationRequest
      */
     @SuppressLint("NewApi")
-    @RequiresApi(19)
     @Nullable
     public LocationRequest toLocationRequest(@NonNull String provider) {
         if (VERSION.SDK_INT >= 31) {
@@ -518,7 +517,6 @@ public final class LocationRequestCompat {
         }
     }
 
-    @RequiresApi(19)
     private static class Api19Impl {
         private static Class<?> sLocationRequestClass;
         private static Method sCreateFromDeprecatedProviderMethod;

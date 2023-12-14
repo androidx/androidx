@@ -1077,7 +1077,6 @@ public class NotificationCompat {
          * equivalent to the given one, such that updates can be made to an existing notification
          * with the NotificationCompat.Builder API.
          */
-        @RequiresApi(19)
         @SuppressWarnings("deprecation")
         public Builder(@NonNull Context context,
                 @NonNull Notification notification) {
@@ -1192,7 +1191,6 @@ public class NotificationCompat {
 
         /** Remove all extras which have been parsed by the rest of the copy process */
         @Nullable
-        @RequiresApi(19)
         private static Bundle getExtrasWithoutDuplicateData(
                 @NonNull Notification notification, @Nullable Style style) {
             if (notification.extras == null) {
@@ -5870,7 +5868,6 @@ public class NotificationCompat {
              *
              */
             @RestrictTo(LIBRARY_GROUP_PREFIX)
-            @RequiresApi(19)
             @NonNull
             public static Builder fromAndroidAction(@NonNull Notification.Action action) {
                 final Builder builder;
@@ -9135,25 +9132,21 @@ public class NotificationCompat {
     }
 
     /** Returns the content title provided to {@link Builder#setContentTitle(CharSequence)}. */
-    @RequiresApi(19)
     public static @Nullable CharSequence getContentTitle(@NonNull Notification notification) {
         return notification.extras.getCharSequence(EXTRA_TITLE);
     }
 
     /** Returns the content text provided to {@link Builder#setContentText(CharSequence)}. */
-    @RequiresApi(19)
     public static @Nullable CharSequence getContentText(@NonNull Notification notification) {
         return notification.extras.getCharSequence(EXTRA_TEXT);
     }
 
     /** Returns the content info provided to {@link Builder#setContentInfo(CharSequence)}. */
-    @RequiresApi(19)
     public static @Nullable CharSequence getContentInfo(@NonNull Notification notification) {
         return notification.extras.getCharSequence(EXTRA_INFO_TEXT);
     }
 
     /** Returns the sub text provided to {@link Builder#setSubText(CharSequence)}. */
-    @RequiresApi(19)
     public static @Nullable CharSequence getSubText(@NonNull Notification notification) {
         return notification.extras.getCharSequence(EXTRA_SUB_TEXT);
     }
@@ -9198,7 +9191,6 @@ public class NotificationCompat {
     }
 
     /** Get the value provided to {@link Builder#setShowWhen(boolean)} */
-    @RequiresApi(19)
     public static boolean getShowWhen(@NonNull Notification notification) {
         // NOTE: This field can be set since API 17, but is impossible to extract from the
         // constructed Notification until API 19 when it was moved to the extras.
@@ -9206,7 +9198,6 @@ public class NotificationCompat {
     }
 
     /** Get the value provided to {@link Builder#setUsesChronometer(boolean)} */
-    @RequiresApi(19)
     public static boolean getUsesChronometer(@NonNull Notification notification) {
         // NOTE: This field can be set since API 16, but is impossible to extract from the
         // constructed Notification until API 19 when it was moved to the extras.

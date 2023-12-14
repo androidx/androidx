@@ -31,7 +31,6 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.graphics.Color;
 
-import androidx.annotation.RequiresApi;
 import androidx.emoji2.bundled.util.Emoji;
 import androidx.emoji2.bundled.util.EmojiMatcher;
 import androidx.emoji2.bundled.util.TestString;
@@ -206,7 +205,6 @@ public class ConfigTest {
     }
 
     private static class ValidTestConfig extends EmojiCompat.Config {
-        @RequiresApi(19)
         ValidTestConfig() {
             super(new TestConfigBuilder.TestEmojiDataLoader());
         }
