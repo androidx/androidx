@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.platform
 
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
 internal actual typealias AtomicInt = java.util.concurrent.atomic.AtomicInteger
 
 internal actual fun simpleIdentityToString(obj: Any, name: String?): String {
