@@ -15,7 +15,6 @@
  */
 package androidx.health.connect.client
 
-import android.app.Application
 import android.content.ComponentName
 import android.content.Context
 import android.content.IntentFilter
@@ -28,8 +27,6 @@ import androidx.health.platform.client.HealthDataService
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.google.common.truth.Truth.assertThat
-import kotlin.test.assertFailsWith
-import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertThrows
 import org.junit.Before
 import org.junit.Ignore
@@ -223,29 +220,6 @@ class HealthConnectClientTest {
                 )
             )
             .isNotNull()
-    }
-
-    @Test
-    @Config(sdk = [Build.VERSION_CODES.TIRAMISU])
-    fun unbindableService_callThrowsIllegalStateException() {
-        installPackage(
-            context,
-            HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME,
-            versionCode = HealthConnectClient.DEFAULT_PROVIDER_MIN_VERSION_CODE,
-            enabled = true
-        )
-        installService(context, HealthConnectClient.DEFAULT_PROVIDER_PACKAGE_NAME)
-        shadowOf(context.applicationContext as Application)
-            .declareActionUnbindable(HealthDataService.ANDROID_HEALTH_PLATFORM_SERVICE_BIND_ACTION)
-
-        val permissionController =
-            HealthConnectClient.getOrCreate(context).permissionController
-        assertFailsWith<IllegalStateException> {
-            runBlocking {
-                // Simplest API call that requires no parameters
-                permissionController.getGrantedPermissions()
-            }
-        }
     }
 
     private fun installPackage(

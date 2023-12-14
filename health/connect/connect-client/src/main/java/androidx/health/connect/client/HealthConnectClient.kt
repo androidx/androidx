@@ -65,7 +65,6 @@ interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
      *
      * For example, to insert basic data like step counts:
      *
@@ -98,7 +97,6 @@ interface HealthConnectClient {
      *   identifiers will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
      */
     suspend fun updateRecords(records: List<Record>)
 
@@ -115,7 +113,6 @@ interface HealthConnectClient {
      *   will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
      *
      * Example usage to delete written steps data by its unique identifier:
      *
@@ -137,7 +134,6 @@ interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
      *
      * Example usage to delete written steps data in a time range:
      *
@@ -156,7 +152,6 @@ interface HealthConnectClient {
      *   identifiers will result in IPC failure.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
      */
     suspend fun <T : Record> readRecord(
         recordType: KClass<T>,
@@ -172,7 +167,6 @@ interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
      *
      * Example code to read basic data like step counts:
      *
@@ -190,7 +184,6 @@ interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
      *
      * Example code to aggregate cumulative data like distance:
      *
@@ -220,7 +213,6 @@ interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
      *
      * Example code to retrieve cumulative step count for each minute within provided time range:
      *
@@ -248,7 +240,6 @@ interface HealthConnectClient {
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
      * @throws java.io.IOException For any disk I/O issues.
-     * @throws IllegalStateException If service is not available.
      *
      * Example code to retrieve cumulative step count for each month within provided time range:
      *
@@ -273,7 +264,6 @@ interface HealthConnectClient {
      * @return a changes-token
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
-     * @throws IllegalStateException If service is not available.
      * @see getChanges
      */
     suspend fun getChangesToken(request: ChangesTokenRequest): String
@@ -304,7 +294,6 @@ interface HealthConnectClient {
      * @return a [ChangesResponse] with changes since provided [changesToken].
      * @throws android.os.RemoteException For any IPC transportation failures.
      * @throws SecurityException For requests with unpermitted access.
-     * @throws IllegalStateException If service is not available.
      * @see getChangesToken
      */
     suspend fun getChanges(changesToken: String): ChangesResponse
@@ -403,8 +392,8 @@ interface HealthConnectClient {
          * @return instance of [HealthConnectClient] ready for issuing requests
          * @throws UnsupportedOperationException if service not available due to SDK version too low
          *   or running in a profile
-         * @throws IllegalStateException if service not available due to not installed
-         * @see isProviderAvailable
+         * @throws IllegalStateException if the SDK is not available
+         * @see getSdkStatus
          */
         @JvmOverloads
         @JvmStatic

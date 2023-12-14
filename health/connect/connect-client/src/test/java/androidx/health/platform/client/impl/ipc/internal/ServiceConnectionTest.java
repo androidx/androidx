@@ -160,7 +160,7 @@ public class ServiceConnectionTest {
     }
 
     @Test
-    public void enqueueOperation_unbindableService_throwsIllegalStateException() {
+    public void enqueueOperation_unbindableService_throwsRemoteException() {
         shadowOf((Application) getApplicationContext())
                 .declareComponentUnbindable(new ComponentName(mClientConfiguration.getPackageName(),
                         mClientConfiguration.getClientName()
@@ -172,7 +172,7 @@ public class ServiceConnectionTest {
         shadowOf(getMainLooper()).idle();
 
         assertThat(queueOperation.isExecuted()).isFalse();
-        assertThat(queueOperation.mThrowable).isInstanceOf(IllegalStateException.class);
+        assertThat(queueOperation.mThrowable).isInstanceOf(RemoteException.class);
     }
 
     @Test
