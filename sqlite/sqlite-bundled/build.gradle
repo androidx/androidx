@@ -173,61 +173,21 @@ androidXMultiplatform {
         //     │                │                       │          │            │
         //     ▼                ▼                       ▼          ▼            ▼
         //  jvmMain        androidMain               macMain   linuxMain    iosMain
-        //
-        //
-        //
-        //
-        //
-        //                                 sharedTest
-        //              ┌───────────────────────────────────────────┐
-        //              │                                           │
-        //              ▼                                           ▼
-        //       androidJvmCommonTest                           nativeTest
-        //    ┌────────────────────┐                      ┌─────────┬─────────────┐
-        //    │                    │                      │         │             │
-        //    ▼                    ▼                      ▼         ▼             ▼
-        // jvmTest      androidInstrumentedTest        macTest  linuxTest     iosTest
         commonMain {
             dependencies {
                 implementation(libs.kotlinStdlib)
                 api(project(":sqlite:sqlite"))
             }
         }
-        sharedTest {
-            // Using a custom sourceSet for tests instead of commonTest because commonTest is
-            // added to the Android Host test compilation and cannot run since it doesn't have the
-            // native dependencies besides Android (in other words, it is running the AAR on JVM
-            // hence doesn't have the necessary native libs to run the code).
-            dependencies {
-                implementation(libs.kotlinTest)
-                implementation(libs.kotlinTestAnnotationsCommon)
-                implementation(project(":kruth:kruth"))
-                implementation(project(":sqlite:integration-tests:driver-conformance-test"))
-            }
-        }
         androidJvmCommonMain {
             // common code between android and jvm
             dependsOn(commonMain)
         }
-        androidJvmCommonTest {
-            dependsOn(sharedTest)
-        }
         jvmMain {
             dependsOn(androidJvmCommonMain)
         }
-        jvmTest {
-            dependsOn(androidJvmCommonTest)
-        }
         androidMain {
             dependsOn(androidJvmCommonMain)
-        }
-        androidInstrumentedTest {
-            dependsOn(androidJvmCommonTest)
-            dependencies {
-                implementation(libs.testRunner)
-                implementation(libs.testCore)
-                implementation(libs.kotlinTestJunit)
-            }
         }
         if (nativeEnabled) {
             nativeMain {
@@ -236,18 +196,11 @@ androidXMultiplatform {
                     implementation(project(":sqlite:sqlite-framework"))
                 }
             }
-            nativeTest {
-                dependsOn(sharedTest)
-            }
         }
-
         targets.all { target ->
             if (target.platformType == KotlinPlatformType.native) {
                 target.compilations["main"].defaultSourceSet {
                     dependsOn(nativeMain)
-                }
-                target.compilations["test"].defaultSourceSet {
-                    dependsOn(nativeTest)
                 }
             }
         }

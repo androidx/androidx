@@ -64,7 +64,6 @@ androidXMultiplatform {
         }
         commonTest {
             dependencies {
-                implementation(project(":sqlite:integration-tests:driver-conformance-test"))
                 implementation(libs.kotlinTest)
                 implementation(project(":kruth:kruth"))
             }

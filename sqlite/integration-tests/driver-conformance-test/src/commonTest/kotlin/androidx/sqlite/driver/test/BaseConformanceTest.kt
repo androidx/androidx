@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.sqlite.driver
+package androidx.sqlite.driver.test
 
 import androidx.kruth.assertThat
 import androidx.sqlite.SQLiteConnection

@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.sqlite
+package androidx.sqlite.driver.test
 
-import androidx.annotation.RestrictTo
+import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 
-/**
- * An exception that indicates that something has gone wrong and a error code was produced.
- *
- * See [Result and Error codes](https://www.sqlite.org/rescode.html)
- */
-expect class SQLiteException
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-constructor(message: String) : RuntimeException
+class BundledSQLiteDriverTest : BaseBundledConformanceTest() {
+
+    override val driverType = TestDriverType.BUNDLED
+
+    override fun getDriver(): SQLiteDriver {
+        return BundledSQLiteDriver(filename = ":memory:")
+    }
+}

@@ -23,7 +23,7 @@ import androidx.sqlite.SQLiteDriver
 class AndroidSQLiteDriver(
     private val filename: String
 ) : SQLiteDriver {
-    override fun open(): SQLiteConnection = withExceptionCatch {
+    override fun open(): SQLiteConnection {
         val database = SQLiteDatabase.openOrCreateDatabase(filename, null)
         return AndroidSQLiteConnection(database)
     }
