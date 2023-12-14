@@ -18,6 +18,7 @@ package androidx.compose.foundation.demos
 
 import androidx.compose.foundation.demos.draganddrop.DragAndDropMultiAppDemo
 import androidx.compose.foundation.demos.draganddrop.DragAndDropNestedDemo
+import androidx.compose.foundation.demos.focus.FocusGroupDemo
 import androidx.compose.foundation.demos.pager.PagerDemos
 import androidx.compose.foundation.demos.relocation.BringIntoViewAndroidInteropDemo
 import androidx.compose.foundation.demos.relocation.BringIntoViewDemo
