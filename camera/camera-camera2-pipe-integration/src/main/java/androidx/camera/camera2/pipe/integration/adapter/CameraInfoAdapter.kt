@@ -28,6 +28,7 @@ import android.util.Range
 import android.util.Size
 import android.view.Surface
 import androidx.annotation.RequiresApi
+import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.compat.DynamicRangeProfilesCompat
@@ -86,7 +87,9 @@ class CameraInfoAdapter @Inject constructor(
     private val streamConfigurationMapCompat: StreamConfigurationMapCompat,
     private val cameraFovInfo: CameraFovInfo,
 ) : CameraInfoInternal {
-    init { DeviceInfoLogger.logDeviceInfo(cameraProperties) }
+    init {
+        DeviceInfoLogger.logDeviceInfo(cameraProperties)
+    }
 
     private val isLegacyDevice by lazy {
         cameraProperties.metadata[
@@ -103,12 +106,17 @@ class CameraInfoAdapter @Inject constructor(
     override fun getLensFacing(): Int =
         getCameraSelectorLensFacing(cameraProperties.metadata[CameraCharacteristics.LENS_FACING]!!)
 
-    override fun getCameraCharacteristics(): Any {
-        TODO("Not yet implemented")
-    }
+    override fun getCameraCharacteristics() =
+        cameraProperties.metadata.unwrapAs(CameraCharacteristics::class)!!
 
     override fun getPhysicalCameraCharacteristics(physicalCameraId: String): Any? {
-        TODO("Not yet implemented")
+        val cameraId = CameraId.fromCamera2Id(physicalCameraId)
+        if (!cameraProperties.metadata.physicalCameraIds.contains(cameraId)) {
+            return null
+        }
+        return cameraProperties.metadata.awaitPhysicalMetadata(cameraId).unwrapAs(
+            CameraCharacteristics::class
+        )
     }
 
     @CameraSelector.LensFacing
@@ -227,7 +235,8 @@ class CameraInfoAdapter @Inject constructor(
             CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
         return availableVideoStabilizationModes != null &&
             availableVideoStabilizationModes.contains(
-            CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION)
+                CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION
+            )
     }
 
     override fun isVideoStabilizationSupported(): Boolean {
@@ -235,7 +244,8 @@ class CameraInfoAdapter @Inject constructor(
             CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES]
         return availableVideoStabilizationModes != null &&
             availableVideoStabilizationModes.contains(
-            CONTROL_VIDEO_STABILIZATION_MODE_ON)
+                CONTROL_VIDEO_STABILIZATION_MODE_ON
+            )
     }
 
     override fun getIntrinsicZoomRatio(): Float {
