@@ -2788,6 +2788,64 @@ class NavControllerTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateOptionSaveStackNoRestore() {
+        val backStackStateKey = "android-support-nav:controller:backStackStates"
+        val navController = createNavController()
+        navController.setGraph(R.navigation.nav_simple)
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navigator.backStack.size).isEqualTo(1)
+        val startEntry = navController.currentBackStackEntry
+
+        // save startDestination when it is popped
+        navController.navigate(
+            R.id.second_test,
+            null,
+            navOptions {
+                popUpTo(R.id.nav_root) {
+                    inclusive = false
+                    saveState = true
+                }
+            }
+        )
+
+        val firstSaveState = navController.saveState()
+        val firstBackStackStateSaved = firstSaveState?.getStringArrayList(backStackStateKey)
+        assertThat(firstBackStackStateSaved?.size).isEqualTo(1)
+        assertThat(firstBackStackStateSaved?.get(0)).isEqualTo(startEntry!!.id)
+
+        // go back to start destination
+        navController.navigate(
+            R.id.start_test,
+            null,
+            navOptions {
+                popUpTo(R.id.nav_root) {
+                    inclusive = false
+                    saveState = false
+                }
+            }
+        )
+
+        // save startDestination again when it is popped
+        navController.navigate(
+            R.id.second_test,
+            null,
+            navOptions {
+                popUpTo(R.id.nav_root) {
+                    inclusive = false
+                    saveState = true
+                }
+            }
+        )
+
+        val secondSaveState = navController.saveState()
+        val secondBackStackStateSaved = secondSaveState?.getStringArrayList(backStackStateKey)
+        // backStackState should only contain the original startEntry
+        assertThat(secondBackStackStateSaved?.size).isEqualTo(1)
+        assertThat(secondBackStackStateSaved?.get(0)).isEqualTo(startEntry.id)
+    }
+
+    @UiThreadTest
+    @Test
     fun testNavigateOptionNestedSaveRestoreStateInclusive() {
         val navController = createNavController()
         navController.setViewModelStore(ViewModelStore())

@@ -682,8 +682,12 @@ public open class NavController(
                 }.forEach { destination ->
                     backStackMap[destination.id] = firstState.id
                 }
-                // And finally, store the actual state itself
-                backStackStates[firstState.id] = savedState
+
+                if (backStackMap.values.contains(firstState.id)) {
+                    // And finally, store the actual state itself if the entry was added
+                    // to backStackMap
+                    backStackStates[firstState.id] = savedState
+                }
             }
         }
         updateOnBackPressedCallbackEnabled()
