@@ -44,12 +44,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.packInts
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.Mockito
 import org.mockito.invocation.InvocationOnMock
 import org.mockito.kotlin.any
 import org.mockito.kotlin.anyOrNull
@@ -134,6 +136,10 @@ class TextFieldSelectionManagerTest {
         whenever(
             layoutResultProxy.getOffsetForPosition(dragBeginPosition + dragDistance, false)
         ).thenReturn(dragOffset)
+
+        whenever(
+            layoutResultProxy.translateInnerToDecorationCoordinates(matchesOffset(dragDistance))
+        ).thenAnswer(OffsetAnswer(dragDistance))
 
         whenever(layoutResultProxy.value).thenReturn(layoutResult)
 
@@ -632,3 +638,19 @@ internal class TextRangeAnswer(private val textRange: TextRange) : Answer<Any> {
     override fun answer(invocation: InvocationOnMock?): Any =
         packInts(textRange.start, textRange.end)
 }
+
+internal class OffsetAnswer(private val offset: Offset) : Answer<Any> {
+    override fun answer(invocation: InvocationOnMock?): Any =
+        packFloats(offset.x, offset.y)
+}
+
+// Another workaround for matching an Offset
+// (https://github.com/nhaarman/mockito-kotlin/issues/309).
+private fun matchesOffset(offset: Offset): Offset =
+    Mockito.argThat { arg: Any ->
+        if (arg is Long) {
+            arg == packFloats(offset.x, offset.y)
+        } else {
+            arg == offset
+        }
+    } as Offset? ?: offset
