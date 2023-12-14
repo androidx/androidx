@@ -17,6 +17,8 @@
 package androidx.webkit;
 
 import android.os.Build;
+import android.os.Bundle;
+import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -51,8 +53,13 @@ public class WebViewApkTest {
     @Test
     public void testWebViewVersionMatchesInstrumentationArgs() {
         // WebView version: e.g. 46.0.2490.14, or 67.0.3396.17.
+        Bundle arguments = InstrumentationRegistry.getArguments();
         String expectedWebViewVersionString =
-                InstrumentationRegistry.getArguments().getString("webview-version");
+                arguments.getString("webview-version");
+        // For debugging missing args on Cuttlefish test runners
+        if (expectedWebViewVersionString == null) {
+            Log.i("WebViewApkTest", "InstrumentationRegistry arguments: " + arguments);
+        }
         Assert.assertNotNull("Did not receive a WebView version as an instrumentation argument"
                         + ". If you are running this test locally, add `-Pandroid"
                         + ".testInstrumentationRunnerArguments.webview-version=factory` "
