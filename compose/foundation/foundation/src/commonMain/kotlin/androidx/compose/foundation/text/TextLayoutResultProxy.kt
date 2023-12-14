@@ -93,6 +93,17 @@ internal class TextLayoutResultProxy(val value: TextLayoutResult) {
     }
 
     /**
+     * Translates the given [offset] from inner text field coordinates
+     * to decoration box coordinates.
+     */
+    internal fun translateInnerToDecorationCoordinates(offset: Offset): Offset {
+        val innerCoordinates = innerTextFieldCoordinates?.takeIf { it.isAttached } ?: return offset
+        val decorationCoordinates =
+            decorationBoxCoordinates?.takeIf { it.isAttached } ?: return offset
+        return decorationCoordinates.localPositionOf(innerCoordinates, offset)
+    }
+
+    /**
      * If click on the decoration box happens outside visible inner text field, coerce the click
      * position to the visible edges of the inner text field.
      */
