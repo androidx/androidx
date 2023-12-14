@@ -107,6 +107,8 @@ if (AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 api(libs.kotlinCoroutinesCore)
                 api(libs.kotlinCoroutinesTest)
                 api(libs.kotlinStdlibCommon)
+
+                compileOnly("androidx.annotation:annotation:1.1.0")
             }
 
             androidMain.dependencies {

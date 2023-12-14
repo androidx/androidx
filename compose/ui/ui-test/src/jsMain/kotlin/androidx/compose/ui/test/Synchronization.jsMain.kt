@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.junit4
+package androidx.compose.ui.test
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineScheduler
+/**
+ * Runs the given action on the UI thread.
+ *
+ * This method is blocking until the action is complete.
+ */
+internal actual fun <T> runOnUiThread(action: () -> T): T {
+    return action()
+}
 
-@OptIn(ExperimentalCoroutinesApi::class)
-internal class MainTestClockImpl(
-    testScheduler: TestCoroutineScheduler,
-    frameDelayMillis: Long,
-    onTimeAdvanced: (Long) -> Unit
-) : AbstractMainTestClock(
-    testScheduler = testScheduler,
-    frameDelayMillis = frameDelayMillis,
-    runOnUiThread = ::runOnUiThread,
-    onTimeAdvanced = onTimeAdvanced
-)
+/**
+ * Returns if the call is made on the main thread.
+ */
+internal actual fun isOnUiThread(): Boolean = true
+
+/**
+ * Throws an [UnsupportedOperationException].
+ */
+internal actual fun sleep(timeMillis: Long) {
+    throw UnsupportedOperationException("sleep is not supported in JS target")
+}

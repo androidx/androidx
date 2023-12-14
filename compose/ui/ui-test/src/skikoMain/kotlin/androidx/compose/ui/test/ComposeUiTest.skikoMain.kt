@@ -32,12 +32,6 @@ import androidx.compose.ui.scene.MultiLayerComposeScene
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.ComposeSceneContext
 import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.test.junit4.ComposeRootRegistry
-import androidx.compose.ui.test.junit4.MainTestClockImpl
-import androidx.compose.ui.test.junit4.UncaughtExceptionHandler
-import androidx.compose.ui.test.junit4.isOnUiThread
-import androidx.compose.ui.test.junit4.sleep
-import androidx.compose.ui.test.junit4.synchronized
 import androidx.compose.ui.text.input.EditCommand
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.ImeOptions
@@ -137,7 +131,8 @@ class SkikoComposeUiTest(
 
     @InternalComposeUiApi
     lateinit var scene: ComposeScene
-        internal set
+        @InternalTestApi
+        set
 
     private val testOwner = DesktopTestOwner()
     private val testContext = createTestContext(testOwner)
@@ -236,7 +231,7 @@ class SkikoComposeUiTest(
     }
 
     override fun <T> runOnUiThread(action: () -> T): T {
-        return androidx.compose.ui.test.junit4.runOnUiThread(action)
+        return androidx.compose.ui.test.runOnUiThread(action)
     }
 
     override fun <T> runOnIdle(action: () -> T): T {

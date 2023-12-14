@@ -14,6 +14,6 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.junit4
+package androidx.compose.ui.test
 
-internal actual inline fun <T> synchronized(lock: Any, block: () -> T): T = block() // TODO: implement using atomicfu
+internal actual inline fun <T> synchronized(lock: Any, block: () -> T) = block()

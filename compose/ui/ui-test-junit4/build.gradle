@@ -142,14 +142,7 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
                 implementation(libs.mockitoKotlin)
             }
 
-            skikoMain {
-                dependsOn(commonMain)
-            }
-
             desktopMain.dependsOn(skikoMain)
-            nativeMain.dependsOn(skikoMain)
-            jsMain.dependsOn(skikoMain)
-            wasmJsMain.dependsOn(skikoMain)
 
             desktopMain.dependencies {
                 implementation(libs.truth)
@@ -164,9 +157,6 @@ if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
             }
 
             desktopTest.dependsOn(skikoTest)
-            jsTest.dependsOn(skikoTest)
-            nativeTest.dependsOn(skikoTest)
-            wasmJsTest.dependsOn(skikoTest)
 
             desktopTest.dependencies {
                 implementation(libs.truth)

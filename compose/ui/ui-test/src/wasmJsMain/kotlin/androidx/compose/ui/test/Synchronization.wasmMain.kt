@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.test.junit4
+package androidx.compose.ui.test
 
 /**
  * Runs the given action on the UI thread.
