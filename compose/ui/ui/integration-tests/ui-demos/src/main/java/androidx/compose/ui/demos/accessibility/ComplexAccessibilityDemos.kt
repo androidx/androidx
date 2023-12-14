@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.demos
+package androidx.compose.ui.demos.accessibility
 
 import android.widget.TextView
 import androidx.compose.foundation.clickable
