@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"ຕົວເລືອກເສັ້ນທາງ"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"ຫຼີກເວັ້ນທາງຫຼວງ"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ຫຼີກເວັ້ນເຮືອບັກ"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"ການຈຳລອງແຜນທີ່"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"ການຈຳລອງແຜນທີ່ພ້ອມເນື້ອຫາ"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"ການຈຳລອງແຜນທີ່ພ້ອມແມ່ແບບຂໍ້ຄວາມ"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"ການຈຳລອງແຜນທີ່ພ້ອມແມ່ແບບຕາຕະລາງ"</string>
 </resources>
