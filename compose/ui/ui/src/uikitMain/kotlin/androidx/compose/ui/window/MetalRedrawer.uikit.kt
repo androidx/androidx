@@ -35,6 +35,7 @@ import platform.UIKit.UIApplicationWillEnterForegroundNotification
 import platform.darwin.*
 import org.jetbrains.skia.Rect
 import platform.Foundation.NSLock
+import platform.Foundation.NSRunLoopCommonModes
 import platform.Foundation.NSTimeInterval
 import platform.UIKit.UIApplication
 import platform.UIKit.UIApplicationState
@@ -281,7 +282,7 @@ internal class MetalRedrawer(
         displayLinkConditions.isApplicationActive =
             UIApplication.sharedApplication.applicationState != UIApplicationState.UIApplicationStateBackground
 
-        caDisplayLink.addToRunLoop(NSRunLoop.mainRunLoop, NSRunLoop.mainRunLoop.currentMode)
+        caDisplayLink.addToRunLoop(NSRunLoop.mainRunLoop, NSRunLoopCommonModes)
     }
 
     fun dispose() {
