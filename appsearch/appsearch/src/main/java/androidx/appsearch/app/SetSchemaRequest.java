@@ -21,10 +21,13 @@ import android.annotation.SuppressLint;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresFeature;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
+import androidx.appsearch.annotation.FlaggedApi;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.flags.Flags;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -180,6 +183,7 @@ public final class SetSchemaRequest {
     private final Set<String> mSchemasNotDisplayedBySystem;
     private final Map<String, Set<PackageIdentifier>> mSchemasVisibleToPackages;
     private final Map<String, Set<Set<Integer>>> mSchemasVisibleToPermissions;
+    private final Map<String, PackageIdentifier> mPubliclyVisibleSchemas;
     private final Map<String, Migrator> mMigrators;
     private final boolean mForceOverride;
     private final int mVersion;
@@ -188,6 +192,7 @@ public final class SetSchemaRequest {
             @NonNull Set<String> schemasNotDisplayedBySystem,
             @NonNull Map<String, Set<PackageIdentifier>> schemasVisibleToPackages,
             @NonNull Map<String, Set<Set<Integer>>> schemasVisibleToPermissions,
+            @NonNull Map<String, PackageIdentifier> publiclyVisibleSchemas,
             @NonNull Map<String, Migrator> migrators,
             boolean forceOverride,
             int version) {
@@ -195,6 +200,7 @@ public final class SetSchemaRequest {
         mSchemasNotDisplayedBySystem = Preconditions.checkNotNull(schemasNotDisplayedBySystem);
         mSchemasVisibleToPackages = Preconditions.checkNotNull(schemasVisibleToPackages);
         mSchemasVisibleToPermissions = Preconditions.checkNotNull(schemasVisibleToPermissions);
+        mPubliclyVisibleSchemas = Preconditions.checkNotNull(publiclyVisibleSchemas);
         mMigrators = Preconditions.checkNotNull(migrators);
         mForceOverride = forceOverride;
         mVersion = version;
@@ -264,6 +270,16 @@ public final class SetSchemaRequest {
     }
 
     /**
+     * Returns a mapping of publicly visible schemas to the {@link PackageIdentifier} specifying
+     * the package the schemas are from.
+     */
+    @FlaggedApi(Flags.FLAG_ENABLE_SET_PUBLICLY_VISIBLE_SCHEMA)
+    @NonNull
+    public Map<String, PackageIdentifier> getPubliclyVisibleSchemas() {
+        return Collections.unmodifiableMap(mPubliclyVisibleSchemas);
+    }
+
+    /**
      * Returns the map of {@link Migrator}, the key will be the schema type of the
      * {@link Migrator} associated with.
      */
@@ -307,6 +323,7 @@ public final class SetSchemaRequest {
         private ArrayMap<String, Set<PackageIdentifier>> mSchemasVisibleToPackages =
                 new ArrayMap<>();
         private ArrayMap<String, Set<Set<Integer>>> mSchemasVisibleToPermissions = new ArrayMap<>();
+        private ArrayMap<String, PackageIdentifier> mPubliclyVisibleSchemas = new ArrayMap<>();
         private ArrayMap<String, Migrator> mMigrators = new ArrayMap<>();
         private boolean mForceOverride = false;
         private int mVersion = DEFAULT_VERSION;
@@ -562,6 +579,80 @@ public final class SetSchemaRequest {
 
             return this;
         }
+
+        /**
+         * Specify that the schema should be publicly available, to packages which already have
+         * visibility to {@code packageIdentifier}. This visibility is determined by the result of
+         * {@link android.content.pm.PackageManager#canPackageQuery}.
+         *
+         * <p> It is possible for the packageIdentifier parameter to be different from the
+         * package performing the indexing. This might happen in the case of an on-device indexer
+         * processing information about various packages. The visibility will be the same
+         * regardless of which package indexes the document, as the visibility is based on the
+         * packageIdentifier parameter.
+         *
+         * <p> If this is called repeatedly with the same schema, the {@link PackageIdentifier} in
+         * the last call will be used as the "from" package for that schema.
+         *
+         * <p> Calling this with packageIdentifier set to null is valid, and will remove public
+         * visibility for the schema.
+         *
+         * @param schema the schema to make publicly accessible.
+         * @param packageIdentifier if an app can see this package via
+         *                          PackageManager#canPackageQuery, it will be able to see the
+         *                          documents of type {@code schema}.
+         */
+        // Merged list available from getPubliclyVisibleSchemas
+        @SuppressLint("MissingGetterMatchingBuilder")
+        // @exportToFramework:startStrip()
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE)
+        // @exportToFramework:endStrip()
+        @FlaggedApi(Flags.FLAG_ENABLE_SET_PUBLICLY_VISIBLE_SCHEMA)
+        @NonNull
+        public Builder setPubliclyVisibleSchema(@NonNull String schema,
+                @Nullable PackageIdentifier packageIdentifier) {
+            Preconditions.checkNotNull(schema);
+            resetIfBuilt();
+
+            // If the package identifier is null or empty we clear public visibility
+            if (packageIdentifier == null || packageIdentifier.getPackageName().isEmpty()) {
+                mPubliclyVisibleSchemas.remove(schema);
+                return this;
+            }
+
+            mPubliclyVisibleSchemas.put(schema, packageIdentifier);
+            return this;
+        }
+
+// @exportToFramework:startStrip()
+        /**
+         * Specify that the schema should be publicly available, to packages which already have
+         * visibility to {@code packageIdentifier}.
+         *
+         * @param documentClass the document to make publicly accessible.
+         * @param packageIdentifier if an app can see this package via
+         *                          PackageManager#canPackageQuery, it will be able to see the
+         *                          documents of type {@code documentClass}.
+         * @see SetSchemaRequest.Builder#setPubliclyVisibleSchema
+         */
+        // Merged list available from getPubliclyVisibleSchemas
+        @SuppressLint("MissingGetterMatchingBuilder")
+        @RequiresFeature(
+                enforcement = "androidx.appsearch.app.Features#isFeatureSupported",
+                name = Features.SET_SCHEMA_REQUEST_SET_PUBLICLY_VISIBLE)
+        @FlaggedApi(Flags.FLAG_ENABLE_SET_PUBLICLY_VISIBLE_SCHEMA)
+        @NonNull
+        public Builder setPubliclyVisibleDocumentClass(@NonNull Class<?> documentClass,
+                @Nullable PackageIdentifier packageIdentifier) throws AppSearchException {
+            Preconditions.checkNotNull(documentClass);
+            resetIfBuilt();
+            DocumentClassFactoryRegistry registry = DocumentClassFactoryRegistry.getInstance();
+            DocumentClassFactory<?> factory = registry.getOrCreateFactory(documentClass);
+            return setPubliclyVisibleSchema(factory.getSchemaName(), packageIdentifier);
+        }
+// @exportToFramework:endStrip()
 
         /**
          * Sets the {@link Migrator} associated with the given SchemaType.
@@ -841,6 +932,7 @@ public final class SetSchemaRequest {
             Set<String> referencedSchemas = new ArraySet<>(mSchemasNotDisplayedBySystem);
             referencedSchemas.addAll(mSchemasVisibleToPackages.keySet());
             referencedSchemas.addAll(mSchemasVisibleToPermissions.keySet());
+            referencedSchemas.addAll(mPubliclyVisibleSchemas.keySet());
 
             for (AppSearchSchema schema : mSchemas) {
                 referencedSchemas.remove(schema.getSchemaType());
@@ -861,6 +953,7 @@ public final class SetSchemaRequest {
                     mSchemasNotDisplayedBySystem,
                     mSchemasVisibleToPackages,
                     mSchemasVisibleToPermissions,
+                    mPubliclyVisibleSchemas,
                     mMigrators,
                     mForceOverride,
                     mVersion);
@@ -876,6 +969,8 @@ public final class SetSchemaRequest {
                 }
                 mSchemasVisibleToPackages = schemasVisibleToPackages;
 
+                mPubliclyVisibleSchemas = new ArrayMap<>(mPubliclyVisibleSchemas);
+
                 mSchemasVisibleToPermissions = deepCopy(mSchemasVisibleToPermissions);
 
                 mSchemas = new ArraySet<>(mSchemas);
@@ -886,8 +981,8 @@ public final class SetSchemaRequest {
         }
     }
 
-    static ArrayMap<String, Set<Set<Integer>>> deepCopy(@NonNull Map<String,
-            Set<Set<Integer>>> original) {
+    private static ArrayMap<String, Set<Set<Integer>>> deepCopy(
+            @NonNull Map<String, Set<Set<Integer>>> original) {
         ArrayMap<String, Set<Set<Integer>>> copy = new ArrayMap<>(original.size());
         for (Map.Entry<String, Set<Set<Integer>>> entry : original.entrySet()) {
             Set<Set<Integer>> valueCopy = new ArraySet<>();

@@ -201,6 +201,15 @@ public class SetSchemaRequestCtsTest {
     }
 
     @Test
+    public void testInvalidSchemaReferences_fromPubliclyVisible() {
+        IllegalArgumentException expected = assertThrows(IllegalArgumentException.class,
+                () -> new SetSchemaRequest.Builder().setPubliclyVisibleSchema("InvalidSchema",
+                        new PackageIdentifier("com.foo.package",
+                                /*sha256Certificate=*/ new byte[]{})).build());
+        assertThat(expected).hasMessageThat().contains("referenced, but were not added");
+    }
+
+    @Test
     public void testSetSchemaTypeDisplayedBySystem_displayed() {
         AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
 
@@ -276,7 +285,7 @@ public class SetSchemaRequestCtsTest {
                         "Schema2", ImmutableSet.of(
                                 ImmutableSet.of(SetSchemaRequest.READ_EXTERNAL_STORAGE)
                         )
-            );
+                );
 
         // Clear the permissions in the builder
         setSchemaRequestBuilder.clearRequiredPermissionsForSchemaTypeVisibility("Schema1");
@@ -287,7 +296,7 @@ public class SetSchemaRequestCtsTest {
                         "Schema2", ImmutableSet.of(
                                 ImmutableSet.of(SetSchemaRequest.READ_EXTERNAL_STORAGE)
                         )
-            );
+                );
 
         // Old object should remain unchanged
         assertThat(request.getRequiredPermissionsForSchemaTypeVisibility())
@@ -300,7 +309,7 @@ public class SetSchemaRequestCtsTest {
                         "Schema2", ImmutableSet.of(
                                 ImmutableSet.of(SetSchemaRequest.READ_EXTERNAL_STORAGE)
                         )
-            );
+                );
     }
 
     @Test
@@ -375,6 +384,61 @@ public class SetSchemaRequestCtsTest {
         assertThat(request.getSchemasVisibleToPackages()).isEmpty();
     }
 
+    @Test
+    public void testPubliclyVisibleSchemaType() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
+
+        PackageIdentifier packageIdentifier =
+                new PackageIdentifier("com.package.foo", /*sha256Certificate=*/ new byte[]{});
+        SetSchemaRequest request =
+                new SetSchemaRequest.Builder().addSchemas(schema).setPubliclyVisibleSchema(
+                        "Schema", packageIdentifier).build();
+        assertThat(request.getPubliclyVisibleSchemas())
+                .containsExactly("Schema", packageIdentifier);
+    }
+
+    @Test
+    public void testPubliclyVisibleSchemaType_removal() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
+
+        PackageIdentifier packageIdentifier =
+                new PackageIdentifier("com.package.foo", /*sha256Certificate=*/ new byte[]{});
+        SetSchemaRequest request =
+                new SetSchemaRequest.Builder().addSchemas(schema).setPubliclyVisibleSchema(
+                        "Schema", packageIdentifier).build();
+        assertThat(request.getPubliclyVisibleSchemas())
+                .containsExactly("Schema", packageIdentifier);
+
+        // Removed Schema
+        request = new SetSchemaRequest.Builder().addSchemas(schema)
+                .setPubliclyVisibleSchema("Schema", packageIdentifier)
+                .setPubliclyVisibleSchema("Schema", null)
+                .build();
+        assertThat(request.getPubliclyVisibleSchemas()).isEmpty();
+    }
+
+    @Test
+    public void testPubliclyVisibleSchemaType_deduped() {
+        AppSearchSchema schema = new AppSearchSchema.Builder("Schema").build();
+
+        PackageIdentifier packageIdentifier =
+                new PackageIdentifier("com.package.foo", /*sha256Certificate=*/ new byte[]{});
+        PackageIdentifier packageIdentifier2 =
+                new PackageIdentifier("com.package.bar", /*sha256Certificate=*/ new byte[]{});
+        SetSchemaRequest request =
+                new SetSchemaRequest.Builder().addSchemas(schema).setPubliclyVisibleSchema(
+                        "Schema", packageIdentifier).build();
+        assertThat(request.getPubliclyVisibleSchemas())
+                .containsExactly("Schema", packageIdentifier);
+
+        // Deduped schema
+        request = new SetSchemaRequest.Builder().addSchemas(schema)
+                .setPubliclyVisibleSchema("Schema", packageIdentifier2)
+                .setPubliclyVisibleSchema("Schema", packageIdentifier)
+                .build();
+        assertThat(request.getPubliclyVisibleSchemas())
+                .containsExactly("Schema", packageIdentifier);
+    }
 
     // @exportToFramework:startStrip()
     @Document
@@ -611,7 +675,7 @@ public class SetSchemaRequestCtsTest {
                         "Queen", ImmutableSet.of(
                                 ImmutableSet.of(SetSchemaRequest.READ_EXTERNAL_STORAGE)
                         )
-            );
+                );
 
         // Clear the permissions in the builder
         setSchemaRequestBuilder.clearRequiredPermissionsForDocumentClassVisibility(King.class);
@@ -622,7 +686,7 @@ public class SetSchemaRequestCtsTest {
                         "Queen", ImmutableSet.of(
                                 ImmutableSet.of(SetSchemaRequest.READ_EXTERNAL_STORAGE)
                         )
-            );
+                );
 
         // Old object should remain unchanged
         assertThat(request.getRequiredPermissionsForSchemaTypeVisibility())
@@ -635,7 +699,7 @@ public class SetSchemaRequestCtsTest {
                         "Queen", ImmutableSet.of(
                                 ImmutableSet.of(SetSchemaRequest.READ_EXTERNAL_STORAGE)
                         )
-            );
+                );
     }
 // @exportToFramework:endStrip()
 
@@ -769,7 +833,8 @@ public class SetSchemaRequestCtsTest {
                 .build();
 
         // get the visibility setting and modify the output object.
-        // skip getSchemasNotDisplayedBySystem since it returns an unmodifiable object.
+        // skip getSchemasNotDisplayedBySystem and getPubliclyVisibleSchemas since they return
+        // unmodifiable objects.
         request.getSchemasVisibleToPackages().put("Email2", ImmutableSet.of(packageIdentifier2));
         request.getRequiredPermissionsForSchemaTypeVisibility().put("Email2",
                 ImmutableSet.of(ImmutableSet.of(SetSchemaRequest.READ_CALENDAR)));
@@ -942,6 +1007,33 @@ public class SetSchemaRequestCtsTest {
                 registry.getOrCreateFactory(ArtType.class).getSchema(),
                 registry.getOrCreateFactory(Artist.class).getSchema()
         );
+    }
+
+    @Test
+    public void testSetVisibility_publicVisibility_rebuild() {
+        byte[] sha256cert1 = new byte[32];
+        byte[] sha256cert2 = new byte[32];
+        Arrays.fill(sha256cert1, (byte) 1);
+        Arrays.fill(sha256cert2, (byte) 2);
+        PackageIdentifier packageIdentifier1 = new PackageIdentifier("Email", sha256cert1);
+        PackageIdentifier packageIdentifier2 = new PackageIdentifier("Email", sha256cert2);
+        AppSearchSchema schema1 = new AppSearchSchema.Builder("Email1").build();
+        AppSearchSchema schema2 = new AppSearchSchema.Builder("Email2").build();
+
+        SetSchemaRequest.Builder builder = new SetSchemaRequest.Builder()
+                .addSchemas(schema1).setPubliclyVisibleSchema("Email1", packageIdentifier1);
+
+        SetSchemaRequest original = builder.build();
+        SetSchemaRequest rebuild = builder.addSchemas(schema2)
+                .setPubliclyVisibleSchema("Email2", packageIdentifier2).build();
+
+        assertThat(original.getSchemas()).containsExactly(schema1);
+        assertThat(original.getPubliclyVisibleSchemas())
+                .containsExactly("Email1", packageIdentifier1);
+
+        assertThat(rebuild.getSchemas()).containsExactly(schema1, schema2);
+        assertThat(original.getPubliclyVisibleSchemas())
+                .containsExactly("Email1", packageIdentifier1);
     }
 
     @Document

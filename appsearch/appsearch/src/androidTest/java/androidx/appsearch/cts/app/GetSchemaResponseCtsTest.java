@@ -30,6 +30,7 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.Map;
 
 public class GetSchemaResponseCtsTest {
     @Test
@@ -76,10 +77,10 @@ public class GetSchemaResponseCtsTest {
                         ImmutableSet.of(packageIdentifier2))
                 .setRequiredPermissionsForSchemaTypeVisibility("Email2",
                         ImmutableSet.of(
-                                        ImmutableSet.of(SetSchemaRequest.READ_CONTACTS,
-                                                SetSchemaRequest.READ_EXTERNAL_STORAGE),
-                                        ImmutableSet.of(SetSchemaRequest
-                                                .READ_ASSISTANT_APP_SEARCH_DATA))
+                                ImmutableSet.of(SetSchemaRequest.READ_CONTACTS,
+                                        SetSchemaRequest.READ_EXTERNAL_STORAGE),
+                                ImmutableSet.of(SetSchemaRequest
+                                        .READ_ASSISTANT_APP_SEARCH_DATA))
                 ).build();
 
         // rebuild won't effect the original object
@@ -168,9 +169,9 @@ public class GetSchemaResponseCtsTest {
 
     // @exportToFramework:startStrip()
     // Not exported as setVisibilitySettingSupported is hidden in framework
-     /**
+    /**
      * Makes sure an exception is thrown when visibility getters are called after visibility is set
-      * to no supported.
+     * to no supported.
      */
     @Test
     public void setVisibility_setFalse() {
@@ -246,6 +247,44 @@ public class GetSchemaResponseCtsTest {
                 rebuild::getSchemaTypesVisibleToPackages);
         assertThrows(UnsupportedOperationException.class,
                 original::getRequiredPermissionsForSchemaTypeVisibility);
+    }
+    // @exportToFramework:endStrip()
+
+    @Test
+    public void testVisibility_publicVisibility() {
+        byte[] sha256cert1 = new byte[32];
+        byte[] sha256cert2 = new byte[32];
+        Arrays.fill(sha256cert1, (byte) 1);
+        Arrays.fill(sha256cert2, (byte) 1);
+        PackageIdentifier packageIdentifier1 = new PackageIdentifier("Email", sha256cert1);
+        PackageIdentifier packageIdentifier2 = new PackageIdentifier("Email", sha256cert2);
+
+        GetSchemaResponse getSchemaResponse = new GetSchemaResponse.Builder()
+                .setPubliclyVisibleSchema("Email1", packageIdentifier2)
+                .setPubliclyVisibleSchema("Email1", packageIdentifier1)
+                .build();
+        assertThat(getSchemaResponse.getPubliclyVisibleSchemas().get("Email1"))
+                .isEqualTo(packageIdentifier1);
+    }
+
+    // @exportToFramework:startStrip()
+    // Not exported as setVisibilitySettingSupported is hidden in framework
+    @Test
+    public void testVisibility_publicVisibility_clearVisibility() {
+        byte[] sha256cert1 = new byte[32];
+        byte[] sha256cert2 = new byte[32];
+        Arrays.fill(sha256cert1, (byte) 1);
+        Arrays.fill(sha256cert2, (byte) 1);
+        PackageIdentifier packageIdentifier1 = new PackageIdentifier("Email", sha256cert1);
+        GetSchemaResponse getSchemaResponse = new GetSchemaResponse.Builder()
+                .setPubliclyVisibleSchema("Email1", packageIdentifier1)
+                // This should clear all visibility settings.
+                .setVisibilitySettingSupported(false)
+                .build();
+
+        Map<String, PackageIdentifier> publiclyVisibleSchemas =
+                getSchemaResponse.getPubliclyVisibleSchemas();
+        assertThat(publiclyVisibleSchemas).isEmpty();
     }
     // @exportToFramework:endStrip()
 }

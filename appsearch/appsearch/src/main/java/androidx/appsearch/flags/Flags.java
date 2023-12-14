@@ -75,6 +75,10 @@ public final class Flags {
     public static final String FLAG_ENABLE_PUT_DOCUMENTS_REQUEST_ADD_TAKEN_ACTIONS =
             FLAG_PREFIX + "enable_put_documents_request_add_taken_actions";
 
+    /** Enable setPubliclyVisibleSchema in SetSchemaRequest. */
+    public static final String FLAG_ENABLE_SET_PUBLICLY_VISIBLE_SCHEMA = FLAG_PREFIX
+            + "enable_set_publicly_visible_schema";
+
     // Whether the features should be enabled.
     //
     // In Jetpack, those should always return true.
@@ -118,6 +122,11 @@ public final class Flags {
 
     /** Whether addTakenActions API in PutDocumentsRequest should be enabled. */
     public static boolean enablePutDocumentsRequestAddTakenActions() {
+        return true;
+    }
+
+    /** Whether setPubliclyVisibleSchema in SetSchemaRequest.Builder should be enabled. */
+    public static boolean enableSetPubliclyVisibleSchema() {
         return true;
     }
 }
