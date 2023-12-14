@@ -18,11 +18,8 @@ package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
-import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableDefaults
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -32,7 +29,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
-import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.scrollingContainer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -97,7 +94,6 @@ internal fun LazyList(
         verticalArrangement
     )
 
-    val overscrollEffect = ScrollableDefaults.overscrollEffect()
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
     LazyLayout(
         modifier = modifier
@@ -110,7 +106,6 @@ internal fun LazyList(
                 userScrollEnabled = userScrollEnabled,
                 reverseScrolling = reverseLayout
             )
-            .clipScrollableContainer(orientation)
             .lazyLayoutBeyondBoundsModifier(
                 state = rememberLazyListBeyondBoundsState(
                     state = state,
@@ -122,19 +117,13 @@ internal fun LazyList(
                 orientation = orientation,
                 enabled = userScrollEnabled
             )
-            .overscroll(overscrollEffect)
-            .scrollable(
-                orientation = orientation,
-                reverseDirection = ScrollableDefaults.reverseDirection(
-                    LocalLayoutDirection.current,
-                    orientation,
-                    reverseLayout
-                ),
-                interactionSource = state.internalInteractionSource,
-                flingBehavior = flingBehavior,
+            .scrollingContainer(
                 state = state,
-                overscrollEffect = overscrollEffect,
-                enabled = userScrollEnabled
+                orientation = orientation,
+                enabled = userScrollEnabled,
+                reverseScrolling = reverseLayout,
+                flingBehavior = flingBehavior,
+                interactionSource = state.internalInteractionSource
             ),
         prefetchState = state.prefetchState,
         measurePolicy = measurePolicy,

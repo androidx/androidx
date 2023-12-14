@@ -19,13 +19,10 @@ package androidx.compose.foundation.pager
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.BringIntoViewSpec
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.PaddingValues
@@ -39,7 +36,7 @@ import androidx.compose.foundation.lazy.layout.MutableIntervalList
 import androidx.compose.foundation.lazy.layout.NearestRangeKeyIndexMap
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
-import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.scrollingContainer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
@@ -102,8 +99,6 @@ internal fun Pager(
             "you selected $beyondBoundsPageCount"
     }
 
-    val overscrollEffect = ScrollableDefaults.overscrollEffect()
-
     val pagerItemProvider = rememberPagerItemProviderLambda(
         state = state,
         pageContent = pageContent,
@@ -148,7 +143,6 @@ internal fun Pager(
                 userScrollEnabled = userScrollEnabled,
                 reverseScrolling = reverseLayout
             )
-            .clipScrollableContainer(orientation)
             .lazyLayoutBeyondBoundsModifier(
                 state = rememberPagerBeyondBoundsState(
                     state = state,
@@ -160,19 +154,13 @@ internal fun Pager(
                 orientation = orientation,
                 enabled = userScrollEnabled
             )
-            .overscroll(overscrollEffect)
-            .scrollable(
-                orientation = orientation,
-                reverseDirection = ScrollableDefaults.reverseDirection(
-                    LocalLayoutDirection.current,
-                    orientation,
-                    reverseLayout
-                ),
-                interactionSource = state.internalInteractionSource,
-                flingBehavior = pagerFlingBehavior,
+            .scrollingContainer(
                 state = state,
-                overscrollEffect = overscrollEffect,
+                orientation = orientation,
                 enabled = userScrollEnabled,
+                reverseScrolling = reverseLayout,
+                flingBehavior = pagerFlingBehavior,
+                interactionSource = state.internalInteractionSource,
                 bringIntoViewSpec = pagerBringIntoViewSpec
             )
             .dragDirectionDetector(state)
