@@ -144,7 +144,7 @@ internal class ComposeSceneMediator(
         }
     private val focusManager get() = scene.focusManager
 
-    private val view by lazy {
+    private val renderingView by lazy {
         renderingUIViewFactory(renderDelegate)
     }
 
@@ -154,7 +154,7 @@ internal class ComposeSceneMediator(
             touchesDelegate = touchesDelegate,
             updateTouchesCount = { count ->
                 val needHighFrequencyPolling = count > 0
-                view.redrawer.needsProactiveDisplayLink = needHighFrequencyPolling
+                renderingView.redrawer.needsProactiveDisplayLink = needHighFrequencyPolling
             },
             checkBounds = { dpPoint: DpOffset ->
                 val point = dpPoint.toOffset(densityProvider())
@@ -166,7 +166,7 @@ internal class ComposeSceneMediator(
     val densityProvider by lazy {
         DensityProviderImpl(
             uiViewControllerProvider = { viewController },
-            viewProvider = { view },
+            viewProvider = { renderingView },
         )
     }
 
@@ -252,7 +252,7 @@ internal class ComposeSceneMediator(
     private val uiKitTextInputService: UIKitTextInputService by lazy {
         UIKitTextInputService(
             updateView = {
-                view.setNeedsDisplay() // redraw on next frame
+                renderingView.setNeedsDisplay() // redraw on next frame
                 CATransaction.flush() // clear all animations
             },
             rootViewProvider = { viewController.view },
@@ -314,7 +314,7 @@ internal class ComposeSceneMediator(
 
     private var onAttachedToWindow: (() -> Unit)? = null
     private fun runOnceViewAttached(block: () -> Unit) {
-        if (view.window == null) {
+        if (renderingView.window == null) {
             onAttachedToWindow = {
                 onAttachedToWindow = null
                 block()
@@ -325,8 +325,8 @@ internal class ComposeSceneMediator(
     }
 
     init {
-        view.onAttachedToWindow = {
-            view.onAttachedToWindow = null
+        renderingView.onAttachedToWindow = {
+            renderingView.onAttachedToWindow = null
             viewWillLayoutSubviews()
             this.onAttachedToWindow?.invoke()
             focusStack?.pushAndFocus(interactionView)
@@ -336,7 +336,7 @@ internal class ComposeSceneMediator(
         NSLayoutConstraint.activateConstraints(
             getConstraintsToFillParent(interactionView, viewController.view)
         )
-        interactionView.addSubview(view)
+        interactionView.addSubview(renderingView)
     }
 
     fun setContent(content: @Composable () -> Unit) {
@@ -351,7 +351,7 @@ internal class ComposeSceneMediator(
                  *   https://developer.apple.com/documentation/uikit/uiviewcontroller/4195485-viewisappearing
                  *   It is public for iOS 17 and hope back ported for iOS 13 as well (but we need to check)
                  */
-                if (view.isReadyToShowContent.value) {
+                if (renderingView.isReadyToShowContent.value) {
                     ProvideComposeSceneMediatorCompositionLocals {
                         content()
                     }
@@ -386,9 +386,9 @@ internal class ComposeSceneMediator(
         )
 
     fun dispose() {
-        focusStack?.popUntilNext(view)
-        view.dispose()
-        view.removeFromSuperview()
+        focusStack?.popUntilNext(renderingView)
+        renderingView.dispose()
+        renderingView.removeFromSuperview()
         interactionView.removeFromSuperview()
         scene.close()
         // After scene is disposed all UIKit interop actions can't be deferred to be synchronized with rendering
@@ -396,27 +396,27 @@ internal class ComposeSceneMediator(
         interopContext.retrieve().actions.forEach { it.invoke() }
     }
 
-    fun onComposeSceneInvalidate() = view.needRedraw()
+    fun onComposeSceneInvalidate() = renderingView.needRedraw()
 
     fun setLayout(value: SceneLayout) {
         _layout = value
         when (value) {
             SceneLayout.UseConstraintsToFillContainer -> {
-                view.setFrame(CGRectZero.readValue())
-                view.translatesAutoresizingMaskIntoConstraints = false
-                constraints = getConstraintsToFillParent(view, viewController.view)
+                renderingView.setFrame(CGRectZero.readValue())
+                renderingView.translatesAutoresizingMaskIntoConstraints = false
+                constraints = getConstraintsToFillParent(renderingView, interactionView)
             }
 
             is SceneLayout.UseConstraintsToCenter -> {
-                view.setFrame(CGRectZero.readValue())
-                view.translatesAutoresizingMaskIntoConstraints = false
-                constraints = getConstraintsToCenterInParent(view, interactionView, value.size)
+                renderingView.setFrame(CGRectZero.readValue())
+                renderingView.translatesAutoresizingMaskIntoConstraints = false
+                constraints = getConstraintsToCenterInParent(renderingView, interactionView, value.size)
             }
 
             is SceneLayout.Bounds -> {
                 val density = densityProvider().density
-                view.translatesAutoresizingMaskIntoConstraints = true
-                view.setFrame(
+                renderingView.translatesAutoresizingMaskIntoConstraints = true
+                renderingView.setFrame(
                     with(value.rect) {
                         CGRectMake(
                             x = left.toDouble() / density,
@@ -431,7 +431,7 @@ internal class ComposeSceneMediator(
 
             is SceneLayout.Undefined -> error("setLayout, SceneLayout.Undefined")
         }
-        view.layoutIfNeeded()
+        renderingView.layoutIfNeeded()
     }
 
     fun viewWillLayoutSubviews() {
@@ -470,7 +470,7 @@ internal class ComposeSceneMediator(
             )
         }
 
-    fun getBoundsInDp(): DpRect = view.frame.useContents { this.toDpRect() }
+    fun getBoundsInDp(): DpRect = renderingView.frame.useContents { this.toDpRect() }
 
     fun getBoundsInPx(): IntRect = with(densityProvider()) {
         getBoundsInDp().toRect().roundToIntRect()
@@ -485,7 +485,7 @@ internal class ComposeSceneMediator(
             return
         }
 
-        val startSnapshotView = view.snapshotViewAfterScreenUpdates(false) ?: return
+        val startSnapshotView = renderingView.snapshotViewAfterScreenUpdates(false) ?: return
         startSnapshotView.translatesAutoresizingMaskIntoConstraints = false
         viewController.view.addSubview(startSnapshotView)
         targetSize.useContents {
@@ -499,21 +499,21 @@ internal class ComposeSceneMediator(
             )
         }
 
-        view.isForcedToPresentWithTransactionEveryFrame = true
+        renderingView.isForcedToPresentWithTransactionEveryFrame = true
 
         setLayout(SceneLayout.UseConstraintsToCenter(size = targetSize))
-        view.transform = coordinator.targetTransform
+        renderingView.transform = coordinator.targetTransform
 
         coordinator.animateAlongsideTransition(
             animation = {
                 startSnapshotView.alpha = 0.0
                 startSnapshotView.transform = CGAffineTransformInvert(coordinator.targetTransform)
-                view.transform = CGAffineTransformIdentity.readValue()
+                renderingView.transform = CGAffineTransformIdentity.readValue()
             },
             completion = {
                 startSnapshotView.removeFromSuperview()
                 setLayout(SceneLayout.UseConstraintsToFillContainer)
-                view.isForcedToPresentWithTransactionEveryFrame = false
+                renderingView.isForcedToPresentWithTransactionEveryFrame = false
             }
         )
     }
@@ -561,7 +561,7 @@ internal class ComposeSceneMediator(
         )
     }
 
-    fun getViewHeight(): Double = view.frame.useContents {
+    fun getViewHeight(): Double = renderingView.frame.useContents {
         size.height
     }
 

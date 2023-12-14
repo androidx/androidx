@@ -81,6 +81,7 @@ internal class ComposeContainer(
 ) : UIViewController(nibName = null, bundle = null) {
 
     private var isInsideSwiftUI = false
+    private var mediator: ComposeSceneMediator? = null
     private val layers: MutableList<UIViewComposeSceneLayer> = mutableListOf()
     private val layoutDirection get() = getLayoutDirection()
 
@@ -96,15 +97,6 @@ internal class ComposeContainer(
     private val windowInfo = WindowInfoImpl().also {
         it.isWindowFocused = true
     }
-    private val mediator: ComposeSceneMediator = ComposeSceneMediator(
-        viewController = this,
-        configuration = configuration,
-        focusStack = focusStack,
-        windowInfo = windowInfo,
-        coroutineContext = coroutineDispatcher,
-        renderingUIViewFactory = ::createSkikoUIView,
-        composeSceneFactory = ::createComposeScene,
-    )
 
     /*
      * On iOS >= 13.0 interfaceOrientation will be deduced from [UIWindowScene] of [UIWindow]
@@ -129,7 +121,7 @@ internal class ComposeContainer(
     @ObjCAction
     fun viewSafeAreaInsetsDidChange() {
         // super.viewSafeAreaInsetsDidChange() // TODO: call super after Kotlin 1.8.20
-        mediator.viewSafeAreaInsetsDidChange()
+        mediator?.viewSafeAreaInsetsDidChange()
         layers.fastForEach {
             it.viewSafeAreaInsetsDidChange()
         }
@@ -173,7 +165,7 @@ internal class ComposeContainer(
             )
         }
         windowInfo.containerSize = size
-        mediator.viewWillLayoutSubviews()
+        mediator?.viewWillLayoutSubviews()
         layers.fastForEach {
             it.viewWillLayoutSubviews()
         }
@@ -202,7 +194,7 @@ internal class ComposeContainer(
             return
         }
 
-        mediator.viewWillTransitionToSize(
+        mediator?.viewWillTransitionToSize(
             targetSize = size,
             coordinator = withTransitionCoordinator,
         )
@@ -225,7 +217,7 @@ internal class ComposeContainer(
 
     override fun viewDidAppear(animated: Boolean) {
         super.viewDidAppear(animated)
-        mediator.viewDidAppear(animated)
+        mediator?.viewDidAppear(animated)
         layers.fastForEach {
             it.viewDidAppear(animated)
         }
@@ -235,7 +227,7 @@ internal class ComposeContainer(
     // viewDidUnload() is deprecated and not called.
     override fun viewWillDisappear(animated: Boolean) {
         super.viewWillDisappear(animated)
-        mediator.viewWillDisappear(animated)
+        mediator?.viewWillDisappear(animated)
         layers.fastForEach {
             it.viewWillDisappear(animated)
         }
@@ -298,6 +290,17 @@ internal class ComposeContainer(
     }
 
     private fun setContent(content: @Composable () -> Unit) {
+        val mediator = mediator ?: ComposeSceneMediator(
+            viewController = this,
+            configuration = configuration,
+            focusStack = focusStack,
+            windowInfo = windowInfo,
+            coroutineContext = coroutineDispatcher,
+            renderingUIViewFactory = ::createSkikoUIView,
+            composeSceneFactory = ::createComposeScene,
+        ).also {
+            this.mediator = it
+        }
         mediator.setContent {
             ProvideContainerCompositionLocals(this) {
                 content()
@@ -307,7 +310,8 @@ internal class ComposeContainer(
     }
 
     private fun dispose() {
-        mediator.dispose()
+        mediator?.dispose()
+        mediator = null
         layers.fastForEach {
             it.close()
         }
@@ -339,7 +343,7 @@ internal class ComposeContainer(
                 focusStack = if (focusable) focusStack else null,
                 windowInfo = windowInfo,
                 compositionContext = compositionContext,
-                compositionLocalContext = mediator.compositionLocalContext,
+                compositionLocalContext = mediator?.compositionLocalContext,
             )
     }
 
