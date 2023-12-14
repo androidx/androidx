@@ -65,6 +65,7 @@ private class HoverableElement(
     override fun InspectorInfo.inspectableProperties() {
         name = "hoverable"
         properties["interactionSource"] = interactionSource
+        properties["enabled"] = true
     }
 }
 
