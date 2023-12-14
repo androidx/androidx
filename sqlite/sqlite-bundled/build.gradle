@@ -134,6 +134,10 @@ androidXMultiplatform {
             )
             // dynamically link with the output of SQLite
             nativeCompilation.linkWith(sqliteCompilation)
+            if (nativeCompilation.konanTarget.family == Family.OSX) {
+                // KT-57848
+                nativeCompilation.freeArgs.addAll("-Dat_quick_exit=atexit", "-Dquick_exit=exit")
+            }
         }
         configureTargets(requiredNativeTargets)
     }
