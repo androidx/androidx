@@ -52,11 +52,12 @@ public class ProfileInstaller {
     // cannot construct
     private ProfileInstaller() {}
 
+    static final String PROFILE_SOURCE_LOCATION = "dexopt/baseline.prof";
+
     private static final String TAG = "ProfileInstaller";
 
     private static final String PROFILE_BASE_DIR = "/data/misc/profiles/cur/0";
     private static final String PROFILE_FILE = "primary.prof";
-    private static final String PROFILE_SOURCE_LOCATION = "dexopt/baseline.prof";
     private static final String PROFILE_META_LOCATION = "dexopt/baseline.profm";
     private static final String PROFILE_INSTALLER_SKIP_FILE_NAME =
             "profileinstaller_profileWrittenFor_lastUpdateTime.dat";

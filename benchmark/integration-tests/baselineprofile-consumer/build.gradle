@@ -70,7 +70,7 @@ configurations {
     }
 }
 androidComponents {
-    onVariants(selector().all().withBuildType("release"), { variant ->
+    onVariants(selector().all(), { variant ->
         artifacts {
             apkAssets(variant.artifacts.get(SingleArtifact.APK.INSTANCE))
         }
