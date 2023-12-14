@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Maršruta iespējas"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Izvairīties no automaģistrālēm"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Izvairīties no prāmju izmantošanas"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Karšu demonstrācijas"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Demonstrācijas: karte ar saturu"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Demonstrācija: karte ar ziņojuma veidni"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Demonstrācija: karte ar režģa veidni"</string>
 </resources>

@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"വഴി ഓപ്‌ഷനുകൾ"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"ദേശീയപാതകൾ ഒഴിവാക്കുക"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ഫെറി ഒഴിവാക്കുക"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"മാപ്പ് ഡെമോകൾ"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"ഉള്ളടക്കമുള്ള മാപ്പിന്റെ ഡെമോകൾ"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"സന്ദേശ ടെംപ്ലേറ്റുളള മാപ്പിന്റെ ഡെമോ"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"ഗ്രിഡ് ടെംപ്ലേറ്റുള്ള മാപ്പിന്റെ ഡെമോ"</string>
 </resources>

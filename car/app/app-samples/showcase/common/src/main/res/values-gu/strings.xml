@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"રસ્તાના વિકલ્પો"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"હાઇવે ટાળો"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"ફેરી ટાળો"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"નક્શાના ડેમો"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"કન્ટેન્ટ સાથેના નક્શાના ડેમો"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"મેસેજ નમૂના સાથેના નક્શાનો ડેમો"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"ગ્રિડ નમૂના સાથેના નક્શાનો ડેમો"</string>
 </resources>
