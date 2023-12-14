@@ -431,7 +431,7 @@ internal class ComposeSceneMediator(
 
             is SceneLayout.Undefined -> error("setLayout, SceneLayout.Undefined")
         }
-        view.updateMetalLayerSize()
+        view.layoutIfNeeded()
     }
 
     fun viewWillLayoutSubviews() {
