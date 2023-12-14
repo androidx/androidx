@@ -352,23 +352,26 @@ class SearchSessionImpl implements AppSearchSession {
             @NonNull PutDocumentsRequest request) {
         Preconditions.checkNotNull(request);
         Preconditions.checkState(!mIsClosed, "AppSearchSession has already been closed");
+
+        List<GenericDocument> documents = request.getGenericDocuments();
+        List<GenericDocument> takenActions = request.getTakenActionGenericDocuments();
+
         ListenableFuture<AppSearchBatchResult<String, Void>> future = execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
-            for (int i = 0; i < request.getGenericDocuments().size(); i++) {
-                GenericDocument document = request.getGenericDocuments().get(i);
-                try {
-                    mAppSearchImpl.putDocument(
-                            mPackageName,
-                            mDatabaseName,
-                            document,
-                            /*sendChangeNotifications=*/ true,
-                            mLogger);
-                    resultBuilder.setSuccess(document.getId(), /*value=*/ null);
-                } catch (Throwable t) {
-                    resultBuilder.setResult(document.getId(), throwableToFailedResult(t));
-                }
+
+            // Normal documents.
+            for (int i = 0; i < documents.size(); i++) {
+                GenericDocument document = documents.get(i);
+                putGenericDocument(document, resultBuilder);
             }
+
+            // TakenAction documents.
+            for (int i = 0; i < takenActions.size(); i++) {
+                GenericDocument takenActionGenericDocument = takenActions.get(i);
+                putGenericDocument(takenActionGenericDocument, resultBuilder);
+            }
+
             // Now that the batch has been written. Persist the newly written data.
             mAppSearchImpl.persistToDisk(PersistType.Code.LITE);
             mIsMutated = true;
@@ -382,7 +385,7 @@ class SearchSessionImpl implements AppSearchSession {
 
         // The existing documents with same ID will be deleted, so there may be some resources that
         // could be released after optimize().
-        checkForOptimize(/*mutateBatchSize=*/ request.getGenericDocuments().size());
+        checkForOptimize(/*mutateBatchSize=*/ documents.size() + takenActions.size());
         return future;
     }
 
@@ -619,6 +622,28 @@ class SearchSessionImpl implements AppSearchSession {
     @WorkerThread
     private void dispatchChangeNotifications() {
         mAppSearchImpl.dispatchAndClearChangeNotifications();
+    }
+
+    /**
+     * Calls {@link AppSearchImpl} to put a generic document and sets the result.
+     *
+     * @param document the {@link GenericDocument} to put.
+     * @param resultBuilder an {@link AppSearchBatchResult.Builder} object for collecting the
+     *                      result.
+     */
+    private void putGenericDocument(
+            GenericDocument document, AppSearchBatchResult.Builder<String, Void> resultBuilder) {
+        try {
+            mAppSearchImpl.putDocument(
+                    mPackageName,
+                    mDatabaseName,
+                    document,
+                    /*sendChangeNotifications=*/ true,
+                    mLogger);
+            resultBuilder.setSuccess(document.getId(), /*value=*/ null);
+        } catch (Throwable t) {
+            resultBuilder.setResult(document.getId(), throwableToFailedResult(t));
+        }
     }
 
     private void checkForOptimize(int mutateBatchSize) {

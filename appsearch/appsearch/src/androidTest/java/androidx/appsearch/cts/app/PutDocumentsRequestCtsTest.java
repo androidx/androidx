@@ -20,12 +20,16 @@ import static androidx.appsearch.app.AppSearchSchema.StringPropertyConfig.INDEXI
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import android.content.Context;
 
 import androidx.appsearch.annotation.Document;
 import androidx.appsearch.app.AppSearchSession;
+import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.PutDocumentsRequest;
 import androidx.appsearch.app.SetSchemaRequest;
+import androidx.appsearch.app.TakenAction;
 import androidx.appsearch.localstorage.LocalStorage;
 import androidx.appsearch.testutil.AppSearchEmail;
 import androidx.test.core.app.ApplicationProvider;
@@ -48,6 +52,63 @@ public class PutDocumentsRequestCtsTest {
 
         assertThat(request.getGenericDocuments().get(0).getId()).isEqualTo("test1");
         assertThat(request.getGenericDocuments().get(1).getId()).isEqualTo("test2");
+    }
+
+    @Test
+    public void duplicateIdForNormalAndTakenActionGenericDocumentThrowsException()
+            throws Exception {
+        GenericDocument normalDocument = new GenericDocument.Builder<>(
+                "namespace", "id", "builtin:Thing").build();
+        GenericDocument takenActionGenericDocument = new GenericDocument.Builder<>(
+                "namespace", "id", "builtin:TakenAction").build();
+
+        PutDocumentsRequest.Builder builder = new PutDocumentsRequest.Builder()
+                .addGenericDocuments(normalDocument)
+                .addTakenActionGenericDocuments(takenActionGenericDocument);
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> builder.build());
+        assertThat(e.getMessage()).isEqualTo("Document id " + takenActionGenericDocument.getId()
+                + " cannot exist in both taken action and normal document");
+    }
+
+    @Test
+    public void addTakenActionGenericDocuments() throws Exception {
+        GenericDocument takenActionGenericDocument1 = new GenericDocument.Builder<>(
+                "namespace", "id1", "builtin:TakenAction").build();
+        GenericDocument takenActionGenericDocument2 = new GenericDocument.Builder<>(
+                "namespace", "id2", "builtin:TakenAction").build();
+
+        PutDocumentsRequest request = new PutDocumentsRequest.Builder()
+                .addTakenActionGenericDocuments(
+                        takenActionGenericDocument1, takenActionGenericDocument2)
+                .build();
+
+        // Generic documents should contain nothing.
+        assertThat(request.getGenericDocuments()).isEmpty();
+
+        // Taken action generic documents should contain correct taken action generic documents.
+        assertThat(request.getTakenActionGenericDocuments()).hasSize(2);
+        assertThat(request.getTakenActionGenericDocuments().get(0).getId()).isEqualTo("id1");
+        assertThat(request.getTakenActionGenericDocuments().get(1).getId()).isEqualTo("id2");
+    }
+
+    @Test
+    public void addTakenActionGenericDocuments_byCollection() throws Exception {
+        Set<GenericDocument> takenActionGenericDocuments = ImmutableSet.of(
+                new GenericDocument.Builder<>("namespace", "id1", "builtin:TakenAction").build(),
+                new GenericDocument.Builder<>("namespace", "id2", "builtin:TakenAction").build());
+
+        PutDocumentsRequest request = new PutDocumentsRequest.Builder()
+                .addTakenActionGenericDocuments(takenActionGenericDocuments)
+                .build();
+
+        // Generic documents should contain nothing.
+        assertThat(request.getGenericDocuments()).isEmpty();
+
+        // Taken action generic documents should contain correct taken action generic documents.
+        assertThat(request.getTakenActionGenericDocuments()).hasSize(2);
+        assertThat(request.getTakenActionGenericDocuments().get(0).getId()).isEqualTo("id1");
+        assertThat(request.getTakenActionGenericDocuments().get(1).getId()).isEqualTo("id2");
     }
 
 // @exportToFramework:startStrip()
@@ -86,6 +147,43 @@ public class PutDocumentsRequestCtsTest {
                 .build();
 
         assertThat(request.getGenericDocuments().get(0).getId()).isEqualTo("cardId");
+    }
+
+    @Test
+    public void addTakenActions() throws Exception {
+        TakenAction takenAction1 = new TakenAction.Builder("namespace", "id1").build();
+        TakenAction takenAction2 = new TakenAction.Builder("namespace", "id2").build();
+
+        PutDocumentsRequest request = new PutDocumentsRequest.Builder()
+                .addTakenActions(takenAction1, takenAction2)
+                .build();
+
+        // Generic documents should contain nothing.
+        assertThat(request.getGenericDocuments()).isEmpty();
+
+        // Taken action generic documents should contain correct taken action generic documents.
+        assertThat(request.getTakenActionGenericDocuments()).hasSize(2);
+        assertThat(request.getTakenActionGenericDocuments().get(0).getId()).isEqualTo("id1");
+        assertThat(request.getTakenActionGenericDocuments().get(1).getId()).isEqualTo("id2");
+    }
+
+    @Test
+    public void addTakenActions_byCollection() throws Exception {
+        Set<TakenAction> takenActions = ImmutableSet.of(
+                new TakenAction.Builder("namespace", "id1").build(),
+                new TakenAction.Builder("namespace", "id2").build());
+
+        PutDocumentsRequest request = new PutDocumentsRequest.Builder()
+                .addTakenActions(takenActions)
+                .build();
+
+        // Generic documents should contain nothing.
+        assertThat(request.getGenericDocuments()).isEmpty();
+
+        // Taken action generic documents should contain correct taken action generic documents.
+        assertThat(request.getTakenActionGenericDocuments()).hasSize(2);
+        assertThat(request.getTakenActionGenericDocuments().get(0).getId()).isEqualTo("id1");
+        assertThat(request.getTakenActionGenericDocuments().get(1).getId()).isEqualTo("id2");
     }
 // @exportToFramework:endStrip()
 }

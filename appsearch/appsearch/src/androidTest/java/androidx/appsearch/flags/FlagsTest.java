@@ -45,13 +45,21 @@ public class FlagsTest {
                 + ".appsearch.flags.enable_generic_document_copy_constructor");
     }
 
+    @Test
     public void testFlagValue_enableSearchSpecFilterProperties() {
         assertThat(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES).isEqualTo(
                 "com.android.appsearch.flags.enable_search_spec_filter_properties");
     }
 
+    @Test
     public void testFlagValue_enableSearchSpecSetSearchSourceLogTag() {
         assertThat(Flags.FLAG_ENABLE_SEARCH_SPEC_SET_SEARCH_SOURCE_LOG_TAG).isEqualTo(
                 "com.android.appsearch.flags.enable_search_spec_set_search_source_log_tag");
+    }
+
+    @Test
+    public void testFlagValue_enablePutDocumentsRequestAddTakenActions() {
+        assertThat(Flags.FLAG_ENABLE_PUT_DOCUMENTS_REQUEST_ADD_TAKEN_ACTIONS).isEqualTo(
+                "com.android.appsearch.flags.enable_put_documents_request_add_taken_actions");
     }
 }

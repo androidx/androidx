@@ -58,6 +58,7 @@ import androidx.appsearch.app.SearchSuggestionResult;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.SetSchemaRequest;
 import androidx.appsearch.app.StorageInfo;
+import androidx.appsearch.app.TakenAction;
 import androidx.appsearch.cts.app.customer.EmailDocument;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.appsearch.testutil.AppSearchEmail;
@@ -1112,7 +1113,77 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(result.getSuccesses()).containsExactly("id1", null);
         assertThat(result.getFailures()).isEmpty();
     }
+
+    @Test
+    public void testPutDocuments_takenActions() throws Exception {
+        assumeTrue(mDb1.getFeatures()
+                .isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addDocumentClasses(TakenAction.class).build()).get();
+
+        // Put a TakenAction document
+        TakenAction takenAction = new TakenAction.Builder("namespace", "id")
+                .setName("name")
+                .setReferencedQualifiedId("pkg$db/ns#refId")
+                .addPreviousQuery("prevQuery1")
+                .addPreviousQuery("prevQuery2")
+                .setFinalQuery("query")
+                .setResultRankInBlock(1)
+                .setResultRankGlobal(3)
+                .setTimeStayOnResultMillis(65536)
+                .build();
+
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addTakenActions(takenAction).build()));
+        assertThat(result.getSuccesses()).containsExactly("id", null);
+        assertThat(result.getFailures()).isEmpty();
+    }
 // @exportToFramework:endStrip()
+
+    @Test
+    public void testPutDocuments_takenActionGenericDocuments() throws Exception {
+        assumeTrue(mDb1.getFeatures()
+                .isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+
+        // Schema registration
+        AppSearchSchema takenActionSchema = new AppSearchSchema.Builder("builtin:TakenAction")
+                .addProperty(new StringPropertyConfig.Builder("finalQuery")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("referencedQualifiedId")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build()
+                ).build();
+
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(takenActionSchema)
+                        .build()).get();
+
+        // Put a taken action generic document
+        GenericDocument takenActionGenericDocument = new GenericDocument.Builder<>(
+                "namespace", "id", "builtin:TakenAction")
+                .setPropertyString("finalQuery", "body")
+                .setPropertyString("name", "click")
+                .setPropertyString("referencedQualifiedId", "pkg$db/ns#refId")
+                .build();
+
+        AppSearchBatchResult<String, Void> result = checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addTakenActionGenericDocuments(takenActionGenericDocument)
+                        .build()));
+        assertThat(result.getSuccesses()).containsExactly("id", null);
+        assertThat(result.getFailures()).isEmpty();
+    }
 
     @Test
     public void testUpdateSchema() throws Exception {
@@ -2110,6 +2181,219 @@ public abstract class AppSearchSessionCtsTestBase {
         assertThat(sr.get(0).getJoinedResults().get(0).getGenericDocument()).isEqualTo(viewAction1);
         assertThat(sr.get(0).getJoinedResults().get(1).getGenericDocument()).isEqualTo(viewAction2);
         assertThat(sr.get(0).getRankingSignal()).isEqualTo(6.0);
+    }
+
+// @exportToFramework:startStrip()
+    @Test
+    public void testQueryRankByTakenActions_useTakenAction() throws Exception {
+        assumeTrue(mDb1.getFeatures()
+                .isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder()
+                        .addSchemas(AppSearchEmail.SCHEMA)
+                        .addDocumentClasses(TakenAction.class)
+                        .build())
+                .get();
+
+        // Index several email documents
+        AppSearchEmail inEmail1 =
+                new AppSearchEmail.Builder("namespace", "email1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .setScore(1)
+                        .build();
+        AppSearchEmail inEmail2 =
+                new AppSearchEmail.Builder("namespace", "email2")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .setScore(1)
+                        .build();
+
+        String qualifiedId1 = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, inEmail1);
+        String qualifiedId2 = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, inEmail2);
+
+        TakenAction takenAction1 = new TakenAction.Builder("namespace", "action1")
+                .setName("click")
+                .addPreviousQuery("b")
+                .setFinalQuery("body")
+                .setReferencedQualifiedId(qualifiedId1)
+                .setResultRankInBlock(1)
+                .setResultRankGlobal(1)
+                .setTimeStayOnResultMillis(65536)
+                .build();
+        TakenAction takenAction2 = new TakenAction.Builder("namespace", "action2")
+                .setName("click")
+                .addPreviousQuery("b")
+                .setFinalQuery("body")
+                .setReferencedQualifiedId(qualifiedId2)
+                .setResultRankInBlock(2)
+                .setResultRankGlobal(2)
+                .setTimeStayOnResultMillis(16384)
+                .build();
+        TakenAction takenAction3 = new TakenAction.Builder("namespace", "action3")
+                .setName("click")
+                .addPreviousQuery("bo")
+                .setFinalQuery("body")
+                .setReferencedQualifiedId(qualifiedId1)
+                .setResultRankInBlock(2)
+                .setResultRankGlobal(2)
+                .setTimeStayOnResultMillis(32768)
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocuments(inEmail1, inEmail2)
+                        .addTakenActions(takenAction1, takenAction2, takenAction3)
+                        .build()));
+
+        SearchSpec nestedSearchSpec =
+                new SearchSpec.Builder()
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
+                        .setOrder(SearchSpec.ORDER_DESCENDING)
+                        .addFilterDocumentClasses(TakenAction.class)
+                        .build();
+
+        // Note: SearchSpec.Builder#setMaxJoinedResultCount only limits the number of child
+        // documents returned. It does not affect the number of child documents that are scored.
+        JoinSpec js = new JoinSpec.Builder("referencedQualifiedId")
+                .setNestedSearch("finalQuery:body", nestedSearchSpec)
+                .setAggregationScoringStrategy(JoinSpec.AGGREGATION_SCORING_RESULT_COUNT)
+                .setMaxJoinedResultCount(0)
+                .build();
+
+        // Search "body" for AppSearchEmail documents, ranking by TakenAction signals with
+        // finalQuery = "body".
+        SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_JOIN_AGGREGATE_SCORE)
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .setJoinSpec(js)
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addFilterSchemas(AppSearchEmail.SCHEMA_TYPE)
+                .build());
+
+        List<SearchResult> sr = searchResults.getNextPageAsync().get();
+
+        assertThat(sr).hasSize(2);
+        assertThat(sr.get(0).getGenericDocument().getId()).isEqualTo("email1");
+        assertThat(sr.get(0).getRankingSignal()).isEqualTo(2.0);
+        assertThat(sr.get(1).getGenericDocument().getId()).isEqualTo("email2");
+        assertThat(sr.get(1).getRankingSignal()).isEqualTo(1.0);
+    }
+// @exportToFramework:endStrip()
+
+    @Test
+    public void testQueryRankByTakenActions_useGenericDocument() throws Exception {
+        assumeTrue(mDb1.getFeatures()
+                .isFeatureSupported(Features.JOIN_SPEC_AND_QUALIFIED_ID));
+
+        AppSearchSchema takenActionSchema = new AppSearchSchema.Builder("builtin:TakenAction")
+                .addProperty(new StringPropertyConfig.Builder("finalQuery")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("name")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(StringPropertyConfig.INDEXING_TYPE_EXACT_TERMS)
+                        .setTokenizerType(StringPropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build()
+                ).addProperty(new StringPropertyConfig.Builder("referencedQualifiedId")
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setJoinableValueType(StringPropertyConfig.JOINABLE_VALUE_TYPE_QUALIFIED_ID)
+                        .build()
+                ).build();
+
+        // Schema registration
+        mDb1.setSchemaAsync(
+                new SetSchemaRequest.Builder().addSchemas(AppSearchEmail.SCHEMA, takenActionSchema)
+                        .build()).get();
+
+        // Index several email documents
+        AppSearchEmail inEmail1 =
+                new AppSearchEmail.Builder("namespace", "email1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .setScore(1)
+                        .build();
+        AppSearchEmail inEmail2 =
+                new AppSearchEmail.Builder("namespace", "email2")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .setScore(1)
+                        .build();
+
+        String qualifiedId1 = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, inEmail1);
+        String qualifiedId2 = DocumentIdUtil.createQualifiedId(
+                mContext.getPackageName(), DB_NAME_1, inEmail2);
+
+        GenericDocument takenAction1 = new GenericDocument.Builder<>(
+                "namespace", "action1", "builtin:TakenAction")
+                .setPropertyString("finalQuery", "body")
+                .setPropertyString("name", "click")
+                .setPropertyString("referencedQualifiedId", qualifiedId1)
+                .build();
+        GenericDocument takenAction2 = new GenericDocument.Builder<>(
+                "namespace", "action2", "builtin:TakenAction")
+                .setPropertyString("finalQuery", "body")
+                .setPropertyString("name", "click")
+                .setPropertyString("referencedQualifiedId", qualifiedId2)
+                .build();
+        GenericDocument takenAction3 = new GenericDocument.Builder<>(
+                "namespace", "action3", "builtin:TakenAction")
+                .setPropertyString("finalQuery", "body")
+                .setPropertyString("name", "click")
+                .setPropertyString("referencedQualifiedId", qualifiedId1)
+                .build();
+
+        checkIsBatchResultSuccess(mDb1.putAsync(
+                new PutDocumentsRequest.Builder().addGenericDocuments(
+                        inEmail1, inEmail2, takenAction1, takenAction2, takenAction3).build()));
+
+        SearchSpec nestedSearchSpec =
+                new SearchSpec.Builder()
+                        .setRankingStrategy(SearchSpec.RANKING_STRATEGY_DOCUMENT_SCORE)
+                        .setOrder(SearchSpec.ORDER_DESCENDING)
+                        .addFilterSchemas("builtin:TakenAction")
+                        .build();
+
+        // Note: SearchSpec.Builder#setMaxJoinedResultCount only limits the number of child
+        // documents returned. It does not affect the number of child documents that are scored.
+        JoinSpec js = new JoinSpec.Builder("referencedQualifiedId")
+                .setNestedSearch("finalQuery:body", nestedSearchSpec)
+                .setAggregationScoringStrategy(JoinSpec.AGGREGATION_SCORING_RESULT_COUNT)
+                .setMaxJoinedResultCount(0)
+                .build();
+
+        // Search "body" for AppSearchEmail documents, ranking by TakenAction signals with
+        // finalQuery = "body".
+        SearchResults searchResults = mDb1.search("body", new SearchSpec.Builder()
+                .setRankingStrategy(SearchSpec.RANKING_STRATEGY_JOIN_AGGREGATE_SCORE)
+                .setOrder(SearchSpec.ORDER_DESCENDING)
+                .setJoinSpec(js)
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                .addFilterSchemas(AppSearchEmail.SCHEMA_TYPE)
+                .build());
+
+        List<SearchResult> sr = searchResults.getNextPageAsync().get();
+
+        assertThat(sr).hasSize(2);
+        assertThat(sr.get(0).getGenericDocument().getId()).isEqualTo("email1");
+        assertThat(sr.get(0).getRankingSignal()).isEqualTo(2.0);
+        assertThat(sr.get(1).getGenericDocument().getId()).isEqualTo("email2");
+        assertThat(sr.get(1).getRankingSignal()).isEqualTo(1.0);
     }
 
     @Test

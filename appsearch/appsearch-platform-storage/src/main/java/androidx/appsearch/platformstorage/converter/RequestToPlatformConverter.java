@@ -51,9 +51,19 @@ public final class RequestToPlatformConverter {
         Preconditions.checkNotNull(jetpackRequest);
         android.app.appsearch.PutDocumentsRequest.Builder platformBuilder =
                 new android.app.appsearch.PutDocumentsRequest.Builder();
+        // Convert normal generic documents.
         for (GenericDocument jetpackDocument : jetpackRequest.getGenericDocuments()) {
             platformBuilder.addGenericDocuments(
                     GenericDocumentToPlatformConverter.toPlatformGenericDocument(jetpackDocument));
+        }
+        // Convert taken action generic documents.
+        for (GenericDocument jetpackTakenActionGenericDocument :
+                jetpackRequest.getTakenActionGenericDocuments()) {
+            // TODO(b/314026345): add into taken action generic document list when it's ready in the
+            //  framework. Currently we convert it to normal generic documents.
+            platformBuilder.addGenericDocuments(
+                    GenericDocumentToPlatformConverter.toPlatformGenericDocument(
+                            jetpackTakenActionGenericDocument));
         }
         return platformBuilder.build();
     }

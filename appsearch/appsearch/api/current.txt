@@ -427,6 +427,7 @@ package androidx.appsearch.app {
 
   public final class PutDocumentsRequest {
     method public java.util.List<androidx.appsearch.app.GenericDocument!> getGenericDocuments();
+    method public java.util.List<androidx.appsearch.app.GenericDocument!> getTakenActionGenericDocuments();
   }
 
   public static final class PutDocumentsRequest.Builder {
@@ -435,6 +436,8 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.PutDocumentsRequest.Builder addDocuments(java.util.Collection<?>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.PutDocumentsRequest.Builder addGenericDocuments(androidx.appsearch.app.GenericDocument!...);
     method public androidx.appsearch.app.PutDocumentsRequest.Builder addGenericDocuments(java.util.Collection<? extends androidx.appsearch.app.GenericDocument>);
+    method public androidx.appsearch.app.PutDocumentsRequest.Builder addTakenActions(androidx.appsearch.app.TakenAction!...) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.PutDocumentsRequest.Builder addTakenActions(java.util.Collection<? extends androidx.appsearch.app.TakenAction>) throws androidx.appsearch.exceptions.AppSearchException;
     method public androidx.appsearch.app.PutDocumentsRequest build();
   }
 
@@ -736,6 +739,36 @@ package androidx.appsearch.app {
   public interface StringSerializer<T> {
     method public T? deserialize(String);
     method public String serialize(T);
+  }
+
+  @RequiresFeature(enforcement="androidx.appsearch.app.Features#isFeatureSupported", name=androidx.appsearch.app.Features.JOIN_SPEC_AND_QUALIFIED_ID) @androidx.appsearch.annotation.Document(name="builtin:TakenAction") public class TakenAction {
+    method public long getCreationTimestampMillis();
+    method public long getDocumentTtlMillis();
+    method public String? getFinalQuery();
+    method public String getId();
+    method public String? getName();
+    method public String getNamespace();
+    method public java.util.List<java.lang.String!> getPreviousQueries();
+    method public String? getReferencedQualifiedId();
+    method public int getResultRankGlobal();
+    method public int getResultRankInBlock();
+    method public long getTimeStayOnResultMillis();
+  }
+
+  @androidx.appsearch.annotation.Document.BuilderProducer public static final class TakenAction.Builder {
+    ctor public TakenAction.Builder(androidx.appsearch.app.TakenAction);
+    ctor public TakenAction.Builder(String, String);
+    method public androidx.appsearch.app.TakenAction.Builder addPreviousQuery(String);
+    method public androidx.appsearch.app.TakenAction build();
+    method public androidx.appsearch.app.TakenAction.Builder setCreationTimestampMillis(long);
+    method public androidx.appsearch.app.TakenAction.Builder setDocumentTtlMillis(long);
+    method public androidx.appsearch.app.TakenAction.Builder setFinalQuery(String?);
+    method public androidx.appsearch.app.TakenAction.Builder setName(String?);
+    method public androidx.appsearch.app.TakenAction.Builder setPreviousQueries(java.util.List<java.lang.String!>?);
+    method public androidx.appsearch.app.TakenAction.Builder setReferencedQualifiedId(String?);
+    method public androidx.appsearch.app.TakenAction.Builder setResultRankGlobal(int);
+    method public androidx.appsearch.app.TakenAction.Builder setResultRankInBlock(int);
+    method public androidx.appsearch.app.TakenAction.Builder setTimeStayOnResultMillis(long);
   }
 
 }
