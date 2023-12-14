@@ -25,6 +25,7 @@ import static androidx.camera.core.impl.utils.TransformUtils.sizeToRect;
 import static androidx.camera.core.impl.utils.TransformUtils.sizeToRectF;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.impl.utils.executor.CameraXExecutors.mainThreadExecutor;
+import static androidx.camera.core.processing.TargetUtils.getHumanReadableName;
 import static androidx.core.util.Preconditions.checkArgument;
 
 import static java.util.UUID.randomUUID;
@@ -58,6 +59,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CancellationException;
 
 /**
  * A {@link Node} implementation that wraps around the public {@link SurfaceProcessor} interface.
@@ -198,7 +200,8 @@ public class SurfaceProcessorNode implements
      */
     private void createAndSendSurfaceOutput(@NonNull SurfaceEdge input,
             Map.Entry<OutConfig, SurfaceEdge> output) {
-        ListenableFuture<SurfaceOutput> future = output.getValue().createSurfaceOutputFuture(
+        SurfaceEdge outputEdge = output.getValue();
+        ListenableFuture<SurfaceOutput> future = outputEdge.createSurfaceOutputFuture(
                 input.getStreamSpec().getResolution(),
                 output.getKey().getFormat(),
                 output.getKey().getCropRect(),
@@ -218,7 +221,13 @@ public class SurfaceProcessorNode implements
 
             @Override
             public void onFailure(@NonNull Throwable t) {
-                Logger.w(TAG, "Downstream node failed to provide Surface.", t);
+                if (outputEdge.getTargets() == CameraEffect.VIDEO_CAPTURE
+                        && t instanceof CancellationException) {
+                    Logger.d(TAG, "Downstream VideoCapture failed to provide Surface.");
+                } else {
+                    Logger.w(TAG, "Downstream node failed to provide Surface. Target: "
+                            + getHumanReadableName(outputEdge.getTargets()), t);
+                }
             }
         }, mainThreadExecutor());
     }
