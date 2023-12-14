@@ -79,7 +79,7 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
     @Nullable
     public Range<Long> getEstimatedCaptureLatencyRange(
             @NonNull String cameraId, @Nullable Size size, int imageFormat) {
-        return new Range<>(1000L, 4000L);
+        return new Range<>(2000L, 3000L);
     }
 
     @Override
@@ -508,7 +508,7 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
 
             mBackgroundHandler.postDelayed(() -> {
                 submitStillCapture(seqId, captureCallback);
-            }, 3000);
+            }, 2000);
             return seqId;
         }
 
@@ -578,6 +578,7 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
 
             return seqId;
         }
+
         @Override
         public void abortCapture(int captureSequenceId) {
 
@@ -586,7 +587,7 @@ public class LongCaptureAdvancedExtenderImpl implements AdvancedExtenderImpl {
         @Nullable
         @Override
         public Pair<Long, Long> getRealtimeCaptureLatency() {
-            return null;
+            return new Pair<>(500L, 2000L);
         }
     }
 }

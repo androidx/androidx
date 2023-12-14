@@ -61,7 +61,7 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
     private static final int SESSION_STAGE_ID = 101;
     private static final int EV_INDEX = 2;
 
-    private static final int CAPTURE_STAGET_COUNT = 10;
+    private static final int CAPTURE_STAGET_COUNT = 6;
 
     public NightImageCaptureExtenderImpl() {
     }
@@ -173,7 +173,7 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
     @Nullable
     @Override
     public Range<Long> getEstimatedCaptureLatencyRange(@Nullable Size captureOutputSize) {
-        return new Range<>(300L, 1000L);
+        return new Range<>(2600L, 3000L);
     }
 
     @NonNull
@@ -222,7 +222,7 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
     @Nullable
     @Override
     public Pair<Long, Long> getRealtimeCaptureLatency() {
-        return new Pair<>(500L, 3000L);
+        return new Pair<>(500L, 2500L);
     }
 
     @Override

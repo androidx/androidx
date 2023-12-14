@@ -94,6 +94,8 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     private Out mOutputEdge;
     @Nullable
     private In mInputEdge;
+    @Nullable
+    private NoMetadataImageReader mNoMetadataImageReader = null;
 
     @NonNull
     @Override
@@ -117,7 +119,6 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
                     }
                 });
             }
-
             @Override
             public void onCaptureProcessProgressed(int progress) {
                 mainThreadExecutor().execute(() -> {
@@ -129,7 +130,6 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         };
         CameraCaptureCallback cameraCaptureCallbacks;
         if (hasMetadata && inputEdge.getImageReaderProxyProvider() == null) {
-
             // Use MetadataImageReader if the input edge expects metadata.
             MetadataImageReader metadataImageReader = new MetadataImageReader(size.getWidth(),
                     size.getHeight(), format, MAX_IMAGES);
@@ -141,14 +141,14 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
         } else {
             cameraCaptureCallbacks = progressCallback;
             // Use NoMetadataImageReader if the input edge does not expect metadata.
-            NoMetadataImageReader noMetadataImageReader = new NoMetadataImageReader(
+            mNoMetadataImageReader = new NoMetadataImageReader(
                     createImageReaderProxy(inputEdge.getImageReaderProxyProvider(),
                             size.getWidth(), size.getHeight(), format));
-            wrappedImageReader = noMetadataImageReader;
+            wrappedImageReader = mNoMetadataImageReader;
             // Forward the request to the NoMetadataImageReader to create fake metadata.
             requestConsumer = request -> {
                 onRequestAvailable(request);
-                noMetadataImageReader.acceptProcessingRequest(request);
+                mNoMetadataImageReader.acceptProcessingRequest(request);
             };
         }
         inputEdge.setCameraCaptureCallback(cameraCaptureCallbacks);
@@ -218,9 +218,19 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
     void onImageProxyAvailable(@NonNull ImageProxy imageProxy) {
         checkMainThread();
         if (mCurrentRequest == null) {
-            Logger.d(TAG, "Discarding ImageProxy which was inadvertently acquired: " + imageProxy);
+            // When aborted request still generates image, close the image and do nothing.
+            Logger.w(TAG, "Discarding ImageProxy which was inadvertently acquired: " + imageProxy);
             imageProxy.close();
         } else {
+            // If new request arrives but the previous aborted request still generates Image,
+            // close the image and do nothing.
+            Integer stageId = (Integer) imageProxy.getImageInfo().getTagBundle()
+                    .getTag(mCurrentRequest.getTagBundleKey());
+            if (stageId == null) {
+                Logger.w(TAG, "Discarding ImageProxy which was acquired for aborted request");
+                imageProxy.close();
+                return;
+            }
             // Match image and send it downstream.
             matchAndPropagateImage(imageProxy);
         }
@@ -276,6 +286,11 @@ class CaptureNode implements Node<CaptureNode.In, CaptureNode.Out> {
             public void onFailure(@NonNull Throwable t) {
                 checkMainThread();
                 if (request == mCurrentRequest) {
+                    Logger.w(TAG, "request aborted:" + mCurrentRequest);
+                    if (mNoMetadataImageReader != null) {
+                        mNoMetadataImageReader.clearProcessingRequest();
+                    }
+                    mPendingStageIds.clear();
                     mCurrentRequest = null;
                 }
             }

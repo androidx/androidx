@@ -50,6 +50,7 @@ import org.jetbrains.annotations.TestOnly;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * A processor that is responsible for invoking OEM's CaptureProcessorImpl and converting the
@@ -131,6 +132,7 @@ class StillCaptureProcessor {
                                             new Camera2CameraCaptureResult(mSourceCaptureResult)));
                             mSourceCaptureResult = null;
                         }
+                        Logger.d(TAG, "Start converting YUV to JPEG");
                         if (imageProxy != null) {
                             try {
                                 mYuvToJpegConverter.writeYuvImage(imageProxy);
@@ -205,8 +207,10 @@ class StillCaptureProcessor {
 
     void startCapture(boolean enablePostview, @NonNull List<Integer> captureIdList,
             @NonNull OnCaptureResultCallback onCaptureResultCallback) {
-        Logger.d(TAG, "Start the processor: enablePostview=" + enablePostview);
+        Logger.d(TAG, "Start the capture: enablePostview=" + enablePostview);
         synchronized (mLock) {
+            Preconditions.checkState(!mIsClosed, "StillCaptureProcessor is closed. Can't invoke "
+                    + "startCapture()");
             mOnCaptureResultCallback = onCaptureResultCallback;
             clearCaptureResults();
         }
@@ -214,7 +218,6 @@ class StillCaptureProcessor {
         mCaptureResultImageMatcher.clear();
         mCaptureResultImageMatcher.setImageReferenceListener(
                 (imageReference, totalCaptureResult, captureStageId) -> {
-                    Exception errorException = null;
                     synchronized (mLock) {
                         if (mIsClosed) {
                             imageReference.decrement();
@@ -230,77 +233,96 @@ class StillCaptureProcessor {
                         Logger.d(TAG, "mCaptureResult has capture stage Id: "
                                 + mCaptureResults.keySet());
                         if (mCaptureResults.keySet().containsAll(captureIdList)) {
-                            HashMap<Integer, Pair<Image, TotalCaptureResult>> convertedResult =
-                                    new HashMap<>();
-                            for (Integer id : mCaptureResults.keySet()) {
-                                Pair<ImageReference, TotalCaptureResult> pair =
-                                        mCaptureResults.get(id);
-                                convertedResult.put(id,
-                                        new Pair<>(pair.first.get(), pair.second));
-                            }
-                            Logger.d(TAG, "CaptureProcessorImpl.process()");
-                            try {
-                                if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
-                                        && ClientVersion.isMinimumCompatibleVersion(
-                                                Version.VERSION_1_4)
-                                        && enablePostview && mIsPostviewConfigured) {
-                                    mCaptureProcessorImpl.processWithPostview(convertedResult,
-                                            new ProcessResultImpl() {
-                                                @Override
-                                                public void onCaptureCompleted(
-                                                        long shutterTimestamp,
-                                                        @NonNull List<Pair<CaptureResult.Key,
-                                                                Object>> result) {
-                                                    onCaptureResultCallback.onCaptureResult(
-                                                            shutterTimestamp, result);
-                                                }
-                                                @Override
-                                                public void onCaptureProcessProgressed(
-                                                        int progress) {
-                                                    onCaptureResultCallback
-                                                            .onCaptureProcessProgressed(
-                                                                    progress);
-                                                }
-
-                                            }, CameraXExecutors.directExecutor());
-                                } else if (ExtensionVersion.isMinimumCompatibleVersion(
-                                        Version.VERSION_1_3)
-                                        && ClientVersion.isMinimumCompatibleVersion(
-                                                Version.VERSION_1_3)) {
-                                    mCaptureProcessorImpl.process(convertedResult,
-                                            new ProcessResultImpl() {
-                                                @Override
-                                                public void onCaptureCompleted(
-                                                        long shutterTimestamp,
-                                                        @NonNull List<Pair<CaptureResult.Key,
-                                                                Object>> result) {
-                                                    onCaptureResultCallback.onCaptureResult(
-                                                            shutterTimestamp, result);
-                                                }
-
-                                                @Override
-                                                public void onCaptureProcessProgressed(
-                                                        int progress) {
-                                                    onCaptureResultCallback
-                                                            .onCaptureProcessProgressed(progress);
-                                                }
-                                            }, CameraXExecutors.directExecutor());
-                                } else {
-                                    mCaptureProcessorImpl.process(convertedResult);
-                                }
-                            } catch (Exception e) {
-                                mOnCaptureResultCallback = null;
-                                errorException = e;
-                            }
-                            clearCaptureResults();
-                        }
-                    }
-                    if (errorException != null) {
-                        if (onCaptureResultCallback != null) {
-                            onCaptureResultCallback.onError(errorException);
+                            process(mCaptureResults, onCaptureResultCallback, enablePostview);
                         }
                     }
                 });
+    }
+
+    void process(@NonNull Map<Integer, Pair<ImageReference, TotalCaptureResult>> results,
+            @NonNull OnCaptureResultCallback onCaptureResultCallback,
+            boolean enablePostview) {
+        HashMap<Integer, Pair<Image, TotalCaptureResult>> convertedResult =
+                new HashMap<>();
+        synchronized (mLock) {
+            for (Integer id : results.keySet()) {
+                Pair<ImageReference, TotalCaptureResult> pair =
+                        results.get(id);
+                convertedResult.put(id,
+                        new Pair<>(pair.first.get(), pair.second));
+            }
+        }
+
+        // Run OEM's process in another thread to avoid blocking the camera thread.
+        CameraXExecutors.ioExecutor().execute(() -> {
+            synchronized (mLock) {
+                try {
+                    if (mIsClosed) {
+                        Logger.d(TAG, "Ignore process() in closed state.");
+                        return;
+                    }
+                    Logger.d(TAG, "CaptureProcessorImpl.process() begin");
+                    if (ExtensionVersion.isMinimumCompatibleVersion(Version.VERSION_1_4)
+                            && ClientVersion.isMinimumCompatibleVersion(
+                            Version.VERSION_1_4)
+                            && enablePostview && mIsPostviewConfigured) {
+                        mCaptureProcessorImpl.processWithPostview(convertedResult,
+                                new ProcessResultImpl() {
+                                    @Override
+                                    public void onCaptureCompleted(
+                                            long shutterTimestamp,
+                                            @NonNull List<Pair<CaptureResult.Key,
+                                                    Object>> result) {
+                                        onCaptureResultCallback.onCaptureResult(
+                                                shutterTimestamp, result);
+                                    }
+
+                                    @Override
+                                    public void onCaptureProcessProgressed(
+                                            int progress) {
+                                        onCaptureResultCallback
+                                                .onCaptureProcessProgressed(
+                                                        progress);
+                                    }
+
+                                }, CameraXExecutors.directExecutor());
+                    } else if (ExtensionVersion.isMinimumCompatibleVersion(
+                            Version.VERSION_1_3)
+                            && ClientVersion.isMinimumCompatibleVersion(
+                            Version.VERSION_1_3)) {
+                        mCaptureProcessorImpl.process(convertedResult,
+                                new ProcessResultImpl() {
+                                    @Override
+                                    public void onCaptureCompleted(
+                                            long shutterTimestamp,
+                                            @NonNull List<Pair<CaptureResult.Key,
+                                                    Object>> result) {
+                                        onCaptureResultCallback.onCaptureResult(
+                                                shutterTimestamp, result);
+                                    }
+
+                                    @Override
+                                    public void onCaptureProcessProgressed(
+                                            int progress) {
+                                        onCaptureResultCallback
+                                                .onCaptureProcessProgressed(progress);
+                                    }
+                                }, CameraXExecutors.directExecutor());
+                    } else {
+                        mCaptureProcessorImpl.process(convertedResult);
+                    }
+                } catch (Exception e) {
+                    Logger.e(TAG, "mCaptureProcessorImpl.process exception ", e);
+                    mOnCaptureResultCallback = null;
+                    if (onCaptureResultCallback != null) {
+                        onCaptureResultCallback.onError(e);
+                    }
+                } finally {
+                    Logger.d(TAG, "CaptureProcessorImpl.process() finish");
+                    clearCaptureResults();
+                }
+            }
+        });
     }
 
     void notifyCaptureResult(@NonNull TotalCaptureResult captureResult,
@@ -333,8 +355,8 @@ class StillCaptureProcessor {
      * invoking this function.
      */
     void close() {
-        Logger.d(TAG, "Close the processor");
         synchronized (mLock) {
+            Logger.d(TAG, "Close the StillCaptureProcessor");
             mIsClosed = true;
             clearCaptureResults();
             mProcessedYuvImageReader.clearOnImageAvailableListener();

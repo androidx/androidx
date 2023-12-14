@@ -123,8 +123,12 @@ public class AdvancedVendorExtender implements VendorExtender {
         Preconditions.checkNotNull(mCameraId, "VendorExtender#init() must be called first");
 
         // CameraX only uses JPEG output in Advanced Extender implementation.
-        return mAdvancedExtenderImpl.getEstimatedCaptureLatencyRange(mCameraId, size,
-                ImageFormat.JPEG);
+        try {
+            return mAdvancedExtenderImpl.getEstimatedCaptureLatencyRange(mCameraId, size,
+                    ImageFormat.JPEG);
+        } catch (Throwable e) {
+            return null;
+        }
     }
 
     @NonNull
