@@ -203,13 +203,20 @@ package androidx.activity.contextaware {
 package androidx.activity.result {
 
   public final class ActivityResult implements android.os.Parcelable {
-    ctor public ActivityResult(int, android.content.Intent?);
+    ctor public ActivityResult(int resultCode, android.content.Intent? data);
     method public int describeContents();
     method public android.content.Intent? getData();
     method public int getResultCode();
-    method public static String resultCodeToString(int);
-    method public void writeToParcel(android.os.Parcel, int);
-    field public static final android.os.Parcelable.Creator<androidx.activity.result.ActivityResult!> CREATOR;
+    method public static String resultCodeToString(int resultCode);
+    method public void writeToParcel(android.os.Parcel dest, int flags);
+    property public final android.content.Intent? data;
+    property public final int resultCode;
+    field public static final android.os.Parcelable.Creator<androidx.activity.result.ActivityResult> CREATOR;
+    field public static final androidx.activity.result.ActivityResult.Companion Companion;
+  }
+
+  public static final class ActivityResult.Companion {
+    method public String resultCodeToString(int resultCode);
   }
 
   public fun interface ActivityResultCallback<O> {
@@ -224,6 +231,11 @@ package androidx.activity.result {
   public final class ActivityResultCallerKt {
     method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I input, androidx.activity.result.ActivityResultRegistry registry, kotlin.jvm.functions.Function1<O,kotlin.Unit> callback);
     method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I input, kotlin.jvm.functions.Function1<O,kotlin.Unit> callback);
+  }
+
+  public final class ActivityResultKt {
+    method public static operator int component1(androidx.activity.result.ActivityResult);
+    method public static operator android.content.Intent? component2(androidx.activity.result.ActivityResult);
   }
 
   public abstract class ActivityResultLauncher<I> {

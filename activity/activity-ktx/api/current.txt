@@ -12,12 +12,3 @@ package androidx.activity {
 
 }
 
-package androidx.activity.result {
-
-  public final class ActivityResultKt {
-    method public static operator int component1(androidx.activity.result.ActivityResult);
-    method public static operator android.content.Intent? component2(androidx.activity.result.ActivityResult);
-  }
-
-}
-

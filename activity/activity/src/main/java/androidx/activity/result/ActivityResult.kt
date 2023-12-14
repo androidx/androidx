@@ -13,108 +13,84 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.activity.result
 
-package androidx.activity.result;
-
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Parcel;
-import android.os.Parcelable;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Intent
+import android.os.Parcel
+import android.os.Parcelable
 
 /**
- * A container for an activity result as obtained from {@link Activity#onActivityResult}
+ * A container for an activity result as obtained from [Activity.onActivityResult]
  *
- * @see Activity#onActivityResult
+ * @see Activity.onActivityResult
  */
 @SuppressLint("BanParcelableUsage")
-public final class ActivityResult implements Parcelable {
-    private final int mResultCode;
-    @Nullable
-    private final Intent mData;
+class ActivityResult(
+    /**
+     * Status to indicate the success of the operation
+     */
+    val resultCode: Int,
 
     /**
-     * Create a new instance
-     *
-     * @param resultCode status to indicate the success of the operation
-     * @param data an intent that carries the result data
+     * The intent that carries the result data
      */
-    public ActivityResult(int resultCode, @Nullable Intent data) {
-        mResultCode = resultCode;
-        mData = data;
+    val data: Intent?
+) : Parcelable {
+
+    internal constructor(parcel: Parcel) : this(
+        parcel.readInt(),
+        if (parcel.readInt() == 0) null else Intent.CREATOR.createFromParcel(parcel)
+    )
+
+    override fun toString(): String {
+        return "ActivityResult{resultCode=${resultCodeToString(resultCode)}, data=$data}"
     }
 
-    ActivityResult(Parcel in) {
-        mResultCode = in.readInt();
-        mData = in.readInt() == 0 ? null : Intent.CREATOR.createFromParcel(in);
+    override fun writeToParcel(dest: Parcel, flags: Int) {
+        dest.writeInt(resultCode)
+        dest.writeInt(if (data == null) 0 else 1)
+        data?.writeToParcel(dest, flags)
     }
 
-    /**
-     * @return the resultCode
-     */
-    public int getResultCode() {
-        return mResultCode;
-    }
+    override fun describeContents() = 0
 
-    /**
-     * @return the intent
-     */
-    @Nullable
-    public Intent getData() {
-        return mData;
-    }
-
-    @Override
-    public String toString() {
-        return "ActivityResult{"
-                + "resultCode=" + resultCodeToString(mResultCode)
-                + ", data=" + mData
-                + '}';
-    }
-
-    /**
-     * A readable representation of standard activity result codes
-     *
-     * @param resultCode the result code
-     *
-     * @return RESULT_OK, RESULT_CANCELED, or the number otherwise
-     */
-    @NonNull
-    public static String resultCodeToString(int resultCode) {
-        switch (resultCode) {
-            case Activity.RESULT_OK: return "RESULT_OK";
-            case Activity.RESULT_CANCELED: return "RESULT_CANCELED";
-            default: return String.valueOf(resultCode);
-        }
-    }
-
-    @Override
-    public void writeToParcel(@NonNull Parcel dest, int flags) {
-        dest.writeInt(mResultCode);
-        dest.writeInt(mData == null ? 0 : 1);
-        if (mData != null) {
-            mData.writeToParcel(dest, flags);
-        }
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @NonNull
-    public static final Creator<ActivityResult> CREATOR = new Creator<ActivityResult>() {
-        @Override
-        public ActivityResult createFromParcel(@NonNull Parcel in) {
-            return new ActivityResult(in);
+    companion object {
+        /**
+         * A readable representation of standard activity result codes for the given [resultCode]
+         *
+         * @return RESULT_OK, RESULT_CANCELED, or the number otherwise
+         */
+        @JvmStatic
+        fun resultCodeToString(resultCode: Int): String {
+            return when (resultCode) {
+                Activity.RESULT_OK -> "RESULT_OK"
+                Activity.RESULT_CANCELED -> "RESULT_CANCELED"
+                else -> resultCode.toString()
+            }
         }
 
-        @Override
-        public ActivityResult[] newArray(int size) {
-            return new ActivityResult[size];
+        @Suppress("unused")
+        @JvmField
+        val CREATOR = object : Parcelable.Creator<ActivityResult> {
+            override fun createFromParcel(parcel: Parcel) = ActivityResult(parcel)
+
+            override fun newArray(size: Int) = arrayOfNulls<ActivityResult>(size)
         }
-    };
+    }
 }
+
+/**
+ * Destructuring declaration for [ActivityResult] to provide the requestCode
+ *
+ * @return the resultCode of the [ActivityResult]
+ */
+operator fun ActivityResult.component1(): Int = resultCode
+
+/**
+ * Destructuring declaration for [ActivityResult] to provide the intent
+ *
+ * @return the intent of the [ActivityResult]
+ */
+operator fun ActivityResult.component2(): Intent? = data
