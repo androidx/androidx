@@ -176,6 +176,7 @@ internal class CursorAnchorInfoController(
         val text = textFieldState.visualText
 
         // Updates matrix to transform text field local coordinates to screen coordinates.
+        matrix.reset()
         coreCoordinates.transformToScreen(matrix)
         androidMatrix.setFrom(matrix)
 
