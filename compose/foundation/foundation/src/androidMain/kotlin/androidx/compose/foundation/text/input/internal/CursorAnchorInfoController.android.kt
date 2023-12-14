@@ -41,7 +41,6 @@ internal class CursorAnchorInfoController(
     private var textFieldValue: TextFieldValue? = null
     private var textLayoutResult: TextLayoutResult? = null
     private var offsetMapping: OffsetMapping? = null
-    private var textFieldToRootTransform: (Matrix) -> Unit = { }
     private var innerTextFieldBounds: Rect? = null
     private var decorationBoxBounds: Rect? = null
 
@@ -94,8 +93,6 @@ internal class CursorAnchorInfoController(
      * @param textFieldValue the text field's [TextFieldValue]
      * @param offsetMapping the offset mapping for the visual transformation
      * @param textLayoutResult the text field's [TextLayoutResult]
-     * @param textFieldToRootTransform function that modifies a matrix to be a transformation matrix
-     *   from local coordinates to the root composable coordinates
      * @param innerTextFieldBounds visible bounds of the text field in local coordinates, or an
      *   empty rectangle if the text field is not visible
      * @param decorationBoxBounds visible bounds of the decoration box in local coordinates, or an
@@ -105,14 +102,12 @@ internal class CursorAnchorInfoController(
         textFieldValue: TextFieldValue,
         offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
-        textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
         decorationBoxBounds: Rect
     ) = synchronized(lock) {
         this.textFieldValue = textFieldValue
         this.offsetMapping = offsetMapping
         this.textLayoutResult = textLayoutResult
-        this.textFieldToRootTransform = textFieldToRootTransform
         this.innerTextFieldBounds = innerTextFieldBounds
         this.decorationBoxBounds = decorationBoxBounds
 
@@ -132,7 +127,6 @@ internal class CursorAnchorInfoController(
         textFieldValue = null
         offsetMapping = null
         textLayoutResult = null
-        textFieldToRootTransform = { }
         innerTextFieldBounds = null
         decorationBoxBounds = null
     }
@@ -140,8 +134,7 @@ internal class CursorAnchorInfoController(
     private fun updateCursorAnchorInfo() {
         if (!inputMethodManager.isActive()) return
 
-        // Sets matrix to transform text field local coordinates to the root composable coordinates.
-        textFieldToRootTransform(matrix)
+        matrix.reset()
         // Updates matrix to transform text field local coordinates to screen coordinates.
         localToScreen(matrix)
         androidMatrix.setFrom(matrix)

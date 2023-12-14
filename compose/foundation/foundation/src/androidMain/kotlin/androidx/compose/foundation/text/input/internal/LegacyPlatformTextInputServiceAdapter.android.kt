@@ -132,7 +132,6 @@ internal class AndroidLegacyPlatformTextInputServiceAdapter :
             textFieldValue,
             offsetMapping,
             textLayoutResult,
-            textFieldToRootTransform,
             innerTextFieldBounds,
             decorationBoxBounds
         )
@@ -331,7 +330,6 @@ internal class LegacyTextInputMethodRequest(
         textFieldValue: TextFieldValue,
         offsetMapping: OffsetMapping,
         textLayoutResult: TextLayoutResult,
-        textFieldToRootTransform: (Matrix) -> Unit,
         innerTextFieldBounds: Rect,
         decorationBoxBounds: Rect
     ) {
@@ -339,7 +337,6 @@ internal class LegacyTextInputMethodRequest(
             textFieldValue,
             offsetMapping,
             textLayoutResult,
-            textFieldToRootTransform,
             innerTextFieldBounds,
             decorationBoxBounds
         )
