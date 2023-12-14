@@ -294,6 +294,11 @@ class WithPackageBlock internal constructor(private val packageName: String) {
             assertWithMessage("Unexpected hasCurrentProfile value")
                 .that(lines[2].toBoolean())
                 .isEqualTo(value)
+
+        fun hasEmbeddedProfile(value: Boolean) =
+            assertWithMessage("Unexpected hasEmbeddedProfile value")
+                .that(lines[3].toBoolean())
+                .isEqualTo(value)
     }
 
     val isCuttlefish by lazy {
