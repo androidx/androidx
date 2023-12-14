@@ -1260,9 +1260,9 @@ internal class ComposerImpl(
     private val pendingStack = Stack<Pending?>()
     private var pending: Pending? = null
     private var nodeIndex: Int = 0
-    private var nodeIndexStack = IntStack()
     private var groupNodeCount: Int = 0
-    private var groupNodeCountStack = IntStack()
+    private var rGroupIndex: Int = 0
+    private val parentStateStack = IntStack()
     private var nodeCountOverrides: IntArray? = null
     private var nodeCountVirtualOverrides: MutableIntIntMap? = null
     private var forceRecomposeScopes = false
@@ -1445,6 +1445,7 @@ internal class ComposerImpl(
      */
     @OptIn(InternalComposeApi::class)
     private fun startRoot() {
+        rGroupIndex = 0
         reader = slotTable.openReader()
         startGroup(rootKey)
 
@@ -1494,8 +1495,7 @@ internal class ComposerImpl(
     private fun abortRoot() {
         cleanUpCompose()
         pendingStack.clear()
-        nodeIndexStack.clear()
-        groupNodeCountStack.clear()
+        parentStateStack.clear()
         entersStack.clear()
         providersInvalidStack.clear()
         providerUpdates = null
@@ -1636,7 +1636,7 @@ internal class ComposerImpl(
     override fun <T> createNode(factory: () -> T) {
         validateNodeExpected()
         runtimeCheck(inserting) { "createNode() can only be called when inserting" }
-        val insertIndex = nodeIndexStack.peek()
+        val insertIndex = parentStateStack.peek()
         val groupAnchor = writer.anchor(writer.parent)
         groupNodeCount++
         insertFixups.createAndInsertNode(factory, insertIndex, groupAnchor)
@@ -2207,7 +2207,9 @@ internal class ComposerImpl(
     private fun start(key: Int, objectKey: Any?, kind: GroupKind, data: Any?) {
         validateNodeNotExpected()
 
-        updateCompoundKeyWhenWeEnterGroup(key, objectKey, data)
+        updateCompoundKeyWhenWeEnterGroup(key, rGroupIndex, objectKey, data)
+
+        if (objectKey == null) rGroupIndex++
 
         // Check for the insert fast path. If we are already inserting (creating nodes) then
         // there is no need to track insert, deletes and moves with a pending changes object.
@@ -2319,10 +2321,12 @@ internal class ComposerImpl(
         // group.
         pendingStack.push(pending)
         this.pending = newPending
-        this.nodeIndexStack.push(nodeIndex)
+        this.parentStateStack.push(groupNodeCount)
+        this.parentStateStack.push(rGroupIndex)
+        this.parentStateStack.push(nodeIndex)
         if (isNode) nodeIndex = 0
-        this.groupNodeCountStack.push(groupNodeCount)
         groupNodeCount = 0
+        rGroupIndex = 0
     }
 
     private fun exitGroup(expectedNodeCount: Int, inserting: Boolean) {
@@ -2335,8 +2339,9 @@ internal class ComposerImpl(
             previousPending.groupIndex++
         }
         this.pending = previousPending
-        this.nodeIndex = nodeIndexStack.pop() + expectedNodeCount
-        this.groupNodeCount = this.groupNodeCountStack.pop() + expectedNodeCount
+        this.nodeIndex = parentStateStack.pop() + expectedNodeCount
+        this.rGroupIndex = parentStateStack.pop()
+        this.groupNodeCount = parentStateStack.pop() + expectedNodeCount
     }
 
     private fun end(isNode: Boolean) {
@@ -2344,10 +2349,14 @@ internal class ComposerImpl(
         // inserted but it has yet to determine which need to be removed or moved. Note that the
         // changes are relative to the first change in the list of nodes that are changing.
 
+        // The rGroupIndex for parent is two pack from the current stack top which has already been
+        // incremented past this group needs to be offset by one.
+        val rGroupIndex = parentStateStack.peek2() - 1
         if (inserting) {
             val parent = writer.parent
             updateCompoundKeyWhenWeExitGroup(
                 writer.groupKey(parent),
+                rGroupIndex,
                 writer.groupObjectKey(parent),
                 writer.groupAux(parent)
             )
@@ -2355,6 +2364,7 @@ internal class ComposerImpl(
             val parent = reader.parent
             updateCompoundKeyWhenWeExitGroup(
                 reader.groupKey(parent),
+                rGroupIndex,
                 reader.groupObjectKey(parent),
                 reader.groupAux(parent)
             )
@@ -2515,6 +2525,7 @@ internal class ComposerImpl(
         val recomposeIndex = nodeIndex
         val recomposeCompoundKey = compoundKeyHash
         val oldGroupNodeCount = groupNodeCount
+        val oldRGroupIndex = rGroupIndex
         var oldGroup = parent
 
         var firstInRange = invalidations.firstInRange(reader.currentGroup, end)
@@ -2541,10 +2552,16 @@ internal class ComposerImpl(
                     recomposeIndex
                 )
 
+                // Calculate the current rGroupIndex for this node, storing any parent rGroup
+                // indexes we needed into the rGroup IntList
+                rGroupIndex = rGroupIndexOf(newGroup)
+
                 // Calculate the compound hash code (a semi-unique code for every group in the
                 // composition used to restore saved state).
+                val newParent = reader.parent(newGroup)
                 compoundKeyHash = compoundKeyOf(
-                    reader.parent(newGroup),
+                    newParent,
+                    rGroupIndexOf(newParent),
                     parent,
                     recomposeCompoundKey
                 )
@@ -2584,9 +2601,13 @@ internal class ComposerImpl(
             val parentGroupNodes = updatedNodeCount(parent)
             nodeIndex = recomposeIndex + parentGroupNodes
             groupNodeCount = oldGroupNodeCount + parentGroupNodes
+            rGroupIndex = oldRGroupIndex
         } else {
             // No recompositions were requested in the range, skip it.
             skipReaderToGroupEnd()
+
+            // No need to restore the parent state for nodeIndex, groupNodeCount and
+            // rGroupIndex as they are going to be restored immediately by the endGroup
         }
         compoundKeyHash = recomposeCompoundKey
 
@@ -2683,6 +2704,17 @@ internal class ComposerImpl(
         return index
     }
 
+    private fun rGroupIndexOf(group: Int): Int {
+        var result = 0
+        val parent = reader.parent(group)
+        var child = parent + 1
+        while (child < group) {
+            if (!reader.hasObjectKey(child)) result++
+            child += reader.groupSize(child)
+        }
+        return result
+    }
+
     private fun updatedNodeCount(group: Int): Int {
         if (group < 0) return nodeCountVirtualOverrides?.let {
             if (it.contains(group)) it[group] else 0
@@ -2756,19 +2788,23 @@ internal class ComposerImpl(
      * for [group]. Passing in the [recomposeGroup] and [recomposeKey] allows this method to exit
      * early.
      */
-    private fun compoundKeyOf(group: Int, recomposeGroup: Int, recomposeKey: Int): Int {
+    private fun compoundKeyOf(
+        group: Int,
+        rGroupIndex: Int,
+        recomposeGroup: Int,
+        recomposeKey: Int
+    ): Int {
         return if (group == recomposeGroup) recomposeKey else run {
             val groupKey = reader.groupCompoundKeyPart(group)
             if (groupKey == movableContentKey)
                 groupKey
-            else
-                (
-                    compoundKeyOf(
-                        reader.parent(group),
-                        recomposeGroup,
-                        recomposeKey
-                    ) rol 3
-                    ) xor groupKey
+            else {
+                val parent = reader.parent(group)
+                val parentKey = if (parent == recomposeGroup) recomposeKey else
+                    compoundKeyOf(parent, rGroupIndexOf(parent), recomposeGroup, recomposeKey)
+                val effectiveRGroupIndex = if (reader.hasObjectKey(group)) 0 else rGroupIndex
+                (((parentKey rol 3) xor groupKey) rol 3) xor effectiveRGroupIndex
+            }
         }
     }
 
@@ -2822,11 +2858,12 @@ internal class ComposerImpl(
             val key = reader.groupKey
             val dataKey = reader.groupObjectKey
             val aux = reader.groupAux
-            updateCompoundKeyWhenWeEnterGroup(key, dataKey, aux)
+            val rGroupIndex = rGroupIndex
+            updateCompoundKeyWhenWeEnterGroup(key, rGroupIndex, dataKey, aux)
             startReaderGroup(reader.isNode, null)
             recomposeToGroupEnd()
             reader.endGroup()
-            updateCompoundKeyWhenWeExitGroup(key, dataKey, aux)
+            updateCompoundKeyWhenWeExitGroup(key, rGroupIndex, dataKey, aux)
         }
     }
 
@@ -3673,36 +3710,50 @@ internal class ComposerImpl(
         }
     }
 
-    private fun updateCompoundKeyWhenWeEnterGroup(groupKey: Int, dataKey: Any?, data: Any?) {
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun updateCompoundKeyWhenWeEnterGroup(
+        groupKey: Int,
+        rGroupIndex: Int,
+        dataKey: Any?,
+        data: Any?
+    ) {
         if (dataKey == null)
             if (data != null && groupKey == reuseKey && data != Composer.Empty)
-                updateCompoundKeyWhenWeEnterGroupKeyHash(data.hashCode())
+                updateCompoundKeyWhenWeEnterGroupKeyHash(data.hashCode(), rGroupIndex)
             else
-                updateCompoundKeyWhenWeEnterGroupKeyHash(groupKey)
+                updateCompoundKeyWhenWeEnterGroupKeyHash(groupKey, rGroupIndex)
         else if (dataKey is Enum<*>)
-            updateCompoundKeyWhenWeEnterGroupKeyHash(dataKey.ordinal)
+            updateCompoundKeyWhenWeEnterGroupKeyHash(dataKey.ordinal, 0)
         else
-            updateCompoundKeyWhenWeEnterGroupKeyHash(dataKey.hashCode())
+            updateCompoundKeyWhenWeEnterGroupKeyHash(dataKey.hashCode(), 0)
     }
 
-    private fun updateCompoundKeyWhenWeEnterGroupKeyHash(keyHash: Int) {
-        compoundKeyHash = (compoundKeyHash rol 3) xor keyHash
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun updateCompoundKeyWhenWeEnterGroupKeyHash(keyHash: Int, rGroupIndex: Int) {
+        compoundKeyHash = (((compoundKeyHash rol 3) xor keyHash) rol 3) xor rGroupIndex
     }
 
-    private fun updateCompoundKeyWhenWeExitGroup(groupKey: Int, dataKey: Any?, data: Any?) {
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun updateCompoundKeyWhenWeExitGroup(
+        groupKey: Int,
+        rGroupIndex: Int,
+        dataKey: Any?,
+        data: Any?
+    ) {
         if (dataKey == null)
             if (data != null && groupKey == reuseKey && data != Composer.Empty)
-                updateCompoundKeyWhenWeExitGroupKeyHash(data.hashCode())
+                updateCompoundKeyWhenWeExitGroupKeyHash(data.hashCode(), rGroupIndex)
             else
-                updateCompoundKeyWhenWeExitGroupKeyHash(groupKey)
+                updateCompoundKeyWhenWeExitGroupKeyHash(groupKey, rGroupIndex)
         else if (dataKey is Enum<*>)
-            updateCompoundKeyWhenWeExitGroupKeyHash(dataKey.ordinal)
+            updateCompoundKeyWhenWeExitGroupKeyHash(dataKey.ordinal, 0)
         else
-            updateCompoundKeyWhenWeExitGroupKeyHash(dataKey.hashCode())
+            updateCompoundKeyWhenWeExitGroupKeyHash(dataKey.hashCode(), 0)
     }
 
-    private fun updateCompoundKeyWhenWeExitGroupKeyHash(groupKey: Int) {
-        compoundKeyHash = (compoundKeyHash xor groupKey.hashCode()) ror 3
+    @Suppress("NOTHING_TO_INLINE")
+    private inline fun updateCompoundKeyWhenWeExitGroupKeyHash(groupKey: Int, rGroupIndex: Int) {
+        compoundKeyHash = (((compoundKeyHash xor rGroupIndex) ror 3) xor groupKey.hashCode()) ror 3
     }
 
     override val recomposeScope: RecomposeScope? get() = currentRecomposeScope
