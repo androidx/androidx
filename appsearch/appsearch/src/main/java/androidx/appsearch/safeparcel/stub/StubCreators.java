@@ -20,6 +20,7 @@ import androidx.appsearch.app.SearchSuggestionResult;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.VisibilityDocument;
+import androidx.appsearch.observer.ObserverSpec;
 import androidx.appsearch.safeparcel.PropertyConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.DocumentIndexingConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.IntegerIndexingConfigParcel;
@@ -97,5 +98,9 @@ public class StubCreators {
 
     /** Stub creator for {@link androidx.appsearch.app.SearchSuggestionSpec}. */
     public static class SearchSuggestionSpecCreator extends AbstractCreator<SearchSuggestionSpec> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.observer.ObserverSpec}. */
+    public static class ObserverSpecCreator extends AbstractCreator<ObserverSpec> {
     }
 }
