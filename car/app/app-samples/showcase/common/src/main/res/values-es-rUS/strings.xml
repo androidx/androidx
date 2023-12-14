@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Opciones de ruta"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Evitar autopistas"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Evitar ferris"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Asigna demostraciones"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Asigna con demostraciones de contenido"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Asigna con demostraciones de plantillas de mensajes"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Asigna con demostraciones de plantillas de cuadrícula"</string>
 </resources>

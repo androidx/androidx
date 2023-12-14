@@ -365,4 +365,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"Опции на маршрутата"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"Без автопати"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"Без траект"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"Демоа за карта"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"Демоа за карта со содржини"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"Демоа за шаблон на карта со порака"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"Демоа за шаблон на карта со мрежа"</string>
 </resources>
