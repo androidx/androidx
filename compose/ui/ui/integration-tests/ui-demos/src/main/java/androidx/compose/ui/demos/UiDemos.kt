@@ -20,6 +20,13 @@ import androidx.compose.foundation.demos.text.SoftwareKeyboardControllerDemo
 import androidx.compose.integration.demos.common.ActivityDemo
 import androidx.compose.integration.demos.common.ComposableDemo
 import androidx.compose.integration.demos.common.DemoCategory
+import androidx.compose.ui.demos.accessibility.LinearProgressIndicatorDemo
+import androidx.compose.ui.demos.accessibility.NestedContainersFalseDemo
+import androidx.compose.ui.demos.accessibility.NestedContainersTrueDemo
+import androidx.compose.ui.demos.accessibility.ScaffoldSampleDemo
+import androidx.compose.ui.demos.accessibility.ScaffoldSampleScrollDemo
+import androidx.compose.ui.demos.accessibility.ScrollingColumnDemo
+import androidx.compose.ui.demos.accessibility.SimpleRtlLayoutDemo
 import androidx.compose.ui.demos.autofill.ExplicitAutofillTypesDemo
 import androidx.compose.ui.demos.focus.AdjacentScrollablesFocusDemo
 import androidx.compose.ui.demos.focus.CancelFocusDemo
