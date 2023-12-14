@@ -43,8 +43,6 @@ import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Test
 import org.junit.runner.RunWith
 
-private val Exactly100Px = MeasureSpec.makeMeasureSpec(100, MeasureSpec.EXACTLY)
-
 @RunWith(AndroidJUnit4::class)
 @SmallTest
 class UserResizeModeTest {
@@ -124,6 +122,36 @@ class UserResizeModeTest {
         assertWithMessage("rightPane width after drag")
             .that(rightPane.width)
             .isEqualTo(70)
+    }
+
+    @Test
+    fun layoutTooSmallForPadding() {
+        val context = InstrumentationRegistry.getInstrumentation().context
+        val spl = createTestSpl(context)
+        val leftPane = spl[0]
+        val rightPane = spl[1]
+
+        spl.setPadding(4, 4, 4, 4)
+        spl.measureAndLayoutForTest(0, 0)
+
+        fun View.assertZeroSize(label: String) {
+            assertWithMessage("$label width").that(width).isEqualTo(0)
+            assertWithMessage("$label height").that(height).isEqualTo(0)
+        }
+
+        fun assertAllZeroSize() {
+            spl.assertZeroSize("SlidingPaneLayout")
+            leftPane.assertZeroSize("leftPane")
+            rightPane.assertZeroSize("rightPane")
+        }
+
+        assertAllZeroSize()
+
+        // Test different layout mode for weighted pane views
+        spl.splitDividerPosition = 0
+        spl.measureAndLayoutForTest(0, 0)
+
+        assertAllZeroSize()
     }
 
     @Test
@@ -429,8 +457,14 @@ private fun createTestSpl(
     measureAndLayoutForTest()
 }
 
-private fun View.measureAndLayoutForTest() {
-    measure(Exactly100Px, Exactly100Px)
+private fun View.measureAndLayoutForTest(
+    width: Int = 100,
+    height: Int = 100
+) {
+    measure(
+        MeasureSpec.makeMeasureSpec(width, MeasureSpec.EXACTLY),
+        MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY)
+    )
     layout(0, 0, measuredWidth, measuredHeight)
 }
 
