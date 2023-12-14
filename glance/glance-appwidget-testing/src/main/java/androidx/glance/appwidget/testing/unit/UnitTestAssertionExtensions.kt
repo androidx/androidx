@@ -57,7 +57,8 @@ fun UnitTestAssertion.assertIsNotChecked(): UnitTestAssertion = assert(isNotChec
  *                   in the `actionRunCallback` method call
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertHasRunCallbackClickAction(
+@PublishedApi // See b/316353540; a reified version of this is available in public api.
+internal fun UnitTestAssertion.assertHasRunCallbackClickAction(
     callbackClass: Class<out ActionCallback>,
     parameters: ActionParameters = actionParametersOf()
 ): UnitTestAssertion = assert(
@@ -116,7 +117,8 @@ fun UnitTestAssertion.assertHasStartActivityClickAction(
  *                            service in the `actionStartService` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertHasStartServiceClickAction(
+@PublishedApi // See b/316353540; a reified version of this is available in public api.
+internal fun UnitTestAssertion.assertHasStartServiceClickAction(
     serviceClass: Class<out Service>,
     isForegroundService: Boolean = false
 ): UnitTestAssertion = assert(hasStartServiceAction(serviceClass, isForegroundService))
@@ -169,7 +171,8 @@ fun UnitTestAssertion.assertHasStartServiceClickAction(
  *                      `actionSendBroadcast` method call.
  * @throws AssertionError if the matcher does not match or the node can no longer be found.
  */
-fun UnitTestAssertion.assertHasSendBroadcastClickAction(
+@PublishedApi // See b/316353540; a reified version of this is available in public api.
+internal fun UnitTestAssertion.assertHasSendBroadcastClickAction(
     receiverClass: Class<out BroadcastReceiver>
 ): UnitTestAssertion = assert(hasSendBroadcastAction(receiverClass))
 
