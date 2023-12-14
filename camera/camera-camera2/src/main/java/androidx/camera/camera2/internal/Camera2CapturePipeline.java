@@ -29,6 +29,7 @@ import static androidx.camera.core.ImageCapture.FlashMode;
 import static androidx.camera.core.ImageCapture.FlashType;
 import static androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
 import static androidx.camera.core.impl.CameraCaptureMetaData.AfState;
+import static androidx.camera.core.impl.CameraCaptureMetaData.AwbMode;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraDevice;
@@ -56,6 +57,7 @@ import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
+import androidx.camera.core.impl.CameraCaptureMetaData.AeMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -456,8 +458,7 @@ class Camera2CapturePipeline {
                 || AF_CONVERGED_STATE_SET.contains(captureResult.getAfState());
 
         boolean isAeReady;
-        boolean isAeModeOff = totalCaptureResult.get(CaptureResult.CONTROL_AE_MODE)
-                == CaptureResult.CONTROL_AE_MODE_OFF;
+        boolean isAeModeOff = captureResult.getAeMode() == AeMode.OFF;
         if (isTorchAsFlash) {
             isAeReady = isAeModeOff
                     || AE_TORCH_AS_FLASH_CONVERGED_STATE_SET.contains(captureResult.getAeState());
@@ -465,8 +466,7 @@ class Camera2CapturePipeline {
             isAeReady = isAeModeOff || AE_CONVERGED_STATE_SET.contains(captureResult.getAeState());
         }
 
-        boolean isAwbModeOff = totalCaptureResult.get(CaptureResult.CONTROL_AWB_MODE)
-                == CaptureResult.CONTROL_AWB_MODE_OFF;
+        boolean isAwbModeOff = captureResult.getAwbMode() == AwbMode.OFF;
         boolean isAwbReady = isAwbModeOff
                 || AWB_CONVERGED_STATE_SET.contains(captureResult.getAwbState());
 

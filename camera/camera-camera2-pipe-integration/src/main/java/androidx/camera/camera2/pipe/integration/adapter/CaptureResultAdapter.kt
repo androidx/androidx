@@ -26,6 +26,7 @@ import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.impl.CAMERAX_TAG_BUNDLE
+import androidx.camera.core.impl.CameraCaptureMetaData
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState
@@ -117,6 +118,47 @@ class CaptureResultAdapter(
                 FlashState.UNKNOWN
             }
         }
+
+    override fun getAeMode(): CameraCaptureMetaData.AeMode {
+        return when (val mode = result.metadata[CaptureResult.CONTROL_AE_MODE]) {
+            CaptureResult.CONTROL_AE_MODE_OFF -> CameraCaptureMetaData.AeMode.OFF
+            CaptureResult.CONTROL_AE_MODE_ON -> CameraCaptureMetaData.AeMode.ON
+            CaptureResult.CONTROL_AE_MODE_ON_AUTO_FLASH ->
+                CameraCaptureMetaData.AeMode.ON_AUTO_FLASH
+            CaptureResult.CONTROL_AE_MODE_ON_ALWAYS_FLASH ->
+                CameraCaptureMetaData.AeMode.ON_ALWAYS_FLASH
+            CaptureResult.CONTROL_AE_MODE_ON_AUTO_FLASH_REDEYE ->
+                CameraCaptureMetaData.AeMode.ON_AUTO_FLASH_REDEYE
+            null -> CameraCaptureMetaData.AeMode.UNKNOWN
+            else -> {
+                Log.debug { "Unknown AE mode ($mode) for $frameNumber!" }
+                CameraCaptureMetaData.AeMode.UNKNOWN
+            }
+        }
+    }
+
+    override fun getAwbMode(): CameraCaptureMetaData.AwbMode {
+        return when (val mode = result.metadata[CaptureResult.CONTROL_AWB_MODE]) {
+            CaptureResult.CONTROL_AWB_MODE_OFF -> CameraCaptureMetaData.AwbMode.OFF
+            CaptureResult.CONTROL_AWB_MODE_AUTO -> CameraCaptureMetaData.AwbMode.AUTO
+            CaptureResult.CONTROL_AWB_MODE_INCANDESCENT ->
+                CameraCaptureMetaData.AwbMode.INCANDESCENT
+            CaptureResult.CONTROL_AWB_MODE_FLUORESCENT ->
+                CameraCaptureMetaData.AwbMode.FLUORESCENT
+            CaptureResult.CONTROL_AWB_MODE_WARM_FLUORESCENT ->
+                CameraCaptureMetaData.AwbMode.WARM_FLUORESCENT
+            CaptureResult.CONTROL_AWB_MODE_DAYLIGHT -> CameraCaptureMetaData.AwbMode.DAYLIGHT
+            CaptureResult.CONTROL_AWB_MODE_CLOUDY_DAYLIGHT ->
+                CameraCaptureMetaData.AwbMode.CLOUDY_DAYLIGHT
+            CaptureResult.CONTROL_AWB_MODE_TWILIGHT -> CameraCaptureMetaData.AwbMode.TWILIGHT
+            CaptureResult.CONTROL_AWB_MODE_SHADE -> CameraCaptureMetaData.AwbMode.SHADE
+            null -> CameraCaptureMetaData.AwbMode.UNKNOWN
+            else -> {
+                Log.debug { "Unknown AWB mode ($mode) for $frameNumber!" }
+                CameraCaptureMetaData.AwbMode.UNKNOWN
+            }
+        }
+    }
 
     override fun getTimestamp(): Long {
         return result.metadata.getOrDefault(CaptureResult.SENSOR_TIMESTAMP, -1L)
