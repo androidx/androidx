@@ -71,7 +71,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
     private val fontFamilyMeasureFont =
         Font(resId = R.font.sample_font, weight = FontWeight.Normal, style = FontStyle.Normal)
             .toFontFamily()
-    private val rootPosition = Offset(1.2f, 3.4f)
+    private var position = Offset(0f, 0f)
 
     private lateinit var textInputService: LegacyTextInputMethodRequest
     private lateinit var inputMethodManager: InputMethodManager
@@ -85,9 +85,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
         inputMethodManager = mock { on { isActive() } doReturn true }
         textInputService = LegacyTextInputMethodRequest(
             view = View(context),
-            localToScreen = { matrix ->
-                matrix.translate(rootPosition.x, rootPosition.y)
-            },
+            localToScreen = { matrix -> matrix.translate(position.x, position.y) },
             inputMethodManager = inputMethodManager
         )
         textInputService.startInput(
@@ -110,16 +108,15 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             TextFieldValue("abc", selection = TextRange(2), composition = TextRange(1, 2))
         textInputService.updateState(oldValue = textFieldValue, newValue = textFieldValue)
 
+        position = Offset(1f, 1f)
         val offsetMapping = OffsetMapping.Identity
         val textLayoutResult = getTextLayoutResult(textFieldValue.text)
-        var textLayoutPositionInRoot = Offset(1f, 1f)
         val innerTextFieldBounds = Rect.Zero
         val decorationBoxBounds = Rect.Zero
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
-            textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
             decorationBoxBounds = decorationBoxBounds
         )
@@ -127,7 +124,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
         inputConnection.requestCursorUpdates(InputConnection.CURSOR_UPDATE_IMMEDIATE)
 
         // Immediate update
-        androidMatrix.setTranslate(textLayoutPositionInRoot + rootPosition)
+        androidMatrix.setTranslate(position)
         val expected =
             builder.build(
                 textFieldValue,
@@ -140,12 +137,11 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
         verify(inputMethodManager).updateCursorAnchorInfo(expected)
 
         clearInvocations(inputMethodManager)
-        textLayoutPositionInRoot = Offset(2f, 2f)
+        position = Offset(2f, 2f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
-            textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
             decorationBoxBounds = decorationBoxBounds
         )
@@ -165,22 +161,21 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
         // No immediate update until updateTextLayoutResult call
         verify(inputMethodManager, never()).updateCursorAnchorInfo(any())
 
+        position = Offset(1f, 1f)
         val offsetMapping = OffsetMapping.Identity
         val textLayoutResult = getTextLayoutResult(textFieldValue.text)
-        var textLayoutPositionInRoot = Offset(1f, 1f)
         val innerTextFieldBounds = Rect.Zero
         val decorationBoxBounds = Rect.Zero
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
-            textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
             decorationBoxBounds = decorationBoxBounds
         )
 
         // Immediate update
-        androidMatrix.setTranslate(textLayoutPositionInRoot + rootPosition)
+        androidMatrix.setTranslate(position)
         val expected =
             builder.build(
                 textFieldValue,
@@ -193,12 +188,11 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
         verify(inputMethodManager).updateCursorAnchorInfo(expected)
 
         clearInvocations(inputMethodManager)
-        textLayoutPositionInRoot = Offset(2f, 2f)
+        position = Offset(2f, 2f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
-            textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
             decorationBoxBounds = decorationBoxBounds
         )
@@ -213,16 +207,15 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             TextFieldValue("abc", selection = TextRange(2), composition = TextRange(1, 2))
         textInputService.updateState(oldValue = textFieldValue, newValue = textFieldValue)
 
+        position = Offset(1f, 1f)
         val offsetMapping = OffsetMapping.Identity
         val textLayoutResult = getTextLayoutResult(textFieldValue.text)
-        var textLayoutPositionInRoot = Offset(1f, 1f)
         val innerTextFieldBounds = Rect.Zero
         val decorationBoxBounds = Rect.Zero
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
-            textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
             decorationBoxBounds = decorationBoxBounds
         )
@@ -233,18 +226,17 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
         verify(inputMethodManager, never()).updateCursorAnchorInfo(any())
 
         clearInvocations(inputMethodManager)
-        textLayoutPositionInRoot = Offset(2f, 2f)
+        position = Offset(2f, 2f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
-            textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
             decorationBoxBounds = decorationBoxBounds
         )
 
         // Monitoring update
-        androidMatrix.setTranslate(textLayoutPositionInRoot + rootPosition)
+        androidMatrix.setTranslate(position)
         val expected =
             builder.build(
                 textFieldValue,
@@ -264,18 +256,17 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
         verify(inputMethodManager, never()).updateCursorAnchorInfo(any())
 
         clearInvocations(inputMethodManager)
-        textLayoutPositionInRoot = Offset(3f, 3f)
+        position = Offset(3f, 3f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
-            textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
             decorationBoxBounds = decorationBoxBounds
         )
 
         // Monitoring update
-        androidMatrix.setTranslate(textLayoutPositionInRoot + rootPosition)
+        androidMatrix.setTranslate(position)
         val expected2 =
             builder.build(
                 textFieldValue,
@@ -294,16 +285,15 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             TextFieldValue("abc", selection = TextRange(2), composition = TextRange(1, 2))
         textInputService.updateState(oldValue = textFieldValue, newValue = textFieldValue)
 
+        position = Offset(1f, 1f)
         val offsetMapping = OffsetMapping.Identity
         val textLayoutResult = getTextLayoutResult(textFieldValue.text)
-        var textLayoutPositionInRoot = Offset(1f, 1f)
         val innerTextFieldBounds = Rect.Zero
         val decorationBoxBounds = Rect.Zero
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
-            textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
             decorationBoxBounds = decorationBoxBounds
         )
@@ -313,7 +303,7 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
         )
 
         // Immediate update
-        androidMatrix.setTranslate(textLayoutPositionInRoot + rootPosition)
+        androidMatrix.setTranslate(position)
         val expected =
             builder.build(
                 textFieldValue,
@@ -326,18 +316,17 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
         verify(inputMethodManager).updateCursorAnchorInfo(expected)
 
         clearInvocations(inputMethodManager)
-        textLayoutPositionInRoot = Offset(2f, 2f)
+        position = Offset(2f, 2f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
-            textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
             decorationBoxBounds = decorationBoxBounds
         )
 
         // Monitoring update
-        androidMatrix.setTranslate(textLayoutPositionInRoot + rootPosition)
+        androidMatrix.setTranslate(position)
         val expected2 =
             builder.build(
                 textFieldValue,
@@ -356,16 +345,15 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             TextFieldValue("abc", selection = TextRange(2), composition = TextRange(1, 2))
         textInputService.updateState(oldValue = textFieldValue, newValue = textFieldValue)
 
+        position = Offset(1f, 1f)
         val offsetMapping = OffsetMapping.Identity
         val textLayoutResult = getTextLayoutResult(textFieldValue.text)
-        var textLayoutPositionInRoot = Offset(1f, 1f)
         val innerTextFieldBounds = Rect.Zero
         val decorationBoxBounds = Rect.Zero
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
-            textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
             decorationBoxBounds = decorationBoxBounds
         )
@@ -383,12 +371,11 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
         // No immediate update
         verify(inputMethodManager, never()).updateCursorAnchorInfo(any())
 
-        textLayoutPositionInRoot = Offset(2f, 2f)
+        position = Offset(2f, 2f)
         textInputService.updateTextLayoutResult(
             textFieldValue = textFieldValue,
             offsetMapping = offsetMapping,
             textLayoutResult = textLayoutResult,
-            textFieldToRootTransform = { it.setTranslate(textLayoutPositionInRoot) },
             innerTextFieldBounds = innerTextFieldBounds,
             decorationBoxBounds = decorationBoxBounds
         )
@@ -425,11 +412,6 @@ class LegacyTextInputMethodRequestCursorAnchorInfoTest {
             )
 
         return TextLayoutResult(input, paragraph, IntSize(width, ceil(paragraph.height).toInt()))
-    }
-
-    private fun Matrix.setTranslate(offset: Offset) {
-        reset()
-        translate(offset.x, offset.y)
     }
 
     private fun android.graphics.Matrix.setTranslate(offset: Offset) =
