@@ -79,13 +79,10 @@ class ImageCaptureTest(
     )
 
     @get:Rule
-    val temporaryFolder =
-        TemporaryFolder(ApplicationProvider.getApplicationContext<Context>().cacheDir)
+    val temporaryFolder = TemporaryFolder(context.cacheDir)
 
     @get:Rule
     val wakelockEmptyActivityRule = WakelockEmptyActivityRule()
-
-    private val context = ApplicationProvider.getApplicationContext<Context>()
 
     private lateinit var cameraProvider: ProcessCameraProvider
 
@@ -138,10 +135,11 @@ class ImageCaptureTest(
     }
 
     companion object {
+        val context: Context = ApplicationProvider.getApplicationContext()
         @JvmStatic
         @get:Parameterized.Parameters(name = "impl= {0}, mode = {1}, facing = {2}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations()
+            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
     }
 
     @Test
@@ -470,7 +468,7 @@ class ImageCaptureTest(
             override fun onPostviewBitmapAvailable(bitmap: Bitmap) {
                 PostviewDeferred.complete(bitmap)
             }
-        }, enablePostview = true)
+        }, enablePostview = true, targetRotation = targetRotation)
         val rotationDegree = camera.cameraInfo.getSensorRotationDegrees(targetRotation)
         val isFlipped = (rotationDegree % 180) != 0
 

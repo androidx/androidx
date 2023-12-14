@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions
 
+import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.util.Range
 import android.util.Size
@@ -40,6 +41,7 @@ import androidx.camera.testing.impl.fakes.FakeUseCase
 import androidx.camera.video.MediaSpec
 import androidx.camera.video.VideoCapture
 import androidx.camera.video.VideoOutput
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -109,10 +111,11 @@ class ExtensionsManagerTest(
     }
 
     companion object {
+        val context: Context = ApplicationProvider.getApplicationContext()
         @JvmStatic
         @get:Parameterized.Parameters(name = "implType = {0}, mode = {1}, facing = {2}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations()
+            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, false)
     }
 
     @Test
@@ -632,7 +635,6 @@ class ExtensionsManagerTest(
 
     private fun isExtensionAvailableByCameraInfo(cameraInfo: CameraInfo): Boolean {
         var vendorExtender = ExtensionsTestUtil.createVendorExtender(extensionMode)
-        vendorExtender.init(cameraInfo)
         val cameraId = (cameraInfo as CameraInfoInternal).cameraId
 
         return vendorExtender.isExtensionAvailable(cameraId,

@@ -25,6 +25,7 @@ import static androidx.camera.extensions.impl.ExtensionsTestlibControl.Implement
 import static androidx.camera.extensions.impl.ExtensionsTestlibControl.ImplementationType.TESTLIB_ADVANCED;
 import static androidx.camera.extensions.impl.ExtensionsTestlibControl.ImplementationType.TESTLIB_BASIC;
 
+import android.content.Context;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
@@ -35,6 +36,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExtendableBuilder;
 import androidx.camera.core.impl.Config;
 import androidx.camera.extensions.ExtensionMode;
+import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.extensions.impl.ExtensionsTestlibControl;
 import androidx.camera.extensions.internal.AdvancedVendorExtender;
 import androidx.camera.extensions.internal.BasicVendorExtender;
@@ -42,12 +44,14 @@ import androidx.camera.extensions.internal.ExtensionVersion;
 import androidx.camera.extensions.internal.VendorExtender;
 import androidx.camera.extensions.internal.Version;
 import androidx.camera.extensions.internal.compat.workaround.ExtensionDisabledValidator;
+import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.testing.impl.CameraUtil;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Extension test util functions.
@@ -64,7 +68,8 @@ public class ExtensionsTestUtil {
      * mode and lens facing.
      */
     @NonNull
-    public static Collection<Object[]> getAllImplExtensionsLensFacingCombinations() {
+    public static Collection<Object[]> getAllImplExtensionsLensFacingCombinations(
+            @NonNull Context context, boolean excludeUnavailableModes) {
         ExtensionsTestlibControl.ImplementationType implType =
                 ExtensionsTestlibControl.getInstance().getImplementationType();
 
@@ -87,7 +92,8 @@ public class ExtensionsTestUtil {
         });
 
         if (implType == OEM_IMPL) {
-            return basicOrOemImplList;
+            return excludeUnavailableModes ? filterOutUnavailableMode(context, basicOrOemImplList)
+                    : basicOrOemImplList;
         }
 
         List<Object[]> advancedList = Arrays.asList(new Object[][]{
@@ -104,9 +110,52 @@ public class ExtensionsTestUtil {
         });
 
         List<Object[]> allList = new ArrayList<>();
-        allList.addAll(basicOrOemImplList);
-        allList.addAll(advancedList);
+        allList.addAll(excludeUnavailableModes
+                ? filterOutUnavailableMode(context, basicOrOemImplList) : basicOrOemImplList);
+        ExtensionsTestlibControl.getInstance().setImplementationType(TESTLIB_ADVANCED);
+
+        allList.addAll(excludeUnavailableModes
+                ? filterOutUnavailableMode(context, advancedList) : advancedList);
+
+        // Reset to basic in case advanced is used accidentally.
+        ExtensionsTestlibControl.getInstance().setImplementationType(TESTLIB_BASIC);
         return allList;
+    }
+
+    private static List<Object[]> filterOutUnavailableMode(Context context,
+            List<Object[]> list) {
+        ExtensionsManager extensionsManager = null;
+        ProcessCameraProvider cameraProvider = null;
+        try {
+            cameraProvider = ProcessCameraProvider.getInstance(context).get(2, TimeUnit.SECONDS);
+            extensionsManager = ExtensionsManager.getInstanceAsync(context, cameraProvider)
+                            .get(2, TimeUnit.SECONDS);
+
+            List<Object[]> result = new ArrayList<>();
+            for (Object[] item : list) {
+                int mode = (int) item[1];
+                int lensFacing = (int) item[2];
+                CameraSelector cameraSelector = new CameraSelector.Builder()
+                        .requireLensFacing(lensFacing)
+                        .build();
+                if (extensionsManager.isExtensionAvailable(cameraSelector, mode)) {
+                    result.add(item);
+                }
+            }
+            return result;
+        } catch (Exception e) {
+            return list;
+        } finally {
+            try {
+                if (cameraProvider != null) {
+                    cameraProvider.shutdownAsync().get();
+                }
+                if (extensionsManager != null) {
+                    extensionsManager.shutdown().get();
+                }
+            } catch (Exception e) {
+            }
+        }
     }
 
     /**

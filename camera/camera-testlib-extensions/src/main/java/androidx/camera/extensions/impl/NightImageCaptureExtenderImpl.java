@@ -59,7 +59,7 @@ public final class NightImageCaptureExtenderImpl implements ImageCaptureExtender
     private static final String TAG = "NightICExtender";
     private static final int DEFAULT_STAGE_ID = 0;
     private static final int SESSION_STAGE_ID = 101;
-    private static final int EV_INDEX = 10;
+    private static final int EV_INDEX = 2;
 
     private static final int CAPTURE_STAGET_COUNT = 10;
 
