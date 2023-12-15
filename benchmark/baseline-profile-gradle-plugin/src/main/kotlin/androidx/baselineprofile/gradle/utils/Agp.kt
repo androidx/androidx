@@ -46,6 +46,9 @@ internal enum class AgpFeature(
     ),
     TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS(
         AndroidPluginVersion(8, 2, 0).alpha(3)
+    ),
+    LIBRARY_MODULE_SUPPORTS_BASELINE_PROFILE_SOURCE_SETS(
+        AndroidPluginVersion(8, 3, 0).alpha(15)
     )
 }
 
