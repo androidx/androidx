@@ -25,6 +25,7 @@ package androidx.compose.ui.text {
     property public final java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.ParagraphStyle>> paragraphStyles;
     property public final java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.SpanStyle>> spanStyles;
     property public final String text;
+    field public static final androidx.compose.ui.text.AnnotatedString.Companion Companion;
   }
 
   public static final class AnnotatedString.Builder implements java.lang.Appendable {
@@ -53,6 +54,11 @@ package androidx.compose.ui.text {
     method @SuppressCompatibility @androidx.compose.ui.text.ExperimentalTextApi public int pushUrlAnnotation(androidx.compose.ui.text.UrlAnnotation urlAnnotation);
     method public androidx.compose.ui.text.AnnotatedString toAnnotatedString();
     property public final int length;
+  }
+
+  public static final class AnnotatedString.Companion {
+    method public androidx.compose.runtime.saveable.Saver<androidx.compose.ui.text.AnnotatedString,?> getSaver();
+    property public final androidx.compose.runtime.saveable.Saver<androidx.compose.ui.text.AnnotatedString,?> Saver;
   }
 
   @androidx.compose.runtime.Immutable public static final class AnnotatedString.Range<T> {
