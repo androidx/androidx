@@ -26,12 +26,12 @@ internal actual fun textFieldMagnifierNode(
     textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
-    isFocused: Boolean
+    visible: Boolean
 ) = object : TextFieldMagnifierNode() {
     override fun update(
         textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         textLayoutState: TextLayoutState,
-        isFocused: Boolean
+        visible: Boolean
     ) {}
 }

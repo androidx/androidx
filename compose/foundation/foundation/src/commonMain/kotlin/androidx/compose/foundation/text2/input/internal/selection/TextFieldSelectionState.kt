@@ -977,7 +977,7 @@ internal class TextFieldSelectionState(
      * @param handle A real or acting handle that specifies which one is being dragged.
      * @param position Where the handle currently is
      */
-    private fun updateHandleDragging(
+    fun updateHandleDragging(
         handle: Handle,
         position: Offset
     ) {
@@ -999,7 +999,7 @@ internal class TextFieldSelectionState(
     /**
      * Call this function when a selection or cursor handle is stopped dragging.
      */
-    private fun clearHandleDragging() {
+    fun clearHandleDragging() {
         draggingHandle = null
         rawHandleDragPosition = Offset.Unspecified
         startContentVisibleOffset = Offset.Unspecified
