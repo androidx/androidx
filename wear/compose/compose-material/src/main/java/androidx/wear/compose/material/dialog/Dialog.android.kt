@@ -196,7 +196,6 @@ private fun Dialog(
                         Vignette(vignettePosition = VignettePosition.TopAndBottom)
                     }
                 },
-                positionIndicator = positionIndicator,
                 modifier = modifier,
             ) {
                 SwipeToDismissBox(
@@ -212,13 +211,16 @@ private fun Dialog(
                         transitionState = MutableTransitionState(DialogVisibility.Hide)
                     }
                 ) { isBackground ->
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .graphicsLayer(alpha = contentAlpha)
-                            .background(MaterialTheme.colors.background)
-                    ) {
-                        if (!isBackground) content()
+                    if (!isBackground) {
+                        Box(
+                            modifier = Modifier
+                                .matchParentSize()
+                                .graphicsLayer(alpha = contentAlpha)
+                                .background(MaterialTheme.colors.background)
+                        ) {
+                            content()
+                            positionIndicator()
+                        }
                     }
                 }
             }
