@@ -41,12 +41,15 @@ import javax.accessibility.Accessible
 import javax.swing.JLayeredPane
 import org.jetbrains.skiko.*
 
-internal class ComposeWindowDelegate(
+/**
+ * A panel used as a main view in [ComposeWindow] and [ComposeDialog].
+ */
+internal class ComposeWindowPanel(
     private val window: Window,
     private val isUndecorated: () -> Boolean,
     skiaLayerAnalytics: SkiaLayerAnalytics,
     layoutDirection: LayoutDirection
-) {
+) : JLayeredPane() {
     private var isDisposed = false
 
     // AWT can leak JFrame in some cases
@@ -118,11 +121,11 @@ internal class ComposeWindowDelegate(
                  * Note: Do not set isOpaque = false for this container
                  */
                 if (value && hostOs == OS.Windows) {
-                    pane.background = Color(0, 0, 0, 1)
-                    pane.isOpaque = true
+                    background = Color(0, 0, 0, 1)
+                    isOpaque = true
                 } else {
-                    pane.background = null
-                    pane.isOpaque = false
+                    background = null
+                    isOpaque = false
                 }
 
                 window.background = if (value && !skikoTransparentWindowHack) Color(0, 0, 0, 0) else null
@@ -141,82 +144,65 @@ internal class ComposeWindowDelegate(
     private val skikoTransparentWindowHack: Boolean
         get() = hostOs == OS.Windows && renderApi != GraphicsApi.DIRECT3D
 
-    private val _pane = object : JLayeredPane() {
-        override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
-            bridge.component.setBounds(0, 0, width, height)
-            super.setBounds(x, y, width, height)
-        }
-
-        override fun add(component: Component): Component {
-            addToLayer(component, componentLayer)
-            if (!interopBlending) {
-                bridge.addClipComponent(component)
-            }
-            return component
-        }
-
-        override fun remove(component: Component) {
-            bridge.removeClipComponent(component)
-            super.remove(component)
-        }
-
-        private fun addToLayer(component: Component, layer: Int) {
-            if (renderApi == GraphicsApi.METAL) {
-                // Applying layer on macOS makes our bridge non-transparent
-                // But it draws always on top, so we can just add it as-is
-                // TODO: Figure out why it makes difference in transparency
-                super.add(component, 0)
-            } else {
-                super.setLayer(component, layer)
-                super.add(component)
-            }
-        }
-
-        private val bridgeLayer: Int get() = 10
-        private val componentLayer: Int
-            get() = if (interopBlending) 0 else 20
-
-        override fun addNotify() {
-            super.addNotify()
-            bridge.component.requestFocus()
-        }
-
-        override fun getPreferredSize() =
-            if (isPreferredSizeSet) super.getPreferredSize() else bridge.component.preferredSize
-
-        init {
-            layout = null
-            addToLayer(bridge.invisibleComponent, bridgeLayer)
-            addToLayer(bridge.component, bridgeLayer)
-        }
-
-        fun dispose() {
-            super.remove(bridge.component)
-            super.remove(bridge.invisibleComponent)
-        }
-    }
-
-    val pane get() = _pane
-
     init {
-        pane.focusTraversalPolicy = object : FocusTraversalPolicy() {
+        focusTraversalPolicy = object : FocusTraversalPolicy() {
             override fun getComponentAfter(aContainer: Container?, aComponent: Component?) = null
             override fun getComponentBefore(aContainer: Container?, aComponent: Component?) = null
             override fun getFirstComponent(aContainer: Container?) = null
             override fun getLastComponent(aContainer: Container?) = null
             override fun getDefaultComponent(aContainer: Container?) = null
         }
-        pane.isFocusCycleRoot = true
+        isFocusCycleRoot = true
         bridge.transparency = interopBlending
         setContent {}
     }
 
-    fun add(component: Component): Component {
-        return _pane.add(component)
+    override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
+        bridge.component.setBounds(0, 0, width, height)
+        super.setBounds(x, y, width, height)
     }
 
-    fun remove(component: Component) {
-        _pane.remove(component)
+    override fun add(component: Component): Component {
+        addToLayer(component, componentLayer)
+        if (!interopBlending) {
+            bridge.addClipComponent(component)
+        }
+        return component
+    }
+
+    override fun remove(component: Component) {
+        bridge.removeClipComponent(component)
+        super.remove(component)
+    }
+
+    private fun addToLayer(component: Component, layer: Int) {
+        if (renderApi == GraphicsApi.METAL) {
+            // Applying layer on macOS makes our bridge non-transparent
+            // But it draws always on top, so we can just add it as-is
+            // TODO: Figure out why it makes difference in transparency
+            super.add(component, 0)
+        } else {
+            super.setLayer(component, layer)
+            super.add(component)
+        }
+    }
+
+    private val bridgeLayer: Int get() = 10
+    private val componentLayer: Int
+        get() = if (interopBlending) 0 else 20
+
+    override fun addNotify() {
+        super.addNotify()
+        bridge.component.requestFocus()
+    }
+
+    override fun getPreferredSize() =
+        if (isPreferredSizeSet) super.getPreferredSize() else bridge.component.preferredSize
+
+    init {
+        layout = null
+        addToLayer(bridge.invisibleComponent, bridgeLayer)
+        addToLayer(bridge.component, bridgeLayer)
     }
 
     fun setContent(
@@ -232,67 +218,25 @@ internal class ComposeWindowDelegate(
         bridge.setContent {
             CompositionLocalProvider(
                 LocalWindow provides window,
-                LocalLayerContainer provides _pane
+                LocalLayerContainer provides this
             ) {
-                WindowContentLayout(modifier, content)
-            }
-        }
-    }
-
-    @Composable
-    private fun WindowContentLayout(
-        modifier: Modifier = Modifier,
-        content: @Composable () -> Unit
-    ){
-        Layout(
-            {
-                content()
-                undecoratedWindowResizer.Content(
-                    modifier = Modifier.layoutId("UndecoratedWindowResizer")
-                )
-            },
-            modifier = modifier,
-            measurePolicy = { measurables, constraints ->
-                val resizerMeasurable = measurables.lastOrNull()?.let {
-                    if (it.layoutId == "UndecoratedWindowResizer") it else null
-                }
-                val resizerPlaceable = resizerMeasurable?.let {
-                    val density = bridge.component.density.density
-                    val resizerWidth = (window.width * density).toInt()
-                    val resizerHeight = (window.height * density).toInt()
-                    it.measure(
-                        Constraints(
-                            minWidth = resizerWidth,
-                            minHeight = resizerHeight,
-                            maxWidth = resizerWidth,
-                            maxHeight = resizerHeight
-                        )
+                WindowContentLayout(modifier) {
+                    content()
+                    undecoratedWindowResizer.Content(
+                        modifier = Modifier.layoutId("UndecoratedWindowResizer")
                     )
                 }
-
-                val contentPlaceables = buildList(measurables.size){
-                    measurables.fastForEach {
-                        if (it != resizerMeasurable)
-                            add(it.measure(constraints))
-                    }
-                }
-
-                val contentWidth = contentPlaceables.maxOfOrNull { it.measuredWidth } ?: 0
-                val contentHeight = contentPlaceables.maxOfOrNull { it.measuredHeight } ?: 0
-                layout(contentWidth, contentHeight) {
-                    contentPlaceables.fastForEach { placeable ->
-                        placeable.place(0, 0)
-                    }
-                    resizerPlaceable?.place(0, 0)
-                }
             }
-        )
+        }
     }
 
     fun dispose() {
         if (!isDisposed) {
             bridge.dispose()
-            _pane.dispose()
+
+            super.remove(bridge.component)
+            super.remove(bridge.invisibleComponent)
+
             _bridge = null
             isDisposed = true
         }
@@ -304,27 +248,31 @@ internal class ComposeWindowDelegate(
         }
     }
 
-    fun addMouseListener(listener: MouseListener) {
+    // We need overridden listeners because we mix Swing and AWT components in the
+    // org.jetbrains.skiko.SkiaLayer, they don't work well together.
+    // TODO(demin): is it possible to fix that without overriding?
+
+    override fun addMouseListener(listener: MouseListener) {
         bridge.component.addMouseListener(listener)
     }
 
-    fun removeMouseListener(listener: MouseListener) {
+    override fun removeMouseListener(listener: MouseListener) {
         bridge.component.removeMouseListener(listener)
     }
 
-    fun addMouseMotionListener(listener: MouseMotionListener) {
+    override fun addMouseMotionListener(listener: MouseMotionListener) {
         bridge.component.addMouseMotionListener(listener)
     }
 
-    fun removeMouseMotionListener(listener: MouseMotionListener) {
+    override fun removeMouseMotionListener(listener: MouseMotionListener) {
         bridge.component.removeMouseMotionListener(listener)
     }
 
-    fun addMouseWheelListener(listener: MouseWheelListener) {
+    override fun addMouseWheelListener(listener: MouseWheelListener) {
         bridge.component.addMouseWheelListener(listener)
     }
 
-    fun removeMouseWheelListener(listener: MouseWheelListener) {
+    override fun removeMouseWheelListener(listener: MouseWheelListener) {
         bridge.component.removeMouseWheelListener(listener)
     }
 }

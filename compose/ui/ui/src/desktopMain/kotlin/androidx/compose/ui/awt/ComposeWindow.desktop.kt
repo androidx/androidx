@@ -61,7 +61,7 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
         graphicsConfiguration: GraphicsConfiguration? = null
     ) : this(graphicsConfiguration, SkiaLayerAnalytics.Empty)
 
-    private val delegate = ComposeWindowDelegate(
+    private val composePanel = ComposeWindowPanel(
         window = this,
         isUndecorated = ::isUndecorated,
         skiaLayerAnalytics = skiaLayerAnalytics,
@@ -69,20 +69,20 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     )
 
     internal val scene: ComposeScene
-        get() = delegate.scene
-    internal var rootForTestListener by delegate::rootForTestListener
+        get() = composePanel.scene
+    internal var rootForTestListener by composePanel::rootForTestListener
 
     // Don't override the accessible context of JFrame, since accessibility work through HardwareLayer
     internal val windowAccessible: Accessible
-        get() = delegate.windowAccessible
+        get() = composePanel.windowAccessible
 
     init {
-        contentPane.add(delegate.pane)
+        contentPane.add(composePanel)
     }
 
-    override fun add(component: Component) = delegate.add(component)
+    override fun add(component: Component) = composePanel.add(component)
 
-    override fun remove(component: Component) = delegate.remove(component)
+    override fun remove(component: Component) = composePanel.remove(component)
 
     override fun setComponentOrientation(o: ComponentOrientation?) {
         super.setComponentOrientation(o)
@@ -95,7 +95,7 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
 
         // setLocale is called from JFrame constructor, before ComposeWindow has been initialized
         @Suppress("SENSELESS_COMPARISON")
-        if (delegate != null) {
+        if (composePanel != null) {
             updateLayoutDirection()
         }
     }
@@ -110,14 +110,14 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
      * further up the call stack.
      */
     @ExperimentalComposeUiApi
-    var exceptionHandler: WindowExceptionHandler? by delegate::exceptionHandler
+    var exceptionHandler: WindowExceptionHandler? by composePanel::exceptionHandler
 
     /**
      * Top-level composition locals, which will be provided for the Composable content, which is set by [setContent].
      *
      * `null` if no composition locals should be provided.
      */
-    var compositionLocalContext: CompositionLocalContext? by delegate::compositionLocalContext
+    var compositionLocalContext: CompositionLocalContext? by composePanel::compositionLocalContext
 
     /**
      * Composes the given composable into the ComposeWindow.
@@ -155,7 +155,7 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
         val scope = object : FrameWindowScope {
             override val window: ComposeWindow get() = this@ComposeWindow
         }
-        delegate.setContent(
+        composePanel.setContent(
             onPreviewKeyEvent,
             onKeyEvent
         ) {
@@ -164,18 +164,18 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     }
 
     override fun dispose() {
-        delegate.dispose()
+        composePanel.dispose()
         super.dispose()
     }
 
     override fun setUndecorated(value: Boolean) {
         super.setUndecorated(value)
-        delegate.undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        composePanel.undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
 
     override fun setResizable(value: Boolean) {
         super.setResizable(value)
-        delegate.undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        composePanel.undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
 
     /**
@@ -183,7 +183,7 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
      * Transparency should be set only if window is not showing and `isUndecorated` is set to
      * `true`, otherwise AWT will throw an exception.
      */
-    var isTransparent: Boolean by delegate::isWindowTransparent
+    var isTransparent: Boolean by composePanel::isWindowTransparent
 
     var placement: WindowPlacement
         get() = when {
@@ -209,7 +209,7 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     /**
      * `true` if the window is in fullscreen mode, `false` otherwise
      */
-    private var isFullscreen: Boolean by delegate::fullscreen
+    private var isFullscreen: Boolean by composePanel::fullscreen
 
     /**
      * `true` if the window is maximized to fill all available screen space, `false` otherwise
@@ -241,7 +241,7 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
      * Registers a task to run when the rendering API changes.
      */
     fun onRenderApiChanged(action: () -> Unit) {
-        delegate.onRenderApiChanged(action)
+        composePanel.onRenderApiChanged(action)
     }
 
     /**
@@ -249,34 +249,34 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
      * ComposeWindow is rendered. Currently returns HWND on Windows, Window on X11 and NSWindow
      * on macOS.
      */
-    val windowHandle: Long get() = delegate.windowHandle
+    val windowHandle: Long get() = composePanel.windowHandle
 
     /**
      * Returns low-level rendering API used for rendering in this ComposeWindow. API is
      * automatically selected based on operating system, graphical hardware and `SKIKO_RENDER_API`
      * environment variable.
      */
-    val renderApi: GraphicsApi get() = delegate.renderApi
+    val renderApi: GraphicsApi get() = composePanel.renderApi
 
     // We need overridden listeners because we mix Swing and AWT components in the
     // org.jetbrains.skiko.SkiaLayer, they don't work well together.
     // TODO(demin): is it possible to fix that without overriding?
 
     override fun addMouseListener(listener: MouseListener) =
-        delegate.addMouseListener(listener)
+        composePanel.addMouseListener(listener)
 
     override fun removeMouseListener(listener: MouseListener) =
-        delegate.removeMouseListener(listener)
+        composePanel.removeMouseListener(listener)
 
     override fun addMouseMotionListener(listener: MouseMotionListener) =
-        delegate.addMouseMotionListener(listener)
+        composePanel.addMouseMotionListener(listener)
 
     override fun removeMouseMotionListener(listener: MouseMotionListener) =
-        delegate.removeMouseMotionListener(listener)
+        composePanel.removeMouseMotionListener(listener)
 
     override fun addMouseWheelListener(listener: MouseWheelListener) =
-        delegate.addMouseWheelListener(listener)
+        composePanel.addMouseWheelListener(listener)
 
     override fun removeMouseWheelListener(listener: MouseWheelListener) =
-        delegate.removeMouseWheelListener(listener)
+        composePanel.removeMouseWheelListener(listener)
 }

@@ -45,15 +45,15 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  */
 class ComposeDialog : JDialog {
     private val skiaLayerAnalytics: SkiaLayerAnalytics
-    private val delegate: ComposeWindowDelegate
+    private val composePanel: ComposeWindowPanel
 
     internal val scene: ComposeScene
-        get() = delegate.scene
+        get() = composePanel.scene
     internal var rootForTestListener
-        get() = delegate.rootForTestListener
-        set(value) { delegate.rootForTestListener = value }
+        get() = composePanel.rootForTestListener
+        set(value) { composePanel.rootForTestListener = value }
 
-    private fun createDelegate() = ComposeWindowDelegate(
+    private fun createDelegate() = ComposeWindowPanel(
         window = this,
         isUndecorated = ::isUndecorated,
         skiaLayerAnalytics = skiaLayerAnalytics,
@@ -66,8 +66,8 @@ class ComposeDialog : JDialog {
         graphicsConfiguration: GraphicsConfiguration? = null
     ) : super(owner, "", modalityType, graphicsConfiguration) {
         skiaLayerAnalytics = SkiaLayerAnalytics.Empty
-        delegate = createDelegate()
-        contentPane.add(delegate.pane)
+        composePanel = createDelegate()
+        contentPane.add(composePanel)
     }
 
     /**
@@ -86,8 +86,8 @@ class ComposeDialog : JDialog {
         skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty
     ) : super(owner, "", modalityType, graphicsConfiguration) {
         this.skiaLayerAnalytics = skiaLayerAnalytics
-        delegate = createDelegate()
-        contentPane.add(delegate.pane)
+        composePanel = createDelegate()
+        contentPane.add(composePanel)
     }
 
     /**
@@ -103,8 +103,8 @@ class ComposeDialog : JDialog {
         skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty
     ) : super() {
         this.skiaLayerAnalytics = skiaLayerAnalytics
-        delegate = createDelegate()
-        contentPane.add(delegate.pane)
+        composePanel = createDelegate()
+        contentPane.add(composePanel)
     }
 
     @Deprecated("Use the constructor with setting owner explicitly. Will be removed in 1.3")
@@ -112,15 +112,15 @@ class ComposeDialog : JDialog {
         modalityType: ModalityType = ModalityType.MODELESS
     ) : super(null, modalityType) {
         skiaLayerAnalytics = SkiaLayerAnalytics.Empty
-        delegate = createDelegate()
-        contentPane.add(delegate.pane)
+        composePanel = createDelegate()
+        contentPane.add(composePanel)
     }
 
     constructor(graphicsConfiguration: GraphicsConfiguration? = null) :
         super(null as Frame?, "", false, graphicsConfiguration) {
         skiaLayerAnalytics = SkiaLayerAnalytics.Empty
-        delegate = createDelegate()
-        contentPane.add(delegate.pane)
+        composePanel = createDelegate()
+        contentPane.add(composePanel)
     }
 
     // don't replace super() by super(null, ModalityType.MODELESS), because
@@ -128,13 +128,13 @@ class ComposeDialog : JDialog {
     // Dialog's shouldn't be appeared in the taskbar.
     constructor() : super() {
         skiaLayerAnalytics = SkiaLayerAnalytics.Empty
-        delegate = createDelegate()
-        contentPane.add(delegate.pane)
+        composePanel = createDelegate()
+        contentPane.add(composePanel)
     }
 
-    override fun add(component: Component) = delegate.add(component)
+    override fun add(component: Component) = composePanel.add(component)
 
-    override fun remove(component: Component) = delegate.remove(component)
+    override fun remove(component: Component) = composePanel.remove(component)
 
     override fun setComponentOrientation(o: ComponentOrientation?) {
         super.setComponentOrientation(o)
@@ -147,7 +147,7 @@ class ComposeDialog : JDialog {
 
         // setLocale is called from JFrame constructor, before ComposeDialog has been initialized
         @Suppress("SENSELESS_COMPARISON")
-        if (delegate != null) {
+        if (composePanel != null) {
             updateLayoutDirection()
         }
     }
@@ -177,9 +177,9 @@ class ComposeDialog : JDialog {
      */
     @ExperimentalComposeUiApi
     var exceptionHandler: WindowExceptionHandler?
-        get() = delegate.exceptionHandler
+        get() = composePanel.exceptionHandler
         set(value) {
-            delegate.exceptionHandler = value
+            composePanel.exceptionHandler = value
         }
 
     /**
@@ -188,9 +188,9 @@ class ComposeDialog : JDialog {
      * `null` if no composition locals should be provided.
      */
     var compositionLocalContext: CompositionLocalContext?
-        get() = delegate.compositionLocalContext
+        get() = composePanel.compositionLocalContext
         set(value) {
-            delegate.compositionLocalContext = value
+            composePanel.compositionLocalContext = value
         }
 
     /**
@@ -215,7 +215,7 @@ class ComposeDialog : JDialog {
         val scope = object : DialogWindowScope {
             override val window: ComposeDialog get() = this@ComposeDialog
         }
-        delegate.setContent(
+        composePanel.setContent(
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = onKeyEvent,
             modifier = Modifier.semantics { dialog() },
@@ -225,18 +225,18 @@ class ComposeDialog : JDialog {
     }
 
     override fun dispose() {
-        delegate.dispose()
+        composePanel.dispose()
         super.dispose()
     }
 
     override fun setUndecorated(value: Boolean) {
         super.setUndecorated(value)
-        delegate.undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        composePanel.undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
 
     override fun setResizable(value: Boolean) {
         super.setResizable(value)
-        delegate.undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        composePanel.undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
 
     /**
@@ -245,16 +245,16 @@ class ComposeDialog : JDialog {
      * `true`, otherwise AWT will throw an exception.
      */
     var isTransparent: Boolean
-        get() = delegate.isWindowTransparent
+        get() = composePanel.isWindowTransparent
         set(value) {
-            delegate.isWindowTransparent = value
+            composePanel.isWindowTransparent = value
         }
 
     /**
      * Registers a task to run when the rendering API changes.
      */
     fun onRenderApiChanged(action: () -> Unit) {
-        delegate.onRenderApiChanged(action)
+        composePanel.onRenderApiChanged(action)
     }
 
     /**
@@ -262,34 +262,34 @@ class ComposeDialog : JDialog {
      * ComposeDialog is rendered. Currently returns HWND on Windows, Window on X11 and NSWindow
      * on macOS.
      */
-    val windowHandle: Long get() = delegate.windowHandle
+    val windowHandle: Long get() = composePanel.windowHandle
 
     /**
      * Returns low-level rendering API used for rendering in this ComposeDialog. API is
      * automatically selected based on operating system, graphical hardware and `SKIKO_RENDER_API`
      * environment variable.
      */
-    val renderApi: GraphicsApi get() = delegate.renderApi
+    val renderApi: GraphicsApi get() = composePanel.renderApi
 
     // We need overridden listeners because we mix Swing and AWT components in the
     // org.jetbrains.skiko.SkiaLayer, they don't work well together.
     // TODO(demin): is it possible to fix that without overriding?
 
     override fun addMouseListener(listener: MouseListener) =
-        delegate.addMouseListener(listener)
+        composePanel.addMouseListener(listener)
 
     override fun removeMouseListener(listener: MouseListener) =
-        delegate.removeMouseListener(listener)
+        composePanel.removeMouseListener(listener)
 
     override fun addMouseMotionListener(listener: MouseMotionListener) =
-        delegate.addMouseMotionListener(listener)
+        composePanel.addMouseMotionListener(listener)
 
     override fun removeMouseMotionListener(listener: MouseMotionListener) =
-        delegate.removeMouseMotionListener(listener)
+        composePanel.removeMouseMotionListener(listener)
 
     override fun addMouseWheelListener(listener: MouseWheelListener) =
-        delegate.addMouseWheelListener(listener)
+        composePanel.addMouseWheelListener(listener)
 
     override fun removeMouseWheelListener(listener: MouseWheelListener) =
-        delegate.removeMouseWheelListener(listener)
+        composePanel.removeMouseWheelListener(listener)
 }
