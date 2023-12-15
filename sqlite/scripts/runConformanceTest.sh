@@ -16,7 +16,5 @@
 
 ANDROIDX_PROJECTS=KMP \
 ./gradlew \
-  :sqlite:sqlite-framework:allTests \
-  :sqlite:sqlite-framework:connectedAndroidTest \
-  :sqlite:sqlite-bundled:allTests \
-  :sqlite:sqlite-bundled:connectedAndroidTest
+  :sqlite:integration-tests:driver-conformance-test:allTests \
+  :sqlite:integration-tests:driver-conformance-test:connectedAndroidTest

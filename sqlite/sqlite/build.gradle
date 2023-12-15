@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
+import androidx.build.KmpPlatformsKt
 import androidx.build.PlatformIdentifier
 import androidx.build.Publish
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
 }
+
+def nativeEnabled = KmpPlatformsKt.enableNative(project)
 
 androidXMultiplatform {
     android()
@@ -53,6 +57,22 @@ androidXMultiplatform {
                 implementation(libs.junit)
                 implementation(libs.mockitoCore4)
                 implementation(libs.truth)
+            }
+        }
+        jvmMain {
+            dependsOn(commonMain)
+        }
+        if (nativeEnabled) {
+            nativeMain {
+                dependsOn(commonMain)
+            }
+        }
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                def main = target.compilations["main"]
+                main.defaultSourceSet {
+                    dependsOn(nativeMain)
+                }
             }
         }
     }

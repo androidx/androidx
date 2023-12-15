@@ -16,19 +16,7 @@
 
 package androidx.sqlite.driver
 
-import androidx.sqlite.SQLiteException
-
-private typealias FrameworkSQLiteException = android.database.sqlite.SQLiteException
-
-internal inline fun <T> withExceptionCatch(block: () -> T): T {
-    try {
-        return block.invoke()
-    } catch (ex: FrameworkSQLiteException) {
-        // TODO(b/304297717): Parse error code from exception.
-        throw SQLiteException(ex.message ?: "")
-    }
-}
-
 internal object ResultCode {
     const val SQLITE_MISUSE = 21
+    const val SQLITE_RANGE = 25
 }

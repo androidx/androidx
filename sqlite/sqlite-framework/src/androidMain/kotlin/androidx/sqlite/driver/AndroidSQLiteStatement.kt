@@ -23,6 +23,7 @@ import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteProgram
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.ResultCode.SQLITE_MISUSE
+import androidx.sqlite.driver.ResultCode.SQLITE_RANGE
 import androidx.sqlite.throwSQLiteException
 
 private typealias FrameworkStatement = android.database.sqlite.SQLiteStatement
@@ -103,42 +104,54 @@ internal sealed class AndroidSQLiteStatement(
             bindingTypes[index] = COLUMN_TYPE_NULL
         }
 
-        override fun getBlob(index: Int): ByteArray = withExceptionCatch {
+        override fun getBlob(index: Int): ByteArray {
             throwIfClosed()
-            return cursor?.getBlob(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.getBlob(index)
         }
 
-        override fun getDouble(index: Int): Double = withExceptionCatch {
+        override fun getDouble(index: Int): Double {
             throwIfClosed()
-            return cursor?.getDouble(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.getDouble(index)
         }
 
-        override fun getLong(index: Int): Long = withExceptionCatch {
+        override fun getLong(index: Int): Long {
             throwIfClosed()
-            return cursor?.getLong(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.getLong(index)
         }
 
-        override fun getText(index: Int): String = withExceptionCatch {
+        override fun getText(index: Int): String {
             throwIfClosed()
-            return cursor?.getString(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.getString(index)
         }
 
-        override fun isNull(index: Int): Boolean = withExceptionCatch {
+        override fun isNull(index: Int): Boolean {
             throwIfClosed()
-            return cursor?.isNull(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.isNull(index)
         }
 
-        override fun getColumnCount(): Int = withExceptionCatch {
+        override fun getColumnCount(): Int {
             throwIfClosed()
             return cursor?.columnCount ?: 0
         }
 
-        override fun getColumnName(index: Int): String = withExceptionCatch {
+        override fun getColumnName(index: Int): String {
             throwIfClosed()
-            return cursor?.getColumnName(index) ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+            val c = throwIfNoRow()
+            throwIfInvalidColumn(c, index)
+            return c.getColumnName(index)
         }
 
-        override fun step(): Boolean = withExceptionCatch {
+        override fun step(): Boolean {
             throwIfClosed()
             if (cursor == null) {
                 cursor = db.rawQueryWithFactory(
@@ -154,7 +167,7 @@ internal sealed class AndroidSQLiteStatement(
             return requireNotNull(cursor).moveToNext()
         }
 
-        override fun reset(): Unit = withExceptionCatch {
+        override fun reset() {
             throwIfClosed()
             bindingTypes = IntArray(0)
             longBindings = LongArray(0)
@@ -165,7 +178,7 @@ internal sealed class AndroidSQLiteStatement(
             cursor = null
         }
 
-        override fun close(): Unit = withExceptionCatch {
+        override fun close() {
             if (!isClosed) {
                 reset()
             }
@@ -213,6 +226,16 @@ internal sealed class AndroidSQLiteStatement(
             }
         }
 
+        private fun throwIfNoRow(): Cursor {
+            return cursor ?: throwSQLiteException(SQLITE_MISUSE, "no row")
+        }
+
+        private fun throwIfInvalidColumn(c: Cursor, index: Int) {
+            if (index < 0 || index >= c.columnCount) {
+                throwSQLiteException(SQLITE_RANGE, "column index out of range")
+            }
+        }
+
         companion object {
             private const val COLUMN_TYPE_LONG = 1
             private const val COLUMN_TYPE_DOUBLE = 2
@@ -227,31 +250,29 @@ internal sealed class AndroidSQLiteStatement(
         sql: String
     ) : AndroidSQLiteStatement(db, sql) {
 
-        private val delegate: FrameworkStatement = withExceptionCatch {
-            db.compileStatement(sql)
-        }
+        private val delegate: FrameworkStatement = db.compileStatement(sql)
 
-        override fun bindBlob(index: Int, value: ByteArray) = withExceptionCatch {
+        override fun bindBlob(index: Int, value: ByteArray) {
             throwIfClosed()
             delegate.bindBlob(index, value)
         }
 
-        override fun bindDouble(index: Int, value: Double) = withExceptionCatch {
+        override fun bindDouble(index: Int, value: Double) {
             throwIfClosed()
             delegate.bindDouble(index, value)
         }
 
-        override fun bindLong(index: Int, value: Long) = withExceptionCatch {
+        override fun bindLong(index: Int, value: Long) {
             throwIfClosed()
             delegate.bindLong(index, value)
         }
 
-        override fun bindText(index: Int, value: String) = withExceptionCatch {
+        override fun bindText(index: Int, value: String) {
             throwIfClosed()
             delegate.bindString(index, value)
         }
 
-        override fun bindNull(index: Int) = withExceptionCatch {
+        override fun bindNull(index: Int) {
             throwIfClosed()
             delegate.bindNull(index)
         }
@@ -291,18 +312,18 @@ internal sealed class AndroidSQLiteStatement(
             throwSQLiteException(SQLITE_MISUSE, "no row")
         }
 
-        override fun step(): Boolean = withExceptionCatch {
+        override fun step(): Boolean {
             throwIfClosed()
             delegate.execute()
             return false // Statement never returns a row.
         }
 
-        override fun reset(): Unit = withExceptionCatch {
+        override fun reset() {
             throwIfClosed()
             delegate.clearBindings()
         }
 
-        override fun close(): Unit = withExceptionCatch {
+        override fun close() {
             delegate.close()
             isClosed = true
         }

@@ -10,6 +10,13 @@
  */
 static bool throwSQLiteException(JNIEnv *env, int errorCode, const char *errorMsg) {
     jclass exceptionClass = env->FindClass("androidx/sqlite/SQLiteException");
+    if (exceptionClass == nullptr) {
+        // If androidx's exception isn't found we are likely in Android's native where the
+        // actual exception is type aliased. Clear the ClassNotFoundException and instead find
+        // and throw Android's exception.
+        env->ExceptionClear();
+        exceptionClass = env->FindClass("android/database/SQLException");
+    }
     std::stringstream message;
     message << "Error code: " << errorCode;
     if (errorMsg != nullptr) {

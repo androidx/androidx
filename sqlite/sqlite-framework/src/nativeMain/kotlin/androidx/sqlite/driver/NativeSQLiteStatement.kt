@@ -56,7 +56,6 @@ import sqlite3.sqlite3_step
 
 /**
  * TODO:
- *  * (b/304297717) step non-OK code handling
  *  * (b/304295573) busy / locked handling
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) // For actual typealias in unbundled

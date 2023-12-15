@@ -14,23 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.sqlite.driver
+package androidx.sqlite.driver.test
 
 import androidx.sqlite.SQLiteDriver
-import kotlin.test.Ignore
+import androidx.sqlite.driver.NativeSQLiteDriver
 
-class AndroidSQLiteDriverTest : BaseConformanceTest() {
+class NativeSQLiteDriverTest : BaseConformanceTest() {
+
+    override val driverType = TestDriverType.NATIVE_FRAMEWORK
 
     override fun getDriver(): SQLiteDriver {
-        return AndroidSQLiteDriver(":memory:")
+        return NativeSQLiteDriver(":memory:")
     }
-
-    @Ignore // TODO(b/304297717): Align exception checking test with native.
-    override fun bindInvalidParam() {}
-
-    @Ignore // TODO(b/304297717): Align exception checking test with native.
-    override fun readInvalidColumn() {}
-
-    @Ignore // TODO(b/304297717): Align exception checking test with native.
-    override fun readColumnNameWithoutStep() {}
 }
