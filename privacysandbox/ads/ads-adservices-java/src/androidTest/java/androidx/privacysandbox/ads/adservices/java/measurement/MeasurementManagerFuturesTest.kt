@@ -231,7 +231,7 @@ class MeasurementManagerFuturesTest {
 
         val request = WebSourceRegistrationRequest.Builder(
             listOf(WebSourceParams(uri2, false)), uri1)
-            .setAppDestination(uri1)
+            .setAppDestination(appDestination)
             .build()
 
         // Actually invoke the compat code.
@@ -249,6 +249,7 @@ class MeasurementManagerFuturesTest {
         val actualRequest = captor1.value
         assertThat(actualRequest.topOriginUri == uri1)
         assertThat(actualRequest.sourceParams.size == 1)
+        assertThat(actualRequest.appDestination == appDestination)
         assertThat(actualRequest.sourceParams[0].registrationUri == uri2)
         assertThat(!actualRequest.sourceParams[0].isDebugKeyAllowed)
     }
@@ -435,8 +436,9 @@ class MeasurementManagerFuturesTest {
     @SdkSuppress(minSdkVersion = 30)
     companion object {
 
-        private val uri1: Uri = Uri.parse("www.abc.com")
-        private val uri2: Uri = Uri.parse("http://www.xyz.com")
+        private val uri1: Uri = Uri.parse("https://www.abc.com")
+        private val uri2: Uri = Uri.parse("https://www.xyz.com")
+        private val appDestination: Uri = Uri.parse("android-app://com.app.package")
         private lateinit var mContext: Context
 
         private fun mockMeasurementManager(
