@@ -72,8 +72,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.platform.asFontFamily
-import androidx.compose.ui.text.platform.fontFamilyNameOrNull
-import androidx.compose.ui.text.platform.resolveFontFamilyNameOrNull
+import androidx.compose.ui.text.platform.composeFontFamilyNameOrNull
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.TextUnit
@@ -231,18 +230,9 @@ private fun AwtFontsSelector(
             fontFamilies = GraphicsEnvironment.getLocalGraphicsEnvironment()
                 .allFonts
                 .map { font ->
-                    val familyName = font.fontFamilyNameOrNull() ?: font.family
-                    val actualFamilyName = font.resolveFontFamilyNameOrNull() ?: familyName
-
-                    val displayName =
-                        if (actualFamilyName != familyName) {
-                            "$familyName ($actualFamilyName)"
-                        } else {
-                            familyName
-                        }
 
                     FontFamilyInfo(
-                        familyName = displayName,
+                        familyName = font.composeFontFamilyNameOrNull() ?: font.family,
                         fontFamily = font.asFontFamily(),
                         source = FontFamilyInfo.Source.AwtInterop,
                     )

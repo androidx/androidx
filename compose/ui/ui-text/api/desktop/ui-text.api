@@ -677,6 +677,11 @@ public final class androidx/compose/ui/text/font/FontFamilyResolver_sikioKt {
 	public static final fun createFontFamilyResolver (Lkotlin/coroutines/CoroutineContext;)Landroidx/compose/ui/text/font/FontFamily$Resolver;
 }
 
+public final class androidx/compose/ui/text/font/FontFamily_desktopKt {
+	public static final fun EmbeddedFontFamily (Ljava/lang/String;)Landroidx/compose/ui/text/font/FontFamily;
+	public static final fun FontFamily (Ljava/lang/String;)Landroidx/compose/ui/text/font/FontFamily;
+}
+
 public final class androidx/compose/ui/text/font/FontKt {
 	public static final fun Font-F3nL8kk (ILandroidx/compose/ui/text/font/FontWeight;IILandroidx/compose/ui/text/font/FontVariation$Settings;)Landroidx/compose/ui/text/font/Font;
 	public static synthetic fun Font-F3nL8kk$default (ILandroidx/compose/ui/text/font/FontWeight;IILandroidx/compose/ui/text/font/FontVariation$Settings;ILjava/lang/Object;)Landroidx/compose/ui/text/font/Font;
@@ -1305,6 +1310,11 @@ public final class androidx/compose/ui/text/intl/LocaleList : java/util/Collecti
 
 public final class androidx/compose/ui/text/intl/LocaleList$Companion {
 	public final fun getCurrent ()Landroidx/compose/ui/text/intl/LocaleList;
+}
+
+public final class androidx/compose/ui/text/platform/AwtFontInteropKt {
+	public static final fun asFontFamily (Ljava/awt/Font;)Landroidx/compose/ui/text/font/FontFamily;
+	public static final fun composeFontFamilyNameOrNull (Ljava/awt/Font;)Ljava/lang/String;
 }
 
 public final class androidx/compose/ui/text/platform/DesktopFont_desktopKt {

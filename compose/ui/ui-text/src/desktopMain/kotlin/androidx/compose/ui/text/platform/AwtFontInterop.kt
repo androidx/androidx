@@ -55,12 +55,12 @@ import org.jetbrains.skiko.hostOs
  * Reserved system fonts aren't supposed to be accessed directly from
  * apps, and forcing it will not work anyway, as Skia doesn't support it.
  *
- * @see resolveFontFamilyNameOrNull
+ * @see composeFontFamilyNameOrNull
  * @see fontFamilyNameOrNull
  */
 @ExperimentalTextApi
 fun Font.asFontFamily(): FontFamily {
-    val familyName = resolveFontFamilyNameOrNull() ?: family
+    val familyName = composeFontFamilyNameOrNull() ?: family
     if (hostOs == OS.MacOS && familyName.startsWith(".AppleSystemUI", ignoreCase = true)) {
         // On macOS, ".AppleSystemUI*" fonts are not directly accessible. Skia struggles
         // to handle them if we load them this way, so for now we return the default instead.
@@ -69,6 +69,25 @@ fun Font.asFontFamily(): FontFamily {
 
     return EmbeddedFontFamily(familyName) ?: FontFamily(familyName)
 }
+
+/**
+ * Try to resolve a font family name, that could be a logical font face
+ * (e.g., [Font.DIALOG]), to the actual physical font family it is an alias
+ * for.
+ *
+ * **Note:** this will return `null` when running on Java VMs other
+ * than the JetBrains Runtime, and if the current module cannot
+ * access the `sun.font` module. To ensure the `sun.font` module is
+ * accessible, you should pass this argument to the JVM: `--add-opens
+ * java.desktop/sun.font=ALL-UNNAMED`.
+ *
+ * @return The resolved physical font name, or `null` if it can't be
+ *     resolved (either it's unknown, or [isAbleToResolveFontProperties] is
+ *     false)
+ */
+@ExperimentalTextApi
+fun Font.composeFontFamilyNameOrNull(): String? =
+    AwtFontUtils.resolvePhysicalFontFamilyNameOrNull(fontFamilyNameOrNull() ?: family, style)
 
 /**
  * Get the _preferred font family name_, which should be used instead of
@@ -88,35 +107,4 @@ fun Font.asFontFamily(): FontFamily {
  * java.desktop/sun.font=ALL-UNNAMED`.
  */
 @ExperimentalTextApi
-fun Font.fontFamilyNameOrNull(): String? = AwtFontUtils.getPreferredFontFamilyName(this)
-
-/**
- * Returns the path of the file that a [Font] is loaded from; it will be
- * `null` if the font is not backed by a [sun.font.FileFont].
- *
- * **Note:** this will return `null` when the current module cannot
- * access the `sun.font` module. To ensure the `sun.font` module is
- * accessible, you should pass this argument to the JVM: `--add-opens
- * java.desktop/sun.font=ALL-UNNAMED`.
- */
-@ExperimentalTextApi
-fun Font.physicalFontFileOrNull(): String? = AwtFontUtils.fontFileNameOrNull(this)
-
-/**
- * Try to resolve a font family name, that could be a logical font face
- * (e.g., [Font.DIALOG]), to the actual physical font family it is an alias
- * for.
- *
- * **Note:** this will return `null` when running on Java VMs other
- * than the JetBrains Runtime, and if the current module cannot
- * access the `sun.font` module. To ensure the `sun.font` module is
- * accessible, you should pass this argument to the JVM: `--add-opens
- * java.desktop/sun.font=ALL-UNNAMED`.
- *
- * @return The resolved physical font name, or `null` if it can't be
- *     resolved (either it's unknown, or [isAbleToResolveFontProperties] is
- *     false)
- */
-@ExperimentalTextApi
-fun Font.resolveFontFamilyNameOrNull(): String? =
-    AwtFontUtils.resolvePhysicalFontFamilyNameOrNull(fontFamilyNameOrNull() ?: family, style)
+internal fun Font.fontFamilyNameOrNull(): String? = AwtFontUtils.getPreferredFontFamilyName(this)

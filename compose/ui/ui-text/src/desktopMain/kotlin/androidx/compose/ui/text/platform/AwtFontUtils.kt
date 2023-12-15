@@ -33,7 +33,6 @@ internal object AwtFontUtils {
 
     private val FontManagerClass = Class.forName("sun.font.FontManager")
     private val Font2DClass = Class.forName("sun.font.Font2D")
-    private val FileFontClass = Class.forName("sun.font.FileFont")
     private val CompositeFontClass = Class.forName("sun.font.CompositeFont")
     private val PhysicalFontClass = Class.forName("sun.font.PhysicalFont")
     private val CFontClass = if (hostOs.isMacOS) Class.forName("sun.font.CFont") else null
@@ -64,13 +63,6 @@ internal object AwtFontUtils {
         ReflectionUtil.findFieldInHierarchy(Class.forName("sun.font.Font2DHandle")) {
             it.name == "font2D"
         }
-
-    // FileFont methods
-    private val FileFont_getPublicFileNameMethod =
-        ReflectionUtil.getDeclaredMethodOrNull(
-            clazz = FileFontClass,
-            name = "getPublicFileNameMethod"
-        )
 
     // CompositeFont methods
     private val CompositeFont_getSlotFontMethod =
@@ -156,15 +148,6 @@ internal object AwtFontUtils {
 
         val font2D = font.obtainFont2DOrNull() ?: return null
         return Font2D_getTypographicFamilyNameMethod?.invoke(font2D) as? String
-    }
-
-    fun fontFileNameOrNull(font: Font): String? {
-        if (!isAbleToResolveFontProperties) return null
-
-        val font2D = font.obtainFont2DOrNull() ?: return null
-        if (!FileFontClass.isInstance(font2D)) return null
-
-        return FileFont_getPublicFileNameMethod?.invoke(font2D) as? String
     }
 
     private fun Font.obtainFont2DOrNull(): Any? {
