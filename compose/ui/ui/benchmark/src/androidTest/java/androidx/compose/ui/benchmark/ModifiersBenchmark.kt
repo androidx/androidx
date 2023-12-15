@@ -103,8 +103,9 @@ class ModifiersBenchmark(
             // overload with explicit InteractionSource parameter and a ripple - this more
             // accurately models how clickable is used in common components like Button.
             *modifier("clickableWithRipple", true) { Modifier.clickable(
-                interactionSource = interactionSource,
-                indication = ripple()
+                interactionSource = null,
+                indication = ripple(),
+                lazilyCreateIndication = true
             ) { capture(it) } },
             *modifier("semantics", true) { Modifier.semantics { capture(it) } },
             *modifier("pointerInput") { Modifier.pointerInput(it) { capture(it) } },
