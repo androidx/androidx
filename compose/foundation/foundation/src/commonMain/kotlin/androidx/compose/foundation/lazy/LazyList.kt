@@ -18,11 +18,8 @@ package androidx.compose.foundation.lazy
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.checkScrollableContainerConstraints
-import androidx.compose.foundation.clipScrollableContainer
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.ScrollableDefaults
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -32,7 +29,7 @@ import androidx.compose.foundation.lazy.layout.LazyLayoutMeasureScope
 import androidx.compose.foundation.lazy.layout.calculateLazyLayoutPinnedIndices
 import androidx.compose.foundation.lazy.layout.lazyLayoutBeyondBoundsModifier
 import androidx.compose.foundation.lazy.layout.lazyLayoutSemantics
-import androidx.compose.foundation.overscroll
+import androidx.compose.foundation.scrollingContainer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -47,6 +44,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.offset
+import kotlinx.coroutines.CoroutineScope
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -81,8 +79,7 @@ internal fun LazyList(
     val itemProviderLambda = rememberLazyListItemProviderLambda(state, content)
 
     val semanticState = rememberLazyListSemanticState(state, isVertical)
-    val scope = rememberCoroutineScope()
-    state.coroutineScope = scope
+    val coroutineScope = rememberCoroutineScope()
 
     val measurePolicy = rememberLazyListMeasurePolicy(
         itemProviderLambda,
@@ -94,10 +91,10 @@ internal fun LazyList(
         horizontalAlignment,
         verticalAlignment,
         horizontalArrangement,
-        verticalArrangement
+        verticalArrangement,
+        coroutineScope
     )
 
-    val overscrollEffect = ScrollableDefaults.overscrollEffect()
     val orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal
     LazyLayout(
         modifier = modifier
@@ -108,9 +105,9 @@ internal fun LazyList(
                 state = semanticState,
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
-                reverseScrolling = reverseLayout
+                reverseScrolling = reverseLayout,
+                coroutineScope = coroutineScope
             )
-            .clipScrollableContainer(orientation)
             .lazyLayoutBeyondBoundsModifier(
                 state = rememberLazyListBeyondBoundsState(
                     state = state,
@@ -122,19 +119,13 @@ internal fun LazyList(
                 orientation = orientation,
                 enabled = userScrollEnabled
             )
-            .overscroll(overscrollEffect)
-            .scrollable(
-                orientation = orientation,
-                reverseDirection = ScrollableDefaults.reverseDirection(
-                    LocalLayoutDirection.current,
-                    orientation,
-                    reverseLayout
-                ),
-                interactionSource = state.internalInteractionSource,
-                flingBehavior = flingBehavior,
+            .scrollingContainer(
                 state = state,
-                overscrollEffect = overscrollEffect,
-                enabled = userScrollEnabled
+                orientation = orientation,
+                enabled = userScrollEnabled,
+                reverseScrolling = reverseLayout,
+                flingBehavior = flingBehavior,
+                interactionSource = state.internalInteractionSource
             ),
         prefetchState = state.prefetchState,
         measurePolicy = measurePolicy,
@@ -157,14 +148,16 @@ private fun rememberLazyListMeasurePolicy(
     isVertical: Boolean,
     /** Number of items to layout before and after the visible items */
     beyondBoundsItemCount: Int,
-    /** The alignment to align items horizontally. Required when isVertical is true */
-    horizontalAlignment: Alignment.Horizontal? = null,
-    /** The alignment to align items vertically. Required when isVertical is false */
-    verticalAlignment: Alignment.Vertical? = null,
-    /** The horizontal arrangement for items. Required when isVertical is false */
-    horizontalArrangement: Arrangement.Horizontal? = null,
-    /** The vertical arrangement for items. Required when isVertical is true */
-    verticalArrangement: Arrangement.Vertical? = null,
+    /** The alignment to align items horizontally */
+    horizontalAlignment: Alignment.Horizontal?,
+    /** The alignment to align items vertically */
+    verticalAlignment: Alignment.Vertical?,
+    /** The horizontal arrangement for items */
+    horizontalArrangement: Arrangement.Horizontal?,
+    /** The vertical arrangement for items */
+    verticalArrangement: Arrangement.Vertical?,
+    /** Scope for animations */
+    coroutineScope: CoroutineScope
 ) = remember<LazyLayoutMeasureScope.(Constraints) -> MeasureResult>(
     state,
     contentPadding,
@@ -213,9 +206,6 @@ private fun rememberLazyListMeasurePolicy(
         val afterContentPadding = totalMainAxisPadding - beforeContentPadding
         val contentConstraints =
             containerConstraints.offset(-totalHorizontalPadding, -totalVerticalPadding)
-
-        // Update the state's cached Density
-        state.density = this
 
         val itemProvider = itemProviderLambda()
         // this will update the scope used by the item composables
@@ -288,7 +278,6 @@ private fun rememberLazyListMeasurePolicy(
                 )
             }
         }
-        state.premeasureConstraints = measuredItemProvider.childConstraints
 
         val firstVisibleItemIndex: Int
         val firstVisibleScrollOffset: Int
@@ -333,9 +322,7 @@ private fun rememberLazyListMeasurePolicy(
             hasLookaheadPassOccurred = hasLookaheadPassOccurred,
             isLookingAhead = isLookingAhead,
             postLookaheadLayoutInfo = state.postLookaheadLayoutInfo,
-            coroutineScope = requireNotNull(state.coroutineScope) {
-                "coroutineScope should be not null"
-            },
+            coroutineScope = coroutineScope,
             placementScopeInvalidator = state.placementScopeInvalidator,
             layout = { width, height, placement ->
                 layout(
