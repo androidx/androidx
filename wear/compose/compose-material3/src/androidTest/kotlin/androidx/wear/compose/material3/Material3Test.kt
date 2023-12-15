@@ -184,13 +184,13 @@ internal fun ComposeContentTestRule.verifyColors(
             if (status.enabled() || !applyAlphaForDisabled) {
                 expectedContainerColor()
             } else {
-                expectedContainerColor().copy(ContentAlpha.disabled)
+                expectedContainerColor().copy(DisabledContentAlpha)
             }.compositeOver(testBackgroundColor)
         finalExpectedContent =
             if (status.enabled() || !applyAlphaForDisabled) {
                 expectedContentColor()
             } else {
-                expectedContentColor().copy(ContentAlpha.disabled)
+                expectedContentColor().copy(DisabledContentAlpha)
             }
         Box(
             Modifier

@@ -193,21 +193,6 @@ package androidx.wear.compose.material3 {
     method @androidx.compose.runtime.Composable @androidx.compose.runtime.ReadOnlyComposable public static long contentColorFor(long backgroundColor);
   }
 
-  public final class ContentAlpha {
-    method @androidx.compose.runtime.Composable public float getDisabled();
-    method @androidx.compose.runtime.Composable public float getHigh();
-    method @androidx.compose.runtime.Composable public float getMedium();
-    property @androidx.compose.runtime.Composable public final float disabled;
-    property @androidx.compose.runtime.Composable public final float high;
-    property @androidx.compose.runtime.Composable public final float medium;
-    field public static final androidx.wear.compose.material3.ContentAlpha INSTANCE;
-  }
-
-  public final class ContentAlphaKt {
-    method public static androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Float> getLocalContentAlpha();
-    property public static final androidx.compose.runtime.ProvidableCompositionLocal<java.lang.Float> LocalContentAlpha;
-  }
-
   public final class ContentColorKt {
     method public static androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> getLocalContentColor();
     property public static final androidx.compose.runtime.ProvidableCompositionLocal<androidx.compose.ui.graphics.Color> LocalContentColor;
