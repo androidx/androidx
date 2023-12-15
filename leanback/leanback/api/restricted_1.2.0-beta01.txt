@@ -2586,7 +2586,7 @@ package androidx.leanback.widget {
     method public void update(float);
   }
 
-  public static final class ParallaxTarget.DirectPropertyTarget<T extends java.lang.Object, V extends java.lang.Number> extends androidx.leanback.widget.ParallaxTarget {
+  public static final class ParallaxTarget.DirectPropertyTarget<T, V extends java.lang.Number> extends androidx.leanback.widget.ParallaxTarget {
     ctor public ParallaxTarget.DirectPropertyTarget(Object!, android.util.Property<T!,V!>!);
   }
 

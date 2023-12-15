@@ -118,7 +118,7 @@ private fun Project.createErrorProneConfiguration(): Configuration {
             it.isCanBeResolved = true
             it.exclude(group = "com.google.errorprone", module = "javac")
         }
-    dependencies.add(ERROR_PRONE_CONFIGURATION, ERROR_PRONE_VERSION)
+    dependencies.add(ERROR_PRONE_CONFIGURATION, getLibraryByName("errorProne"))
     return errorProneConfiguration
 }
 
@@ -178,6 +178,12 @@ private fun JavaCompile.configureWithErrorProne() {
                     "-Xep:DoNotClaimAnnotations:OFF",
                     "-Xep:AlreadyChecked:OFF",
                     "-Xep:StringSplitter:OFF",
+                    "-Xep:NonApiType:OFF",
+                    "-Xep:StringCaseLocaleUsage:OFF",
+                    "-Xep:LabelledBreakTarget:OFF",
+                    "-Xep:Finalize:OFF",
+                    "-Xep:AddressSelection:OFF",
+                    "-Xep:StringCharset:OFF",
 
                     // We allow inter library RestrictTo usage.
                     "-Xep:RestrictTo:OFF",

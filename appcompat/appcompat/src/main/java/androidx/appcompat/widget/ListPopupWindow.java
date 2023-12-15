@@ -1158,7 +1158,7 @@ public class ListPopupWindow implements ShowableListMenu {
         if (mDropDownList == null) {
             Context context = mContext;
 
-            /**
+            /*
              * This Runnable exists for the sole purpose of checking if the view layout has got
              * completed and if so call showDropDown to display the drop down. This is used to show
              * the drop down as soon as possible after user opens up the search dialog, without
