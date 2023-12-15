@@ -21,29 +21,46 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerEvent
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.input.pointer.PointerInputModifier
+import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.unit.round
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastAny
+import androidx.compose.ui.util.fastForEach
 import java.awt.BorderLayout
 import java.awt.Component
 import java.awt.Container
+import java.awt.Point
 import java.awt.event.FocusEvent
 import java.awt.event.FocusListener
+import java.awt.event.MouseEvent
 import java.util.concurrent.atomic.AtomicBoolean
 import javax.swing.JPanel
 import javax.swing.LayoutFocusTraversalPolicy
 import javax.swing.SwingUtilities
+import kotlin.math.ceil
+import kotlin.math.floor
 
 val NoOpUpdate: Component.() -> Unit = {}
 
@@ -71,28 +88,25 @@ public fun <T : Component> SwingPanel(
     background: Color = Color.White,
     factory: () -> T,
     modifier: Modifier = Modifier,
-    update: (T) -> Unit = NoOpUpdate
+    update: (T) -> Unit = NoOpUpdate,
 ) {
     val componentInfo = remember { ComponentInfo<T>() }
 
     val root = LocalLayerContainer.current
-    val density = LocalDensity.current.density
+    val density = LocalDensity.current
     val focusManager = LocalFocusManager.current
     val focusSwitcher = remember { FocusSwitcher(componentInfo, focusManager) }
 
     Box(
         modifier = modifier.onGloballyPositioned { coordinates ->
-            val location = coordinates.positionInWindow().round()
-            val size = coordinates.size
-            componentInfo.container.setBounds(
-                (location.x / density).toInt(),
-                (location.y / density).toInt(),
-                (size.width / density).toInt(),
-                (size.height / density).toInt()
-            )
+            val bounds = coordinates.boundsInWindow().round(density)
+            componentInfo.container.setBounds(bounds.left, bounds.top, bounds.width, bounds.height)
             componentInfo.container.validate()
             componentInfo.container.repaint()
-        }
+        }.drawBehind {
+            // Clear interop area to make visible the component under our canvas.
+            drawRect(Color.Transparent, blendMode = BlendMode.Clear)
+        }.then(InteropPointerInputModifier(root, componentInfo))
     ) {
         focusSwitcher.Content()
     }
@@ -152,7 +166,7 @@ public fun <T : Component> SwingPanel(
 
 private class FocusSwitcher<T : Component>(
     private val info: ComponentInfo<T>,
-    private val focusManager: FocusManager
+    private val focusManager: FocusManager,
 ) {
     private val backwardRequester = FocusRequester()
     private val forwardRequester = FocusRequester()
@@ -253,7 +267,7 @@ private class ComponentInfo<T : Component> {
 
 private class Updater<T : Component>(
     private val component: T,
-    update: (T) -> Unit
+    update: (T) -> Unit,
 ) {
     private var isDisposed = false
     private val isUpdateScheduled = AtomicBoolean()
@@ -299,3 +313,76 @@ private class Updater<T : Component>(
         isDisposed = true
     }
 }
+
+private fun Rect.round(density: Density): IntRect {
+    val left = floor(left / density.density).toInt()
+    val top = floor(top / density.density).toInt()
+    val right = ceil(right / density.density).toInt()
+    val bottom = ceil(bottom / density.density).toInt()
+    return IntRect(left, top, right, bottom)
+}
+
+private class InteropPointerInputModifier<T : Component>(
+    private val root: Container,
+    private val componentInfo: ComponentInfo<T>,
+) : PointerInputFilter(), PointerInputModifier {
+    override val pointerInputFilter: PointerInputFilter = this
+
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize,
+    ) {
+        /*
+         * If the event was a down or up event, we dispatch to platform as early as possible.
+         * If the event is a move event, and we can still intercept, we dispatch to platform after
+         * we have a chance to intercept due to movement.
+         *
+         * See Android's PointerInteropFilter as original source for this logic.
+         */
+        val dispatchDuringInitialTunnel = pointerEvent.changes.fastAny {
+            it.changedToDownIgnoreConsumed() || it.changedToUpIgnoreConsumed()
+        }
+        if (pass == PointerEventPass.Initial && dispatchDuringInitialTunnel) {
+            dispatchToView(pointerEvent)
+        }
+        if (pass == PointerEventPass.Final && !dispatchDuringInitialTunnel) {
+            dispatchToView(pointerEvent)
+        }
+    }
+
+    override fun onCancel() {
+    }
+
+    private fun dispatchToView(pointerEvent: PointerEvent) {
+        val e = pointerEvent.awtEventOrNull ?: return
+        val containerPoint = SwingUtilities.convertPoint(root, e.point, componentInfo.component)
+        val component = SwingUtilities.getDeepestComponentAt(
+            componentInfo.component,
+            containerPoint.x,
+            containerPoint.y
+        )
+        if (component != null) {
+            val componentPoint = SwingUtilities.convertPoint(root, e.point, component)
+            component.dispatchEvent(e.copy(component, componentPoint))
+            pointerEvent.changes.fastForEach {
+                it.consume()
+            }
+        }
+    }
+}
+
+private fun MouseEvent.copy(
+    component: Component,
+    point: Point
+) = MouseEvent(
+    /* source = */ component,
+    /* id = */ id,
+    /* when = */ `when`,
+    /* modifiers = */ modifiersEx,
+    /* x = */ point.x,
+    /* y = */ point.y,
+    /* clickCount = */ clickCount,
+    /* popupTrigger = */ isPopupTrigger,
+    /* button = */ button
+)

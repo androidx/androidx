@@ -3124,7 +3124,6 @@ public abstract interface class androidx/compose/ui/platform/PlatformContext {
 	public fun isWindowTransparent ()Z
 	public fun requestFocus ()Z
 	public fun setPointerIcon (Landroidx/compose/ui/input/pointer/PointerIcon;)V
-	public fun setWindowTransparent (Z)V
 }
 
 public final class androidx/compose/ui/platform/PlatformContext$Companion {

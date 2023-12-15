@@ -76,17 +76,33 @@ internal class WindowComposeBridge(
     override val renderApi: GraphicsApi
         get() = component.renderApi
 
+    override val interopBlendingSupported: Boolean
+        get() = when(renderApi) {
+            GraphicsApi.DIRECT3D, GraphicsApi.METAL -> true
+            else -> false
+        }
+
     override val clipComponents: MutableList<ClipRectangle>
         get() = component.clipComponents
 
     override val focusComponentDelegate: Component
         get() = component.canvas
 
-    internal var transparency: Boolean
+    var transparency: Boolean
         get() = component.transparency
         set(value) {
             component.transparency = value
-            platformContext.isWindowTransparent = value
+            if (value && !isWindowTransparent && renderApi == GraphicsApi.METAL) {
+                /*
+                 * SkiaLayer sets background inside transparency setter, that is required for
+                 * cases like software rendering.
+                 * In case of transparent Metal canvas on opaque window, background values with
+                 * alpha == 0 will make the result color black after clearing the canvas.
+                 *
+                 * Reset it to null to keep the color default.
+                 */
+                component.background = null
+            }
         }
 
     init {

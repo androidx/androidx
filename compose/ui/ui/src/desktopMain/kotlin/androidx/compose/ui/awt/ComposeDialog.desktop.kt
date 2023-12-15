@@ -245,9 +245,9 @@ class ComposeDialog : JDialog {
      * `true`, otherwise AWT will throw an exception.
      */
     var isTransparent: Boolean
-        get() = delegate.isTransparent
+        get() = delegate.isWindowTransparent
         set(value) {
-            delegate.isTransparent = value
+            delegate.isWindowTransparent = value
         }
 
     /**

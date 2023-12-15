@@ -67,13 +67,14 @@ internal abstract class ComposeBridge(
     private var isDisposed = false
 
     private val _invisibleComponent = InvisibleComponent()
-
-    abstract val component: JComponent
     val invisibleComponent: Component get() = _invisibleComponent
 
+    abstract val component: JComponent
     abstract val renderApi: GraphicsApi
 
+    abstract val interopBlendingSupported: Boolean
     abstract val clipComponents: MutableList<ClipRectangle>
+    private val clipMap = mutableMapOf<Component, ClipComponent>()
 
     // Needed for case when componentLayer is a wrapper for another Component that need to acquire focus events
     // e.g. canvas in case of ComposeWindowLayer
@@ -149,6 +150,7 @@ internal abstract class ComposeBridge(
     private val desktopTextInputService = DesktopTextInputService(platformComponent)
     protected val platformContext = DesktopPlatformContext()
     internal var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
+    internal var isWindowTransparent by platformContext::isWindowTransparent
 
     private val semanticsOwnerListener = DesktopSemanticsOwnerListener()
     val sceneAccessible = ComposeSceneAccessible {
@@ -335,6 +337,18 @@ internal abstract class ComposeBridge(
             }
         }
         initContent()
+    }
+
+    fun addClipComponent(component: Component) {
+        val clipComponent = ClipComponent(component)
+        clipMap[component] = clipComponent
+        clipComponents.add(clipComponent)
+    }
+
+    fun removeClipComponent(component: Component) {
+        clipMap.remove(component)?.let {
+            clipComponents.remove(it)
+        }
     }
 
     private var _initContent: (() -> Unit)? = null

@@ -14,11 +14,8 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeUiApi::class)
-
 package androidx.compose.ui.awt
 
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.unit.LayoutDirection
 import java.awt.Component
 import java.awt.Dimension
@@ -86,6 +83,9 @@ internal class SwingComposeBridge(
 
     override val renderApi: GraphicsApi
         get() = component.renderApi
+
+    override val interopBlendingSupported: Boolean
+        get() = true
 
     override val clipComponents: MutableList<ClipRectangle>
         get() = component.clipComponents

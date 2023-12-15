@@ -34,7 +34,9 @@ import javax.swing.JLayeredPane
 import javax.swing.SwingUtilities.isEventDispatchThread
 import org.jetbrains.skiko.ClipComponent
 import org.jetbrains.skiko.GraphicsApi
+import org.jetbrains.skiko.OS
 import org.jetbrains.skiko.SkiaLayerAnalytics
+import org.jetbrains.skiko.hostOs
 
 /**
  * ComposePanel is a panel for building UI using Compose for Desktop.
@@ -86,7 +88,6 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     private var _isFocusable = true
     private var _isRequestFocusEnabled = false
     private var bridge: ComposeBridge? = null
-    private val clipMap = mutableMapOf<Component, ClipComponent>()
     private var content: (@Composable () -> Unit)? = null
 
     /**
@@ -171,38 +172,58 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     }
 
     override fun add(component: Component): Component {
-        if (bridge == null) {
-            return component
+        addToLayer(component, componentLayer)
+        if (!interopBlending) {
+            bridge?.addClipComponent(component)
         }
-        val clipComponent = ClipComponent(component)
-        clipMap[component] = clipComponent
-        bridge!!.clipComponents.add(clipComponent)
-        return super.add(component, Integer.valueOf(0))
+        return component
     }
 
     override fun remove(component: Component) {
-        bridge!!.clipComponents.remove(clipMap[component]!!)
-        clipMap.remove(component)
+        bridge?.removeClipComponent(component)
         super.remove(component)
     }
+
+    private fun addToLayer(component: Component, layer: Int) {
+        if (renderApi == GraphicsApi.METAL && bridge !is SwingComposeBridge) {
+            // Applying layer on macOS makes our bridge non-transparent
+            // But it draws always on top, so we can just add it as-is
+            // TODO: Figure out why it makes difference in transparency
+            super.add(component, 0)
+        } else {
+            super.setLayer(component, layer)
+            super.add(component)
+        }
+    }
+
+    private val bridgeLayer: Int = 10
+    private val componentLayer: Int
+        get() = if (interopBlending) 0 else 20
+
+    private val renderOnGraphics: Boolean
+        get() = System.getProperty("compose.swing.render.on.graphics").toBoolean()
+    private val _interopBlending: Boolean
+        get() = System.getProperty("compose.interop.blending").toBoolean()
+    private val interopBlending: Boolean
+        get() = _interopBlending &&
+            (renderOnGraphics || requireNotNull(bridge).interopBlendingSupported)
 
     override fun addNotify() {
         super.addNotify()
 
         // After [super.addNotify] is called we can safely initialize the bridge and composable
         // content.
-        if (bridge == null) {
-            bridge = createComposeBridge()
+        if (this.bridge == null) {
+            val bridge = createComposeBridge()
+            this.bridge = bridge
             initContent()
-            super.add(bridge!!.invisibleComponent, Integer.valueOf(1))
-            super.add(bridge!!.component, Integer.valueOf(1))
+            addToLayer(bridge.invisibleComponent, bridgeLayer)
+            addToLayer(bridge.component, bridgeLayer)
         }
     }
 
     private fun createComposeBridge(): ComposeBridge {
-        val renderOnGraphics = System.getProperty("compose.swing.render.on.graphics").toBoolean()
         val bridge: ComposeBridge = if (renderOnGraphics) {
-            // TODO: Add window transparent info
             SwingComposeBridge(skiaLayerAnalytics, layoutDirectionFor(this))
         } else {
             WindowComposeBridge(skiaLayerAnalytics, layoutDirectionFor(this))
@@ -328,5 +349,5 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
      * environment variable.
      */
     val renderApi: GraphicsApi
-        get() = if (bridge != null) bridge!!.renderApi else GraphicsApi.UNKNOWN
+        get() = bridge?.renderApi ?: GraphicsApi.UNKNOWN
 }

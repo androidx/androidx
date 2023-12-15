@@ -55,9 +55,7 @@ interface PlatformContext {
      *
      * @see MultiLayerComposeScene
      */
-    var isWindowTransparent: Boolean
-        get() = false
-        set(_) {}
+    val isWindowTransparent: Boolean get() = false
 
     val viewConfiguration: ViewConfiguration get() = EmptyViewConfiguration
     val inputModeManager: InputModeManager

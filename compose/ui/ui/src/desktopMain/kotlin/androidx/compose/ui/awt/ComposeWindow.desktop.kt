@@ -183,7 +183,7 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
      * Transparency should be set only if window is not showing and `isUndecorated` is set to
      * `true`, otherwise AWT will throw an exception.
      */
-    var isTransparent: Boolean by delegate::isTransparent
+    var isTransparent: Boolean by delegate::isWindowTransparent
 
     var placement: WindowPlacement
         get() = when {
