@@ -58,7 +58,7 @@ import java.util.Set;
 @SafeParcelable.Class(creator = "SearchSuggestionSpecCreator")
 public final class SearchSuggestionSpec extends AbstractSafeParcelable {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
     @NonNull public static final Parcelable.Creator<SearchSuggestionSpec> CREATOR =
             new SearchSuggestionSpecCreator();
     @Field(id = 1, getter = "getFilterNamespaces")
@@ -603,7 +603,7 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE)
+    @FlaggedApi(Flags.FLAG_ENABLE_SAFE_PARCELABLE_2)
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         SearchSuggestionSpecCreator.writeToParcel(this, dest, flags);
