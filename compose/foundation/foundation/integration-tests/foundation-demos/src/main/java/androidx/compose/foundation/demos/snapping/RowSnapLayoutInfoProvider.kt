@@ -51,8 +51,6 @@ fun SnapLayoutInfoProvider(
 
         return calculateFinalOffset(currentVelocity, upperBound, lowerBound)
     }
-
-    override fun calculateApproachOffset(initialVelocity: Float): Float = 0f
 }
 
 internal fun calculateFinalOffset(velocity: Float, lowerBound: Float, upperBound: Float): Float {
