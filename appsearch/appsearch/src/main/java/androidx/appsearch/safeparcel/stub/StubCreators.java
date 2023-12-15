@@ -20,13 +20,11 @@ import androidx.appsearch.app.SearchSuggestionResult;
 import androidx.appsearch.app.SearchSuggestionSpec;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.VisibilityDocument;
-import androidx.appsearch.safeparcel.GenericDocumentParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.DocumentIndexingConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.IntegerIndexingConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.JoinableConfigParcel;
 import androidx.appsearch.safeparcel.PropertyConfigParcel.StringIndexingConfigParcel;
-import androidx.appsearch.safeparcel.PropertyParcel;
 import androidx.appsearch.stats.SchemaMigrationStats;
 
 /**
@@ -38,14 +36,10 @@ import androidx.appsearch.stats.SchemaMigrationStats;
  * be provided for code sync purpose.
  */
 // @exportToFramework:skipFile()
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public class StubCreators {
     /** Stub creator for {@link androidx.appsearch.app.StorageInfo}. */
     public static class StorageInfoCreator extends AbstractCreator<StorageInfo> {
-    }
-
-    /** Stub creator for {@link PropertyParcel}. */
-    public static class PropertyParcelCreator extends AbstractCreator<PropertyParcel> {
     }
 
     /** Stub creator for {@link PropertyConfigParcel}. */
@@ -81,11 +75,6 @@ public class StubCreators {
      */
     public static class DocumentIndexingConfigParcelCreator extends
             AbstractCreator<DocumentIndexingConfigParcel> {
-    }
-
-    /** Stub creator for {@link GenericDocumentParcel}. */
-    public static class GenericDocumentParcelCreator extends
-            AbstractCreator<GenericDocumentParcel> {
     }
 
     /** Stub creator for {@link androidx.appsearch.app.VisibilityPermissionDocument}. */
