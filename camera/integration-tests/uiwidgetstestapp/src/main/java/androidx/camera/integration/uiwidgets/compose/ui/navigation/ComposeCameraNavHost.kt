@@ -18,6 +18,7 @@ package androidx.camera.integration.uiwidgets.compose.ui.navigation
 
 import androidx.camera.integration.uiwidgets.compose.ui.screen.imagecapture.ImageCaptureScreen
 import androidx.camera.integration.uiwidgets.compose.ui.screen.videocapture.VideoCaptureScreen
+import androidx.camera.integration.uiwidgets.compose.ui.screen.viewfinder.ViewfinderScreen
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,6 +39,10 @@ fun ComposeCameraNavHost(
         startDestination = ComposeCameraScreen.ImageCapture.name,
         modifier = modifier
     ) {
+        composable(ComposeCameraScreen.Viewfinder.name) {
+            ViewfinderScreen()
+        }
+
         composable(ComposeCameraScreen.ImageCapture.name) {
             ImageCaptureScreen(
                 onStreamStateChange = { state ->
