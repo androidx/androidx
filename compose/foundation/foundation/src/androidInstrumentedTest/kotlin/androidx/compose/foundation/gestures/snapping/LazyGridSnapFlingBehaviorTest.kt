@@ -274,7 +274,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
         onMainList().performTouchInput {
             swipeMainAxisWithVelocity(
                 1.5f * stepSize,
-                30000f
+                15000f
             )
         }
 
@@ -296,7 +296,7 @@ class LazyGridSnapFlingBehaviorTest(private val orientation: Orientation) :
         onMainList().performTouchInput {
             swipeMainAxisWithVelocity(
                 -1.5f * stepSize,
-                30000f
+                15000f
             )
         }
 

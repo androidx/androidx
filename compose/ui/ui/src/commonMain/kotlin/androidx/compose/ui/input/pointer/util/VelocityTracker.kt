@@ -37,6 +37,17 @@ private const val HistorySize: Int = 20
 private const val HorizonMilliseconds: Int = 100
 
 /**
+ * Selecting flag to enable impulse strategy for the velocity trackers.
+ * This should be removed before the next RC release
+ */
+@Suppress("GetterSetterNames", "OPT_IN_MARKER_ON_WRONG_TARGET")
+@get:Suppress("GetterSetterNames")
+@get:ExperimentalComposeUiApi
+@set:ExperimentalComposeUiApi
+@ExperimentalComposeUiApi
+var VelocityTrackerStrategyUseImpulse by mutableStateOf(false)
+
+/**
  * Computes a pointer's velocity.
  *
  * The input data is provided by calling [addPosition]. Adding data is cheap.
@@ -49,8 +60,15 @@ private const val HorizonMilliseconds: Int = 100
  * have been received.
  */
 class VelocityTracker {
-    private val xVelocityTracker = VelocityTracker1D() // non-differential, Lsq2 1D velocity tracker
-    private val yVelocityTracker = VelocityTracker1D() // non-differential, Lsq2 1D velocity tracker
+
+    @OptIn(ExperimentalComposeUiApi::class)
+    private val strategy = if (VelocityTrackerStrategyUseImpulse) {
+        VelocityTracker1D.Strategy.Impulse
+    } else {
+        VelocityTracker1D.Strategy.Lsq2 // non-differential, Lsq2 1D velocity tracker
+    }
+    private val xVelocityTracker = VelocityTracker1D(strategy = strategy)
+    private val yVelocityTracker = VelocityTracker1D(strategy = strategy)
 
     internal var currentPointerPositionAccumulator = Offset.Zero
     internal var lastMoveEventTimeStamp = 0L
@@ -237,7 +255,11 @@ class VelocityTracker1D internal constructor(
             val age: Float = (newestSample.time - sample.time).toFloat()
             val delta: Float =
                 abs(sample.time - previousSample.time).toFloat()
-            previousSample = sample
+            previousSample = if (strategy == Strategy.Lsq2 || isDataDifferential) {
+               sample
+            } else {
+                newestSample
+            }
             if (age > HorizonMilliseconds || delta > AssumePointerMoveStoppedMilliseconds) {
                 break
             }

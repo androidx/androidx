@@ -269,7 +269,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         onMainList().performTouchInput {
             swipeMainAxisWithVelocity(
                 1.5f * itemSize,
-                30000f
+                15000f
             )
         }
 
@@ -291,7 +291,7 @@ class LazyListSnapFlingBehaviorTest(private val orientation: Orientation) :
         onMainList().performTouchInput {
             swipeMainAxisWithVelocity(
                 -1.5f * itemSize,
-                30000f
+                15000f
             )
         }
 
