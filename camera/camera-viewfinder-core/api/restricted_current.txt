@@ -12,6 +12,22 @@ package @RequiresApi(21) androidx.camera.viewfinder.surface {
   public static final class ImplementationMode.Companion {
   }
 
+  public final class TransformationInfo {
+    ctor public TransformationInfo(int sourceRotation, int cropRectLeft, int cropRectRight, int cropRectTop, int cropRectBottom, boolean shouldMirror);
+    method public int getCropRectBottom();
+    method public int getCropRectLeft();
+    method public int getCropRectRight();
+    method public int getCropRectTop();
+    method public int getSourceRotation();
+    method public boolean shouldMirror();
+    property public final int cropRectBottom;
+    property public final int cropRectLeft;
+    property public final int cropRectRight;
+    property public final int cropRectTop;
+    property public final boolean shouldMirror;
+    property public final int sourceRotation;
+  }
+
   public interface ViewfinderSurfaceProvider {
     method public void onSurfaceRequested(androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest request);
   }
