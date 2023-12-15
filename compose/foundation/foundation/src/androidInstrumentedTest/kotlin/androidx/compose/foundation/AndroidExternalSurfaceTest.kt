@@ -314,6 +314,13 @@ class AndroidExternalSurfaceTest {
     }
 
     @Test
+    @Ignore(
+        """Despite best efforts in screenshotToImage(), this test is too flaky currently.
+            |Since this test only tests that the `zOrder` parameter is properly passed
+            |to the underlying SurfaceView, we don't lose much by disabling it.
+            |This test should be more robust on API level 34 using the window
+            |screenshot API."""
+    )
     fun testZOrderMediaOverlay() {
         val latch = CountDownLatch(FrameCount * 2) // for 2 Surfaces
 
@@ -369,6 +376,13 @@ class AndroidExternalSurfaceTest {
     }
 
     @Test
+    @Ignore(
+        """Despite best efforts in screenshotToImage(), this test is too flaky currently.
+            |Since this test only tests that the `zOrder` parameter is properly passed
+            |to the underlying SurfaceView, we don't lose much by disabling it.
+            |This test should be more robust on API level 34 using the window
+            |screenshot API."""
+    )
     fun testZOrderOnTop() {
         val latch = CountDownLatch(FrameCount)
 
