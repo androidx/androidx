@@ -26,9 +26,9 @@ import androidx.work.WorkInfo
 import androidx.work.WorkManager.UpdateResult
 import androidx.work.WorkManager.UpdateResult.APPLIED_FOR_NEXT_RUN
 import androidx.work.WorkRequest
+import androidx.work.executeAsync
 import androidx.work.impl.model.WorkSpec
 import androidx.work.impl.utils.EnqueueRunnable
-import androidx.work.impl.utils.futures.SettableFuture
 import androidx.work.impl.utils.wrapInConstraintTrackingWorkerIfNeeded
 import com.google.common.util.concurrent.ListenableFuture
 
@@ -90,20 +90,12 @@ private fun updateWorkImpl(
 internal fun WorkManagerImpl.updateWorkImpl(
     workRequest: WorkRequest
 ): ListenableFuture<UpdateResult> {
-    val future = SettableFuture.create<UpdateResult>()
-    workTaskExecutor.serialTaskExecutor.execute {
-        if (future.isCancelled) return@execute
-        try {
-            val result = updateWorkImpl(
-                processor, workDatabase,
-                configuration, schedulers, workRequest.workSpec, workRequest.tags
-            )
-            future.set(result)
-        } catch (e: Throwable) {
-            future.setException(e)
-        }
+    return workTaskExecutor.serialTaskExecutor.executeAsync("updateWorkImpl") {
+        updateWorkImpl(
+            processor, workDatabase,
+            configuration, schedulers, workRequest.workSpec, workRequest.tags
+        )
     }
-    return future
 }
 
 /**
