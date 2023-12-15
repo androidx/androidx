@@ -45,7 +45,8 @@ public final class Flags {
     // The name of the each static variable should be "FLAG_" + capitalized value of the flag.
 
     /** Enable SafeParcelable related features. */
-    public static final String FLAG_ENABLE_SAFE_PARCELABLE = FLAG_PREFIX + "enable_safe_parcelable";
+    public static final String FLAG_ENABLE_SAFE_PARCELABLE_2 =
+            FLAG_PREFIX + "enable_safe_parcelable_2";
 
     /** Enable the "hasProperty" function in list filter query expressions. */
     public static final String FLAG_ENABLE_LIST_FILTER_HAS_PROPERTY_FUNCTION =
