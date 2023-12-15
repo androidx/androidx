@@ -17,6 +17,7 @@ package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.window.WindowExceptionHandler
@@ -200,13 +201,9 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     private val componentLayer: Int
         get() = if (interopBlending) 0 else 20
 
-    private val renderOnGraphics: Boolean
-        get() = System.getProperty("compose.swing.render.on.graphics").toBoolean()
-    private val _interopBlending: Boolean
-        get() = System.getProperty("compose.interop.blending").toBoolean()
     private val interopBlending: Boolean
-        get() = _interopBlending &&
-            (renderOnGraphics || requireNotNull(bridge).interopBlendingSupported)
+        get() = ComposeFeatureFlags.useInteropBlending &&
+            (ComposeFeatureFlags.useSwingGraphics || requireNotNull(bridge).interopBlendingSupported)
 
     override fun addNotify() {
         super.addNotify()
@@ -223,7 +220,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     }
 
     private fun createComposeBridge(): ComposeBridge {
-        val bridge: ComposeBridge = if (renderOnGraphics) {
+        val bridge: ComposeBridge = if (ComposeFeatureFlags.useSwingGraphics) {
             SwingComposeBridge(skiaLayerAnalytics, layoutDirectionFor(this))
         } else {
             WindowComposeBridge(skiaLayerAnalytics, layoutDirectionFor(this))

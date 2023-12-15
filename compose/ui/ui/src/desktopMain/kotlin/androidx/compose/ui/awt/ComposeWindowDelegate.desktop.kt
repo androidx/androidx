@@ -19,6 +19,7 @@ package androidx.compose.ui.awt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
@@ -93,10 +94,8 @@ internal class ComposeWindowDelegate(
     val renderApi: GraphicsApi
         get() = bridge.renderApi
 
-    private val _interopBlending: Boolean
-        get() = System.getProperty("compose.interop.blending").toBoolean()
     private val interopBlending: Boolean
-        get() = _interopBlending && bridge.interopBlendingSupported
+        get() = ComposeFeatureFlags.useInteropBlending && bridge.interopBlendingSupported
 
     var isWindowTransparent: Boolean = false
         set(value) {
