@@ -93,8 +93,10 @@ class TestUseCaseCamera(
         val streamConfigMap = mutableMapOf<CameraStream.Config, DeferrableSurface>()
         val callbackMap = CameraCallbackMap()
         val requestListener = ComboRequestListener()
-        val cameraGraphConfig = createCameraGraphConfig(sessionConfigAdapter, streamConfigMap,
-            callbackMap, requestListener, cameraConfig, cameraQuirks, null)
+        val cameraGraphConfig = createCameraGraphConfig(
+            sessionConfigAdapter, streamConfigMap,
+            callbackMap, requestListener, cameraConfig, cameraQuirks, null
+        )
         val cameraGraph = cameraPipe.create(cameraGraphConfig)
 
         useCaseCameraGraphConfig = UseCaseCameraConfig(
@@ -102,7 +104,8 @@ class TestUseCaseCamera(
             sessionConfigAdapter,
             CameraStateAdapter(),
             cameraGraph,
-            streamConfigMap
+            streamConfigMap,
+            sessionProcessorManager = null
         ).provideUseCaseGraphConfig(
             useCaseSurfaceManager = useCaseSurfaceManager,
             cameraInteropStateCallbackRepository = CameraInteropStateCallbackRepository()
@@ -124,7 +127,11 @@ class TestUseCaseCamera(
                 throw NotImplementedError("Not implemented")
             }
         },
-        state = UseCaseCameraState(useCaseCameraGraphConfig, threads),
+        state = UseCaseCameraState(
+            useCaseCameraGraphConfig,
+            threads,
+            sessionProcessorManager = null
+        ),
         useCaseGraphConfig = useCaseCameraGraphConfig,
     ).apply {
         SessionConfigAdapter(useCases).getValidSessionConfigOrNull()?.let { sessionConfig ->

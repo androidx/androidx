@@ -49,22 +49,25 @@ class CaptureResultAdapterTest {
 
     @Test
     fun getAfMode_withNull() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(CaptureResult.CONTROL_AF_MODE to null)
-        )
+        val metadata = mapOf<CaptureResult.Key<*>, Any?>(CaptureResult.CONTROL_AF_MODE to null)
+
+        val cameraCaptureResult = createCaptureResultAdapter(resultMetadata = metadata)
+        val partialResult = createPartialCaptureResultAdapter(resultMetadata = metadata)
 
         assertThat(cameraCaptureResult.afMode).isEqualTo(AfMode.UNKNOWN)
+        assertThat(partialResult.afMode).isEqualTo(AfMode.UNKNOWN)
     }
 
     @Test
     fun getAfMode_withAfModeOff() {
-        val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mapOf(
-                CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF
-            )
+        val metadata = mapOf<CaptureResult.Key<*>, Any?>(
+            CaptureResult.CONTROL_AF_MODE to CaptureResult.CONTROL_AF_MODE_OFF
         )
+        val cameraCaptureResult = createCaptureResultAdapter(resultMetadata = metadata)
+        val partialResult = createPartialCaptureResultAdapter(resultMetadata = metadata)
 
         assertThat(cameraCaptureResult.afMode).isEqualTo(AfMode.OFF)
+        assertThat(partialResult.afMode).isEqualTo(AfMode.OFF)
     }
 
     @Test
@@ -473,7 +476,7 @@ class CaptureResultAdapterTest {
             requestParameters = requestParams,
             requestNumber = RequestNumber(1)
         )
-        val resultMetaData = FakeFrameMetadata(
+        val frameMetadata = FakeFrameMetadata(
             resultMetadata = resultMetadata,
             frameNumber = frameNumber,
         )
@@ -481,9 +484,29 @@ class CaptureResultAdapterTest {
             requestMetadata = requestMetadata,
             frameNumber,
             FakeFrameInfo(
-                metadata = resultMetaData,
+                metadata = frameMetadata,
                 requestMetadata = requestMetadata,
             )
+        )
+    }
+
+    private fun createPartialCaptureResultAdapter(
+        requestParams: Map<CaptureRequest.Key<*>, Any?> = emptyMap(),
+        resultMetadata: Map<CaptureResult.Key<*>, Any?> = emptyMap(),
+        frameNumber: FrameNumber = FrameNumber(101L)
+    ): CameraCaptureResult {
+        val requestMetadata = FakeRequestMetadata(
+            requestParameters = requestParams,
+            requestNumber = RequestNumber(1)
+        )
+        val frameMetadata = FakeFrameMetadata(
+            resultMetadata = resultMetadata,
+            frameNumber = frameNumber,
+        )
+        return PartialCaptureResultAdapter(
+            requestMetadata = requestMetadata,
+            frameNumber,
+            result = frameMetadata,
         )
     }
 }

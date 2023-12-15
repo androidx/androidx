@@ -263,7 +263,8 @@ class CapturePipelineTest {
 
         fakeUseCaseCameraState = UseCaseCameraState(
             fakeUseCaseGraphConfig,
-            fakeUseCaseThreads
+            fakeUseCaseThreads,
+            sessionProcessorManager = null,
         )
 
         capturePipeline = CapturePipelineImpl(
