@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.unit.Dp
 
 /**
@@ -364,7 +365,7 @@ class ImageVector internal constructor(
          * Throws IllegalStateException if the ImageVector.Builder has already been consumed
          */
         private fun ensureNotConsumed() {
-            check(!isConsumed) {
+            checkPrecondition(!isConsumed) {
                 "ImageVector.Builder is single use, create a new instance " +
                     "to create a new ImageVector"
             }

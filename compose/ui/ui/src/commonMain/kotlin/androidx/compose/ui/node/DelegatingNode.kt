@@ -17,6 +17,7 @@
 package androidx.compose.ui.node
 
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.internal.checkPrecondition
 import org.jetbrains.annotations.TestOnly
 
 /**
@@ -81,7 +82,7 @@ abstract class DelegatingNode : Modifier.Node() {
                 error("Cannot delegate to an already delegated node")
             }
         }
-        check(!delegateNode.isAttached) {
+        checkPrecondition(!delegateNode.isAttached) {
             "Cannot delegate to an already attached node"
         }
         // this could be a delegate itself, so we make sure to setAsDelegateTo(node) instead of
@@ -178,7 +179,7 @@ abstract class DelegatingNode : Modifier.Node() {
             // delegating to another layout modifier. In order to properly handle this, we need
             // to require that the delegating node is itself a LayoutModifierNode to ensure that
             // they are explicitly handling the combination. If not, we throw, since
-            check(this is LayoutModifierNode) {
+            checkPrecondition(this is LayoutModifierNode) {
                 "Delegating to multiple LayoutModifierNodes without the delegating node " +
                     "implementing LayoutModifierNode itself is not allowed." +
                     "\nDelegating Node: $this" +

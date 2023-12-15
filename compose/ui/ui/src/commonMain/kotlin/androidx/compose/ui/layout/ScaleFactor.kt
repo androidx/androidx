@@ -20,6 +20,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.isSpecified
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.util.packFloats
 import androidx.compose.ui.util.unpackFloat1
 import androidx.compose.ui.util.unpackFloat2
@@ -45,7 +46,7 @@ value class ScaleFactor internal constructor(@PublishedApi internal val packedVa
         get() {
             // Explicitly compare against packed values to avoid
             // auto-boxing of ScaleFactor.Unspecified
-            check(this.packedValue != ScaleFactor.Unspecified.packedValue) {
+            checkPrecondition(this.packedValue != Unspecified.packedValue) {
                 "ScaleFactor is unspecified"
             }
             return unpackFloat1(packedValue)
@@ -59,7 +60,7 @@ value class ScaleFactor internal constructor(@PublishedApi internal val packedVa
         get() {
             // Explicitly compare against packed values to avoid
             // auto-boxing of Size.Unspecified
-            check(this.packedValue != ScaleFactor.Unspecified.packedValue) {
+            checkPrecondition(this.packedValue != Unspecified.packedValue) {
                 "ScaleFactor is unspecified"
             }
             return unpackFloat2(packedValue)

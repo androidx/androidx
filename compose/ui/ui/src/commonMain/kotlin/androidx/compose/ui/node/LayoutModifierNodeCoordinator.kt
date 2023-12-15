@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.GraphicsLayerScope
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.PaintingStyle
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.IntermediateLayoutModifierNode
@@ -192,7 +193,7 @@ private fun LookaheadCapablePlaceable.calculateAlignmentAndPlaceChildAsNeeded(
     alignmentLine: AlignmentLine
 ): Int {
     val child = child
-    check(child != null) {
+    checkPrecondition(child != null) {
         "Child of $this cannot be null when calculating alignment line"
     }
     if (measureResult.alignmentLines.containsKey(alignmentLine)) {

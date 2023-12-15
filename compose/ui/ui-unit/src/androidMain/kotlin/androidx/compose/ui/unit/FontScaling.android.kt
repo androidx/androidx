@@ -56,7 +56,7 @@ actual interface FontScaling {
      */
     @Stable
     actual fun TextUnit.toDp(): Dp {
-        check(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
+        checkPrecondition(type == TextUnitType.Sp) { "Only Sp can convert to Px" }
         if (!FontScaleConverterFactory.isNonLinearFontScalingActive(fontScale)) {
             return Dp(value * fontScale)
         }

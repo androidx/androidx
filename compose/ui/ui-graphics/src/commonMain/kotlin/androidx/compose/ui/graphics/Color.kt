@@ -77,25 +77,25 @@ import kotlin.math.min
  * ```
  * | Component | Name        | Size    | Range                 |
  * |-----------|-------------|---------|-----------------------|
- * | [RGB][ColorSpace.Model.Rgb] color model |
+ * | [RGB][ColorSpace.Model.Rgb] color model                   |
  * | R         | Red         | 16 bits | `[-65504.0, 65504.0]` |
  * | G         | Green       | 16 bits | `[-65504.0, 65504.0]` |
  * | B         | Blue        | 16 bits | `[-65504.0, 65504.0]` |
  * | A         | Alpha       | 10 bits | `[0..1023]`           |
  * |           | Color space | 6 bits  | `[0..63]`             |
- * | [SRGB][ColorSpaces.Srgb] color space |
+ * | [SRGB][ColorSpaces.Srgb] color space                      |
  * | R         | Red         | 8 bits  | `[0..255]`            |
  * | G         | Green       | 8 bits  | `[0..255]`            |
  * | B         | Blue        | 8 bits  | `[0..255]`            |
  * | A         | Alpha       | 8 bits  | `[0..255]`            |
  * | X         | Unused      | 32 bits | `[0]`                 |
- * | [XYZ][ColorSpace.Model.Xyz] color model |
+ * | [XYZ][ColorSpace.Model.Xyz] color model                   |
  * | X         | X           | 16 bits | `[-65504.0, 65504.0]` |
  * | Y         | Y           | 16 bits | `[-65504.0, 65504.0]` |
  * | Z         | Z           | 16 bits | `[-65504.0, 65504.0]` |
  * | A         | Alpha       | 10 bits | `[0..1023]`           |
  * |           | Color space | 6 bits  | `[0..63]`             |
- * | [Lab][ColorSpace.Model.Lab] color model |
+ * | [Lab][ColorSpace.Model.Lab] color model                   |
  * | L         | L           | 16 bits | `[-65504.0, 65504.0]` |
  * | a         | a           | 16 bits | `[-65504.0, 65504.0]` |
  * | b         | b           | 16 bits | `[-65504.0, 65504.0]` |
