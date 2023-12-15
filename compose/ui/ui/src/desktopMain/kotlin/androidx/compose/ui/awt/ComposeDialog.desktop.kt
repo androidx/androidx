@@ -20,13 +20,13 @@ import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.semantics.dialog
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.window.DialogWindowScope
+import androidx.compose.ui.window.UndecoratedWindowResizer
 import androidx.compose.ui.window.WindowExceptionHandler
-import androidx.compose.ui.window.layoutDirectionFor
-import org.jetbrains.skiko.GraphicsApi
 import java.awt.Component
 import java.awt.ComponentOrientation
 import java.awt.Frame
@@ -35,8 +35,9 @@ import java.awt.Window
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
-import java.util.Locale
+import java.util.*
 import javax.swing.JDialog
+import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.SkiaLayerAnalytics
 
 /**
@@ -53,11 +54,10 @@ class ComposeDialog : JDialog {
         get() = composePanel.rootForTestListener
         set(value) { composePanel.rootForTestListener = value }
 
-    private fun createDelegate() = ComposeWindowPanel(
+    private fun createComposePanel() = ComposeWindowPanel(
         window = this,
         isUndecorated = ::isUndecorated,
         skiaLayerAnalytics = skiaLayerAnalytics,
-        layoutDirection = layoutDirectionFor(this),
     )
 
     constructor(
@@ -66,7 +66,7 @@ class ComposeDialog : JDialog {
         graphicsConfiguration: GraphicsConfiguration? = null
     ) : super(owner, "", modalityType, graphicsConfiguration) {
         skiaLayerAnalytics = SkiaLayerAnalytics.Empty
-        composePanel = createDelegate()
+        composePanel = createComposePanel()
         contentPane.add(composePanel)
     }
 
@@ -86,7 +86,7 @@ class ComposeDialog : JDialog {
         skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty
     ) : super(owner, "", modalityType, graphicsConfiguration) {
         this.skiaLayerAnalytics = skiaLayerAnalytics
-        composePanel = createDelegate()
+        composePanel = createComposePanel()
         contentPane.add(composePanel)
     }
 
@@ -103,7 +103,7 @@ class ComposeDialog : JDialog {
         skiaLayerAnalytics: SkiaLayerAnalytics = SkiaLayerAnalytics.Empty
     ) : super() {
         this.skiaLayerAnalytics = skiaLayerAnalytics
-        composePanel = createDelegate()
+        composePanel = createComposePanel()
         contentPane.add(composePanel)
     }
 
@@ -112,14 +112,14 @@ class ComposeDialog : JDialog {
         modalityType: ModalityType = ModalityType.MODELESS
     ) : super(null, modalityType) {
         skiaLayerAnalytics = SkiaLayerAnalytics.Empty
-        composePanel = createDelegate()
+        composePanel = createComposePanel()
         contentPane.add(composePanel)
     }
 
     constructor(graphicsConfiguration: GraphicsConfiguration? = null) :
         super(null as Frame?, "", false, graphicsConfiguration) {
         skiaLayerAnalytics = SkiaLayerAnalytics.Empty
-        composePanel = createDelegate()
+        composePanel = createComposePanel()
         contentPane.add(composePanel)
     }
 
@@ -128,9 +128,11 @@ class ComposeDialog : JDialog {
     // Dialog's shouldn't be appeared in the taskbar.
     constructor() : super() {
         skiaLayerAnalytics = SkiaLayerAnalytics.Empty
-        composePanel = createDelegate()
+        composePanel = createComposePanel()
         contentPane.add(composePanel)
     }
+
+    private val undecoratedWindowResizer = UndecoratedWindowResizer(this)
 
     override fun add(component: Component) = composePanel.add(component)
 
@@ -139,21 +141,15 @@ class ComposeDialog : JDialog {
     override fun setComponentOrientation(o: ComponentOrientation?) {
         super.setComponentOrientation(o)
 
-        updateLayoutDirection()
+        composePanel.onChangeLayoutDirection(this)
     }
 
     override fun setLocale(l: Locale?) {
         super.setLocale(l)
 
         // setLocale is called from JFrame constructor, before ComposeDialog has been initialized
-        @Suppress("SENSELESS_COMPARISON")
-        if (composePanel != null) {
-            updateLayoutDirection()
-        }
-    }
-
-    private fun updateLayoutDirection() {
-        scene.layoutDirection = layoutDirectionFor(this)
+        @Suppress("UNNECESSARY_SAFE_CALL")
+        composePanel?.onChangeLayoutDirection(this)
     }
 
     /**
@@ -221,6 +217,9 @@ class ComposeDialog : JDialog {
             modifier = Modifier.semantics { dialog() },
         ) {
             scope.content()
+            undecoratedWindowResizer.Content(
+                modifier = Modifier.layoutId("UndecoratedWindowResizer")
+            )
         }
     }
 
@@ -231,12 +230,12 @@ class ComposeDialog : JDialog {
 
     override fun setUndecorated(value: Boolean) {
         super.setUndecorated(value)
-        composePanel.undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
 
     override fun setResizable(value: Boolean) {
         super.setResizable(value)
-        composePanel.undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
 
     /**

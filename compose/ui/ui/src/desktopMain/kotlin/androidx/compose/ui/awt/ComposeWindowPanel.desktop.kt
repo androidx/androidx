@@ -23,23 +23,25 @@ import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.scene.ComposeScene
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.window.LocalWindow
-import androidx.compose.ui.window.UndecoratedWindowResizer
 import androidx.compose.ui.window.WindowExceptionHandler
-import androidx.compose.ui.window.density
-import java.awt.*
+import androidx.compose.ui.window.layoutDirectionFor
+import java.awt.Color
+import java.awt.Component
+import java.awt.Container
+import java.awt.FocusTraversalPolicy
+import java.awt.Window
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
 import javax.accessibility.Accessible
 import javax.swing.JLayeredPane
-import org.jetbrains.skiko.*
+import org.jetbrains.skiko.GraphicsApi
+import org.jetbrains.skiko.OS
+import org.jetbrains.skiko.SkiaLayer
+import org.jetbrains.skiko.SkiaLayerAnalytics
+import org.jetbrains.skiko.hostOs
 
 /**
  * A panel used as a main view in [ComposeWindow] and [ComposeDialog].
@@ -48,7 +50,6 @@ internal class ComposeWindowPanel(
     private val window: Window,
     private val isUndecorated: () -> Boolean,
     skiaLayerAnalytics: SkiaLayerAnalytics,
-    layoutDirection: LayoutDirection
 ) : JLayeredPane() {
     private var isDisposed = false
 
@@ -57,7 +58,7 @@ internal class ComposeWindowPanel(
     // so we nullify bridge on dispose, to prevent keeping
     // big objects in memory (like the whole LayoutNode tree of the window)
     private var _bridge: WindowComposeBridge? =
-        WindowComposeBridge(skiaLayerAnalytics, layoutDirection)
+        WindowComposeBridge(skiaLayerAnalytics, layoutDirectionFor(window))
     private val bridge
         get() = requireNotNull(_bridge) {
             "ComposeBridge is disposed"
@@ -69,8 +70,6 @@ internal class ComposeWindowPanel(
         get() = bridge.sceneAccessible
 
     internal var rootForTestListener by bridge::rootForTestListener
-
-    val undecoratedWindowResizer = UndecoratedWindowResizer(window)
 
     var fullscreen: Boolean
         get() = bridge.component.fullscreen
@@ -220,12 +219,7 @@ internal class ComposeWindowPanel(
                 LocalWindow provides window,
                 LocalLayerContainer provides this
             ) {
-                WindowContentLayout(modifier) {
-                    content()
-                    undecoratedWindowResizer.Content(
-                        modifier = Modifier.layoutId("UndecoratedWindowResizer")
-                    )
-                }
+                WindowContentLayout(modifier, content)
             }
         }
     }
@@ -240,6 +234,10 @@ internal class ComposeWindowPanel(
             _bridge = null
             isDisposed = true
         }
+    }
+
+    fun onChangeLayoutDirection(component: Component) {
+        bridge.scene.layoutDirection = layoutDirectionFor(component)
     }
 
     fun onRenderApiChanged(action: () -> Unit) {

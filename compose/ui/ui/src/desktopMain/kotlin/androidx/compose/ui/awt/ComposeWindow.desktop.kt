@@ -18,19 +18,21 @@ package androidx.compose.ui.awt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.window.FrameWindowScope
+import androidx.compose.ui.window.UndecoratedWindowResizer
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.WindowPlacement
-import androidx.compose.ui.window.layoutDirectionFor
 import java.awt.Component
 import java.awt.ComponentOrientation
 import java.awt.GraphicsConfiguration
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
-import java.util.Locale
+import java.util.*
 import javax.accessibility.Accessible
 import javax.swing.JFrame
 import org.jetbrains.skiko.GraphicsApi
@@ -64,9 +66,9 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     private val composePanel = ComposeWindowPanel(
         window = this,
         isUndecorated = ::isUndecorated,
-        skiaLayerAnalytics = skiaLayerAnalytics,
-        layoutDirection = layoutDirectionFor(this)
+        skiaLayerAnalytics = skiaLayerAnalytics
     )
+    private val undecoratedWindowResizer = UndecoratedWindowResizer(this)
 
     internal val scene: ComposeScene
         get() = composePanel.scene
@@ -87,21 +89,15 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     override fun setComponentOrientation(o: ComponentOrientation?) {
         super.setComponentOrientation(o)
 
-        updateLayoutDirection()
+        composePanel.onChangeLayoutDirection(this)
     }
 
     override fun setLocale(l: Locale?) {
         super.setLocale(l)
 
         // setLocale is called from JFrame constructor, before ComposeWindow has been initialized
-        @Suppress("SENSELESS_COMPARISON")
-        if (composePanel != null) {
-            updateLayoutDirection()
-        }
-    }
-
-    private fun updateLayoutDirection() {
-        scene.layoutDirection = layoutDirectionFor(this)
+        @Suppress("UNNECESSARY_SAFE_CALL")
+        composePanel?.onChangeLayoutDirection(this)
     }
 
     /**
@@ -156,10 +152,13 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
             override val window: ComposeWindow get() = this@ComposeWindow
         }
         composePanel.setContent(
-            onPreviewKeyEvent,
-            onKeyEvent
+            onPreviewKeyEvent = onPreviewKeyEvent,
+            onKeyEvent = onKeyEvent,
         ) {
             scope.content()
+            undecoratedWindowResizer.Content(
+                modifier = Modifier.layoutId("UndecoratedWindowResizer")
+            )
         }
     }
 
@@ -170,12 +169,12 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
 
     override fun setUndecorated(value: Boolean) {
         super.setUndecorated(value)
-        composePanel.undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
 
     override fun setResizable(value: Boolean) {
         super.setResizable(value)
-        composePanel.undecoratedWindowResizer.enabled = isUndecorated && isResizable
+        undecoratedWindowResizer.enabled = isUndecorated && isResizable
     }
 
     /**
