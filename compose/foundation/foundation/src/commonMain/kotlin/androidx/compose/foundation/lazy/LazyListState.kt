@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastRoundToInt
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.math.abs
 import kotlin.ranges.IntRange
 import kotlin.ranges.until
@@ -175,10 +176,7 @@ class LazyListState constructor(
     internal var scrollToBeConsumed = 0f
         private set
 
-    /**
-     * Needed for [animateScrollToItem].  Updated on every measure.
-     */
-    internal var density: Density = Density(1f, 1f)
+    internal val density: Density get() = layoutInfoState.value.density
 
     /**
      * The ScrollableController instance. We keep it as we need to call stopAnimation on it once
@@ -240,11 +238,6 @@ class LazyListState constructor(
     internal val itemAnimator = LazyListItemAnimator()
 
     internal val beyondBoundsInfo = LazyLayoutBeyondBoundsInfo()
-
-    /**
-     * Constraints passed to the prefetcher for premeasuring the prefetched items.
-     */
-    internal var premeasureConstraints = Constraints()
 
     /**
      * Stores currently pinned items which are always composed.
@@ -369,7 +362,10 @@ class LazyListState constructor(
         }
     }
 
-    private fun notifyPrefetch(delta: Float, layoutInfo: LazyListLayoutInfo = this.layoutInfo) {
+    private fun notifyPrefetch(
+        delta: Float,
+        layoutInfo: LazyListMeasureResult = layoutInfoState.value
+    ) {
         if (!prefetchingEnabled) {
             return
         }
@@ -394,7 +390,7 @@ class LazyListState constructor(
                 this.wasScrollingForward = scrollingForward
                 this.indexToPrefetch = indexToPrefetch
                 currentPrefetchHandle = prefetchState.schedulePrefetch(
-                    indexToPrefetch, premeasureConstraints
+                    indexToPrefetch, layoutInfo.childConstraints
                 )
             }
         }
@@ -464,12 +460,16 @@ class LazyListState constructor(
             scrollToBeConsumed -= result.consumedScroll
             layoutInfoState.value = result
 
-            if (isLookingAhead) updateScrollDeltaForPostLookahead(result.scrollBackAmount)
+            if (isLookingAhead) {
+                updateScrollDeltaForPostLookahead(
+                    result.scrollBackAmount,
+                    result.density,
+                    result.coroutineScope
+                )
+            }
             numMeasurePasses++
         }
     }
-
-    internal var coroutineScope: CoroutineScope? = null
 
     internal val scrollDeltaBetweenPasses: Float
         get() = _scrollDeltaBetweenPasses.value
@@ -478,7 +478,11 @@ class LazyListState constructor(
         AnimationState(Float.VectorConverter, 0f, 0f)
 
     // Updates the scroll delta between lookahead & post-lookahead pass
-    private fun updateScrollDeltaForPostLookahead(delta: Float) {
+    private fun updateScrollDeltaForPostLookahead(
+        delta: Float,
+        density: Density,
+        coroutineScope: CoroutineScope
+    ) {
         if (delta <= with(density) { DeltaThresholdForScrollAnimation.toPx() }) {
             // If the delta is within the threshold, scroll by the delta amount instead of animating
             return
@@ -491,7 +495,7 @@ class LazyListState constructor(
 
             if (_scrollDeltaBetweenPasses.isRunning) {
                 _scrollDeltaBetweenPasses = _scrollDeltaBetweenPasses.copy(currentDelta - delta)
-                coroutineScope?.launch {
+                coroutineScope.launch {
                     _scrollDeltaBetweenPasses.animateTo(
                         0f,
                         spring(stiffness = Spring.StiffnessMediumLow, visibilityThreshold = 0.5f),
@@ -500,7 +504,7 @@ class LazyListState constructor(
                 }
             } else {
                 _scrollDeltaBetweenPasses = AnimationState(Float.VectorConverter, -delta)
-                coroutineScope?.launch {
+                coroutineScope.launch {
                     _scrollDeltaBetweenPasses.animateTo(
                         0f,
                         spring(stiffness = Spring.StiffnessMediumLow, visibilityThreshold = 0.5f),
@@ -560,7 +564,10 @@ private val EmptyLazyListMeasureResult = LazyListMeasureResult(
     orientation = Orientation.Vertical,
     afterContentPadding = 0,
     mainAxisItemSpacing = 0,
-    remeasureNeeded = false
+    remeasureNeeded = false,
+    coroutineScope = CoroutineScope(EmptyCoroutineContext),
+    density = Density(1f),
+    childConstraints = Constraints()
 )
 
 private const val NumberOfItemsToTeleport = 100
