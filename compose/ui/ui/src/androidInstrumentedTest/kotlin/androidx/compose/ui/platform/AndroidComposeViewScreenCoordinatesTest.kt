@@ -45,6 +45,7 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
@@ -92,6 +93,7 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
+    @FlakyTest(bugId = 311009092)
     @Test
     fun positionOnScreen_withNoComposableOffset() {
         rule.runOnIdle {
