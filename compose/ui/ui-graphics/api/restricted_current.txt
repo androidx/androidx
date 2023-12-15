@@ -365,11 +365,11 @@ package androidx.compose.ui.graphics {
 
   @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class Color {
     ctor public Color(long value);
-    method @androidx.compose.runtime.Stable public operator float component1();
-    method @androidx.compose.runtime.Stable public operator float component2();
-    method @androidx.compose.runtime.Stable public operator float component3();
-    method @androidx.compose.runtime.Stable public operator float component4();
-    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.graphics.colorspace.ColorSpace component5();
+    method @androidx.compose.runtime.Stable public inline operator float component1();
+    method @androidx.compose.runtime.Stable public inline operator float component2();
+    method @androidx.compose.runtime.Stable public inline operator float component3();
+    method @androidx.compose.runtime.Stable public inline operator float component4();
+    method @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.graphics.colorspace.ColorSpace component5();
     method public long convert(androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace);
     method @androidx.compose.runtime.Stable public long copy(optional float alpha, optional float red, optional float green, optional float blue);
     method public float getAlpha();
