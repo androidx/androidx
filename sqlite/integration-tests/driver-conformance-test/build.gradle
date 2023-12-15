@@ -13,33 +13,74 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+import androidx.build.KmpPlatformsKt
+import org.jetbrains.kotlin.gradle.plugin.KotlinPlatformType
+
 plugins {
     id("AndroidXPlugin")
+    id("com.android.library")
 }
 
+def nativeEnabled = KmpPlatformsKt.enableNative(project)
+
 androidXMultiplatform {
+    android()
     androidNative()
-    jvm()
-    mac()
-    linux()
     ios()
+    jvm()
+    linux()
+    mac()
 
     sourceSets {
-        commonMain {
+        commonTest {
             dependencies {
-                api(project(":sqlite:sqlite"))
+                implementation(project(":sqlite:sqlite"))
                 implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinTest)
                 implementation(project(":kruth:kruth"))
             }
         }
-        jvmMain {
-            dependsOn(commonMain)
+        androidInstrumentedTest {
+            dependsOn(commonTest)
             dependencies {
+                implementation(project(":sqlite:sqlite-framework"))
+                implementation(project(":sqlite:sqlite-bundled"))
+
+                implementation(libs.kotlinTestJunit)
+                implementation(libs.testRunner)
+                implementation(libs.testCore)
+            }
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(project(":sqlite:sqlite-bundled"))
+
                 implementation(libs.kotlinTestJunit)
             }
         }
+        if (nativeEnabled) {
+            nativeTest {
+                dependsOn(commonTest)
+                dependencies {
+                    implementation(project(":sqlite:sqlite-framework"))
+                    implementation(project(":sqlite:sqlite-bundled"))
+                }
+            }
+        }
+        targets.all { target ->
+            if (target.platformType == KotlinPlatformType.native) {
+                target.compilations["test"].defaultSourceSet {
+                    dependsOn(nativeTest)
+                }
+            }
+        }
     }
+}
+
+android {
+    namespace "androidx.sqlite.driver.test"
 }
 
 androidx {

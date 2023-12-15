@@ -18,11 +18,6 @@ package androidx.sqlite
 
 import androidx.annotation.RestrictTo
 
-/**
- * An exception that indicates that something has gone wrong and a error code was produced.
- *
- * See [Result and Error codes](https://www.sqlite.org/rescode.html)
- */
-expect class SQLiteException
+actual class SQLiteException
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-constructor(message: String) : RuntimeException
+actual constructor(message: String) : RuntimeException(message)

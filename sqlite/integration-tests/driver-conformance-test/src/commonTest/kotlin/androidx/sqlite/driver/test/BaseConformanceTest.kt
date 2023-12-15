@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.sqlite.driver
+package androidx.sqlite.driver.test
 
 import androidx.kruth.assertThat
 import androidx.sqlite.SQLiteConnection
@@ -27,7 +27,15 @@ import kotlin.test.assertFailsWith
 
 abstract class BaseConformanceTest {
 
+    abstract val driverType: TestDriverType
+
     abstract fun getDriver(): SQLiteDriver
+
+    enum class TestDriverType {
+        ANDROID_FRAMEWORK, // :sqlite:sqlite-framework (Android)
+        NATIVE_FRAMEWORK, // :sqlite:sqlite-framework (Native)
+        BUNDLED, // :sqlite:sqlite-bundled (Android, Native, JVM)
+    }
 
     @Test
     fun openAndCloseConnection() {
@@ -110,49 +118,59 @@ abstract class BaseConformanceTest {
     open fun bindInvalidParam() = testWithConnection { connection ->
         connection.execSQL("CREATE TABLE Test (col)")
         connection.prepare("SELECT 1 FROM Test").use {
-            var message: String?
+            var message: String? = null
             val expectedMessage = "Error code: 25, message: column index out of range"
+
+            fun checkExceptionMsg() {
+                assertThat(message).isEqualTo(expectedMessage)
+            }
+
             message = assertFailsWith<SQLiteException> { it.bindNull(1) }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
             message = assertFailsWith<SQLiteException> { it.bindBlob(1, byteArrayOf()) }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
             message = assertFailsWith<SQLiteException> { it.bindDouble(1, 0.0) }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
             message = assertFailsWith<SQLiteException> { it.bindLong(1, 0) }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
             message = assertFailsWith<SQLiteException> { it.bindText(1, "") }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
 
             message = assertFailsWith<SQLiteException> { it.bindText(0, "") }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
             message = assertFailsWith<SQLiteException> { it.bindText(-1, "") }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
         }
     }
 
     @Test
-    open fun readInvalidColumn() = testWithConnection { connection ->
+    fun readInvalidColumn() = testWithConnection { connection ->
         connection.execSQL("CREATE TABLE Test (col)")
         connection.execSQL("INSERT INTO Test (col) VALUES ('')")
         connection.prepare("SELECT * FROM Test").use {
             assertThat(it.step()).isTrue() // SQLITE_ROW
-            var message: String?
+            var message: String? = null
             val expectedMessage = "Error code: 25, message: column index out of range"
+
+            fun checkExceptionMsg() {
+                assertThat(message).isEqualTo(expectedMessage)
+            }
+
             message = assertFailsWith<SQLiteException> { it.isNull(3) }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
             message = assertFailsWith<SQLiteException> { it.getBlob(3) }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
             message = assertFailsWith<SQLiteException> { it.getDouble(3) }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
             message = assertFailsWith<SQLiteException> { it.getLong(3) }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
             message = assertFailsWith<SQLiteException> { it.getText(3) }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
             message = assertFailsWith<SQLiteException> { it.getColumnName(3) }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
 
             message = assertFailsWith<SQLiteException> { it.getColumnName(-1) }.message
-            assertThat(message).isEqualTo(expectedMessage)
+            checkExceptionMsg()
         }
     }
 
@@ -167,16 +185,32 @@ abstract class BaseConformanceTest {
     }
 
     @Test
-    open fun readColumnNameWithoutStep() = testWithConnection { connection ->
+    fun readColumnNameWithoutStep() = testWithConnection { connection ->
         connection.execSQL("CREATE TABLE Test (col)")
         connection.prepare("SELECT col FROM Test").use {
-            assertThat(it.getColumnCount()).isEqualTo(1)
-            assertThat(it.getColumnName(0)).isEqualTo("col")
+            if (driverType == TestDriverType.ANDROID_FRAMEWORK) {
+                // In Android framework the statement is not compiled until first step, so
+                // proper analysis of result column count cannot be done.
+                val message = assertFailsWith<SQLiteException> { it.getColumnName(0) }.message
+                assertThat(message).isEqualTo("Error code: 21, message: no row")
+            } else {
+                assertThat(it.getColumnCount()).isEqualTo(1)
+                assertThat(it.getColumnName(0)).isEqualTo("col")
+            }
         }
     }
 
     @Test
-    open fun prepareInvalidReadStatement() = testWithConnection {
+    fun readColumnOfInsertStatement() = testWithConnection { connection ->
+        connection.execSQL("CREATE TABLE Test (col)")
+        connection.prepare("INSERT INTO Test (col) VALUES (?)").use {
+            val message = assertFailsWith<SQLiteException> { it.getText(0) }.message
+            assertThat(message).isEqualTo("Error code: 21, message: no row")
+        }
+    }
+
+    @Test
+    fun prepareInvalidReadStatement() = testWithConnection {
         assertThat(
             assertFailsWith<SQLiteException> {
                 it.prepare("SELECT * FROM Foo").use { it.step() }
@@ -185,7 +219,7 @@ abstract class BaseConformanceTest {
     }
 
     @Test
-    open fun prepareInvalidWriteStatement() = testWithConnection {
+    fun prepareInvalidWriteStatement() = testWithConnection {
         assertThat(
             assertFailsWith<SQLiteException> {
                 it.execSQL("INSERT INTO Foo (id) VALUES (1)")
@@ -204,9 +238,19 @@ abstract class BaseConformanceTest {
     }
 
     @Test
-    fun useClosedStatement() = testWithConnection {
+    fun useClosedSelectStatement() = testWithConnection {
         it.execSQL("CREATE TABLE Foo (id)")
         val statement = it.prepare("SELECT * FROM Foo")
+        statement.close()
+        assertFailsWith<SQLiteException> {
+            statement.step()
+        }
+    }
+
+    @Test
+    fun useClosedInsertStatement() = testWithConnection {
+        it.execSQL("CREATE TABLE Foo (id)")
+        val statement = it.prepare("INSERT INTO Foo (id) VALUES (1)")
         statement.close()
         assertFailsWith<SQLiteException> {
             statement.step()

@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.sqlite.driver
+package androidx.sqlite.driver.test
 
 import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 
-class NativeSQLiteDriverTest : BaseConformanceTest() {
+class BundledSQLiteDriverTest : BaseBundledConformanceTest() {
+
+    override val driverType = TestDriverType.BUNDLED
 
     override fun getDriver(): SQLiteDriver {
-        return NativeSQLiteDriver(":memory:")
+        return BundledSQLiteDriver(filename = ":memory:")
     }
 }

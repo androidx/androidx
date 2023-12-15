@@ -10,9 +10,6 @@ package androidx.sqlite {
     method public androidx.sqlite.SQLiteConnection open();
   }
 
-  public final class SQLiteException extends java.lang.RuntimeException {
-  }
-
   public interface SQLiteStatement {
     method public void bindBlob(int index, byte[] value);
     method public void bindDouble(int index, double value);

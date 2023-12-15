@@ -14,15 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.sqlite
+package androidx.sqlite.driver.test
 
-import androidx.annotation.RestrictTo
+import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.driver.AndroidSQLiteDriver
+import kotlin.test.Ignore
 
-/**
- * An exception that indicates that something has gone wrong and a error code was produced.
- *
- * See [Result and Error codes](https://www.sqlite.org/rescode.html)
- */
-expect class SQLiteException
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-constructor(message: String) : RuntimeException
+class AndroidSQLiteDriverTest : BaseConformanceTest() {
+
+    override val driverType = TestDriverType.ANDROID_FRAMEWORK
+
+    override fun getDriver(): SQLiteDriver {
+        return AndroidSQLiteDriver(":memory:")
+    }
+
+    @Ignore // TODO(b/304297717): Align exception checking test with native.
+    override fun bindInvalidParam() {}
+}

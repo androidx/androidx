@@ -14,31 +14,16 @@
  * limitations under the License.
  */
 
-package androidx.sqlite.driver.bundled
+package androidx.sqlite.driver.test
 
-import androidx.kruth.assertThat
 import androidx.sqlite.SQLiteDriver
-import androidx.sqlite.driver.BaseConformanceTest
-import androidx.sqlite.use
-import kotlin.test.Test
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 
-class BundledSQLiteDriverTest : BaseConformanceTest() {
+class BundledSQLiteDriverTest : BaseBundledConformanceTest() {
+
+    override val driverType = TestDriverType.BUNDLED
+
     override fun getDriver(): SQLiteDriver {
         return BundledSQLiteDriver(filename = ":memory:")
-    }
-
-    @Test
-    fun readSQLiteVersion() {
-        val connection = getDriver().open()
-        try {
-            val version = connection.prepare("SELECT sqlite_version()").use {
-                it.step()
-                it.getText(0)
-            }
-            // The bundled androidx SQLite version compiled and statically included
-            assertThat(version).isEqualTo("3.42.0")
-        } finally {
-            connection.close()
-        }
     }
 }
