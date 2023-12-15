@@ -36,6 +36,7 @@ import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Log
 import androidx.camera.camera2.pipe.integration.config.UseCaseCameraScope
 import androidx.camera.camera2.pipe.integration.config.UseCaseGraphConfig
+import androidx.camera.core.impl.SessionProcessor.CaptureCallback
 import javax.inject.Inject
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.CancellationException
@@ -57,7 +58,8 @@ import kotlinx.coroutines.launch
 @UseCaseCameraScope
 class UseCaseCameraState @Inject constructor(
     useCaseGraphConfig: UseCaseGraphConfig,
-    private val threads: UseCaseThreads
+    private val threads: UseCaseThreads,
+    private val sessionProcessorManager: SessionProcessorManager?,
 ) {
     private val lock = Any()
 
@@ -281,7 +283,11 @@ class UseCaseCameraState @Inject constructor(
                             }
                         }
                         Log.debug { "Update RepeatingRequest: $request" }
-                        it.startRepeating(request)
+                        if (sessionProcessorManager != null) {
+                            sessionProcessorManager.startRepeating(object : CaptureCallback {})
+                        } else {
+                            it.startRepeating(request)
+                        }
                         it.update3A(request.parameters)
                     }
                 }

@@ -33,11 +33,13 @@ import androidx.camera.camera2.pipe.GraphState.GraphStateStopping
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestMetadata
 import androidx.camera.camera2.pipe.compat.Camera2Quirks
+import androidx.camera.camera2.pipe.compat.CameraPipeKeys
 import androidx.camera.camera2.pipe.config.CameraGraphScope
 import androidx.camera.camera2.pipe.config.ForCameraGraph
 import androidx.camera.camera2.pipe.core.CoroutineMutex
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log.debug
+import androidx.camera.camera2.pipe.core.Log.info
 import androidx.camera.camera2.pipe.core.Log.warn
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.core.withLockLaunch
@@ -573,7 +575,18 @@ constructor(
                 submitted =
                     synchronized(processor) {
                         val requiredParameters = mutableMapOf<Any, Any?>()
-                        graphState3A.writeTo(requiredParameters)
+                        if (cameraGraphConfig.defaultParameters[
+                                CameraPipeKeys.ignore3ARequiredParameters] == true ||
+                            cameraGraphConfig.requiredParameters[
+                                CameraPipeKeys.ignore3ARequiredParameters] == true
+                        ) {
+                            info {
+                                "${CameraPipeKeys.ignore3ARequiredParameters} is set to true, " +
+                                    "ignoring 3A required parameters"
+                            }
+                        } else {
+                            graphState3A.writeTo(requiredParameters)
+                        }
                         requiredParameters.putAllMetadata(cameraGraphConfig.requiredParameters)
 
                         processor.submit(
