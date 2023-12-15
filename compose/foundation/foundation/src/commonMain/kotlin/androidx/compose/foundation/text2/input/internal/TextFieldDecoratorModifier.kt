@@ -17,6 +17,9 @@
 package androidx.compose.foundation.text2.input.internal
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.interaction.HoverInteraction
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.KeyboardActionScope
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -81,6 +84,8 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+private const val MIMETYPE_TEXT = "text/*"
+
 /**
  * Modifier element for most of the functionality of [BasicTextField2] that is attached to the
  * decoration box. This is only half the actual modifiers for the field, the other half are only
@@ -99,6 +104,7 @@ internal data class TextFieldDecoratorModifier(
     private val keyboardOptions: KeyboardOptions,
     private val keyboardActions: KeyboardActions,
     private val singleLine: Boolean,
+    private val interactionSource: MutableInteractionSource
 ) : ModifierNodeElement<TextFieldDecoratorModifierNode>() {
     override fun create(): TextFieldDecoratorModifierNode = TextFieldDecoratorModifierNode(
         textFieldState = textFieldState,
@@ -110,6 +116,7 @@ internal data class TextFieldDecoratorModifier(
         keyboardOptions = keyboardOptions,
         keyboardActions = keyboardActions,
         singleLine = singleLine,
+        interactionSource = interactionSource,
     )
 
     override fun update(node: TextFieldDecoratorModifierNode) {
@@ -123,6 +130,7 @@ internal data class TextFieldDecoratorModifier(
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = singleLine,
+            interactionSource = interactionSource,
         )
     }
 
@@ -143,6 +151,7 @@ internal class TextFieldDecoratorModifierNode(
     keyboardOptions: KeyboardOptions,
     var keyboardActions: KeyboardActions,
     var singleLine: Boolean,
+    var interactionSource: MutableInteractionSource
 ) : DelegatingNode(),
     PlatformTextInputModifierNode,
     SemanticsModifierNode,
@@ -173,6 +182,49 @@ internal class TextFieldDecoratorModifierNode(
             )
         }
     })
+
+    /**
+     * The last enter event that was submitted to [interactionSource] from [dragAndDropNode]. We
+     * need to keep a reference to this event to send a follow-up exit event.
+     *
+     * We are using interaction source hover state as a hacky capsule to carry dragging events to
+     * core modifier node which draws the cursor and shows the magnifier. TextFields are not
+     * really focused when a dragging text hovers over them. Focused TextFields should have active
+     * input connections that is not required in a drag and drop scenario.
+     *
+     * When proper hover events are implemented for [interactionSource], the below code in
+     * [dragAndDropNode] should be revised.
+     */
+    private var dragEnterEvent: HoverInteraction.Enter? = null
+
+    private val dragAndDropNode = delegate(
+        textFieldDragAndDropNode(
+            acceptedMimeTypes = setOf(MIMETYPE_TEXT),
+            onEntered = {
+                dragEnterEvent = HoverInteraction.Enter().also {
+                    interactionSource.tryEmit(it)
+                }
+            },
+            onMoved = { position ->
+                val positionOnTextField = textLayoutState.fromWindowToDecoration(position)
+                val cursorPosition = textLayoutState.getOffsetForPosition(positionOnTextField)
+                textFieldState.selectCharsIn(TextRange(cursorPosition))
+                textFieldSelectionState.updateHandleDragging(Handle.Cursor, positionOnTextField)
+            },
+            onDrop = {
+                emitDragExitEvent()
+                textFieldSelectionState.clearHandleDragging()
+                textFieldState.replaceSelectedText(it.text)
+                true
+            },
+            onExited = {
+                emitDragExitEvent()
+                textFieldSelectionState.clearHandleDragging()
+            },
+            onEnded = {
+                emitDragExitEvent()
+            })
+    )
 
     var keyboardOptions: KeyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
         private set
@@ -251,6 +303,7 @@ internal class TextFieldDecoratorModifierNode(
         keyboardOptions: KeyboardOptions,
         keyboardActions: KeyboardActions,
         singleLine: Boolean,
+        interactionSource: MutableInteractionSource
     ) {
         // Find the diff: current previous and new values before updating current.
         val previousWriteable = this.enabled && !this.readOnly
@@ -272,6 +325,7 @@ internal class TextFieldDecoratorModifierNode(
         this.keyboardOptions = keyboardOptions.withDefaultsFrom(filter?.keyboardOptions)
         this.keyboardActions = keyboardActions
         this.singleLine = singleLine
+        this.interactionSource = interactionSource
 
         // React to diff.
         // Something about the session changed, restart the session.
@@ -520,6 +574,13 @@ internal class TextFieldDecoratorModifierNode(
     private fun requireKeyboardController(): SoftwareKeyboardController =
         currentValueOf(LocalSoftwareKeyboardController)
             ?: error("No software keyboard controller")
+
+    private fun emitDragExitEvent() {
+        dragEnterEvent?.let {
+            interactionSource.tryEmit(HoverInteraction.Exit(it))
+            dragEnterEvent = null
+        }
+    }
 }
 
 /**

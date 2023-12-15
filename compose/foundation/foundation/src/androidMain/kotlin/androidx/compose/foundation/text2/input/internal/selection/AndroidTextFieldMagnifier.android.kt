@@ -18,7 +18,6 @@ package androidx.compose.foundation.text2.input.internal.selection
 
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.Animatable
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MagnifierNode
 import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.text.selection.MagnifierSpringSpec
@@ -41,12 +40,11 @@ import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 internal class TextFieldMagnifierNodeImpl28(
     private var textFieldState: TransformedTextFieldState,
     private var textFieldSelectionState: TextFieldSelectionState,
     private var textLayoutState: TextLayoutState,
-    private var isFocused: Boolean /* true iff component is focused and the window in focus */
+    private var visible: Boolean
 ) : TextFieldMagnifierNode(), CompositionLocalConsumerModifierNode {
 
     private var magnifierSize: IntSize by mutableStateOf(IntSize.Zero)
@@ -86,22 +84,22 @@ internal class TextFieldMagnifierNodeImpl28(
         textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         textLayoutState: TextLayoutState,
-        isFocused: Boolean
+        visible: Boolean
     ) {
         val previousTextFieldState = this.textFieldState
         val previousSelectionState = this.textFieldSelectionState
         val previousLayoutState = this.textLayoutState
-        val wasFocused = this.isFocused
+        val wasVisible = this.visible
 
         this.textFieldState = textFieldState
         this.textFieldSelectionState = textFieldSelectionState
         this.textLayoutState = textLayoutState
-        this.isFocused = isFocused
+        this.visible = visible
 
         if (textFieldState != previousTextFieldState ||
             textFieldSelectionState != previousSelectionState ||
             textLayoutState != previousLayoutState ||
-            isFocused != wasFocused
+            visible != wasVisible
         ) {
             restartAnimationJob()
         }
@@ -110,9 +108,9 @@ internal class TextFieldMagnifierNodeImpl28(
     private fun restartAnimationJob() {
         animationJob?.cancel()
         animationJob = null
-        // never start an expensive animation job if we do not have focus or
-        // magnifier is not supported.
-        if (!isFocused || !isPlatformMagnifierSupported()) return
+        // never start an expensive animation job if magnifier is not explicitly set to be visible
+        // or magnifier is not supported.
+        if (!visible || !isPlatformMagnifierSupported()) return
         animationJob = coroutineScope.launch {
             val animationScope = this
             snapshotFlow {
@@ -172,14 +170,14 @@ internal actual fun textFieldMagnifierNode(
     textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
-    isFocused: Boolean
+    visible: Boolean
 ): TextFieldMagnifierNode {
     return if (isPlatformMagnifierSupported()) {
         TextFieldMagnifierNodeImpl28(
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
             textLayoutState = textLayoutState,
-            isFocused = isFocused
+            visible = visible
         )
     } else {
         object : TextFieldMagnifierNode() {
@@ -187,7 +185,7 @@ internal actual fun textFieldMagnifierNode(
                 textFieldState: TransformedTextFieldState,
                 textFieldSelectionState: TextFieldSelectionState,
                 textLayoutState: TextLayoutState,
-                isFocused: Boolean
+                visible: Boolean
             ) {}
         }
     }

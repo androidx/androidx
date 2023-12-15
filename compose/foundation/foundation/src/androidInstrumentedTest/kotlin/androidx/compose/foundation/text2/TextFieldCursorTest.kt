@@ -17,6 +17,8 @@
 package androidx.compose.foundation.text2
 
 import android.os.Build
+import android.view.DragEvent
+import android.view.View
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
@@ -30,6 +32,7 @@ import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.foundation.text2.input.TextFieldState
+import androidx.compose.foundation.text2.input.internal.DragAndDropTestUtils.makeTextDragEvent
 import androidx.compose.foundation.text2.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -55,6 +58,7 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.platform.testTag
@@ -845,6 +849,181 @@ class TextFieldCursorTest : FocusedWindowTest {
         rule.onNode(hasSetTextAction())
             .captureToImage()
             .assertContainsColor(selectionColor)
+    }
+
+    @Ignore("b/305799612")
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textField_textDragging_cursorRendered() {
+        state = TextFieldState("Hello World")
+        var view: View? = null
+        rule.setTestContent {
+            view = LocalView.current
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
+        }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.runOnIdle {
+            val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
+            val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
+            val moveEvent = makeTextDragEvent(
+                DragEvent.ACTION_DRAG_LOCATION,
+                Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
+            )
+
+            view?.dispatchDragEvent(startEvent)
+            view?.dispatchDragEvent(enterEvent)
+            view?.dispatchDragEvent(moveEvent)
+        }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInLtr)
+    }
+
+    @Ignore("b/305799612")
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textField_textDragging_cursorDisappearsAfterTimeout() {
+        state = TextFieldState("Hello World")
+        var view: View? = null
+        rule.setTestContent {
+            view = LocalView.current
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
+        }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.runOnIdle {
+            val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
+            val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
+            val moveEvent = makeTextDragEvent(
+                DragEvent.ACTION_DRAG_LOCATION,
+                Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
+            )
+
+            view?.dispatchDragEvent(startEvent)
+            view?.dispatchDragEvent(enterEvent)
+            view?.dispatchDragEvent(moveEvent)
+        }
+
+        rule.mainClock.advanceTimeBy(500)
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertShape(
+                density = rule.density,
+                shape = RectangleShape,
+                shapeColor = contentColor,
+                backgroundColor = contentColor,
+                shapeOverlapPixelCount = 0.0f
+            )
+    }
+
+    @Ignore("b/305799612")
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textField_textDragging_cursorDoesNotDisappearWhileMoving() {
+        state = TextFieldState("Hello World")
+        var view: View? = null
+        rule.setTestContent {
+            view = LocalView.current
+            BasicTextField2(
+                state = state,
+                textStyle = textStyle,
+                modifier = textFieldModifier,
+                cursorBrush = SolidColor(cursorColor),
+                onTextLayout = onTextLayout
+            )
+        }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.runOnIdle {
+            val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
+            val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
+            val moveEvent = makeTextDragEvent(
+                DragEvent.ACTION_DRAG_LOCATION,
+                Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
+            )
+
+            view?.dispatchDragEvent(startEvent)
+            view?.dispatchDragEvent(enterEvent)
+            view?.dispatchDragEvent(moveEvent)
+        }
+
+        rule.mainClock.advanceTimeBy(300)
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInLtr)
+
+        val moveEvent2 = makeTextDragEvent(
+            DragEvent.ACTION_DRAG_LOCATION,
+            Offset(with(rule.density) { fontSize.toPx() * 4 }, 5f)
+        )
+        view?.dispatchDragEvent(moveEvent2)
+        rule.mainClock.advanceTimeBy(400)
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInLtr)
+    }
+
+    @Ignore("b/305799612")
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    fun textField_textDragging_noWindowFocus_cursorRendered() {
+        state = TextFieldState("Hello World")
+        var view: View? = null
+        rule.setContent {
+            Box(Modifier.padding(boxPadding)) {
+                view = LocalView.current
+                BasicTextField2(
+                    state = state,
+                    textStyle = textStyle,
+                    modifier = textFieldModifier,
+                    cursorBrush = SolidColor(cursorColor),
+                    onTextLayout = onTextLayout
+                )
+            }
+        }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.runOnIdle {
+            val startEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_STARTED)
+            val enterEvent = makeTextDragEvent(DragEvent.ACTION_DRAG_ENTERED)
+            val moveEvent = makeTextDragEvent(
+                DragEvent.ACTION_DRAG_LOCATION,
+                Offset(with(rule.density) { fontSize.toPx() * 3 }, 5f)
+            )
+
+            view?.dispatchDragEvent(startEvent)
+            view?.dispatchDragEvent(enterEvent)
+            view?.dispatchDragEvent(moveEvent)
+        }
+
+        rule.mainClock.advanceTimeBy(100)
+
+        rule.onNode(hasSetTextAction())
+            .captureToImage()
+            .assertCursor(cursorTopCenterInLtr)
     }
 
     private fun focusAndWait() {

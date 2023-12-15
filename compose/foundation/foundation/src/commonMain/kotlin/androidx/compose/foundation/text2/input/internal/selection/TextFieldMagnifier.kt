@@ -44,7 +44,7 @@ internal abstract class TextFieldMagnifierNode : DelegatingNode(),
         textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
         textLayoutState: TextLayoutState,
-        isFocused: Boolean
+        visible: Boolean
     )
 
     override fun onGloballyPositioned(coordinates: LayoutCoordinates) {}
@@ -59,7 +59,7 @@ internal expect fun textFieldMagnifierNode(
     textFieldState: TransformedTextFieldState,
     textFieldSelectionState: TextFieldSelectionState,
     textLayoutState: TextLayoutState,
-    isFocused: Boolean
+    visible: Boolean
 ): TextFieldMagnifierNode
 
 @OptIn(ExperimentalFoundationApi::class)

@@ -80,6 +80,7 @@ import kotlinx.coroutines.withContext
  */
 internal data class TextFieldCoreModifier(
     private val isFocused: Boolean, /* true iff component is focused and the window in focus */
+    private val isDragHovered: Boolean,
     private val textLayoutState: TextLayoutState,
     private val textFieldState: TransformedTextFieldState,
     private val textFieldSelectionState: TextFieldSelectionState,
@@ -91,6 +92,7 @@ internal data class TextFieldCoreModifier(
 
     override fun create(): TextFieldCoreModifierNode = TextFieldCoreModifierNode(
         isFocused = isFocused,
+        isDragHovered = isDragHovered,
         textLayoutState = textLayoutState,
         textFieldState = textFieldState,
         textFieldSelectionState = textFieldSelectionState,
@@ -103,6 +105,7 @@ internal data class TextFieldCoreModifier(
     override fun update(node: TextFieldCoreModifierNode) {
         node.updateNode(
             isFocused = isFocused,
+            isDragHovered = isDragHovered,
             textLayoutState = textLayoutState,
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
@@ -123,6 +126,7 @@ internal data class TextFieldCoreModifier(
 internal class TextFieldCoreModifierNode(
     // true iff this component is focused and the window is focused
     private var isFocused: Boolean,
+    private var isDragHovered: Boolean,
     private var textLayoutState: TextLayoutState,
     private var textFieldState: TransformedTextFieldState,
     private var textFieldSelectionState: TextFieldSelectionState,
@@ -149,7 +153,7 @@ internal class TextFieldCoreModifierNode(
      * and brush at a given time.
      */
     private val showCursor: Boolean
-        get() = writeable && isFocused && cursorBrush.isSpecified
+        get() = writeable && (isFocused || isDragHovered) && cursorBrush.isSpecified
 
     /**
      * Observes the [textFieldState] for any changes to content or selection. If a change happens,
@@ -172,7 +176,7 @@ internal class TextFieldCoreModifierNode(
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
             textLayoutState = textLayoutState,
-            isFocused = isFocused
+            visible = isFocused || isDragHovered
         )
     )
 
@@ -181,6 +185,7 @@ internal class TextFieldCoreModifierNode(
      */
     fun updateNode(
         isFocused: Boolean,
+        isDragHovered: Boolean,
         textLayoutState: TextLayoutState,
         textFieldState: TransformedTextFieldState,
         textFieldSelectionState: TextFieldSelectionState,
@@ -197,6 +202,7 @@ internal class TextFieldCoreModifierNode(
         val previousScrollState = this.scrollState
 
         this.isFocused = isFocused
+        this.isDragHovered = isDragHovered
         this.textLayoutState = textLayoutState
         this.textFieldState = textFieldState
         this.textFieldSelectionState = textFieldSelectionState
@@ -209,7 +215,7 @@ internal class TextFieldCoreModifierNode(
             textFieldState = textFieldState,
             textFieldSelectionState = textFieldSelectionState,
             textLayoutState = textLayoutState,
-            isFocused = isFocused
+            visible = isFocused || isDragHovered
         )
 
         if (!showCursor) {
