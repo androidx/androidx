@@ -25,6 +25,7 @@ import java.io.IOException
 import java.io.ObjectInputStream
 import java.io.ObjectOutputStream
 import java.util.Collections
+import java.util.Objects
 
 /**
  * A persistable set of key/value pairs which are used as inputs and outputs for
@@ -254,7 +255,16 @@ class Data {
     }
 
     override fun hashCode(): Int {
-        return 31 * values.hashCode()
+        var h = 0
+        for (entry in values.entries) {
+            val value = entry.value
+            h += if (value is Array<*>) {
+                Objects.hashCode(entry.key) xor value.contentDeepHashCode();
+            } else {
+                entry.hashCode()
+            }
+        }
+        return 31 * h
     }
 
     override fun toString(): String = buildString {
