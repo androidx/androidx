@@ -369,4 +369,8 @@
     <string name="route_options_demo_title" msgid="4599699012716426514">"راستے کے اختیارات"</string>
     <string name="avoid_highways_row_title" msgid="4711913426200490304">"شاہراہوں سے بچیں"</string>
     <string name="avoid_ferries_row_title" msgid="8232883866013711974">"فیری سے بچیں"</string>
+    <string name="map_demos_title" msgid="2169766615521476592">"‏Map کے ڈیموز"</string>
+    <string name="map_with_content_demo_title" msgid="1032610482145018739">"مواد کے ڈیموز والا نقشہ"</string>
+    <string name="map_with_message_demo_title" msgid="7007078234918054436">"پیغام کی تمثیل کے ڈیمو والا نقشہ"</string>
+    <string name="map_with_grid_demo_title" msgid="688667167861193192">"گرڈ کی تمثیل کے ڈیمو والا نقشہ"</string>
 </resources>
