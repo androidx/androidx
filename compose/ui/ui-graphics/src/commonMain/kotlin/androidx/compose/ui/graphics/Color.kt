@@ -137,12 +137,10 @@ value class Color(val value: ULong) {
      * @return A non-null color instance in the specified color space
      */
     fun convert(colorSpace: ColorSpace): Color {
-        val thisColorSpace = this.colorSpace
-        if (colorSpace == thisColorSpace) {
-            return this // nothing to convert
-        }
-        val connector = thisColorSpace.connect(colorSpace)
-        return connector.transformToColor(red, green, blue, alpha)
+        // If the destination color space is the same as this color's color space,
+        // the connector we get will be the identity connector
+        val connector = this.colorSpace.connect(colorSpace)
+        return connector.transformToColor(this)
     }
 
     /**
@@ -228,20 +226,25 @@ value class Color(val value: ULong) {
             }
         }
 
+    @Suppress("NOTHING_TO_INLINE")
     @Stable
-    operator fun component1(): Float = red
+    inline operator fun component1(): Float = red
 
+    @Suppress("NOTHING_TO_INLINE")
     @Stable
-    operator fun component2(): Float = green
+    inline operator fun component2(): Float = green
 
+    @Suppress("NOTHING_TO_INLINE")
     @Stable
-    operator fun component3(): Float = blue
+    inline operator fun component3(): Float = blue
 
+    @Suppress("NOTHING_TO_INLINE")
     @Stable
-    operator fun component4(): Float = alpha
+    inline operator fun component4(): Float = alpha
 
+    @Suppress("NOTHING_TO_INLINE")
     @Stable
-    operator fun component5(): ColorSpace = colorSpace
+    inline operator fun component5(): ColorSpace = colorSpace
 
     /**
      * Copies the existing color, changing only the provided values. The [ColorSpace][colorSpace]
