@@ -82,7 +82,8 @@ internal fun LazyStaggeredGrid(
                 state = semanticState,
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
-                reverseScrolling = reverseLayout
+                reverseScrolling = reverseLayout,
+                coroutineScope = coroutineScope
             )
             .lazyLayoutBeyondBoundsModifier(
                 state = rememberLazyStaggeredGridBeyondBoundsState(state = state),

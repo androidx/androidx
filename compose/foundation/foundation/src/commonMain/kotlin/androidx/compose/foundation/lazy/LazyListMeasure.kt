@@ -99,7 +99,10 @@ internal fun measureLazyList(
             orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
             afterContentPadding = afterContentPadding,
             mainAxisItemSpacing = spaceBetweenItems,
-            remeasureNeeded = false
+            remeasureNeeded = false,
+            coroutineScope = coroutineScope,
+            density = density,
+            childConstraints = measuredItemProvider.childConstraints
         )
     } else {
         var currentFirstItemIndex = firstVisibleItemIndex
@@ -384,7 +387,10 @@ internal fun measureLazyList(
             orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
             afterContentPadding = afterContentPadding,
             mainAxisItemSpacing = spaceBetweenItems,
-            remeasureNeeded = remeasureNeeded
+            remeasureNeeded = remeasureNeeded,
+            coroutineScope = coroutineScope,
+            density = density,
+            childConstraints = measuredItemProvider.childConstraints
         )
     }
 }

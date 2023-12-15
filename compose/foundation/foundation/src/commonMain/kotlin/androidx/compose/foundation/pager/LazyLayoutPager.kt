@@ -41,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -132,6 +133,8 @@ internal fun Pager(
 
     val pagerBringIntoViewSpec = remember(state) { PagerBringIntoViewSpec(state) }
 
+    val coroutineScope = rememberCoroutineScope()
+
     LazyLayout(
         modifier = modifier
             .then(state.remeasurementModifier)
@@ -141,7 +144,8 @@ internal fun Pager(
                 state = semanticState,
                 orientation = orientation,
                 userScrollEnabled = userScrollEnabled,
-                reverseScrolling = reverseLayout
+                reverseScrolling = reverseLayout,
+                coroutineScope = coroutineScope
             )
             .lazyLayoutBeyondBoundsModifier(
                 state = rememberPagerBeyondBoundsState(
