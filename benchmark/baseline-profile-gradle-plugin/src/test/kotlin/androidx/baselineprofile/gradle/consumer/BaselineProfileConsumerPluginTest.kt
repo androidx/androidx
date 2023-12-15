@@ -20,11 +20,12 @@ import androidx.baselineprofile.gradle.utils.ANDROID_APPLICATION_PLUGIN
 import androidx.baselineprofile.gradle.utils.ANDROID_LIBRARY_PLUGIN
 import androidx.baselineprofile.gradle.utils.ANDROID_TEST_PLUGIN
 import androidx.baselineprofile.gradle.utils.BaselineProfileProjectSetupRule
+import androidx.baselineprofile.gradle.utils.EXPECTED_PROFILE_FOLDER
 import androidx.baselineprofile.gradle.utils.Fixtures
 import androidx.baselineprofile.gradle.utils.TestAgpVersion
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_0_0
 import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_1_0
-import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_CURRENT
+import androidx.baselineprofile.gradle.utils.TestAgpVersion.TEST_AGP_VERSION_8_3_0
 import androidx.baselineprofile.gradle.utils.VariantProfile
 import androidx.baselineprofile.gradle.utils.build
 import androidx.baselineprofile.gradle.utils.buildAndAssertThatOutput
@@ -43,15 +44,13 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.junit.runners.Parameterized
 
-private const val EXPECTED_PROFILE_FOLDER = "generated/baselineProfiles"
-
 @RunWith(Parameterized::class)
 class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) {
 
     companion object {
         @Parameterized.Parameters(name = "agpVersion={0}")
         @JvmStatic
-        fun parameters() = TestAgpVersion.values()
+        fun parameters() = TestAgpVersion.all()
     }
 
     @get:Rule
@@ -59,37 +58,22 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
 
     private val gradleRunner by lazy { projectSetup.consumer.gradleRunner }
 
-    private fun baselineProfileFile(variantName: String) = File(
-        projectSetup.consumer.rootDir,
-        "src/$variantName/$EXPECTED_PROFILE_FOLDER/baseline-prof.txt"
-    )
+    private fun baselineProfileFile(variantName: String) =
+        projectSetup.baselineProfileFile(variantName)
 
-    private fun startupProfileFile(variantName: String) = File(
-        projectSetup.consumer.rootDir,
-        "src/$variantName/$EXPECTED_PROFILE_FOLDER/startup-prof.txt"
-    )
+    private fun startupProfileFile(variantName: String) =
+        projectSetup.startupProfileFile(variantName)
+
+    private fun mergedArtProfile(variantName: String) =
+        projectSetup.mergedArtProfile(variantName)
+
+    private fun readBaselineProfileFileContent(variantName: String) =
+        projectSetup.readBaselineProfileFileContent(variantName)
+
+    private fun readStartupProfileFileContent(variantName: String) =
+        projectSetup.readStartupProfileFileContent(variantName)
 
     private fun File.toUri() = Path(canonicalPath).toUri()
-
-    private fun mergedArtProfile(variantName: String): File {
-        // Task name folder in path was first observed in the update to AGP 8.3.0-alpha10.
-        // Before that, the folder was omitted in path.
-        // TODO: Add back TEST_AGP_VERSION_8_2_0 after b/309493780
-        val taskNameFolder = when (agpVersion) {
-            TEST_AGP_VERSION_8_0_0, TEST_AGP_VERSION_8_1_0 -> ""
-            TEST_AGP_VERSION_CURRENT -> camelCase("merge", variantName, "artProfile")
-        }
-        return File(
-            projectSetup.consumer.rootDir,
-            "build/intermediates/merged_art_profile/$variantName/$taskNameFolder/baseline-prof.txt"
-        )
-    }
-
-    private fun readBaselineProfileFileContent(variantName: String): List<String> =
-        baselineProfileFile(variantName).readLines()
-
-    private fun readStartupProfileFileContent(variantName: String): List<String> =
-        startupProfileFile(variantName).readLines()
 
     @Test
     fun testGenerateTaskWithNoFlavorsForLibrary() {
@@ -372,40 +356,6 @@ class BaselineProfileConsumerPluginTest(private val agpVersion: TestAgpVersion) 
                     expected.forEach { e -> contains(e.absolutePath) }
                 }
             }
-    }
-
-    @Test
-    fun testSrcSetAreAddedToVariantsForLibraries() {
-        projectSetup.producer.setupWithoutFlavors()
-        projectSetup.consumer.setup(
-            androidPlugin = ANDROID_LIBRARY_PLUGIN,
-            additionalGradleCodeBlock = """
-                androidComponents {
-                    onVariants(selector()) { variant ->
-                        tasks.register(variant.name + "Sources", DisplaySourceSets) { t ->
-                            t.srcs.set(variant.sources.baselineProfiles.all)
-                        }
-                    }
-                }
-            """.trimIndent()
-        )
-
-        val expected = listOf(
-            "src/main/baselineProfiles",
-            "src/main/generated/baselineProfiles",
-            "src/release/baselineProfiles",
-        )
-            .map { dir -> File(projectSetup.consumer.rootDir, dir) }
-            .onEach { f ->
-                // Expected src set location. Note that src sets are not added if the folder does
-                // not exist so we need to create it.
-                f.mkdirs()
-                f.deleteOnExit()
-            }
-
-        gradleRunner.buildAndAssertThatOutput("releaseSources") {
-            expected.forEach { e -> contains(e.absolutePath) }
-        }
     }
 
     @Test
@@ -1547,13 +1497,17 @@ class BaselineProfileConsumerPluginTestWithAgp80 {
     }
 }
 
-@RunWith(JUnit4::class)
-class BaselineProfileConsumerPluginTestWithAgp81 {
+@RunWith(Parameterized::class)
+class BaselineProfileConsumerPluginTestWithAgp81(private val agpVersion: TestAgpVersion) {
+
+    companion object {
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_1_0)
+    }
 
     @get:Rule
-    val projectSetup = BaselineProfileProjectSetupRule(
-        forceAgpVersion = TEST_AGP_VERSION_8_1_0.versionString
-    )
+    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
 
     @Test
     fun verifyGenerateTasks() {
@@ -1763,12 +1717,61 @@ class BaselineProfileConsumerPluginTestWithAgp81 {
 }
 
 @RunWith(Parameterized::class)
+class BaselineProfileConsumerPluginTestWithAgp83(private val agpVersion: TestAgpVersion) {
+
+    companion object {
+        @Parameterized.Parameters(name = "agpVersion={0}")
+        @JvmStatic
+        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_3_0)
+    }
+
+    @get:Rule
+    val projectSetup = BaselineProfileProjectSetupRule(forceAgpVersion = agpVersion.versionString)
+
+    private val gradleRunner by lazy { projectSetup.consumer.gradleRunner }
+
+    @Test
+    fun testSrcSetAreAddedToVariantsForLibraries() {
+        projectSetup.producer.setupWithoutFlavors()
+        projectSetup.consumer.setup(
+            androidPlugin = ANDROID_LIBRARY_PLUGIN,
+            additionalGradleCodeBlock = """
+                androidComponents {
+                    onVariants(selector()) { variant ->
+                        tasks.register(variant.name + "Sources", DisplaySourceSets) { t ->
+                            t.srcs.set(variant.sources.baselineProfiles.all)
+                        }
+                    }
+                }
+            """.trimIndent()
+        )
+
+        val expected = listOf(
+            "src/main/baselineProfiles",
+            "src/main/generated/baselineProfiles",
+            "src/release/baselineProfiles",
+        )
+            .map { dir -> File(projectSetup.consumer.rootDir, dir) }
+            .onEach { f ->
+                // Expected src set location. Note that src sets are not added if the folder does
+                // not exist so we need to create it.
+                f.mkdirs()
+                f.deleteOnExit()
+            }
+
+        gradleRunner.buildAndAssertThatOutput("releaseSources") {
+            expected.forEach { e -> contains(e.absolutePath) }
+        }
+    }
+}
+
+@RunWith(Parameterized::class)
 class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
 
     companion object {
         @Parameterized.Parameters(name = "agpVersion={0}")
         @JvmStatic
-        fun parameters() = TestAgpVersion.values()
+        fun parameters() = TestAgpVersion.atLeast(TEST_AGP_VERSION_8_3_0)
     }
 
     @get:Rule
@@ -1793,7 +1796,7 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
             additionalGradleCodeBlock = """
                 kotlin {
                     jvm { }
-                    android { }
+                    androidTarget { }
                     sourceSets {
                         androidMain { }
                     }
@@ -1841,7 +1844,7 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
             additionalGradleCodeBlock = """
                 kotlin {
                     jvm { }
-                    android("androidTarget") { }
+                    androidTarget("androidTargetCustom") { }
                 }
 
                 androidComponents {
@@ -1857,7 +1860,7 @@ class BaselineProfileConsumerPluginTestWithKmp(agpVersion: TestAgpVersion) {
         val expected = listOf(
             "src/main/baselineProfiles",
             "src/release/baselineProfiles",
-            "src/androidTargetMain/generated/baselineProfiles",
+            "src/androidTargetCustomMain/generated/baselineProfiles",
         )
             .map { dir -> File(projectSetup.consumer.rootDir, dir) }
             .onEach { f ->
