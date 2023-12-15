@@ -16,9 +16,6 @@
 
 package androidx.compose.foundation.gestures.snapping
 
-import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.animation.core.calculateTargetValue
-import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
@@ -28,10 +25,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.util.fastSumBy
 import kotlin.math.absoluteValue
-import kotlin.math.floor
-import kotlin.math.sign
 
 /**
  * A [SnapLayoutInfoProvider] for LazyLists.
@@ -51,25 +45,6 @@ fun SnapLayoutInfoProvider(
 
     private val layoutInfo: LazyListLayoutInfo
         get() = lazyListState.layoutInfo
-
-    // Decayed page snapping is the default
-    override fun calculateApproachOffset(initialVelocity: Float): Float {
-        val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(lazyListState.density)
-        val offset =
-            decayAnimationSpec.calculateTargetValue(NoDistance, initialVelocity).absoluteValue
-
-        val estimatedNumberOfItemsInDecay = floor(offset.absoluteValue / averageItemSize())
-
-        // Decay to exactly half an item before the item where this decay would let us finish.
-        // The rest of the animation will be a snapping animation.
-        val approachOffset = estimatedNumberOfItemsInDecay * averageItemSize() - averageItemSize()
-        val finalDecayOffset = approachOffset.coerceAtLeast(0f)
-        return if (finalDecayOffset == 0f) {
-            finalDecayOffset
-        } else {
-            finalDecayOffset * initialVelocity.sign
-        }
-    }
 
     override fun calculateSnappingOffset(currentVelocity: Float): Float {
         var lowerBoundOffset = Float.NEGATIVE_INFINITY
@@ -103,14 +78,6 @@ fun SnapLayoutInfoProvider(
             lowerBoundOffset,
             upperBoundOffset
         )
-    }
-
-    fun averageItemSize(): Float = with(layoutInfo) {
-        if (visibleItemsInfo.isNotEmpty()) {
-            visibleItemsInfo.fastSumBy { it.size } / visibleItemsInfo.size.toFloat()
-        } else {
-            0f
-        }
     }
 }
 
