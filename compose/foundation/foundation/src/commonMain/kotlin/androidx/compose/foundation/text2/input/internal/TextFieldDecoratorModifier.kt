@@ -176,7 +176,7 @@ internal class TextFieldDecoratorModifierNode(
                         // just reshow the keyboard in existing session
                         requireKeyboardController().show()
                     } else {
-                        startInputSession(true)
+                        startInputSession(fromTap = true)
                     }
                 }
             )
@@ -336,7 +336,7 @@ internal class TextFieldDecoratorModifierNode(
         ) {
             if (writeable && isFocused) {
                 // The old session will be implicitly disposed.
-                startInputSession(false)
+                startInputSession(fromTap = false)
             } else if (!writeable) {
                 // We were made read-only or disabled, hide the keyboard.
                 disposeInputSession()
@@ -473,7 +473,7 @@ internal class TextFieldDecoratorModifierNode(
         if (focusState.isFocused) {
             // Deselect when losing focus even if readonly.
             if (editable) {
-                startInputSession(false)
+                startInputSession(fromTap = false)
                 // TODO(halilibo): bringIntoView
             }
         } else {
@@ -565,7 +565,7 @@ internal class TextFieldDecoratorModifierNode(
     private fun startOrDisposeInputSessionOnWindowFocusChange() {
         if (windowInfo == null) return
         if (windowInfo?.isWindowFocused == true && isElementFocused) {
-            startInputSession(false)
+            startInputSession(fromTap = false)
         } else {
             disposeInputSession()
         }
