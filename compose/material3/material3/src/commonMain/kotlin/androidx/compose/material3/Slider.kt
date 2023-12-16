@@ -64,6 +64,7 @@ import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputChange
@@ -880,6 +881,13 @@ object SliderDefaults {
     /**
      * Creates a [SliderColors] that represents the different colors used in parts of the
      * [Slider] in different states.
+     */
+    @Composable
+    fun colors() = MaterialTheme.colorScheme.defaultSliderColors
+
+    /**
+     * Creates a [SliderColors] that represents the different colors used in parts of the
+     * [Slider] in different states.
      *
      * For the name references below the words "active" and "inactive" are used. Active part of
      * the slider is filled with progress, so if slider's progress is 30% out of 100%, left (or
@@ -906,33 +914,17 @@ object SliderDefaults {
      */
     @Composable
     fun colors(
-        thumbColor: Color = SliderTokens.HandleColor.value,
-        activeTrackColor: Color = SliderTokens.ActiveTrackColor.value,
-        activeTickColor: Color = SliderTokens.TickMarksActiveContainerColor
-            .value
-            .copy(alpha = SliderTokens.TickMarksActiveContainerOpacity),
-        inactiveTrackColor: Color = SliderTokens.InactiveTrackColor.value,
-        inactiveTickColor: Color = SliderTokens.TickMarksInactiveContainerColor.value
-            .copy(alpha = SliderTokens.TickMarksInactiveContainerOpacity),
-        disabledThumbColor: Color = SliderTokens.DisabledHandleColor
-            .value
-            .copy(alpha = SliderTokens.DisabledHandleOpacity)
-            .compositeOver(MaterialTheme.colorScheme.surface),
-        disabledActiveTrackColor: Color =
-            SliderTokens.DisabledActiveTrackColor
-                .value
-                .copy(alpha = SliderTokens.DisabledActiveTrackOpacity),
-        disabledActiveTickColor: Color = SliderTokens.TickMarksDisabledContainerColor
-            .value
-            .copy(alpha = SliderTokens.TickMarksDisabledContainerOpacity),
-        disabledInactiveTrackColor: Color =
-            SliderTokens.DisabledInactiveTrackColor
-                .value
-                .copy(alpha = SliderTokens.DisabledInactiveTrackOpacity),
-
-        disabledInactiveTickColor: Color = SliderTokens.TickMarksDisabledContainerColor.value
-            .copy(alpha = SliderTokens.TickMarksDisabledContainerOpacity)
-    ): SliderColors = SliderColors(
+        thumbColor: Color = Color.Unspecified,
+        activeTrackColor: Color = Color.Unspecified,
+        activeTickColor: Color = Color.Unspecified,
+        inactiveTrackColor: Color = Color.Unspecified,
+        inactiveTickColor: Color = Color.Unspecified,
+        disabledThumbColor: Color = Color.Unspecified,
+        disabledActiveTrackColor: Color = Color.Unspecified,
+        disabledActiveTickColor: Color = Color.Unspecified,
+        disabledInactiveTrackColor: Color = Color.Unspecified,
+        disabledInactiveTickColor: Color = Color.Unspecified
+    ): SliderColors = MaterialTheme.colorScheme.defaultSliderColors.copy(
         thumbColor = thumbColor,
         activeTrackColor = activeTrackColor,
         activeTickColor = activeTickColor,
@@ -944,6 +936,32 @@ object SliderDefaults {
         disabledInactiveTrackColor = disabledInactiveTrackColor,
         disabledInactiveTickColor = disabledInactiveTickColor
     )
+
+    internal val ColorScheme.defaultSliderColors: SliderColors
+        get() {
+            return defaultSliderColorsCached ?: SliderColors(
+                thumbColor = fromToken(SliderTokens.HandleColor),
+                activeTrackColor = fromToken(SliderTokens.ActiveTrackColor),
+                activeTickColor = fromToken(SliderTokens.TickMarksActiveContainerColor)
+                    .copy(alpha = SliderTokens.TickMarksActiveContainerOpacity),
+                inactiveTrackColor = fromToken(SliderTokens.InactiveTrackColor),
+                inactiveTickColor = fromToken(SliderTokens.TickMarksInactiveContainerColor)
+                    .copy(alpha = SliderTokens.TickMarksInactiveContainerOpacity),
+                disabledThumbColor = fromToken(SliderTokens.DisabledHandleColor)
+                    .copy(alpha = SliderTokens.DisabledHandleOpacity)
+                    .compositeOver(surface),
+                disabledActiveTrackColor = fromToken(SliderTokens.DisabledActiveTrackColor)
+                    .copy(alpha = SliderTokens.DisabledActiveTrackOpacity),
+                disabledActiveTickColor = fromToken(SliderTokens.TickMarksDisabledContainerColor)
+                    .copy(alpha = SliderTokens.TickMarksDisabledContainerOpacity),
+                disabledInactiveTrackColor = fromToken(SliderTokens.DisabledInactiveTrackColor)
+                    .copy(alpha = SliderTokens.DisabledInactiveTrackOpacity),
+                disabledInactiveTickColor = fromToken(SliderTokens.TickMarksDisabledContainerColor)
+                    .copy(alpha = SliderTokens.TickMarksDisabledContainerOpacity)
+            ).also {
+                defaultSliderColorsCached = it
+            }
+        }
 
     /**
      * The Default thumb for [Slider] and [RangeSlider]
@@ -1602,6 +1620,35 @@ class SliderColors(
     val disabledInactiveTrackColor: Color,
     val disabledInactiveTickColor: Color
 ) {
+
+    /**
+     * Returns a copy of this SelectableChipColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        thumbColor: Color = this.thumbColor,
+        activeTrackColor: Color = this.activeTrackColor,
+        activeTickColor: Color = this.activeTickColor,
+        inactiveTrackColor: Color = this.inactiveTrackColor,
+        inactiveTickColor: Color = this.inactiveTickColor,
+        disabledThumbColor: Color = this.disabledThumbColor,
+        disabledActiveTrackColor: Color = this.disabledActiveTrackColor,
+        disabledActiveTickColor: Color = this.disabledActiveTickColor,
+        disabledInactiveTrackColor: Color = this.disabledInactiveTrackColor,
+        disabledInactiveTickColor: Color = this.disabledInactiveTickColor,
+    ) = SliderColors(
+        thumbColor.takeOrElse { this.thumbColor },
+        activeTrackColor.takeOrElse { this.activeTrackColor },
+        activeTickColor.takeOrElse { this.activeTickColor },
+        inactiveTrackColor.takeOrElse { this.inactiveTrackColor },
+        inactiveTickColor.takeOrElse { this.inactiveTickColor },
+        disabledThumbColor.takeOrElse { this.disabledThumbColor },
+        disabledActiveTrackColor.takeOrElse { this.disabledActiveTrackColor },
+        disabledActiveTickColor.takeOrElse { this.disabledActiveTickColor },
+        disabledInactiveTrackColor.takeOrElse { this.disabledInactiveTrackColor },
+        disabledInactiveTickColor.takeOrElse { this.disabledInactiveTickColor },
+    )
+
     @Stable
     internal fun thumbColor(enabled: Boolean): Color =
         if (enabled) thumbColor else disabledThumbColor
