@@ -134,7 +134,13 @@ class TextFieldSelectionManagerTest {
             layoutResultProxy.getOffsetForPosition(dragBeginPosition, false)
         ).thenReturn(beginOffset)
         whenever(
+            layoutResultProxy.getOffsetForPosition(dragBeginPosition, true)
+        ).thenReturn(beginOffset)
+        whenever(
             layoutResultProxy.getOffsetForPosition(dragBeginPosition + dragDistance, false)
+        ).thenReturn(dragOffset)
+        whenever(
+            layoutResultProxy.getOffsetForPosition(dragBeginPosition + dragDistance, true)
         ).thenReturn(dragOffset)
 
         whenever(
@@ -236,8 +242,8 @@ class TextFieldSelectionManagerTest {
     }
 
     @Test
-    fun TextFieldSelectionManager_handleDragObserver_onStart_startHandle() {
-        manager.handleDragObserver(isStartHandle = true).onStart(Offset.Zero)
+    fun TextFieldSelectionManager_handleDragObserver_onDown_startHandle() {
+        manager.handleDragObserver(isStartHandle = true).onDown(Offset.Zero)
 
         assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
@@ -249,8 +255,8 @@ class TextFieldSelectionManagerTest {
     }
 
     @Test
-    fun TextFieldSelectionManager_handleDragObserver_onStart_endHandle() {
-        manager.handleDragObserver(isStartHandle = false).onStart(Offset.Zero)
+    fun TextFieldSelectionManager_handleDragObserver_onDown_endHandle() {
+        manager.handleDragObserver(isStartHandle = false).onDown(Offset.Zero)
 
         assertThat(manager.draggingHandle).isNotNull()
         assertThat(state.showFloatingToolbar).isFalse()
