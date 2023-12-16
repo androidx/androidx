@@ -76,7 +76,10 @@ class HoverableTest {
             Truth.assertThat(modifier.nameFallback).isEqualTo("hoverable")
             Truth.assertThat(modifier.valueOverride).isNull()
             Truth.assertThat(modifier.inspectableElements.map { it.name }.asIterable())
-                .containsExactly("interactionSource")
+                .containsExactly(
+                    "interactionSource",
+                    "enabled"
+                )
         }
     }
 
