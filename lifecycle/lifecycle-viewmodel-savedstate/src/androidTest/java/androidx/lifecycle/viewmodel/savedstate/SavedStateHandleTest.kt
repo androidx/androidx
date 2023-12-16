@@ -101,6 +101,13 @@ class SavedStateHandleTest {
     }
 
     @Test
+    fun testReturnsNullWhenWrongType() {
+        val handle = SavedStateHandle()
+        handle["s"] = "pb"
+        assertThat(handle.get<Int>("s")).isEqualTo(null)
+    }
+
+    @Test
     @UiThreadTest
     fun testRemoveWithLD() {
         val handle = SavedStateHandle()

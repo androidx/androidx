@@ -268,7 +268,7 @@ class SavedStateHandle {
         } catch (e: ClassCastException) {
             // Instead of failing on ClassCastException, we remove the value from the
             // SavedStateHandle and return null.
-            remove<T>(key)
+            remove<Any?>(key) // Use Any? here to avoid ClassCastException again
             null
         }
     }
