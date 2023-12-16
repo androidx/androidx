@@ -1051,14 +1051,8 @@ public class EncoderImpl implements Encoder {
 
         MediaCodecCallback() {
             if (mIsVideoEncoder) {
-                Timebase inputTimebase;
-                if (DeviceQuirks.get(CameraUseInconsistentTimebaseQuirk.class) != null) {
-                    Logger.w(mTag, "CameraUseInconsistentTimebaseQuirk is enabled");
-                    inputTimebase = null;
-                } else {
-                    inputTimebase = mInputTimebase;
-                }
-                mVideoTimestampConverter = new VideoTimebaseConverter(mTimeProvider, inputTimebase);
+                mVideoTimestampConverter = new VideoTimebaseConverter(mTimeProvider,
+                        mInputTimebase, DeviceQuirks.get(CameraUseInconsistentTimebaseQuirk.class));
             } else {
                 mVideoTimestampConverter = null;
             }
