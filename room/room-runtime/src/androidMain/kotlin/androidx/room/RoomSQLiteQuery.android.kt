@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.sqlite.db.SupportSQLiteProgram
 import androidx.sqlite.db.SupportSQLiteQuery
-import java.util.Arrays
 import java.util.TreeMap
 
 /**
@@ -148,9 +147,9 @@ class RoomSQLiteQuery private constructor(
     }
 
     override fun clearBindings() {
-        Arrays.fill(bindingTypes, NULL)
-        Arrays.fill(stringBindings, null)
-        Arrays.fill(blobBindings, null)
+        bindingTypes.fill(NULL)
+        stringBindings.fill(null)
+        blobBindings.fill(null)
         query = null
         // no need to clear others
     }
