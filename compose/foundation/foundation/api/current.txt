@@ -1230,8 +1230,8 @@ package androidx.compose.foundation.pager {
   }
 
   @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Stable public abstract class PagerState implements androidx.compose.foundation.gestures.ScrollableState {
-    ctor public PagerState(optional int currentPage, optional float currentPageOffsetFraction);
-    method public final suspend Object? animateScrollToPage(int page, optional float pageOffsetFraction, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    ctor public PagerState(optional int currentPage, optional @FloatRange(from=-0.5, to=0.5) float currentPageOffsetFraction);
+    method public final suspend Object? animateScrollToPage(int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, optional androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     method public float dispatchRawDelta(float delta);
     method public final boolean getCanScrollBackward();
     method public final boolean getCanScrollForward();
@@ -1245,8 +1245,8 @@ package androidx.compose.foundation.pager {
     method public final int getTargetPage();
     method public boolean isScrollInProgress();
     method public suspend Object? scroll(androidx.compose.foundation.MutatePriority scrollPriority, kotlin.jvm.functions.Function2<? super androidx.compose.foundation.gestures.ScrollScope,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public final suspend Object? scrollToPage(int page, optional float pageOffsetFraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
-    method public final void updateCurrentPage(androidx.compose.foundation.gestures.ScrollScope, int page, optional float pageOffsetFraction);
+    method public final suspend Object? scrollToPage(int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public final void updateCurrentPage(androidx.compose.foundation.gestures.ScrollScope, int page, optional @FloatRange(from=-0.5, to=0.5) float pageOffsetFraction);
     method public final void updateTargetPage(androidx.compose.foundation.gestures.ScrollScope, int targetPage);
     property public final boolean canScrollBackward;
     property public final boolean canScrollForward;
@@ -1261,8 +1261,8 @@ package androidx.compose.foundation.pager {
   }
 
   public final class PagerStateKt {
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.pager.PagerState PagerState(optional int currentPage, optional float currentPageOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
-    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.pager.PagerState rememberPagerState(optional int initialPage, optional float initialPageOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi public static androidx.compose.foundation.pager.PagerState PagerState(optional int currentPage, optional @FloatRange(from=-0.5, to=0.5) float currentPageOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
+    method @SuppressCompatibility @androidx.compose.foundation.ExperimentalFoundationApi @androidx.compose.runtime.Composable public static androidx.compose.foundation.pager.PagerState rememberPagerState(optional int initialPage, optional @FloatRange(from=-0.5, to=0.5) float initialPageOffsetFraction, kotlin.jvm.functions.Function0<java.lang.Integer> pageCount);
   }
 
 }
