@@ -523,6 +523,38 @@ class ImageCaptureTest {
     }
 
     @Test
+    fun screenFlashUiControlSetToCameraControl_whenSetInImageCapture() {
+        val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA)
+        imageCapture.screenFlash = MockScreenFlash()
+
+        assertThat((cameraFront.cameraControl as FakeCameraControl).screenFlash)
+            .isNotNull()
+    }
+
+    @Test
+    fun screenFlashUiControlClearedFromCameraControl_whenImageCaptureUnbound() {
+        val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA)
+        imageCapture.screenFlash = MockScreenFlash()
+
+        cameraUseCaseAdapter.removeUseCases(listOf(imageCapture))
+
+        assertThat((cameraFront.cameraControl as FakeCameraControl).screenFlash)
+            .isNull()
+    }
+
+    @Test
+    fun screenFlashUiControlSetToCameraControl_whenUnboundAndBoundAgain() {
+        val imageCapture = bindImageCapture(cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA)
+        imageCapture.screenFlash = MockScreenFlash()
+
+        cameraUseCaseAdapter.removeUseCases(listOf(imageCapture))
+        cameraUseCaseAdapter.addUseCases(listOf(imageCapture))
+
+        assertThat((cameraFront.cameraControl as FakeCameraControl).screenFlash)
+            .isNotNull()
+    }
+
+    @Test
     fun canSetPostviewEnabled() {
         val imageCapture = ImageCapture.Builder()
             .setPostviewEnabled(true)
