@@ -31,7 +31,9 @@ fun interface SnapPosition {
      * to generate its final positioning.
      *
      * The reference point is with respect to the start of the layout (including the content
-     * padding).
+     * padding)
+     *
+     * @sample androidx.compose.foundation.samples.SnapFlingBehaviorSnapPosition
      *
      * @param layoutSize The main axis layout size within which an item can be positioned.
      * @param itemSize The main axis size for the item being positioned within this snapping
