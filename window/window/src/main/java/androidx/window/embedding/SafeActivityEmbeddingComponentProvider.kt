@@ -17,6 +17,7 @@
 package androidx.window.embedding
 
 import android.app.Activity
+import android.os.IBinder
 import androidx.annotation.VisibleForTesting
 import androidx.window.SafeWindowExtensionsProvider
 import androidx.window.core.ConsumerAdapter
@@ -25,6 +26,7 @@ import androidx.window.extensions.WindowExtensions
 import androidx.window.extensions.core.util.function.Consumer
 import androidx.window.extensions.core.util.function.Function
 import androidx.window.extensions.embedding.ActivityEmbeddingComponent
+import androidx.window.extensions.embedding.SplitAttributes
 import androidx.window.reflection.ReflectionUtils.doesReturn
 import androidx.window.reflection.ReflectionUtils.isPublic
 import androidx.window.reflection.ReflectionUtils.validateReflection
@@ -63,8 +65,8 @@ internal class SafeActivityEmbeddingComponentProvider(
         //  if higher version is not matched
         return when (ExtensionsUtil.safeVendorApiLevel) {
             1 -> hasValidVendorApiLevel1()
-            in 2..Int.MAX_VALUE -> hasValidVendorApiLevel2()
-            // TODO(b/267956499) : add  hasValidVendorApiLevel3
+            2 -> hasValidVendorApiLevel2()
+            in 3..Int.MAX_VALUE -> hasValidVendorApiLevel3()
             else -> false
         }
     }
@@ -75,7 +77,7 @@ internal class SafeActivityEmbeddingComponentProvider(
             isActivityEmbeddingComponentValid()
 
     /**
-     * [WindowExtensions.VENDOR_API_LEVEL_1] includes the following methods:
+     * Vendor API level 1 includes the following methods:
      *  - [ActivityEmbeddingComponent.setEmbeddingRules]
      *  - [ActivityEmbeddingComponent.isActivityEmbedded]
      *  - [ActivityEmbeddingComponent.setSplitInfoCallback] with [java.util.function.Consumer]
@@ -93,7 +95,7 @@ internal class SafeActivityEmbeddingComponentProvider(
     }
 
     /**
-     * [WindowExtensions.VENDOR_API_LEVEL_2] includes the following methods
+     * Vendor API level 2 includes the following methods
      *  - [ActivityEmbeddingComponent.setSplitInfoCallback] with [Consumer]
      *  - [ActivityEmbeddingComponent.clearSplitInfoCallback]
      *  - [ActivityEmbeddingComponent.setSplitAttributesCalculator]
@@ -108,6 +110,18 @@ internal class SafeActivityEmbeddingComponentProvider(
             isMethodClearSplitInfoCallbackValid() &&
             isMethodSplitAttributesCalculatorValid()
     }
+
+    /**
+     * Vendor API level 3 includes the following methods:
+     * - [ActivityEmbeddingComponent.updateSplitAttributes]
+     * - [ActivityEmbeddingComponent.invalidateTopVisibleSplitAttributes]
+     */
+    @VisibleForTesting
+    internal fun hasValidVendorApiLevel3(): Boolean =
+        hasValidVendorApiLevel1() &&
+            hasValidVendorApiLevel2() &&
+            isMethodInvalidateTopVisibleSplitAttributesValid() &&
+            isMethodUpdateSplitAttributesValid()
 
     private fun isMethodSetEmbeddingRulesValid(): Boolean {
         return validateReflection("ActivityEmbeddingComponent#setEmbeddingRules is not valid") {
@@ -174,6 +188,25 @@ internal class SafeActivityEmbeddingComponentProvider(
             setSplitInfoCallbackMethod.isPublic
         }
     }
+
+    private fun isMethodInvalidateTopVisibleSplitAttributesValid(): Boolean =
+        validateReflection("#invalidateTopVisibleSplitAttributes is not valid") {
+            val invalidateTopVisibleSplitAttributesMethod = activityEmbeddingComponentClass
+                .getMethod(
+                    "invalidateTopVisibleSplitAttributes"
+                )
+            invalidateTopVisibleSplitAttributesMethod.isPublic
+        }
+
+    private fun isMethodUpdateSplitAttributesValid(): Boolean =
+        validateReflection("#updateSplitAttributes is not valid") {
+            val updateSplitAttributesMethod = activityEmbeddingComponentClass.getMethod(
+                "updateSplitAttributes",
+                IBinder::class.java,
+                SplitAttributes::class.java
+            )
+            updateSplitAttributesMethod.isPublic
+        }
 
     private fun isActivityEmbeddingComponentValid(): Boolean {
         return validateReflection("WindowExtensions#getActivityEmbeddingComponent is not valid") {
