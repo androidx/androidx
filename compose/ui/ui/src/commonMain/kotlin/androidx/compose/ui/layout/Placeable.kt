@@ -136,6 +136,7 @@ abstract class Placeable : Measured {
      * mirroring is not desired, [place] should be used instead.
      */
     // TODO(b/150276678): using the PlacementScope to place outside the layout pass is not working.
+    @PlacementScopeMarker
     abstract class PlacementScope {
         /**
          * Keeps the parent layout node's width to make the automatic mirroring of the position
