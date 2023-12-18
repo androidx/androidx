@@ -508,8 +508,5 @@ private fun InlineSliderButtonContent(
     content: @Composable () -> Unit
 ) = CompositionLocalProvider(
     LocalContentColor provides buttonIconColor(enabled).value,
-    LocalContentAlpha provides if (enabled) {
-        LocalContentAlpha.current
-    } else ContentAlpha.disabled,
     content = content
 )

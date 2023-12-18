@@ -78,7 +78,7 @@ import androidx.wear.compose.material3.tokens.ColorTokens
  * @property error The error color is used to indicate errors.
  * @property onError Color used for text and icons displayed on top of the error color.
  */@Stable
-public class ColorScheme(
+class ColorScheme(
     primary: Color = ColorTokens.Primary,
     primaryDim: Color = ColorTokens.PrimaryDim,
     primaryContainer: Color = ColorTokens.PrimaryContainer,
@@ -109,167 +109,167 @@ public class ColorScheme(
     /**
      * [primary] is the main color used across screens and components
      */
-    public var primary: Color by mutableStateOf(primary)
+    var primary: Color by mutableStateOf(primary)
         internal set
 
     /**
      * [primaryDim] is less prominent than [primary] for component backgrounds
      */
-    public var primaryDim: Color by mutableStateOf(primaryDim)
+    var primaryDim: Color by mutableStateOf(primaryDim)
         internal set
 
     /**
      * [primaryContainer] is a standout container color for key components
      */
-    public var primaryContainer: Color by mutableStateOf(primaryContainer)
+    var primaryContainer: Color by mutableStateOf(primaryContainer)
         internal set
 
     /**
      * [onPrimary] is for text and icons shown against the Primary and primaryDim colors
      */
-    public var onPrimary: Color by mutableStateOf(onPrimary)
+    var onPrimary: Color by mutableStateOf(onPrimary)
         internal set
 
     /**
      * [onPrimaryContainer] is a contrast-passing color shown against the primaryContainer
      */
-    public var onPrimaryContainer: Color by mutableStateOf(onPrimaryContainer)
+    var onPrimaryContainer: Color by mutableStateOf(onPrimaryContainer)
         internal set
 
     /**
      * [secondary] is an accent color used across screens and components
      */
-    public var secondary: Color by mutableStateOf(secondary)
+    var secondary: Color by mutableStateOf(secondary)
         internal set
 
     /**
      * [secondaryDim] is less prominent than [secondary] for component backgrounds
      */
-    public var secondaryDim: Color by mutableStateOf(secondaryDim)
+    var secondaryDim: Color by mutableStateOf(secondaryDim)
 
     /**
      * [secondaryContainer] is a less prominent container color than [primaryContainer],
      * for components like tonal buttons
      */
-    public var secondaryContainer: Color by mutableStateOf(secondaryContainer)
+    var secondaryContainer: Color by mutableStateOf(secondaryContainer)
         internal set
 
     /**
      * [onSecondary] is for text and icons shown against the Secondary and SecondaryDim colors
      */
-    public var onSecondary: Color by mutableStateOf(onSecondary)
+    var onSecondary: Color by mutableStateOf(onSecondary)
         internal set
 
     /**
      * [onSecondaryContainer] is a contrast-passing color shown against the secondaryContainer
      */
-    public var onSecondaryContainer: Color by mutableStateOf(onSecondaryContainer)
+    var onSecondaryContainer: Color by mutableStateOf(onSecondaryContainer)
         internal set
 
     /**
      * [tertiary] is a complementary color to create contrast and draw attention to elements
      */
-    public var tertiary: Color by mutableStateOf(tertiary)
+    var tertiary: Color by mutableStateOf(tertiary)
         internal set
 
     /**
      * [tertiaryDim] is less prominent than [tertiary] for component backgrounds
      */
-    public var tertiaryDim: Color by mutableStateOf(tertiaryDim)
+    var tertiaryDim: Color by mutableStateOf(tertiaryDim)
         internal set
 
     /**
      * [tertiaryContainer] is a contrasting container color for components
      */
-    public var tertiaryContainer: Color by mutableStateOf(tertiaryContainer)
+    var tertiaryContainer: Color by mutableStateOf(tertiaryContainer)
         internal set
 
     /**
      * [onTertiary] is for text and icons shown against the Tertiary and tertiaryDim colors
      */
-    public var onTertiary: Color by mutableStateOf(onTertiary)
+    var onTertiary: Color by mutableStateOf(onTertiary)
         internal set
 
     /**
      * [onTertiaryContainer] is a contrast-passing color shown against the tertiaryContainer
      */
-    public var onTertiaryContainer: Color by mutableStateOf(onTertiaryContainer)
+    var onTertiaryContainer: Color by mutableStateOf(onTertiaryContainer)
         internal set
 
     /**
      * [surfaceDim] is a surface color used for large containment components, with the
      * lowest prominence behind Surface and surfaceBright
      */
-    public var surfaceDim: Color by mutableStateOf(surfaceDim)
+    var surfaceDim: Color by mutableStateOf(surfaceDim)
         internal set
 
     /**
      * [surface] is the main color for large containment components like card and button backgrounds
      */
-    public var surface: Color by mutableStateOf(surface)
+    var surface: Color by mutableStateOf(surface)
         internal set
 
     /**
      * [surfaceBright] is a surface color used for large containment components, with
      * the highest prominence, ahead of Surface and surfaceDim
      */
-    public var surfaceBright: Color by mutableStateOf(surfaceBright)
+    var surfaceBright: Color by mutableStateOf(surfaceBright)
         internal set
 
     /**
      * [onSurface] for primary text and icons shown against the
      * [surface], [surfaceDim] and [surfaceBright]
      */
-    public var onSurface: Color by mutableStateOf(onSurface)
+    var onSurface: Color by mutableStateOf(onSurface)
         internal set
 
     /**
      * [onSurfaceVariant] for secondary text and icons on
      * [surface], [surfaceDim] and [surfaceBright]
      */
-    public var onSurfaceVariant: Color by mutableStateOf(onSurfaceVariant)
+    var onSurfaceVariant: Color by mutableStateOf(onSurfaceVariant)
         internal set
 
     /**
      * [outline] is the main color for primary outline components
      */
-    public var outline: Color by mutableStateOf(outline)
+    var outline: Color by mutableStateOf(outline)
         internal set
 
     /**
      * [outlineVariant] is the secondary color for secondary outline components
      */
-    public var outlineVariant: Color by mutableStateOf(outlineVariant)
+    var outlineVariant: Color by mutableStateOf(outlineVariant)
         internal set
 
     /**
      * [background] is the static color used behind all texts and components
      */
-    public var background: Color by mutableStateOf(background)
+    var background: Color by mutableStateOf(background)
         internal set
 
     /**
      * [onBackground] is used for text and icons shown against the background color
      */
-    public var onBackground: Color by mutableStateOf(onBackground)
+    var onBackground: Color by mutableStateOf(onBackground)
         internal set
 
     /**
      * [error] indicates errors and emergency states
      */
-    public var error: Color by mutableStateOf(error)
+    var error: Color by mutableStateOf(error)
         internal set
 
     /**
      * [onError] is used for text and icons on the error color
      */
-    public var onError: Color by mutableStateOf(onError)
+    var onError: Color by mutableStateOf(onError)
         internal set
 
     /**
      * Returns a copy of this Colors, optionally overriding some of the values.
      */
-    public fun copy(
+    fun copy(
         primary: Color = this.primary,
         primaryDim: Color = this.primaryDim,
         primaryContainer: Color = this.primaryContainer,
@@ -374,7 +374,7 @@ public class ColorScheme(
  *
  * @see contentColorFor
  */
-public fun ColorScheme.contentColorFor(backgroundColor: Color): Color {
+fun ColorScheme.contentColorFor(backgroundColor: Color): Color {
     return when (backgroundColor) {
         primary, primaryDim -> onPrimary
         primaryContainer -> onPrimaryContainer
@@ -408,7 +408,7 @@ public fun ColorScheme.contentColorFor(backgroundColor: Color): Color {
  */
 @Composable
 @ReadOnlyComposable
-public fun contentColorFor(backgroundColor: Color): Color =
+fun contentColorFor(backgroundColor: Color): Color =
     MaterialTheme.colorScheme
         .contentColorFor(backgroundColor)
         .takeOrElse { LocalContentColor.current }
@@ -498,7 +498,7 @@ internal val LocalColorScheme = staticCompositionLocalOf<ColorScheme> { ColorSch
  * @param disabledAlpha Alpha used to represent disabled colors.
  */
 @Composable
-internal fun Color.toDisabledColor(disabledAlpha: Float = ContentAlpha.disabled) =
+internal fun Color.toDisabledColor(disabledAlpha: Float = DisabledContentAlpha) =
     this.copy(alpha = this.alpha * disabledAlpha)
 
 /**
@@ -509,3 +509,7 @@ internal val ColorSchemeKeyTokens.value: Color
     @ReadOnlyComposable
     @Composable
     get() = MaterialTheme.colorScheme.fromToken(this)
+
+internal const val DisabledContentAlpha = 0.38f
+internal const val DisabledContainerAlpha = 0.12f
+internal const val DisabledBorderAlpha = 0.20f

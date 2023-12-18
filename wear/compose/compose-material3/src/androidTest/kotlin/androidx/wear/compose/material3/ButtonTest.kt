@@ -390,7 +390,7 @@ class ButtonTest {
                 alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = ContentAlpha.disabled
+                alpha = DisabledContentAlpha
             ) },
         )
     }
@@ -415,7 +415,7 @@ class ButtonTest {
                 alpha = DisabledContainerAlpha
             ) },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = ContentAlpha.disabled
+                alpha = DisabledContentAlpha
             ) },
             content = { FilledTonalButton(Status.Disabled) }
         )
@@ -439,7 +439,7 @@ class ButtonTest {
             status = Status.Disabled,
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = ContentAlpha.disabled
+                alpha = DisabledContentAlpha
             ) },
             content = { OutlinedButton(Status.Disabled) }
         )
@@ -463,7 +463,7 @@ class ButtonTest {
             status = Status.Disabled,
             expectedContainerColor = { Color.Transparent },
             expectedContentColor = { MaterialTheme.colorScheme.onSurface.copy(
-                alpha = ContentAlpha.disabled
+                alpha = DisabledContentAlpha
             ) },
             content = { ChildButton(Status.Disabled) }
         )
@@ -646,7 +646,7 @@ class ButtonTest {
     }
 
     @Test
-    public fun icon_only_compact_button_has_correct_default_width_and_height() {
+    fun icon_only_compact_button_has_correct_default_width_and_height() {
         val iconTag = "TestIcon"
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
@@ -662,7 +662,7 @@ class ButtonTest {
     }
 
     @Test
-    public fun label_only_compact_button_has_correct_default_height() {
+    fun label_only_compact_button_has_correct_default_height() {
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
                 CompactButton(
@@ -676,7 +676,7 @@ class ButtonTest {
     }
 
     @Test
-    public fun no_content_compact_button_has_correct_default_width_and_height() {
+    fun no_content_compact_button_has_correct_default_width_and_height() {
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
                 CompactButton(
@@ -690,7 +690,7 @@ class ButtonTest {
     }
 
     @Test
-    public fun icon_only_compact_button_can_have_width_overridden() {
+    fun icon_only_compact_button_can_have_width_overridden() {
         val iconTag = "TestIcon"
         rule
             .setContentWithThemeForSizeAssertions(useUnmergedTree = true) {
@@ -753,7 +753,7 @@ class ButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun gives_enabled_compact_button_correct_colors() {
+    fun gives_enabled_compact_button_correct_colors() {
         rule.verifyCompactButtonColors(
             status = Status.Enabled,
             colors = { ButtonDefaults.filledButtonColors() }
@@ -762,7 +762,7 @@ class ButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun gives_disabled_compact_button_correct_colors() {
+    fun gives_disabled_compact_button_correct_colors() {
         rule.verifyCompactButtonColors(
             status = Status.Disabled,
             colors = { ButtonDefaults.filledButtonColors() }
@@ -771,7 +771,7 @@ class ButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun gives_enabled_filled_tonal_compact_button_correct_colors() {
+    fun gives_enabled_filled_tonal_compact_button_correct_colors() {
         rule.verifyCompactButtonColors(
             status = Status.Enabled,
             colors = { ButtonDefaults.filledTonalButtonColors() }
@@ -780,7 +780,7 @@ class ButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun gives_disabled_filled_tonal_compact_button_correct_colors() {
+    fun gives_disabled_filled_tonal_compact_button_correct_colors() {
         rule.verifyCompactButtonColors(
             status = Status.Disabled,
             colors = { ButtonDefaults.filledTonalButtonColors() }
@@ -789,7 +789,7 @@ class ButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun gives_enabled_outlined_compact_button_correct_colors() {
+    fun gives_enabled_outlined_compact_button_correct_colors() {
         rule.verifyCompactButtonColors(
             status = Status.Enabled,
             colors = { ButtonDefaults.outlinedButtonColors() }
@@ -798,7 +798,7 @@ class ButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun gives_disabled_outlined_compact_button_correct_colors() {
+    fun gives_disabled_outlined_compact_button_correct_colors() {
         rule.verifyCompactButtonColors(
             status = Status.Disabled,
             colors = { ButtonDefaults.outlinedButtonColors() }
@@ -807,7 +807,7 @@ class ButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun gives_enabled_child_compact_button_correct_colors() {
+    fun gives_enabled_child_compact_button_correct_colors() {
         rule.verifyCompactButtonColors(
             status = Status.Enabled,
             colors = { ButtonDefaults.childButtonColors() }
@@ -816,7 +816,7 @@ class ButtonTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun gives_disabled_child_compact_button_correct_colors() {
+    fun gives_disabled_child_compact_button_correct_colors() {
         rule.verifyCompactButtonColors(
             status = Status.Disabled,
             colors = { ButtonDefaults.childButtonColors() }
