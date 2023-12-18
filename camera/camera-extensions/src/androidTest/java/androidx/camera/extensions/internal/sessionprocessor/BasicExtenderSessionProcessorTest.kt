@@ -98,6 +98,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -149,6 +150,9 @@ class BasicExtenderSessionProcessorTest(
 
     @Before
     fun setUp() = runBlocking {
+        // PreviewImageProcessorImpl doesn't exist on Xiaomi devices.
+        assumeFalse(previewProcessorType == PROCESSOR_TYPE_IMAGE_PROCESSOR &&
+            Build.BRAND.uppercase().startsWith("XIAOMI"))
         ExtensionVersion.injectInstance(null)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         withContext(Dispatchers.Main) {

@@ -41,7 +41,7 @@ import java.util.List;
 public final class NightPreviewExtenderImpl implements PreviewExtenderImpl {
     private static final int DEFAULT_STAGE_ID = 0;
     private static final int SESSION_STAGE_ID = 101;
-    private static final int EV_INDEX = 10;
+    private static final int EV_INDEX = 2;
 
     public NightPreviewExtenderImpl() {
     }

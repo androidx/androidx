@@ -281,10 +281,10 @@ class VideoCaptureTest(
     companion object {
         private const val VIDEO_TIMEOUT_SEC = 10L
         private const val TAG = "VideoCaptureTest"
-
+        val context: Context = ApplicationProvider.getApplicationContext()
         @JvmStatic
         @get:Parameterized.Parameters(name = "implType = {0}, mode = {1}, facing = {2}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations()
+            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
     }
 }
