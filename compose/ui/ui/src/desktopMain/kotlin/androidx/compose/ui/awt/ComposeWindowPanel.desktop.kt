@@ -24,6 +24,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.scene.ComposeScene
+import androidx.compose.ui.scene.skia.WindowSkiaLayerComponent
 import androidx.compose.ui.window.LocalWindow
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.layoutDirectionFor
@@ -39,7 +40,6 @@ import javax.accessibility.Accessible
 import javax.swing.JLayeredPane
 import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.OS
-import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkiaLayerAnalytics
 import org.jetbrains.skiko.hostOs
 
@@ -57,8 +57,11 @@ internal class ComposeWindowPanel(
     // (see https://github.com/JetBrains/compose-jb/issues/1688),
     // so we nullify bridge on dispose, to prevent keeping
     // big objects in memory (like the whole LayoutNode tree of the window)
-    private var _bridge: WindowComposeBridge? =
-        WindowComposeBridge(skiaLayerAnalytics, layoutDirectionFor(window))
+    private var _bridge: ComposeBridge? = ComposeBridge(
+        layoutDirectionFor(window)
+    ) {
+        WindowSkiaLayerComponent(skiaLayerAnalytics, it)
+    }
     private val bridge
         get() = requireNotNull(_bridge) {
             "ComposeBridge is disposed"
@@ -72,9 +75,9 @@ internal class ComposeWindowPanel(
     internal var rootForTestListener by bridge::rootForTestListener
 
     var fullscreen: Boolean
-        get() = bridge.component.fullscreen
+        get() = bridge.skiaLayerComponent.fullscreen
         set(value) {
-            bridge.component.fullscreen = value
+            bridge.skiaLayerComponent.fullscreen = value
         }
 
     var compositionLocalContext: CompositionLocalContext?
@@ -91,13 +94,14 @@ internal class ComposeWindowPanel(
         }
 
     val windowHandle: Long
-        get() = bridge.component.windowHandle
+        get() = bridge.skiaLayerComponent.windowHandle
 
     val renderApi: GraphicsApi
-        get() = bridge.renderApi
+        get() = bridge.skiaLayerComponent.renderApi
 
     private val interopBlending: Boolean
-        get() = ComposeFeatureFlags.useInteropBlending && bridge.interopBlendingSupported
+        get() = ComposeFeatureFlags.useInteropBlending &&
+            bridge.skiaLayerComponent.interopBlendingSupported
 
     var isWindowTransparent: Boolean = false
         set(value) {
@@ -108,7 +112,7 @@ internal class ComposeWindowPanel(
                 }
                 field = value
                 bridge.isWindowTransparent = value
-                bridge.transparency = value || interopBlending
+                bridge.skiaLayerComponent.transparency = value || interopBlending
 
                 /*
                  * Windows makes clicks on transparent pixels fall through, but it doesn't work
@@ -152,7 +156,7 @@ internal class ComposeWindowPanel(
             override fun getDefaultComponent(aContainer: Container?) = null
         }
         isFocusCycleRoot = true
-        bridge.transparency = interopBlending
+        bridge.skiaLayerComponent.transparency = interopBlending
         setContent {}
     }
 
@@ -202,6 +206,7 @@ internal class ComposeWindowPanel(
         layout = null
         addToLayer(bridge.invisibleComponent, bridgeLayer)
         addToLayer(bridge.component, bridgeLayer)
+        bridge.setParentWindow(window)
     }
 
     fun setContent(
@@ -241,9 +246,7 @@ internal class ComposeWindowPanel(
     }
 
     fun onRenderApiChanged(action: () -> Unit) {
-        bridge.component.onStateChanged(SkiaLayer.PropertyKind.Renderer) {
-            action()
-        }
+        bridge.skiaLayerComponent.onRenderApiChanged(action)
     }
 
     // We need overridden listeners because we mix Swing and AWT components in the

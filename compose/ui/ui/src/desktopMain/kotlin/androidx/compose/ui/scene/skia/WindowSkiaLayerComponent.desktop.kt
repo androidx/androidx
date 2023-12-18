@@ -14,67 +14,59 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.awt
+package androidx.compose.ui.scene.skia
 
-import androidx.compose.ui.unit.LayoutDirection
-import java.awt.Component
+import androidx.compose.ui.awt.ComposeBridge
 import java.awt.Dimension
 import java.awt.Graphics
 import javax.accessibility.Accessible
-import javax.swing.SwingUtilities
 import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkiaLayerAnalytics
 
 /**
- * Provides a heavyweight AWT [component] used to render content (from [setContent]) on-screen with Skia.
+ * Provides a heavyweight AWT [contentComponent] used to render content (provided by client.skikoView) on-screen with Skia.
  *
- * If smooth interop with Swing is needed, consider using [androidx.compose.ui.awt.SwingComposeBridge]
+ * If smooth interop with Swing is needed, consider using [SwingSkiaLayerComponent]
  */
-internal class WindowComposeBridge(
-    private val skiaLayerAnalytics: SkiaLayerAnalytics,
-    layoutDirection: LayoutDirection
-) : ComposeBridge(layoutDirection) {
+internal class WindowSkiaLayerComponent(
+    skiaLayerAnalytics: SkiaLayerAnalytics,
+    private val bridge: ComposeBridge
+) : SkiaLayerComponent {
     /**
-     * See also backend layer for swing interop in [androidx.compose.ui.awt.SwingComposeBridge]
+     * See also backend layer for swing interop in [SwingSkiaLayerComponent]
      */
-    override val component: SkiaLayer = object : SkiaLayer(
-        externalAccessibleFactory = { sceneAccessible },
+    override val contentComponent: SkiaLayer = object : SkiaLayer(
+        externalAccessibleFactory = { bridge.sceneAccessible },
         analytics = skiaLayerAnalytics
     ), Accessible {
         override fun addNotify() {
             super.addNotify()
-            resetSceneDensity()
-            initContent()
-            updateSceneSize()
-            setParentWindow(SwingUtilities.getWindowAncestor(this))
-        }
-
-        override fun removeNotify() {
-            setParentWindow(null)
-            super.removeNotify()
+            bridge.resetSceneDensity()
+            bridge.initContent()
+            bridge.updateSceneSize()
         }
 
         override fun paint(g: Graphics) {
-            resetSceneDensity()
+            bridge.resetSceneDensity()
             super.paint(g)
         }
 
-        override fun getInputMethodRequests() = currentInputMethodRequests
+        override fun getInputMethodRequests() = bridge.currentInputMethodRequests
 
         override fun doLayout() {
             super.doLayout()
-            updateSceneSize()
+            bridge.updateSceneSize()
         }
 
         override fun getPreferredSize(): Dimension {
-            return if (isPreferredSizeSet) super.getPreferredSize() else scenePreferredSize
+            return if (isPreferredSizeSet) super.getPreferredSize() else bridge.scenePreferredSize
         }
     }
 
     override val renderApi: GraphicsApi
-        get() = component.renderApi
+        get() = contentComponent.renderApi
 
     override val interopBlendingSupported: Boolean
         get() = when(renderApi) {
@@ -83,16 +75,13 @@ internal class WindowComposeBridge(
         }
 
     override val clipComponents: MutableList<ClipRectangle>
-        get() = component.clipComponents
+        get() = contentComponent.clipComponents
 
-    override val focusComponentDelegate: Component
-        get() = component.canvas
-
-    var transparency: Boolean
-        get() = component.transparency
+    override var transparency: Boolean
+        get() = contentComponent.transparency
         set(value) {
-            component.transparency = value
-            if (value && !isWindowTransparent && renderApi == GraphicsApi.METAL) {
+            contentComponent.transparency = value
+            if (value && !bridge.isWindowTransparent && renderApi == GraphicsApi.METAL) {
                 /*
                  * SkiaLayer sets background inside transparency setter, that is required for
                  * cases like software rendering.
@@ -101,24 +90,34 @@ internal class WindowComposeBridge(
                  *
                  * Reset it to null to keep the color default.
                  */
-                component.background = null
+                contentComponent.background = null
             }
         }
 
+    override var fullscreen: Boolean
+        get() = contentComponent.fullscreen
+        set(value) {
+            contentComponent.fullscreen = value
+        }
+
+    override val windowHandle: Long get() = contentComponent.windowHandle
+
     init {
-        component.skikoView = skikoView
-        attachComposeToComponent()
+        contentComponent.skikoView = bridge.skikoView
     }
 
-    override fun requestNativeFocusOnAccessible(accessible: Accessible) {
-        component.requestNativeFocusOnAccessible(accessible)
+    override fun dispose() {
+        contentComponent.dispose()
     }
+
+    override fun requestNativeFocusOnAccessible(accessible: Accessible) =
+        contentComponent.requestNativeFocusOnAccessible(accessible)
 
     override fun onComposeInvalidation() {
-        component.needRedraw()
+        contentComponent.needRedraw()
     }
 
-    override fun disposeComponentLayer() {
-        component.dispose()
+    override fun onRenderApiChanged(action: () -> Unit) {
+        contentComponent.onStateChanged(SkiaLayer.PropertyKind.Renderer) { action() }
     }
 }
