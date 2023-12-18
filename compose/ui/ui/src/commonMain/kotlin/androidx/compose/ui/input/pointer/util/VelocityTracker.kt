@@ -24,6 +24,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.abs
@@ -113,7 +114,7 @@ class VelocityTracker {
      * VelocityTracker.
      */
     fun calculateVelocity(maximumVelocity: Velocity): Velocity {
-        check(maximumVelocity.x > 0f && maximumVelocity.y > 0) {
+        checkPrecondition(maximumVelocity.x > 0f && maximumVelocity.y > 0) {
             "maximumVelocity should be a positive value. You specified=$maximumVelocity"
         }
         val velocityX = xVelocityTracker.calculateVelocity(maximumVelocity.x)
@@ -302,7 +303,7 @@ class VelocityTracker1D internal constructor(
      * units/second, where `units` is the units of the positions provided to this VelocityTracker.
      */
     fun calculateVelocity(maximumVelocity: Float): Float {
-        check(maximumVelocity > 0f) {
+        checkPrecondition(maximumVelocity > 0f) {
             "maximumVelocity should be a positive value. You specified=$maximumVelocity"
         }
         val velocity = calculateVelocity()

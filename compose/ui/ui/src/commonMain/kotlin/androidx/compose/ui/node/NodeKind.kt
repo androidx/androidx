@@ -30,6 +30,7 @@ import androidx.compose.ui.input.key.KeyInputModifierNode
 import androidx.compose.ui.input.key.SoftKeyboardInterceptionModifierNode
 import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.rotary.RotaryInputModifierNode
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.IntermediateLayoutModifierNode
 import androidx.compose.ui.layout.LayoutModifier
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
@@ -219,17 +220,17 @@ private const val Inserted = 1
 private const val Removed = 2
 
 internal fun autoInvalidateRemovedNode(node: Modifier.Node) {
-    check(node.isAttached) { "autoInvalidateRemovedNode called on unattached node" }
+    checkPrecondition(node.isAttached) { "autoInvalidateRemovedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Removed)
 }
 
 internal fun autoInvalidateInsertedNode(node: Modifier.Node) {
-    check(node.isAttached) { "autoInvalidateInsertedNode called on unattached node" }
+    checkPrecondition(node.isAttached) { "autoInvalidateInsertedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Inserted)
 }
 
 internal fun autoInvalidateUpdatedNode(node: Modifier.Node) {
-    check(node.isAttached) { "autoInvalidateUpdatedNode called on unattached node" }
+    checkPrecondition(node.isAttached) { "autoInvalidateUpdatedNode called on unattached node" }
     autoInvalidateNodeIncludingDelegates(node, 0.inv(), Updated)
 }
 
