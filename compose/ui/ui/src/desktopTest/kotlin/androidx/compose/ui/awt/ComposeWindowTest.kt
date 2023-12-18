@@ -156,7 +156,7 @@ class ComposeWindowTest {
                 window.pack()
                 assertThat(window.size).isEqualTo(Dimension(234, 345))
 
-                assertThat(window.scene.windowInfo.containerSize)
+                assertThat(window.windowContext.windowInfo.containerSize)
                     .isEqualTo(IntSize(
                         width = (234 * window.density.density).toInt(),
                         height = (345 * window.density.density).toInt(),
@@ -187,7 +187,7 @@ class ComposeWindowTest {
                 assertThat(window.preferredSize).isEqualTo(Dimension(300, 400))
                 assertThat(window.size).isEqualTo(Dimension(300, 400))
 
-                assertThat(window.scene.windowInfo.containerSize)
+                assertThat(window.windowContext.windowInfo.containerSize)
                     .isEqualTo(IntSize(
                         width = (300 * window.density.density).toInt(),
                         height = (400 * window.density.density).toInt(),
@@ -227,7 +227,7 @@ class ComposeWindowTest {
                     )
                 )
                 
-                assertThat(window.scene.windowInfo.containerSize)
+                assertThat(window.windowContext.windowInfo.containerSize)
                     .isEqualTo(IntSize(
                         width = (300 * window.density.density).toInt(),
                         height = (400 * window.density.density).toInt(),

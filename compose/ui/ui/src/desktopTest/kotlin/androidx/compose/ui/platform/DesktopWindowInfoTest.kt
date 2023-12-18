@@ -35,7 +35,7 @@ class DesktopWindowInfoTest {
                 size = DpSize(123.dp, 321.dp)
             )
             Window(onCloseRequest = {}, state = state) {
-                val containerSize = window.scene.windowInfo.containerSize
+                val containerSize = window.windowContext.windowInfo.containerSize
                 assertEquals(123, containerSize.width)
                 assertEquals(321, containerSize.height)
             }

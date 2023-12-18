@@ -23,7 +23,7 @@ import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.scene.ComposeScene
+import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.WindowSkiaLayerComponent
 import androidx.compose.ui.window.LocalWindow
 import androidx.compose.ui.window.WindowExceptionHandler
@@ -66,11 +66,12 @@ internal class ComposeWindowPanel(
         get() = requireNotNull(_bridge) {
             "ComposeBridge is disposed"
         }
-    internal val scene: ComposeScene
-        get() = bridge.scene
 
     internal val windowAccessible: Accessible
-        get() = bridge.sceneAccessible
+        get() = bridge.accessible
+
+    val windowContext: PlatformWindowContext
+        get() = bridge.windowContext
 
     internal var rootForTestListener by bridge::rootForTestListener
 
@@ -242,7 +243,7 @@ internal class ComposeWindowPanel(
     }
 
     fun onChangeLayoutDirection(component: Component) {
-        bridge.scene.layoutDirection = layoutDirectionFor(component)
+        bridge.layoutDirection = layoutDirectionFor(component)
     }
 
     fun onRenderApiChanged(action: () -> Unit) {

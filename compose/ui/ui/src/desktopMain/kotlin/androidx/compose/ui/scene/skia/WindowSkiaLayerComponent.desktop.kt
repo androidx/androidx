@@ -38,7 +38,7 @@ internal class WindowSkiaLayerComponent(
      * See also backend layer for swing interop in [SwingSkiaLayerComponent]
      */
     override val contentComponent: SkiaLayer = object : SkiaLayer(
-        externalAccessibleFactory = { bridge.sceneAccessible },
+        externalAccessibleFactory = { bridge.accessible },
         analytics = skiaLayerAnalytics
     ), Accessible {
         override fun addNotify() {
@@ -61,7 +61,7 @@ internal class WindowSkiaLayerComponent(
         }
 
         override fun getPreferredSize(): Dimension {
-            return if (isPreferredSizeSet) super.getPreferredSize() else bridge.scenePreferredSize
+            return if (isPreferredSizeSet) super.getPreferredSize() else bridge.preferredSize
         }
     }
 

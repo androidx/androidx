@@ -237,7 +237,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
             }
         }
         return bridge.apply {
-            scene.focusManager.releaseFocus()
+            focusManager.releaseFocus()
             component.setSize(width, height)
             component.isFocusable = _isFocusable
             component.isRequestFocusEnabled = _isRequestFocusEnabled
@@ -248,14 +248,14 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
                     // The focus can be switched from the child component inside SwingPanel.
                     // In that case, SwingPanel will take care of it.
                     if (!isParentOf(e.oppositeComponent)) {
-                        bridge.scene.focusManager.requestFocus()
+                        bridge.focusManager.requestFocus()
                         when (e.cause) {
                             FocusEvent.Cause.TRAVERSAL_FORWARD -> {
-                                bridge.scene.focusManager.moveFocus(FocusDirection.Next)
+                                bridge.focusManager.moveFocus(FocusDirection.Next)
                             }
 
                             FocusEvent.Cause.TRAVERSAL_BACKWARD -> {
-                                bridge.scene.focusManager.moveFocus(FocusDirection.Previous)
+                                bridge.focusManager.moveFocus(FocusDirection.Previous)
                             }
 
                             else -> Unit
@@ -289,7 +289,7 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
     }
 
     private fun updateLayoutDirection() {
-        bridge?.scene?.layoutDirection = layoutDirectionFor(this)
+        bridge?.layoutDirection = layoutDirectionFor(this)
     }
 
     override fun addFocusListener(l: FocusListener?) {

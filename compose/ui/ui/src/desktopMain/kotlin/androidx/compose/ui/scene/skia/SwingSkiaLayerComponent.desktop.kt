@@ -64,11 +64,11 @@ internal class SwingSkiaLayerComponent(
             }
 
             override fun getPreferredSize(): Dimension {
-                return if (isPreferredSizeSet) super.getPreferredSize() else bridge.scenePreferredSize
+                return if (isPreferredSizeSet) super.getPreferredSize() else bridge.preferredSize
             }
 
             override fun getAccessibleContext(): AccessibleContext? {
-                return bridge.sceneAccessible.accessibleContext
+                return bridge.accessible.accessibleContext
             }
         }
 

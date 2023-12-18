@@ -48,8 +48,6 @@ class ComposeDialog : JDialog {
     private val skiaLayerAnalytics: SkiaLayerAnalytics
     private val composePanel: ComposeWindowPanel
 
-    internal val scene: ComposeScene
-        get() = composePanel.scene
     internal var rootForTestListener
         get() = composePanel.rootForTestListener
         set(value) { composePanel.rootForTestListener = value }
