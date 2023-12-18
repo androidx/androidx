@@ -17,6 +17,7 @@
 package androidx.compose.ui.scene.skia
 
 import androidx.compose.ui.awt.ComposeBridge
+import androidx.compose.ui.platform.PlatformWindowContext
 import java.awt.Dimension
 import java.awt.Graphics
 import javax.accessibility.Accessible
@@ -32,6 +33,7 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  */
 internal class WindowSkiaLayerComponent(
     skiaLayerAnalytics: SkiaLayerAnalytics,
+    private val windowContext: PlatformWindowContext,
     private val bridge: ComposeBridge
 ) : SkiaLayerComponent {
     /**
@@ -41,13 +43,6 @@ internal class WindowSkiaLayerComponent(
         externalAccessibleFactory = { bridge.accessible },
         analytics = skiaLayerAnalytics
     ), Accessible {
-        override fun addNotify() {
-            super.addNotify()
-            bridge.resetSceneDensity()
-            bridge.initContent()
-            bridge.updateSceneSize()
-        }
-
         override fun paint(g: Graphics) {
             bridge.resetSceneDensity()
             super.paint(g)
@@ -81,7 +76,7 @@ internal class WindowSkiaLayerComponent(
         get() = contentComponent.transparency
         set(value) {
             contentComponent.transparency = value
-            if (value && !bridge.isWindowTransparent && renderApi == GraphicsApi.METAL) {
+            if (value && !windowContext.isWindowTransparent && renderApi == GraphicsApi.METAL) {
                 /*
                  * SkiaLayer sets background inside transparency setter, that is required for
                  * cases like software rendering.

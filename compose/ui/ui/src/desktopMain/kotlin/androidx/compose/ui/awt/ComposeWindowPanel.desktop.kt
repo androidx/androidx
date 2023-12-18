@@ -17,26 +17,20 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalContext
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.ComposeFeatureFlags
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.platform.PlatformWindowContext
-import androidx.compose.ui.scene.skia.WindowSkiaLayerComponent
+import androidx.compose.ui.scene.ComposeContainer
 import androidx.compose.ui.window.LocalWindow
-import androidx.compose.ui.window.WindowExceptionHandler
-import androidx.compose.ui.window.layoutDirectionFor
 import java.awt.Color
 import java.awt.Component
 import java.awt.Container
+import java.awt.Dimension
 import java.awt.FocusTraversalPolicy
 import java.awt.Window
 import java.awt.event.MouseListener
 import java.awt.event.MouseMotionListener
 import java.awt.event.MouseWheelListener
-import javax.accessibility.Accessible
 import javax.swing.JLayeredPane
 import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.OS
@@ -57,52 +51,26 @@ internal class ComposeWindowPanel(
     // (see https://github.com/JetBrains/compose-jb/issues/1688),
     // so we nullify bridge on dispose, to prevent keeping
     // big objects in memory (like the whole LayoutNode tree of the window)
-    private var _bridge: ComposeBridge? = ComposeBridge(
-        layoutDirectionFor(window)
-    ) {
-        WindowSkiaLayerComponent(skiaLayerAnalytics, it)
-    }
-    private val bridge
-        get() = requireNotNull(_bridge) {
-            "ComposeBridge is disposed"
+    private var _composeContainer: ComposeContainer? = ComposeContainer(
+        container = this,
+        skiaLayerAnalytics = skiaLayerAnalytics,
+        window = window,
+        useSwingGraphics = false
+    )
+    private val composeContainer
+        get() = requireNotNull(_composeContainer) {
+            "ComposeContainer is disposed"
         }
+    private val contentComponent by composeContainer::contentComponent
 
-    internal val windowAccessible: Accessible
-        get() = bridge.accessible
-
-    val windowContext: PlatformWindowContext
-        get() = bridge.windowContext
-
-    internal var rootForTestListener by bridge::rootForTestListener
-
-    var fullscreen: Boolean
-        get() = bridge.skiaLayerComponent.fullscreen
-        set(value) {
-            bridge.skiaLayerComponent.fullscreen = value
-        }
-
-    var compositionLocalContext: CompositionLocalContext?
-        get() = bridge.compositionLocalContext
-        set(value) {
-            bridge.compositionLocalContext = value
-        }
-
-    @ExperimentalComposeUiApi
-    var exceptionHandler: WindowExceptionHandler?
-        get() = bridge.exceptionHandler
-        set(value) {
-            bridge.exceptionHandler = value
-        }
-
-    val windowHandle: Long
-        get() = bridge.skiaLayerComponent.windowHandle
-
-    val renderApi: GraphicsApi
-        get() = bridge.skiaLayerComponent.renderApi
-
-    private val interopBlending: Boolean
-        get() = ComposeFeatureFlags.useInteropBlending &&
-            bridge.skiaLayerComponent.interopBlendingSupported
+    val windowAccessible by composeContainer::accessible
+    val windowContext by composeContainer::windowContext
+    var rootForTestListener by composeContainer::rootForTestListener
+    var fullscreen by composeContainer::fullscreen
+    var compositionLocalContext by composeContainer::compositionLocalContext
+    var exceptionHandler by composeContainer::exceptionHandler
+    val windowHandle by composeContainer::windowHandle
+    val renderApi by composeContainer::renderApi
 
     var isWindowTransparent: Boolean = false
         set(value) {
@@ -112,8 +80,7 @@ internal class ComposeWindowPanel(
                     "Cannot change transparency if window is already displayable."
                 }
                 field = value
-                bridge.isWindowTransparent = value
-                bridge.skiaLayerComponent.transparency = value || interopBlending
+                composeContainer.onChangeWindowTransparency(value)
 
                 /*
                  * Windows makes clicks on transparent pixels fall through, but it doesn't work
@@ -149,6 +116,7 @@ internal class ComposeWindowPanel(
         get() = hostOs == OS.Windows && renderApi != GraphicsApi.DIRECT3D
 
     init {
+        layout = null
         focusTraversalPolicy = object : FocusTraversalPolicy() {
             override fun getComponentAfter(aContainer: Container?, aComponent: Component?) = null
             override fun getComponentBefore(aContainer: Container?, aComponent: Component?) = null
@@ -157,57 +125,33 @@ internal class ComposeWindowPanel(
             override fun getDefaultComponent(aContainer: Container?) = null
         }
         isFocusCycleRoot = true
-        bridge.skiaLayerComponent.transparency = interopBlending
-        setContent {}
     }
 
     override fun setBounds(x: Int, y: Int, width: Int, height: Int) {
-        bridge.component.setBounds(0, 0, width, height)
+        composeContainer.setBounds(0, 0, width, height)
         super.setBounds(x, y, width, height)
     }
 
     override fun add(component: Component): Component {
-        addToLayer(component, componentLayer)
-        if (!interopBlending) {
-            bridge.addClipComponent(component)
-        }
+        composeContainer.addToComponentLayer(component)
         return component
     }
 
-    override fun remove(component: Component) {
-        bridge.removeClipComponent(component)
-        super.remove(component)
+    override fun getPreferredSize(): Dimension? = if (isPreferredSizeSet) {
+        super.getPreferredSize()
+    } else {
+        composeContainer.preferredSize
     }
-
-    private fun addToLayer(component: Component, layer: Int) {
-        if (renderApi == GraphicsApi.METAL) {
-            // Applying layer on macOS makes our bridge non-transparent
-            // But it draws always on top, so we can just add it as-is
-            // TODO: Figure out why it makes difference in transparency
-            super.add(component, 0)
-        } else {
-            super.setLayer(component, layer)
-            super.add(component)
-        }
-    }
-
-    private val bridgeLayer: Int get() = 10
-    private val componentLayer: Int
-        get() = if (interopBlending) 0 else 20
 
     override fun addNotify() {
         super.addNotify()
-        bridge.component.requestFocus()
+        _composeContainer?.addNotify()
+        _composeContainer?.contentComponent?.requestFocus()
     }
 
-    override fun getPreferredSize() =
-        if (isPreferredSizeSet) super.getPreferredSize() else bridge.component.preferredSize
-
-    init {
-        layout = null
-        addToLayer(bridge.invisibleComponent, bridgeLayer)
-        addToLayer(bridge.component, bridgeLayer)
-        bridge.setParentWindow(window)
+    override fun removeNotify() {
+        _composeContainer?.removeNotify()
+        super.removeNotify()
     }
 
     fun setContent(
@@ -216,14 +160,13 @@ internal class ComposeWindowPanel(
         modifier: Modifier = Modifier,
         content: @Composable () -> Unit
     ) {
-        bridge.setKeyEventListeners(
+        composeContainer.setKeyEventListeners(
             onPreviewKeyEvent = onPreviewKeyEvent,
             onKeyEvent = onKeyEvent
         )
-        bridge.setContent {
+        composeContainer.setContent {
             CompositionLocalProvider(
-                LocalWindow provides window,
-                LocalLayerContainer provides this
+                LocalWindow provides window
             ) {
                 WindowContentLayout(modifier, content)
             }
@@ -231,23 +174,20 @@ internal class ComposeWindowPanel(
     }
 
     fun dispose() {
-        if (!isDisposed) {
-            bridge.dispose()
-
-            super.remove(bridge.component)
-            super.remove(bridge.invisibleComponent)
-
-            _bridge = null
-            isDisposed = true
+        if (isDisposed) {
+            return
         }
+        _composeContainer?.dispose()
+        _composeContainer = null
+        isDisposed = true
     }
 
     fun onChangeLayoutDirection(component: Component) {
-        bridge.layoutDirection = layoutDirectionFor(component)
+        composeContainer.onChangeLayoutDirection(component)
     }
 
     fun onRenderApiChanged(action: () -> Unit) {
-        bridge.skiaLayerComponent.onRenderApiChanged(action)
+        composeContainer.onRenderApiChanged(action)
     }
 
     // We need overridden listeners because we mix Swing and AWT components in the
@@ -255,26 +195,26 @@ internal class ComposeWindowPanel(
     // TODO(demin): is it possible to fix that without overriding?
 
     override fun addMouseListener(listener: MouseListener) {
-        bridge.component.addMouseListener(listener)
+        contentComponent.addMouseListener(listener)
     }
 
     override fun removeMouseListener(listener: MouseListener) {
-        bridge.component.removeMouseListener(listener)
+        contentComponent.removeMouseListener(listener)
     }
 
     override fun addMouseMotionListener(listener: MouseMotionListener) {
-        bridge.component.addMouseMotionListener(listener)
+        contentComponent.addMouseMotionListener(listener)
     }
 
     override fun removeMouseMotionListener(listener: MouseMotionListener) {
-        bridge.component.removeMouseMotionListener(listener)
+        contentComponent.removeMouseMotionListener(listener)
     }
 
     override fun addMouseWheelListener(listener: MouseWheelListener) {
-        bridge.component.addMouseWheelListener(listener)
+        contentComponent.addMouseWheelListener(listener)
     }
 
     override fun removeMouseWheelListener(listener: MouseWheelListener) {
-        bridge.component.removeMouseWheelListener(listener)
+        contentComponent.removeMouseWheelListener(listener)
     }
 }

@@ -44,13 +44,6 @@ internal class SwingSkiaLayerComponent(
      */
     override val contentComponent: SkiaSwingLayer =
         object : SkiaSwingLayer(skikoView = bridge.skikoView, analytics = skiaLayerAnalytics) {
-            override fun addNotify() {
-                super.addNotify()
-                bridge.resetSceneDensity()
-                bridge.initContent()
-                bridge.updateSceneSize()
-            }
-
             override fun paint(g: Graphics) {
                 bridge.resetSceneDensity()
                 super.paint(g)
