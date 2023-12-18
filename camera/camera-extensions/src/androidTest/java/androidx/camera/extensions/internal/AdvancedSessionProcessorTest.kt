@@ -83,6 +83,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
@@ -104,6 +105,8 @@ class AdvancedSessionProcessorTest {
 
     @Before
     fun setUp() = runBlocking {
+        // Pixel lacks some Extensions-Interface methods / classes which cause the test failure.
+        assumeFalse(Build.MODEL.uppercase().startsWith("PIXEL"))
         ExtensionVersion.injectInstance(null)
         cameraProvider = ProcessCameraProvider.getInstance(context)[10, TimeUnit.SECONDS]
         withContext(Dispatchers.Main) {

@@ -64,8 +64,6 @@ class PreviewTest(
         PreTestCameraIdList(Camera2Config.defaultConfig())
     )
 
-    private val context = ApplicationProvider.getApplicationContext<Context>()
-
     private lateinit var cameraProvider: ProcessCameraProvider
 
     private lateinit var extensionsManager: ExtensionsManager
@@ -152,10 +150,11 @@ class PreviewTest(
     }
 
     companion object {
+        val context: Context = ApplicationProvider.getApplicationContext()
         @JvmStatic
         @get:Parameterized.Parameters(name = "implType = {0}, mode = {1}, facing = {2}")
         val parameters: Collection<Array<Any>>
-            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations()
+            get() = ExtensionsTestUtil.getAllImplExtensionsLensFacingCombinations(context, true)
     }
 
     @UiThreadTest
