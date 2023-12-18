@@ -25,7 +25,8 @@ class AmbiguousColumnResolverTurkishLocaleTest {
     fun case_insensitive_tr() {
         val originalLocale = Locale.getDefault()
         try {
-            Locale.setDefault(Locale("tr")) // Turkish has special upper/lowercase i chars
+            // Turkish has special upper/lowercase i chars
+            Locale.setDefault(Locale.forLanguageTag("tr-TR"))
             val result = AmbiguousColumnResolver.resolve(
                 arrayOf("i̇", "B", "İ", "C", "D"),
                 arrayOf(
