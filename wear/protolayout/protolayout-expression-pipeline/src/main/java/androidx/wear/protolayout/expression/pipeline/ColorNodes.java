@@ -78,6 +78,7 @@ class ColorNodes {
 
         private final AnimatableFixedColor mProtoNode;
         private final DynamicTypeValueReceiverWithPreUpdate<Integer> mDownstream;
+        private boolean mFirstUpdateFromAnimatorDone = false;
 
         AnimatableFixedColorNode(
                 AnimatableFixedColor protoNode,
@@ -88,7 +89,14 @@ class ColorNodes {
             this.mProtoNode = protoNode;
             this.mDownstream = downstream;
             mQuotaAwareAnimator.addUpdateCallback(
-                    animatedValue -> mDownstream.onData((Integer) animatedValue));
+                    animatedValue -> {
+                        // The onPreUpdate has already been called once before the first update.
+                        if (mFirstUpdateFromAnimatorDone) {
+                            mDownstream.onPreUpdate();
+                        }
+                        mDownstream.onData((Integer) animatedValue);
+                        mFirstUpdateFromAnimatorDone = true;
+                    });
         }
 
         @Override
@@ -101,6 +109,9 @@ class ColorNodes {
         @UiThread
         public void init() {
             mQuotaAwareAnimator.setIntValues(mProtoNode.getFromArgb(), mProtoNode.getToArgb());
+            // For the first update from the animator with the above from & to values, the
+            // onPreUpdate has already been called.
+            mFirstUpdateFromAnimatorDone = false;
             startOrSkipAnimator();
         }
 
@@ -120,6 +131,7 @@ class ColorNodes {
 
         @Nullable Integer mCurrentValue = null;
         int mPendingCalls = 0;
+        private boolean mFirstUpdateFromAnimatorDone = false;
 
         // Static analysis complains about calling methods of parent class AnimatableNode under
         // initialization but mInputCallback is only used after the constructor is finished.
@@ -134,8 +146,13 @@ class ColorNodes {
             mQuotaAwareAnimator.addUpdateCallback(
                     animatedValue -> {
                         if (mPendingCalls == 0) {
+                            // The onPreUpdate has already been called once before the first update.
+                            if (mFirstUpdateFromAnimatorDone) {
+                                mDownstream.onPreUpdate();
+                            }
                             mCurrentValue = (Integer) animatedValue;
                             mDownstream.onData(mCurrentValue);
+                            mFirstUpdateFromAnimatorDone = true;
                         }
                     });
             this.mInputCallback =
@@ -161,6 +178,9 @@ class ColorNodes {
                                     mDownstream.onData(mCurrentValue);
                                 } else {
                                     mQuotaAwareAnimator.setIntValues(mCurrentValue, newData);
+                                    // For the first update from the animator with the above from &
+                                    // to values, the onPreUpdate has already been called.
+                                    mFirstUpdateFromAnimatorDone = false;
                                     startOrSkipAnimator();
                                 }
                             }

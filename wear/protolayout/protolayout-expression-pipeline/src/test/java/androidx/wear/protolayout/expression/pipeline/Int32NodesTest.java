@@ -371,9 +371,10 @@ public class Int32NodesTest {
                         .setFromValue(startValue)
                         .setToValue(endValue)
                         .build();
+        AddToListCallback<Integer> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedInt32Node node =
                 new AnimatableFixedInt32Node(
-                        protoNode, new AddToListCallback<>(results), quotaManager);
+                        protoNode, addToListCallback, quotaManager);
         node.setVisibility(true);
 
         node.preInit();
@@ -383,6 +384,7 @@ public class Int32NodesTest {
         assertThat(results.size()).isGreaterThan(2);
         assertThat(results.get(0)).isEqualTo(startValue);
         assertThat(Iterables.getLast(results)).isEqualTo(endValue);
+        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test
@@ -396,9 +398,10 @@ public class Int32NodesTest {
                         .setFromValue(startValue)
                         .setToValue(endValue)
                         .build();
+        AddToListCallback<Integer> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedInt32Node node =
                 new AnimatableFixedInt32Node(
-                        protoNode, new AddToListCallback<>(results), quotaManager);
+                        protoNode, addToListCallback, quotaManager);
         node.setVisibility(false);
 
         node.preInit();
@@ -407,6 +410,7 @@ public class Int32NodesTest {
 
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(endValue);
+        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test
@@ -448,9 +452,10 @@ public class Int32NodesTest {
                                         .setInt32Val(
                                                 FixedInt32.newBuilder().setValue(value1).build())
                                         .build()));
+        AddToListCallback<Integer> addToListCallback = new AddToListCallback<>(results);
         DynamicAnimatedInt32Node int32Node =
                 new DynamicAnimatedInt32Node(
-                        new AddToListCallback<>(results),
+                        addToListCallback,
                         AnimationSpec.getDefaultInstance(),
                         quotaManager);
         int32Node.setVisibility(false);
@@ -491,6 +496,7 @@ public class Int32NodesTest {
         assertThat(results.get(0)).isEqualTo(value2);
         assertThat(Iterables.getLast(results)).isEqualTo(value3);
         assertThat(results).isInOrder();
+        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test

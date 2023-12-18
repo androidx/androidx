@@ -440,9 +440,10 @@ public class FloatNodeTest {
                         .setFromValue(startValue)
                         .setToValue(endValue)
                         .build();
+        AddToListCallback<Float> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedFloatNode node =
                 new AnimatableFixedFloatNode(
-                        protoNode, new AddToListCallback<>(results), quotaManager);
+                        protoNode, addToListCallback, quotaManager);
         node.setVisibility(true);
 
         node.preInit();
@@ -452,6 +453,7 @@ public class FloatNodeTest {
         assertThat(results.size()).isGreaterThan(2);
         assertThat(results.get(0)).isEqualTo(startValue);
         assertThat(Iterables.getLast(results)).isEqualTo(endValue);
+        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test
@@ -465,9 +467,10 @@ public class FloatNodeTest {
                         .setFromValue(startValue)
                         .setToValue(endValue)
                         .build();
+        AddToListCallback<Float> addToListCallback = new AddToListCallback<>(results);
         AnimatableFixedFloatNode node =
                 new AnimatableFixedFloatNode(
-                        protoNode, new AddToListCallback<>(results), quotaManager);
+                        protoNode, addToListCallback, quotaManager);
         node.setVisibility(false);
 
         node.preInit();
@@ -476,6 +479,7 @@ public class FloatNodeTest {
 
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(endValue);
+        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     @Test
@@ -517,9 +521,10 @@ public class FloatNodeTest {
                                         .setFloatVal(
                                                 FixedFloat.newBuilder().setValue(value1).build())
                                         .build()));
+        AddToListCallback<Float> addToListCallback = new AddToListCallback<>(results);
         DynamicAnimatedFloatNode floatNode =
                 new DynamicAnimatedFloatNode(
-                        new AddToListCallback<>(results),
+                        addToListCallback,
                         AnimationSpec.getDefaultInstance(),
                         quotaManager);
         floatNode.setVisibility(false);
@@ -560,6 +565,7 @@ public class FloatNodeTest {
         assertThat(results.get(0)).isEqualTo(value2);
         assertThat(Iterables.getLast(results)).isEqualTo(value3);
         assertThat(results).isInOrder();
+        assertThat(addToListCallback.isPreUpdateAndUpdateInSync()).isTrue();
     }
 
     private static void evaluateArithmeticExpression(
