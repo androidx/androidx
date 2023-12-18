@@ -711,10 +711,10 @@ package androidx.appactions.builtintypes.types {
   @androidx.appsearch.annotation.Document(name="bit:Person", parent={Thing::class}) public interface Person extends androidx.appactions.builtintypes.types.Thing {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Person.Builder<?> Builder();
     method @androidx.appsearch.annotation.Document.StringProperty public default String? getEmail();
-    method @androidx.appsearch.annotation.Document.StringProperty(name="telephone") public default String? getTelephoneNumber();
+    method @androidx.appsearch.annotation.Document.StringProperty public default String? getTelephoneNumber();
     method public androidx.appactions.builtintypes.types.Person.Builder<?> toBuilder();
     property @androidx.appsearch.annotation.Document.StringProperty public default String? email;
-    property @androidx.appsearch.annotation.Document.StringProperty(name="telephone") public default String? telephoneNumber;
+    property @androidx.appsearch.annotation.Document.StringProperty public default String? telephoneNumber;
     field public static final androidx.appactions.builtintypes.types.Person.Companion Companion;
   }
 
@@ -730,10 +730,10 @@ package androidx.appactions.builtintypes.types {
 
   @androidx.appsearch.annotation.Document(name="bit:Schedule", parent={Intangible::class}) public interface Schedule extends androidx.appactions.builtintypes.types.Intangible {
     method @androidx.appsearch.annotation.Document.BuilderProducer public static androidx.appactions.builtintypes.types.Schedule.Builder<?> Builder();
-    method @androidx.appsearch.annotation.Document.DocumentProperty(name="byDay") public default java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
-    method @androidx.appsearch.annotation.Document.LongProperty(name="byMonthDay") public default java.util.List<java.lang.Long> getByMonthDays();
-    method @androidx.appsearch.annotation.Document.LongProperty(name="byMonthWeek") public default java.util.List<java.lang.Long> getByMonthWeeks();
-    method @androidx.appsearch.annotation.Document.LongProperty(name="byMonth") public default java.util.List<java.lang.Long> getByMonths();
+    method @androidx.appsearch.annotation.Document.DocumentProperty public default java.util.List<androidx.appactions.builtintypes.properties.ByDay> getByDays();
+    method @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> getByMonthDays();
+    method @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> getByMonthWeeks();
+    method @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> getByMonths();
     method @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.EndDate? getEndDate();
     method @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.EndTime? getEndTime();
     method @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.ExceptDate? getExceptDate();
@@ -743,10 +743,10 @@ package androidx.appactions.builtintypes.types {
     method @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.StartDate? getStartDate();
     method @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.StartTime? getStartTime();
     method public androidx.appactions.builtintypes.types.Schedule.Builder<?> toBuilder();
-    property @androidx.appsearch.annotation.Document.DocumentProperty(name="byDay") public default java.util.List<androidx.appactions.builtintypes.properties.ByDay> byDays;
-    property @androidx.appsearch.annotation.Document.LongProperty(name="byMonthDay") public default java.util.List<java.lang.Long> byMonthDays;
-    property @androidx.appsearch.annotation.Document.LongProperty(name="byMonthWeek") public default java.util.List<java.lang.Long> byMonthWeeks;
-    property @androidx.appsearch.annotation.Document.LongProperty(name="byMonth") public default java.util.List<java.lang.Long> byMonths;
+    property @androidx.appsearch.annotation.Document.DocumentProperty public default java.util.List<androidx.appactions.builtintypes.properties.ByDay> byDays;
+    property @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> byMonthDays;
+    property @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> byMonthWeeks;
+    property @androidx.appsearch.annotation.Document.LongProperty public default java.util.List<java.lang.Long> byMonths;
     property @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.EndDate? endDate;
     property @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.EndTime? endTime;
     property @androidx.appsearch.annotation.Document.DocumentProperty public default androidx.appactions.builtintypes.properties.ExceptDate? exceptDate;
