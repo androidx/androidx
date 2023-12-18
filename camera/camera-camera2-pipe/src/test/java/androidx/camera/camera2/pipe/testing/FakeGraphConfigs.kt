@@ -146,7 +146,7 @@ internal object FakeGraphConfigs {
                 sharedStreamConfig1,
                 sharedStreamConfig2
             ),
-            streamSharingGroups = listOf(listOf(streamConfig1, streamConfig2)),
+            exclusiveStreamGroups = listOf(listOf(streamConfig1, streamConfig2)),
             defaultParameters = mapOf(CaptureRequest.JPEG_THUMBNAIL_QUALITY to 24),
             requiredParameters = mapOf(CaptureRequest.JPEG_THUMBNAIL_QUALITY to 42)
         )
