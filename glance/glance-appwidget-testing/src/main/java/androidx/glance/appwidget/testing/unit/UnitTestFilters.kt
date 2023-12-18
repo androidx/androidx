@@ -83,7 +83,8 @@ fun isNotChecked(): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
  * @param parameters the parameters associated with the action that are expected to have been passed
  *                   in the `actionRunCallback` method call
  */
-fun <T : ActionCallback> hasRunCallbackClickAction(
+@PublishedApi // See b/316353540; a reified version of this is available in the public api.
+internal fun <T : ActionCallback> hasRunCallbackClickAction(
     callbackClass: Class<T>,
     parameters: ActionParameters = actionParametersOf()
 ): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
@@ -176,7 +177,8 @@ fun hasStartActivityClickAction(
  * @param isForegroundService if the service to launch is expected to have been set as foreground
  *                            service in the `actionStartService` method call.
  */
-fun hasStartServiceAction(
+@PublishedApi // See b/316353540; a reified version of this is available in the public api.
+internal fun hasStartServiceAction(
     serviceClass: Class<out Service>,
     isForegroundService: Boolean = false
 ): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
@@ -295,7 +297,8 @@ fun hasStartServiceAction(
  * @param receiverClass class of the broadcast receiver that is expected to have been passed in the
  *                      actionSendBroadcast` method call.
  */
-fun hasSendBroadcastAction(
+@PublishedApi // See b/316353540; a reified version of this is available in the public api.
+internal fun hasSendBroadcastAction(
     receiverClass: Class<out BroadcastReceiver>
 ): GlanceNodeMatcher<MappedNode> = GlanceNodeMatcher(
     description = "has send broadcast action for receiver class: ${receiverClass.name}"
