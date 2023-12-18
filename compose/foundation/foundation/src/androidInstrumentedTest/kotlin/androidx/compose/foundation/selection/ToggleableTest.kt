@@ -18,9 +18,11 @@ package androidx.compose.foundation.selection
 
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.TapIndicationDelay
+import androidx.compose.foundation.TestIndicationNodeFactory
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
@@ -728,11 +730,12 @@ class ToggleableTest {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "value",
-                "enabled",
-                "role",
                 "indication",
                 "interactionSource",
-                "onValueChange",
+                "enabled",
+                "role",
+                "lazilyCreateIndication",
+                "onValueChange"
             )
         }
     }
@@ -766,11 +769,12 @@ class ToggleableTest {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "state",
-                "enabled",
-                "role",
                 "indication",
                 "interactionSource",
-                "onClick",
+                "enabled",
+                "role",
+                "lazilyCreateIndication",
+                "onClick"
             )
         }
     }
@@ -1360,6 +1364,184 @@ class ToggleableTest {
             assertThat(pressInteractions).hasSize(2)
             assertThat(pressInteractions.first()).isInstanceOf(PressInteraction.Press::class.java)
             assertThat(pressInteractions.last()).isInstanceOf(PressInteraction.Cancel::class.java)
+        }
+    }
+
+    @Test
+    fun toggleableTest_interactionSource_lazilyCreateIndicationTrue() {
+        var created = false
+        val interactionSource = MutableInteractionSource()
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory { _, coroutineScope ->
+            created = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ToggleableText",
+                    modifier = Modifier
+                        .testTag("toggleable")
+                        .toggleable(
+                            value = false,
+                            interactionSource = interactionSource,
+                            indication = indication,
+                            lazilyCreateIndication = true
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created).isFalse()
+        }
+
+        // The touch event should cause the indication node to be created
+        rule.onNodeWithTag("toggleable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @Test
+    fun toggleableTest_noInteractionSource_lazilyCreated_pointerInput() {
+        var created = false
+        lateinit var interactionSource: InteractionSource
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory { source, coroutineScope ->
+            interactionSource = source
+            created = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("Toggleable",
+                    modifier = Modifier
+                        .testTag("toggleable")
+                        .toggleable(
+                            value = false,
+                            interactionSource = null,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created).isFalse()
+        }
+
+        // The touch event should cause the indication node to be created
+        rule.onNodeWithTag("toggleable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @Test
+    fun triStateToggleableTest_interactionSource_lazilyCreateIndicationTrue() {
+        var created = false
+        val state = ToggleableState(value = false)
+        val interactionSource = MutableInteractionSource()
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory { _, coroutineScope ->
+            created = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                        interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("ToggleableText",
+                    modifier = Modifier
+                        .testTag("toggleable")
+                        .triStateToggleable(
+                            state = state,
+                            interactionSource = interactionSource,
+                            indication = indication,
+                            lazilyCreateIndication = true
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created).isFalse()
+        }
+
+        // The touch event should cause the indication node to be created
+        rule.onNodeWithTag("toggleable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @Test
+    fun triStateToggleableTest_noInteractionSource_lazilyCreated_pointerInput() {
+        var created = false
+        val state = ToggleableState(value = false)
+        lateinit var interactionSource: InteractionSource
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory { source, coroutineScope ->
+            interactionSource = source
+            created = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                        interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("Toggleable",
+                    modifier = Modifier
+                        .testTag("toggleable")
+                        .triStateToggleable(
+                            state = state,
+                            interactionSource = null,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created).isFalse()
+        }
+
+        // The touch event should cause the indication node to be created
+        rule.onNodeWithTag("toggleable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
         }
     }
 }

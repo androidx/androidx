@@ -18,9 +18,11 @@ package androidx.compose.foundation.selection
 
 import android.os.Build.VERSION.SDK_INT
 import androidx.compose.foundation.TapIndicationDelay
+import androidx.compose.foundation.TestIndicationNodeFactory
 import androidx.compose.foundation.interaction.FocusInteraction
 import androidx.compose.foundation.interaction.HoverInteraction
 import androidx.compose.foundation.interaction.Interaction
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
@@ -82,6 +84,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
+// add test for lazily indication parameter
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class SelectableTest {
@@ -635,10 +638,11 @@ class SelectableTest {
             assertThat(modifier.valueOverride).isNull()
             assertThat(modifier.inspectableElements.map { it.name }.asIterable()).containsExactly(
                 "selected",
-                "enabled",
-                "role",
                 "interactionSource",
                 "indication",
+                "enabled",
+                "role",
+                "lazilyCreateIndication",
                 "onClick"
             )
         }
@@ -1143,6 +1147,94 @@ class SelectableTest {
             assertThat(pressInteractions).hasSize(2)
             assertThat(pressInteractions.first()).isInstanceOf(PressInteraction.Press::class.java)
             assertThat(pressInteractions.last()).isInstanceOf(PressInteraction.Cancel::class.java)
+        }
+    }
+
+    @Test
+    fun selectableTest_interactionSource_lazilyCreateIndicationTrue() {
+        var created = false
+        val interactionSource = MutableInteractionSource()
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory { _, coroutineScope ->
+            created = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("SelectableText",
+                    modifier = Modifier
+                        .testTag("selectable")
+                        .selectable(
+                            selected = false,
+                            interactionSource = interactionSource,
+                            indication = indication,
+                            lazilyCreateIndication = true
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created).isFalse()
+        }
+
+        // The touch event should cause the indication node to be created
+        rule.onNodeWithTag("selectable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
+        }
+    }
+
+    @Test
+    fun selectableTest_noInteractionSource_lazilyCreated_pointerInput() {
+        var created = false
+        lateinit var interactionSource: InteractionSource
+        val interactions = mutableListOf<Interaction>()
+        val indication = TestIndicationNodeFactory { source, coroutineScope ->
+            interactionSource = source
+            created = true
+            coroutineScope.launch {
+                interactionSource.interactions.collect {
+                    interaction -> interactions.add(interaction)
+                }
+            }
+        }
+
+        rule.setContent {
+            Box(Modifier.padding(10.dp)) {
+                BasicText("SelectableText",
+                    modifier = Modifier
+                        .testTag("selectable")
+                        .selectable(
+                            selected = false,
+                            interactionSource = null,
+                            indication = indication
+                        ) {}
+                )
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(created).isFalse()
+        }
+
+        // The touch event should cause the indication node to be created
+        rule.onNodeWithTag("selectable")
+            .performTouchInput { down(center) }
+
+        rule.runOnIdle {
+            assertThat(created).isTrue()
+            assertThat(interactions).hasSize(1)
+            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
         }
     }
 }
