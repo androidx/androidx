@@ -37,6 +37,7 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollDispatcher
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.input.pointer.pointerInteropFilter
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Measurable
@@ -169,7 +170,7 @@ internal open class AndroidViewHolder(
      */
     private val snapshotObserver: OwnerSnapshotObserver
         get() {
-            check(isAttachedToWindow) {
+            checkPrecondition(isAttachedToWindow) {
                 "Expected AndroidViewHolder to be attached when observing reads."
             }
             return owner.snapshotObserver

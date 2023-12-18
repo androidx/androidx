@@ -74,6 +74,8 @@ package androidx.compose.ui.util {
     method public static inline float fastCoerceAtMost(float, float maximumValue);
     method public static inline double fastCoerceIn(double, double minimumValue, double maximumValue);
     method public static inline float fastCoerceIn(float, float minimumValue, float maximumValue);
+    method public static inline float fastMaxOf(float a, float b, float c, float d);
+    method public static inline float fastMinOf(float a, float b, float c, float d);
     method public static float lerp(float start, float stop, float fraction);
     method public static int lerp(int start, int stop, float fraction);
     method public static long lerp(long start, long stop, float fraction);

@@ -22,6 +22,9 @@ import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.internal.JvmDefaultWithCompatibility
 import androidx.compose.ui.node.NodeCoordinator
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.fastCoerceIn
+import androidx.compose.ui.util.fastMaxOf
+import androidx.compose.ui.util.fastMinOf
 
 /**
  * A holder of the measured bounds for the [Layout].
@@ -161,24 +164,40 @@ fun LayoutCoordinates.boundsInRoot(): Rect =
  */
 fun LayoutCoordinates.boundsInWindow(): Rect {
     val root = findRootCoordinates()
-    val bounds = boundsInRoot()
     val rootWidth = root.size.width.toFloat()
     val rootHeight = root.size.height.toFloat()
-    val boundsLeft = bounds.left.coerceIn(0f, rootWidth)
-    val boundsTop = bounds.top.coerceIn(0f, rootHeight)
-    val boundsRight = bounds.right.coerceIn(0f, rootWidth)
-    val boundsBottom = bounds.bottom.coerceIn(0f, rootHeight)
+
+    val bounds = boundsInRoot()
+    val boundsLeft = bounds.left.fastCoerceIn(0f, rootWidth)
+    val boundsTop = bounds.top.fastCoerceIn(0f, rootHeight)
+    val boundsRight = bounds.right.fastCoerceIn(0f, rootWidth)
+    val boundsBottom = bounds.bottom.fastCoerceIn(0f, rootHeight)
+
     if (boundsLeft == boundsRight || boundsTop == boundsBottom) {
         return Rect.Zero
     }
+
     val topLeft = root.localToWindow(Offset(boundsLeft, boundsTop))
     val topRight = root.localToWindow(Offset(boundsRight, boundsTop))
     val bottomRight = root.localToWindow(Offset(boundsRight, boundsBottom))
     val bottomLeft = root.localToWindow(Offset(boundsLeft, boundsBottom))
-    val left = minOf(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x)
-    val top = minOf(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y)
-    val right = maxOf(topLeft.x, topRight.x, bottomLeft.x, bottomRight.x)
-    val bottom = maxOf(topLeft.y, topRight.y, bottomLeft.y, bottomRight.y)
+
+    val topLeftX = topLeft.x
+    val topRightX = topRight.x
+    val bottomLeftX = bottomLeft.x
+    val bottomRightX = bottomRight.x
+
+    val left = fastMinOf(topLeftX, topRightX, bottomLeftX, bottomRightX)
+    val right = fastMaxOf(topLeftX, topRightX, bottomLeftX, bottomRightX)
+
+    val topLeftY = topLeft.y
+    val topRightY = topRight.y
+    val bottomLeftY = bottomLeft.y
+    val bottomRightY = bottomRight.y
+
+    val top = fastMinOf(topLeftY, topRightY, bottomLeftY, bottomRightY)
+    val bottom = fastMaxOf(topLeftY, topRightY, bottomLeftY, bottomRightY)
+
     return Rect(left, top, right, bottom)
 }
 

@@ -17,6 +17,8 @@
 package androidx.compose.ui.node
 
 import androidx.compose.runtime.collection.mutableVectorOf
+import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.requirePrecondition
 import androidx.compose.ui.layout.OnGloballyPositionedModifier
 import androidx.compose.ui.node.LayoutNode.LayoutState.Idle
 import androidx.compose.ui.node.LayoutNode.LayoutState.LayingOut
@@ -73,7 +75,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     var measureIteration: Long = 1L
         get() {
-            require(duringMeasureLayout) {
+            requirePrecondition(duringMeasureLayout) {
                 "measureIteration should be only used during the measure/layout pass"
             }
             return field
@@ -95,7 +97,9 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      */
     fun updateRootConstraints(constraints: Constraints) {
         if (rootConstraints != constraints) {
-            require(!duringMeasureLayout) { "updateRootConstraints called while measuring" }
+            requirePrecondition(!duringMeasureLayout) {
+                "updateRootConstraints called while measuring"
+            }
             rootConstraints = constraints
             if (root.lookaheadRoot != null) {
                 root.markLookaheadMeasurePending()
@@ -127,7 +131,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
      * of the request.
      */
     fun requestLookaheadRemeasure(layoutNode: LayoutNode, forced: Boolean = false): Boolean {
-        check(layoutNode.lookaheadRoot != null) {
+        checkPrecondition(layoutNode.lookaheadRoot != null) {
             "Error: requestLookaheadRemeasure cannot be called on a node outside" +
                 " LookaheadScope"
         }
@@ -425,7 +429,7 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     }
 
     fun measureAndLayout(layoutNode: LayoutNode, constraints: Constraints) {
-        require(layoutNode != root) { "measureAndLayout called on root" }
+        requirePrecondition(layoutNode != root) { "measureAndLayout called on root" }
         performMeasureAndLayout {
             relayoutNodes.remove(layoutNode)
             // we don't check for the layoutState as even if the node doesn't need remeasure
@@ -446,9 +450,15 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
     }
 
     private inline fun performMeasureAndLayout(block: () -> Unit) {
-        require(root.isAttached) { "performMeasureAndLayout called with unattached root" }
-        require(root.isPlaced) { "performMeasureAndLayout called with unplaced root" }
-        require(!duringMeasureLayout) { "performMeasureAndLayout called during measure layout" }
+        requirePrecondition(root.isAttached) {
+            "performMeasureAndLayout called with unattached root"
+        }
+        requirePrecondition(root.isPlaced) {
+            "performMeasureAndLayout called with unplaced root"
+        }
+        requirePrecondition(!duringMeasureLayout) {
+            "performMeasureAndLayout called during measure layout"
+        }
         // we don't need to measure any children unless we have the correct root constraints
         if (rootConstraints != null) {
             duringMeasureLayout = true
@@ -572,12 +582,14 @@ internal class MeasureAndLayoutDelegate(private val root: LayoutNode) {
         }
 
         // assert that it is executed during the `measureAndLayout` pass.
-        check(duringMeasureLayout) {
+        checkPrecondition(duringMeasureLayout) {
             "forceMeasureTheSubtree should be executed during the measureAndLayout pass"
         }
 
         // if this node is not yet measured this invocation shouldn't be needed.
-        require(!layoutNode.measurePending(affectsLookahead)) { "node not yet measured" }
+        requirePrecondition(!layoutNode.measurePending(affectsLookahead)) {
+            "node not yet measured"
+        }
 
         forceMeasureTheSubtreeInternal(layoutNode, affectsLookahead)
     }

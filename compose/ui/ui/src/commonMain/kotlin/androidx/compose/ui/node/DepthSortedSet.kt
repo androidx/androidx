@@ -16,6 +16,8 @@
 
 package androidx.compose.ui.node
 
+import androidx.compose.ui.internal.checkPrecondition
+
 /**
  * The set of [LayoutNode]s which orders items by their [LayoutNode.depth] and
  * allows modifications(additions and removals) while we iterate through it via [popEach].
@@ -49,30 +51,34 @@ internal class DepthSortedSet(
     fun contains(node: LayoutNode): Boolean {
         val contains = set.contains(node)
         if (extraAssertions) {
-            check(contains == mapOfOriginalDepth.containsKey(node)) { "inconsistency in TreeSet" }
+            checkPrecondition(contains == mapOfOriginalDepth.containsKey(node)) {
+                "inconsistency in TreeSet"
+            }
         }
         return contains
     }
 
     fun add(node: LayoutNode) {
-        check(node.isAttached) { "DepthSortedSet.add called on an unattached node" }
+        checkPrecondition(node.isAttached) { "DepthSortedSet.add called on an unattached node" }
         if (extraAssertions) {
             val usedDepth = mapOfOriginalDepth[node]
             if (usedDepth == null) {
                 mapOfOriginalDepth[node] = node.depth
             } else {
-                check(usedDepth == node.depth) { "invalid node depth" }
+                checkPrecondition(usedDepth == node.depth) { "invalid node depth" }
             }
         }
         set.add(node)
     }
 
     fun remove(node: LayoutNode): Boolean {
-        check(node.isAttached) { "DepthSortedSet.remove called on an unattached node" }
+        checkPrecondition(node.isAttached) { "DepthSortedSet.remove called on an unattached node" }
         val contains = set.remove(node)
         if (extraAssertions) {
             val usedDepth = mapOfOriginalDepth.remove(node)
-            check(usedDepth == if (contains) node.depth else null) { "invalid node depth" }
+            checkPrecondition(usedDepth == if (contains) node.depth else null) {
+                "invalid node depth"
+            }
         }
         return contains
     }

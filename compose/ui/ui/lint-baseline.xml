@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.3.0-alpha10" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha10)" variant="all" version="8.3.0-alpha10">
 
     <issue
         id="BanThreadSleep"
@@ -75,15 +75,6 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="return type Map&lt;LayoutNode, Integer> of getMapOfOriginalDepth: replace with ObjectIntMap"
-        errorLine1="    private val mapOfOriginalDepth by lazy(LazyThreadSafetyMode.NONE) {"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
         message="return type List&lt;HapticFeedbackType> of values: replace with IntList"
         errorLine1="        fun values(): List&lt;HapticFeedbackType> = listOf(LongPress, TextHandleMove)"
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -98,6 +89,42 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/layout/IntermediateLayoutModifierNode.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;AlignmentLine, Integer> of getAlignmentLines: replace with ObjectIntMap"
+        errorLine1="    val alignmentLines: Map&lt;AlignmentLine, Int>"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/MeasureResult.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method layout has parameter alignmentLines with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
+        errorLine1="        alignmentLines: Map&lt;AlignmentLine, Int> = emptyMap(),"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/MeasureScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field alignmentLines with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
+        errorLine1="        override val alignmentLines = alignmentLines"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/layout/MeasureScope.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;LayoutNode, Integer> of getMapOfOriginalDepth: replace with ObjectIntMap"
+        errorLine1="    private val mapOfOriginalDepth by lazy(LazyThreadSafetyMode.NONE) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/ui/node/DepthSortedSet.kt"/>
     </issue>
 
     <issue
@@ -165,29 +192,11 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="return type Map&lt;AlignmentLine, Integer> of getAlignmentLines: replace with ObjectIntMap"
-        errorLine1="    val alignmentLines: Map&lt;AlignmentLine, Int>"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
+        message="field oldAlignmentLines with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
+        errorLine1="    private var oldAlignmentLines: MutableMap&lt;AlignmentLine, Int>? = null"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/commonMain/kotlin/androidx/compose/ui/layout/MeasureResult.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="method layout has parameter alignmentLines with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
-        errorLine1="        alignmentLines: Map&lt;AlignmentLine, Int> = emptyMap(),"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/layout/MeasureScope.kt"/>
-    </issue>
-
-    <issue
-        id="PrimitiveInCollection"
-        message="field alignmentLines with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
-        errorLine1="        override val alignmentLines = alignmentLines"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/ui/layout/MeasureScope.kt"/>
+            file="src/commonMain/kotlin/androidx/compose/ui/node/NodeCoordinator.kt"/>
     </issue>
 
     <issue
@@ -201,7 +210,7 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="variable var43bc1850 with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
+        message="variable var43bc2abb with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
         errorLine1="                    val oldLines = oldAlignmentLines"
         errorLine2="                                   ^">
         <location
@@ -210,9 +219,9 @@
 
     <issue
         id="PrimitiveInCollection"
-        message="field oldAlignmentLines with type Map&lt;AlignmentLine, Integer>: replace with ObjectIntMap"
-        errorLine1="    private var oldAlignmentLines: MutableMap&lt;AlignmentLine, Int>? = null"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        message="variable alignmentLines with type Map&lt;AlignmentLine, ? extends Integer>: replace with ObjectIntMap"
+        errorLine1="                val alignmentLines = coordinator._measureResult?.alignmentLines"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/ui/node/NodeCoordinator.kt"/>
     </issue>

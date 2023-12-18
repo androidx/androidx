@@ -19,6 +19,7 @@ import androidx.annotation.AnyThread
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.collection.SparseArrayCompat
+import androidx.compose.ui.unit.checkPrecondition
 
 /**
  * Creates [FontScaleConverter]s at various scales.
@@ -93,7 +94,7 @@ object FontScaleConverterFactory {
             )
         }
         sMinScaleBeforeCurvesApplied = getScaleFromKey(sLookupTables.keyAt(0)) - 0.02f
-        check(sMinScaleBeforeCurvesApplied > 1.0f) {
+        checkPrecondition(sMinScaleBeforeCurvesApplied > 1.0f) {
             "You should only apply non-linear scaling to font scales > 1"
         }
     }

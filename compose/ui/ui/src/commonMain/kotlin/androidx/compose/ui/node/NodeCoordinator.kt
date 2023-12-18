@@ -31,6 +31,8 @@ import androidx.compose.ui.graphics.Matrix
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.ReusableGraphicsLayerScope
 import androidx.compose.ui.graphics.TransformOrigin
+import androidx.compose.ui.internal.checkPrecondition
+import androidx.compose.ui.internal.checkPreconditionNotNull
 import androidx.compose.ui.layout.AlignmentLine
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.LookaheadLayoutCoordinates
@@ -252,14 +254,14 @@ internal abstract class NodeCoordinator(
 
     final override val parentLayoutCoordinates: LayoutCoordinates?
         get() {
-            check(isAttached) { ExpectAttachedLayoutCoordinates }
+            checkPrecondition(isAttached) { ExpectAttachedLayoutCoordinates }
             onCoordinatesUsed()
             return layoutNode.outerCoordinator.wrappedBy
         }
 
     final override val parentCoordinates: LayoutCoordinates?
         get() {
-            check(isAttached) { ExpectAttachedLayoutCoordinates }
+            checkPrecondition(isAttached) { ExpectAttachedLayoutCoordinates }
             onCoordinatesUsed()
             return wrappedBy
         }
@@ -434,7 +436,7 @@ internal abstract class NodeCoordinator(
     private fun updateLayerParameters(invokeOnLayoutChange: Boolean = true) {
         val layer = layer
         if (layer != null) {
-            val layerBlock = checkNotNull(layerBlock) {
+            val layerBlock = checkPreconditionNotNull(layerBlock) {
                 "updateLayerParameters requires a non-null layerBlock"
             }
             graphicsLayerScope.reset()
@@ -457,7 +459,7 @@ internal abstract class NodeCoordinator(
                 layoutNode.owner?.onLayoutChange(layoutNode)
             }
         } else {
-            check(layerBlock == null) { "null layer with a non-null layerBlock" }
+            checkPrecondition(layerBlock == null) { "null layer with a non-null layerBlock" }
         }
     }
 
@@ -719,7 +721,7 @@ internal abstract class NodeCoordinator(
     }
 
     override fun screenToLocal(relativeToScreen: Offset): Offset {
-        check(isAttached) { ExpectAttachedLayoutCoordinates }
+        checkPrecondition(isAttached) { ExpectAttachedLayoutCoordinates }
         val owner = layoutNode.requireOwner()
         val positionInRoot = owner.screenToLocal(relativeToScreen)
         val root = findRootCoordinates()
@@ -727,14 +729,14 @@ internal abstract class NodeCoordinator(
     }
 
     override fun localToScreen(relativeToLocal: Offset): Offset {
-        check(isAttached) { ExpectAttachedLayoutCoordinates }
+        checkPrecondition(isAttached) { ExpectAttachedLayoutCoordinates }
         val positionInRoot = localToRoot(relativeToLocal)
         val owner = layoutNode.requireOwner()
         return owner.localToScreen(positionInRoot)
     }
 
     override fun windowToLocal(relativeToWindow: Offset): Offset {
-        check(isAttached) { ExpectAttachedLayoutCoordinates }
+        checkPrecondition(isAttached) { ExpectAttachedLayoutCoordinates }
         val root = findRootCoordinates()
         val positionInRoot = layoutNode.requireOwner()
             .calculateLocalPosition(relativeToWindow) - root.positionInRoot()
@@ -821,8 +823,8 @@ internal abstract class NodeCoordinator(
         sourceCoordinates: LayoutCoordinates,
         clipBounds: Boolean
     ): Rect {
-        check(isAttached) { ExpectAttachedLayoutCoordinates }
-        check(sourceCoordinates.isAttached) {
+        checkPrecondition(isAttached) { ExpectAttachedLayoutCoordinates }
+        checkPrecondition(sourceCoordinates.isAttached) {
             "LayoutCoordinates $sourceCoordinates is not attached!"
         }
         val srcCoordinator = sourceCoordinates.toCoordinator()
@@ -873,7 +875,7 @@ internal abstract class NodeCoordinator(
     }
 
     override fun localToRoot(relativeToLocal: Offset): Offset {
-        check(isAttached) { ExpectAttachedLayoutCoordinates }
+        checkPrecondition(isAttached) { ExpectAttachedLayoutCoordinates }
         onCoordinatesUsed()
         var coordinator: NodeCoordinator? = this
         var position = relativeToLocal

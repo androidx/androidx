@@ -39,6 +39,28 @@ fun lerp(start: Long, stop: Long, fraction: Float): Long {
 }
 
 /**
+ * Returns the smaller of the given values. If any value is NaN, returns NaN.
+ * Preferred over `kotlin.comparisons.minfOf()` for 4 arguments as it avoids
+ * allocaing an array because of the varargs.
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun fastMinOf(a: Float, b: Float, c: Float, d: Float): Float {
+    // ART inlines everything and generates only 3 fmin instructions
+    return minOf(a, minOf(b, minOf(c, d)))
+}
+
+/**
+ * Returns the largest of the given values. If any value is NaN, returns NaN.
+ * Preferred over `kotlin.comparisons.maxOf()` for 4 arguments as it avoids
+ * allocaing an array because of the varargs.
+ */
+@Suppress("NOTHING_TO_INLINE")
+inline fun fastMaxOf(a: Float, b: Float, c: Float, d: Float): Float {
+    // ART inlines everything and generates only 3 fmax instructions
+    return maxOf(a, maxOf(b, maxOf(c, d)))
+}
+
+/**
  * Returns this float value clamped in the inclusive range defined by
  * [minimumValue] and [maximumValue]. Unlike [Float.coerceIn], the range
  * is not validated: the caller must ensure that [minimumValue] is less than

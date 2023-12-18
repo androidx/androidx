@@ -24,6 +24,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.areObjectsOfSameType
 import androidx.compose.ui.input.pointer.SuspendPointerInputElement
+import androidx.compose.ui.internal.checkPrecondition
 import androidx.compose.ui.layout.ModifierInfo
 
 private val SentinelHead = object : Modifier.Node() {
@@ -61,7 +62,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
      *  owner or one per chain.
      */
     private fun padChain(): Modifier.Node {
-        check(head !== SentinelHead) { "padChain called on already padded chain" }
+        checkPrecondition(head !== SentinelHead) { "padChain called on already padded chain" }
         val currentHead = head
         currentHead.parent = SentinelHead
         SentinelHead.child = currentHead
@@ -69,13 +70,15 @@ internal class NodeChain(val layoutNode: LayoutNode) {
     }
 
     private fun trimChain(paddedHead: Modifier.Node): Modifier.Node {
-        check(paddedHead === SentinelHead) { "trimChain called on already trimmed chain" }
+        checkPrecondition(paddedHead === SentinelHead) {
+            "trimChain called on already trimmed chain"
+        }
         val result = SentinelHead.child ?: tail
         result.parent = null
         SentinelHead.child = null
         SentinelHead.aggregateChildKindSet = 0.inv()
         SentinelHead.updateCoordinator(null)
-        check(result !== SentinelHead) { "trimChain did not update the head" }
+        checkPrecondition(result !== SentinelHead) { "trimChain did not update the head" }
         return result
     }
 
@@ -588,7 +591,9 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             }
             else -> BackwardsCompatNode(element)
         }
-        check(!node.isAttached) { "createAndInsertNodeAsParent called on an attached node" }
+        checkPrecondition(!node.isAttached) {
+            "createAndInsertNodeAsParent called on an attached node"
+        }
         node.insertedNodeAwaitingAttachForInvalidation = true
         return insertParent(node, child)
     }
@@ -626,7 +631,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             }
             else -> BackwardsCompatNode(element)
         }
-        check(!node.isAttached) {
+        checkPrecondition(!node.isAttached) {
             "A ModifierNodeElement cannot return an already attached node from create() "
         }
         node.insertedNodeAwaitingAttachForInvalidation = true
