@@ -81,6 +81,8 @@ object Arguments {
     internal var error: String? = null
     internal val additionalTestOutputDir: String?
 
+    private val targetPackageName: String?
+
     private const val prefix = "androidx.benchmark."
 
     private fun Bundle.getBenchmarkArgument(key: String, defaultValue: String? = null) =
@@ -128,6 +130,9 @@ object Arguments {
 
         iterations =
             arguments.getBenchmarkArgument("iterations")?.toInt()
+
+        targetPackageName =
+            arguments.getBenchmarkArgument("targetPackageName", defaultValue = null)
 
         _perfettoSdkTracingEnable =
             arguments.getBenchmarkArgument("perfettoSdkTracing.enable")?.toBoolean()
@@ -244,4 +249,18 @@ object Arguments {
             throw AssertionError(error)
         }
     }
+
+    /**
+     * Retrieves the target app package name from the instrumentation runner arguments.
+     * Note that this is supported only when MacrobenchmarkRule and BaselineProfileRule are used
+     * with the baseline profile gradle plugin. This feature requires AGP 8.3.0-alpha10 as minimum
+     * version.
+     */
+    fun getTargetPackageNameOrThrow(): String = targetPackageName
+            ?: throw IllegalArgumentException("""
+        Can't retrieve the target package name from instrumentation arguments.
+        This feature requires the baseline profile gradle plugin with minimum version 1.3.0-alpha01
+        and the Android Gradle Plugin minimum version 8.3.0-alpha10.
+        Please ensure your project has the correct versions in order to use this feature.
+    """.trimIndent())
 }
