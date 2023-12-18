@@ -45,7 +45,6 @@ import androidx.lifecycle.setViewTreeLifecycleOwner
 import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.FlakyTest
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertNotNull
@@ -93,7 +92,6 @@ class AndroidComposeViewScreenCoordinatesTest {
         }
     }
 
-    @FlakyTest(bugId = 311009092)
     @Test
     fun positionOnScreen_withNoComposableOffset() {
         rule.runOnIdle {
@@ -103,9 +101,9 @@ class AndroidComposeViewScreenCoordinatesTest {
             }
         }
 
-        rule.runOnIdle {
+        rule.waitUntil {
             val coordinates = assertNotNull(view.coordinates)
-            assertThat(coordinates.positionOnScreen()).isEqualTo(Offset(10f, 20f))
+            coordinates.positionOnScreen() == Offset(10f, 20f)
         }
     }
 
@@ -119,9 +117,9 @@ class AndroidComposeViewScreenCoordinatesTest {
             view.innerOffset = IntOffset(30, 40)
         }
 
-        rule.runOnIdle {
+        rule.waitUntil {
             val coordinates = assertNotNull(view.coordinates)
-            assertThat(coordinates.positionOnScreen()).isEqualTo(Offset(40f, 60f))
+            coordinates.positionOnScreen() == Offset(40f, 60f)
         }
     }
 
@@ -134,19 +132,21 @@ class AndroidComposeViewScreenCoordinatesTest {
             }
         }
 
-        rule.runOnIdle {
+        rule.waitUntil {
             val coordinates = assertNotNull(view.coordinates)
-            assertThat(coordinates.positionOnScreen()).isEqualTo(Offset(10f, 20f))
+            coordinates.positionOnScreen() == Offset(10f, 20f)
+        }
 
+        rule.runOnIdle {
             updateLayoutParams {
                 it.x = 30
                 it.y = 40
             }
         }
 
-        rule.runOnIdle {
+        rule.waitUntil {
             val coordinates = assertNotNull(view.coordinates)
-            assertThat(coordinates.positionOnScreen()).isEqualTo(Offset(30f, 40f))
+            coordinates.positionOnScreen() == Offset(30f, 40f)
         }
     }
 
