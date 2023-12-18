@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.pager
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.spring
@@ -75,7 +76,7 @@ import kotlin.math.sign
 @Composable
 fun rememberPagerState(
     initialPage: Int = 0,
-    initialPageOffsetFraction: Float = 0f,
+    @FloatRange(from = -0.5, to = 0.5) initialPageOffsetFraction: Float = 0f,
     pageCount: () -> Int
 ): PagerState {
     return rememberSaveable(saver = DefaultPagerState.Saver) {
@@ -104,7 +105,7 @@ fun rememberPagerState(
 @ExperimentalFoundationApi
 fun PagerState(
     currentPage: Int = 0,
-    currentPageOffsetFraction: Float = 0f,
+    @FloatRange(from = -0.5, to = 0.5) currentPageOffsetFraction: Float = 0f,
     pageCount: () -> Int
 ): PagerState = DefaultPagerState(currentPage, currentPageOffsetFraction, pageCount)
 
@@ -151,7 +152,7 @@ private class DefaultPagerState(
 @Stable
 abstract class PagerState(
     currentPage: Int = 0,
-    currentPageOffsetFraction: Float = 0f
+    @FloatRange(from = -0.5, to = 0.5) currentPageOffsetFraction: Float = 0f
 ) : ScrollableState {
 
     /**
@@ -453,7 +454,10 @@ abstract class PagerState(
      * @param pageOffsetFraction A fraction of the page size that indicates the offset the
      * destination page will be offset from its snapped position.
      */
-    suspend fun scrollToPage(page: Int, pageOffsetFraction: Float = 0f) = scroll {
+    suspend fun scrollToPage(
+        page: Int,
+        @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0f
+    ) = scroll {
         debugLog { "Scroll from page=$currentPage to page=$page" }
         awaitScrollDependencies()
         require(pageOffsetFraction in -0.5..0.5) {
@@ -476,7 +480,10 @@ abstract class PagerState(
      * @param pageOffsetFraction A fraction of the page size that indicates the offset the
      * destination page will be offset from its snapped position.
      */
-    fun ScrollScope.updateCurrentPage(page: Int, pageOffsetFraction: Float = 0.0f) {
+    fun ScrollScope.updateCurrentPage(
+        page: Int,
+        @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0.0f
+    ) {
         with(animatedScrollScope) {
             snapToItem(page, pageOffsetFraction)
         }
@@ -518,7 +525,7 @@ abstract class PagerState(
      */
     suspend fun animateScrollToPage(
         page: Int,
-        pageOffsetFraction: Float = 0f,
+        @FloatRange(from = -0.5, to = 0.5) pageOffsetFraction: Float = 0f,
         animationSpec: AnimationSpec<Float> = spring()
     ) {
         if (page == currentPage && currentPageOffsetFraction == pageOffsetFraction ||
@@ -629,8 +636,10 @@ abstract class PagerState(
         firstVisiblePageOffset = result.firstVisiblePageScrollOffset
         tryRunPrefetch(result)
         maxScrollOffset = result.calculateNewMaxScrollOffset(pageCount)
-        debugLog { "Finished Applying Measure Result" +
-            "\nNew maxScrollOffset=$maxScrollOffset" }
+        debugLog {
+            "Finished Applying Measure Result" +
+                "\nNew maxScrollOffset=$maxScrollOffset"
+        }
     }
 
     private fun tryRunPrefetch(result: PagerMeasureResult) = Snapshot.withoutReadObservation {
@@ -770,6 +779,7 @@ internal val EmptyLayoutInfo = PagerMeasureResult(
         override val width: Int = 0
 
         override val height: Int = 0
+
         @Suppress("PrimitiveInCollection")
         override val alignmentLines: Map<AlignmentLine, Int> = mapOf()
 
