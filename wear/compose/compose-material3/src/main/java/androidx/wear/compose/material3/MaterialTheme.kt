@@ -17,6 +17,7 @@ package androidx.wear.compose.material3
 
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
+import androidx.compose.foundation.text.selection.TextSelectionColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
@@ -51,7 +52,7 @@ import androidx.wear.compose.foundation.LocalSwipeToDismissContentScrimColor
  * @param shapes A set of shapes to be used by the components in this hierarchy
  */
 @Composable
-public fun MaterialTheme(
+fun MaterialTheme(
     colorScheme: ColorScheme = MaterialTheme.colorScheme,
     typography: Typography = MaterialTheme.typography,
     shapes: Shapes = MaterialTheme.shapes,
@@ -69,7 +70,6 @@ public fun MaterialTheme(
         LocalColorScheme provides rememberedColors,
         LocalShapes provides shapes,
         LocalTypography provides typography,
-        LocalContentAlpha provides ContentAlpha.high,
         LocalIndication provides rippleIndication,
         // TODO: b/304985887 - remove after one stable release
         androidx.compose.material.ripple.LocalRippleTheme provides CompatRippleTheme,
@@ -81,19 +81,34 @@ public fun MaterialTheme(
     }
 }
 
-public object MaterialTheme {
-    public val colorScheme: ColorScheme
+object MaterialTheme {
+    val colorScheme: ColorScheme
         @ReadOnlyComposable
         @Composable
         get() = LocalColorScheme.current
 
-    public val typography: Typography
+    val typography: Typography
         @ReadOnlyComposable
         @Composable
         get() = LocalTypography.current
 
-    public val shapes: Shapes
+    val shapes: Shapes
         @ReadOnlyComposable
         @Composable
         get() = LocalShapes.current
 }
+
+@Composable
+/*@VisibleForTesting*/
+internal fun rememberTextSelectionColors(colorScheme: ColorScheme): TextSelectionColors {
+    val primaryColor = colorScheme.primary
+    return remember(primaryColor) {
+        TextSelectionColors(
+            handleColor = primaryColor,
+            backgroundColor = primaryColor.copy(alpha = TextSelectionBackgroundOpacity),
+        )
+    }
+}
+
+/*@VisibleForTesting*/
+internal const val TextSelectionBackgroundOpacity = 0.4f
