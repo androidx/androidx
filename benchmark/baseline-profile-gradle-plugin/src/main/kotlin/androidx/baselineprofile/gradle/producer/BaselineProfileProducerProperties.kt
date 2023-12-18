@@ -16,6 +16,11 @@
 
 package androidx.baselineprofile.gradle.producer
 
+import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME
+
+private const val PROP_PREFIX_ANDROID_TEST_INSTRUMENTATION_RUNNER_ARG =
+    "android.testInstrumentationRunnerArguments."
+
 /**
  * This property determines whether the test task should actually run to generate the baseline
  * profile artifacts. When this property is set, the test tasks will be disabled and baseline
@@ -49,3 +54,12 @@ internal const val PROP_FORCE_ONLY_CONNECTED_DEVICES =
  * the tests, independent from the rule applied, will be run.
  */
 internal const val PROP_DONT_DISABLE_RULES = "androidx.baselineprofile.dontdisablerules"
+
+/**
+ * This property specifies the target package name of the app to start when running the baseline
+ * profile generator. Normally this is passed by the baseline profile gradle plugin and it's
+ * specific per variant. It's possible to override this property manually directly specifying the
+ * test instrumentation runner argument.
+ */
+internal const val PROP_SEND_TARGET_PACKAGE_NAME =
+    "$PROP_PREFIX_ANDROID_TEST_INSTRUMENTATION_RUNNER_ARG$INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME"

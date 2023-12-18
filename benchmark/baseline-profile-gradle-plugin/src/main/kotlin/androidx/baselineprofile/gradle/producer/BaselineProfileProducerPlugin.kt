@@ -21,6 +21,7 @@ import androidx.baselineprofile.gradle.producer.tasks.CollectBaselineProfileTask
 import androidx.baselineprofile.gradle.producer.tasks.InstrumentationTestTaskWrapper
 import androidx.baselineprofile.gradle.utils.AgpFeature.TEST_MODULE_SUPPORTS_MULTIPLE_BUILD_TYPES
 import androidx.baselineprofile.gradle.utils.AgpFeature.TEST_VARIANT_SUPPORTS_INSTRUMENTATION_RUNNER_ARGUMENTS
+import androidx.baselineprofile.gradle.utils.AgpFeature.TEST_VARIANT_TESTED_APKS
 import androidx.baselineprofile.gradle.utils.AgpPlugin
 import androidx.baselineprofile.gradle.utils.AgpPluginId
 import androidx.baselineprofile.gradle.utils.AndroidTestModuleWrapper
@@ -31,10 +32,12 @@ import androidx.baselineprofile.gradle.utils.CONFIGURATION_NAME_BASELINE_PROFILE
 import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_ENABLED_RULES
 import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_ENABLED_RULES_BASELINE_PROFILE
 import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_ENABLED_RULES_BENCHMARK
+import androidx.baselineprofile.gradle.utils.INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME
 import androidx.baselineprofile.gradle.utils.InstrumentationTestRunnerArgumentsAgp82
 import androidx.baselineprofile.gradle.utils.MAX_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.MIN_AGP_VERSION_REQUIRED
 import androidx.baselineprofile.gradle.utils.RELEASE
+import androidx.baselineprofile.gradle.utils.TestedApksAgp83
 import androidx.baselineprofile.gradle.utils.camelCase
 import androidx.baselineprofile.gradle.utils.createBuildTypeIfNotExists
 import androidx.baselineprofile.gradle.utils.createExtendedBuildTypes
@@ -80,6 +83,9 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
     }
     private val addEnabledRulesInstrumentationArgument by lazy {
         !project.properties.containsKey(PROP_DONT_DISABLE_RULES)
+    }
+    private val addTargetPackageNameInstrumentationArgument by lazy {
+        !project.properties.containsKey(PROP_SEND_TARGET_PACKAGE_NAME)
     }
 
     // This maps all the extended build types to the original ones. Note that release does not
@@ -251,6 +257,18 @@ private class BaselineProfileProducerAgpPlugin(private val project: Project) : A
                     )
                 )
             }
+        }
+
+        // If AGP api support it, the application id of the target app is sent to instrumentation
+        // app as an instrumentation runner argument. BaselineProfileRule and MacrobenchmarkRule
+        // can pick that up during the test execution.
+        if (addTargetPackageNameInstrumentationArgument &&
+            supportsFeature(TEST_VARIANT_TESTED_APKS)) {
+            InstrumentationTestRunnerArgumentsAgp82.set(
+                variant = variant,
+                key = INSTRUMENTATION_ARG_TARGET_PACKAGE_NAME,
+                value = TestedApksAgp83.getTargetAppApplicationId(variant)
+            )
         }
 
         // If this is a baseline profile variant sets the instrumentation runner argument to run
