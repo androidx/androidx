@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.integration.adapter
 
-import android.graphics.Rect
 import android.hardware.camera2.CameraMetadata
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
@@ -398,7 +397,6 @@ class CaptureResultAdapterTest {
     @Test
     fun canPopulateExif() {
         // Arrange
-        val cropRegion = Rect(0, 0, 640, 480)
         val exposureTime = TimeUnit.SECONDS.toNanos(5)
         val aperture = 1.8f
         val iso = 200
@@ -409,9 +407,8 @@ class CaptureResultAdapterTest {
         }
         val focalLength = 4200f
         val cameraCaptureResult = createCaptureResultAdapter(
-            resultMetadata = mutableMapOf(
+            resultMetadata = mutableMapOf<CaptureResult.Key<*>, Any?>(
                 CaptureResult.FLASH_STATE to CaptureResult.FLASH_STATE_FIRED,
-                CaptureResult.SCALER_CROP_REGION to cropRegion,
                 CaptureResult.JPEG_ORIENTATION to 270,
                 CaptureResult.SENSOR_EXPOSURE_TIME to exposureTime,
                 CaptureResult.LENS_APERTURE to aperture,
@@ -433,12 +430,6 @@ class CaptureResultAdapterTest {
         // Assert
         assertThat(exifData.getAttribute(ExifInterface.TAG_FLASH)!!.toShort()).isEqualTo(
             FLAG_FLASH_FIRED
-        )
-        assertThat(exifData.getAttribute(ExifInterface.TAG_IMAGE_WIDTH)).isEqualTo(
-            cropRegion.width().toString()
-        )
-        assertThat(exifData.getAttribute(ExifInterface.TAG_IMAGE_LENGTH)).isEqualTo(
-            cropRegion.height().toString()
         )
         assertThat(exifData.getAttribute(ExifInterface.TAG_ORIENTATION)).isEqualTo(
             ExifInterface.ORIENTATION_ROTATE_270.toString()

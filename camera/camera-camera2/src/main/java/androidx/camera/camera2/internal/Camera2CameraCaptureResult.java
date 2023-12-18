@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.internal;
 
-import android.graphics.Rect;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureResult;
 import android.os.Build;
@@ -284,13 +283,6 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
     public void populateExifData(@NonNull ExifData.Builder exifData) {
         // Call interface default to set flash mode
         CameraCaptureResult.super.populateExifData(exifData);
-
-        // Set dimensions
-        Rect cropRegion = mCaptureResult.get(CaptureResult.SCALER_CROP_REGION);
-        if (cropRegion != null) {
-            exifData.setImageWidth(cropRegion.width())
-                    .setImageHeight(cropRegion.height());
-        }
 
         // Set orientation
         try {
