@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2023 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,11 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package androidx.room.migration
 
-import androidx.room.driver.SupportSQLiteConnection
 import androidx.sqlite.SQLiteConnection
-import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
  * Base class for a database migration.
@@ -35,23 +34,9 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  *
  * @constructor Creates a new migration between [startVersion] and [endVersion] inclusive.
  */
-actual abstract class Migration(
-    @JvmField
-    actual val startVersion: Int,
-    @JvmField
-    actual val endVersion: Int
-) {
-    /**
-     * Should run the necessary migrations.
-     *
-     * The Migration class cannot access any generated Dao in this method.
-     *
-     * This method is already called inside a transaction and that transaction might actually be a
-     * composite transaction of all necessary `Migration`s.
-     *
-     * @param db The database instance
-     */
-    abstract fun migrate(db: SupportSQLiteDatabase)
+expect abstract class Migration {
+    val startVersion: Int
+    val endVersion: Int
 
     /**
      * Should run the necessary migrations.
@@ -61,12 +46,6 @@ actual abstract class Migration(
      *
      * @param connection The database connection
      */
-    actual open fun migrate(connection: SQLiteConnection) {
-        // TODO(b/314338741): Signal users this non-abstract overload should be implemented
-        if (connection is SupportSQLiteConnection) {
-            migrate(connection.db)
-        } else {
-            TODO("Not yet migrated to use SQLiteDriver")
-        }
-    }
+    // TODO(b/314338741): Try and make abstract without breaking API
+    open fun migrate(connection: SQLiteConnection)
 }

@@ -1156,4 +1156,6 @@ object ProcessorErrors {
         "option `room.schemaLocation`, please remove the configuration of the option and " +
         "configure the schema location via the plugin project extension: " +
         "`room { schemaDirectory(...) }`."
+
+    val INVALID_DATABASE_VERSION = "Database version must be greater than 0"
 }

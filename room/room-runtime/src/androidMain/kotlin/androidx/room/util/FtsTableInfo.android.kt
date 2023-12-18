@@ -17,6 +17,8 @@ package androidx.room.util
 
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
+import androidx.room.driver.SupportSQLiteConnection
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.ArrayDeque
 
@@ -87,6 +89,15 @@ class FtsTableInfo(
             val columns = readColumns(database, tableName)
             val options = readOptions(database, tableName)
             return FtsTableInfo(tableName, columns, options)
+        }
+
+        @JvmStatic
+        fun read(connection: SQLiteConnection, tableName: String): FtsTableInfo {
+            if (connection is SupportSQLiteConnection) {
+                return read(connection.db, tableName)
+            } else {
+                TODO("Not yet migrated to use SQLiteDriver")
+            }
         }
 
         private fun readColumns(database: SupportSQLiteDatabase, tableName: String): Set<String> {

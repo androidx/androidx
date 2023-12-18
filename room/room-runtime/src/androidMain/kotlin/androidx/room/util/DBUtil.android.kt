@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
+@file:JvmMultifileClass
 @file:JvmName("DBUtil")
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 
 package androidx.room.util
 
@@ -25,6 +26,7 @@ import android.os.Build
 import android.os.CancellationSignal
 import androidx.annotation.RestrictTo
 import androidx.room.RoomDatabase
+import androidx.room.driver.SupportSQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteQuery
 import java.io.File
@@ -48,6 +50,7 @@ import java.nio.ByteBuffer
 @Deprecated(
     "This is only used in the generated code and shouldn't be called directly."
 )
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun query(db: RoomDatabase, sqLiteQuery: SupportSQLiteQuery, maybeCopy: Boolean): Cursor {
     return query(db, sqLiteQuery, maybeCopy, null)
 }
@@ -65,6 +68,7 @@ fun query(db: RoomDatabase, sqLiteQuery: SupportSQLiteQuery, maybeCopy: Boolean)
  * @param signal      The cancellation signal to be attached to the query.
  * @return Result of the query.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun query(
     db: RoomDatabase,
     sqLiteQuery: SupportSQLiteQuery,
@@ -94,25 +98,16 @@ fun query(
  *
  * @param db The database.
  */
+@Deprecated("Replaced by dropFtsSyncTriggers(connection: SQLiteConnection)")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun dropFtsSyncTriggers(db: SupportSQLiteDatabase) {
-    val existingTriggers = buildList {
-        db.query("SELECT name FROM sqlite_master WHERE type = 'trigger'").useCursor { cursor ->
-            while (cursor.moveToNext()) {
-                add(cursor.getString(0))
-            }
-        }
-    }
-
-    existingTriggers.forEach { triggerName ->
-        if (triggerName.startsWith("room_fts_content_sync_")) {
-            db.execSQL("DROP TRIGGER IF EXISTS $triggerName")
-        }
-    }
+    dropFtsSyncTriggers(SupportSQLiteConnection(db))
 }
 
 /**
  * Checks for foreign key violations by executing a PRAGMA foreign_key_check.
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun foreignKeyCheck(
     db: SupportSQLiteDatabase,
     tableName: String
@@ -136,6 +131,7 @@ fun foreignKeyCheck(
  * @see [User Version
  * Number](https://www.sqlite.org/fileformat.html.user_version_number).
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Throws(IOException::class)
 fun readVersion(databaseFile: File): Int {
     FileInputStream(databaseFile).channel.use { input ->
@@ -157,6 +153,7 @@ fun readVersion(databaseFile: File): Int {
  * @return A new instance of CancellationSignal.
  */
 @Deprecated("Use constructor", ReplaceWith("CancellationSignal()", "android.os.CancellationSignal"))
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 fun createCancellationSignal(): CancellationSignal {
     return CancellationSignal()
 }

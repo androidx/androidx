@@ -212,5 +212,26 @@ interface XCodeBlock : TargetLanguage {
                     of(language, "if (%L) %L else %L", condition, leftExpr, rightExpr)
             }
         }
+
+        /**
+         * Convenience code block of an extension function call.
+         *
+         * For Java this will emit: ` <memberName>(<receiverVariableName>, <args>)`
+         *
+         * For Kotlin this will emit: `<receiverVarName>.<memberName>(<args>)`
+         */
+        fun ofExtensionCall(
+            language: CodeLanguage,
+            memberName: XMemberName,
+            receiverVarName: String,
+            args: XCodeBlock
+        ): XCodeBlock {
+            return when (language) {
+                CodeLanguage.JAVA ->
+                    of(language, "%M(%L, %L)", memberName, receiverVarName, args)
+                CodeLanguage.KOTLIN ->
+                    of(language, "%L.%M(%L)", receiverVarName, memberName, args)
+            }
+        }
     }
 }
