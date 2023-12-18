@@ -292,6 +292,7 @@ dependencies {
     docs(project(":paging:paging-testing"))
     docs(project(":palette:palette"))
     docs(project(":palette:palette-ktx"))
+    docs(project(":pdf:pdf-viewer"))
     docs(project(":percentlayout:percentlayout"))
     docs(project(":preference:preference"))
     docs(project(":preference:preference-ktx"))
