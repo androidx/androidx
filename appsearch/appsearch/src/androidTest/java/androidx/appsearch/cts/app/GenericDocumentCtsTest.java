@@ -364,6 +364,30 @@ public class GenericDocumentCtsTest {
                 () -> builder.setPropertyString("testKey", "string1", nullString));
     }
 
+    @Test
+    public void testDocumentInvalid_setNullByteValues() {
+        GenericDocument.Builder<?> builder = new GenericDocument.Builder<>("namespace", "id1",
+                "schemaType1");
+        byte[] nullBytes = null;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> builder.setPropertyBytes("propBytes", new byte[][]{{1, 2}, nullBytes}));
+    }
+
+    @Test
+    public void testDocumentInvalid_setNullDocValues() {
+        GenericDocument.Builder<?> builder = new GenericDocument.Builder<>("namespace", "id1",
+                "schemaType1");
+        GenericDocument doc = new GenericDocument.Builder<>("namespace",
+                "id2",
+                "schemaType2").build();
+        GenericDocument nullDoc = null;
+
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> builder.setPropertyDocument("propDocs", doc, nullDoc));
+    }
 
     @Test
     public void testDocument_toBuilder() {
@@ -379,12 +403,12 @@ public class GenericDocumentCtsTest {
                 .build();
         GenericDocument document2 =
                 new GenericDocument.Builder<>(document1)
-                .setId("id2")
-                .setNamespace("namespace2")
-                .setPropertyBytes("byteKey1", sByteArray2)
-                .setPropertyLong("longKey2", 10L)
-                .clearProperty("booleanKey1")
-                .build();
+                        .setId("id2")
+                        .setNamespace("namespace2")
+                        .setPropertyBytes("byteKey1", sByteArray2)
+                        .setPropertyLong("longKey2", 10L)
+                        .clearProperty("booleanKey1")
+                        .build();
 
         // Make sure old doc hasn't changed
         assertThat(document1.getId()).isEqualTo("id1");
@@ -408,6 +432,7 @@ public class GenericDocumentCtsTest {
                 .build();
         assertThat(document2).isEqualTo(expectedDoc);
     }
+
     @Test
     public void testDocument_toBuilder_doesNotModifyOriginal() {
         GenericDocument oldDoc = new GenericDocument.Builder<>("namespace", "id1", "schema1")

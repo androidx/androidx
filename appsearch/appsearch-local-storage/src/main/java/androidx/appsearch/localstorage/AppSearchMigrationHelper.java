@@ -19,7 +19,6 @@ package androidx.appsearch.localstorage;
 import static androidx.appsearch.app.AppSearchResult.RESULT_INVALID_SCHEMA;
 import static androidx.appsearch.app.AppSearchResult.throwableToFailedResult;
 
-import android.os.Bundle;
 import android.os.Parcel;
 
 import androidx.annotation.NonNull;
@@ -32,6 +31,7 @@ import androidx.appsearch.app.SearchResultPage;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SetSchemaResponse;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.safeparcel.GenericDocumentParcel;
 import androidx.appsearch.stats.SchemaMigrationStats;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -130,11 +130,11 @@ class AppSearchMigrationHelper implements Closeable {
                                         + newDocument.getSchemaType()
                                         + ". But the schema types doesn't exist in the request");
                     }
-                    Bundle bundle = newDocument.getBundle();
+                    GenericDocumentParcel documentParcel = newDocument.getDocumentParcel();
                     byte[] serializedMessage;
                     Parcel parcel = Parcel.obtain();
                     try {
-                        parcel.writeBundle(bundle);
+                        parcel.writeParcelable(documentParcel, /*parcelableFlags=*/ 0);
                         serializedMessage = parcel.marshall();
                     } finally {
                         parcel.recycle();
@@ -219,22 +219,23 @@ class AppSearchMigrationHelper implements Closeable {
      *
      * @throws IOException        on File operation error.
      */
+    @SuppressWarnings("deprecation") // Parcelable.readParcelable(ClassLoader) is deprecated.
     @NonNull
     private static GenericDocument readDocumentFromInputStream(
             @NonNull CodedInputStream codedInputStream) throws IOException {
         byte[] serializedMessage = codedInputStream.readByteArray();
 
-        Bundle bundle;
+        GenericDocumentParcel documentParcel;
         Parcel parcel = Parcel.obtain();
         try {
             parcel.unmarshall(serializedMessage, 0, serializedMessage.length);
             parcel.setDataPosition(0);
-            bundle = parcel.readBundle();
+            documentParcel = parcel.readParcelable(GenericDocumentParcel.class.getClassLoader());
         } finally {
             parcel.recycle();
         }
 
-        return new GenericDocument(bundle);
+        return new GenericDocument(documentParcel);
     }
 
     @Override
