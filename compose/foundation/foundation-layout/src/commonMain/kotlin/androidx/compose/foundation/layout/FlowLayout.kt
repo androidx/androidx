@@ -182,8 +182,10 @@ interface FlowColumnScope : ColumnScope {
 @OptIn(ExperimentalLayoutApi::class)
 internal object FlowRowScopeInstance : RowScope by RowScopeInstance, FlowRowScope {
     override fun Modifier.fillMaxRowHeight(fraction: Float): Modifier {
-        require(fraction > 0.0) { "invalid fraction $fraction; must be greater than zero" }
-        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater than 1.0" }
+        require(fraction >= 0.0) { "invalid fraction $fraction; must be greater than " +
+            "or equal to zero" }
+        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater " +
+            "than 1.0" }
         return this.then(
             FillCrossAxisSizeElement(
                 fraction = fraction,
@@ -195,8 +197,10 @@ internal object FlowRowScopeInstance : RowScope by RowScopeInstance, FlowRowScop
 @OptIn(ExperimentalLayoutApi::class)
 internal object FlowColumnScopeInstance : ColumnScope by ColumnScopeInstance, FlowColumnScope {
     override fun Modifier.fillMaxColumnWidth(fraction: Float): Modifier {
-        require(fraction > 0.0) { "invalid fraction $fraction; must be greater than zero" }
-        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater than 1.0" }
+        require(fraction >= 0.0) { "invalid fraction $fraction; must be greater than or " +
+            "equal to zero" }
+        require(fraction <= 1.0) { "invalid fraction $fraction; must not be greater " +
+            "than 1.0" }
         return this.then(
             FillCrossAxisSizeElement(
                 fraction = fraction,
@@ -843,7 +847,7 @@ private fun Measurable.measureAndCache(
 ): Pair<Int, Int> {
     val itemSize: Pair<Int, Int> = if (
         rowColumnParentData.weight == 0f &&
-        rowColumnParentData?.flowLayoutData?.fillCrossAxisFraction == 0f
+        rowColumnParentData?.flowLayoutData?.fillCrossAxisFraction == null
     ) {
         // fixed sizes: measure once
         val placeable = measure(

@@ -110,9 +110,10 @@ internal class RowColumnMeasurementHelper(
             } else {
                 val mainAxisMax = constraints.mainAxisMax
                 val crossAxisMax = constraints.crossAxisMax
-                val crossAxisDesiredSize = if (crossAxisMax == Constraints.Infinity) 0 else ((
-                    parentData?.flowLayoutData?.fillCrossAxisFraction ?: 0f
-                    ) * crossAxisMax).toInt()
+                val crossAxisDesiredSize = if (crossAxisMax == Constraints.Infinity) null else
+                    parentData?.flowLayoutData?.let {
+                        (it.fillCrossAxisFraction * crossAxisMax).fastRoundToInt()
+                    }
                 val placeable = placeables[i] ?: child.measure(
                     // Ask for preferred main axis size.
                     constraints.copy(
@@ -122,9 +123,8 @@ internal class RowColumnMeasurementHelper(
                         } else {
                             (mainAxisMax - fixedSpace).coerceAtLeast(0).toInt()
                         },
-                        crossAxisMin = crossAxisDesiredSize,
-                        crossAxisMax = if (crossAxisDesiredSize != 0)
-                            crossAxisDesiredSize else constraints.crossAxisMax
+                        crossAxisMin = crossAxisDesiredSize ?: 0,
+                        crossAxisMax = crossAxisDesiredSize ?: constraints.crossAxisMax
                     ).toBoxConstraints(orientation)
                 )
                 spaceAfterLastNoWeight = min(
@@ -166,10 +166,10 @@ internal class RowColumnMeasurementHelper(
                     val parentData = rowColumnParentData[i]
                     val weight = parentData.weight
                     val crossAxisMax = constraints.crossAxisMax
-                    val crossAxisDesiredSize = if (crossAxisMax == Constraints.Infinity) 0 else
-                        ((parentData?.flowLayoutData?.fillCrossAxisFraction ?: 0f) *
-                            crossAxisMax
-                    ).toInt()
+                    val crossAxisDesiredSize = if (crossAxisMax == Constraints.Infinity) null else
+                        parentData?.flowLayoutData?.let {
+                            (it.fillCrossAxisFraction * crossAxisMax).fastRoundToInt()
+                        }
                     check(weight > 0) { "All weights <= 0 should have placeables" }
                     // After the weightUnitSpace rounding, the total space going to be occupied
                     // can be smaller or larger than remainingToTarget. Here we distribute the
@@ -188,9 +188,8 @@ internal class RowColumnMeasurementHelper(
                                 0
                             },
                             childMainAxisSize,
-                            crossAxisMin = crossAxisDesiredSize,
-                            crossAxisMax = if (crossAxisDesiredSize != 0)
-                                crossAxisDesiredSize else constraints.crossAxisMax
+                            crossAxisMin = crossAxisDesiredSize ?: 0,
+                            crossAxisMax = crossAxisDesiredSize ?: constraints.crossAxisMax
                         ).toBoxConstraints(orientation)
                     )
                     weightedSpace += placeable.mainAxisSize()
