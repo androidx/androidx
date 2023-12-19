@@ -16,8 +16,10 @@
 
 package androidx.compose.ui.unit
 
+import androidx.collection.IntIntPair
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import kotlin.math.min
 
 /**
  * Immutable constraints for measuring layouts, used by [layouts][androidx.compose.ui.layout.Layout]
@@ -346,6 +348,65 @@ value class Constraints(
                 minHeight = height,
                 maxHeight = height
             )
+        }
+
+        /**
+         * Returns [Constraints] that match as close as possible to the values passed.
+         * If the dimensions are outside of those that can be represented, the constraints
+         * are limited to those that can be represented.
+         *
+         * When [prioritizeWidth] is `true`, [minWidth] and [maxWidth] are given priority
+         * in what can be represented, allowing them up to 18 bits of size, if needed.
+         * If [prioritizeWidth] is `false`, [minHeight] and [maxHeight] are given priority,
+         * allowing for up to 18 bits if needed.
+         *
+         * This can be useful when layout constraints are possible to be extremely large,
+         * but not everything is possible to display on the device. For example a text
+         * layout where an entire chapter of a book is measured in one Layout and it isn't
+         * possible to break up the content to show in a `LazyColumn`.
+         */
+        @Stable
+        fun restrictedConstraints(
+            minWidth: Int,
+            maxWidth: Int,
+            minHeight: Int,
+            maxHeight: Int,
+            prioritizeWidth: Boolean = true
+        ): Constraints {
+            if (prioritizeWidth) {
+                val (minW, maxW) = calculatePriorityDimension(minWidth, maxWidth)
+                val consumed = if (maxW == Infinity) minW else maxW
+                val bitsUsed = bitsNeedForSize(consumed)
+                val (minH, maxH) = calculateOtherDimension(minHeight, maxHeight, bitsUsed)
+                return Constraints(minW, maxW, minH, maxH)
+            }
+            val (minH, maxH) = calculatePriorityDimension(minHeight, maxHeight)
+            val consumed = if (maxH == Infinity) minH else maxH
+            val bitsUsed = bitsNeedForSize(consumed)
+            val (minW, maxW) = calculateOtherDimension(minWidth, maxWidth, bitsUsed)
+            return Constraints(minW, maxW, minH, maxH)
+        }
+
+        private fun calculatePriorityDimension(minValue: Int, maxValue: Int): IntIntPair {
+            val newMinValue = min(minValue, MaxFocusMask - 1)
+            val newMaxValue = if (maxValue == Infinity) {
+                Infinity
+            } else {
+                min(maxValue, MaxFocusMask - 1)
+            }
+            return IntIntPair(newMinValue, newMaxValue)
+        }
+
+        private fun calculateOtherDimension(
+            minValue: Int,
+            maxValue: Int,
+            bitsUsed: Int
+        ): IntIntPair {
+            val allowedBits = 31 - bitsUsed
+            val maxAllowed = (1 shl allowedBits) - 2
+            val newMaxValue = if (maxValue == Infinity) Infinity else min(maxAllowed, maxValue)
+            val newMinValue = min(maxAllowed, minValue)
+            return IntIntPair(newMinValue, newMaxValue)
         }
 
         /**

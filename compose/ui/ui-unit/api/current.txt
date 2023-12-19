@@ -34,6 +34,7 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public long fixed(int width, int height);
     method @androidx.compose.runtime.Stable public long fixedHeight(int height);
     method @androidx.compose.runtime.Stable public long fixedWidth(int width);
+    method @androidx.compose.runtime.Stable public long restrictedConstraints(int minWidth, int maxWidth, int minHeight, int maxHeight, optional boolean prioritizeWidth);
   }
 
   public final class ConstraintsKt {
