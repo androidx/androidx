@@ -1344,25 +1344,8 @@ public final class ProtoLayoutInflater {
         }
 
         if (hasAction) {
-            // Apply ripple effect Resolve selectableItemBackground against the mUiContext theme,
-            // which provides the drawable. Note that this is not customizable by the
-            // ProtoLayoutTheme.
-            TypedValue outValue = new TypedValue();
-            boolean isValid =
-                    mUiContext
-                            .getTheme()
-                            .resolveAttribute(
-                                    android.R.attr.selectableItemBackground,
-                                    outValue,
-                                    /* resolveRefs= */ true);
-            if (isValid) {
-                view.setForeground(mUiContext.getDrawable(outValue.resourceId));
-            } else {
-                Log.e(
-                        TAG,
-                        "Could not resolve android.R.attr.selectableItemBackground from Ui"
-                                + " Context.");
-            }
+            // Apply ripple effect
+            applyRippleEffect(view);
 
             if (!extendTouchTarget) {
                 // For temporarily disable the touch size check for element on arc
@@ -1405,6 +1388,39 @@ public final class ProtoLayoutInflater {
                                     view, logicalParent, safeDpToPx(widthDp), safeDpToPx(heightDp));
                         }
                     });
+        }
+    }
+
+    private void applyRippleEffect(@NonNull View view) {
+        if (mProtoLayoutTheme.getRippleResId() != 0) {
+            try {
+                view.setForeground(
+                        mProtoLayoutTheme.getTheme()
+                                .getDrawable(mProtoLayoutTheme.getRippleResId()));
+                return;
+            } catch (Resources.NotFoundException e) {
+                Log.e(
+                        TAG,
+                        "Could not resolve the provided ripple resource id from the theme, "
+                                + "fallback to use the system default ripple.");
+            }
+        }
+
+        // Use the system default ripple effect by resolving selectableItemBackground against the
+        // mUiContext theme, which provides the drawable.
+        TypedValue outValue = new TypedValue();
+        boolean isValid =
+                mUiContext
+                        .getTheme()
+                        .resolveAttribute(
+                                android.R.attr.selectableItemBackground,
+                                outValue,
+                                /* resolveRefs= */ true);
+        if (isValid) {
+            view.setForeground(mUiContext.getDrawable(outValue.resourceId));
+        } else {
+            Log.e(TAG,
+                    "Could not resolve android.R.attr.selectableItemBackground from Ui Context.");
         }
     }
 
