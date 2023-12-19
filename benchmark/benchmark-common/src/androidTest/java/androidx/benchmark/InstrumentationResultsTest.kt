@@ -21,12 +21,25 @@ import androidx.test.filters.SmallTest
 import java.io.File
 import kotlin.test.assertFailsWith
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @SmallTest
 @RunWith(AndroidJUnit4::class)
 class InstrumentationResultsTest {
+    @Before
+    fun setup() {
+        // flush any scheduled ide warnings so that tests below aren't affected
+        InstrumentationResults.ideSummary(
+            testName = "foo",
+            measurements = BenchmarkResult.Measurements(
+                singleMetrics = listOf(MetricResult("Metric", listOf(0.0))),
+                sampledMetrics = emptyList()
+            )
+        )
+    }
+
     @Test
     fun ideSummaryBasicMicro_alignment() {
         val summary1 = InstrumentationResults.ideSummaryBasicMicro(
@@ -238,8 +251,9 @@ class InstrumentationResultsTest {
     fun ideSummary_warning() {
         val metricResult = MetricResult("Metric", listOf(0.0, 1.0, 2.0))
         val absoluteTracePaths = createAbsoluteTracePaths(3)
+
+        InstrumentationResults.scheduleIdeWarningOnNextReport("warning\nstring")
         val summary = InstrumentationResults.ideSummary(
-            warningMessage = "warning\nstring",
             testName = "foo",
             measurements = BenchmarkResult.Measurements(
                 singleMetrics = listOf(metricResult),

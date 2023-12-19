@@ -188,6 +188,7 @@ internal object StackSamplingLegacy : Profiler() {
 
 internal object MethodTracing : Profiler() {
     override fun start(traceUniqueName: String): ResultFile {
+        hasBeenUsed = true
         return startRuntimeMethodTracing(
             traceFileName = traceName(traceUniqueName, "methodTracing"),
             sampled = false,
@@ -205,7 +206,11 @@ internal object MethodTracing : Profiler() {
         ArtTrace(profilerTrace)
             .writeAsPerfettoTrace(FileOutputStream(perfettoTrace, /* append = */ true))
     }
+
+    var hasBeenUsed: Boolean = false
+        private set
 }
+
 @SuppressLint("BanThreadSleep") // needed for connected profiling
 internal object ConnectedAllocation : Profiler() {
     override fun start(traceUniqueName: String): ResultFile? {
