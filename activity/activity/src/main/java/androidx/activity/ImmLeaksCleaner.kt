@@ -13,103 +13,120 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package androidx.activity
 
-package androidx.activity;
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.content.Context
+import android.view.View
+import android.view.inputmethod.InputMethodManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import java.lang.reflect.Field
 
-import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.content.Context;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-
-import androidx.annotation.MainThread;
-import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.lifecycle.Lifecycle;
-import androidx.lifecycle.LifecycleEventObserver;
-import androidx.lifecycle.LifecycleOwner;
-
-import java.lang.reflect.Field;
-
-@RequiresApi(19)
-final class ImmLeaksCleaner implements LifecycleEventObserver {
-    private static final int NOT_INITIALIAZED = 0;
-    private static final int INIT_SUCCESS = 1;
-    private static final int INIT_FAILED = 2;
-    private static int sReflectedFieldsInitialized = NOT_INITIALIAZED;
-    private static Field sHField;
-    private static Field sServedViewField;
-    private static Field sNextServedViewField;
-
-    private Activity mActivity;
-
-    ImmLeaksCleaner(Activity activity) {
-        mActivity = activity;
-    }
-
-    @Override
-    public void onStateChanged(@NonNull LifecycleOwner source, @NonNull Lifecycle.Event event) {
+internal class ImmLeaksCleaner(private val activity: Activity) : LifecycleEventObserver {
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         if (event != Lifecycle.Event.ON_DESTROY) {
-            return;
+            return
         }
-        if (sReflectedFieldsInitialized == NOT_INITIALIAZED) {
-            initializeReflectiveFields();
-        }
-        if (sReflectedFieldsInitialized == INIT_SUCCESS) {
-            InputMethodManager inputMethodManager = (InputMethodManager)
-                    mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            final Object lock;
-            try {
-                lock = sHField.get(inputMethodManager);
-            } catch (IllegalAccessException e) {
-                return;
-            }
-            if (lock == null) {
-                return;
-            }
-            synchronized (lock) {
-                final View servedView;
-                try {
-                    servedView = (View) sServedViewField.get(inputMethodManager);
-                } catch (IllegalAccessException e) {
-                    return;
-                } catch (ClassCastException e) {
-                    return;
-                }
-                if (servedView == null) {
-                    return;
-                }
-                if (servedView.isAttachedToWindow()) {
-                    return;
+        val inputMethodManager =
+            activity.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        with(cleaner) {
+            val lock = inputMethodManager.lock ?: return
+            val success = synchronized(lock) {
+                val servedView = inputMethodManager.servedView ?: return
+                if (servedView.isAttachedToWindow) {
+                    return
                 }
                 // Here we have a detached mServedView.  Set null to mNextServedViewField so that
                 // everything will be cleared in the next InputMethodManager#checkFocus().
-                try {
-                    sNextServedViewField.set(inputMethodManager, null);
-                } catch (IllegalAccessException e) {
-                    return;
-                }
+                inputMethodManager.clearNextServedView()
             }
-            // Assume that InputMethodManager#isActive() internally triggers
-            // InputMethodManager#checkFocus().
-            inputMethodManager.isActive();
+            if (success) {
+                // Assume that InputMethodManager#isActive() internally triggers
+                // InputMethodManager#checkFocus().
+                inputMethodManager.isActive()
+            }
+        }
+    }
+
+    sealed class Cleaner {
+        abstract val InputMethodManager.lock: Any?
+
+        abstract val InputMethodManager.servedView: View?
+
+        /**
+         * @return Whether the next served view was successfully cleared
+         */
+        abstract fun InputMethodManager.clearNextServedView(): Boolean
+    }
+
+    /**
+     * Cleaner that is used when reading the [InputMethodManager] fields via
+     * reflection failed.
+     */
+    object FailedInitialization : Cleaner() {
+        override val InputMethodManager.lock: Any?
+            get() = null
+
+        override val InputMethodManager.servedView: View?
+            get() = null
+
+        override fun InputMethodManager.clearNextServedView(): Boolean = false
+    }
+
+    /**
+     * Cleaner that provides access to hidden fields via reflection
+     */
+    class ValidCleaner(
+        private val hField: Field,
+        private val servedViewField: Field,
+        private val nextServedViewField: Field,
+    ) : Cleaner() {
+        override val InputMethodManager.lock: Any?
+            get() = try {
+                hField.get(this)
+            } catch (e: IllegalAccessException) {
+                null
+            }
+
+        override val InputMethodManager.servedView: View?
+            get() = try {
+                servedViewField.get(this) as View?
+            } catch (e: IllegalAccessException) {
+                null
+            } catch (e: ClassCastException) {
+                null
+            }
+
+        override fun InputMethodManager.clearNextServedView() = try {
+            nextServedViewField.set(this, null)
+            true
+        } catch (e: IllegalAccessException) {
+            false
         }
     }
 
     @SuppressLint("SoonBlockedPrivateApi") // This class is only used API <=23
-    @MainThread
-    private static void initializeReflectiveFields() {
-        try {
-            sReflectedFieldsInitialized = INIT_FAILED;
-            sServedViewField = InputMethodManager.class.getDeclaredField("mServedView");
-            sServedViewField.setAccessible(true);
-            sNextServedViewField = InputMethodManager.class.getDeclaredField("mNextServedView");
-            sNextServedViewField.setAccessible(true);
-            sHField = InputMethodManager.class.getDeclaredField("mH");
-            sHField.setAccessible(true);
-            sReflectedFieldsInitialized = INIT_SUCCESS;
-        } catch (NoSuchFieldException e) {
-            // very oem much custom ¯\_(ツ)_/¯
+    companion object {
+        val cleaner by lazy {
+            try {
+                val immClass = InputMethodManager::class.java
+                val servedViewField = immClass.getDeclaredField("mServedView").apply {
+                    isAccessible = true
+                }
+                val nextServedViewField = immClass.getDeclaredField("mNextServedView").apply {
+                    isAccessible = true
+                }
+                val hField = immClass.getDeclaredField("mH").apply {
+                    isAccessible = true
+                }
+                ValidCleaner(hField, servedViewField, nextServedViewField)
+            } catch (e: NoSuchFieldException) {
+                // very oem much custom ¯\_(ツ)_/¯
+                FailedInitialization
+            }
         }
     }
 }
