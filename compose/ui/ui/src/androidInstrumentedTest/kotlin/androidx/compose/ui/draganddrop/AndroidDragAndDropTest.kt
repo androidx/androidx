@@ -950,39 +950,44 @@ private class DropTargetModifierHolder(
 
     @OptIn(ExperimentalFoundationApi::class)
     val modifier = Modifier.dragAndDropTarget(
-        target = DragAndDropTarget(
-            onStarted = {
+        target = object : DragAndDropTarget {
+            override fun onStarted(event: DragAndDropEvent) {
                 startOffsets.add(
-                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-                )
-            },
-            onEntered = {
-                enterOffsets.add(
-                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-                )
-            },
-            onMoved = {
-                moveOffsets.add(
-                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-                )
-            },
-            onDrop = {
-                dropOffsets.add(
-                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-                )
-                true
-            },
-            onExited = {
-                exitOffsets.add(
-                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
-                )
-            },
-            onEnded = {
-                endedOffsets.add(
-                    Offset(x = it.dragEvent.x, y = it.dragEvent.y)
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
                 )
             }
-        ),
+
+            override fun onEntered(event: DragAndDropEvent) {
+                enterOffsets.add(
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
+                )
+            }
+
+            override fun onMoved(event: DragAndDropEvent) {
+                moveOffsets.add(
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
+                )
+            }
+
+            override fun onDrop(event: DragAndDropEvent): Boolean {
+                dropOffsets.add(
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
+                )
+                return true
+            }
+
+            override fun onExited(event: DragAndDropEvent) {
+                exitOffsets.add(
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
+                )
+            }
+
+            override fun onEnded(event: DragAndDropEvent) {
+                endedOffsets.add(
+                    Offset(x = event.dragEvent.x, y = event.dragEvent.y)
+                )
+            }
+        },
         shouldStartDragAndDrop = {
             acceptsDragAndDrop()
         },
