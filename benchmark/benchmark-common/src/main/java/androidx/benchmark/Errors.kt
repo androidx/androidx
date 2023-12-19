@@ -21,6 +21,7 @@ import android.content.IntentFilter
 import android.content.pm.ApplicationInfo
 import android.os.BatteryManager
 import android.os.Build
+import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
@@ -43,8 +44,11 @@ object Errors {
         return toList().sorted().joinToString(" ")
     }
 
+    private const val TAG = "Benchmark"
+
     val PREFIX: String
     private val UNSUPPRESSED_WARNING_MESSAGE: String?
+    private var warningString: String? = null
 
     /**
      * Battery percentage required to avoid low battery warning.
@@ -55,6 +59,12 @@ object Errors {
      * conservative in case the device loses power slowly while benchmarks run.
      */
     private const val MINIMUM_BATTERY_PERCENT = 25
+
+    fun acquireWarningStringForLogging(): String? {
+        val ret = warningString
+        warningString = null
+        return ret
+    }
 
     private val isDeviceRooted =
         arrayOf(
@@ -216,7 +226,8 @@ object Errors {
 
         PREFIX = warningPrefix
         if (warningString.isNotEmpty()) {
-            InstrumentationResults.scheduleIdeWarningOnNextReport(warningString)
+            this.warningString = warningString
+            warningString.split("\n").map { Log.w(TAG, it) }
         }
 
         val warningSet = PREFIX
@@ -250,7 +261,7 @@ object Errors {
 
     /**
      * We don't throw immediately when the error is detected, since this will result in an error
-     * deeply buried in a stack of initializer errors. Instead, they're deferred until this method
+     * deeply buried in a stack of intializer errors. Instead, they're deferred until this method
      * call.
      */
     fun throwIfError() {
