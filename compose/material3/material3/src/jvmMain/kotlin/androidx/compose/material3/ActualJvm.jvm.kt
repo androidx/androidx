@@ -25,6 +25,7 @@ import java.util.WeakHashMap
 /* Copy of androidx.compose.material.ActualJvm, mirrored from Foundation. This is used for the
    M2/M3-internal copy of MutatorMutex.
  */
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
 internal actual typealias InternalAtomicReference<V> =
     java.util.concurrent.atomic.AtomicReference<V>
 

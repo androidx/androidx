@@ -20,6 +20,7 @@ import androidx.compose.runtime.internal.ThreadMap
 import androidx.compose.runtime.internal.emptyThreadMap
 import java.util.concurrent.atomic.AtomicInteger
 
+@Suppress("ACTUAL_WITHOUT_EXPECT") // https://youtrack.jetbrains.com/issue/KT-37316
 internal actual typealias AtomicReference<V> = java.util.concurrent.atomic.AtomicReference<V>
 
 internal actual class ThreadLocal<T> actual constructor(
