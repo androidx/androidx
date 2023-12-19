@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.sizeInPx
@@ -159,6 +160,15 @@ internal class ComposeSceneMediator(
 
     var currentInputMethodRequests: InputMethodRequests? = null
         private set
+
+    /**
+     * The bounds of scene relative to [container]. Might be null if it's equal to [container] size.
+     *
+     * It makes sense in cases when real [container] size doesn't match desired value.
+     * For example if we want to show dialog in a separate window with size of this
+     * dialog, but constrains (and scene size) should remain the size of the main window.
+     */
+    var sceneBoundsInPx: IntRect? = null
 
     private val semanticsOwnerListener = DesktopSemanticsOwnerListener()
     var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
@@ -298,6 +308,14 @@ internal class ComposeSceneMediator(
         }
     }
 
+    private val MouseEvent.position: Offset
+        get() {
+            val pointInContainer = SwingUtilities.convertPoint(contentComponent, point, container)
+            val offset = sceneBoundsInPx?.topLeft?.toOffset() ?: Offset.Zero
+            val density = contentComponent.density
+            return Offset(pointInContainer.x.toFloat(), pointInContainer.y.toFloat()) * density.density - offset
+        }
+
     private fun onMouseEvent(event: MouseEvent): Unit = catchExceptions {
         if (!awtEventFilter.shouldSendMouseEvent(event)) {
             return
@@ -306,16 +324,14 @@ internal class ComposeSceneMediator(
             keyboardModifiersRequireUpdate = false
             windowContext.setKeyboardModifiers(event.keyboardModifiers)
         }
-        val density = contentComponent.density
-        scene.onMouseEvent(density, event)
+        scene.onMouseEvent(event.position, event)
     }
 
     private fun onMouseWheelEvent(event: MouseWheelEvent): Unit = catchExceptions {
         if (!awtEventFilter.shouldSendMouseEvent(event)) {
             return
         }
-        val density = contentComponent.density
-        scene.onMouseWheelEvent(density, event)
+        scene.onMouseWheelEvent(event.position, event)
     }
 
     private fun onKeyEvent(event: KeyEvent) = catchExceptions {
@@ -420,9 +436,10 @@ internal class ComposeSceneMediator(
             x = (pointInWindow.x * scale).toInt(),
             y = (pointInWindow.y * scale).toInt()
         )
+        val size = sceneBoundsInPx?.size ?: container.sizeInPx
         val boundsInWindow = IntRect(
             offset = offsetInWindow,
-            size = container.sizeInPx
+            size = size
         )
         if (scene.boundsInWindow != boundsInWindow) {
             scene.boundsInWindow = boundsInWindow
@@ -461,7 +478,13 @@ internal class ComposeSceneMediator(
         override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
             catchExceptions {
                 val composeCanvas = canvas.asComposeCanvas()
+                val offset = sceneBoundsInPx?.topLeft ?: IntOffset.Zero
+                val scale = contentComponent.density.density
+                val dx = contentComponent.x * scale - offset.x.toFloat()
+                val dy = contentComponent.y * scale - offset.y.toFloat()
+                composeCanvas.translate(-dx, -dy)
                 scene.render(composeCanvas, nanoTime)
+                composeCanvas.translate(dx, dy)
             }
         }
     }
@@ -588,7 +611,7 @@ internal class ComposeSceneMediator(
 }
 
 private fun ComposeScene.onMouseEvent(
-    density: Density,
+    position: Offset,
     event: MouseEvent
 ) {
     val eventType = when (event.id) {
@@ -600,7 +623,6 @@ private fun ComposeScene.onMouseEvent(
         MouseEvent.MOUSE_EXITED -> PointerEventType.Exit
         else -> PointerEventType.Unknown
     }
-    val position = Offset(event.x.toFloat(), event.y.toFloat()) * density.density
     sendPointerEvent(
         eventType = eventType,
         position = position,
@@ -623,10 +645,9 @@ private fun MouseEvent.getPointerButton(): PointerButton? {
 }
 
 private fun ComposeScene.onMouseWheelEvent(
-    density: Density,
+    position: Offset,
     event: MouseWheelEvent
 ) {
-    val position = Offset(event.x.toFloat(), event.y.toFloat()) * density.density
     sendPointerEvent(
         eventType = PointerEventType.Scroll,
         position = position,

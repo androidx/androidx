@@ -17,8 +17,10 @@
 package androidx.compose.ui.scene
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionContext
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ComposeFeatureFlags
+import androidx.compose.ui.LayerType
 import androidx.compose.ui.awt.LocalLayerContainer
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.PlatformContext
@@ -26,11 +28,17 @@ import androidx.compose.ui.platform.PlatformWindowContext
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.scene.skia.SwingSkiaLayerComponent
 import androidx.compose.ui.scene.skia.WindowSkiaLayerComponent
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.layoutDirectionFor
 import androidx.compose.ui.window.sizeInPx
 import java.awt.Component
+import java.awt.Container
 import java.awt.Rectangle
 import java.awt.Window
 import java.awt.event.ComponentEvent
@@ -59,11 +67,25 @@ internal class ComposeContainer(
     window: Window? = null,
 
     private val useSwingGraphics: Boolean = ComposeFeatureFlags.useSwingGraphics,
+    private val layerType: LayerType = ComposeFeatureFlags.layerType,
 ) : ComponentListener, WindowFocusListener {
     val windowContext = PlatformWindowContext()
     var window: Window? = null
         private set
+    val windowContainer: Container?
+        get() = (window as? RootPaneContainer)?.contentPane ?: window
+
     private var layoutDirection = layoutDirectionFor(window ?: container)
+
+    /**
+     * A list of additional layers. Layers are used to render [Popup]s and [Dialog]s.
+     */
+    private val layers = mutableListOf<DesktopComposeSceneLayer>()
+
+    /**
+     * A container used for additional layers.
+     */
+    var layersContainer: JLayeredPane? = null
 
     private val coroutineExceptionHandler = DesktopCoroutineExceptionHandler()
     private val coroutineContext = MainUIDispatcher + coroutineExceptionHandler
@@ -94,10 +116,15 @@ internal class ComposeContainer(
 
     init {
         setWindow(window)
+
+        if (layerType == LayerType.OnComponent && !useSwingGraphics) {
+            error("Unsupported LayerType.OnComponent might be used only with rendering to Swing graphics")
+        }
     }
 
     fun dispose() {
         mediator.dispose()
+        layers.fastForEach(DesktopComposeSceneLayer::close)
     }
 
     override fun componentResized(e: ComponentEvent?) = onChangeWindowBounds()
@@ -111,11 +138,13 @@ internal class ComposeContainer(
     private fun onChangeWindowFocus() {
         windowContext.setWindowFocused(window?.isFocused ?: false)
         mediator.onChangeWindowFocus()
+        layers.fastForEach(DesktopComposeSceneLayer::onChangeWindowFocus)
     }
 
     private fun onChangeWindowBounds() {
-        val container = (window as? RootPaneContainer)?.contentPane ?: window ?: return
+        val container = windowContainer ?: return
         windowContext.setContainerSize(container.sizeInPx)
+        layers.fastForEach(DesktopComposeSceneLayer::onChangeWindowBounds)
     }
 
     fun onChangeWindowTransparency(value: Boolean) {
@@ -195,15 +224,62 @@ internal class ComposeContainer(
 
     private fun createComposeScene(mediator: ComposeSceneMediator): ComposeScene {
         val density = container.density
-        return MultiLayerComposeScene(
-            coroutineContext = mediator.coroutineContext,
-            composeSceneContext = createComposeSceneContext(
-                platformContext = mediator.platformContext
-            ),
-            density = density,
-            invalidate = mediator::onComposeInvalidation,
-            layoutDirection = layoutDirection,
-        )
+        return when (layerType) {
+            LayerType.OnSameCanvas ->
+                MultiLayerComposeScene(
+                    coroutineContext = mediator.coroutineContext,
+                    composeSceneContext = createComposeSceneContext(
+                        platformContext = mediator.platformContext
+                    ),
+                    density = density,
+                    invalidate = mediator::onComposeInvalidation,
+                    layoutDirection = layoutDirection,
+                )
+            else -> SingleLayerComposeScene(
+                coroutineContext = mediator.coroutineContext,
+                density = density,
+                invalidate = mediator::onComposeInvalidation,
+                layoutDirection = layoutDirection,
+                composeSceneContext = createComposeSceneContext(
+                    platformContext = mediator.platformContext
+                ),
+            )
+        }
+    }
+
+    private fun createPlatformLayer(
+        density: Density,
+        layoutDirection: LayoutDirection,
+        focusable: Boolean,
+        compositionContext: CompositionContext
+    ): ComposeSceneLayer {
+        return when (layerType) {
+            LayerType.OnWindow -> WindowComposeSceneLayer(
+                composeContainer = this,
+                skiaLayerAnalytics = skiaLayerAnalytics,
+                density = density,
+                layoutDirection = layoutDirection,
+                focusable = focusable,
+                compositionContext = compositionContext
+            )
+            LayerType.OnComponent -> SwingComposeSceneLayer(
+                composeContainer = this,
+                skiaLayerAnalytics = skiaLayerAnalytics,
+                density = density,
+                layoutDirection = layoutDirection,
+                focusable = focusable,
+                compositionContext = compositionContext
+            )
+            else -> error("Unexpected LayerType")
+        }
+    }
+
+    fun attachLayer(layer: DesktopComposeSceneLayer) {
+        layers.add(layer)
+    }
+
+    fun detachLayer(layer: DesktopComposeSceneLayer) {
+        layers.remove(layer)
     }
 
     fun createComposeSceneContext(platformContext: PlatformContext): ComposeSceneContext =
@@ -211,7 +287,19 @@ internal class ComposeContainer(
 
     private inner class ComposeSceneContextImpl(
         override val platformContext: PlatformContext,
-    ) : ComposeSceneContext
+    ) : ComposeSceneContext {
+        override fun createPlatformLayer(
+            density: Density,
+            layoutDirection: LayoutDirection,
+            focusable: Boolean,
+            compositionContext: CompositionContext
+        ): ComposeSceneLayer = this@ComposeContainer.createPlatformLayer(
+            density = density,
+            layoutDirection = layoutDirection,
+            focusable = focusable,
+            compositionContext = compositionContext
+        )
+    }
 
     private inner class DesktopCoroutineExceptionHandler :
         AbstractCoroutineContextElement(CoroutineExceptionHandler), CoroutineExceptionHandler {

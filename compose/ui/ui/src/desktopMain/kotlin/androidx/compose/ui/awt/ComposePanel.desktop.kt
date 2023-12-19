@@ -16,7 +16,9 @@
 package androidx.compose.ui.awt
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.ComposeFeatureFlags
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.LayerType
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.scene.ComposeContainer
 import androidx.compose.ui.window.WindowExceptionHandler
@@ -155,6 +157,18 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
             _composeContainer?.exceptionHandler = value
         }
 
+    /**
+     * A container used for additional layers. It's used with [LayerType.OnComponent]
+     *
+     * See [ComposeFeatureFlags.layerType]
+     * TODO: Make it public with @ExperimentalComposeUiApi
+     */
+    internal var layersContainer: JLayeredPane? = null
+        set(value) {
+            field = value
+            _composeContainer?.layersContainer = value
+        }
+
     override fun add(component: Component): Component {
         _composeContainer?.addToComponentLayer(component)
         return component
@@ -186,6 +200,8 @@ class ComposePanel @ExperimentalComposeUiApi constructor(
             contentComponent.isFocusable = _isFocusable
             contentComponent.isRequestFocusEnabled = _isRequestFocusEnabled
             exceptionHandler = this@ComposePanel.exceptionHandler
+            layersContainer = this@ComposePanel.layersContainer
+
             _focusListeners.forEach(contentComponent::addFocusListener)
             contentComponent.addFocusListener(object : FocusListener {
                 override fun focusGained(e: FocusEvent) {
