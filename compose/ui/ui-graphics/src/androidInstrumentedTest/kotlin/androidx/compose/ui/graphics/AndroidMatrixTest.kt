@@ -16,10 +16,12 @@
 
 package androidx.compose.ui.graphics
 
+import androidx.compose.ui.geometry.Offset
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import kotlin.math.sqrt
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -137,5 +139,43 @@ class AndroidMatrixTest {
 
         val composeMatrix = Matrix().apply { setFrom(p) }
         assertTrue(composeMatrix.values.contentEquals(m.values))
+    }
+
+    @Test
+    fun rotateX45() {
+        val m = Matrix().apply { rotateX(45f) }
+        val mapped00 = m.map(Offset(0f, 0f))
+        assertThat(mapped00.x).isWithin(delta).of(0f)
+        assertThat(mapped00.y).isWithin(delta).of(0f)
+        val mapped11 = m.map(Offset(1f, 1f))
+        assertThat(mapped11.x).isWithin(delta).of(1f)
+        assertThat(mapped11.y).isWithin(delta).of(sqrt(2f) / 2f)
+
+        val androidMatrix = android.graphics.Matrix().apply { setFrom(m) }
+        val points = floatArrayOf(0f, 0f, 1f, 1f)
+        androidMatrix.mapPoints(points)
+        assertThat(points[0]).isWithin(delta).of(0f)
+        assertThat(points[1]).isWithin(delta).of(0f)
+        assertThat(points[2]).isWithin(delta).of(1f)
+        assertThat(points[3]).isWithin(delta).of(sqrt(2f) / 2f)
+    }
+
+    @Test
+    fun rotateY45() {
+        val m = Matrix().apply { rotateY(45f) }
+        val mapped00 = m.map(Offset(0f, 0f))
+        assertThat(mapped00.x).isWithin(delta).of(0f)
+        assertThat(mapped00.y).isWithin(delta).of(0f)
+        val mapped11 = m.map(Offset(1f, 1f))
+        assertThat(mapped11.x).isWithin(delta).of(sqrt(2f) / 2f)
+        assertThat(mapped11.y).isWithin(delta).of(1f)
+
+        val androidMatrix = android.graphics.Matrix().apply { setFrom(m) }
+        val points = floatArrayOf(0f, 0f, 1f, 1f)
+        androidMatrix.mapPoints(points)
+        assertThat(points[0]).isWithin(delta).of(0f)
+        assertThat(points[1]).isWithin(delta).of(0f)
+        assertThat(points[2]).isWithin(delta).of(sqrt(2f) / 2f)
+        assertThat(points[3]).isWithin(delta).of(1f)
     }
 }
