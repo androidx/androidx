@@ -155,6 +155,9 @@ internal class TextFieldSelectionManager(
     var draggingHandle: Handle? by mutableStateOf(null)
         private set
 
+    /**
+     * The current position of a drag, in decoration box coordinates.
+     */
     var currentDragPosition: Offset? by mutableStateOf(null)
         private set
 
@@ -396,7 +399,23 @@ internal class TextFieldSelectionManager(
         object : TextDragObserver {
             override fun onDown(point: Offset) {
                 draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
-                currentDragPosition = getAdjustedCoordinates(getHandlePosition(isStartHandle))
+
+                // The position of the character where the drag gesture should begin. This is in
+                // the inner text field coordinates.
+                val handleCoordinates = getAdjustedCoordinates(getHandlePosition(isStartHandle))
+
+                // translate to decoration box coordinates
+                val layoutResult = state?.layoutResult ?: return
+                val translatedPosition =
+                    layoutResult.translateInnerToDecorationCoordinates(handleCoordinates)
+
+                dragBeginPosition = translatedPosition
+                currentDragPosition = translatedPosition
+
+                // Zero out the total distance that being dragged.
+                dragTotalDistance = Offset.Zero
+                previousRawDragOffset = -1
+
                 state?.isInTouchMode = true
                 updateFloatingToolbar(show = false)
             }
@@ -408,29 +427,16 @@ internal class TextFieldSelectionManager(
             }
 
             override fun onStart(startPoint: Offset) {
-                // The position of the character where the drag gesture should begin. This is in
-                // the composable coordinates.
-                dragBeginPosition = getAdjustedCoordinates(getHandlePosition(isStartHandle))
-                currentDragPosition = dragBeginPosition
-                previousRawDragOffset = -1
-                // Zero out the total distance that being dragged.
-                dragTotalDistance = Offset.Zero
-                draggingHandle = if (isStartHandle) Handle.SelectionStart else Handle.SelectionEnd
-                updateFloatingToolbar(show = false)
+                // handled in onDown
             }
 
             override fun onDrag(delta: Offset) {
                 dragTotalDistance += delta
 
                 currentDragPosition = dragBeginPosition + dragTotalDistance
-
-                // translate the inner text coordinates to decoration box
-                val layoutResult = state?.layoutResult ?: return
-                val translatedPosition =
-                    layoutResult.translateInnerToDecorationCoordinates(currentDragPosition!!)
                 updateSelection(
                     value = value,
-                    currentPosition = translatedPosition,
+                    currentPosition = currentDragPosition!!,
                     isStartOfSelection = false,
                     isStartHandle = isStartHandle,
                     adjustment = SelectionAdjustment.CharacterWithWordAccelerate,
@@ -463,9 +469,16 @@ internal class TextFieldSelectionManager(
 
         override fun onStart(startPoint: Offset) {
             // The position of the character where the drag gesture should begin. This is in
-            // the composable coordinates.
-            dragBeginPosition = getAdjustedCoordinates(getHandlePosition(true))
-            currentDragPosition = dragBeginPosition
+            // the inner text field coordinates.
+            val handleCoordinates = getAdjustedCoordinates(getHandlePosition(true))
+
+            // translate to decoration box coordinates
+            val layoutResult = state?.layoutResult ?: return
+            val translatedPosition =
+                layoutResult.translateInnerToDecorationCoordinates(handleCoordinates)
+
+            dragBeginPosition = translatedPosition
+            currentDragPosition = translatedPosition
             // Zero out the total distance that being dragged.
             dragTotalDistance = Offset.Zero
             draggingHandle = Handle.Cursor
@@ -475,7 +488,7 @@ internal class TextFieldSelectionManager(
         override fun onDrag(delta: Offset) {
             dragTotalDistance += delta
 
-            state?.layoutResult?.value?.let { layoutResult ->
+            state?.layoutResult?.let { layoutResult ->
                 currentDragPosition = dragBeginPosition + dragTotalDistance
                 val offset = offsetMapping.transformedToOriginal(
                     layoutResult.getOffsetForPosition(currentDragPosition!!)
@@ -981,6 +994,9 @@ internal expect val PointerEvent.isShiftPressed: Boolean
  */
 internal expect fun Modifier.textFieldMagnifier(manager: TextFieldSelectionManager): Modifier
 
+/**
+ * @return the location of the magnifier relative to the inner text field coordinates
+ */
 @OptIn(InternalFoundationTextApi::class)
 internal fun calculateSelectionMagnifierCenterAndroid(
     manager: TextFieldSelectionManager,
@@ -999,14 +1015,16 @@ internal fun calculateSelectionMagnifierCenterAndroid(
         Handle.SelectionEnd -> manager.value.selection.end
     }
     // If the text hasn't been laid out yet, don't show the magnifier.
-    val layoutResult = manager.state?.layoutResult?.value ?: return Offset.Unspecified
+    val textLayoutResultProxy = manager.state?.layoutResult ?: return Offset.Unspecified
     val transformedText = manager.state?.textDelegate?.text ?: return Offset.Unspecified
 
     val textOffset = manager.offsetMapping
         .originalToTransformed(rawTextOffset)
         .coerceIn(0, transformedText.length)
 
-    val dragX = localDragPosition.x
+    val dragX = textLayoutResultProxy.translateDecorationToInnerCoordinates(localDragPosition).x
+
+    val layoutResult = textLayoutResultProxy.value
     val line = layoutResult.getLineForOffset(textOffset)
     val lineStart = layoutResult.getLineLeft(line)
     val lineEnd = layoutResult.getLineRight(line)
