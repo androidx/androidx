@@ -31,11 +31,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit.SECONDS
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -46,7 +46,7 @@ class WindowInfoCompositionLocalTest {
     @get:Rule
     val rule = createComposeRule()
 
-    @Ignore("Flaky Test b/173088588")
+    @FlakyTest(bugId = 173088588)
     @Test
     fun windowIsFocused_onLaunch() {
         // Arrange.

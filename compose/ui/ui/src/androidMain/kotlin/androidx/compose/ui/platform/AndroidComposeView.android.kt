@@ -1404,6 +1404,7 @@ internal class AndroidComposeView(
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
+        _windowInfo.isWindowFocused = hasWindowFocus()
         invalidateLayoutNodeMeasurement(root)
         invalidateLayers(root)
         snapshotObserver.startObserving()
