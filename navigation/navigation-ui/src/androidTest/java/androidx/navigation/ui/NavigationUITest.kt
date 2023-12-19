@@ -219,7 +219,7 @@ class NavigationUITest {
         val expected = "123"
         assertThat(toolbar.title.toString()).isEqualTo(expected)
     }
-    
+
     private fun createToolbarOnDestinationChangedListener(
         toolbar: Toolbar,
         bundle: Bundle?,
