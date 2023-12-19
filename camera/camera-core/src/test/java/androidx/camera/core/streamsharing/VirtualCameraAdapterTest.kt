@@ -263,7 +263,7 @@ class VirtualCameraAdapterTest {
         // Act.
         val outConfigs = adapter.getChildrenOutConfigs(
             createSurfaceEdge(cropRect = cropRect, rotationDegrees = 90),
-            Surface.ROTATION_90
+            Surface.ROTATION_90, true
         )
 
         // Assert: preview config
