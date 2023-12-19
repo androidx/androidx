@@ -73,10 +73,10 @@ public final class SearchSuggestionSpec extends AbstractSafeParcelable {
     // namespace and value is a list of target document ids in that namespace to search over.
     @Field(id = 4)
     final Bundle mFilterDocumentIds;
-    @Field(id = 5, getter = "getMaximumResultCount")
-    private final int mMaximumResultCount;
-    @Field(id = 6, getter = "getRankingStrategy")
+    @Field(id = 5, getter = "getRankingStrategy")
     private final int mRankingStrategy;
+    @Field(id = 6, getter = "getMaximumResultCount")
+    private final int mMaximumResultCount;
 
     /** @exportToFramework:hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
