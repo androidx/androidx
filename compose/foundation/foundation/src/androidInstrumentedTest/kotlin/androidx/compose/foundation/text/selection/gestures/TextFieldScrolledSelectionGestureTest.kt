@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text.selection.gestures
 
+import androidx.compose.foundation.isPlatformMagnifierSupported
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -26,8 +27,11 @@ import androidx.compose.foundation.text.FocusedWindowTest
 import androidx.compose.foundation.text.Handle
 import androidx.compose.foundation.text.TEST_FONT_FAMILY
 import androidx.compose.foundation.text.selection.HandlePressedScope
+import androidx.compose.foundation.text.selection.assertNoMagnifierExists
+import androidx.compose.foundation.text.selection.assertThatOffset
 import androidx.compose.foundation.text.selection.fetchTextLayoutResult
 import androidx.compose.foundation.text.selection.gestures.util.longPress
+import androidx.compose.foundation.text.selection.getMagnifierCenterOffset
 import androidx.compose.foundation.text.selection.withHandlePressed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -39,12 +43,16 @@ import androidx.compose.testutils.TestViewConfiguration
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.requestFocus
@@ -60,6 +68,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.fail
 import org.junit.Rule
@@ -104,9 +113,10 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
         }
     }
 
-    private abstract class AbstractScope(
+    private abstract inner class AbstractScope(
         val textFieldValue: State<TextFieldValue>,
         val onTextField: SemanticsNodeInteraction,
+        val textFieldLayoutCoordinates: LayoutCoordinates,
     ) {
         /** Returns the offset needed to translate the amount scrolled. */
         abstract fun TextLayoutResult.translateScroll(): Offset
@@ -132,13 +142,26 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
             val (start, end) = selectionRange
             assertThat(textFieldValue.value.selection).isEqualTo(TextRange(start, end))
         }
+
+        fun assertNoMagnifierExists() {
+            if (!isPlatformMagnifierSupported()) return
+            assertNoMagnifierExists(rule)
+        }
+
+        fun assertOneMagnifierExistsAt(expectedOffset: Offset) {
+            if (!isPlatformMagnifierSupported()) return
+            val offsetInRoot = getMagnifierCenterOffset(rule, requireSpecified = true)
+            val offsetInTextField = offsetInRoot - textFieldLayoutCoordinates.positionInRoot()
+            assertThatOffset(offsetInTextField).equalsWithTolerance(expectedOffset)
+        }
     }
 
     private inner class HorizontalScope(
         textFieldValue: State<TextFieldValue>,
         onTextField: SemanticsNodeInteraction,
+        textFieldLayoutCoordinates: LayoutCoordinates,
         val textFieldSize: IntSize,
-    ) : AbstractScope(textFieldValue, onTextField) {
+    ) : AbstractScope(textFieldValue, onTextField, textFieldLayoutCoordinates) {
         override fun TextLayoutResult.translateScroll(): Offset {
             val textLayoutSize = size
             assertThat(textFieldSize.height).isEqualTo(textLayoutSize.height)
@@ -150,6 +173,7 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
     /** Create a horizontally scrollable text field that is scrolled all the way to the end. */
     private fun runHorizontalTest(block: HorizontalScope.() -> Unit) {
         val text = (0..9).joinToString(separator = " ") { "text$it" }
+        lateinit var textFieldLayoutCoordinates: LayoutCoordinates
         var sizeNullable: MutableState<IntSize?>? = null
         lateinit var tfv: MutableState<TextFieldValue>
         setContent { tag ->
@@ -164,6 +188,7 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
                     .width(300.dp)
                     .testTag(tag = tag)
                     .onSizeChanged { sizeNullable!!.value = it }
+                    .onGloballyPositioned { textFieldLayoutCoordinates = it }
             )
         }
         val onTextField = rule.onNodeWithTag(pointerAreaTag)
@@ -177,44 +202,55 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
         }
 
         assertThat(sizeNullable!!.value).isNotNull()
-        HorizontalScope(tfv, onTextField, sizeNullable!!.value!!).block()
+        HorizontalScope(tfv, onTextField, textFieldLayoutCoordinates, sizeNullable!!.value!!)
+            .block()
     }
 
     @Test
     fun whenHorizontalScroll_longPressGesture_selectAndDrag() = runHorizontalTest {
         // select "text8".
-        onTextField.performTouchInput { longPress(positionForCharacterScrolled(50)) }
+        val char50Position = positionForCharacterScrolled(50)
+        onTextField.performTouchInput { longPress(char50Position) }
         assertSelectionEquals(48 to 53)
+        assertOneMagnifierExistsAt(char50Position)
 
         // Backwards select through "text7" so that the selection is "text7 ".
-        onTextField.performTouchInput { moveTo(positionForCharacterScrolled(46)) }
+        val char46Position = positionForCharacterScrolled(46)
+        onTextField.performTouchInput { moveTo(char46Position) }
         assertSelectionEquals(48 to 42)
+        assertOneMagnifierExistsAt(char46Position)
 
         onTextField.performTouchInput { up() }
         assertSelectionEquals(48 to 42)
+        assertNoMagnifierExists()
     }
 
     @Test
     fun whenHorizontalScroll_handleGesture_drag() = runHorizontalTest {
         // select "text8".
-        onTextField.performTouchInput { longPress(positionForCharacterScrolled(50)) }
+        onTextField.performTouchInput { longClick(positionForCharacterScrolled(50)) }
         assertSelectionEquals(48 to 53)
+        assertNoMagnifierExists()
 
         // Backwards select through "text7" so that the selection is "text7 ".
         rule.withHandlePressed(Handle.SelectionStart) {
             assertSelectionEquals(48 to 53)
+            assertOneMagnifierExistsAt(positionForCharacterScrolled(48))
             moveHandleToCharacter(45)
             assertSelectionEquals(42 to 53)
+            assertOneMagnifierExistsAt(positionForCharacterScrolled(45))
         }
         assertSelectionEquals(42 to 53)
+        assertNoMagnifierExists()
     }
 
     /** Create a vertically scrollable text field that is scrolled all the way to the end. */
     private inner class VerticalScope(
         textFieldValue: State<TextFieldValue>,
         onTextField: SemanticsNodeInteraction,
+        textFieldLayoutCoordinates: LayoutCoordinates,
         val textFieldSize: IntSize,
-    ) : AbstractScope(textFieldValue, onTextField) {
+    ) : AbstractScope(textFieldValue, onTextField, textFieldLayoutCoordinates) {
         override fun TextLayoutResult.translateScroll(): Offset {
             val textLayoutSize = size
             assertThat(textFieldSize.width).isEqualTo(textLayoutSize.width)
@@ -228,6 +264,7 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
      */
     private fun runVerticalTest(block: VerticalScope.() -> Unit) {
         val text = (0..9).joinToString(separator = "\n") { "text$it" }
+        lateinit var textFieldLayoutCoordinates: LayoutCoordinates
         var sizeNullable: MutableState<IntSize?>? = null
         lateinit var tfv: MutableState<TextFieldValue>
         setContent { tag ->
@@ -242,6 +279,7 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
                     .width(300.dp)
                     .testTag(tag = tag)
                     .onSizeChanged { sizeNullable!!.value = it }
+                    .onGloballyPositioned { textFieldLayoutCoordinates = it }
             )
         }
         assertThat(sizeNullable).isNotNull()
@@ -256,35 +294,48 @@ class TextFieldScrolledSelectionGestureTest : FocusedWindowTest {
         }
 
         assertThat(sizeNullable!!.value).isNotNull()
-        VerticalScope(tfv, onTextField, sizeNullable!!.value!!).block()
+        VerticalScope(tfv, onTextField, textFieldLayoutCoordinates, sizeNullable!!.value!!).block()
     }
 
     @Test
     fun whenVerticalScroll_longPressGesture_selectAndDrag() = runVerticalTest {
         // select "text8".
-        onTextField.performTouchInput { longPress(positionForCharacterScrolled(50)) }
+        val char50Position = positionForCharacterScrolled(50)
+        onTextField.performTouchInput { longPress(char50Position) }
         assertSelectionEquals(48 to 53)
+        assertOneMagnifierExistsAt(char50Position)
 
         // Backwards select through "text7" so that the selection is "text7 ".
-        onTextField.performTouchInput { moveTo(positionForCharacterScrolled(46)) }
+        val char46Position = positionForCharacterScrolled(46)
+        onTextField.performTouchInput { moveTo(char46Position) }
         assertSelectionEquals(48 to 42)
+        assertOneMagnifierExistsAt(char46Position)
 
         onTextField.performTouchInput { up() }
         assertSelectionEquals(48 to 42)
+        assertNoMagnifierExists()
     }
 
+    // TODO(b/316940648)
+    //  The TextToolbar at the top of the screen messes up the popup position calculations,
+    //  so suppress SDKs that don't have the floating popup.
+    @SdkSuppress(minSdkVersion = 23)
     @Test
     fun whenVerticalScroll_handleGesture_drag() = runVerticalTest {
         // select "text8".
-        onTextField.performTouchInput { longPress(positionForCharacterScrolled(50)) }
+        onTextField.performTouchInput { longClick(positionForCharacterScrolled(50)) }
         assertSelectionEquals(48 to 53)
+        assertNoMagnifierExists()
 
         // Backwards select through "text7" so that the selection is "text7 ".
         rule.withHandlePressed(Handle.SelectionStart) {
             assertSelectionEquals(48 to 53)
+            assertOneMagnifierExistsAt(positionForCharacterScrolled(48))
             moveHandleToCharacter(45)
             assertSelectionEquals(42 to 53)
+            assertOneMagnifierExistsAt(positionForCharacterScrolled(45))
         }
         assertSelectionEquals(42 to 53)
+        assertNoMagnifierExists()
     }
 }
