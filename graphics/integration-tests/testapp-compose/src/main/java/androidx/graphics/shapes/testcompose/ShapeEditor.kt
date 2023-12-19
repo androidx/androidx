@@ -132,8 +132,9 @@ class ShapeParameters(
                 smooth = smooth, innerRoundness = innerRoundness,
                 innerSmooth = innerSmooth, rotation = rotation,
                 code = "RoundedPolygon.star(numVerticesPerRadius = $sides, " +
-                    "innerRadius = $innerRadius, rounding = CornerRounding($roundness, $smooth), " +
-                    "innerRounding = CornerRounding($innerRoundness, $innerSmooth))")
+                    "innerRadius = ${innerRadius}f, " +
+                    "rounding = CornerRounding(${roundness}f, ${smooth}f), " +
+                    "innerRounding = CornerRounding(${innerRoundness}f, ${innerSmooth}f))")
         ),
         ShapeItem("Polygon", shapegen = {
                 RoundedPolygon(
@@ -145,7 +146,7 @@ class ShapeParameters(
                 sides = this.sides.floatValue.roundToInt(),
                 roundness = roundness, smooth = smooth, rotation = rotation,
                 code = "RoundedPolygon(numVertices = ${this.sides.floatValue.roundToInt()}," +
-                    "rounding = CornerRounding($roundness, $smooth))"
+                    "rounding = CornerRounding(${roundness}f, ${smooth}f))"
             ),
             usesInnerRatio = false, usesInnerParameters = false
         ),
@@ -175,11 +176,11 @@ class ShapeParameters(
                     "    radialToCartesian(1f, 270f.toRadians()).y,\n" +
                     "    radialToCartesian(1f, 30f.toRadians()).x,\n" +
                     "    radialToCartesian(1f, 30f.toRadians()).y,\n" +
-                    "    radialToCartesian($innerRadius, 90f.toRadians()).x,\n" +
-                    "    radialToCartesian($innerRadius, 90f.toRadians()).y,\n" +
+                    "    radialToCartesian(${innerRadius}f, 90f.toRadians()).x,\n" +
+                    "    radialToCartesian(${innerRadius}f, 90f.toRadians()).y,\n" +
                     "    radialToCartesian(1f, 150f.toRadians()).x,\n" +
                     "    radialToCartesian(1f, 150f.toRadians()).y)\n" +
-                    "RoundedPolygon(points, CornerRounding($roundness, $smooth), " +
+                    "RoundedPolygon(points, CornerRounding(${roundness}f, ${smooth}f), " +
                     "centerX = 0f, centerY = 0f)"
             ),
             usesSides = false, usesInnerParameters = false
@@ -200,10 +201,10 @@ class ShapeParameters(
             },
             shapeDetails = shapeDescription(id = "Blob", roundness = roundness,
                     smooth = smooth, rotation = rotation,
-                    code = "val sx = $innerRadius.coerceAtLeast(0.1f)\n" +
-                    "val sy = $roundness.coerceAtLeast(.1f)\n" +
+                    code = "val sx = ${innerRadius}f.coerceAtLeast(0.1f)\n" +
+                    "val sy = ${roundness}f.coerceAtLeast(.1f)\n" +
                     "val verts = floatArrayOf(-sx, -sy, sx, -sy, sx, sy, -sx, sy)\n" +
-                    "RoundedPolygon(verts, rounding = CornerRounding(min(sx, sy), $smooth)," +
+                    "RoundedPolygon(verts, rounding = CornerRounding(min(sx, sy), ${smooth}f)," +
                     "centerX = 0f, centerY = 0f)"),
             usesSides = false, usesInnerParameters = false),
         ShapeItem(
@@ -223,7 +224,7 @@ class ShapeParameters(
             shapeDetails = shapeDescription(id = "cornerSE", roundness = roundness,
                 smooth = smooth, rotation = rotation,
                 code = "RoundedPolygon(floatArrayOf(1f, 1f, -1f, 1f, -1f, -1f, 1f, -1f), " +
-                    "perVertexRounding = listOf(CornerRounding($roundness, $smooth), " +
+                    "perVertexRounding = listOf(CornerRounding(${roundness}f, ${smooth}f), " +
                     "CornerRounding(1f), CornerRounding(1f),  CornerRounding(1f))," +
                     "centerX = 0f, centerY = 0f)"),
             usesSides = false,
@@ -250,7 +251,7 @@ class ShapeParameters(
             shapeDetails = shapeDescription(id = "Rectangle", numVerts = 4, roundness = roundness,
                 smooth = smooth, rotation = rotation,
                 code = "RoundedPolygon.rectangle(width = 4f, height = 2f, " +
-                    "rounding = CornerRounding($roundness, $smooth))"),
+                    "rounding = CornerRounding(${roundness}f, ${smooth}f))"),
             usesSides = false,
             usesInnerRatio = false,
             usesInnerParameters = false
