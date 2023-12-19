@@ -47,7 +47,6 @@ androidXMultiplatform {
 
         commonTest {
             dependencies {
-                implementation(libs.kotlinTestCommon)
                 implementation(libs.kotlinTestAnnotationsCommon)
             }
         }
@@ -58,13 +57,6 @@ androidXMultiplatform {
                 api(libs.kotlinStdlib)
                 api(libs.kotlinTest)
                 implementation(libs.guavaAndroid)
-            }
-        }
-
-        jvmTest {
-            dependencies {
-                implementation(libs.kotlinStdlib)
-                implementation(libs.kotlinTest)
             }
         }
 
