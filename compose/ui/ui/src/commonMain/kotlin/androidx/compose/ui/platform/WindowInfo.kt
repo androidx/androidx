@@ -25,7 +25,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.input.pointer.EmptyPointerKeyboardModifiers
 import androidx.compose.ui.input.pointer.PointerKeyboardModifiers
-import kotlinx.coroutines.flow.collect
 
 /**
  * Provides information about the Window that is hosting this compose hierarchy.
