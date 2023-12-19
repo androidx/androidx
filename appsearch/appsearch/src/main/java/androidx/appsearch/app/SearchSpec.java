@@ -65,6 +65,7 @@ public final class SearchSpec {
      * and {@link SearchSpec.Builder#addProjection} to apply property paths to all results,
      * excepting any types that have had their own, specific property paths set.
      */
+    @FlaggedApi(Flags.FLAG_ENABLE_SEARCH_SPEC_FILTER_PROPERTIES)
     public static final String SCHEMA_TYPE_WILDCARD = "*";
 
     static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
