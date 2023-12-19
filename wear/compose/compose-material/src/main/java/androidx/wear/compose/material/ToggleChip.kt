@@ -118,7 +118,7 @@ public fun ToggleChip(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
 ) = androidx.wear.compose.materialcore.ToggleButton(
     checked = checked,
     onCheckedChange = onCheckedChange,
@@ -243,7 +243,7 @@ public fun SplitToggleChip(
     checkedInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     clickInteractionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ToggleChipDefaults.ContentPadding,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
 ) = androidx.wear.compose.materialcore.SplitToggleButton(
     checked = checked,
     onCheckedChange = onCheckedChange,
