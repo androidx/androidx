@@ -434,8 +434,6 @@ internal class ComposeSceneMediator(
 
             is SceneLayout.Undefined -> error("setLayout, SceneLayout.Undefined")
         }
-        renderingView.layoutIfNeeded()
-        renderingView.updateMetalLayerSize() // TODO Investigate layoutIfNeeded() doesn't call layoutSubviews() in case of SelectionHandle popup's
     }
 
     fun viewWillLayoutSubviews() {
