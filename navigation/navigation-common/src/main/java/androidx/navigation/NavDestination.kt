@@ -635,7 +635,8 @@ public open class NavDestination(
                     val value = context.getString(bundle.getInt(argName))
                     builder.append(value)
                 } else {
-                    builder.append(bundle.getString(argName))
+                    @Suppress("DEPRECATION")
+                    builder.append(bundle[argName].toString())
                 }
             } else {
                 throw IllegalArgumentException(
