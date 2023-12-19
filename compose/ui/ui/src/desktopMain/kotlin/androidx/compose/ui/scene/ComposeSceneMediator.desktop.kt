@@ -107,6 +107,56 @@ internal class ComposeSceneMediator(
             }
         }
     }
+    private val inputMethodListener = object : InputMethodListener {
+        override fun caretPositionChanged(event: InputMethodEvent?) {
+            if (isDisposed) return
+            // Which OSes and which input method could produce such events? We need to have some
+            // specific cases in mind before implementing this
+        }
+
+        override fun inputMethodTextChanged(event: InputMethodEvent) {
+            if (isDisposed) return
+            catchExceptions {
+                textInputService.inputMethodTextChanged(event)
+            }
+        }
+    }
+    private val focusListener = object : FocusListener {
+        override fun focusGained(e: FocusEvent) {
+            // We don't reset focus for Compose when the component loses focus temporary.
+            // Partially because we don't support restoring focus after clearing it.
+            // Focus can be lost temporary when another window or popup takes focus.
+            if (!e.isTemporary) {
+                scene.focusManager.requestFocus()
+            }
+        }
+
+        override fun focusLost(e: FocusEvent) {
+            // We don't reset focus for Compose when the component loses focus temporary.
+            // Partially because we don't support restoring focus after clearing it.
+            // Focus can be lost temporary when another window or popup takes focus.
+            if (!e.isTemporary) {
+                scene.focusManager.releaseFocus()
+            }
+        }
+    }
+    private val mouseListener = object : MouseAdapter() {
+        override fun mouseClicked(event: MouseEvent) = Unit
+        override fun mousePressed(event: MouseEvent) = onMouseEvent(event)
+        override fun mouseReleased(event: MouseEvent) = onMouseEvent(event)
+        override fun mouseEntered(event: MouseEvent) = onMouseEvent(event)
+        override fun mouseExited(event: MouseEvent) = onMouseEvent(event)
+    }
+    private val mouseMotionListener = object : MouseMotionAdapter() {
+        override fun mouseDragged(event: MouseEvent) = onMouseEvent(event)
+        override fun mouseMoved(event: MouseEvent) = onMouseEvent(event)
+    }
+    private val mouseWheelListener = MouseWheelListener { event -> onMouseWheelEvent(event) }
+    private val keyListener = object : KeyAdapter() {
+        override fun keyPressed(event: KeyEvent) = onKeyEvent(event)
+        override fun keyReleased(event: KeyEvent) = onKeyEvent(event)
+        override fun keyTyped(event: KeyEvent) = onKeyEvent(event)
+    }
 
     var currentInputMethodRequests: InputMethodRequests? = null
         private set
@@ -175,67 +225,16 @@ internal class ComposeSceneMediator(
 
         skiaLayerComponent.transparency = useInteropBlending
 
+        // It will be enabled dynamically. See DesktopPlatformComponent
         contentComponent.enableInputMethods(false)
-        contentComponent.addInputMethodListener(object : InputMethodListener {
-            override fun caretPositionChanged(event: InputMethodEvent?) {
-                if (isDisposed) return
-                // Which OSes and which input method could produce such events? We need to have some
-                // specific cases in mind before implementing this
-            }
-
-            override fun inputMethodTextChanged(event: InputMethodEvent) {
-                if (isDisposed) return
-                catchExceptions {
-                    textInputService.inputMethodTextChanged(event)
-                }
-            }
-        })
-
-        contentComponent.addFocusListener(object : FocusListener {
-            override fun focusGained(e: FocusEvent) {
-                // We don't reset focus for Compose when the component loses focus temporary.
-                // Partially because we don't support restoring focus after clearing it.
-                // Focus can be lost temporary when another window or popup takes focus.
-                if (!e.isTemporary) {
-                    scene.focusManager.requestFocus()
-                }
-            }
-
-            override fun focusLost(e: FocusEvent) {
-                // We don't reset focus for Compose when the component loses focus temporary.
-                // Partially because we don't support restoring focus after clearing it.
-                // Focus can be lost temporary when another window or popup takes focus.
-                if (!e.isTemporary) {
-                    scene.focusManager.releaseFocus()
-                }
-            }
-        })
-
-        contentComponent.addMouseListener(object : MouseAdapter() {
-            override fun mouseClicked(event: MouseEvent) = Unit
-            override fun mousePressed(event: MouseEvent) = onMouseEvent(event)
-            override fun mouseReleased(event: MouseEvent) = onMouseEvent(event)
-            override fun mouseEntered(event: MouseEvent) = onMouseEvent(event)
-            override fun mouseExited(event: MouseEvent) = onMouseEvent(event)
-        })
-        contentComponent.addMouseMotionListener(object : MouseMotionAdapter() {
-            override fun mouseDragged(event: MouseEvent) = onMouseEvent(event)
-            override fun mouseMoved(event: MouseEvent) = onMouseEvent(event)
-        })
-        contentComponent.addMouseWheelListener { event ->
-            onMouseWheelEvent(event)
-        }
         contentComponent.focusTraversalKeysEnabled = false
-        contentComponent.addKeyListener(object : KeyAdapter() {
-            override fun keyPressed(event: KeyEvent) = onKeyEvent(event)
-            override fun keyReleased(event: KeyEvent) = onKeyEvent(event)
-            override fun keyTyped(event: KeyEvent) = onKeyEvent(event)
-        })
+
+        subscribe(contentComponent)
     }
 
-    private inline fun catchExceptions(body: () -> Unit) {
+    private inline fun catchExceptions(block: () -> Unit) {
         try {
-            body()
+            block()
         } catch (e: Throwable) {
             exceptionHandler?.onException(e) ?: throw e
         }
@@ -246,6 +245,24 @@ internal class ComposeSceneMediator(
             invisibleComponent.requestFocusTemporary()
             contentComponent.requestFocus()
         }
+    }
+
+    private fun subscribe(component: Component) {
+        component.addInputMethodListener(inputMethodListener)
+        component.addFocusListener(focusListener)
+        component.addMouseListener(mouseListener)
+        component.addMouseMotionListener(mouseMotionListener)
+        component.addMouseWheelListener(mouseWheelListener)
+        component.addKeyListener(keyListener)
+    }
+
+    private fun unsubscribe(component: Component) {
+        component.removeInputMethodListener(inputMethodListener)
+        component.removeFocusListener(focusListener)
+        component.removeMouseListener(mouseListener)
+        component.removeMouseMotionListener(mouseMotionListener)
+        component.removeMouseWheelListener(mouseWheelListener)
+        component.removeKeyListener(keyListener)
     }
 
     // Decides which AWT events should be delivered, and which should be filtered out
@@ -319,8 +336,10 @@ internal class ComposeSceneMediator(
     }
 
     fun dispose() {
-        check(!isDisposed)
+        check(!isDisposed) { "ComposeSceneMediator is already disposed" }
         isDisposed = true
+
+        unsubscribe(contentComponent)
 
         container.removeContainerListener(containerListener)
         container.remove(contentComponent)
@@ -340,7 +359,7 @@ internal class ComposeSceneMediator(
 
     @OptIn(ExperimentalSkikoApi::class)
     private fun JLayeredPane.addToLayer(component: Component, layer: Int) {
-        if (skiaLayerComponent.renderApi == GraphicsApi.METAL && contentComponent !is SkiaSwingLayer) {
+        if (renderApi == GraphicsApi.METAL && contentComponent !is SkiaSwingLayer) {
             // Applying layer on macOS makes our bridge non-transparent
             // But it draws always on top, so we can just add it as-is
             // TODO: Figure out why it makes difference in transparency
