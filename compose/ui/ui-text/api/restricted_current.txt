@@ -68,7 +68,7 @@ package androidx.compose.ui.text {
     method public int component2();
     method public int component3();
     method public String component4();
-    method public androidx.compose.ui.text.AnnotatedString.Range<T> copy(T! item, int start, int end, String tag);
+    method public androidx.compose.ui.text.AnnotatedString.Range<T> copy(T item, int start, int end, String tag);
     method public int getEnd();
     method public T getItem();
     method public int getStart();
@@ -144,7 +144,7 @@ package androidx.compose.ui.text {
     method public int getOffsetForPosition(long position);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
-    method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
+    method public java.util.List<androidx.compose.ui.geometry.Rect?> getPlaceholderRects();
     method public float getWidth();
     method public long getWordBoundary(int offset);
     method public boolean isLineEllipsized(int lineIndex);
@@ -160,7 +160,7 @@ package androidx.compose.ui.text {
     property public final float maxIntrinsicWidth;
     property public final int maxLines;
     property public final float minIntrinsicWidth;
-    property public final java.util.List<androidx.compose.ui.geometry.Rect> placeholderRects;
+    property public final java.util.List<androidx.compose.ui.geometry.Rect?> placeholderRects;
     property public final float width;
   }
 
@@ -204,7 +204,7 @@ package androidx.compose.ui.text {
     method public int getOffsetForPosition(long position);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
-    method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
+    method public java.util.List<androidx.compose.ui.geometry.Rect?> getPlaceholderRects();
     method public float getWidth();
     method public long getWordBoundary(int offset);
     method public boolean isLineEllipsized(int lineIndex);
@@ -218,7 +218,7 @@ package androidx.compose.ui.text {
     property public abstract int lineCount;
     property public abstract float maxIntrinsicWidth;
     property public abstract float minIntrinsicWidth;
-    property public abstract java.util.List<androidx.compose.ui.geometry.Rect> placeholderRects;
+    property public abstract java.util.List<androidx.compose.ui.geometry.Rect?> placeholderRects;
     property public abstract float width;
   }
 
@@ -477,7 +477,7 @@ package androidx.compose.ui.text {
     method public int getOffsetForPosition(long position);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
-    method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
+    method public java.util.List<androidx.compose.ui.geometry.Rect?> getPlaceholderRects();
     method public long getSize();
     method public long getWordBoundary(int offset);
     method public boolean isLineEllipsized(int lineIndex);
@@ -489,7 +489,7 @@ package androidx.compose.ui.text {
     property public final androidx.compose.ui.text.TextLayoutInput layoutInput;
     property public final int lineCount;
     property public final androidx.compose.ui.text.MultiParagraph multiParagraph;
-    property public final java.util.List<androidx.compose.ui.geometry.Rect> placeholderRects;
+    property public final java.util.List<androidx.compose.ui.geometry.Rect?> placeholderRects;
     property public final long size;
   }
 
@@ -1279,7 +1279,7 @@ package androidx.compose.ui.text.intl {
     ctor public LocaleList(String languageTags);
     ctor public LocaleList(java.util.List<androidx.compose.ui.text.intl.Locale> localeList);
     method public operator boolean contains(androidx.compose.ui.text.intl.Locale element);
-    method public boolean containsAll(java.util.Collection<E!> elements);
+    method public boolean containsAll(java.util.Collection<E> elements);
     method public operator androidx.compose.ui.text.intl.Locale get(int i);
     method public java.util.List<androidx.compose.ui.text.intl.Locale> getLocaleList();
     method public int getSize();

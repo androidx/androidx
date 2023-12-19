@@ -169,7 +169,7 @@ package androidx.car.app {
     ctor public SessionInfo(int, String);
     method public int getDisplayType();
     method public String getSessionId();
-    method public java.util.Set<java.lang.Class<? extends androidx.car.app.model.Template>!>? getSupportedTemplates(int);
+    method public java.util.Set<java.lang.Class<? extends androidx.car.app.model.Template!>!>? getSupportedTemplates(int);
     field public static final androidx.car.app.SessionInfo DEFAULT_SESSION_INFO;
     field public static final int DISPLAY_TYPE_CLUSTER = 1; // 0x1
     field public static final int DISPLAY_TYPE_MAIN = 0; // 0x0
@@ -1722,8 +1722,8 @@ package androidx.car.app.model {
   }
 
   @SuppressCompatibility @androidx.car.app.annotations.CarProtocol public final class TemplateInfo {
-    ctor public TemplateInfo(Class<? extends androidx.car.app.model.Template>, String);
-    method public Class<? extends androidx.car.app.model.Template> getTemplateClass();
+    ctor public TemplateInfo(Class<? extends androidx.car.app.model.Template!>, String);
+    method public Class<? extends androidx.car.app.model.Template!> getTemplateClass();
     method public String getTemplateId();
   }
 

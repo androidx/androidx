@@ -1043,7 +1043,7 @@ package androidx.wear.tiles {
   }
 
   public interface TileUpdateRequester {
-    method public void requestUpdate(Class<? extends androidx.wear.tiles.TileService>);
+    method public void requestUpdate(Class<? extends androidx.wear.tiles.TileService!>);
   }
 
   @SuppressCompatibility @RequiresOptIn(level=androidx.annotation.RequiresOptIn.Level.ERROR) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface TilesExperimental {

@@ -22,7 +22,7 @@ package @RequiresApi(21) androidx.camera.viewfinder.surface {
     method public android.util.Size getResolution();
     method public int getSensorOrientation();
     method public void markSurfaceSafeToRelease();
-    method public void provideSurface(android.view.Surface surface, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Result> resultListener);
+    method public void provideSurface(android.view.Surface surface, java.util.concurrent.Executor executor, androidx.core.util.Consumer<androidx.camera.viewfinder.surface.ViewfinderSurfaceRequest.Result?> resultListener);
     method public boolean willNotProvideSurface();
     property public final androidx.camera.viewfinder.surface.ImplementationMode? implementationMode;
     property public final int lensFacing;

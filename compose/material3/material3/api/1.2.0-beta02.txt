@@ -300,7 +300,7 @@ package androidx.compose.material3 {
   }
 
   @SuppressCompatibility @androidx.compose.material3.ExperimentalMaterial3Api public interface CaretScope {
-    method public androidx.compose.ui.Modifier drawCaret(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.draw.CacheDrawScope,? super androidx.compose.ui.layout.LayoutCoordinates,androidx.compose.ui.draw.DrawResult> draw);
+    method public androidx.compose.ui.Modifier drawCaret(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function2<? super androidx.compose.ui.draw.CacheDrawScope,? super androidx.compose.ui.layout.LayoutCoordinates?,androidx.compose.ui.draw.DrawResult> draw);
   }
 
   @androidx.compose.runtime.Immutable public final class CheckboxColors {
