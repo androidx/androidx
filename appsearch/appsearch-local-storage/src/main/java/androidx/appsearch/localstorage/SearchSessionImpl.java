@@ -246,9 +246,8 @@ class SearchSessionImpl implements AppSearchSession {
                     }
                 }
                 long secondSetSchemaLatencyEndTimeMillis = SystemClock.elapsedRealtime();
-                SetSchemaResponse.Builder responseBuilder = internalSetSchemaResponse
-                        .getSetSchemaResponse()
-                        .toBuilder()
+                SetSchemaResponse.Builder responseBuilder = new SetSchemaResponse.Builder(
+                        internalSetSchemaResponse.getSetSchemaResponse())
                         .addMigratedTypes(activeMigrators.keySet());
                 mIsMutated = true;
 

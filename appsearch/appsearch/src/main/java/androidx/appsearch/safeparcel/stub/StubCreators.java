@@ -16,8 +16,11 @@
 package androidx.appsearch.safeparcel.stub;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.SearchSuggestionResult;
 import androidx.appsearch.app.SearchSuggestionSpec;
+import androidx.appsearch.app.SetSchemaResponse;
+import androidx.appsearch.app.SetSchemaResponse.MigrationFailure;
 import androidx.appsearch.app.StorageInfo;
 import androidx.appsearch.app.VisibilityDocument;
 import androidx.appsearch.observer.ObserverSpec;
@@ -102,5 +105,20 @@ public class StubCreators {
 
     /** Stub creator for {@link androidx.appsearch.observer.ObserverSpec}. */
     public static class ObserverSpecCreator extends AbstractCreator<ObserverSpec> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.SetSchemaResponse}. */
+    public static class SetSchemaResponseCreator extends
+            AbstractCreator<SetSchemaResponse> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.SetSchemaResponse.MigrationFailure}. */
+    public static class MigrationFailureCreator extends
+            AbstractCreator<MigrationFailure> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.InternalSetSchemaResponse}. */
+    public static class InternalSetSchemaResponseCreator extends
+            AbstractCreator<InternalSetSchemaResponse> {
     }
 }

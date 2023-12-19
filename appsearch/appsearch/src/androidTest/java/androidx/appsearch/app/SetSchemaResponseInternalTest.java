@@ -55,7 +55,7 @@ public class SetSchemaResponseInternalTest {
         assertThat(original.getMigratedTypes()).containsExactly("migrated1");
         assertThat(original.getMigrationFailures()).containsExactly(failure1);
 
-        SetSchemaResponse rebuild = original.toBuilder()
+        SetSchemaResponse rebuild = new SetSchemaResponse.Builder(original)
                         .addDeletedType("delete2")
                         .addIncompatibleType("incompatible2")
                         .addMigratedType("migrated2")

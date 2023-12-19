@@ -700,7 +700,7 @@ package androidx.appsearch.app {
     method public androidx.appsearch.app.SetSchemaRequest.Builder setVersion(@IntRange(from=1) int);
   }
 
-  public class SetSchemaResponse {
+  public final class SetSchemaResponse {
     method public java.util.Set<java.lang.String!> getDeletedTypes();
     method public java.util.Set<java.lang.String!> getIncompatibleTypes();
     method public java.util.Set<java.lang.String!> getMigratedTypes();
