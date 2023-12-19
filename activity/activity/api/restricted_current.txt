@@ -1,6 +1,11 @@
 // Signature format: 4.0
 package androidx.activity {
 
+  public final class ActivityViewModelLazyKt {
+    method @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> viewModels(androidx.activity.ComponentActivity, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.viewmodel.CreationExtras>? extrasProducer, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+    method @Deprecated @MainThread public static inline <reified VM extends androidx.lifecycle.ViewModel> kotlin.Lazy<VM> viewModels(androidx.activity.ComponentActivity, optional kotlin.jvm.functions.Function0<? extends androidx.lifecycle.ViewModelProvider.Factory>? factoryProducer);
+  }
+
   public final class BackEventCompat {
     ctor @RequiresApi(34) public BackEventCompat(android.window.BackEvent backEvent);
     ctor @VisibleForTesting public BackEventCompat(float touchX, float touchY, @FloatRange(from=0.0, to=1.0) float progress, int swipeEdge);
@@ -144,6 +149,10 @@ package androidx.activity {
   public interface OnBackPressedDispatcherOwner extends androidx.lifecycle.LifecycleOwner {
     method public androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     property public abstract androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
+  }
+
+  public final class PipHintTrackerKt {
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static suspend Object? trackPipAnimationHintView(android.app.Activity, android.view.View view, kotlin.coroutines.Continuation<? super kotlin.Unit>);
   }
 
   public final class SystemBarStyle {
