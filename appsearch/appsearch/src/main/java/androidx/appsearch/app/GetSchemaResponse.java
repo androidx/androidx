@@ -27,6 +27,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appsearch.annotation.CanIgnoreReturnValue;
 import androidx.appsearch.annotation.FlaggedApi;
 import androidx.appsearch.flags.Flags;
+import androidx.appsearch.safeparcel.PackageIdentifierParcel;
 import androidx.collection.ArrayMap;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
@@ -172,12 +173,11 @@ public final class GetSchemaResponse {
                         mBundle.getBundle(SCHEMAS_VISIBLE_TO_PACKAGES_FIELD));
             Map<String, Set<PackageIdentifier>> copy = new ArrayMap<>();
             for (String key : schemaVisibleToPackagesBundle.keySet()) {
-                List<Bundle> PackageIdentifierBundles = Preconditions.checkNotNull(
-                            schemaVisibleToPackagesBundle.getParcelableArrayList(key));
-                Set<PackageIdentifier> packageIdentifiers =
-                        new ArraySet<>(PackageIdentifierBundles.size());
-                for (int i = 0; i < PackageIdentifierBundles.size(); i++) {
-                    packageIdentifiers.add(new PackageIdentifier(PackageIdentifierBundles.get(i)));
+                List<PackageIdentifierParcel> packageIdentifierParcels = Preconditions.checkNotNull(
+                        schemaVisibleToPackagesBundle.getParcelableArrayList(key));
+                Set<PackageIdentifier> packageIdentifiers = new ArraySet<>();
+                for (int i = 0; i < packageIdentifierParcels.size(); i++) {
+                    packageIdentifiers.add(new PackageIdentifier(packageIdentifierParcels.get(i)));
                 }
                 copy.put(key, packageIdentifiers);
             }
@@ -262,8 +262,9 @@ public final class GetSchemaResponse {
             Bundle publiclyVisibleSchemaBundle = mBundle.getBundle(PUBLICLY_VISIBLE_SCHEMAS_FIELD);
             if (publiclyVisibleSchemaBundle != null) {
                 for (String key : publiclyVisibleSchemaBundle.keySet()) {
-                    copy.put(key, new PackageIdentifier(
-                            publiclyVisibleSchemaBundle.getBundle(key)));
+                    @SuppressWarnings("deprecation")
+                    PackageIdentifierParcel parcel = publiclyVisibleSchemaBundle.getParcelable(key);
+                    copy.put(key, new PackageIdentifier(Preconditions.checkNotNull(parcel)));
                 }
             }
 
@@ -371,11 +372,12 @@ public final class GetSchemaResponse {
             Preconditions.checkNotNull(schemaType);
             Preconditions.checkNotNull(packageIdentifiers);
             resetIfBuilt();
-            ArrayList<Bundle> bundles = new ArrayList<>(packageIdentifiers.size());
+            ArrayList<PackageIdentifierParcel> packageIdentifierParcels = new ArrayList<>(
+                    packageIdentifiers.size());
             for (PackageIdentifier packageIdentifier : packageIdentifiers) {
-                bundles.add(packageIdentifier.getBundle());
+                packageIdentifierParcels.add(packageIdentifier.getPackageIdentifierParcel());
             }
-            mSchemasVisibleToPackages.putParcelableArrayList(schemaType, bundles);
+            mSchemasVisibleToPackages.putParcelableArrayList(schemaType, packageIdentifierParcels);
             return this;
         }
 
@@ -454,7 +456,8 @@ public final class GetSchemaResponse {
             Preconditions.checkNotNull(packageIdentifier);
             resetIfBuilt();
 
-            mPubliclyVisibleSchemas.putParcelable(schema, packageIdentifier.getBundle());
+            mPubliclyVisibleSchemas.putParcelable(schema,
+                    packageIdentifier.getPackageIdentifierParcel());
             return this;
         }
 
