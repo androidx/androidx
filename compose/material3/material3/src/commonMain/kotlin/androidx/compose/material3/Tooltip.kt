@@ -50,6 +50,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -331,18 +332,36 @@ object TooltipDefaults {
      * using [RichTooltipTokens] to obtain the default colors.
      */
     @Composable
+    fun richTooltipColors() = MaterialTheme.colorScheme.defaultRichTooltipColors
+
+    /**
+     * Method to create a [RichTooltipColors] for [RichTooltip]
+     * using [RichTooltipTokens] to obtain the default colors.
+     */
+    @Composable
     fun richTooltipColors(
-        containerColor: Color = RichTooltipTokens.ContainerColor.value,
-        contentColor: Color = RichTooltipTokens.SupportingTextColor.value,
-        titleContentColor: Color = RichTooltipTokens.SubheadColor.value,
-        actionContentColor: Color = RichTooltipTokens.ActionLabelTextColor.value,
-    ): RichTooltipColors =
-        RichTooltipColors(
-            containerColor = containerColor,
-            contentColor = contentColor,
-            titleContentColor = titleContentColor,
-            actionContentColor = actionContentColor
-        )
+        containerColor: Color = Color.Unspecified,
+        contentColor: Color = Color.Unspecified,
+        titleContentColor: Color = Color.Unspecified,
+        actionContentColor: Color = Color.Unspecified,
+    ): RichTooltipColors = MaterialTheme.colorScheme.defaultRichTooltipColors.copy(
+        containerColor = containerColor,
+        contentColor = contentColor,
+        titleContentColor = titleContentColor,
+        actionContentColor = actionContentColor
+    )
+
+    internal val ColorScheme.defaultRichTooltipColors: RichTooltipColors
+        get() {
+            return defaultRichTooltipColorsCached ?: RichTooltipColors(
+                containerColor = fromToken(RichTooltipTokens.ContainerColor),
+                contentColor = fromToken(RichTooltipTokens.SupportingTextColor),
+                titleContentColor = fromToken(RichTooltipTokens.SubheadColor),
+                actionContentColor = fromToken(RichTooltipTokens.ActionLabelTextColor),
+            ).also {
+                defaultRichTooltipColorsCached = it
+            }
+        }
 
     /**
      * [PopupPositionProvider] that should be used with [PlainTooltip].
@@ -433,6 +452,22 @@ class RichTooltipColors(
     val titleContentColor: Color,
     val actionContentColor: Color
 ) {
+    /**
+     * Returns a copy of this RichTooltipColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        containerColor: Color = this.containerColor,
+        contentColor: Color = this.contentColor,
+        titleContentColor: Color = this.titleContentColor,
+        actionContentColor: Color = this.actionContentColor,
+    ) = RichTooltipColors(
+        containerColor.takeOrElse { this.containerColor },
+        contentColor.takeOrElse { this.contentColor },
+        titleContentColor.takeOrElse { this.titleContentColor },
+        actionContentColor.takeOrElse { this.actionContentColor },
+    )
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is RichTooltipColors) return false

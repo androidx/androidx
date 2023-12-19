@@ -110,6 +110,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.utf16CodePoint
@@ -258,6 +259,12 @@ object TimePickerDefaults {
 
     /**
      * Default colors used by a [TimePicker] in different states
+     */
+    @Composable
+    fun colors() = MaterialTheme.colorScheme.defaultTimePickerColors
+
+    /**
+     * Default colors used by a [TimePicker] in different states
      *
      * @param clockDialColor The color of the clock dial.
      * @param clockDialSelectedContentColor the color of the numbers of the clock dial when they
@@ -286,28 +293,21 @@ object TimePickerDefaults {
      */
     @Composable
     fun colors(
-        clockDialColor: Color = ClockDialColor.value,
-        clockDialSelectedContentColor: Color = ClockDialSelectedLabelTextColor.value,
-        clockDialUnselectedContentColor: Color = ClockDialUnselectedLabelTextColor.value,
-        selectorColor: Color = ClockDialSelectorHandleContainerColor.value,
-        containerColor: Color = ContainerColor.value,
-        periodSelectorBorderColor: Color = PeriodSelectorOutlineColor.value,
-        periodSelectorSelectedContainerColor: Color =
-            PeriodSelectorSelectedContainerColor.value,
-        periodSelectorUnselectedContainerColor: Color = Color.Transparent,
-        periodSelectorSelectedContentColor: Color =
-            PeriodSelectorSelectedLabelTextColor.value,
-        periodSelectorUnselectedContentColor: Color =
-            PeriodSelectorUnselectedLabelTextColor.value,
-        timeSelectorSelectedContainerColor: Color =
-            TimeSelectorSelectedContainerColor.value,
-        timeSelectorUnselectedContainerColor: Color =
-            TimeSelectorUnselectedContainerColor.value,
-        timeSelectorSelectedContentColor: Color =
-            TimeSelectorSelectedLabelTextColor.value,
-        timeSelectorUnselectedContentColor: Color =
-            TimeSelectorUnselectedLabelTextColor.value,
-    ) = TimePickerColors(
+        clockDialColor: Color = Color.Unspecified,
+        clockDialSelectedContentColor: Color = Color.Unspecified,
+        clockDialUnselectedContentColor: Color = Color.Unspecified,
+        selectorColor: Color = Color.Unspecified,
+        containerColor: Color = Color.Unspecified,
+        periodSelectorBorderColor: Color = Color.Unspecified,
+        periodSelectorSelectedContainerColor: Color = Color.Unspecified,
+        periodSelectorUnselectedContainerColor: Color = Color.Unspecified,
+        periodSelectorSelectedContentColor: Color = Color.Unspecified,
+        periodSelectorUnselectedContentColor: Color = Color.Unspecified,
+        timeSelectorSelectedContainerColor: Color = Color.Unspecified,
+        timeSelectorUnselectedContainerColor: Color = Color.Unspecified,
+        timeSelectorSelectedContentColor: Color = Color.Unspecified,
+        timeSelectorUnselectedContentColor: Color = Color.Unspecified,
+    ) = MaterialTheme.colorScheme.defaultTimePickerColors.copy(
         clockDialColor = clockDialColor,
         clockDialSelectedContentColor = clockDialSelectedContentColor,
         clockDialUnselectedContentColor = clockDialUnselectedContentColor,
@@ -323,6 +323,35 @@ object TimePickerDefaults {
         timeSelectorSelectedContentColor = timeSelectorSelectedContentColor,
         timeSelectorUnselectedContentColor = timeSelectorUnselectedContentColor
     )
+
+    internal val ColorScheme.defaultTimePickerColors: TimePickerColors
+        get() {
+            return defaultTimePickerColorsCached ?: TimePickerColors(
+                clockDialColor = fromToken(ClockDialColor),
+                clockDialSelectedContentColor = fromToken(ClockDialSelectedLabelTextColor),
+                clockDialUnselectedContentColor = fromToken(ClockDialUnselectedLabelTextColor),
+                selectorColor = fromToken(ClockDialSelectorHandleContainerColor),
+                containerColor = fromToken(ContainerColor),
+                periodSelectorBorderColor = fromToken(PeriodSelectorOutlineColor),
+                periodSelectorSelectedContainerColor = fromToken(
+                    PeriodSelectorSelectedContainerColor
+                ),
+                periodSelectorUnselectedContainerColor = Color.Transparent,
+                periodSelectorSelectedContentColor =
+                fromToken(PeriodSelectorSelectedLabelTextColor),
+                periodSelectorUnselectedContentColor =
+                fromToken(PeriodSelectorUnselectedLabelTextColor),
+                timeSelectorSelectedContainerColor = fromToken(TimeSelectorSelectedContainerColor),
+                timeSelectorUnselectedContainerColor = fromToken(
+                    TimeSelectorUnselectedContainerColor
+                ),
+                timeSelectorSelectedContentColor = fromToken(TimeSelectorSelectedLabelTextColor),
+                timeSelectorUnselectedContentColor =
+                fromToken(TimeSelectorUnselectedLabelTextColor),
+            ).also {
+                defaultTimePickerColorsCached = it
+            }
+        }
 
     /** Default layout type, uses the screen dimensions to choose an appropriate layout. */
     @ReadOnlyComposable
@@ -380,6 +409,46 @@ class TimePickerColors constructor(
     val timeSelectorSelectedContentColor: Color,
     val timeSelectorUnselectedContentColor: Color,
 ) {
+    /**
+     * Returns a copy of this TimePickerColors, optionally overriding some of the values.
+     * This uses the Color.Unspecified to mean “use the value from the source”
+     */
+    fun copy(
+        clockDialColor: Color = this.containerColor,
+        selectorColor: Color = this.selectorColor,
+        containerColor: Color = this.containerColor,
+        periodSelectorBorderColor: Color = this.periodSelectorBorderColor,
+        clockDialSelectedContentColor: Color = this.clockDialSelectedContentColor,
+        clockDialUnselectedContentColor: Color = this.clockDialUnselectedContentColor,
+        periodSelectorSelectedContainerColor: Color = this.periodSelectorSelectedContainerColor,
+        periodSelectorUnselectedContainerColor: Color = this.periodSelectorUnselectedContainerColor,
+        periodSelectorSelectedContentColor: Color = this.periodSelectorSelectedContentColor,
+        periodSelectorUnselectedContentColor: Color = this.periodSelectorUnselectedContentColor,
+        timeSelectorSelectedContainerColor: Color = this.timeSelectorSelectedContainerColor,
+        timeSelectorUnselectedContainerColor: Color = this.timeSelectorUnselectedContainerColor,
+        timeSelectorSelectedContentColor: Color = this.timeSelectorSelectedContentColor,
+        timeSelectorUnselectedContentColor: Color = this.timeSelectorUnselectedContentColor,
+    ) = TimePickerColors(
+        clockDialColor.takeOrElse { this.clockDialColor },
+        selectorColor.takeOrElse { this.selectorColor },
+        containerColor.takeOrElse { this.containerColor },
+        periodSelectorBorderColor.takeOrElse { this.periodSelectorBorderColor },
+        clockDialSelectedContentColor.takeOrElse { this.clockDialSelectedContentColor },
+        clockDialUnselectedContentColor.takeOrElse { this.clockDialUnselectedContentColor },
+        periodSelectorSelectedContainerColor
+            .takeOrElse { this.periodSelectorSelectedContainerColor },
+        periodSelectorUnselectedContainerColor
+            .takeOrElse { this.periodSelectorUnselectedContainerColor },
+        periodSelectorSelectedContentColor.takeOrElse { this.periodSelectorSelectedContentColor },
+        periodSelectorUnselectedContentColor
+            .takeOrElse { this.periodSelectorUnselectedContentColor },
+        timeSelectorSelectedContainerColor.takeOrElse { this.timeSelectorSelectedContainerColor },
+        timeSelectorUnselectedContainerColor
+            .takeOrElse { this.timeSelectorUnselectedContainerColor },
+        timeSelectorSelectedContentColor.takeOrElse { this.timeSelectorSelectedContentColor },
+        timeSelectorUnselectedContentColor.takeOrElse { this.timeSelectorUnselectedContentColor },
+    )
+
     @Stable
     internal fun periodSelectorContainerColor(selected: Boolean) =
         if (selected) {
