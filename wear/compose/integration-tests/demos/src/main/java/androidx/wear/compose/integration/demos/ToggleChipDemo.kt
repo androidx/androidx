@@ -310,6 +310,42 @@ fun ToggleChips(
             }
         }
         item {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                ToggleChip(
+                    label = {
+                        Text(
+                            "Long primary label split across multiple lines of text",
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    secondaryLabel = {
+                        Text(
+                            "Long secondary label split across multiple lines of text",
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    checked = switchIconWithIconChecked,
+                    // For Switch  toggle controls the Wear Material UX guidance is to set the
+                    // unselected toggle control color to
+                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
+                    colors = ToggleChipDefaults.toggleChipColors(
+                        uncheckedToggleControlColor = ToggleChipDefaults
+                            .SwitchUncheckedIconColor
+                    ),
+                    toggleControl = {
+                        Switch(
+                            checked = switchIconWithIconChecked,
+                            enabled = enabled,
+                        )
+                    },
+                    onCheckedChange = { switchIconWithIconChecked = it },
+                    enabled = enabled,
+                )
+            }
+        }
+        item {
             ListHeader {
                 Text(
                     text = "Split Toggle Chips",
@@ -428,6 +464,49 @@ fun ToggleChips(
                                 this.contentDescription =
                                     if (splitWithCustomColorChecked) "On" else "Off"
                             }
+                        )
+                    },
+                    onCheckedChange = { splitWithCustomColorChecked = it },
+                    onClick = {
+                        Toast.makeText(
+                            applicationContext,
+                            "Text was clicked", Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    // For Switch  toggle controls the Wear Material UX guidance is to set the
+                    // unselected toggle control color to
+                    // ToggleChipDefaults.switchUncheckedIconColor() rather than the default.
+                    colors = ToggleChipDefaults.splitToggleChipColors(
+                        checkedToggleControlColor = AlternatePrimaryColor1,
+                        uncheckedToggleControlColor = ToggleChipDefaults
+                            .SwitchUncheckedIconColor
+                    ),
+                    enabled = enabled,
+                )
+            }
+        }
+        item {
+            CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                SplitToggleChip(
+                    label = {
+                        Text(
+                            "Long primary label split across maximum three lines of text",
+                            maxLines = 3,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    secondaryLabel = {
+                        Text(
+                            "Long secondary label split across maximum two lines of text",
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    },
+                    checked = splitWithCustomColorChecked,
+                    toggleControl = {
+                        Switch(
+                            checked = splitWithCustomColorChecked,
+                            enabled = enabled,
                         )
                     },
                     onCheckedChange = { splitWithCustomColorChecked = it },
