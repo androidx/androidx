@@ -21,7 +21,7 @@ import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.platform.Font
 import androidx.compose.ui.text.platform.JetBrainsRuntimeFontFamilies
 import androidx.compose.ui.text.platform.SystemFont
-import androidx.compose.ui.text.platform.asFontFamily
+import androidx.compose.ui.text.platform.asComposeFontFamily
 import java.awt.Font
 
 /**
@@ -30,14 +30,14 @@ import java.awt.Font
  * a fallback font family.
  *
  * If you're trying to use an AWT [Font] in Compose, use the
- * [Font.asFontFamily] function instead, which will take care of
+ * [Font.asComposeFontFamily] function instead, which will take care of
  * some AWT-specific quirks, too. If you want to load a font family
  * embedded in the JetBrains Runtime, you can use [EmbeddedFontFamily].
  *
  * @param familyName The name of the system font family to load.
  * @return the requested system font family, or a fallback if [familyName]
  *     doesn't match any available system font family.
- * @see Font.asFontFamily
+ * @see Font.asComposeFontFamily
  * @see EmbeddedFontFamily
  */
 @ExperimentalTextApi

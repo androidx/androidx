@@ -19,12 +19,13 @@ package androidx.compose.ui.text.platform
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.ui.renderComposeScene
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import java.awt.GraphicsEnvironment
-import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
+import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -32,13 +33,13 @@ class AwtFontInteropTest {
 
     @Before
     fun setUp() {
-        assertTrue(
-            InternalFontApiChecker.isRunningOnJetBrainsRuntime(),
+        assumeTrue(
             "Not running on the JetBrains Runtime",
+            InternalFontApiChecker.isRunningOnJetBrainsRuntime(),
         )
-        assertTrue(
-            InternalFontApiChecker.isSunFontApiAccessible(),
+        assumeTrue(
             "Missing --add-opens java.desktop/sun.font=ALL-UNNAMED",
+            InternalFontApiChecker.isSunFontApiAccessible(),
         )
     }
 
@@ -46,7 +47,7 @@ class AwtFontInteropTest {
     fun `should not crash when converting AWT fonts to Compose font families`() {
         val fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().allFonts
         for (font in fonts) {
-            font.asFontFamily()
+            font.asComposeFontFamily()
         }
     }
 
@@ -56,13 +57,13 @@ class AwtFontInteropTest {
         val familyNames = fonts.mapNotNull { it.composeFontFamilyNameOrNull() }
             .toSet()
 
-        var lastFamilyBytes: ByteArray? = null
-        var lastFamilyName: String? = null
+        val hashCodes = mutableSetOf<Int>()
         for (familyName in familyNames) {
             val bitmap = renderComposeScene(400, 50) {
                 BasicText(
                     "the brown fox jumps over the lazy dog",
                     style = TextStyle.Default.copy(
+                        fontFamily = FontFamily(familyName),
                         fontWeight = FontWeight.Normal,
                         fontStyle = FontStyle.Normal,
                         fontSize = 12.sp
@@ -70,17 +71,13 @@ class AwtFontInteropTest {
                 )
             }
 
-            val currentBytes = bitmap.peekPixels()!!.buffer.bytes
-            if (lastFamilyBytes != null) {
-                assertNotEquals(
-                    lastFamilyBytes,
-                    currentBytes,
-                    "$familyName seems identical to $lastFamilyName when rendered"
-                )
-            }
-
-            lastFamilyBytes = currentBytes
-            lastFamilyName = familyName
+            hashCodes += bitmap.encodeToData()!!.bytes.toList().hashCode()
         }
+
+        // Check the validity using heuristics.
+        // Some fonts still can be rendered the same way not because of an error in the code,
+        // but because it should be really rendered the same
+        assertTrue(familyNames.size < 10 || hashCodes.size > familyNames.size / 2,
+            "More than half of the fonts are displayed the same way")
     }
 }

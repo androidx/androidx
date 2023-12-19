@@ -71,7 +71,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontSynthesis
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.platform.asFontFamily
+import androidx.compose.ui.text.platform.asComposeFontFamily
 import androidx.compose.ui.text.platform.composeFontFamilyNameOrNull
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -233,7 +233,7 @@ private fun AwtFontsSelector(
 
                     FontFamilyInfo(
                         familyName = font.composeFontFamilyNameOrNull() ?: font.family,
-                        fontFamily = font.asFontFamily(),
+                        fontFamily = font.asComposeFontFamily(),
                         source = FontFamilyInfo.Source.AwtInterop,
                     )
                 }

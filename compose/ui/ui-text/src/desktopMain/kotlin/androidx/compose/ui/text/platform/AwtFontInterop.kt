@@ -59,7 +59,7 @@ import org.jetbrains.skiko.hostOs
  * @see fontFamilyNameOrNull
  */
 @ExperimentalTextApi
-fun Font.asFontFamily(): FontFamily {
+fun Font.asComposeFontFamily(): FontFamily {
     val familyName = composeFontFamilyNameOrNull() ?: family
     if (hostOs == OS.MacOS && familyName.startsWith(".AppleSystemUI", ignoreCase = true)) {
         // On macOS, ".AppleSystemUI*" fonts are not directly accessible. Skia struggles

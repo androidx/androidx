@@ -1313,7 +1313,7 @@ public final class androidx/compose/ui/text/intl/LocaleList$Companion {
 }
 
 public final class androidx/compose/ui/text/platform/AwtFontInteropKt {
-	public static final fun asFontFamily (Ljava/awt/Font;)Landroidx/compose/ui/text/font/FontFamily;
+	public static final fun asComposeFontFamily (Ljava/awt/Font;)Landroidx/compose/ui/text/font/FontFamily;
 	public static final fun composeFontFamilyNameOrNull (Ljava/awt/Font;)Ljava/lang/String;
 }
 
