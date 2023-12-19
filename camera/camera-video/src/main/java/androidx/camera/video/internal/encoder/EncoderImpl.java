@@ -16,6 +16,7 @@
 
 package androidx.camera.video.internal.encoder;
 
+import static androidx.camera.video.internal.utils.CodecUtil.createCodec;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.CONFIGURED;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.ERROR;
 import static androidx.camera.video.internal.encoder.EncoderImpl.InternalState.PAUSED;
@@ -58,7 +59,6 @@ import androidx.camera.video.internal.compat.quirk.DeviceQuirks;
 import androidx.camera.video.internal.compat.quirk.EncoderNotUsePersistentInputSurfaceQuirk;
 import androidx.camera.video.internal.compat.quirk.StopCodecAfterSurfaceRemovalCrashMediaServerQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoEncoderSuspendDoesNotIncludeSuspendTimeQuirk;
-import androidx.camera.video.internal.workaround.EncoderFinder;
 import androidx.camera.video.internal.workaround.VideoTimebaseConverter;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
@@ -210,8 +210,6 @@ public class EncoderImpl implements Encoder {
     private boolean mSourceStoppedSignalled = false;
     boolean mMediaCodecEosSignalled = false;
 
-    final EncoderFinder mEncoderFinder = new EncoderFinder();
-
     /**
      * Creates the encoder with a {@link EncoderConfig}
      *
@@ -224,32 +222,30 @@ public class EncoderImpl implements Encoder {
         Preconditions.checkNotNull(executor);
         Preconditions.checkNotNull(encoderConfig);
 
+        mMediaCodec = createCodec(encoderConfig);
+        MediaCodecInfo mediaCodecInfo = mMediaCodec.getCodecInfo();
         mEncoderExecutor = CameraXExecutors.newSequentialExecutor(executor);
-
+        mMediaFormat = encoderConfig.toMediaFormat();
+        mInputTimebase = encoderConfig.getInputTimebase();
         if (encoderConfig instanceof AudioEncoderConfig) {
             mTag = "AudioEncoder";
             mIsVideoEncoder = false;
             mEncoderInput = new ByteBufferInput();
+            mEncoderInfo = new AudioEncoderInfoImpl(mediaCodecInfo, encoderConfig.getMimeType());
         } else if (encoderConfig instanceof VideoEncoderConfig) {
             mTag = "VideoEncoder";
             mIsVideoEncoder = true;
             mEncoderInput = new SurfaceInput();
+            VideoEncoderInfo videoEncoderInfo = new VideoEncoderInfoImpl(mediaCodecInfo,
+                    encoderConfig.getMimeType());
+            clampVideoBitrateIfNotSupported(videoEncoderInfo, mMediaFormat);
+            mEncoderInfo = videoEncoderInfo;
         } else {
             throw new InvalidConfigException("Unknown encoder config type");
         }
 
-        mInputTimebase = encoderConfig.getInputTimebase();
         Logger.d(mTag, "mInputTimebase = " + mInputTimebase);
-        mMediaFormat = encoderConfig.toMediaFormat();
         Logger.d(mTag, "mMediaFormat = " + mMediaFormat);
-        mMediaCodec = mEncoderFinder.findEncoder(mMediaFormat);
-        Logger.i(mTag, "Selected encoder: " + mMediaCodec.getName());
-        mEncoderInfo = createEncoderInfo(mIsVideoEncoder, mMediaCodec.getCodecInfo(),
-                encoderConfig.getMimeType());
-        if (mIsVideoEncoder) {
-            VideoEncoderInfo videoEncoderInfo = (VideoEncoderInfo) mEncoderInfo;
-            clampVideoBitrateIfNotSupported(videoEncoderInfo, mMediaFormat);
-        }
 
         try {
             reset();
@@ -1007,13 +1003,6 @@ public class EncoderImpl implements Encoder {
                 inputBuffer.cancel();
             }
         }
-    }
-
-    @NonNull
-    private static EncoderInfo createEncoderInfo(boolean isVideoEncoder,
-            @NonNull MediaCodecInfo codecInfo, @NonNull String mime) throws InvalidConfigException {
-        return isVideoEncoder ? new VideoEncoderInfoImpl(codecInfo, mime)
-                : new AudioEncoderInfoImpl(codecInfo, mime);
     }
 
     @SuppressWarnings("WeakerAccess") // synthetic accessor
