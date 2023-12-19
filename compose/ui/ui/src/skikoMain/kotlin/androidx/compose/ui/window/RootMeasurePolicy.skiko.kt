@@ -34,19 +34,18 @@ import kotlin.math.min
 internal fun RootMeasurePolicy(
     platformInsets: PlatformInsets,
     usePlatformDefaultWidth: Boolean,
-    calculatePosition: MeasureScope.(windowSize: IntSize, contentSize: IntSize) -> IntOffset,
+    calculatePosition: MeasureScope.(contentSize: IntSize) -> IntOffset,
 ) = MeasurePolicy {measurables, constraints ->
     val platformConstraints = applyPlatformConstrains(
         constraints, platformInsets, usePlatformDefaultWidth
     )
     val placeables = measurables.fastMap { it.measure(platformConstraints) }
-    val windowSize = IntSize(constraints.maxWidth, constraints.maxHeight)
     val contentSize = IntSize(
         width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth,
         height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
     )
-    val position = calculatePosition(windowSize, contentSize)
-    layout(windowSize.width, windowSize.height) {
+    val position = calculatePosition(contentSize)
+    layout(constraints.maxWidth, constraints.maxHeight) {
         placeables.fastForEach {
             it.place(position.x, position.y)
         }

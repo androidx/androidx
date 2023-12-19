@@ -35,6 +35,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.InsetsConfig
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.PlatformInsetsConfig
 import androidx.compose.ui.platform.ZeroInsetsConfig
@@ -44,6 +45,7 @@ import androidx.compose.ui.semantics.popup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.round
 
@@ -436,11 +438,13 @@ private fun PopupLayout(
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)
     rememberLayerContent(layer) {
         val parentBoundsInWindow = layoutParentBoundsInWindow ?: return@rememberLayerContent
+        val containerSize = LocalWindowInfo.current.containerSize
         val layoutDirection = LocalLayoutDirection.current
         val measurePolicy = rememberPopupMeasurePolicy(
             layer = layer,
             popupPositionProvider = popupPositionProvider,
             properties = properties,
+            containerSize = containerSize,
             platformInsets = platformInsets,
             layoutDirection = layoutDirection,
             parentBoundsInWindow = parentBoundsInWindow
@@ -489,15 +493,16 @@ private fun rememberPopupMeasurePolicy(
     layer: ComposeSceneLayer,
     popupPositionProvider: PopupPositionProvider,
     properties: PopupProperties,
+    containerSize: IntSize,
     platformInsets: PlatformInsets,
     layoutDirection: LayoutDirection,
     parentBoundsInWindow: IntRect,
-) = remember(layer, popupPositionProvider, properties, platformInsets, layoutDirection, parentBoundsInWindow) {
+) = remember(layer, popupPositionProvider, properties, containerSize, platformInsets, layoutDirection, parentBoundsInWindow) {
     RootMeasurePolicy(
         platformInsets = platformInsets,
         usePlatformDefaultWidth = properties.usePlatformDefaultWidth
-    ) { windowSize, contentSize ->
-        val positionWithInsets = positionWithInsets(platformInsets, windowSize) { sizeWithoutInsets ->
+    ) { contentSize ->
+        val positionWithInsets = positionWithInsets(platformInsets, containerSize) { sizeWithoutInsets ->
             // Position provider works in coordinates without insets.
             val boundsWithoutInsets = parentBoundsInWindow.translate(
                 -platformInsets.left.roundToPx(),

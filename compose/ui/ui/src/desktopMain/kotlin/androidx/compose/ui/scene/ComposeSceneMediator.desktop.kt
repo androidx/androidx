@@ -44,6 +44,8 @@ import java.awt.event.KeyEvent
 import java.awt.im.InputMethodRequests
 import javax.accessibility.Accessible
 import javax.swing.JLayeredPane
+import javax.swing.RootPaneContainer
+import javax.swing.SwingUtilities
 import kotlin.coroutines.CoroutineContext
 import org.jetbrains.skia.Canvas
 import org.jetbrains.skiko.*
@@ -410,8 +412,18 @@ internal class ComposeSceneMediator(
     fun onChangeComponentSize() = catchExceptions {
         if (!container.isDisplayable) return
 
-        // TODO: Recalculate it to window related coordinates
-        val boundsInWindow = IntRect(IntOffset.Zero, container.sizeInPx)
+        val scale = container.density.density
+        val window = SwingUtilities.getWindowAncestor(container)
+        val windowContainer = (window as? RootPaneContainer)?.contentPane ?: window
+        val pointInWindow = SwingUtilities.convertPoint(container, Point(0, 0), windowContainer)
+        val offsetInWindow = IntOffset(
+            x = (pointInWindow.x * scale).toInt(),
+            y = (pointInWindow.y * scale).toInt()
+        )
+        val boundsInWindow = IntRect(
+            offset = offsetInWindow,
+            size = container.sizeInPx
+        )
         if (scene.boundsInWindow != boundsInWindow) {
             scene.boundsInWindow = boundsInWindow
         }

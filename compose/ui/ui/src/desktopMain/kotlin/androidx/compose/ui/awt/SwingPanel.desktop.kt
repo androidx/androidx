@@ -38,6 +38,7 @@ import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
@@ -98,7 +99,7 @@ public fun <T : Component> SwingPanel(
 
     Box(
         modifier = modifier.onGloballyPositioned { coordinates ->
-            val bounds = coordinates.boundsInWindow().round(density)
+            val bounds = coordinates.boundsInRoot().round(density)
             componentInfo.container.setBounds(bounds.left, bounds.top, bounds.width, bounds.height)
             componentInfo.container.validate()
             componentInfo.container.repaint()
