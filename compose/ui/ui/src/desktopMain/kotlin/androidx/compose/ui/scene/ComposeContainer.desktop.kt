@@ -79,11 +79,11 @@ internal class ComposeContainer(
     var rootForTestListener by mediator::rootForTestListener
     // TODO: Changing fullscreen probably will require recreate our layers
     //  It will require add this flag as remember parameters in rememberComposeSceneLayer
-    var fullscreen by mediator.skiaLayerComponent::fullscreen
+    var fullscreen by mediator::fullscreen
     var compositionLocalContext by mediator::compositionLocalContext
     var exceptionHandler: WindowExceptionHandler? = null
-    val windowHandle by mediator.skiaLayerComponent::windowHandle
-    val renderApi by mediator.skiaLayerComponent::renderApi
+    val windowHandle by mediator::windowHandle
+    val renderApi by mediator::renderApi
     val preferredSize by mediator::preferredSize
 
     init {
@@ -104,7 +104,7 @@ internal class ComposeContainer(
 
     fun onChangeWindowTransparency(value: Boolean) {
         windowContext.isWindowTransparent = value
-        mediator.skiaLayerComponent.transparency = value
+        mediator.transparency = value
     }
 
     fun onChangeLayoutDirection(component: Component) {
@@ -114,7 +114,7 @@ internal class ComposeContainer(
     }
 
     fun onRenderApiChanged(action: () -> Unit) {
-        mediator.skiaLayerComponent.onRenderApiChanged(action)
+        mediator.onRenderApiChanged(action)
     }
 
     fun addNotify() {

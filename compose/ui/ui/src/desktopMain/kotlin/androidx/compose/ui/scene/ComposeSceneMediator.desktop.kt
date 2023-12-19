@@ -67,11 +67,25 @@ internal class ComposeSceneMediator(
     composeSceneFactory: (ComposeSceneMediator) -> ComposeScene,
 ) {
     private var isDisposed = false
-
-    val skiaLayerComponent by lazy { skiaLayerComponentFactory(this) } // TODO: Make private
-    val contentComponent get() = skiaLayerComponent.contentComponent
-
     private val invisibleComponent = InvisibleComponent()
+
+    val skikoView: SkikoView = DesktopSkikoView()
+
+    private val platformComponent = DesktopPlatformComponent()
+    private val textInputService = DesktopTextInputService(platformComponent)
+    private val _platformContext = DesktopPlatformContext()
+    val platformContext: PlatformContext get() = _platformContext
+
+    private val skiaLayerComponent by lazy { skiaLayerComponentFactory(this) }
+    val contentComponent by skiaLayerComponent::contentComponent
+    var transparency: Boolean
+        get() = skiaLayerComponent.transparency
+        set(value) {
+            skiaLayerComponent.transparency = value || useInteropBlending
+        }
+    var fullscreen by skiaLayerComponent::fullscreen
+    val windowHandle by skiaLayerComponent::windowHandle
+    val renderApi by skiaLayerComponent::renderApi
 
     private val containerListener = object : ContainerListener {
         private val clipMap = mutableMapOf<Component, ClipComponent>()
@@ -97,72 +111,16 @@ internal class ComposeSceneMediator(
     var currentInputMethodRequests: InputMethodRequests? = null
         private set
 
-    private fun refocus() {
-        if (contentComponent.isFocusOwner) {
-            invisibleComponent.requestFocusTemporary()
-            contentComponent.requestFocus()
-        }
-    }
-
-    private val platformComponent: PlatformComponent = object : PlatformComponent {
-        override fun enableInput(inputMethodRequests: InputMethodRequests) {
-            currentInputMethodRequests = inputMethodRequests
-            contentComponent.enableInputMethods(true)
-            // Without resetting the focus, Swing won't update the status (doesn't show/hide popup)
-            // enableInputMethods is design to used per-Swing component level at init stage,
-            // not dynamically
-            refocus()
-        }
-
-        override fun disableInput() {
-            currentInputMethodRequests = null
-            contentComponent.enableInputMethods(false)
-            // Without resetting the focus, Swing won't update the status (doesn't show/hide popup)
-            // enableInputMethods is design to used per-Swing component level at init stage,
-            // not dynamically
-            refocus()
-        }
-
-        override val locationOnScreen: Point
-            get() = contentComponent.locationOnScreen
-
-        override val density: Density
-            get() = contentComponent.density
-    }
-
-    private inline fun catchExceptions(body: () -> Unit) {
-        try {
-            body()
-        } catch (e: Throwable) {
-            exceptionHandler?.onException(e) ?: throw e
-        }
-    }
-
-    private val desktopTextInputService = DesktopTextInputService(platformComponent)
-    private val _platformContext = DesktopPlatformContext()
-    val platformContext: PlatformContext get() = _platformContext
-    var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
-
     private val semanticsOwnerListener = DesktopSemanticsOwnerListener()
-    val accessible = ComposeSceneAccessible {
-        semanticsOwnerListener.accessibilityControllers
-    }
+    var rootForTestListener: PlatformContext.RootForTestListener? by DelegateRootForTestListener()
 
     private val scene by lazy { composeSceneFactory(this) }
     val focusManager get() = scene.focusManager
     var compositionLocalContext: CompositionLocalContext?
         get() = scene.compositionLocalContext
         set(value) { scene.compositionLocalContext = value }
-
-    val skikoView = object : SkikoView {
-        override val input: SkikoInput
-            get() = SkikoInput.Empty
-
-        override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
-            catchExceptions {
-                scene.render(canvas.asComposeCanvas(), nanoTime)
-            }
-        }
+    val accessible = ComposeSceneAccessible {
+        semanticsOwnerListener.accessibilityControllers
     }
 
     /**
@@ -228,7 +186,7 @@ internal class ComposeSceneMediator(
             override fun inputMethodTextChanged(event: InputMethodEvent) {
                 if (isDisposed) return
                 catchExceptions {
-                    desktopTextInputService.inputMethodTextChanged(event)
+                    textInputService.inputMethodTextChanged(event)
                 }
             }
         })
@@ -275,12 +233,27 @@ internal class ComposeSceneMediator(
         })
     }
 
+    private inline fun catchExceptions(body: () -> Unit) {
+        try {
+            body()
+        } catch (e: Throwable) {
+            exceptionHandler?.onException(e) ?: throw e
+        }
+    }
+
+    private fun resetFocus() {
+        if (contentComponent.isFocusOwner) {
+            invisibleComponent.requestFocusTemporary()
+            contentComponent.requestFocus()
+        }
+    }
+
     private fun onMouseEvent(event: MouseEvent): Unit = catchExceptions {
         // AWT can send events after the window is disposed
         if (isDisposed) return@catchExceptions
         if (keyboardModifiersRequireUpdate) {
             keyboardModifiersRequireUpdate = false
-            setCurrentKeyboardModifiers(event.keyboardModifiers)
+            windowContext.setKeyboardModifiers(event.keyboardModifiers)
         }
         scene.onMouseEvent(density, event)
     }
@@ -292,8 +265,8 @@ internal class ComposeSceneMediator(
 
     private fun onKeyEvent(event: KeyEvent) = catchExceptions {
         if (isDisposed) return@catchExceptions
-        desktopTextInputService.onKeyEvent(event)
-        setCurrentKeyboardModifiers(event.toPointerKeyboardModifiers())
+        textInputService.onKeyEvent(event)
+        windowContext.setKeyboardModifiers(event.toPointerKeyboardModifiers())
 
         val composeEvent = ComposeKeyEvent(event)
         if (onPreviewKeyEvent(composeEvent) ||
@@ -372,10 +345,6 @@ internal class ComposeSceneMediator(
         }
     }
 
-    private fun setCurrentKeyboardModifiers(modifiers: PointerKeyboardModifiers) {
-        windowContext.setKeyboardModifiers(modifiers)
-    }
-
     fun onComposeInvalidation() {
         if (isDisposed) return
         skiaLayerComponent.onComposeInvalidation()
@@ -412,8 +381,24 @@ internal class ComposeSceneMediator(
         scene.layoutDirection = layoutDirection
     }
 
+    fun onRenderApiChanged(action: () -> Unit) {
+        skiaLayerComponent.onRenderApiChanged(action)
+    }
+
     fun onChangeWindowFocus() {
         keyboardModifiersRequireUpdate = true
+    }
+
+    private inner class DesktopSkikoView : SkikoView {
+        override val input: SkikoInput
+            get() = SkikoInput.Empty
+
+        override fun onRender(canvas: Canvas, width: Int, height: Int, nanoTime: Long) {
+            catchExceptions {
+                val composeCanvas = canvas.asComposeCanvas()
+                scene.render(composeCanvas, nanoTime)
+            }
+        }
     }
 
     private inner class DesktopViewConfiguration : ViewConfiguration by EmptyViewConfiguration {
@@ -483,11 +468,11 @@ internal class ComposeSceneMediator(
         }
     }
 
-    protected inner class DesktopPlatformContext : PlatformContext by PlatformContext.Empty {
+    private inner class DesktopPlatformContext : PlatformContext by PlatformContext.Empty {
         override val windowInfo: WindowInfo get() = windowContext.windowInfo
         override val isWindowTransparent: Boolean get() = windowContext.isWindowTransparent
         override val viewConfiguration: ViewConfiguration = DesktopViewConfiguration()
-        override val textInputService: PlatformTextInputService = desktopTextInputService
+        override val textInputService: PlatformTextInputService = this@ComposeSceneMediator.textInputService
 
         override fun setPointerIcon(pointerIcon: PointerIcon) {
             contentComponent.cursor =
@@ -498,10 +483,36 @@ internal class ComposeSceneMediator(
             return contentComponent.hasFocus() || contentComponent.requestFocusInWindow()
         }
 
-        override val rootForTestListener: PlatformContext.RootForTestListener?
+        override val rootForTestListener
             get() = this@ComposeSceneMediator.rootForTestListener
-        override val semanticsOwnerListener: PlatformContext.SemanticsOwnerListener?
+        override val semanticsOwnerListener
             get() = this@ComposeSceneMediator.semanticsOwnerListener
+    }
+
+    private inner class DesktopPlatformComponent : PlatformComponent {
+        override fun enableInput(inputMethodRequests: InputMethodRequests) {
+            currentInputMethodRequests = inputMethodRequests
+            contentComponent.enableInputMethods(true)
+            // Without resetting the focus, Swing won't update the status (doesn't show/hide popup)
+            // enableInputMethods is design to used per-Swing component level at init stage,
+            // not dynamically
+            resetFocus()
+        }
+
+        override fun disableInput() {
+            currentInputMethodRequests = null
+            contentComponent.enableInputMethods(false)
+            // Without resetting the focus, Swing won't update the status (doesn't show/hide popup)
+            // enableInputMethods is design to used per-Swing component level at init stage,
+            // not dynamically
+            resetFocus()
+        }
+
+        override val locationOnScreen: Point
+            get() = contentComponent.locationOnScreen
+
+        override val density: Density
+            get() = contentComponent.density
     }
 
     private class InvisibleComponent : Component() {
