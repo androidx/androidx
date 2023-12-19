@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.TouchInjectionScope
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
@@ -120,6 +121,13 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
             )
         }
 
+        val firstPressOffset = textLayout.getBoundingBox(0).centerLeft + Offset(1f, 0f)
+
+        // get focus, start input session
+        rule.onNodeWithTag(tag).performTouchInput { click(firstPressOffset) }
+
+        rule.waitForIdle()
+
         val placedPosition = rule.onNodeWithTag(tag).fetchSemanticsNode().positionInRoot
 
         fun getCenterForLine(line: Int): Float {
@@ -176,6 +184,13 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
         }
 
         rule.waitForIdle()
+
+        val firstPressOffset = textLayout.getBoundingBox(0).centerLeft + Offset(1f, 0f)
+
+        // get focus, start input session
+        rule.onNodeWithTag(tag).performTouchInput { click(firstPressOffset) }
+
+        rule.waitForIdle()
         val placedOffset = rule.onNodeWithTag(tag).fetchSemanticsNode().boundsInRoot.topLeft
         fun assertMagnifierAt(expected: Offset) {
             rule.waitForIdle()
@@ -184,7 +199,6 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
         }
 
         // start selection at first character
-        val firstPressOffset = textLayout.getBoundingBox(0).centerLeft + Offset(1f, 0f)
         rule.onNodeWithTag(tag).performTouchInput {
             longPress(firstPressOffset)
         }
@@ -434,6 +448,7 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
     ) {
         val dragDistance = Offset(10f, 0f)
         val dragDirection = if (expandForwards) 1f else -1f
+        lateinit var textLayout: TextLayoutResult
         rule.setTextFieldTestContent {
             Content(
                 if (layoutDirection == LayoutDirection.Ltr) {
@@ -445,9 +460,17 @@ internal abstract class AbstractSelectionMagnifierTests : FocusedWindowTest {
                     // Center the text to give the magnifier lots of room to move.
                     .fillMaxSize()
                     .wrapContentSize()
-                    .testTag(tag)
+                    .testTag(tag),
+                onTextLayout = { textLayout = it }
             )
         }
+
+        val firstPressOffset = textLayout.getBoundingBox(0).centerLeft + Offset(1f, 0f)
+
+        // get focus, start input session
+        rule.onNodeWithTag(tag).performTouchInput { click(firstPressOffset) }
+
+        rule.waitForIdle()
 
         // Initiate selection.
         rule.onNodeWithTag(tag)
