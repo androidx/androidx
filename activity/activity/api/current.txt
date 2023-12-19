@@ -255,13 +255,13 @@ package androidx.activity.result {
 
   public abstract class ActivityResultRegistry {
     ctor public ActivityResultRegistry();
-    method @MainThread public final boolean dispatchResult(int, int, android.content.Intent?);
-    method @MainThread public final <O> boolean dispatchResult(int, O!);
-    method @MainThread public abstract <I, O> void onLaunch(int, androidx.activity.result.contract.ActivityResultContract<I!,O!>, I!, androidx.core.app.ActivityOptionsCompat?);
-    method public final void onRestoreInstanceState(android.os.Bundle?);
-    method public final void onSaveInstanceState(android.os.Bundle);
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method @MainThread public final boolean dispatchResult(int requestCode, int resultCode, android.content.Intent? data);
+    method @MainThread public final <O> boolean dispatchResult(int requestCode, O result);
+    method @MainThread public abstract <I, O> void onLaunch(int requestCode, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I input, androidx.core.app.ActivityOptionsCompat? options);
+    method public final void onRestoreInstanceState(android.os.Bundle? savedInstanceState);
+    method public final void onSaveInstanceState(android.os.Bundle outState);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I> register(String key, androidx.activity.result.contract.ActivityResultContract<I,O> contract, androidx.activity.result.ActivityResultCallback<O> callback);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I> register(String key, androidx.lifecycle.LifecycleOwner lifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I,O> contract, androidx.activity.result.ActivityResultCallback<O> callback);
   }
 
   public interface ActivityResultRegistryOwner {
