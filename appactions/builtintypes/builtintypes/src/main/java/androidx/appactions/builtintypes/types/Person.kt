@@ -59,7 +59,7 @@ public interface Person : Thing {
    *
    * See https://schema.org/telephone for more context.
    */
-  @get:Document.StringProperty(name = "telephone")
+  @get:Document.StringProperty
   public val telephoneNumber: String?
     get() = null
 

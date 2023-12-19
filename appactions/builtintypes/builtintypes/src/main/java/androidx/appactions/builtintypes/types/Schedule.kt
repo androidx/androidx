@@ -75,7 +75,7 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byDay for more context.
    */
-  @get:Document.DocumentProperty(name = "byDay")
+  @get:Document.DocumentProperty
   public val byDays: List<ByDay>
     get() = emptyList()
 
@@ -85,7 +85,7 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonth for more context.
    */
-  @get:Document.LongProperty(name = "byMonth")
+  @get:Document.LongProperty
   public val byMonths: List<Long>
     get() = emptyList()
 
@@ -95,7 +95,7 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonthDay for more context.
    */
-  @get:Document.LongProperty(name = "byMonthDay")
+  @get:Document.LongProperty
   public val byMonthDays: List<Long>
     get() = emptyList()
 
@@ -106,7 +106,7 @@ public interface Schedule : Intangible {
    *
    * See https://schema.org/byMonthWeek for more context.
    */
-  @get:Document.LongProperty(name = "byMonthWeek")
+  @get:Document.LongProperty
   public val byMonthWeeks: List<Long>
     get() = emptyList()
 
