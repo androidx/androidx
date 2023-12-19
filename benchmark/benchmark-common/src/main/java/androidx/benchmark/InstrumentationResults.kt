@@ -17,10 +17,8 @@
 package androidx.benchmark
 
 import android.os.Bundle
-import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.test.platform.app.InstrumentationRegistry
-import org.jetbrains.annotations.TestOnly
 
 /**
  * Wrapper for multi studio version link format
@@ -74,10 +72,8 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
         iterationTracePaths: List<String>? = null,
         profilerResults: List<Profiler.ResultFile> = emptyList()
     ) {
-        if (warningMessage != null) {
-            InstrumentationResults.scheduleIdeWarningOnNextReport(warningMessage)
-        }
         val summaryPair = InstrumentationResults.ideSummary(
+            warningMessage = warningMessage,
             testName = testName,
             message = message,
             measurements = measurements,
@@ -108,7 +104,6 @@ class InstrumentationResultScope(val bundle: Bundle = Bundle()) {
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object InstrumentationResults {
-
     /**
      * Bundle containing values to be reported at end of run, instead of for each test.
      *
@@ -155,41 +150,14 @@ object InstrumentationResults {
         return output
     }
 
-    private var ideWarningPrefix = ""
-
-    @TestOnly
-    fun clearIdeWarningPrefix() {
-        println("clear ide warning")
-        ideWarningPrefix = ""
-    }
-
-    /**
-     * Schedule a string to be reported to the IDE on next benchmark report.
-     *
-     * Requires ideSummary to be called afterward, since we only post one instrumentation result per
-     * test.
-     *
-     * Note that this also prints to logcat.
-     */
-    fun scheduleIdeWarningOnNextReport(string: String) {
-        ideWarningPrefix = if (ideWarningPrefix.isEmpty()) {
-            string
-        } else {
-            ideWarningPrefix + "\n" + string
-        }
-        string.split("\n").map { Log.w(BenchmarkState.TAG, it) }
-    }
-
     internal fun ideSummary(
+        warningMessage: String? = null,
         testName: String? = null,
         message: String? = null,
         measurements: BenchmarkResult.Measurements? = null,
         iterationTracePaths: List<String>? = null,
         profilerResults: List<Profiler.ResultFile> = emptyList()
     ): IdeSummaryPair {
-        val warningMessage = ideWarningPrefix.ifEmpty { null }
-        ideWarningPrefix = ""
-
         val v1metricLines: List<String>
         val v2metricLines: List<String>
         val linkableIterTraces = iterationTracePaths?.map { absolutePath ->
