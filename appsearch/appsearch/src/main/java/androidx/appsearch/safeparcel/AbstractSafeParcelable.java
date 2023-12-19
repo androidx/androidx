@@ -211,4 +211,10 @@ public abstract class AbstractSafeParcelable implements SafeParcelable {
      */
     public void writeToParcel(@NonNull Parcel dest, int flags) {
     }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public final int describeContents() {
+        return 0;
+    }
 }
