@@ -41,6 +41,7 @@ public class GridLayoutManagerActivity extends BaseLayoutManagerActivity<GridLay
         return lm;
     }
 
+    @SuppressWarnings("MathAbsoluteNegative")
     GridLayoutManager.SpanSizeLookup mSpanSizeLookup = new GridLayoutManager.SpanSizeLookup() {
         @Override
         public int getSpanSize(int position) {

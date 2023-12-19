@@ -276,7 +276,7 @@ final class SqliteInspector extends Inspector {
         // Check for database instances in memory
         for (SQLiteDatabase instance :
                 mEnvironment.artTooling().findInstances(SQLiteDatabase.class)) {
-            /** the race condition here will be handled by mDatabaseRegistry */
+            /* the race condition here will be handled by mDatabaseRegistry */
             if (instance.isOpen()) {
                 onDatabaseOpened(instance);
             } else {
@@ -434,7 +434,7 @@ final class SqliteInspector extends Inspector {
     }
 
     private void registerInvalidationHooks(EntryExitMatchingHookRegistry hookRegistry) {
-        /**
+        /*
          * Schedules a task using {@link mScheduledExecutor} and executes it on {@link mIOExecutor}.
          */
         final RequestCollapsingThrottler.DeferredExecutor deferredExecutor =
