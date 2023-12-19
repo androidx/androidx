@@ -401,6 +401,7 @@ public class CustomTabsClient {
                     throws RemoteException {
                 if (callback == null) return;
                 mHandler.post(new Runnable() {
+                    @SuppressWarnings("NullAway") // b/316641009
                     @Override
                     public void run() {
                         callback.onActivityResized(height, width, extras);
