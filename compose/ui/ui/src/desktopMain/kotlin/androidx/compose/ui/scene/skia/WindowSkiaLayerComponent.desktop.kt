@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.scene.skia
 
-import androidx.compose.ui.awt.ComposeBridge
 import androidx.compose.ui.platform.PlatformWindowContext
+import androidx.compose.ui.scene.ComposeSceneMediator
 import java.awt.Dimension
 import java.awt.Graphics
 import javax.accessibility.Accessible
@@ -34,29 +34,29 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
 internal class WindowSkiaLayerComponent(
     skiaLayerAnalytics: SkiaLayerAnalytics,
     private val windowContext: PlatformWindowContext,
-    private val bridge: ComposeBridge
+    private val mediator: ComposeSceneMediator
 ) : SkiaLayerComponent {
     /**
      * See also backend layer for swing interop in [SwingSkiaLayerComponent]
      */
     override val contentComponent: SkiaLayer = object : SkiaLayer(
-        externalAccessibleFactory = { bridge.accessible },
+        externalAccessibleFactory = { mediator.accessible },
         analytics = skiaLayerAnalytics
     ), Accessible {
         override fun paint(g: Graphics) {
-            bridge.resetSceneDensity()
+            mediator.onChangeComponentDensity()
             super.paint(g)
         }
 
-        override fun getInputMethodRequests() = bridge.currentInputMethodRequests
+        override fun getInputMethodRequests() = mediator.currentInputMethodRequests
 
         override fun doLayout() {
             super.doLayout()
-            bridge.updateSceneSize()
+            mediator.onChangeComponentSize()
         }
 
         override fun getPreferredSize(): Dimension {
-            return if (isPreferredSizeSet) super.getPreferredSize() else bridge.preferredSize
+            return if (isPreferredSizeSet) super.getPreferredSize() else mediator.preferredSize
         }
     }
 
@@ -98,7 +98,7 @@ internal class WindowSkiaLayerComponent(
     override val windowHandle: Long get() = contentComponent.windowHandle
 
     init {
-        contentComponent.skikoView = bridge.skikoView
+        contentComponent.skikoView = mediator.skikoView
     }
 
     override fun dispose() {

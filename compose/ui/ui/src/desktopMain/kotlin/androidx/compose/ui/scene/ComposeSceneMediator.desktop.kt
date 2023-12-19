@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.awt
+package androidx.compose.ui.scene
 
 import androidx.compose.ui.input.key.KeyEvent as ComposeKeyEvent
 import androidx.compose.runtime.Composable
@@ -26,9 +26,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asComposeCanvas
 import androidx.compose.ui.input.pointer.*
 import androidx.compose.ui.platform.*
-import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.scene.skia.SkiaLayerComponent
-import androidx.compose.ui.scene.toPointerKeyboardModifiers
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.unit.Density
@@ -50,23 +48,23 @@ import org.jetbrains.skiko.*
 import org.jetbrains.skiko.swing.SkiaSwingLayer
 
 /**
- * Provides a base implementation for integrating a Compose scene with AWT/Swing.
+ * Provides a mediator for integrating a Compose scene with AWT/Swing component.
  * It allows setting Compose content by [setContent], this content should be drawn on [contentComponent].
  *
- * This bridge contain 2 components that should be added to the view hirarachy:
- * [contentComponent] the main visible Swing component, on which Compose will be shown
+ * This mediator contain 2 components that should be added to the view hierarchy:
+ * [contentComponent] the main visible Swing component with skia canvas, on which Compose will be shown
  * [invisibleComponent] service component used to bypass Swing issues:
  * - for forcing refocus on input methods change
  */
-internal class ComposeBridge(
+internal class ComposeSceneMediator(
     private val container: JLayeredPane,
     private val windowContext: PlatformWindowContext,
     private var exceptionHandler: WindowExceptionHandler?,
 
     val coroutineContext: CoroutineContext,
 
-    skiaLayerComponentFactory: (ComposeBridge) -> SkiaLayerComponent,
-    composeSceneFactory: (ComposeBridge) -> ComposeScene,
+    skiaLayerComponentFactory: (ComposeSceneMediator) -> SkiaLayerComponent,
+    composeSceneFactory: (ComposeSceneMediator) -> ComposeScene,
 ) {
     private var isDisposed = false
 
@@ -320,7 +318,7 @@ internal class ComposeBridge(
     }
 
     fun onComponentAttached() {
-        resetSceneDensity()
+        onChangeComponentDensity()
 
         _onComponentAttached?.invoke()
         _onComponentAttached = null
@@ -383,7 +381,7 @@ internal class ComposeBridge(
         skiaLayerComponent.onComposeInvalidation()
     }
 
-    fun updateSceneSize() {
+    fun onChangeComponentSize() {
         // Convert AWT scaled size to real pixels.
         val scale = contentComponent.density.density
 
@@ -403,10 +401,10 @@ internal class ComposeBridge(
         scene.boundsInWindow = boundsInWindow.takeIf { boundsInWindow.size != IntSize.Zero }
     }
 
-    fun resetSceneDensity() {
+    fun onChangeComponentDensity() {
         if (scene.density != contentComponent.density) {
             scene.density = contentComponent.density
-            updateSceneSize()
+            onChangeComponentSize()
         }
     }
 
@@ -501,9 +499,9 @@ internal class ComposeBridge(
         }
 
         override val rootForTestListener: PlatformContext.RootForTestListener?
-            get() = this@ComposeBridge.rootForTestListener
+            get() = this@ComposeSceneMediator.rootForTestListener
         override val semanticsOwnerListener: PlatformContext.SemanticsOwnerListener?
-            get() = this@ComposeBridge.semanticsOwnerListener
+            get() = this@ComposeSceneMediator.semanticsOwnerListener
     }
 
     private class InvisibleComponent : Component() {

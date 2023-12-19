@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.scene.skia
 
-import androidx.compose.ui.awt.ComposeBridge
+import androidx.compose.ui.scene.ComposeSceneMediator
 import java.awt.Dimension
 import java.awt.Graphics
 import javax.accessibility.Accessible
@@ -37,31 +37,31 @@ import org.jetbrains.skiko.swing.SkiaSwingLayer
 @OptIn(ExperimentalSkikoApi::class)
 internal class SwingSkiaLayerComponent(
     skiaLayerAnalytics: SkiaLayerAnalytics,
-    private val bridge: ComposeBridge
+    private val mediator: ComposeSceneMediator
 ) : SkiaLayerComponent {
     /**
      * See also backendLayer for standalone Compose in [WindowSkiaLayerComponent]
      */
     override val contentComponent: SkiaSwingLayer =
-        object : SkiaSwingLayer(skikoView = bridge.skikoView, analytics = skiaLayerAnalytics) {
+        object : SkiaSwingLayer(skikoView = mediator.skikoView, analytics = skiaLayerAnalytics) {
             override fun paint(g: Graphics) {
-                bridge.resetSceneDensity()
+                mediator.onChangeComponentDensity()
                 super.paint(g)
             }
 
-            override fun getInputMethodRequests() = bridge.currentInputMethodRequests
+            override fun getInputMethodRequests() = mediator.currentInputMethodRequests
 
             override fun doLayout() {
                 super.doLayout()
-                bridge.updateSceneSize()
+                mediator.onChangeComponentSize()
             }
 
             override fun getPreferredSize(): Dimension {
-                return if (isPreferredSizeSet) super.getPreferredSize() else bridge.preferredSize
+                return if (isPreferredSizeSet) super.getPreferredSize() else mediator.preferredSize
             }
 
             override fun getAccessibleContext(): AccessibleContext? {
-                return bridge.accessible.accessibleContext
+                return mediator.accessible.accessibleContext
             }
         }
 

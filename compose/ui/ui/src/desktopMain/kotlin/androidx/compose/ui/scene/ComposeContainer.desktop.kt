@@ -19,7 +19,6 @@ package androidx.compose.ui.scene
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.ComposeFeatureFlags
-import androidx.compose.ui.awt.ComposeBridge
 import androidx.compose.ui.awt.LocalLayerContainer
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.platform.PlatformContext
@@ -63,7 +62,7 @@ internal class ComposeContainer(
     private val coroutineExceptionHandler = DesktopCoroutineExceptionHandler()
     private val coroutineContext = MainUIDispatcher + coroutineExceptionHandler
 
-    private val bridge = ComposeBridge(
+    private val mediator = ComposeSceneMediator(
         container = container,
         windowContext = windowContext,
         exceptionHandler = {
@@ -74,25 +73,25 @@ internal class ComposeContainer(
         composeSceneFactory = ::createComposeScene,
     )
 
-    val contentComponent by bridge::contentComponent
-    val focusManager by bridge::focusManager
-    val accessible by bridge::accessible
-    var rootForTestListener by bridge::rootForTestListener
+    val contentComponent by mediator::contentComponent
+    val focusManager by mediator::focusManager
+    val accessible by mediator::accessible
+    var rootForTestListener by mediator::rootForTestListener
     // TODO: Changing fullscreen probably will require recreate our layers
     //  It will require add this flag as remember parameters in rememberComposeSceneLayer
-    var fullscreen by bridge.skiaLayerComponent::fullscreen
-    var compositionLocalContext by bridge::compositionLocalContext
+    var fullscreen by mediator.skiaLayerComponent::fullscreen
+    var compositionLocalContext by mediator::compositionLocalContext
     var exceptionHandler: WindowExceptionHandler? = null
-    val windowHandle by bridge.skiaLayerComponent::windowHandle
-    val renderApi by bridge.skiaLayerComponent::renderApi
-    val preferredSize by bridge::preferredSize
+    val windowHandle by mediator.skiaLayerComponent::windowHandle
+    val renderApi by mediator.skiaLayerComponent::renderApi
+    val preferredSize by mediator::preferredSize
 
     init {
         setWindow(window)
     }
 
     fun dispose() {
-        bridge.dispose()
+        mediator.dispose()
     }
 
     override fun windowGainedFocus(event: WindowEvent) = onChangeWindowFocus()
@@ -100,26 +99,26 @@ internal class ComposeContainer(
 
     private fun onChangeWindowFocus() {
         windowContext.setWindowFocused(window?.isFocused ?: false)
-        bridge.onChangeWindowFocus()
+        mediator.onChangeWindowFocus()
     }
 
     fun onChangeWindowTransparency(value: Boolean) {
         windowContext.isWindowTransparent = value
-        bridge.skiaLayerComponent.transparency = value
+        mediator.skiaLayerComponent.transparency = value
     }
 
     fun onChangeLayoutDirection(component: Component) {
         // ComposeWindow and ComposeDialog relies on self orientation, not on container's one
         layoutDirection = layoutDirectionFor(component)
-        bridge.onChangeLayoutDirection(layoutDirection)
+        mediator.onChangeLayoutDirection(layoutDirection)
     }
 
     fun onRenderApiChanged(action: () -> Unit) {
-        bridge.skiaLayerComponent.onRenderApiChanged(action)
+        mediator.skiaLayerComponent.onRenderApiChanged(action)
     }
 
     fun addNotify() {
-        bridge.onComponentAttached()
+        mediator.onComponentAttached()
         setWindow(SwingUtilities.getWindowAncestor(container))
     }
 
@@ -128,11 +127,11 @@ internal class ComposeContainer(
     }
 
     fun addToComponentLayer(component: Component) {
-        bridge.addToComponentLayer(component)
+        mediator.addToComponentLayer(component)
     }
 
     fun setBounds(x: Int, y: Int, width: Int, height: Int) {
-        bridge.contentComponent.setSize(width, height)
+        mediator.contentComponent.setSize(width, height)
     }
 
     private fun setWindow(window: Window?) {
@@ -152,34 +151,34 @@ internal class ComposeContainer(
         onPreviewKeyEvent: (KeyEvent) -> Boolean = { false },
         onKeyEvent: (KeyEvent) -> Boolean = { false },
     ) {
-        bridge.setKeyEventListeners(onPreviewKeyEvent, onKeyEvent)
+        mediator.setKeyEventListeners(onPreviewKeyEvent, onKeyEvent)
     }
 
     fun setContent(content: @Composable () -> Unit) {
-        bridge.setContent {
+        mediator.setContent {
             ProvideContainerCompositionLocals(this) {
                 content()
             }
         }
     }
 
-    private fun createSkiaLayerComponent(bridge: ComposeBridge): SkiaLayerComponent {
+    private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
         return if (useSwingGraphics) {
-            SwingSkiaLayerComponent(skiaLayerAnalytics, bridge)
+            SwingSkiaLayerComponent(skiaLayerAnalytics, mediator)
         } else {
-            WindowSkiaLayerComponent(skiaLayerAnalytics, windowContext, bridge)
+            WindowSkiaLayerComponent(skiaLayerAnalytics, windowContext, mediator)
         }
     }
 
-    private fun createComposeScene(bridge: ComposeBridge): ComposeScene {
+    private fun createComposeScene(mediator: ComposeSceneMediator): ComposeScene {
         val density = container.density
         return MultiLayerComposeScene(
-            coroutineContext = bridge.coroutineContext,
+            coroutineContext = mediator.coroutineContext,
             composeSceneContext = createComposeSceneContext(
-                platformContext = bridge.platformContext
+                platformContext = mediator.platformContext
             ),
             density = density,
-            invalidate = bridge::onComposeInvalidation,
+            invalidate = mediator::onComposeInvalidation,
             layoutDirection = layoutDirection,
         )
     }
