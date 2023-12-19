@@ -63,7 +63,7 @@ internal expect fun identityHashCode(instance: Any?): Int
 @PublishedApi
 internal expect inline fun <R> synchronized(lock: Any, block: () -> R): R
 
-expect class AtomicReference<V>(value: V) {
+internal expect class AtomicReference<V>(value: V) {
     fun get(): V
     fun set(value: V)
     fun getAndSet(value: V): V
