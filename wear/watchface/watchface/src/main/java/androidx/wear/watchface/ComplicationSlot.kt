@@ -1054,10 +1054,14 @@ internal constructor(
      * [instant] is chosen. Any images associated with the complication are loaded asynchronously
      * and the complication history is updated.
      */
-    internal fun setComplicationData(complicationData: ComplicationData, instant: Instant) {
+    internal fun setComplicationData(
+        complicationData: ComplicationData,
+        instant: Instant,
+        forceLoad: Boolean = false,
+    ) {
         complicationHistory?.push(ComplicationDataHistoryEntry(complicationData, instant))
         setTimelineData(complicationData, instant)
-        selectComplicationDataForInstant(instant, forceUpdate = true)
+        selectComplicationDataForInstant(instant, forceUpdate = true, forceLoad = forceLoad)
     }
 
     /**
@@ -1077,16 +1081,12 @@ internal constructor(
             // Avoid overwriting a change made by someone else, can still race.
             if (timelineComplicationData !== complicationData) return@AutoCloseable
             setTimelineData(originalComplicationData, originalInstant)
-            selectComplicationDataForInstant(
-                originalInstant,
-                forceUpdate = true,
-                forScreenshot = false,
-            )
+            selectComplicationDataForInstant(originalInstant, forceUpdate = true)
         }
 
         try {
             setTimelineData(complicationData, instant)
-            selectComplicationDataForInstant(instant, forceUpdate = true, forScreenshot = true)
+            selectComplicationDataForInstant(instant, forceUpdate = true, forceLoad = true)
         } catch (e: Throwable) {
             // Cleanup on failure.
             restore.close()
@@ -1113,7 +1113,7 @@ internal constructor(
     internal fun selectComplicationDataForInstant(
         instant: Instant,
         forceUpdate: Boolean,
-        forScreenshot: Boolean = false
+        forceLoad: Boolean = false,
     ) {
         var previousShortest = Long.MAX_VALUE
         val time = instant.epochSecond
@@ -1146,8 +1146,8 @@ internal constructor(
         if (!forceUpdate && selectedData == best) return
 
         val frozen = frozenDataSourceForEdit != null
-        if (!frozen || forScreenshot) {
-            loadData(best, loadDrawablesAsynchronous = !forScreenshot)
+        if (!frozen || forceLoad) {
+            loadData(best, loadDrawablesAsynchronous = !forceLoad)
         } else {
             // Restoring frozen slot to empty in case it was changed for screenshot.
             loadData(EmptyComplicationData())

@@ -335,7 +335,8 @@ public class ComplicationSlotsManager(
     internal fun onComplicationDataUpdate(
         complicationSlotId: Int,
         data: ComplicationData,
-        instant: Instant
+        instant: Instant,
+        forceLoad: Boolean = false,
     ) {
         val complication = complicationSlots[complicationSlotId]
         if (complication == null) {
@@ -347,7 +348,7 @@ public class ComplicationSlotsManager(
             return
         }
         complication.dataDirty = complication.dataDirty || (complication.renderer.getData() != data)
-        complication.setComplicationData(data, instant)
+        complication.setComplicationData(data, instant, forceLoad = forceLoad)
     }
 
     /**

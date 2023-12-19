@@ -152,6 +152,7 @@ private const val INTERACTIVE_UPDATE_RATE_MS = 16L
 private const val LEFT_COMPLICATION_ID = 1000
 private const val RIGHT_COMPLICATION_ID = 1001
 private const val EDGE_COMPLICATION_ID = 1002
+private const val MOCK_COMPLICATION_ID = 1003
 private const val BACKGROUND_COMPLICATION_ID = 1111
 private const val NO_COMPLICATIONS = "NO_COMPLICATIONS"
 private const val LEFT_COMPLICATION = "LEFT_COMPLICATION"
@@ -344,6 +345,29 @@ public class WatchFaceServiceTest {
                 BoundingArc(-45f, 90f, 0.1f)
             )
             .setDefaultDataSourceType(ComplicationType.SHORT_TEXT)
+            .build()
+
+    private val mockCanvasComplication = mock<CanvasComplication>()
+    private val mockComplication =
+        ComplicationSlot.createRoundRectComplicationSlotBuilder(
+                MOCK_COMPLICATION_ID,
+                { _, _ -> mockCanvasComplication },
+                listOf(
+                    ComplicationType.RANGED_VALUE,
+                    ComplicationType.LONG_TEXT,
+                    ComplicationType.SHORT_TEXT,
+                    ComplicationType.MONOCHROMATIC_IMAGE,
+                    ComplicationType.SMALL_IMAGE
+                ),
+                DefaultComplicationDataSourcePolicy(
+                    SystemDataSources.DATA_SOURCE_DAY_OF_WEEK,
+                    ComplicationType.LONG_TEXT
+                ),
+                ComplicationSlotBounds(
+                    bounds = RectF(0.6f, 0.4f, 0.8f, 0.6f),
+                    margins = RectF(0.1f, 0.1f, 0.1f, 0.1f)
+                )
+            )
             .build()
 
     @Suppress("DEPRECATION") // setDefaultDataSourceType
@@ -2221,17 +2245,17 @@ public class WatchFaceServiceTest {
     public fun defaultComplicationDataSourcePolicy_heartRate_preU() {
         val complication =
             ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                LEFT_COMPLICATION_ID,
-                { watchState, listener ->
-                    CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
-                },
-                listOf(ComplicationType.SHORT_TEXT),
-                DefaultComplicationDataSourcePolicy(
-                    SystemDataSources.DATA_SOURCE_HEART_RATE,
-                    ComplicationType.SHORT_TEXT
-                ),
-                ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-            )
+                    LEFT_COMPLICATION_ID,
+                    { watchState, listener ->
+                        CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
+                    },
+                    listOf(ComplicationType.SHORT_TEXT),
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_HEART_RATE,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                    ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+                )
                 .build()
 
         assertFailsWith<IllegalArgumentException> {
@@ -2257,17 +2281,17 @@ public class WatchFaceServiceTest {
     public fun defaultComplicationDataSourcePolicy_heartRate_U() {
         val complication =
             ComplicationSlot.createRoundRectComplicationSlotBuilder(
-                LEFT_COMPLICATION_ID,
-                { watchState, listener ->
-                    CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
-                },
-                listOf(ComplicationType.SHORT_TEXT),
-                DefaultComplicationDataSourcePolicy(
-                    SystemDataSources.DATA_SOURCE_HEART_RATE,
-                    ComplicationType.SHORT_TEXT
-                ),
-                ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
-            )
+                    LEFT_COMPLICATION_ID,
+                    { watchState, listener ->
+                        CanvasComplicationDrawable(complicationDrawableLeft, watchState, listener)
+                    },
+                    listOf(ComplicationType.SHORT_TEXT),
+                    DefaultComplicationDataSourcePolicy(
+                        SystemDataSources.DATA_SOURCE_HEART_RATE,
+                        ComplicationType.SHORT_TEXT
+                    ),
+                    ComplicationSlotBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+                )
                 .build()
 
         // This shouldn't throw an exception.
@@ -2921,6 +2945,44 @@ public class WatchFaceServiceTest {
 
         assertThat(leftComplication.complicationHistory.map { it.complicationData })
             .containsExactly(longTextComplication.toApiComplicationData())
+    }
+
+    @Test
+    public fun updateComplicationData_interactive_loadsAsync() {
+        initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(mockComplication))
+        interactiveWatchFaceInstance.setWatchUiState(
+            WatchUiState(/* inAmbientMode = */ false, /* interruptionFilter= */ 0)
+        )
+        val data =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT"))
+                .build()
+
+        interactiveWatchFaceInstance.updateComplicationData(
+            listOf(IdAndComplicationDataWireFormat(MOCK_COMPLICATION_ID, data))
+        )
+
+        verify(mockCanvasComplication)
+            .loadData(data.toApiComplicationData(), loadDrawablesAsynchronous = true)
+    }
+
+    @Test
+    public fun updateComplicationData_interactive_loadsSync() {
+        initWallpaperInteractiveWatchFaceInstance(complicationSlots = listOf(mockComplication))
+        interactiveWatchFaceInstance.setWatchUiState(
+            WatchUiState(/* inAmbientMode = */ true, /* interruptionFilter= */ 0)
+        )
+        val data =
+            WireComplicationData.Builder(WireComplicationData.TYPE_LONG_TEXT)
+                .setLongText(WireComplicationText.plainText("TYPE_LONG_TEXT"))
+                .build()
+
+        interactiveWatchFaceInstance.updateComplicationData(
+            listOf(IdAndComplicationDataWireFormat(MOCK_COMPLICATION_ID, data))
+        )
+
+        verify(mockCanvasComplication)
+            .loadData(data.toApiComplicationData(), loadDrawablesAsynchronous = false)
     }
 
     @Test
@@ -4873,35 +4935,33 @@ public class WatchFaceServiceTest {
     @RequiresApi(Build.VERSION_CODES.O_MR1)
     public fun empty_eglConfigAttribListList() {
         class TestSharedAssets : Renderer.SharedAssets {
-            override fun onDestroy() {
-            }
+            override fun onDestroy() {}
         }
 
         assertThrows(
             IllegalArgumentException::class.java,
             {
-                object : Renderer.GlesRenderer2<TestSharedAssets>(
-                    surfaceHolder,
-                    CurrentUserStyleRepository(UserStyleSchema(emptyList())),
-                    MutableWatchState().asWatchState(),
-                    INTERACTIVE_UPDATE_RATE_MS,
-                    eglConfigAttribListList = emptyList(), // Error this should not be empty.
-                    eglSurfaceAttribList = intArrayOf(EGL14.EGL_NONE),
-                    eglContextAttribList = intArrayOf(EGL14.EGL_NONE)
-                ) {
+                object :
+                    Renderer.GlesRenderer2<TestSharedAssets>(
+                        surfaceHolder,
+                        CurrentUserStyleRepository(UserStyleSchema(emptyList())),
+                        MutableWatchState().asWatchState(),
+                        INTERACTIVE_UPDATE_RATE_MS,
+                        eglConfigAttribListList = emptyList(), // Error this should not be empty.
+                        eglSurfaceAttribList = intArrayOf(EGL14.EGL_NONE),
+                        eglContextAttribList = intArrayOf(EGL14.EGL_NONE)
+                    ) {
                     override suspend fun createSharedAssets() = TestSharedAssets()
 
                     override fun renderHighlightLayer(
                         zonedDateTime: ZonedDateTime,
                         sharedAssets: TestSharedAssets
-                    ) {
-                    }
+                    ) {}
 
                     override fun render(
                         zonedDateTime: ZonedDateTime,
                         sharedAssets: TestSharedAssets
-                    ) {
-                    }
+                    ) {}
                 }
             }
         )
