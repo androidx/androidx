@@ -99,23 +99,15 @@ import java.util.Set;
 /**
  * A {@link CameraInternal} adapter which checks that the UseCases to make sure that the resolutions
  * and image formats can be supported.
- *
- * <p> The CameraUseCaseAdapter wraps a set of CameraInternals which it can dynamically switch
- * between based on different configurations that are required by the adapter. This is used by
- * extensions in order to select the correct CameraInternal instance which has the required
- * camera id.
  */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
 public final class CameraUseCaseAdapter implements Camera {
     @NonNull
     private final CameraInternal mCameraInternal;
-    private final LinkedHashSet<CameraInternal> mCameraInternals;
     private final CameraDeviceSurfaceManager mCameraDeviceSurfaceManager;
     private final UseCaseConfigFactory mUseCaseConfigFactory;
 
     private static final String TAG = "CameraUseCaseAdapter";
-
-    private final CameraId mId;
 
     // UseCases from the app. This does not include internal UseCases created by CameraX.
     @GuardedBy("mLock")
@@ -169,27 +161,25 @@ public final class CameraUseCaseAdapter implements Camera {
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
      *
-     * @param cameras                    The set of cameras that are wrapped, with them in order
-     *                                   of preference.
+     * @param camera                     The camera that is wrapped.
      * @param cameraCoordinator          Camera coordinator that exposes concurrent camera mode.
      * @param cameraDeviceSurfaceManager A class that checks for whether a specific camera
      *                                   can support the set of Surface with set resolutions.
      * @param useCaseConfigFactory       UseCase config factory that exposes configuration for
      *                                   each UseCase.
      */
-    public CameraUseCaseAdapter(@NonNull LinkedHashSet<CameraInternal> cameras,
+    public CameraUseCaseAdapter(@NonNull CameraInternal camera,
             @NonNull CameraCoordinator cameraCoordinator,
             @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager,
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
-        this(cameras, cameraCoordinator, cameraDeviceSurfaceManager, useCaseConfigFactory,
+        this(camera, cameraCoordinator, cameraDeviceSurfaceManager, useCaseConfigFactory,
                 CameraConfigs.defaultConfig());
     }
 
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
      *
-     * @param cameras                    The set of cameras that are wrapped, with them in order
-     *                                   of preference.
+     * @param camera                     The camera that is wrapped.
      * @param cameraCoordinator          Camera coordinator that exposes concurrent camera mode.
      * @param cameraDeviceSurfaceManager A class that checks for whether a specific camera
      *                                   can support the set of Surface with set resolutions.
@@ -199,14 +189,12 @@ public final class CameraUseCaseAdapter implements Camera {
      *                                   when attaching the uses cases of this adapter to the
      *                                   camera.
      */
-    public CameraUseCaseAdapter(@NonNull LinkedHashSet<CameraInternal> cameras,
+    public CameraUseCaseAdapter(@NonNull CameraInternal camera,
             @NonNull CameraCoordinator cameraCoordinator,
             @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager,
             @NonNull UseCaseConfigFactory useCaseConfigFactory,
             @NonNull CameraConfig cameraConfig) {
-        mCameraInternal = cameras.iterator().next();
-        mCameraInternals = new LinkedHashSet<>(cameras);
-        mId = new CameraId(mCameraInternals);
+        mCameraInternal = camera;
         mCameraCoordinator = cameraCoordinator;
         mCameraDeviceSurfaceManager = cameraDeviceSurfaceManager;
         mUseCaseConfigFactory = useCaseConfigFactory;
@@ -233,26 +221,18 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     /**
-     * Generate a identifier for the set of {@link CameraInternal}.
-     */
-    @NonNull
-    public static CameraId generateCameraId(@NonNull LinkedHashSet<CameraInternal> cameras) {
-        return new CameraId(cameras);
-    }
-
-    /**
      * Returns the identifier for this {@link CameraUseCaseAdapter}.
      */
     @NonNull
-    public CameraId getCameraId() {
-        return mId;
+    public String getCameraId() {
+        return mCameraInternal.getCameraInfoInternal().getCameraId();
     }
 
     /**
      * Returns true if the {@link CameraUseCaseAdapter} is an equivalent camera.
      */
     public boolean isEquivalent(@NonNull CameraUseCaseAdapter cameraUseCaseAdapter) {
-        return mId.equals(cameraUseCaseAdapter.getCameraId());
+        return getCameraId().equals(cameraUseCaseAdapter.getCameraId());
     }
 
     /**
@@ -958,37 +938,6 @@ public final class CameraUseCaseAdapter implements Camera {
     }
 
     /**
-     * An identifier for a {@link CameraUseCaseAdapter}.
-     *
-     * <p>This identifies the actual camera instances that are wrapped by the
-     * CameraUseCaseAdapter and is used to determine if 2 different instances of
-     * CameraUseCaseAdapter are actually equivalent.
-     */
-    public static final class CameraId {
-        private final List<String> mIds;
-
-        CameraId(LinkedHashSet<CameraInternal> cameraInternals) {
-            mIds = new ArrayList<>();
-            for (CameraInternal cameraInternal : cameraInternals) {
-                mIds.add(cameraInternal.getCameraInfoInternal().getCameraId());
-            }
-        }
-
-        @Override
-        public boolean equals(Object cameraId) {
-            if (cameraId instanceof CameraId) {
-                return mIds.equals(((CameraId) cameraId).mIds);
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            return 53 * mIds.hashCode();
-        }
-    }
-
-    /**
      * An exception thrown when the {@link CameraUseCaseAdapter} errors in one of its operations.
      */
     public static final class CameraException extends Exception {
@@ -1018,12 +967,6 @@ public final class CameraUseCaseAdapter implements Camera {
     @Override
     public CameraInfo getCameraInfo() {
         return mAdapterCameraInfo;
-    }
-
-    @NonNull
-    @Override
-    public LinkedHashSet<CameraInternal> getCameraInternals() {
-        return mCameraInternals;
     }
 
     @Override
