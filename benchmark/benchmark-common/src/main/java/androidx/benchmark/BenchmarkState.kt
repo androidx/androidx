@@ -294,10 +294,8 @@ class BenchmarkState internal constructor(
             if (this == MethodTracing &&
                 Looper.myLooper() == Looper.getMainLooper() &&
                 estimatedMethodTraceDurNs > METHOD_TRACING_MAX_DURATION_NS) {
-                InstrumentationResults.scheduleIdeWarningOnNextReport(
-                    "Skipping method trace of estimated duration" +
-                        " ${estimatedMethodTraceDurNs / 1_000_000_000.0} sec to avoid ANR"
-                )
+                Log.d(TAG, "Skipping method trace of estimated duration" +
+                    " ${estimatedMethodTraceDurNs / 1_000_000_000.0} sec to avoid ANR")
                 null
             } else {
                 start(traceUniqueName)
@@ -466,14 +464,7 @@ class BenchmarkState internal constructor(
                     "isolation."
             )
         }
-        check(
-            !enableMethodTracingAffectsMeasurementError ||
-            !DeviceInfo.methodTracingAffectsMeasurements ||
-                !MethodTracing.hasBeenUsed) {
-            "Measurement prevented by method trace - Running on a device/configuration where " +
-                "method tracing affects measurements, and a method trace has been captured " +
-                "- no additional benchmarks can be run without restarting the test suite."
-        }
+        firstBenchmark = false
 
         thermalThrottleSleepSeconds = 0
 
@@ -536,6 +527,7 @@ class BenchmarkState internal constructor(
             metricResults.forEach { it.putInBundle(status, PREFIX) }
         }
         InstrumentationResultScope(status).reportSummaryToIde(
+            warningMessage = Errors.acquireWarningStringForLogging() ?: "",
             testName = key,
             measurements = BenchmarkResult.Measurements(
                 singleMetrics = metricResults,
@@ -608,15 +600,6 @@ class BenchmarkState internal constructor(
             TimeUnit.SECONDS.toNanos(Arguments.profilerSampleDurationSeconds)
 
         private var firstBenchmark = true
-
-        /**
-         * Disable error to enable internal correctness tests, which need to use method tracing
-         * and can safely ignore measurement accuracy
-         *
-         * Ideally this would function as a true suppressible error like in Errors.kt, but existing
-         * error functionality doesn't handle changing error states dynamically
-         */
-        internal var enableMethodTracingAffectsMeasurementError = false
 
         private val DEFAULT_METRICS: Array<MetricCapture> =
             if (Arguments.cpuEventCounterMask != 0) {
