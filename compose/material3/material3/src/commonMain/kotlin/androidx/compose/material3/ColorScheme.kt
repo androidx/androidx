@@ -433,6 +433,35 @@ class ColorScheme(
     internal var defaultLargeTopAppBarColorsCached: TopAppBarColors? = null
 
     internal var defaultCheckboxColorsCached: CheckboxColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultDatePickerColorsCached: DatePickerColors? = null
+
+    internal var defaultIconButtonColorsCached: IconButtonColors? = null
+
+    internal var defaultMenuItemColorsCached: MenuItemColors? = null
+
+    internal var defaultNavigationBarItemColorsCached: NavigationBarItemColors? = null
+
+    internal var defaultNavigationRailItemColorsCached: NavigationRailItemColors? = null
+
+    internal var defaultRadioButtonColorsCached: RadioButtonColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultSegmentedButtonColorsCached: SegmentedButtonColors? = null
+
+    internal var defaultSliderColorsCached: SliderColors? = null
+
+    internal var defaultSwitchColorsCached: SwitchColors? = null
+
+    internal var defaultOutlinedTextFieldColorsCached: TextFieldColors? = null
+    internal var defaultTextFieldColorsCached: TextFieldColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultTimePickerColorsCached: TimePickerColors? = null
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    internal var defaultRichTooltipColorsCached: RichTooltipColors? = null
 }
 
 /**
