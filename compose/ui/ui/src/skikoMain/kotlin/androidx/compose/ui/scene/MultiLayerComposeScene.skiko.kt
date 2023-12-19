@@ -51,7 +51,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.toOffset
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastForEachReversed
@@ -498,7 +497,7 @@ private class MultiLayerComposeSceneImpl(
             inputHandler = inputHandler,
         )
         private var composition: Composition? = null
-        private var callback: ((Boolean) -> Unit)? = null
+        private var outsidePointerCallback: ((Boolean) -> Unit)? = null
         private var isClosed = false
 
         override var density: Density by owner::density
@@ -566,7 +565,7 @@ private class MultiLayerComposeSceneImpl(
         override fun setOutsidePointerEventListener(
             onOutsidePointerEvent: ((Boolean) -> Unit)?,
         ) {
-            callback = onOutsidePointerEvent
+            outsidePointerCallback = onOutsidePointerEvent
         }
 
         override fun setContent(content: @Composable () -> Unit) {
@@ -590,7 +589,7 @@ private class MultiLayerComposeSceneImpl(
         }
 
         fun onOutsidePointerEvent(event: PointerInputEvent) {
-            callback?.invoke(event.isDismissRequest())
+            outsidePointerCallback?.invoke(event.isDismissRequest())
         }
     }
 }

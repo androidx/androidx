@@ -21,7 +21,6 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.scene.ComposeScene
 import androidx.compose.ui.window.FrameWindowScope
 import androidx.compose.ui.window.UndecoratedWindowResizer
 import androidx.compose.ui.window.WindowExceptionHandler
@@ -70,14 +69,12 @@ class ComposeWindow @ExperimentalComposeUiApi constructor(
     )
     private val undecoratedWindowResizer = UndecoratedWindowResizer(this)
 
+    internal val windowContext by composePanel::windowContext
     internal var rootForTestListener by composePanel::rootForTestListener
 
     // Don't override the accessible context of JFrame, since accessibility work through HardwareLayer
     internal val windowAccessible: Accessible
         get() = composePanel.windowAccessible
-
-    internal val windowContext
-        get() = composePanel.windowContext
 
     init {
         contentPane.add(composePanel)

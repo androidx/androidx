@@ -21,9 +21,7 @@ import java.awt.Dimension
 import java.awt.Graphics
 import javax.accessibility.Accessible
 import javax.accessibility.AccessibleContext
-import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.ExperimentalSkikoApi
-import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.SkiaLayerAnalytics
 import org.jetbrains.skiko.swing.SkiaSwingLayer
 
@@ -36,14 +34,17 @@ import org.jetbrains.skiko.swing.SkiaSwingLayer
  */
 @OptIn(ExperimentalSkikoApi::class)
 internal class SwingSkiaLayerComponent(
+    private val mediator: ComposeSceneMediator,
     skiaLayerAnalytics: SkiaLayerAnalytics,
-    private val mediator: ComposeSceneMediator
 ) : SkiaLayerComponent {
     /**
      * See also backendLayer for standalone Compose in [WindowSkiaLayerComponent]
      */
     override val contentComponent: SkiaSwingLayer =
-        object : SkiaSwingLayer(skikoView = mediator.skikoView, analytics = skiaLayerAnalytics) {
+        object : SkiaSwingLayer(
+            skikoView = mediator.skikoView,
+            analytics = skiaLayerAnalytics
+        ) {
             override fun paint(g: Graphics) {
                 mediator.onChangeComponentDensity()
                 super.paint(g)
@@ -56,8 +57,10 @@ internal class SwingSkiaLayerComponent(
                 mediator.onChangeComponentSize()
             }
 
-            override fun getPreferredSize(): Dimension {
-                return if (isPreferredSizeSet) super.getPreferredSize() else mediator.preferredSize
+            override fun getPreferredSize(): Dimension = if (isPreferredSizeSet) {
+                super.getPreferredSize()
+            } else {
+                mediator.preferredSize
             }
 
             override fun getAccessibleContext(): AccessibleContext? {
@@ -65,20 +68,18 @@ internal class SwingSkiaLayerComponent(
             }
         }
 
-    override val renderApi: GraphicsApi
-        get() = contentComponent.renderApi
+    override val renderApi by contentComponent::renderApi
 
     override val interopBlendingSupported: Boolean
         get() = true
 
-    override val clipComponents: MutableList<ClipRectangle>
-        get() = contentComponent.clipComponents
+    override val clipComponents by contentComponent::clipComponents
 
-    override var transparency: Boolean
+    override var transparency
         get() = true
         set(_) {}
 
-    override var fullscreen: Boolean
+    override var fullscreen
         get() = false
         set(_) {}
 

@@ -29,11 +29,17 @@ import androidx.compose.ui.scene.skia.WindowSkiaLayerComponent
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
 import androidx.compose.ui.window.layoutDirectionFor
+import androidx.compose.ui.window.sizeInPx
 import java.awt.Component
+import java.awt.Rectangle
 import java.awt.Window
+import java.awt.event.ComponentEvent
+import java.awt.event.ComponentListener
 import java.awt.event.WindowEvent
 import java.awt.event.WindowFocusListener
+import javax.swing.JFrame
 import javax.swing.JLayeredPane
+import javax.swing.RootPaneContainer
 import javax.swing.SwingUtilities
 import kotlin.coroutines.AbstractCoroutineContextElement
 import kotlin.coroutines.CoroutineContext
@@ -53,7 +59,7 @@ internal class ComposeContainer(
     window: Window? = null,
 
     private val useSwingGraphics: Boolean = ComposeFeatureFlags.useSwingGraphics,
-) : WindowFocusListener {
+) : ComponentListener, WindowFocusListener {
     val windowContext = PlatformWindowContext()
     var window: Window? = null
         private set
@@ -94,6 +100,11 @@ internal class ComposeContainer(
         mediator.dispose()
     }
 
+    override fun componentResized(e: ComponentEvent?) = onChangeWindowBounds()
+    override fun componentMoved(e: ComponentEvent?) = onChangeWindowBounds()
+    override fun componentShown(e: ComponentEvent?) = Unit
+    override fun componentHidden(e: ComponentEvent?) = Unit
+
     override fun windowGainedFocus(event: WindowEvent) = onChangeWindowFocus()
     override fun windowLostFocus(event: WindowEvent) = onChangeWindowFocus()
 
@@ -102,9 +113,14 @@ internal class ComposeContainer(
         mediator.onChangeWindowFocus()
     }
 
+    private fun onChangeWindowBounds() {
+        val container = (window as? RootPaneContainer)?.contentPane ?: window ?: return
+        windowContext.setContainerSize(container.sizeInPx)
+    }
+
     fun onChangeWindowTransparency(value: Boolean) {
         windowContext.isWindowTransparent = value
-        mediator.transparency = value
+        mediator.onChangeWindowTransparency(value)
     }
 
     fun onChangeLayoutDirection(component: Component) {
@@ -132,6 +148,10 @@ internal class ComposeContainer(
 
     fun setBounds(x: Int, y: Int, width: Int, height: Int) {
         mediator.contentComponent.setSize(width, height)
+
+        // In case of preferred size there is no separate event for changing window size,
+        // so re-checking the actual size on container resize too.
+        onChangeWindowBounds()
     }
 
     private fun setWindow(window: Window?) {
@@ -140,11 +160,14 @@ internal class ComposeContainer(
         }
 
         this.window?.removeWindowFocusListener(this)
-        window?.addWindowFocusListener(this)
+        this.window?.removeComponentListener(this)
 
+        window?.addComponentListener(this)
+        window?.addWindowFocusListener(this)
         this.window = window
 
         onChangeWindowFocus()
+        onChangeWindowBounds()
     }
 
     fun setKeyEventListeners(
@@ -164,9 +187,9 @@ internal class ComposeContainer(
 
     private fun createSkiaLayerComponent(mediator: ComposeSceneMediator): SkiaLayerComponent {
         return if (useSwingGraphics) {
-            SwingSkiaLayerComponent(skiaLayerAnalytics, mediator)
+            SwingSkiaLayerComponent(mediator, skiaLayerAnalytics)
         } else {
-            WindowSkiaLayerComponent(skiaLayerAnalytics, windowContext, mediator)
+            WindowSkiaLayerComponent(mediator, windowContext, skiaLayerAnalytics)
         }
     }
 

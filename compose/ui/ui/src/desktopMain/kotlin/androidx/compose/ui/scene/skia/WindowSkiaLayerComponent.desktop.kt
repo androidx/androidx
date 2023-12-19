@@ -21,7 +21,6 @@ import androidx.compose.ui.scene.ComposeSceneMediator
 import java.awt.Dimension
 import java.awt.Graphics
 import javax.accessibility.Accessible
-import org.jetbrains.skiko.ClipRectangle
 import org.jetbrains.skiko.GraphicsApi
 import org.jetbrains.skiko.SkiaLayer
 import org.jetbrains.skiko.SkiaLayerAnalytics
@@ -32,9 +31,9 @@ import org.jetbrains.skiko.SkiaLayerAnalytics
  * If smooth interop with Swing is needed, consider using [SwingSkiaLayerComponent]
  */
 internal class WindowSkiaLayerComponent(
-    skiaLayerAnalytics: SkiaLayerAnalytics,
+    private val mediator: ComposeSceneMediator,
     private val windowContext: PlatformWindowContext,
-    private val mediator: ComposeSceneMediator
+    skiaLayerAnalytics: SkiaLayerAnalytics,
 ) : SkiaLayerComponent {
     /**
      * See also backend layer for swing interop in [SwingSkiaLayerComponent]
@@ -42,7 +41,7 @@ internal class WindowSkiaLayerComponent(
     override val contentComponent: SkiaLayer = object : SkiaLayer(
         externalAccessibleFactory = { mediator.accessible },
         analytics = skiaLayerAnalytics
-    ), Accessible {
+    ) {
         override fun paint(g: Graphics) {
             mediator.onChangeComponentDensity()
             super.paint(g)
@@ -55,24 +54,24 @@ internal class WindowSkiaLayerComponent(
             mediator.onChangeComponentSize()
         }
 
-        override fun getPreferredSize(): Dimension {
-            return if (isPreferredSizeSet) super.getPreferredSize() else mediator.preferredSize
+        override fun getPreferredSize(): Dimension = if (isPreferredSizeSet) {
+            super.getPreferredSize()
+        } else {
+            mediator.preferredSize
         }
     }
 
-    override val renderApi: GraphicsApi
-        get() = contentComponent.renderApi
+    override val renderApi by contentComponent::renderApi
 
-    override val interopBlendingSupported: Boolean
+    override val interopBlendingSupported
         get() = when(renderApi) {
             GraphicsApi.DIRECT3D, GraphicsApi.METAL -> true
             else -> false
         }
 
-    override val clipComponents: MutableList<ClipRectangle>
-        get() = contentComponent.clipComponents
+    override val clipComponents by contentComponent::clipComponents
 
-    override var transparency: Boolean
+    override var transparency
         get() = contentComponent.transparency
         set(value) {
             contentComponent.transparency = value
@@ -88,14 +87,9 @@ internal class WindowSkiaLayerComponent(
                 contentComponent.background = null
             }
         }
+    override var fullscreen by contentComponent::fullscreen
 
-    override var fullscreen: Boolean
-        get() = contentComponent.fullscreen
-        set(value) {
-            contentComponent.fullscreen = value
-        }
-
-    override val windowHandle: Long get() = contentComponent.windowHandle
+    override val windowHandle by contentComponent::windowHandle
 
     init {
         contentComponent.skikoView = mediator.skikoView

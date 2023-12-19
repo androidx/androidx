@@ -44,21 +44,21 @@ internal val GlobalDensity get() = GraphicsEnvironment.getLocalGraphicsEnvironme
 
 internal val Component.density: Density get() = graphicsConfiguration.density
 
-internal val Component.scaledOffset: Offset
+internal val Component.offsetInPx: IntOffset
     get() {
         val scale = density.density
-        return Offset(
-            x = x * scale,
-            y = y * scale
+        return IntOffset(
+            x = (x * scale).toInt(),
+            y = (y * scale).toInt()
         )
     }
 
-internal val Component.scaledSize: Size
+internal val Component.sizeInPx: IntSize
     get() {
         val scale = density.density
-        return Size(
-            width = width * scale,
-            height = height * scale
+        return IntSize(
+            width = (width * scale).toInt(),
+            height = (height * scale).toInt()
         )
     }
 

@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.awt
 
+import androidx.compose.ui.graphics.Color
 import java.awt.Component
 
 internal fun Component.isParentOf(component: Component?): Boolean {
@@ -28,3 +29,5 @@ internal fun Component.isParentOf(component: Component?): Boolean {
     }
     return false
 }
+
+internal fun Color.toAwtColor() = java.awt.Color(red, green, blue, alpha)

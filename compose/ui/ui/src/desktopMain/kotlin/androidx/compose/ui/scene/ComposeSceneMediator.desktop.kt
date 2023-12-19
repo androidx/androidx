@@ -30,17 +30,19 @@ import androidx.compose.ui.scene.skia.SkiaLayerComponent
 import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowExceptionHandler
 import androidx.compose.ui.window.density
+import androidx.compose.ui.window.sizeInPx
 import java.awt.*
 import java.awt.Cursor
 import java.awt.event.*
 import java.awt.event.KeyEvent
 import java.awt.im.InputMethodRequests
+import javax.accessibility.Accessible
 import javax.swing.JLayeredPane
 import kotlin.coroutines.CoroutineContext
 import org.jetbrains.skia.Canvas
@@ -78,11 +80,6 @@ internal class ComposeSceneMediator(
 
     private val skiaLayerComponent by lazy { skiaLayerComponentFactory(this) }
     val contentComponent by skiaLayerComponent::contentComponent
-    var transparency: Boolean
-        get() = skiaLayerComponent.transparency
-        set(value) {
-            skiaLayerComponent.transparency = value || useInteropBlending
-        }
     var fullscreen by skiaLayerComponent::fullscreen
     val windowHandle by skiaLayerComponent::windowHandle
     val renderApi by skiaLayerComponent::renderApi
@@ -169,7 +166,7 @@ internal class ComposeSceneMediator(
     var compositionLocalContext: CompositionLocalContext?
         get() = scene.compositionLocalContext
         set(value) { scene.compositionLocalContext = value }
-    val accessible = ComposeSceneAccessible {
+    val accessible: Accessible = ComposeSceneAccessible {
         semanticsOwnerListener.accessibilityControllers
     }
 
@@ -189,13 +186,12 @@ internal class ComposeSceneMediator(
     val preferredSize: Dimension
         get() {
             val contentSize = scene.calculateContentSize()
+            val scale = scene.density.density
             return Dimension(
-                (contentSize.width / contentComponent.density.density).toInt(),
-                (contentSize.height / contentComponent.density.density).toInt()
+                (contentSize.width / scale).toInt(),
+                (contentSize.height / scale).toInt()
             )
         }
-
-    private val density get() = platformComponent.density.density
 
     /**
      * Keyboard modifiers state might be changed when window is not focused, so window doesn't
@@ -216,7 +212,6 @@ internal class ComposeSceneMediator(
     private val contentLayer: Int = 10
     private val interopLayer: Int
         get() = if (useInteropBlending) 0 else 20
-
 
     init {
         container.addToLayer(invisibleComponent, contentLayer)
@@ -302,27 +297,29 @@ internal class ComposeSceneMediator(
     }
 
     private fun onMouseEvent(event: MouseEvent): Unit = catchExceptions {
-        if (!awtEventFilter.shouldSendMouseEvent(event))
-            return@catchExceptions
-
+        if (!awtEventFilter.shouldSendMouseEvent(event)) {
+            return
+        }
         if (keyboardModifiersRequireUpdate) {
             keyboardModifiersRequireUpdate = false
             windowContext.setKeyboardModifiers(event.keyboardModifiers)
         }
+        val density = contentComponent.density
         scene.onMouseEvent(density, event)
     }
 
     private fun onMouseWheelEvent(event: MouseWheelEvent): Unit = catchExceptions {
-        if (!awtEventFilter.shouldSendMouseEvent(event))
-            return@catchExceptions
-
+        if (!awtEventFilter.shouldSendMouseEvent(event)) {
+            return
+        }
+        val density = contentComponent.density
         scene.onMouseWheelEvent(density, event)
     }
 
     private fun onKeyEvent(event: KeyEvent) = catchExceptions {
-        if (!awtEventFilter.shouldSendKeyEvent(event))
-            return@catchExceptions
-
+        if (!awtEventFilter.shouldSendKeyEvent(event)) {
+            return
+        }
         textInputService.onKeyEvent(event)
         windowContext.setKeyboardModifiers(event.toPointerKeyboardModifiers())
 
@@ -405,36 +402,32 @@ internal class ComposeSceneMediator(
         }
     }
 
-    fun onComposeInvalidation() {
+    fun onComposeInvalidation() = catchExceptions {
         if (isDisposed) return
         skiaLayerComponent.onComposeInvalidation()
     }
 
-    fun onChangeComponentSize() {
-        // Convert AWT scaled size to real pixels.
-        val scale = contentComponent.density.density
+    fun onChangeComponentSize() = catchExceptions {
+        if (!container.isDisplayable) return
 
         // TODO: Recalculate it to window related coordinates
-        val boundsInWindow = IntRect(
-            top = 0,
-            left = 0,
-            right = (contentComponent.width * scale).toInt(),
-            bottom = (contentComponent.height * scale).toInt()
-        )
-
-        // TODO: It should be window content area size
-        windowContext.setContainerSize(boundsInWindow.size)
-
-        // Zero size will literally limit scene's content size to zero,
-        // so it case of late initialization skip this to avoid extra layout run.
-        scene.boundsInWindow = boundsInWindow.takeIf { boundsInWindow.size != IntSize.Zero }
+        val boundsInWindow = IntRect(IntOffset.Zero, container.sizeInPx)
+        if (scene.boundsInWindow != boundsInWindow) {
+            scene.boundsInWindow = boundsInWindow
+        }
     }
 
-    fun onChangeComponentDensity() {
-        if (scene.density != contentComponent.density) {
-            scene.density = contentComponent.density
+    fun onChangeComponentDensity() = catchExceptions {
+        if (!container.isDisplayable) return
+        val density = container.density
+        if (scene.density != density) {
+            scene.density = density
             onChangeComponentSize()
         }
+    }
+
+    fun onChangeWindowTransparency(value: Boolean) {
+        skiaLayerComponent.transparency = value || useInteropBlending
     }
 
     fun onChangeLayoutDirection(layoutDirection: LayoutDirection) {
@@ -583,7 +576,7 @@ internal class ComposeSceneMediator(
 }
 
 private fun ComposeScene.onMouseEvent(
-    density: Float,
+    density: Density,
     event: MouseEvent
 ) {
     val eventType = when (event.id) {
@@ -595,9 +588,10 @@ private fun ComposeScene.onMouseEvent(
         MouseEvent.MOUSE_EXITED -> PointerEventType.Exit
         else -> PointerEventType.Unknown
     }
+    val position = Offset(event.x.toFloat(), event.y.toFloat()) * density.density
     sendPointerEvent(
         eventType = eventType,
-        position = Offset(event.x.toFloat(), event.y.toFloat()) * density,
+        position = position,
         timeMillis = event.`when`,
         type = PointerType.Mouse,
         buttons = event.buttons,
@@ -617,12 +611,13 @@ private fun MouseEvent.getPointerButton(): PointerButton? {
 }
 
 private fun ComposeScene.onMouseWheelEvent(
-    density: Float,
+    density: Density,
     event: MouseWheelEvent
 ) {
+    val position = Offset(event.x.toFloat(), event.y.toFloat()) * density.density
     sendPointerEvent(
         eventType = PointerEventType.Scroll,
-        position = Offset(event.x.toFloat(), event.y.toFloat()) * density,
+        position = position,
         scrollDelta = if (event.isShiftDown) {
             Offset(event.preciseWheelRotation.toFloat(), 0f)
         } else {
@@ -679,7 +674,7 @@ private fun getLockingKeyStateSafe(
 
 private val MouseEvent.isMacOsCtrlClick
     get() = (
-            hostOs.isMacOS &&
-                    ((modifiersEx and InputEvent.BUTTON1_DOWN_MASK) != 0) &&
-                    ((modifiersEx and InputEvent.CTRL_DOWN_MASK) != 0)
-            )
+        hostOs.isMacOS &&
+            ((modifiersEx and InputEvent.BUTTON1_DOWN_MASK) != 0) &&
+            ((modifiersEx and InputEvent.CTRL_DOWN_MASK) != 0)
+        )
