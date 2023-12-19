@@ -17,23 +17,21 @@
 package androidx.compose.ui.platform
 
 import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.input.PlatformTextInputService
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.DensityProvider
-import platform.UIKit.UIView
 
 internal class IOSPlatformContextImpl(
     inputServices: PlatformTextInputService,
     override val textToolbar: TextToolbar,
     override val windowInfo: WindowInfo,
-    densityProvider: DensityProvider,
+    density: Density,
     override val semanticsOwnerListener: PlatformContext.SemanticsOwnerListener?
 ) : PlatformContext by PlatformContext.Empty {
     override val textInputService: PlatformTextInputService = inputServices
     override val viewConfiguration = object : ViewConfiguration by EmptyViewConfiguration {
         override val touchSlop: Float
-            get() = with(densityProvider()) {
+            get() = with(density) {
                 // this value is originating from iOS 16 drag behavior reverse engineering
                 10.dp.toPx()
             }

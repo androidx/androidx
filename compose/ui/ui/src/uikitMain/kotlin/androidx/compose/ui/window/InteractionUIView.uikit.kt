@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.window
 
-import androidx.compose.ui.scene.toDpOffset
+import androidx.compose.ui.toDpOffset
 import androidx.compose.ui.unit.DpOffset
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.readValue

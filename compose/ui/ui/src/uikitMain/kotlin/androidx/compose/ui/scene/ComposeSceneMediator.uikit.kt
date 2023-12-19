@@ -40,25 +40,26 @@ import androidx.compose.ui.platform.PlatformInsets
 import androidx.compose.ui.platform.UIKitTextInputService
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.toDpOffset
+import androidx.compose.ui.toDpRect
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.uikit.LocalKeyboardOverlapHeight
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntRect
 import androidx.compose.ui.unit.toOffset
-import androidx.compose.ui.window.DensityProviderImpl
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.InteractionUIView
 import androidx.compose.ui.window.KeyboardEventHandler
 import androidx.compose.ui.window.KeyboardVisibilityListenerImpl
 import androidx.compose.ui.window.RenderingUIView
 import androidx.compose.ui.window.UITouchesEventPhase
+import androidx.compose.ui.window.uiContentSizeCategoryToFontScaleMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -72,7 +73,6 @@ import org.jetbrains.skiko.SkikoKeyboardEvent
 import platform.CoreGraphics.CGAffineTransformIdentity
 import platform.CoreGraphics.CGAffineTransformInvert
 import platform.CoreGraphics.CGPoint
-import platform.CoreGraphics.CGRect
 import platform.CoreGraphics.CGRectMake
 import platform.CoreGraphics.CGRectZero
 import platform.CoreGraphics.CGSize
@@ -82,13 +82,14 @@ import platform.Foundation.NSSelectorFromString
 import platform.Foundation.NSTimeInterval
 import platform.QuartzCore.CATransaction
 import platform.UIKit.NSLayoutConstraint
+import platform.UIKit.UIContentSizeCategoryUnspecified
 import platform.UIKit.UIEvent
 import platform.UIKit.UIKeyboardWillHideNotification
 import platform.UIKit.UIKeyboardWillShowNotification
+import platform.UIKit.UIScreen
 import platform.UIKit.UITouch
 import platform.UIKit.UITouchPhase
 import platform.UIKit.UIView
-import platform.UIKit.UIViewController
 import platform.UIKit.UIViewControllerTransitionCoordinatorProtocol
 import platform.darwin.NSObject
 
@@ -105,14 +106,14 @@ internal sealed interface SceneLayout {
 private const val FEATURE_FLAG_ACCESSIBILITY_ENABLED = false
 
 internal class ComposeSceneMediator(
-    private val viewController: UIViewController,
+    private val container: UIView,
     configuration: ComposeUIViewControllerConfiguration,
     private val focusStack: FocusStack<UIView>?,
     private val windowInfo: WindowInfo,
     val coroutineContext: CoroutineContext,
     private val renderingUIViewFactory: (RenderingUIView.Delegate) -> RenderingUIView,
     composeSceneFactory: (
-        density: Density, invalidate: () -> Unit,
+        invalidate: () -> Unit,
         platformContext: PlatformContext,
         coroutineContext: CoroutineContext
     ) -> ComposeScene,
@@ -131,7 +132,6 @@ internal class ComposeSceneMediator(
 
     private val scene: ComposeScene by lazy {
         composeSceneFactory(
-            densityProvider(),
             ::onComposeSceneInvalidate,
             platformContext,
             coroutineContext,
@@ -157,16 +157,18 @@ internal class ComposeSceneMediator(
                 renderingView.redrawer.needsProactiveDisplayLink = needHighFrequencyPolling
             },
             checkBounds = { dpPoint: DpOffset ->
-                val point = dpPoint.toOffset(densityProvider())
+                val point = dpPoint.toOffset(getSystemDensity())
                 getBoundsInPx().contains(point.round())
             }
         )
     }
 
-    val densityProvider by lazy {
-        DensityProviderImpl(
-            uiViewControllerProvider = { viewController },
-            viewProvider = { renderingView },
+    private fun getSystemDensity(): Density {
+        val contentSizeCategory = container.traitCollection.preferredContentSizeCategory
+            ?: UIContentSizeCategoryUnspecified
+        return Density(
+            density = UIScreen.mainScreen.scale.toFloat(),
+            fontScale = uiContentSizeCategoryToFontScaleMap[contentSizeCategory] ?: 1.0f
         )
     }
 
@@ -183,7 +185,7 @@ internal class ComposeSceneMediator(
             override fun onSemanticsOwnerAppended(semanticsOwner: SemanticsOwner) {
                 if (current == null) {
                     current = semanticsOwner to AccessibilityMediator(
-                        viewController.view,
+                        container,
                         semanticsOwner,
                         coroutineContext
                     )
@@ -222,7 +224,7 @@ internal class ComposeSceneMediator(
             inputServices = uiKitTextInputService,
             textToolbar = uiKitTextInputService,
             windowInfo = windowInfo,
-            densityProvider = densityProvider,
+            density = getSystemDensity(),
             semanticsOwnerListener = semanticsOwnerListener
         )
     }
@@ -231,8 +233,8 @@ internal class ComposeSceneMediator(
         KeyboardVisibilityListenerImpl(
             configuration = configuration,
             keyboardOverlapHeightState = keyboardOverlapHeightState,
-            viewProvider = { viewController.view },
-            densityProvider = densityProvider,
+            viewProvider = { container },
+            densityProvider = ::getSystemDensity,
             composeSceneMediatorProvider = { this },
             focusManager = focusManager,
         )
@@ -255,8 +257,8 @@ internal class ComposeSceneMediator(
                 renderingView.setNeedsDisplay() // redraw on next frame
                 CATransaction.flush() // clear all animations
             },
-            rootViewProvider = { viewController.view },
-            densityProvider = densityProvider,
+            rootViewProvider = { container },
+            densityProvider = ::getSystemDensity,
             focusStack = focusStack,
             keyboardEventHandler = keyboardEventHandler
         )
@@ -266,7 +268,7 @@ internal class ComposeSceneMediator(
         object : InteractionUIView.Delegate {
             override fun pointInside(point: CValue<CGPoint>, event: UIEvent?): Boolean =
                 point.useContents {
-                    val position = this.toDpOffset().toOffset(densityProvider())
+                    val position = this.toDpOffset().toOffset(density)
                     !scene.hitTestInteropView(position)
                 }
 
@@ -276,7 +278,7 @@ internal class ComposeSceneMediator(
                     pointers = event.touchesForView(view)?.map {
                         val touch = it as UITouch
                         val id = touch.hashCode().toLong()
-                        val position = touch.offsetInView(view, densityProvider().density)
+                        val position = touch.offsetInView(view, density.density)
                         ComposeScenePointer(
                             id = PointerId(id),
                             position = position,
@@ -286,7 +288,7 @@ internal class ComposeSceneMediator(
                             historical = event.historicalChangesForTouch(
                                 touch,
                                 view,
-                                densityProvider().density
+                                density.density
                             )
                         )
                     } ?: emptyList(),
@@ -331,10 +333,10 @@ internal class ComposeSceneMediator(
             this.onAttachedToWindow?.invoke()
             focusStack?.pushAndFocus(interactionView)
         }
-        viewController.view.addSubview(interactionView)
+        container.addSubview(interactionView)
         interactionView.translatesAutoresizingMaskIntoConstraints = false
         NSLayoutConstraint.activateConstraints(
-            getConstraintsToFillParent(interactionView, viewController.view)
+            getConstraintsToFillParent(interactionView, container)
         )
         interactionView.addSubview(renderingView)
     }
@@ -410,11 +412,12 @@ internal class ComposeSceneMediator(
             is SceneLayout.UseConstraintsToCenter -> {
                 renderingView.setFrame(CGRectZero.readValue())
                 renderingView.translatesAutoresizingMaskIntoConstraints = false
-                constraints = getConstraintsToCenterInParent(renderingView, interactionView, value.size)
+                constraints =
+                    getConstraintsToCenterInParent(renderingView, interactionView, value.size)
             }
 
             is SceneLayout.Bounds -> {
-                val density = densityProvider().density
+                val density = getSystemDensity().density
                 renderingView.translatesAutoresizingMaskIntoConstraints = true
                 renderingView.setFrame(
                     with(value.rect) {
@@ -436,23 +439,23 @@ internal class ComposeSceneMediator(
     }
 
     fun viewWillLayoutSubviews() {
-        val density = densityProvider()
+        val density = getSystemDensity()
         val scale = density.density
         //TODO: Current code updates layout based on rootViewController size.
         // Maybe we need to rewrite it for SingleLayerComposeScene.
-        val size = viewController.view.frame.useContents {
+        val size = container.frame.useContents {
             IntSize(
                 width = (size.width * scale).roundToInt(),
                 height = (size.height * scale).roundToInt()
             )
         }
-        scene.density = density
+        scene.density = density // TODO: Maybe it is wrong to set density to scene here?
         scene.size = size
         onComposeSceneInvalidate()
     }
 
     private fun calcSafeArea(): PlatformInsets =
-        viewController.view.safeAreaInsets.useContents {
+        container.safeAreaInsets.useContents {
             PlatformInsets(
                 left = left.dp,
                 top = top.dp,
@@ -462,7 +465,7 @@ internal class ComposeSceneMediator(
         }
 
     private fun calcLayoutMargin(): PlatformInsets =
-        viewController.view.directionalLayoutMargins.useContents {
+        container.directionalLayoutMargins.useContents {
             PlatformInsets(
                 left = leading.dp, // TODO: Check RTL support
                 top = top.dp,
@@ -473,7 +476,7 @@ internal class ComposeSceneMediator(
 
     fun getBoundsInDp(): DpRect = renderingView.frame.useContents { this.toDpRect() }
 
-    fun getBoundsInPx(): IntRect = with(densityProvider()) {
+    fun getBoundsInPx(): IntRect = with(getSystemDensity()) {
         getBoundsInDp().toRect().roundToIntRect()
     }
 
@@ -488,14 +491,14 @@ internal class ComposeSceneMediator(
 
         val startSnapshotView = renderingView.snapshotViewAfterScreenUpdates(false) ?: return
         startSnapshotView.translatesAutoresizingMaskIntoConstraints = false
-        viewController.view.addSubview(startSnapshotView)
+        container.addSubview(startSnapshotView)
         targetSize.useContents {
             NSLayoutConstraint.activateConstraints(
                 listOf(
                     startSnapshotView.widthAnchor.constraintEqualToConstant(height),
                     startSnapshotView.heightAnchor.constraintEqualToConstant(width),
-                    startSnapshotView.centerXAnchor.constraintEqualToAnchor(viewController.view.centerXAnchor),
-                    startSnapshotView.centerYAnchor.constraintEqualToAnchor(viewController.view.centerYAnchor)
+                    startSnapshotView.centerXAnchor.constraintEqualToAnchor(container.centerXAnchor),
+                    startSnapshotView.centerYAnchor.constraintEqualToAnchor(container.centerYAnchor)
                 )
             )
         }
@@ -566,11 +569,10 @@ internal class ComposeSceneMediator(
         size.height
     }
 
-}
+    var density by scene::density
+    var layoutDirection by scene::layoutDirection
 
-internal fun CGSize.toDpSize(): DpSize = DpSize(width.dp, height.dp)
-internal fun CGPoint.toDpOffset(): DpOffset = DpOffset(x.dp, y.dp)
-internal fun CGRect.toDpRect(): DpRect = DpRect(origin.toDpOffset(), size.toDpSize())
+}
 
 internal fun getConstraintsToFillParent(view: UIView, parent: UIView) =
     listOf(
@@ -581,8 +583,8 @@ internal fun getConstraintsToFillParent(view: UIView, parent: UIView) =
     )
 
 private fun getConstraintsToCenterInParent(
-    view: RenderingUIView,
-    parentView: InteractionUIView,
+    view: UIView,
+    parentView: UIView,
     size: CValue<CGSize>,
 ) = size.useContents {
     listOf(

@@ -20,11 +20,11 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.NativeKeyEvent
 import androidx.compose.ui.text.input.*
-import androidx.compose.ui.window.DensityProvider
 import androidx.compose.ui.window.FocusStack
 import androidx.compose.ui.window.IntermediateTextInputUIView
 import androidx.compose.ui.window.KeyboardEventHandler
 import androidx.compose.ui.scene.getConstraintsToFillParent
+import androidx.compose.ui.unit.Density
 import kotlin.math.absoluteValue
 import kotlin.math.min
 import org.jetbrains.skia.BreakIterator
@@ -35,7 +35,7 @@ import platform.UIKit.*
 internal class UIKitTextInputService(
     private val updateView: () -> Unit,
     private val rootViewProvider: () -> UIView,
-    private val densityProvider: DensityProvider,
+    private val densityProvider: () -> Density,
     private val focusStack: FocusStack<UIView>?,
     private val keyboardEventHandler: KeyboardEventHandler,
 ) : PlatformTextInputService, TextToolbar {
@@ -252,8 +252,6 @@ internal class UIKitTextInputService(
 
     private fun getState(): TextFieldValue? = currentInput?.value
 
-    private val density get() = densityProvider()
-
     override fun showMenu(
         rect: Rect,
         onCopyRequested: (() -> Unit)?,
@@ -261,7 +259,7 @@ internal class UIKitTextInputService(
         onCutRequested: (() -> Unit)?,
         onSelectAllRequested: (() -> Unit)?
     ) {
-        val skiaRect = with(density) {
+        val skiaRect = with(densityProvider()) {
             org.jetbrains.skia.Rect.makeLTRB(
                 l = rect.left / density,
                 t = rect.top / density,
