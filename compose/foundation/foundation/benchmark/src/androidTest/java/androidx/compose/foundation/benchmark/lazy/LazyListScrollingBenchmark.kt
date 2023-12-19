@@ -17,8 +17,6 @@
 package androidx.compose.foundation.benchmark.lazy
 
 import android.os.Build
-import android.view.MotionEvent
-import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Box
@@ -36,11 +34,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.testutils.benchmark.ComposeBenchmarkRule
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import kotlinx.coroutines.runBlocking
@@ -238,15 +233,11 @@ class ListRemeasureTestCase(
     val isVertical: Boolean,
     val usePointerInput: Boolean = false,
     val useKeys: Boolean = true
-) : LazyBenchmarkTestCase {
+) : LazyBenchmarkTestCase(isVertical, usePointerInput) {
 
     val items = List(100) { LazyItem(it) }
 
     private lateinit var listState: LazyListState
-    private lateinit var view: View
-    private lateinit var motionEventHelper: MotionEventHelper
-    private var touchSlop: Float = 0f
-    private var scrollBy: Int = 0
 
     @Composable
     fun FirstLargeItem() {
@@ -255,14 +246,12 @@ class ListRemeasureTestCase(
 
     @Composable
     override fun Content() {
-        scrollBy = if (addNewItemOnToggle) {
+        val scrollBy = if (addNewItemOnToggle) {
             with(LocalDensity.current) { 15.dp.roundToPx() }
         } else {
             5
         }
-        view = LocalView.current
-        if (!::motionEventHelper.isInitialized) motionEventHelper = MotionEventHelper(view)
-        touchSlop = LocalViewConfiguration.current.touchSlop
+        InitializeScrollHelper(scrollAmount = scrollBy)
         listState = rememberLazyListState()
         content(listState, useKeys)
     }
@@ -272,41 +261,33 @@ class ListRemeasureTestCase(
         Box(
             Modifier
                 .requiredSize(20.dp)
-                .background(Color.Red, RoundedCornerShape(8.dp)))
+                .background(Color.Red, RoundedCornerShape(8.dp))
+        )
     }
 
-    override fun beforeToggle() {
-        runBlocking {
-            listState.scrollToItem(0, 0)
-        }
-        if (usePointerInput) {
-            val size = if (isVertical) view.measuredHeight else view.measuredWidth
-            motionEventHelper.sendEvent(MotionEvent.ACTION_DOWN, (size / 2f).toSingleAxisOffset())
-            motionEventHelper.sendEvent(MotionEvent.ACTION_MOVE, touchSlop.toSingleAxisOffset())
-        }
+    override fun beforeToggleCheck() {
         assertEquals(0, listState.firstVisibleItemIndex)
         assertEquals(0, listState.firstVisibleItemScrollOffset)
     }
 
-    override fun toggle() {
-        if (usePointerInput) {
-            motionEventHelper
-                .sendEvent(MotionEvent.ACTION_MOVE, -scrollBy.toFloat().toSingleAxisOffset())
-        } else {
-            runBlocking {
-                listState.scrollBy(scrollBy.toFloat())
-            }
-        }
-    }
-
-    override fun afterToggle() {
+    override fun afterToggleCheck() {
         assertEquals(0, listState.firstVisibleItemIndex)
-        assertEquals(scrollBy, listState.firstVisibleItemScrollOffset)
-        if (usePointerInput) {
-            motionEventHelper.sendEvent(MotionEvent.ACTION_UP, Offset.Zero)
+        assertEquals(scrollingHelper.scrollAmount, listState.firstVisibleItemScrollOffset)
+    }
+
+    override suspend fun programmaticScroll(amount: Int) {
+        runBlocking {
+            listState.scrollBy(amount.toFloat())
         }
     }
 
-    private fun Float.toSingleAxisOffset(): Offset =
-        Offset(x = if (isVertical) 0f else this, y = if (isVertical) this else 0f)
+    override fun setUp() {
+        runBlocking {
+            listState.scrollToItem(0, 0)
+        }
+    }
+
+    override fun tearDown() {
+        // N/A
+    }
 }
