@@ -19,6 +19,8 @@ package androidx.baselineprofile.gradle.consumer.task
 import androidx.baselineprofile.gradle.consumer.RuleType
 import androidx.baselineprofile.gradle.utils.TASK_NAME_SUFFIX
 import androidx.baselineprofile.gradle.utils.maybeRegister
+import com.android.build.gradle.internal.tasks.BuildAnalyzer
+import com.android.buildanalyzer.common.TaskCategory
 import java.io.File
 import kotlin.io.path.Path
 import org.gradle.api.DefaultTask
@@ -52,6 +54,7 @@ import org.gradle.api.tasks.TaskProvider
  * duplication but mostly the profile file will be unnecessarily larger.
  */
 @CacheableTask
+@BuildAnalyzer(primaryTaskCategory = TaskCategory.OPTIMIZATION)
 abstract class MergeBaselineProfileTask : DefaultTask() {
 
     companion object {
