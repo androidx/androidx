@@ -15,13 +15,13 @@
  */
 
 @file:JvmName("MigrationUtil")
-@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
 package androidx.room.util
 
 import androidx.annotation.RestrictTo
 import androidx.room.DatabaseConfiguration
-import androidx.room.RoomDatabase
+import androidx.room.RoomDatabase.MigrationContainer
 import androidx.room.migration.Migration
 import kotlin.jvm.JvmName
 
@@ -53,6 +53,24 @@ internal fun DatabaseConfiguration.isMigrationRequired(
 }
 
 /**
+ * Indicates if the given migration is contained within the [MigrationContainer] based
+ * on its start-end versions.
+ *
+ * @param startVersion Start version of the migration.
+ * @param endVersion End version of the migration
+ * @return True if it contains a migration with the same start-end version, false otherwise.
+ */
+@Suppress("EXTENSION_SHADOWED_BY_MEMBER") // On purpose and only in Android source set.
+internal fun MigrationContainer.contains(startVersion: Int, endVersion: Int): Boolean {
+    val migrations = getMigrations()
+    if (migrations.containsKey(startVersion)) {
+        val startVersionMatches = migrations[startVersion] ?: emptyMap()
+        return startVersionMatches.containsKey(endVersion)
+    }
+    return false
+}
+
+/**
  * Finds the list of migrations that should be run to move from `start` version to
  * `end` version.
  *
@@ -62,7 +80,7 @@ internal fun DatabaseConfiguration.isMigrationRequired(
  * between the given versions. If a migration path cannot be found, `null` is returned.
  */
 @Suppress("EXTENSION_SHADOWED_BY_MEMBER") // On purpose and only in Android source set.
-internal fun RoomDatabase.MigrationContainer.findMigrationPath(
+internal fun MigrationContainer.findMigrationPath(
     start: Int,
     end: Int
 ): List<Migration>? {
@@ -74,7 +92,7 @@ internal fun RoomDatabase.MigrationContainer.findMigrationPath(
     return findUpMigrationPath(result, migrateUp, start, end)
 }
 
-private fun RoomDatabase.MigrationContainer.findUpMigrationPath(
+private fun MigrationContainer.findUpMigrationPath(
     result: MutableList<Migration>,
     upgrade: Boolean,
     start: Int,

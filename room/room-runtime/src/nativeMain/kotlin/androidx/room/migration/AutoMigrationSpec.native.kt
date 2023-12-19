@@ -14,22 +14,24 @@
  * limitations under the License.
  */
 
-package androidx.room
+package androidx.room.migration
 
-import androidx.room.migration.AutoMigrationSpec
-import androidx.sqlite.SQLiteDriver
+import androidx.sqlite.SQLiteConnection
 
 /**
- * Configuration class for a [RoomDatabase].
+ * Interface for defining an automatic migration specification for Room databases.
+ *
+ * The methods defined in this interface will be called on a background thread from the executor
+ * set in Room's builder. It is important to note that the methods are all in a transaction when
+ * it is called.
+ *
+ * @see [androidx.room.AutoMigration]
  */
-actual class DatabaseConfiguration(
+actual interface AutoMigrationSpec {
     /**
-     * Collection of available migrations.
+     * Invoked after the migration is completed.
+     *
+     * @param connection The database connection.
      */
-    actual val migrationContainer: RoomDatabase.MigrationContainer,
-    actual val requireMigration: Boolean,
-    actual val allowDestructiveMigrationOnDowngrade: Boolean,
-    internal actual val migrationNotRequiredFrom: Set<Int>?,
-    actual val autoMigrationSpecs: List<AutoMigrationSpec>,
-    actual val sqliteDriver: SQLiteDriver?
-)
+    actual fun onPostMigrate(connection: SQLiteConnection) { }
+}

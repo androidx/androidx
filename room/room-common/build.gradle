@@ -34,10 +34,6 @@ androidXMultiplatform {
     defaultPlatform(PlatformIdentifier.JVM)
 
     sourceSets {
-        all {
-            languageSettings.optIn("kotlin.RequiresOptIn")
-        }
-
         commonMain {
             dependencies {
                 api(libs.kotlinStdlib)

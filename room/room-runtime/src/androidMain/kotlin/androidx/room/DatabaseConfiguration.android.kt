@@ -120,7 +120,7 @@ constructor(
     val typeConverters: List<Any>,
 
     @JvmField
-    val autoMigrationSpecs: List<AutoMigrationSpec>,
+    actual val autoMigrationSpecs: List<AutoMigrationSpec>,
 
     @JvmField
     val allowDestructiveMigrationForAllTables: Boolean,

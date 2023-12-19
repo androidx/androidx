@@ -32,6 +32,7 @@ import androidx.room.Room.LOG_TAG
 import androidx.room.driver.SupportSQLiteConnection
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
+import androidx.room.util.contains as containsExt
 import androidx.room.util.findMigrationPath as findMigrationPathExt
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteDriver
@@ -51,6 +52,7 @@ import java.util.concurrent.Executor
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.locks.Lock
 import java.util.concurrent.locks.ReentrantReadWriteLock
+import kotlin.reflect.KClass
 
 /**
  * Base class for all Room databases. All classes that are annotated with [Database] must
@@ -66,10 +68,6 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
  * @see Database
  */
 actual abstract class RoomDatabase {
-    /**
-     * Set by the generated open helper.
-     *
-     */
     @Volatile
     @JvmField
     @Deprecated(
@@ -117,8 +115,6 @@ actual abstract class RoomDatabase {
     private var allowMainThreadQueries = false
     private var writeAheadLoggingEnabled = false
 
-    /**
-     */
     @JvmField
     @Deprecated(
         message = "This property is always null and will be removed in a future version.",
@@ -127,14 +123,6 @@ actual abstract class RoomDatabase {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     protected var mCallbacks: List<Callback>? = null
 
-    /**
-     * A map of auto migration spec classes to their provided instance.
-     *
-     */
-    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    protected var autoMigrationSpecs: MutableMap<Class<out AutoMigrationSpec>, AutoMigrationSpec> =
-        mutableMapOf()
     private val readWriteLock = ReentrantReadWriteLock()
     private var autoCloser: AutoCloser? = null
 
@@ -192,44 +180,7 @@ actual abstract class RoomDatabase {
     @CallSuper
     open fun init(configuration: DatabaseConfiguration) {
         connectionManager = createConnectionManager(configuration) as RoomAndroidConnectionManager
-
-        val requiredAutoMigrationSpecs = getRequiredAutoMigrationSpecs()
-        val usedSpecs = BitSet()
-        for (spec in requiredAutoMigrationSpecs) {
-            var foundIndex = -1
-            for (providedIndex in configuration.autoMigrationSpecs.indices.reversed()) {
-                val provided: Any = configuration.autoMigrationSpecs[providedIndex]
-                if (spec.isAssignableFrom(provided.javaClass)) {
-                    foundIndex = providedIndex
-                    usedSpecs.set(foundIndex)
-                    break
-                }
-            }
-            require(foundIndex >= 0) {
-                "A required auto migration spec (${spec.canonicalName}) is missing in the " +
-                    "database configuration."
-            }
-            autoMigrationSpecs[spec] = configuration.autoMigrationSpecs[foundIndex]
-        }
-        for (providedIndex in configuration.autoMigrationSpecs.indices.reversed()) {
-            require(usedSpecs[providedIndex]) {
-                "Unexpected auto migration specs found. " +
-                    "Annotate AutoMigrationSpec implementation with " +
-                    "@ProvidedAutoMigrationSpec annotation or remove this spec from the " +
-                    "builder."
-            }
-        }
-        val autoMigrations = getAutoMigrations(autoMigrationSpecs)
-        for (autoMigration in autoMigrations) {
-            val migrationExists = configuration.migrationContainer.contains(
-                autoMigration.startVersion,
-                autoMigration.endVersion
-            )
-            if (!migrationExists) {
-                configuration.migrationContainer.addMigrations(autoMigration)
-            }
-        }
-
+        validateAutoMigrations(configuration)
         // Configure SQLiteCopyOpenHelper if it is available
         unwrapOpenHelper(
                 clazz = SQLiteCopyOpenHelper::class.java,
@@ -329,14 +280,25 @@ actual abstract class RoomDatabase {
      *
      * @return A list of migration instances each of which is a generated autoMigration
      * @param autoMigrationSpecs
-     *
      */
+    @Deprecated("No longer implemented by generated")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @JvmSuppressWildcards // Suppress wildcards due to generated Java code
     open fun getAutoMigrations(
         autoMigrationSpecs: Map<Class<out AutoMigrationSpec>, AutoMigrationSpec>
     ): List<Migration> {
         return emptyList()
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual open fun createAutoMigrations(
+        autoMigrationSpecs: Map<KClass<out AutoMigrationSpec>, AutoMigrationSpec>
+    ): List<Migration> {
+        // For backwards compatibility when newer runtime is used with older generated code,
+        // call the Java version of getAutoMigrations()
+        val javaClassesMap = autoMigrationSpecs.mapKeys { it.key.java }
+        @Suppress("DEPRECATION")
+        return getAutoMigrations(javaClassesMap)
     }
 
     /**
@@ -415,11 +377,19 @@ actual abstract class RoomDatabase {
      * This is implemented by the generated code.
      *
      * @return Creates a set that will include all required auto migration specs for this database.
-     *
      */
+    @Deprecated("No longer implemented by generated")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     open fun getRequiredAutoMigrationSpecs(): Set<Class<out AutoMigrationSpec>> {
         return emptySet()
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    actual open fun getRequiredAutoMigrationSpecClasses(): Set<KClass<out AutoMigrationSpec>> {
+        // For backwards compatibility when newer runtime is used with older generated code,
+        // call the Java version of this function.
+        @Suppress("DEPRECATION")
+        return getRequiredAutoMigrationSpecs().map { it.kotlin }.toSet()
     }
 
     /**
@@ -1563,7 +1533,13 @@ actual abstract class RoomDatabase {
             migrations.forEach(::addMigration)
         }
 
-        private fun addMigration(migration: Migration) {
+        /**
+         * Add a [Migration] to the container. If the container already has a migration with the
+         * same start-end versions then it will be overwritten.
+         *
+         * @param migration the migration to add.
+         */
+        internal actual fun addMigration(migration: Migration) {
             val start = migration.startVersion
             val end = migration.endVersion
             val targetMap = migrations.getOrPut(start) { TreeMap<Int, Migration>() }
@@ -1606,12 +1582,7 @@ actual abstract class RoomDatabase {
          * @return True if it contains a migration with the same start-end version, false otherwise.
          */
         fun contains(startVersion: Int, endVersion: Int): Boolean {
-            val migrations = getMigrations()
-            if (migrations.containsKey(startVersion)) {
-                val startVersionMatches = migrations[startVersion] ?: emptyMap()
-                return startVersionMatches.containsKey(endVersion)
-            }
-            return false
+            return this.containsExt(startVersion, endVersion)
         }
 
         internal actual fun getSortedNodes(

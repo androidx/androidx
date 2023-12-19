@@ -15,6 +15,8 @@
  */
 package androidx.room.migration
 
+import androidx.room.driver.SupportSQLiteConnection
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 /**
@@ -24,12 +26,26 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  * set in Room's builder. It is important to note that the methods are all in a transaction when
  * it is called.
  *
- * For details, see [androidx.room.AutoMigration]
+ * @see [androidx.room.AutoMigration]
  */
-interface AutoMigrationSpec {
+actual interface AutoMigrationSpec {
     /**
      * Invoked after the migration is completed.
      * @param db The SQLite database.
      */
     fun onPostMigrate(db: SupportSQLiteDatabase) {}
+
+    /**
+     * Invoked after the migration is completed.
+     *
+     * @param connection The database connection.
+     */
+    actual fun onPostMigrate(connection: SQLiteConnection) {
+        // TODO(b/314338741): Signal users this non-abstract overload should be implemented
+        if (connection is SupportSQLiteConnection) {
+            onPostMigrate(connection.db)
+        } else {
+            TODO("Not yet migrated to use SQLiteDriver")
+        }
+    }
 }
