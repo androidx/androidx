@@ -124,6 +124,7 @@ import androidx.camera.video.internal.compat.quirk.PreviewDelayWhenVideoCaptureI
 import androidx.camera.video.internal.compat.quirk.PreviewStretchWhenVideoCaptureIsBoundQuirk;
 import androidx.camera.video.internal.compat.quirk.VideoQualityQuirk;
 import androidx.camera.video.internal.config.VideoMimeInfo;
+import androidx.camera.video.internal.encoder.SwappedVideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderConfig;
 import androidx.camera.video.internal.encoder.VideoEncoderInfo;
 import androidx.camera.video.internal.encoder.VideoEncoderInfoImpl;
@@ -573,8 +574,8 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
         } else {
             cropRect = new Rect(0, 0, surfaceResolution.getWidth(), surfaceResolution.getHeight());
         }
-        if (videoEncoderInfo == null || videoEncoderInfo.isSizeSupported(cropRect.width(),
-                cropRect.height())) {
+        if (videoEncoderInfo == null || videoEncoderInfo.isSizeSupportedAllowSwapping(
+                cropRect.width(), cropRect.height())) {
             return cropRect;
         }
         return adjustCropRectToValidSize(cropRect, surfaceResolution, videoEncoderInfo);
@@ -950,11 +951,29 @@ public final class VideoCapture<T extends VideoOutput> extends UseCase {
                 videoEncoderInfo.getSupportedHeights()
         ));
 
-        // Construct all up/down alignment combinations.
+        boolean swapWidthHeightConstraints;
+        if (videoEncoderInfo.getSupportedWidths().contains(cropRect.width())
+                && videoEncoderInfo.getSupportedHeights().contains(cropRect.height())) {
+            swapWidthHeightConstraints = false;
+        } else if (videoEncoderInfo.canSwapWidthHeight()
+                && videoEncoderInfo.getSupportedHeights().contains(cropRect.width())
+                && videoEncoderInfo.getSupportedWidths().contains(cropRect.height())) {
+            swapWidthHeightConstraints = true;
+        } else {
+            // We may need a strategy when both width and height are not within supported widths
+            // and heights. It should be a rare case and for now we leave it no swapping.
+            swapWidthHeightConstraints = false;
+        }
+        if (swapWidthHeightConstraints) {
+            videoEncoderInfo = new SwappedVideoEncoderInfo(videoEncoderInfo);
+        }
+
         int widthAlignment = videoEncoderInfo.getWidthAlignment();
         int heightAlignment = videoEncoderInfo.getHeightAlignment();
         Range<Integer> supportedWidths = videoEncoderInfo.getSupportedWidths();
         Range<Integer> supportedHeights = videoEncoderInfo.getSupportedHeights();
+
+        // Construct all up/down alignment combinations.
         int widthAlignedDown = alignDown(cropRect.width(), widthAlignment, supportedWidths);
         int widthAlignedUp = alignUp(cropRect.width(), widthAlignment, supportedWidths);
         int heightAlignedDown = alignDown(cropRect.height(), heightAlignment, supportedHeights);
