@@ -113,7 +113,7 @@ public fun Chip(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     contentPadding: PaddingValues = ChipDefaults.ContentPadding,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     role: Role? = Role.Button,
     content: @Composable RowScope.() -> Unit,
@@ -181,7 +181,7 @@ public fun Chip(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     contentPadding: PaddingValues = ChipDefaults.ContentPadding,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     role: Role? = Role.Button,
     content: @Composable RowScope.() -> Unit,
@@ -357,7 +357,7 @@ public fun Chip(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ChipDefaults.ContentPadding,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
     border: ChipBorder = ChipDefaults.chipBorder()
 ) {
     ChipImpl(
@@ -440,7 +440,7 @@ public fun OutlinedChip(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ChipDefaults.ContentPadding,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
     border: ChipBorder = ChipDefaults.outlinedChipBorder()
 ) =
     Chip(
@@ -635,7 +635,7 @@ public fun CompactChip(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ChipDefaults.CompactChipContentPadding,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
     border: ChipBorder = ChipDefaults.chipBorder()
 ) {
     if (label != null) {
@@ -759,7 +759,7 @@ public fun OutlinedCompactChip(
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     contentPadding: PaddingValues = ChipDefaults.CompactChipContentPadding,
-    shape: Shape = MaterialTheme.shapes.small,
+    shape: Shape = MaterialTheme.shapes.large,
     border: ChipBorder = ChipDefaults.outlinedChipBorder()
 ) =
     CompactChip(
