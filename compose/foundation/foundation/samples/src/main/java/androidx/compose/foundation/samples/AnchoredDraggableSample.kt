@@ -21,6 +21,7 @@ package androidx.compose.foundation.samples
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.rememberSplineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableState
@@ -52,18 +53,25 @@ private enum class AnchoredDraggableSampleValue {
 @Preview
 fun AnchoredDraggableAnchorsFromCompositionSample() {
     val density = LocalDensity.current
-    val animationSpec = tween<Float>()
+    val snapAnimationSpec = tween<Float>()
+    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
     val positionalThreshold = { distance: Float -> distance * 0.5f }
     val velocityThreshold = { with(density) { 125.dp.toPx() } }
     val state = rememberSaveable(
         density,
-        saver = AnchoredDraggableState.Saver(animationSpec, positionalThreshold, velocityThreshold)
+        saver = AnchoredDraggableState.Saver(
+            snapAnimationSpec,
+            decayAnimationSpec,
+            positionalThreshold,
+            velocityThreshold
+        )
     ) {
         AnchoredDraggableState(
             initialValue = AnchoredDraggableSampleValue.Center,
             positionalThreshold,
             velocityThreshold,
-            animationSpec
+            snapAnimationSpec,
+            decayAnimationSpec
         )
     }
     val draggableWidth = 70.dp
@@ -100,18 +108,25 @@ fun AnchoredDraggableAnchorsFromCompositionSample() {
 @Composable
 fun AnchoredDraggableLayoutDependentAnchorsSample() {
     val density = LocalDensity.current
-    val animationSpec = tween<Float>()
+    val snapAnimationSpec = tween<Float>()
+    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
     val positionalThreshold = { distance: Float -> distance * 0.5f }
     val velocityThreshold = { with(density) { 125.dp.toPx() } }
     val state = rememberSaveable(
         density,
-        saver = AnchoredDraggableState.Saver(animationSpec, positionalThreshold, velocityThreshold)
+        saver = AnchoredDraggableState.Saver(
+            snapAnimationSpec,
+            decayAnimationSpec,
+            positionalThreshold,
+            velocityThreshold
+        )
     ) {
         AnchoredDraggableState(
             initialValue = AnchoredDraggableSampleValue.Center,
             positionalThreshold,
             velocityThreshold,
-            animationSpec
+            snapAnimationSpec,
+            decayAnimationSpec
         )
     }
     val draggableSize = 100.dp
@@ -183,14 +198,16 @@ fun AnchoredDraggableCatchAnimatingWidgetSample() {
     // animating to that anchor. If you want to catch it while it is animating, you need to press
     // the box and drag it past the touchSlop. This is because startDragImmediately is set to false.
     val density = LocalDensity.current
-    // Setting the duration of the animationSpec to 3000ms gives more time to attempt to press
+    val decayAnimationSpec = rememberSplineBasedDecay<Float>()
+    // Setting the duration of the snapAnimationSpec to 3000ms gives more time to attempt to press
     // or drag the settling box.
-    val animationSpec = tween<Float>(durationMillis = 3000)
+    val snapAnimationSpec = tween<Float>(durationMillis = 3000)
     val state = AnchoredDraggableState(
         initialValue = AnchoredDraggableSampleValue.Start,
         positionalThreshold = { distance: Float -> distance * 0.5f },
         velocityThreshold = { with(density) { 125.dp.toPx() } },
-        animationSpec = animationSpec
+        snapAnimationSpec = snapAnimationSpec,
+        decayAnimationSpec = decayAnimationSpec
     )
 
     val draggableSize = 100.dp
