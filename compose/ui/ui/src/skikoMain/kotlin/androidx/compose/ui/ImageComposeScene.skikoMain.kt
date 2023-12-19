@@ -33,9 +33,11 @@ import androidx.compose.ui.scene.MultiLayerComposeScene
 import androidx.compose.ui.scene.ComposeScenePointer
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toIntRect
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.DurationUnit.NANOSECONDS
@@ -137,7 +139,7 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
         layoutDirection = layoutDirection,
         coroutineContext = coroutineContext,
     ).also {
-        it.size = IntSize(width, height)
+        it.boundsInWindow = IntRect(0, 0, width, height)
         it.setContent(content = content)
     }
 
@@ -170,8 +172,8 @@ class ImageComposeScene @ExperimentalComposeUiApi constructor(
      * Constraints used to measure and layout content.
      */
     var constraints: Constraints
-        get() = scene.size?.toConstraints() ?: Constraints()
-        set(value) { scene.size = value.toSize() }
+        get() = scene.boundsInWindow?.size?.toConstraints() ?: Constraints()
+        set(value) { scene.boundsInWindow = value.toSize()?.toIntRect() }
 
     /**
      * Returns true if there are pending recompositions, renders or dispatched tasks.

@@ -39,6 +39,7 @@ import androidx.compose.ui.text.input.PlatformTextInputService
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.toIntRect
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
@@ -179,7 +180,7 @@ class SkikoComposeUiTest(
         composeSceneContext = TestComposeSceneContext(),
         invalidate = { }
     ).also {
-        it.size = size
+        it.boundsInWindow = size.toIntRect()
     }
 
     private fun shouldPumpTime(): Boolean {

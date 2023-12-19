@@ -48,7 +48,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.IntRect
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.compose.ui.unit.roundToIntRect
@@ -62,7 +61,6 @@ import androidx.compose.ui.window.UITouchesEventPhase
 import androidx.compose.ui.window.uiContentSizeCategoryToFontScaleMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.math.floor
-import kotlin.math.roundToInt
 import kotlin.math.roundToLong
 import kotlinx.cinterop.CValue
 import kotlinx.cinterop.ObjCAction
@@ -438,17 +436,19 @@ internal class ComposeSceneMediator(
 
     fun viewWillLayoutSubviews() {
         val density = getSystemDensity()
-        val scale = density.density
         //TODO: Current code updates layout based on rootViewController size.
         // Maybe we need to rewrite it for SingleLayerComposeScene.
-        val size = container.frame.useContents {
-            IntSize(
-                width = (size.width * scale).roundToInt(),
-                height = (size.height * scale).roundToInt()
-            )
+
+        val boundsInWindow = container.convertRect(
+            rect = container.bounds,
+            toView = null
+        ).useContents {
+            with(density) {
+                toDpRect().toRect().roundToIntRect()
+            }
         }
         scene.density = density // TODO: Maybe it is wrong to set density to scene here?
-        scene.size = size
+        scene.boundsInWindow = boundsInWindow
         onComposeSceneInvalidate()
     }
 

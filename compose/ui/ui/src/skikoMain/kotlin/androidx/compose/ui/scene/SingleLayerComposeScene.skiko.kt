@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.toIntRect
@@ -65,14 +66,14 @@ import kotlinx.coroutines.Dispatchers
 fun SingleLayerComposeScene(
     density: Density = Density(1f),
     layoutDirection: LayoutDirection = LayoutDirection.Ltr,
-    size: IntSize? = null,
+    bounds: IntRect? = null,
     coroutineContext: CoroutineContext = Dispatchers.Unconfined,
     composeSceneContext: ComposeSceneContext = ComposeSceneContext.Empty,
     invalidate: () -> Unit = {},
 ): ComposeScene = SingleLayerComposeSceneImpl(
     density = density,
     layoutDirection = layoutDirection,
-    size = size,
+    bounds = bounds,
     coroutineContext = coroutineContext,
     composeSceneContext = composeSceneContext,
     invalidate = invalidate
@@ -81,7 +82,7 @@ fun SingleLayerComposeScene(
 private class SingleLayerComposeSceneImpl(
     density: Density,
     layoutDirection: LayoutDirection,
-    size: IntSize?,
+    bounds: IntRect?,
     coroutineContext: CoroutineContext,
     composeSceneContext: ComposeSceneContext,
     invalidate: () -> Unit = {},
@@ -95,7 +96,7 @@ private class SingleLayerComposeSceneImpl(
             density = density,
             layoutDirection = layoutDirection,
             coroutineContext = compositionContext.effectCoroutineContext,
-            bounds = size?.toIntRect(),
+            bounds = bounds,
             platformContext = composeSceneContext.platformContext,
             snapshotInvalidationTracker = snapshotInvalidationTracker,
             inputHandler = inputHandler,
@@ -116,11 +117,11 @@ private class SingleLayerComposeSceneImpl(
             mainOwner.layoutDirection = value
         }
 
-    override var size: IntSize? = size
+    override var boundsInWindow: IntRect? = bounds
         set(value) {
             check(!isClosed) { "ComposeScene is closed" }
             field = value
-            mainOwner.bounds = value?.toIntRect()
+            mainOwner.bounds = value
         }
 
     override val focusManager: ComposeSceneFocusManager =

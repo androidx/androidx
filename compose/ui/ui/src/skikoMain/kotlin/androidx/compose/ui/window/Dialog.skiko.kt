@@ -179,11 +179,10 @@ private fun DialogLayout(
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)
     rememberLayerContent(layer) {
         val measurePolicy = rememberDialogMeasurePolicy(
+            layer = layer,
             properties = properties,
             platformInsets = platformInsets
-        ) {
-            layer.bounds = it
-        }
+        )
         properties.insetsConfig.excludeSafeInsets {
             Layout(
                 content = content,
@@ -206,19 +205,19 @@ private val DialogProperties.insetsConfig: InsetsConfig
 
 @Composable
 private fun rememberDialogMeasurePolicy(
+    layer: ComposeSceneLayer,
     properties: DialogProperties,
-    platformInsets: PlatformInsets,
-    onBoundsChanged: (IntRect) -> Unit
-) = remember(properties, platformInsets, onBoundsChanged) {
+    platformInsets: PlatformInsets
+) = remember(layer, properties, platformInsets) {
     RootMeasurePolicy(
         platformInsets = platformInsets,
         usePlatformDefaultWidth = properties.usePlatformDefaultWidth
     ) { windowSize, contentSize ->
-        val position = positionWithInsets(platformInsets, windowSize) {
-            it.center - contentSize.center
+        val positionWithInsets = positionWithInsets(platformInsets, windowSize) { sizeWithoutInsets ->
+            sizeWithoutInsets.center - contentSize.center
         }
-        onBoundsChanged(IntRect(position, contentSize))
-        position
+        layer.boundsInWindow = IntRect(positionWithInsets, contentSize)
+        layer.calculateLocalPosition(positionWithInsets)
     }
 }
 

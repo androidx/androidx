@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.PlatformContext
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.uikit.ComposeUIViewControllerConfiguration
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.window.ComposeContainer
@@ -117,7 +118,7 @@ internal class UIViewComposeSceneLayer(
     override var density by mediator::density
     override var layoutDirection by mediator::layoutDirection
 
-    override var bounds: IntRect
+    override var boundsInWindow: IntRect
         get() = mediator.getBoundsInPx()
         set(value) {
             mediator.setLayout(
@@ -156,6 +157,10 @@ internal class UIViewComposeSceneLayer(
         onOutsidePointerEvent: ((dismissRequest: Boolean) -> Unit)?
     ) {
         this.onOutsidePointerEvent = onOutsidePointerEvent
+    }
+
+    override fun calculateLocalPosition(positionInWindow: IntOffset): IntOffset {
+        return positionInWindow
     }
 
     fun viewDidAppear(animated: Boolean) {

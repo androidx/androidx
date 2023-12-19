@@ -435,17 +435,16 @@ private fun PopupLayout(
     layer.setKeyEventListener(onPreviewKeyEvent, onKeyEvent)
     layer.setOutsidePointerEventListener(onOutsidePointerEvent)
     rememberLayerContent(layer) {
-        val parentBounds = layoutParentBoundsInWindow ?: return@rememberLayerContent
+        val parentBoundsInWindow = layoutParentBoundsInWindow ?: return@rememberLayerContent
         val layoutDirection = LocalLayoutDirection.current
         val measurePolicy = rememberPopupMeasurePolicy(
+            layer = layer,
             popupPositionProvider = popupPositionProvider,
             properties = properties,
             platformInsets = platformInsets,
             layoutDirection = layoutDirection,
-            parentBounds = parentBounds
-        ) {
-            layer.bounds = it
-        }
+            parentBoundsInWindow = parentBoundsInWindow
+        )
         properties.insetsConfig.excludeSafeInsets {
             Layout(
                 content = content,
@@ -487,37 +486,37 @@ private fun Modifier.parentBoundsInWindow(
 
 @Composable
 private fun rememberPopupMeasurePolicy(
+    layer: ComposeSceneLayer,
     popupPositionProvider: PopupPositionProvider,
     properties: PopupProperties,
     platformInsets: PlatformInsets,
     layoutDirection: LayoutDirection,
-    parentBounds: IntRect,
-    onBoundsChanged: (IntRect) -> Unit
-) = remember(popupPositionProvider, properties, platformInsets, layoutDirection, parentBounds, onBoundsChanged) {
+    parentBoundsInWindow: IntRect,
+) = remember(layer, popupPositionProvider, properties, platformInsets, layoutDirection, parentBoundsInWindow) {
     RootMeasurePolicy(
         platformInsets = platformInsets,
         usePlatformDefaultWidth = properties.usePlatformDefaultWidth
     ) { windowSize, contentSize ->
-        val position = positionWithInsets(platformInsets, windowSize) {
-            // Position provider should work with local coordinates.
-            val localBounds = parentBounds.translate(
+        val positionWithInsets = positionWithInsets(platformInsets, windowSize) { sizeWithoutInsets ->
+            // Position provider works in coordinates without insets.
+            val boundsWithoutInsets = parentBoundsInWindow.translate(
                 -platformInsets.left.roundToPx(),
                 -platformInsets.top.roundToPx()
             )
-            val localPosition = popupPositionProvider.calculatePosition(
-                localBounds, it, layoutDirection, contentSize
+            val positionInWindow = popupPositionProvider.calculatePosition(
+                boundsWithoutInsets, sizeWithoutInsets, layoutDirection, contentSize
             )
             if (properties.clippingEnabled) {
                 IntOffset(
-                    x = localPosition.x.coerceIn(0, it.width - contentSize.width),
-                    y = localPosition.y.coerceIn(0, it.height - contentSize.height)
+                    x = positionInWindow.x.coerceIn(0, sizeWithoutInsets.width - contentSize.width),
+                    y = positionInWindow.y.coerceIn(0, sizeWithoutInsets.height - contentSize.height)
                 )
             } else {
-                localPosition
+                positionInWindow
             }
         }
-        onBoundsChanged(IntRect(position, contentSize))
-        position
+        layer.boundsInWindow = IntRect(positionWithInsets, contentSize)
+        layer.calculateLocalPosition(positionWithInsets)
     }
 }
 
