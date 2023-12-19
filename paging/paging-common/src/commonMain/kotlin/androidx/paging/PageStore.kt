@@ -41,7 +41,7 @@ internal class PageStore<T : Any>(
     )
 
     private val pages: MutableList<TransformablePage<T>> = pages.toMutableList()
-    override var storageCount: Int = pages.fullCount()
+    override var dataCount: Int = pages.fullCount()
         private set
     private val originalPageOffsetFirst: Int
         get() = pages.first().originalPageOffsets.minOrNull()!!
@@ -59,7 +59,7 @@ internal class PageStore<T : Any>(
     }
 
     override fun toString(): String {
-        val items = List(storageCount) { getFromStorage(it) }.joinToString()
+        val items = List(dataCount) { getFromStorage(it) }.joinToString()
         return "[($placeholdersBefore placeholders), $items, ($placeholdersAfter placeholders)]"
     }
 
@@ -67,7 +67,7 @@ internal class PageStore<T : Any>(
         checkIndex(index)
 
         val localIndex = index - placeholdersBefore
-        if (localIndex < 0 || localIndex >= storageCount) {
+        if (localIndex < 0 || localIndex >= dataCount) {
             return null
         }
         return getFromStorage(localIndex)
@@ -100,17 +100,29 @@ internal class PageStore<T : Any>(
     }
 
     override val size: Int
-        get() = placeholdersBefore + storageCount + placeholdersAfter
+        get() = placeholdersBefore + dataCount + placeholdersAfter
 
     private fun List<TransformablePage<T>>.fullCount() = sumOf { it.data.size }
 
+    fun processEvent(pageEvent: PageEvent<T>): PagingDataEvent<T> {
+        return when (pageEvent) {
+            is PageEvent.Insert -> insertPage(pageEvent)
+            else -> throw IllegalStateException(
+                """Paging received an event to process StaticList, LoadStateUpdate, or Drop while
+                |processing Inserts. If you see this exception, it is most
+                |likely a bug in the library. Please file a bug so we can fix it at:
+                |$BUGANIZER_URL""".trimMargin()
+            )
+        }
+    }
+
+    // TODO("To be removed when all PageEvent types have moved to the other processEvent overload")
     fun processEvent(pageEvent: PageEvent<T>, callback: ProcessPageEventCallback) {
         when (pageEvent) {
-            is PageEvent.Insert -> insertPage(pageEvent, callback)
             is PageEvent.Drop -> dropPages(pageEvent, callback)
             else -> throw IllegalStateException(
-                """Paging received an event to process StaticList or LoadStateUpdate while 
-                |processing Inserts and Drops. If you see this exception, it is most
+                """Paging received an event for StaticList, LoadStateUpdate, or Insert while
+                |processing Drops. If you see this exception, it is most
                 |likely a bug in the library. Please file a bug so we can fix it at:
                 |$BUGANIZER_URL""".trimMargin()
             )
@@ -118,7 +130,7 @@ internal class PageStore<T : Any>(
     }
 
     fun initializeHint(): ViewportHint.Initial {
-        val presentedItems = storageCount
+        val presentedItems = dataCount
         return ViewportHint.Initial(
             presentedItemsBefore = presentedItems / 2,
             presentedItemsAfter = presentedItems / 2,
@@ -146,27 +158,12 @@ internal class PageStore<T : Any>(
     }
 
     /**
-     * Insert the event's page to the presentation list, and dispatch associated callbacks for
-     * change (placeholder becomes real item) or insert (real item is appended).
-     *
-     * For each insert (or removal) there are three potential events:
-     *
-     * 1) change
-     *     this covers any placeholder/item conversions, and is done first
-     *
-     * 2) item insert/remove
-     *     this covers any remaining items that are inserted/removed, but aren't swapping with
-     *     placeholders
-     *
-     * 3) placeholder insert/remove
-     *     after the above, placeholder count can be wrong for a number of reasons - approximate
-     *     counting or filtering are the most common. In either case, we adjust placeholders at
-     *     the far end of the list, so that they don't trigger animations near the user.
+     * Insert the event's page to the storage and return a [PagingDataEvent] to be dispatched to
+     * presenters.
      */
-    private fun insertPage(insert: PageEvent.Insert<T>, callback: ProcessPageEventCallback) {
-        val count = insert.pages.fullCount()
-        val oldSize = size
-        when (insert.loadType) {
+    private fun insertPage(insert: PageEvent.Insert<T>): PagingDataEvent<T> {
+        val insertSize = insert.pages.fullCount()
+        return when (insert.loadType) {
             REFRESH -> throw IllegalStateException(
                 """Paging received a refresh event in the middle of an actively loading generation
                 |of PagingData. If you see this exception, it is most likely a bug in the library.
@@ -174,57 +171,34 @@ internal class PageStore<T : Any>(
                 |$BUGANIZER_URL""".trimMargin()
             )
             PREPEND -> {
-                val placeholdersChangedCount = minOf(placeholdersBefore, count)
-                val placeholdersChangedPos = placeholdersBefore - placeholdersChangedCount
-
-                val itemsInsertedCount = count - placeholdersChangedCount
-                val itemsInsertedPos = 0
-
-                // first update all state...
+                val oldPlaceholdersBefore = placeholdersBefore
+                // update all states
                 pages.addAll(0, insert.pages)
-                storageCount += count
+                dataCount += insertSize
                 placeholdersBefore = insert.placeholdersBefore
 
-                // ... then trigger callbacks, so callbacks won't see inconsistent state
-                callback.onChanged(placeholdersChangedPos, placeholdersChangedCount)
-                callback.onInserted(itemsInsertedPos, itemsInsertedCount)
-                val placeholderInsertedCount = size - oldSize - itemsInsertedCount
-                if (placeholderInsertedCount > 0) {
-                    callback.onInserted(0, placeholderInsertedCount)
-                } else if (placeholderInsertedCount < 0) {
-                    callback.onRemoved(0, -placeholderInsertedCount)
-                }
+                PagingDataEvent.Prepend(
+                    inserted = insert.pages.flatMap { it.data },
+                    newPlaceholdersBefore = placeholdersBefore,
+                    oldPlaceholdersBefore = oldPlaceholdersBefore
+                )
             }
             APPEND -> {
-                val placeholdersChangedCount = minOf(placeholdersAfter, count)
-                val placeholdersChangedPos = placeholdersBefore + storageCount
-
-                val itemsInsertedCount = count - placeholdersChangedCount
-                val itemsInsertedPos = placeholdersChangedPos + placeholdersChangedCount
-
-                // first update all state...
+                val oldPlaceholdersAfter = placeholdersAfter
+                val oldDataCount = dataCount
+                // update all states
                 pages.addAll(pages.size, insert.pages)
-                storageCount += count
+                dataCount += insertSize
                 placeholdersAfter = insert.placeholdersAfter
 
-                // ... then trigger callbacks, so callbacks won't see inconsistent state
-                callback.onChanged(placeholdersChangedPos, placeholdersChangedCount)
-                callback.onInserted(itemsInsertedPos, itemsInsertedCount)
-                val placeholderInsertedCount = size - oldSize - itemsInsertedCount
-                if (placeholderInsertedCount > 0) {
-                    callback.onInserted(
-                        position = size - placeholderInsertedCount,
-                        count = placeholderInsertedCount
-                    )
-                } else if (placeholderInsertedCount < 0) {
-                    callback.onRemoved(size, -placeholderInsertedCount)
-                }
+                PagingDataEvent.Append(
+                    startIndex = placeholdersBefore + oldDataCount,
+                    inserted = insert.pages.flatMap { it.data },
+                    newPlaceholdersAfter = placeholdersAfter,
+                    oldPlaceholdersAfter = oldPlaceholdersAfter
+                )
             }
         }
-        callback.onStateUpdate(
-            source = insert.sourceLoadStates,
-            mediator = insert.mediatorLoadStates
-        )
     }
 
     /**
@@ -262,7 +236,7 @@ internal class PageStore<T : Any>(
 
             // first update all state...
             val itemDropCount = dropPagesWithOffsets(drop.minPageOffset..drop.maxPageOffset)
-            storageCount -= itemDropCount
+            dataCount -= itemDropCount
             placeholdersBefore = drop.placeholdersRemaining
 
             // ... then trigger callbacks, so callbacks won't see inconsistent state
@@ -301,7 +275,7 @@ internal class PageStore<T : Any>(
 
             // first update all state...
             val itemDropCount = dropPagesWithOffsets(drop.minPageOffset..drop.maxPageOffset)
-            storageCount -= itemDropCount
+            dataCount -= itemDropCount
             placeholdersAfter = drop.placeholdersRemaining
 
             // ... then trigger callbacks, so callbacks won't see inconsistent state

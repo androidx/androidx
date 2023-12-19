@@ -1034,7 +1034,7 @@ public abstract class PagedList<T : Any> internal constructor(
      * @see size
      */
     public val loadedCount: Int
-        get() = storage.storageCount
+        get() = storage.dataCount
 
     /**
      * Returns whether the list is immutable.

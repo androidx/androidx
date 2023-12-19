@@ -502,8 +502,7 @@ class PageFetcherSnapshotStateTest {
                         TransformablePage(originalPageOffset = -offset, data = get(i).data)
                     ),
                     placeholdersBefore = initialPage.itemsBefore - (offset * pageSize),
-                ),
-                ProcessPageEventCallbackCapture()
+                )
             )
         }
 
@@ -515,8 +514,7 @@ class PageFetcherSnapshotStateTest {
                         TransformablePage(originalPageOffset = offset, data = get(i).data)
                     ),
                     placeholdersAfter = initialPage.itemsAfter - (offset * pageSize),
-                ),
-                ProcessPageEventCallbackCapture()
+                )
             )
         }
 

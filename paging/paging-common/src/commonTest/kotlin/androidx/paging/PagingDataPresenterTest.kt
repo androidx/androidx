@@ -56,7 +56,7 @@ import kotlinx.coroutines.test.runTest
  * consumer cases.
  */
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
-class PagingDataDifferTest {
+class PagingDataPresenterTest {
     private val testScope = TestScope(UnconfinedTestDispatcher())
 
     @Test
@@ -2045,7 +2045,7 @@ class PagingDataDifferTest {
     }
 
     @Test
-    fun recollectOnNewDiffer_initialLoadStates() = testScope.runTest {
+    fun recollectOnNewPresenter_initialLoadStates() = testScope.runTest {
         val pager = Pager(
             config = PagingConfig(pageSize = 3, enablePlaceholders = false),
             initialKey = 50,
@@ -2070,19 +2070,19 @@ class PagingDataDifferTest {
         )
 
         // we start a separate presenter to recollect on cached Pager.flow
-        val differ2 = SimplePresenter(
+        val presenter2 = SimplePresenter(
             differCallback = dummyDifferCallback,
         )
-        backgroundScope.launch { differ2.collectLoadStates() }
+        backgroundScope.launch { presenter2.collectLoadStates() }
 
         val job2 = launch {
             pager.collectLatest {
-                differ2.collectFrom(it)
+                presenter2.collectFrom(it)
             }
         }
         advanceUntilIdle()
 
-        assertThat(differ2.newCombinedLoadStates()).containsExactly(
+        assertThat(presenter2.newCombinedLoadStates()).containsExactly(
             localLoadStatesOf()
         )
 
@@ -2420,6 +2420,8 @@ private class SimplePresenter(
             _localLoadStates.add(combinedLoadStates)
         }
     }
+
+    override suspend fun presentPagingDataEvent(event: PagingDataEvent<Int>) { }
 }
 
 internal val dummyUiReceiver = object : UiReceiver {
