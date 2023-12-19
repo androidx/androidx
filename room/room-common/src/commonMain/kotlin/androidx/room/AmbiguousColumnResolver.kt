@@ -188,7 +188,7 @@ public object AmbiguousColumnResolver {
         content[depth].forEach {
             current.add(it)
             dfs(content, current, depth + 1, block)
-            current.removeLast()
+            current.removeAt(current.lastIndex) // Avoiding removeLast() due to KT-64381
         }
     }
 
