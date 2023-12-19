@@ -29,5 +29,5 @@ public interface NullPaddedList<T> {
     public fun getFromStorage(localIndex: Int): T
     public val placeholdersAfter: Int
     public val size: Int
-    public val storageCount: Int
+    public val dataCount: Int
 }

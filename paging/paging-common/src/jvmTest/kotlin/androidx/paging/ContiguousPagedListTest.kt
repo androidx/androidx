@@ -190,7 +190,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
             assertEquals(0, actual.placeholdersBefore)
             assertEquals(0, actual.placeholdersAfter)
         }
-        assertEquals(count, actual.storageCount)
+        assertEquals(count, actual.dataCount)
     }
 
     private fun verifyRange(start: Int, count: Int, actual: PagedList<Item>) {

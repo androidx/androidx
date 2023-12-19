@@ -31,6 +31,7 @@ import androidx.paging.LoadState
 import androidx.paging.LoadStates
 import androidx.paging.NullPaddedList
 import androidx.paging.PagingData
+import androidx.paging.PagingDataEvent
 import androidx.paging.PagingDataPresenter
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -103,6 +104,12 @@ public class LazyPagingItems<T : Any> internal constructor(
             onListPresentable()
             updateItemSnapshotList()
             return null
+        }
+
+        override suspend fun presentPagingDataEvent(
+            event: PagingDataEvent<T>,
+        ) {
+            updateItemSnapshotList()
         }
     }
 
