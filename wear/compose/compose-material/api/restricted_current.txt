@@ -6,7 +6,7 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Stable public interface ButtonBorder {
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.foundation.BorderStroke> borderStroke(boolean enabled);
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.foundation.BorderStroke?> borderStroke(boolean enabled);
   }
 
   @androidx.compose.runtime.Stable public interface ButtonColors {
@@ -77,7 +77,7 @@ package androidx.wear.compose.material {
   }
 
   @androidx.compose.runtime.Stable public interface ChipBorder {
-    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.foundation.BorderStroke> borderStroke(boolean enabled);
+    method @androidx.compose.runtime.Composable public androidx.compose.runtime.State<androidx.compose.foundation.BorderStroke?> borderStroke(boolean enabled);
   }
 
   @androidx.compose.runtime.Stable public interface ChipColors {
@@ -308,7 +308,7 @@ package androidx.wear.compose.material {
   }
 
   public final class PickerGroupKt {
-    method @androidx.compose.runtime.Composable public static void PickerGroup(androidx.wear.compose.material.PickerGroupItem![] pickers, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.PickerGroupState pickerGroupState, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onSelected, optional boolean autoCenter, optional boolean propagateMinConstraints, optional androidx.wear.compose.material.TouchExplorationStateProvider touchExplorationStateProvider, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? separator);
+    method @androidx.compose.runtime.Composable public static void PickerGroup(androidx.wear.compose.material.PickerGroupItem[] pickers, optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.PickerGroupState pickerGroupState, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit> onSelected, optional boolean autoCenter, optional boolean propagateMinConstraints, optional androidx.wear.compose.material.TouchExplorationStateProvider touchExplorationStateProvider, optional kotlin.jvm.functions.Function1<? super java.lang.Integer,kotlin.Unit>? separator);
     method @androidx.compose.runtime.Composable public static androidx.wear.compose.material.PickerGroupState rememberPickerGroupState(optional int initiallySelectedIndex);
   }
 
@@ -498,9 +498,9 @@ package androidx.wear.compose.material {
   public final class ScalingLazyColumnKt {
     method @Deprecated @androidx.compose.runtime.Composable public static void ScalingLazyColumn(optional androidx.compose.ui.Modifier modifier, optional androidx.wear.compose.material.ScalingLazyListState state, optional androidx.compose.foundation.layout.PaddingValues contentPadding, optional boolean reverseLayout, optional androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement, optional androidx.compose.ui.Alignment.Horizontal horizontalAlignment, optional androidx.compose.foundation.gestures.FlingBehavior flingBehavior, optional boolean userScrollEnabled, optional androidx.wear.compose.material.ScalingParams scalingParams, optional int anchorType, optional androidx.wear.compose.material.AutoCenteringParams? autoCentering, kotlin.jvm.functions.Function1<? super androidx.wear.compose.material.ScalingLazyListScope,kotlin.Unit> content);
     method @Deprecated public static inline <T> void items(androidx.wear.compose.material.ScalingLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
-    method @Deprecated public static inline <T> void items(androidx.wear.compose.material.ScalingLazyListScope, T![] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
+    method @Deprecated public static inline <T> void items(androidx.wear.compose.material.ScalingLazyListScope, T[] items, optional kotlin.jvm.functions.Function1<? super T,?>? key, kotlin.jvm.functions.Function2<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super T,kotlin.Unit> itemContent);
     method @Deprecated public static inline <T> void itemsIndexed(androidx.wear.compose.material.ScalingLazyListScope, java.util.List<? extends T> items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
-    method @Deprecated public static inline <T> void itemsIndexed(androidx.wear.compose.material.ScalingLazyListScope, T![] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
+    method @Deprecated public static inline <T> void itemsIndexed(androidx.wear.compose.material.ScalingLazyListScope, T[] items, optional kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,?>? key, kotlin.jvm.functions.Function3<? super androidx.wear.compose.material.ScalingLazyListItemScope,? super java.lang.Integer,? super T,kotlin.Unit> itemContent);
   }
 
   @Deprecated @androidx.compose.runtime.Immutable @kotlin.jvm.JvmInline public final value class ScalingLazyListAnchorType {

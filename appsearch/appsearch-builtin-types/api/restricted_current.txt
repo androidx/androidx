@@ -44,7 +44,7 @@ package androidx.appsearch.builtintypes {
     method public androidx.appsearch.builtintypes.Alarm.Builder setBlackoutPeriodStartDate(String?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setComputingDevice(int);
     method public androidx.appsearch.builtintypes.Alarm.Builder setCreationTimestampMillis(long);
-    method public androidx.appsearch.builtintypes.Alarm.Builder setDaysOfWeek(@IntRange(from=java.util.Calendar.SUNDAY, to=java.util.Calendar.SATURDAY) int...);
+    method public androidx.appsearch.builtintypes.Alarm.Builder setDaysOfWeek(@IntRange(from=java.util.Calendar.SUNDAY, to=java.util.Calendar.SATURDAY) int...?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setDescription(String?);
     method public androidx.appsearch.builtintypes.Alarm.Builder setDocumentScore(int);
     method public androidx.appsearch.builtintypes.Alarm.Builder setDocumentTtlMillis(long);

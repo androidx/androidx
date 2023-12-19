@@ -40,7 +40,7 @@ package androidx.slice {
     method @Deprecated public androidx.slice.Slice.Builder addSubSlice(androidx.slice.Slice, String?);
     method @Deprecated public androidx.slice.Slice.Builder addText(CharSequence?, String?, java.lang.String!...);
     method @Deprecated public androidx.slice.Slice.Builder addText(CharSequence?, String?, java.util.List<java.lang.String!>);
-    method @Deprecated public androidx.slice.Slice.Builder! addTimestamp(long, String?, java.lang.String!...);
+    method @Deprecated public androidx.slice.Slice.Builder! addTimestamp(long, String?, java.lang.String!...!);
     method @Deprecated public androidx.slice.Slice.Builder addTimestamp(long, String?, java.util.List<java.lang.String!>);
     method @Deprecated public androidx.slice.Slice build();
     method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public androidx.slice.Slice.Builder setSpec(androidx.slice.SliceSpec?);
@@ -73,7 +73,7 @@ package androidx.slice {
     method @Deprecated public androidx.slice.Slice? getSlice();
     method @Deprecated public String? getSubType();
     method @Deprecated public CharSequence? getText();
-    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean hasAnyHints(java.lang.String!...);
+    method @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) public boolean hasAnyHints(java.lang.String!...?);
     method @Deprecated public boolean hasHint(String);
   }
 
@@ -299,9 +299,9 @@ package androidx.slice.core {
     method @Deprecated public static androidx.slice.SliceItem? findSubtype(androidx.slice.Slice?, String?, String?);
     method @Deprecated public static androidx.slice.SliceItem? findSubtype(androidx.slice.SliceItem?, String?, String?);
     method @Deprecated public static androidx.slice.SliceItem? findTopLevelItem(androidx.slice.Slice, String?, String?, String![]?, String![]?);
-    method @Deprecated public static boolean hasAnyHints(androidx.slice.SliceItem, java.lang.String!...);
-    method @Deprecated public static boolean hasHints(androidx.slice.Slice, java.lang.String!...);
-    method @Deprecated public static boolean hasHints(androidx.slice.SliceItem, java.lang.String!...);
+    method @Deprecated public static boolean hasAnyHints(androidx.slice.SliceItem, java.lang.String!...?);
+    method @Deprecated public static boolean hasHints(androidx.slice.Slice, java.lang.String!...?);
+    method @Deprecated public static boolean hasHints(androidx.slice.SliceItem, java.lang.String!...?);
   }
 
 }

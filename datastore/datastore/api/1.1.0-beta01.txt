@@ -27,7 +27,7 @@ package androidx.datastore.migrations {
 
   public final class SharedPreferencesView {
     method public operator boolean contains(String key);
-    method public java.util.Map<java.lang.String,java.lang.Object> getAll();
+    method public java.util.Map<java.lang.String,java.lang.Object?> getAll();
     method public boolean getBoolean(String key, boolean defValue);
     method public float getFloat(String key, float defValue);
     method public int getInt(String key, int defValue);

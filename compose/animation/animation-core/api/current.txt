@@ -488,8 +488,8 @@ package androidx.compose.animation.core {
     method public S getCurrentState();
     method public S getTargetState();
     method public boolean isIdle();
-    method internal void setCurrentState$metalava_module(S!);
-    method public void setTargetState(S!);
+    method internal void setCurrentState$metalava_module(S);
+    method public void setTargetState(S);
     property public S currentState;
     property public final boolean isIdle;
     property public S targetState;
@@ -527,8 +527,8 @@ package androidx.compose.animation.core {
     method public S getCurrentState();
     method @FloatRange(from=0.0, to=1.0) public float getFraction();
     method public S getTargetState();
-    method internal void setCurrentState$metalava_module(S!);
-    method internal void setTargetState$metalava_module(S!);
+    method internal void setCurrentState$metalava_module(S);
+    method internal void setTargetState$metalava_module(S);
     method public suspend Object? snapTo(optional S targetState, optional @FloatRange(from=0.0, to=1.0) float fraction, kotlin.coroutines.Continuation<? super kotlin.Unit>);
     property public S currentState;
     property @FloatRange(from=0.0, to=1.0) public final float fraction;

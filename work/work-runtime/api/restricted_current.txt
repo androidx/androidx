@@ -152,7 +152,7 @@ package androidx.work {
     method public long getLong(String key, long defaultValue);
     method public long[]? getLongArray(String key);
     method public String? getString(String key);
-    method public String![]? getStringArray(String key);
+    method public String[]? getStringArray(String key);
     method public <T> boolean hasKeyWithValueOfType(String key, Class<T> klass);
     method public byte[] toByteArray();
     property public final java.util.Map<java.lang.String,java.lang.Object> keyValueMap;
@@ -179,7 +179,7 @@ package androidx.work {
     method public androidx.work.Data.Builder putLong(String key, long value);
     method public androidx.work.Data.Builder putLongArray(String key, long[] value);
     method public androidx.work.Data.Builder putString(String key, String? value);
-    method public androidx.work.Data.Builder putStringArray(String key, String![] value);
+    method public androidx.work.Data.Builder putStringArray(String key, String?[] value);
   }
 
   public static final class Data.Companion {
@@ -340,9 +340,9 @@ package androidx.work {
 
   public static final class PeriodicWorkRequest.Builder extends androidx.work.WorkRequest.Builder<androidx.work.PeriodicWorkRequest.Builder,androidx.work.PeriodicWorkRequest> {
     ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, java.time.Duration repeatInterval);
-    ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, java.time.Duration repeatInterval, java.time.Duration flexInterval);
-    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
-    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexInterval, java.util.concurrent.TimeUnit flexIntervalTimeUnit);
+    ctor @RequiresApi(26) public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, java.time.Duration repeatInterval, java.time.Duration flexInterval);
+    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit);
+    ctor public PeriodicWorkRequest.Builder(Class<? extends androidx.work.ListenableWorker?> workerClass, long repeatInterval, java.util.concurrent.TimeUnit repeatIntervalTimeUnit, long flexInterval, java.util.concurrent.TimeUnit flexIntervalTimeUnit);
     method public androidx.work.PeriodicWorkRequest.Builder clearNextScheduleTimeOverride();
     method public androidx.work.PeriodicWorkRequest.Builder setNextScheduleTimeOverride(long nextScheduleTimeOverrideMillis);
   }
@@ -466,7 +466,7 @@ package androidx.work {
     method public abstract androidx.work.Operation cancelWorkById(java.util.UUID);
     method public abstract android.app.PendingIntent createCancelPendingIntent(java.util.UUID);
     method public final androidx.work.Operation enqueue(androidx.work.WorkRequest);
-    method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest>);
+    method public abstract androidx.work.Operation enqueue(java.util.List<? extends androidx.work.WorkRequest!>);
     method public abstract androidx.work.Operation enqueueUniquePeriodicWork(String, androidx.work.ExistingPeriodicWorkPolicy, androidx.work.PeriodicWorkRequest);
     method public androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, androidx.work.OneTimeWorkRequest);
     method public abstract androidx.work.Operation enqueueUniqueWork(String, androidx.work.ExistingWorkPolicy, java.util.List<androidx.work.OneTimeWorkRequest!>);
@@ -502,7 +502,7 @@ package androidx.work {
   public final class WorkManagerInitializer implements androidx.startup.Initializer<androidx.work.WorkManager> {
     ctor public WorkManagerInitializer();
     method public androidx.work.WorkManager create(android.content.Context);
-    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>>!> dependencies();
+    method public java.util.List<java.lang.Class<? extends androidx.startup.Initializer<?>!>!> dependencies();
   }
 
   public final class WorkQuery {
