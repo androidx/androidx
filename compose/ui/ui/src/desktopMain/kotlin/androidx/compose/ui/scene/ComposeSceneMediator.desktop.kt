@@ -248,9 +248,46 @@ internal class ComposeSceneMediator(
         }
     }
 
+    // Decides which AWT events should be delivered, and which should be filtered out
+    private val awtEventFilter = object {
+
+        var isPrimaryButtonPressed = false
+
+        fun shouldSendMouseEvent(event: MouseEvent): Boolean {
+            // AWT can send events after the window is disposed
+            if (isDisposed)
+                return false
+
+            // Filter out mouse events that report the primary button has changed state to pressed,
+            // but aren't themselves a mouse press event. This is needed because on macOS, AWT sends
+            // us spurious enter/exit events that report the primary button as pressed when resizing
+            // the window by its corner/edge. This causes false-positives in detectTapGestures.
+            // See https://github.com/JetBrains/compose-multiplatform/issues/2850 for more details.
+            val eventReportsPrimaryButtonPressed =
+                (event.modifiersEx and MouseEvent.BUTTON1_DOWN_MASK) != 0
+            if ((event.button == MouseEvent.BUTTON1) &&
+                ((event.id == MouseEvent.MOUSE_PRESSED) ||
+                    (event.id == MouseEvent.MOUSE_RELEASED))) {
+                isPrimaryButtonPressed = eventReportsPrimaryButtonPressed  // Update state
+            }
+            if (eventReportsPrimaryButtonPressed && !isPrimaryButtonPressed) {
+                return false  // Ignore such events
+            }
+
+            return true
+        }
+
+        @Suppress("UNUSED_PARAMETER")
+        fun shouldSendKeyEvent(event: KeyEvent): Boolean {
+            // AWT can send events after the window is disposed
+            return !isDisposed
+        }
+    }
+
     private fun onMouseEvent(event: MouseEvent): Unit = catchExceptions {
-        // AWT can send events after the window is disposed
-        if (isDisposed) return@catchExceptions
+        if (!awtEventFilter.shouldSendMouseEvent(event))
+            return@catchExceptions
+
         if (keyboardModifiersRequireUpdate) {
             keyboardModifiersRequireUpdate = false
             windowContext.setKeyboardModifiers(event.keyboardModifiers)
@@ -259,12 +296,16 @@ internal class ComposeSceneMediator(
     }
 
     private fun onMouseWheelEvent(event: MouseWheelEvent): Unit = catchExceptions {
-        if (isDisposed) return@catchExceptions
+        if (!awtEventFilter.shouldSendMouseEvent(event))
+            return@catchExceptions
+
         scene.onMouseWheelEvent(density, event)
     }
 
     private fun onKeyEvent(event: KeyEvent) = catchExceptions {
-        if (isDisposed) return@catchExceptions
+        if (!awtEventFilter.shouldSendKeyEvent(event))
+            return@catchExceptions
+
         textInputService.onKeyEvent(event)
         windowContext.setKeyboardModifiers(event.toPointerKeyboardModifiers())
 

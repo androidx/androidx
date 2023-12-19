@@ -48,6 +48,7 @@ import java.awt.Dimension
 import java.awt.Toolkit
 import java.awt.event.KeyEvent
 import java.awt.event.MouseEvent
+import java.awt.event.MouseEvent.BUTTON1
 import java.awt.event.MouseEvent.BUTTON1_DOWN_MASK
 import java.awt.event.MouseEvent.BUTTON3_DOWN_MASK
 import java.awt.event.MouseEvent.CTRL_DOWN_MASK
@@ -329,7 +330,7 @@ class WindowInputEventTest {
         assertThat(events.last().pressed).isEqualTo(false)
         assertThat(events.last().position).isEqualTo(Offset(100 * density, 50 * density))
 
-        window.sendMouseEvent(MOUSE_PRESSED, 100, 50, modifiers = BUTTON1_DOWN_MASK)
+        window.sendMousePress(BUTTON1, 100, 50)
         awaitIdle()
         assertThat(events.size).isEqualTo(2)
         assertThat(events.last().pressed).isEqualTo(true)
@@ -341,7 +342,7 @@ class WindowInputEventTest {
         assertThat(events.last().pressed).isEqualTo(true)
         assertThat(events.last().position).isEqualTo(Offset(90 * density, 40 * density))
 
-        window.sendMouseEvent(MOUSE_RELEASED, 80, 30)
+        window.sendMouseRelease(BUTTON1, 80, 30)
         awaitIdle()
         // Synthetic move, because position of the Release isn't the same as in the previous event
         assertThat(events.size).isEqualTo(5)
@@ -399,9 +400,9 @@ class WindowInputEventTest {
         assertThat(onEnters).isEqualTo(1)
         assertThat(onExits).isEqualTo(0)
 
-        window.sendMouseEvent(MOUSE_PRESSED, x = 90, y = 50, modifiers = BUTTON1_DOWN_MASK)
+        window.sendMousePress(BUTTON1, x = 90, y = 50)
         window.sendMouseEvent(MOUSE_DRAGGED, x = 80, y = 50, modifiers = BUTTON1_DOWN_MASK)
-        window.sendMouseEvent(MOUSE_RELEASED, x = 80, y = 50)
+        window.sendMouseRelease(BUTTON1, x = 80, y = 50)
         awaitIdle()
         assertThat(onMoves.size).isEqualTo(2)
         assertThat(onMoves.last()).isEqualTo(Offset(80 * density, 50 * density))
@@ -557,11 +558,12 @@ class WindowInputEventTest {
         awaitIdle()
 
         window.sendMouseEvent(
-            MOUSE_PRESSED,
+            id = MOUSE_PRESSED,
             x = 100,
             y = 50,
             modifiers = SHIFT_DOWN_MASK or CTRL_DOWN_MASK or
-                BUTTON1_DOWN_MASK or BUTTON3_DOWN_MASK
+                BUTTON1_DOWN_MASK or BUTTON3_DOWN_MASK,
+            button = BUTTON1
         )
 
         awaitIdle()
@@ -681,8 +683,8 @@ class WindowInputEventTest {
         }
         awaitIdle()
 
-        window.sendMouseEvent(id = MOUSE_PRESSED, x = 1, y = 1, modifiers = BUTTON1_DOWN_MASK)
-        window.sendMouseEvent(id = MOUSE_RELEASED, x = 21, y = 1)
+        window.sendMousePress(BUTTON1, x = 1, y = 1)
+        window.sendMouseRelease(BUTTON1, x = 21, y = 1)
 
         assertThat(box1ReleaseCount).isEqualTo(1)
         assertThat(box2ReleaseCount).isEqualTo(0)
