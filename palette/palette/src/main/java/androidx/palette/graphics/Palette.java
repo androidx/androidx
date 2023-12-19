@@ -556,14 +556,14 @@ public final class Palette {
         @NonNull // TODO Remove once AGP 3.3. Fixed by I32b659c4e842ba5ac3d45b2d75b080b810fe1fe8.
         @Override
         public String toString() {
-            return new StringBuilder(getClass().getSimpleName())
-                    .append(" [RGB: #").append(Integer.toHexString(getRgb())).append(']')
-                    .append(" [HSL: ").append(Arrays.toString(getHsl())).append(']')
-                    .append(" [Population: ").append(mPopulation).append(']')
-                    .append(" [Title Text: #").append(Integer.toHexString(getTitleTextColor()))
-                    .append(']')
-                    .append(" [Body Text: #").append(Integer.toHexString(getBodyTextColor()))
-                    .append(']').toString();
+            return getClass().getSimpleName()
+                    + " [RGB: #" + Integer.toHexString(getRgb()) + ']'
+                    + " [HSL: " + Arrays.toString(getHsl()) + ']'
+                    + " [Population: " + mPopulation + ']'
+                    + " [Title Text: #" + Integer.toHexString(getTitleTextColor())
+                    + ']'
+                    + " [Body Text: #" + Integer.toHexString(getBodyTextColor())
+                    + ']';
         }
 
         @Override

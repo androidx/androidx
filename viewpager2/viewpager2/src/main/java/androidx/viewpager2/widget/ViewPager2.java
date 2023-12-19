@@ -553,7 +553,7 @@ public final class ViewPager2 extends ViewGroup {
         int snapPosition = mLayoutManager.getPosition(snapView);
 
         if (snapPosition != mCurrentItem && getScrollState() == SCROLL_STATE_IDLE) {
-            /** TODO: revisit if push to {@link ScrollEventAdapter} / separate component */
+            /* TODO: revisit if push to {@link ScrollEventAdapter} / separate component */
             mPageChangeEventDispatcher.onPageSelected(snapPosition);
         }
 

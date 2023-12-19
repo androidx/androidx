@@ -696,7 +696,7 @@ public class LinearLayoutCompat extends ViewGroup {
                 }
             }
 
-            /**
+            /*
              * If applicable, compute the additional offset to the child's baseline
              * we'll need later when asked {@link #getBaseline}.
              */
