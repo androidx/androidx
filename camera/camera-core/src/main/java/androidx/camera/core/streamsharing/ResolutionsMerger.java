@@ -22,10 +22,14 @@ import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOL
 import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_16_9;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.ASPECT_RATIO_4_3;
 import static androidx.camera.core.impl.utils.AspectRatioUtil.hasMatchingAspectRatio;
+import static androidx.camera.core.impl.utils.TransformUtils.is90or270;
 import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
+import static androidx.camera.core.impl.utils.TransformUtils.reverseSize;
 
 import static java.lang.Math.sqrt;
 
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
@@ -121,6 +125,70 @@ public class ResolutionsMerger {
     }
 
     /**
+     * Returns a preferred pair composed of a crop rect before scaling and a size after scaling.
+     *
+     * <p>The first size in the child's ordered size list that does not require the parent to
+     * upscale and does not cause double-cropping will be used to generate the pair, or {@code
+     * parentCropRect} will be used if no matching is found.
+     *
+     * <p>The returned crop rect and size will have the same aspect-ratio. When {@code
+     * isViewportSet}, the viewport setting will be respected, so the aspect-ratio of resulting
+     * crop rect and size will be same as {@code parentCropRect}.
+     *
+     * <p>Notes that the input {@code childConfig} is expected to be one of the values that use to
+     * construct the {@link ResolutionsMerger}, if not an IllegalArgumentException will be thrown.
+     */
+    @NonNull
+    Pair<Rect, Size> getPreferredChildSizePair(@NonNull UseCaseConfig<?> childConfig,
+            @NonNull Rect parentCropRect, int sensorToBufferRotationDegrees,
+            boolean isViewportSet) {
+        // For easier in following computations, width and height are reverted when the rotation
+        // degrees of sensor-to-buffer is 90 or 270.
+        boolean isWidthHeightRevertedForComputation = false;
+        if (is90or270(sensorToBufferRotationDegrees)) {
+            parentCropRect = reverseRect(parentCropRect);
+            isWidthHeightRevertedForComputation = true;
+        }
+
+        // Get preferred child size pair.
+        Pair<Rect, Size> pair = getPreferredChildSizePairInternal(parentCropRect, childConfig,
+                isViewportSet);
+        Rect cropRectBeforeScaling = pair.first;
+        Size childSizeToScale = pair.second;
+
+        // Restore the reversion of width and height
+        if (isWidthHeightRevertedForComputation) {
+            childSizeToScale = reverseSize(childSizeToScale);
+            cropRectBeforeScaling = reverseRect(cropRectBeforeScaling);
+        }
+
+        return new Pair<>(cropRectBeforeScaling, childSizeToScale);
+
+    }
+
+    @NonNull
+    private Pair<Rect, Size> getPreferredChildSizePairInternal(@NonNull Rect parentCropRect,
+            @NonNull UseCaseConfig<?> childConfig, boolean isViewportSet) {
+        Rect cropRectBeforeScaling;
+        Size childSizeToScale;
+
+        if (isViewportSet) {
+            cropRectBeforeScaling = parentCropRect;
+
+            // When viewport is set, child size needs to be cropped to match viewport's
+            // aspect-ratio.
+            Size viewPortSize = rectToSize(parentCropRect);
+            childSizeToScale = getPreferredChildSizeForViewport(viewPortSize, childConfig);
+        } else {
+            Size parentSize = rectToSize(parentCropRect);
+            childSizeToScale = getPreferredChildSize(parentSize, childConfig);
+            cropRectBeforeScaling = getCropRectOfReferenceAspectRatio(parentSize, childSizeToScale);
+        }
+
+        return new Pair<>(cropRectBeforeScaling, childSizeToScale);
+    }
+
+    /**
      * Returns the preferred child size with considering parent size and child's configuration.
      *
      * <p>Returns the first size in the child's ordered size list that can be cropped from {@code
@@ -130,14 +198,15 @@ public class ResolutionsMerger {
      * <p>Notes that the input {@code childConfig} is expected to be one of the values that use to
      * construct the {@link ResolutionsMerger}, if not an IllegalArgumentException will be thrown.
      */
+    @VisibleForTesting
     @NonNull
     Size getPreferredChildSize(@NonNull Size parentSize, @NonNull UseCaseConfig<?> childConfig) {
-        boolean isParentCropped = !isSensorAspectRatio(parentSize);
+        boolean isSourceCropped = !isSensorAspectRatio(parentSize);
 
         List<Size> candidateChildSizes = getSortedChildSizes(childConfig);
         for (Size childSize : candidateChildSizes) {
-            // Skip child sizes that need another cropping when parent is already cropped.
-            if (isParentCropped) {
+            // Skip child sizes that need another cropping when source is already cropped.
+            if (isSourceCropped) {
                 boolean needAnotherCropping = !(isFallbackAspectRatio(parentSize)
                         && isFallbackAspectRatio(childSize));
                 if (needAnotherCropping) {
@@ -147,6 +216,34 @@ public class ResolutionsMerger {
 
             if (!hasUpscaling(childSize, parentSize)) {
                 return childSize;
+            }
+        }
+
+        return parentSize;
+    }
+
+    /**
+     * Returns the preferred child size with considering config and viewport applied parent size.
+     *
+     * <p>Returns the first size in the child's ordered size list that can be cropped to same
+     * aspect-ratio as {@code parentSize} without upscaling, or {@code parentSize} if no matching
+     * is found.
+     *
+     * <p>Notes that the input {@code childConfig} is expected to be one of the values that use to
+     * construct the {@link ResolutionsMerger}, if not an IllegalArgumentException will be thrown.
+     */
+    @VisibleForTesting
+    @NonNull
+    Size getPreferredChildSizeForViewport(@NonNull Size parentSize,
+            @NonNull UseCaseConfig<?> childConfig) {
+        List<Size> candidateChildSizes = getSortedChildSizes(childConfig);
+
+        for (Size childSize : candidateChildSizes) {
+            Size childSizeToCrop = rectToSize(
+                    getCropRectOfReferenceAspectRatio(childSize, parentSize));
+
+            if (!hasUpscaling(childSizeToCrop, parentSize)) {
+                return childSizeToCrop;
             }
         }
 
@@ -279,6 +376,17 @@ public class ResolutionsMerger {
         return hasMatchingAspectRatio(size, mFallbackAspectRatio);
     }
 
+    /**
+     * Returns the crop rectangle for target that has the same aspect-ratio as the reference.
+     */
+    @VisibleForTesting
+    @NonNull
+    static Rect getCropRectOfReferenceAspectRatio(@NonNull Size targetSize,
+            @NonNull Size referenceSize) {
+        Rational referenceRatio = new Rational(referenceSize.getWidth(), referenceSize.getHeight());
+        return getCenterCroppedRectangle(referenceRatio, targetSize);
+    }
+
     @NonNull
     private static List<Size> getSupportedPrivResolutions(
             @NonNull List<Pair<Integer, Size[]>> supportedResolutionsMap) {
@@ -316,6 +424,40 @@ public class ResolutionsMerger {
         } else {
             return ASPECT_RATIO_4_3;
         }
+    }
+
+    /** @noinspection SuspiciousNameCombination */
+    @VisibleForTesting
+    @NonNull
+    static Rect reverseRect(@NonNull Rect rect) {
+        return new Rect(rect.top, rect.left, rect.bottom, rect.right);
+    }
+
+    @NonNull
+    private static Rect getCenterCroppedRectangle(@NonNull Rational cropRatio,
+            @NonNull Size baseSize) {
+        int width = baseSize.getWidth();
+        int height = baseSize.getHeight();
+        Rational referenceRatio = new Rational(width, height);
+
+        RectF cropRectInFloat;
+        if (cropRatio.floatValue() == referenceRatio.floatValue()) {
+            cropRectInFloat = new RectF(0, 0, width, height);
+        } else if (cropRatio.floatValue() > referenceRatio.floatValue()) {
+            float cropHeight = width / cropRatio.floatValue();
+            float yOffset = (height - cropHeight) / 2;
+            cropRectInFloat = new RectF(0, yOffset, width, yOffset + cropHeight);
+        } else {
+            float cropWidth = height * cropRatio.floatValue();
+            float xOffset = (width - cropWidth) / 2;
+            cropRectInFloat = new RectF(xOffset, 0, xOffset + cropWidth, height);
+        }
+
+        // RectF to Rect.
+        Rect result = new Rect();
+        cropRectInFloat.round(result);
+
+        return result;
     }
 
     /**
@@ -368,38 +510,21 @@ public class ResolutionsMerger {
      * <p>A size is too small if it cannot find any child size that can be cropped out without
      * upscaling.
      *
-     * <p>The order of the {@code sortedParentSizes} will be preserved in the resulting list.
-     *
-     * <p>Assuming {@code sortedParentSizes} is sorted in descending order and all sizes have same
-     * aspect-ratio.
+     * <p>The order of the {@code parentSizes} will be preserved in the resulting list.
      */
     @VisibleForTesting
     @NonNull
-    static List<Size> filterOutParentSizeThatIsTooSmall(
-            @NonNull Collection<Size> childSizes, @NonNull List<Size> sortedParentSizes) {
-        if (childSizes.isEmpty() || sortedParentSizes.isEmpty()) {
+    static List<Size> filterOutParentSizeThatIsTooSmall(@NonNull Collection<Size> childSizes,
+            @NonNull List<Size> parentSizes) {
+        if (childSizes.isEmpty() || parentSizes.isEmpty()) {
             return new ArrayList<>();
         }
 
-        // Find the smallest parent size that can be cropped to at least one child size without
-        // upscaling by using binary search.
-        int n = sortedParentSizes.size();
-        int lo = 0;
-        int hi = n - 1;
-        while (lo < hi) {
-            int mid = lo + (hi - lo + 1) / 2;
-            Size parentSize = sortedParentSizes.get(mid);
-            if (isAnyChildSizeCanBeCroppedOutWithoutUpscalingParent(childSizes, parentSize)) {
-                lo = mid;
-            } else {
-                hi = mid - 1;
-            }
-        }
-
-        // Add all parent sizes that can be cropped to at least one child size.
         List<Size> result = new ArrayList<>();
-        for (int i = 0; i <= lo; i++) {
-            result.add(sortedParentSizes.get(i));
+        for (Size parentSize : parentSizes) {
+            if (isAnyChildSizeCanBeCroppedOutWithoutUpscalingParent(childSizes, parentSize)) {
+                result.add(parentSize);
+            }
         }
 
         return result;
@@ -422,38 +547,27 @@ public class ResolutionsMerger {
      * <p>A size is too large if there is another size smaller than that size and all children
      * sizes can be cropped from that other size without upscaling.
      *
-     * <p>The order of the {@code sortedParentSizes} will be preserved in the resulting list.
-     *
-     * <p>Assuming {@code sortedParentSizes} is sorted in descending order and all sizes have same
-     * aspect-ratio.
+     * <p>The order of the {@code parentSizes} will be preserved in the resulting list.
      */
     @VisibleForTesting
     @NonNull
     static List<Size> getParentSizesThatAreTooLarge(@NonNull Collection<Size> childSizes,
-            @NonNull List<Size> sortedParentSizes) {
-        if (childSizes.isEmpty() || sortedParentSizes.isEmpty()) {
+            @NonNull List<Size> parentSizes) {
+        if (childSizes.isEmpty() || parentSizes.isEmpty()) {
             return new ArrayList<>();
         }
 
-        // Find the smallest parent size that can be cropped to all child sizes without upscaling
-        // by using binary search.
-        int n = sortedParentSizes.size();
-        int lo = 0;
-        int hi = n - 1;
-        while (lo < hi) {
-            int mid = lo + (hi - lo + 1) / 2;
-            Size parentSize = sortedParentSizes.get(mid);
+        List<Size> result = new ArrayList<>();
+        for (Size parentSize : parentSizes) {
             if (isAllChildSizesCanBeCroppedOutWithoutUpscalingParent(childSizes, parentSize)) {
-                lo = mid;
-            } else {
-                hi = mid - 1;
+                result.add(parentSize);
             }
         }
 
-        // Add all parent sizes that can be cropped to all child sizes, except the smallest one.
-        List<Size> result = new ArrayList<>();
-        for (int i = 0; i < lo; i++) {
-            result.add(sortedParentSizes.get(i));
+        // Remove the last element, which is the smallest parent size that can be cropped to all
+        // child sizes and should remain in the final parent size list.
+        if (!result.isEmpty()) {
+            result.remove(result.size() - 1);
         }
 
         return result;

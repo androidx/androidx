@@ -25,17 +25,18 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_PREVIEW_STABILIZATI
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_VIDEO_STABILIZATION_MODE;
 import static androidx.camera.core.impl.utils.Threads.checkMainThread;
-import static androidx.camera.core.impl.utils.TransformUtils.getRotatedSize;
-import static androidx.camera.core.impl.utils.TransformUtils.rectToSize;
+import static androidx.camera.core.impl.utils.TransformUtils.getRotationDegrees;
+import static androidx.camera.core.impl.utils.TransformUtils.rotateSize;
 import static androidx.camera.core.impl.utils.TransformUtils.within360;
 import static androidx.camera.core.streamsharing.DynamicRangeUtils.resolveDynamicRange;
-import static androidx.camera.core.streamsharing.ResolutionUtils.getMergedResolutions;
 import static androidx.core.util.Preconditions.checkState;
 
 import static java.util.Objects.requireNonNull;
 
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.os.Build;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
@@ -63,7 +64,6 @@ import androidx.camera.core.impl.stabilization.StabilizationMode;
 import androidx.camera.core.processing.SurfaceEdge;
 import androidx.camera.core.processing.SurfaceProcessorNode.OutConfig;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -99,6 +99,12 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
     // The callback that receives the parent camera's metadata.
     @NonNull
     private final CameraCaptureCallback mParentMetadataCallback = createCameraCaptureCallback();
+    @NonNull
+    private final Set<UseCaseConfig<?>> mChildrenConfigs;
+    @NonNull
+    private final Map<UseCase, UseCaseConfig<?>> mChildrenConfigsMap;
+    @NonNull
+    private final ResolutionsMerger mResolutionsMerger;
 
 
     /**
@@ -114,6 +120,9 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         mParentCamera = parentCamera;
         mUseCaseConfigFactory = useCaseConfigFactory;
         mChildren = children;
+        mChildrenConfigsMap = toChildrenConfigsMap(parentCamera, children, useCaseConfigFactory);
+        mChildrenConfigs = new HashSet<>(mChildrenConfigsMap.values());
+        mResolutionsMerger = new ResolutionsMerger(parentCamera, mChildrenConfigs);
         // Set children state to inactive by default.
         for (UseCase child : children) {
             mChildrenActiveState.put(child, false);
@@ -126,25 +135,13 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
 
     // --- API for StreamSharing ---
     void mergeChildrenConfigs(@NonNull MutableConfig mutableConfig) {
-        Set<UseCaseConfig<?>> childrenConfigs = new HashSet<>();
-        for (UseCase useCase : mChildren) {
-            childrenConfigs.add(useCase.mergeConfigs(mParentCamera.getCameraInfoInternal(),
-                    null,
-                    useCase.getDefaultConfig(true, mUseCaseConfigFactory)));
-        }
-
         // Merge resolution configs.
-        List<Size> cameraSupportedResolutions =
-                new ArrayList<>(mParentCamera.getCameraInfoInternal().getSupportedResolutions(
-                        INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE));
-        Size sensorSize = rectToSize(mParentCamera.getCameraControlInternal().getSensorRect());
-        List<Size> mergedResolutions = getMergedResolutions(cameraSupportedResolutions, sensorSize,
-                mutableConfig, childrenConfigs);
+        List<Size> mergedResolutions = mResolutionsMerger.getMergedResolutions(mutableConfig);
         mutableConfig.insertOption(OPTION_CUSTOM_ORDERED_RESOLUTIONS, mergedResolutions);
 
         // Merge Surface occupancy priority.
         mutableConfig.insertOption(OPTION_SURFACE_OCCUPANCY_PRIORITY,
-                getHighestSurfacePriority(childrenConfigs));
+                getHighestSurfacePriority(mChildrenConfigs));
 
         // Merge dynamic range configs. Try to find a dynamic range that can match all child
         // requirements, or throw an exception if no matching dynamic range.
@@ -152,7 +149,7 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         //   configured (Preview follows the settings, ImageCapture is fixed as SDR). When
         //   dynamic range APIs opened on other use cases, we might want a more advanced approach
         //   that allows conflicts, e.g. converting HDR stream to SDR stream.
-        DynamicRange dynamicRange = resolveDynamicRange(childrenConfigs);
+        DynamicRange dynamicRange = resolveDynamicRange(mChildrenConfigs);
         if (dynamicRange == null) {
             throw new IllegalArgumentException("Failed to merge child dynamic ranges, can not find"
                     + " a dynamic range that satisfies all children.");
@@ -211,25 +208,31 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
      * Gets {@link OutConfig} for children {@link UseCase} based on the input edge.
      */
     @NonNull
-    Map<UseCase, OutConfig> getChildrenOutConfigs(@NonNull SurfaceEdge cameraEdge,
-            @ImageOutputConfig.RotationValue int parentTargetRotation) {
+    Map<UseCase, OutConfig> getChildrenOutConfigs(@NonNull SurfaceEdge sharingInputEdge,
+            @ImageOutputConfig.RotationValue int parentTargetRotation, boolean isViewportSet) {
         Map<UseCase, OutConfig> outConfigs = new HashMap<>();
         int parentRotationDegrees = mParentCamera.getCameraInfo().getSensorRotationDegrees(
                 parentTargetRotation);
         for (UseCase useCase : mChildren) {
-            // TODO(b/264936115): This is a temporary solution where children use the parent
-            //  stream without changing it. Later we will update it to allow
-            //  cropping/down-sampling to better match children UseCase config.
+            Pair<Rect, Size> preferredSizePair = mResolutionsMerger.getPreferredChildSizePair(
+                    requireNonNull(mChildrenConfigsMap.get(useCase)),
+                    sharingInputEdge.getCropRect(),
+                    getRotationDegrees(sharingInputEdge.getSensorToBufferTransform()),
+                    isViewportSet
+            );
+            Rect cropRectBeforeScaling = preferredSizePair.first;
+            Size childSizeToScale = preferredSizePair.second;
+
             int childRotationDegrees = getChildRotationDegrees(useCase);
             requireNonNull(mChildrenVirtualCameras.get(useCase))
                     .setRotationDegrees(childRotationDegrees);
-            int childParentDelta = within360(
-                    cameraEdge.getRotationDegrees() + childRotationDegrees - parentRotationDegrees);
+            int childParentDelta = within360(sharingInputEdge.getRotationDegrees()
+                    + childRotationDegrees - parentRotationDegrees);
             outConfigs.put(useCase, OutConfig.of(
                     getChildTargetType(useCase),
                     getChildFormat(useCase),
-                    cameraEdge.getCropRect(),
-                    getRotatedSize(cameraEdge.getCropRect(), childParentDelta),
+                    cropRectBeforeScaling,
+                    rotateSize(childSizeToScale, childParentDelta),
                     childParentDelta,
                     useCase.isMirroringRequired(mParentCamera)));
         }
@@ -357,6 +360,20 @@ class VirtualCameraAdapter implements UseCase.StateChangeCallback {
         } else {
             return VIDEO_CAPTURE;
         }
+    }
+
+    @NonNull
+    private static Map<UseCase, UseCaseConfig<?>> toChildrenConfigsMap(
+            @NonNull CameraInternal parentCamera, @NonNull Set<UseCase> children,
+            @NonNull UseCaseConfigFactory useCaseConfigFactory) {
+        Map<UseCase, UseCaseConfig<?>> result = new HashMap<>();
+        for (UseCase useCase : children) {
+            UseCaseConfig<?> config = useCase.mergeConfigs(parentCamera.getCameraInfoInternal(),
+                    null, useCase.getDefaultConfig(true, useCaseConfigFactory));
+            result.put(useCase, config);
+        }
+
+        return result;
     }
 
     private static int getHighestSurfacePriority(Set<UseCaseConfig<?>> childrenConfigs) {
