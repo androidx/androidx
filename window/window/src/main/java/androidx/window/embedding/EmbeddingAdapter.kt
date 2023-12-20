@@ -113,6 +113,7 @@ internal class EmbeddingAdapter(
         activityStacks.map(this::translate)
 
     internal fun translate(splitAttributes: OEMSplitAttributes): SplitAttributes =
+        // TODO(b/263047900): hook to Extension color API
         SplitAttributes.Builder()
             .setSplitType(
                 when (val splitType = splitAttributes.splitType) {

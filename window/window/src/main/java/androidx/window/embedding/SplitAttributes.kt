@@ -21,6 +21,7 @@ import androidx.annotation.FloatRange
 import androidx.annotation.IntRange
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.window.RequiresWindowSdkExtension
 import androidx.window.WindowSdkExtensions
 import androidx.window.core.SpecificationComputer.Companion.startSpecification
 import androidx.window.core.VerificationMode
@@ -49,7 +50,7 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
  *     `animationBackgroundColor` attributes in `<SplitPairRule>` or
  *     `<SplitPlaceholderRule>` tags in an XML configuration file. The
  *     attributes are parsed as [SplitType], [LayoutDirection], and
- *     [BackgroundColor], respectively. Note that [SplitType.HingeSplitType]
+ *     [EmbeddingAnimationBackground], respectively. Note that [SplitType.HingeSplitType]
  *     is not supported XML format.
  *   - Using
  *     [SplitAttributesCalculator.computeSplitAttributesForParams] to customize
@@ -57,6 +58,7 @@ import androidx.window.embedding.SplitAttributes.SplitType.Companion.SPLIT_TYPE_
  *
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
+ * @see EmbeddingAnimationBackground
  */
 class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
 
@@ -71,6 +73,18 @@ class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
      * is based on locale.
      */
     val layoutDirection: LayoutDirection = LOCALE,
+
+    /**
+     * The animation background to use during the animation of the split
+     * involving this `SplitAttributes` object if the animation requires a
+     * background.
+     *
+     * The default is to use the current theme window background color.
+     *
+     * @see EmbeddingAnimationBackground.createColorBackground
+     * @see EmbeddingAnimationBackground.DEFAULT
+     */
+    val animationBackground: EmbeddingAnimationBackground = EmbeddingAnimationBackground.DEFAULT,
 ) {
 
     /**
@@ -365,6 +379,7 @@ class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
     override fun hashCode(): Int {
         var result = splitType.hashCode()
         result = result * 31 + layoutDirection.hashCode()
+        result = result * 31 + animationBackground.hashCode()
         return result
     }
 
@@ -380,7 +395,8 @@ class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
         if (this === other) return true
         if (other !is SplitAttributes) return false
         return splitType == other.splitType &&
-            layoutDirection == other.layoutDirection
+            layoutDirection == other.layoutDirection &&
+            animationBackground == other.animationBackground
     }
 
     /**
@@ -390,7 +406,8 @@ class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
      */
     override fun toString(): String =
         "${SplitAttributes::class.java.simpleName}:" +
-            "{splitType=$splitType, layoutDir=$layoutDirection }"
+            "{splitType=$splitType, layoutDir=$layoutDirection, " +
+            "animationBackground=$animationBackground }"
 
     /**
      * Builder for creating an instance of [SplitAttributes].
@@ -404,6 +421,7 @@ class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
     class Builder {
         private var splitType = SPLIT_TYPE_EQUAL
         private var layoutDirection = LOCALE
+        private var animationBackground = EmbeddingAnimationBackground.DEFAULT
 
         /**
          * Sets the split type attribute.
@@ -432,11 +450,34 @@ class SplitAttributes @RestrictTo(LIBRARY_GROUP) constructor(
             apply { this.layoutDirection = layoutDirection }
 
         /**
+         * Sets the animation background to use during animation of the split involving this
+         * `SplitAttributes` object if the animation requires a background.
+         *
+         * The default is [EmbeddingAnimationBackground.DEFAULT], which means to use the
+         * current theme window background color.
+         *
+         * The [EmbeddingAnimationBackground] can be supported only if the vendor API level of
+         * the target device is equals or higher than required API level. Otherwise, it would be
+         * no-op when setting the [EmbeddingAnimationBackground] on a target device that has lower
+         * API level.
+         *
+         * @param background The animation background.
+         * @return This `Builder`.
+         *
+         * @see EmbeddingAnimationBackground.createColorBackground
+         * @see EmbeddingAnimationBackground.DEFAULT
+         */
+        @RequiresWindowSdkExtension(5)
+        fun setAnimationBackground(background: EmbeddingAnimationBackground): Builder =
+            apply { animationBackground = background }
+
+        /**
          * Builds a `SplitAttributes` instance with the attributes specified by
-         * [setSplitType] and [setLayoutDirection].
+         * [setSplitType], [setLayoutDirection], and [setAnimationBackground].
          *
          * @return The new `SplitAttributes` instance.
          */
-        fun build(): SplitAttributes = SplitAttributes(splitType, layoutDirection)
+        fun build(): SplitAttributes = SplitAttributes(splitType, layoutDirection,
+            animationBackground)
     }
 }
