@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha18" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha18)" variant="all" version="8.3.0-alpha18">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanThreadSleep"
@@ -21,27 +21,9 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="CameraPipe can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="    private lateinit var cameraPipe: CameraPipe"
-        errorLine2="                                     ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/CameraPipeActivity.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="Companion.getNORMAL can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="    private var operatingMode: CameraGraph.OperatingMode = CameraGraph.OperatingMode.NORMAL"
         errorLine2="                                                                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/CameraPipeActivity.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="OperatingMode can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="    private var operatingMode: CameraGraph.OperatingMode = CameraGraph.OperatingMode.NORMAL"
-        errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/CameraPipeActivity.kt"/>
     </issue>
@@ -102,15 +84,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="CameraPipe can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="        var result: CameraPipe?"
-        errorLine2="                    ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/CameraPipeApplication.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="CameraPipe can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            result = CameraPipe(CameraPipe.Config(appContext = this))"
         errorLine2="                     ~~~~~~~~~~">
@@ -147,78 +120,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="Config can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="    private val cameraConfig: CameraGraph.Config,"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Config can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="    private val cameraConfig: CameraGraph.Config,"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraGraph can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="    private val cameraGraph: CameraGraph,"
-        errorLine2="                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraGraph can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="    private val cameraGraph: CameraGraph,"
-        errorLine2="                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraMetadata can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="    private val cameraMetadata: CameraMetadata,"
-        errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraMetadata can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="    private val cameraMetadata: CameraMetadata,"
-        errorLine2="                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraPipe can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            cameraPipe: CameraPipe,"
-        errorLine2="                        ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Listener can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            listeners: List&lt;Request.Listener> = emptyList(),"
-        errorLine2="                            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="Companion.getNORMAL can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            operatingMode: CameraGraph.OperatingMode? = CameraGraph.OperatingMode.NORMAL"
         errorLine2="                                                                                  ~~~~~~">
@@ -228,45 +129,9 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="OperatingMode can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            operatingMode: CameraGraph.OperatingMode? = CameraGraph.OperatingMode.NORMAL"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="Companion.getHIGH_SPEED can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            if (operatingMode == CameraGraph.OperatingMode.HIGH_SPEED) {"
         errorLine2="                                                           ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraPipe can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            cameraPipe: CameraPipe,"
-        errorLine2="                        ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraPipe can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            cameraPipe: CameraPipe,"
-        errorLine2="                        ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Listener can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            listeners: List&lt;Request.Listener> = emptyList()"
-        errorLine2="                            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
     </issue>
@@ -336,15 +201,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="CameraStream.Config can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            val viewfinderStreamConfig = Config.create("
-        errorLine2="            ^">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStreamConfig = Config.create("
         errorLine2="                                                ~~~~~~">
@@ -384,15 +240,6 @@
         message="Companion.getSURFACE_VIEW can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                outputType = OutputStream.OutputType.SURFACE_VIEW"
         errorLine2="                                                     ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraStream.Config can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            val privateStreamConfig = Config.create("
-        errorLine2="            ^">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
     </issue>
@@ -456,15 +303,6 @@
         message="Companion.getPREVIEW-vrKr8v8 can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                streamUseCase = OutputStream.StreamUseCase.PREVIEW"
         errorLine2="                                                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraGraph.Config can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            val config = CameraGraph.Config("
-        errorLine2="            ^">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
     </issue>
@@ -687,15 +525,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="CameraGraph.Session can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            cameraGraph.acquireSessionOrNull()!!.use {"
-        errorLine2="                                                     ^">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="CameraGraph.acquireSessionOrNull can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            cameraGraph.acquireSessionOrNull()!!.use {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
@@ -735,24 +564,6 @@
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        streams = listOf(viewfinderStream.id, privateStream.id)"
         errorLine2="                                                                            ~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraPipe can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            cameraPipe: CameraPipe,"
-        errorLine2="                        ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="Listener can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            listeners: List&lt;Request.Listener> = emptyList()"
-        errorLine2="                            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
     </issue>
@@ -804,15 +615,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="CameraStream.Config can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            val viewfinderStreamConfig = Config.create("
-        errorLine2="            ^">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val viewfinderStreamConfig = Config.create("
         errorLine2="                                                ~~~~~~">
@@ -858,15 +660,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="CameraStream.Config can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            val yuvStreamConfig = Config.create("
-        errorLine2="            ^">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="Companion.create-bSQo6-Q can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            val yuvStreamConfig = Config.create("
         errorLine2="                                         ~~~~~~">
@@ -888,15 +681,6 @@
         message="Companion.getYUV_420_888-8FPWQzE can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                StreamFormat.YUV_420_888"
         errorLine2="                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraGraph.Config can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            val config = CameraGraph.Config("
-        errorLine2="            ^">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
     </issue>
@@ -1083,15 +867,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="CameraGraph.Session can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            cameraGraph.acquireSessionOrNull()!!.use {"
-        errorLine2="                                                     ^">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="CameraGraph.acquireSessionOrNull can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="            cameraGraph.acquireSessionOrNull()!!.use {"
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
@@ -1131,15 +906,6 @@
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                        streams = listOf(viewfinderStream.id, yuvStream.id)"
         errorLine2="                                                                        ~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraPipe can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            cameraPipe: CameraPipe,"
-        errorLine2="                        ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
     </issue>
@@ -1308,15 +1074,6 @@
 
     <issue
         id="RestrictedApiAndroidX"
-        message="CameraGraph.Session can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="                cameraGraph.acquireSessionOrNull()!!.use {"
-        errorLine2="                                                         ^">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
         message="CameraGraph.acquireSessionOrNull can only be called from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                cameraGraph.acquireSessionOrNull()!!.use {"
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~">
@@ -1347,15 +1104,6 @@
         message="CameraStream.id can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
         errorLine1="                            streams = listOf(viewfinderStream.id)"
         errorLine2="                                                              ~~">
-        <location
-            file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
-    </issue>
-
-    <issue
-        id="RestrictedApiAndroidX"
-        message="CameraGraph.Config can only be accessed from within the same library group (referenced groupId=`androidx.camera` from groupId=`androidx.camera.integration-tests`)"
-        errorLine1="            return configs.mapIndexed { i, config ->"
-        errorLine2="                                           ~~~~~~">
         <location
             file="src/main/java/androidx/camera/integration/camera2/pipe/SimpleCamera.kt"/>
     </issue>

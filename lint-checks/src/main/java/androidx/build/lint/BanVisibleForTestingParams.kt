@@ -18,6 +18,7 @@
 
 package androidx.build.lint
 
+import com.android.tools.lint.checks.getFqName
 import com.android.tools.lint.client.api.UElementHandler
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
