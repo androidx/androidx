@@ -211,7 +211,7 @@ public final class PutDocumentsRequest {
          *
          * <p>Metrics to be collected by AppSearch:
          * <ul>
-         *     <li>name: STRING, the name of the {@link TakenAction}.
+         *     <li>name: STRING, the name of the taken action.
          *     <p>Name is an optional custom field that allows the client to tag and categorize
          *     taken action {@link GenericDocument}.
          *
