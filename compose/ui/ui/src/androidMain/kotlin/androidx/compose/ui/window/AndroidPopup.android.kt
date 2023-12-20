@@ -31,6 +31,9 @@ import android.view.View.MeasureSpec.makeMeasureSpec
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
 import android.view.WindowManager
+import android.window.OnBackInvokedCallback
+import android.window.OnBackInvokedDispatcher
+import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
@@ -429,6 +432,8 @@ internal class PopupLayout(
         }
     })
 
+    private var backCallback: Any? = null
+
     init {
         id = android.R.id.content
         setViewTreeLifecycleOwner(composeView.findViewTreeLifecycleOwner())
@@ -480,12 +485,14 @@ internal class PopupLayout(
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
         snapshotStateObserver.start()
+        maybeRegisterBackCallback()
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         snapshotStateObserver.stop()
         snapshotStateObserver.clear()
+        maybeUnregisterBackCallback()
     }
 
     override fun internalOnMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -547,6 +554,23 @@ internal class PopupLayout(
             }
         }
         return super.dispatchKeyEvent(event)
+    }
+
+    private fun maybeRegisterBackCallback() {
+        if (!properties.dismissOnBackPress || Build.VERSION.SDK_INT < 33) {
+            return
+        }
+        if (backCallback == null) {
+            backCallback = Api33Impl.createBackCallback(onDismissRequest)
+        }
+        Api33Impl.maybeRegisterBackCallback(this, backCallback)
+    }
+
+    private fun maybeUnregisterBackCallback() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            Api33Impl.maybeUnregisterBackCallback(this, backCallback)
+        }
+        backCallback = null
     }
 
     /**
@@ -787,6 +811,33 @@ internal class PopupLayout(
             if (popupLayout.isAttachedToWindow) {
                 popupLayout.updatePosition()
             }
+        }
+    }
+}
+
+@RequiresApi(33)
+private object Api33Impl {
+    @JvmStatic
+    @DoNotInline
+    fun createBackCallback(onDismissRequest: (() -> Unit)?) =
+        OnBackInvokedCallback { onDismissRequest?.invoke() }
+
+    @JvmStatic
+    @DoNotInline
+    fun maybeRegisterBackCallback(view: View, backCallback: Any?) {
+        if (backCallback is OnBackInvokedCallback) {
+            view.findOnBackInvokedDispatcher()?.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_OVERLAY,
+                backCallback
+            )
+        }
+    }
+
+    @JvmStatic
+    @DoNotInline
+    fun maybeUnregisterBackCallback(view: View, backCallback: Any?) {
+        if (backCallback is OnBackInvokedCallback) {
+            view.findOnBackInvokedDispatcher()?.unregisterOnBackInvokedCallback(backCallback)
         }
     }
 }
