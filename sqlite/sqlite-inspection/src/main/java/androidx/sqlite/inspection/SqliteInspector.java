@@ -182,15 +182,16 @@ final class SqliteInspector extends Inspector {
      */
     private final RoomInvalidationRegistry mRoomInvalidationRegistry;
 
-    @NonNull
-    private final SqlDelightInvalidation mSqlDelightInvalidation;
+    private final List<Invalidation> mInvalidations = new ArrayList<>();
 
     SqliteInspector(@NonNull Connection connection, @NonNull InspectorEnvironment environment) {
         super(connection);
         mEnvironment = environment;
         mIOExecutor = environment.executors().io();
         mRoomInvalidationRegistry = new RoomInvalidationRegistry(mEnvironment);
-        mSqlDelightInvalidation = SqlDelightInvalidation.create(mEnvironment);
+        mInvalidations.add(mRoomInvalidationRegistry);
+        mInvalidations.add(SqlDelightInvalidation.create(mEnvironment.artTooling()));
+        mInvalidations.add(SqlDelight2Invalidation.create(mEnvironment.artTooling()));
 
         mDatabaseRegistry = new DatabaseRegistry(
                 new DatabaseRegistry.Callback() {
@@ -669,8 +670,9 @@ final class SqliteInspector extends Inspector {
 
     private void triggerInvalidation(String query) {
         if (getSqlStatementType(query) != DatabaseUtils.STATEMENT_SELECT) {
-            mSqlDelightInvalidation.triggerInvalidations();
-            mRoomInvalidationRegistry.triggerInvalidations();
+            for (Invalidation invalidation : mInvalidations) {
+                invalidation.triggerInvalidations();
+            }
         }
     }
 
