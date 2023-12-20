@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
+<issues format="6" by="lint 8.3.0-alpha18" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha18)" variant="all" version="8.3.0-alpha18">
 
     <issue
         id="BanSuppressTag"
@@ -51,15 +51,6 @@
         message="@suppress is not allowed in documentation"
         errorLine1="    var isSeeking: Boolean by mutableStateOf(false)"
         errorLine2="        ~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
-    </issue>
-
-    <issue
-        id="BanSuppressTag"
-        message="@suppress is not allowed in documentation"
-        errorLine1="    fun setPlaytimeAfterInitialAndTargetStateEstablished("
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/animation/core/Transition.kt"/>
     </issue>
