@@ -16,6 +16,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("PreferenceDataStoreDelegateKt")
+
 package androidx.datastore.preferences
 
 import android.content.Context
