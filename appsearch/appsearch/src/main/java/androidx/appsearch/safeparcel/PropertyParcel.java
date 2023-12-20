@@ -235,11 +235,6 @@ public final class PropertyParcel extends AbstractSafeParcelable implements Parc
     }
 
     @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         PropertyParcelCreator.writeToParcel(this, dest, flags);
     }

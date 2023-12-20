@@ -262,11 +262,6 @@ public final class GenericDocumentParcel extends AbstractSafeParcelable implemen
     }
 
     @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         GenericDocumentParcelCreator.writeToParcel(this, dest, flags);
     }
