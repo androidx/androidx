@@ -41,10 +41,7 @@ tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         // Ensure that compilation passes in CLI despite opt-in violations in integration tests.
         if (!isIdeBuild()) {
-            freeCompilerArgs += [
-                    "-opt-in=sample.optin.ExperimentalKotlinAnnotation",
-                    "-opt-in=sample.kotlin.ExperimentalJavaAnnotation"
-            ]
+            freeCompilerArgs += [ "-opt-in=sample.optin.ExperimentalKotlinAnnotation" ]
         }
     }
 }
