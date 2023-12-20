@@ -17,19 +17,16 @@
 package androidx.room.writer
 
 import androidx.annotation.VisibleForTesting
-import androidx.room.compiler.codegen.CodeLanguage
 import androidx.room.compiler.codegen.VisibilityModifier
 import androidx.room.compiler.codegen.XCodeBlock
 import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.addLocalVal
-import androidx.room.compiler.codegen.XCodeBlock.Builder.Companion.beginForEachControlFlow
 import androidx.room.compiler.codegen.XFunSpec
 import androidx.room.compiler.codegen.XFunSpec.Builder.Companion.addStatement
-import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.XTypeSpec
-import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.RoomMemberNames
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.SupportDbTypeNames
+import androidx.room.ext.SQLiteDriverMemberNames
+import androidx.room.ext.SQLiteDriverTypeNames
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.Database
 import androidx.room.vo.DatabaseView
@@ -46,52 +43,21 @@ const val VALIDATE_CHUNK_SIZE = 1000
 /**
  * Create an open helper using SupportSQLiteOpenHelperFactory
  */
-class SQLiteOpenHelperWriter(val database: Database) {
+class OpenDelegateWriter(val database: Database) {
 
-    private val dbParamName = "db"
+    private val connectionParamName = "connection"
 
-    fun write(outVar: String, configParamName: String, scope: CodeGenScope) {
+    fun write(outVar: String, scope: CodeGenScope) {
         scope.builder.apply {
-            val sqliteConfigVar = scope.getTmpVar("_sqliteConfig")
-            val callbackVar = scope.getTmpVar("_openCallback")
-            addLocalVariable(
-                name = callbackVar,
-                typeName = SupportDbTypeNames.SQLITE_OPEN_HELPER_CALLBACK,
-                assignExpr = XCodeBlock.ofNewInstance(
-                    language,
-                    RoomTypeNames.OPEN_HELPER,
-                    "%L, %L, %S, %S",
-                    configParamName,
-                    createOpenCallback(scope),
-                    database.identityHash,
-                    database.legacyIdentityHash
-                )
-            )
-            // build configuration
-            addLocalVal(
-                sqliteConfigVar,
-                SupportDbTypeNames.SQLITE_OPEN_HELPER_CONFIG,
-                "%T.builder(%L.context).name(%L.name).callback(%L).build()",
-                SupportDbTypeNames.SQLITE_OPEN_HELPER_CONFIG,
-                configParamName,
-                configParamName,
-                callbackVar
-            )
-            addLocalVal(
-                outVar,
-                SupportDbTypeNames.SQLITE_OPEN_HELPER,
-                "%L.sqliteOpenHelperFactory.create(%L)",
-                configParamName,
-                sqliteConfigVar
-            )
+            addLocalVal(outVar, RoomTypeNames.ROOM_OPEN_DELEGATE, "%L", createOpenDelegate(scope))
         }
     }
 
-    private fun createOpenCallback(scope: CodeGenScope): XTypeSpec {
+    private fun createOpenDelegate(scope: CodeGenScope): XTypeSpec {
         return XTypeSpec.anonymousClassBuilder(
-            scope.language, "%L", database.version
+            scope.language, "%L, %S", database.version, database.identityHash
         ).apply {
-            superclass(RoomTypeNames.OPEN_HELPER_DELEGATE)
+            superclass(RoomTypeNames.ROOM_OPEN_DELEGATE)
             addFunction(createCreateAllTables(scope))
             addFunction(createDropAllTables(scope.fork()))
             addFunction(createOnCreate(scope.fork()))
@@ -125,8 +91,8 @@ class SQLiteOpenHelperWriter(val database: Database) {
                 },
                 isOverride = isPrimaryMethod
             ).apply {
-                returns(RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT)
-                addParameter(SupportDbTypeNames.DB, dbParamName)
+                returns(RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT)
+                addParameter(SQLiteDriverTypeNames.CONNECTION, connectionParamName)
                 var statementCount = 0
                 while (!entities.isEmpty() && statementCount < VALIDATE_CHUNK_SIZE) {
                     val methodScope = scope.fork()
@@ -135,7 +101,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
                         is FtsEntity -> FtsTableInfoValidationWriter(entity)
                         else -> TableInfoValidationWriter(entity)
                     }
-                    validationWriter.write(dbParamName, methodScope)
+                    validationWriter.write(connectionParamName, methodScope)
                     addCode(methodScope.generate())
                     statementCount += validationWriter.statementCount()
                 }
@@ -143,7 +109,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
                     val methodScope = scope.fork()
                     val view = views.poll()
                     val validationWriter = ViewInfoValidationWriter(view)
-                    validationWriter.write(dbParamName, methodScope)
+                    validationWriter.write(connectionParamName, methodScope)
                     addCode(methodScope.generate())
                     statementCount += validationWriter.statementCount()
                 }
@@ -152,7 +118,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
                         "return %L",
                         XCodeBlock.ofNewInstance(
                             scope.language,
-                            RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                            RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
                             "true, null"
                         )
                     )
@@ -168,11 +134,11 @@ class SQLiteOpenHelperWriter(val database: Database) {
                 val resultVar = scope.getTmpVar("_result")
                 addLocalVariable(
                     name = resultVar,
-                    typeName = RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                    typeName = RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
                     isMutable = true
                 )
                 methodBuilders.drop(1).forEach {
-                    addStatement("%L = %L(%L)", resultVar, it.name, dbParamName)
+                    addStatement("%L = %L(%L)", resultVar, it.name, connectionParamName)
                     beginControlFlow("if (!%L.isValid)", resultVar).apply {
                         addStatement("return %L", resultVar)
                     }
@@ -182,7 +148,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
                     "return %L",
                     XCodeBlock.ofNewInstance(
                         scope.language,
-                        RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                        RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
                         "true, null"
                     )
                 )
@@ -193,7 +159,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
                 "return %L",
                 XCodeBlock.ofNewInstance(
                     scope.language,
-                    RoomTypeNames.OPEN_HELPER_VALIDATION_RESULT,
+                    RoomTypeNames.ROOM_OPEN_DELEGATE_VALIDATION_RESULT,
                     "true, null"
                 )
             )
@@ -208,8 +174,7 @@ class SQLiteOpenHelperWriter(val database: Database) {
             visibility = VisibilityModifier.PUBLIC,
             isOverride = true
         ).apply {
-            addParameter(SupportDbTypeNames.DB, dbParamName)
-            addCode(createInvokeCallbacksCode(scope, "onCreate"))
+            addParameter(SQLiteDriverTypeNames.CONNECTION, connectionParamName)
         }.build()
     }
 
@@ -220,13 +185,19 @@ class SQLiteOpenHelperWriter(val database: Database) {
             visibility = VisibilityModifier.PUBLIC,
             isOverride = true
         ).apply {
-            addParameter(SupportDbTypeNames.DB, dbParamName)
-            addStatement("mDatabase = %L", dbParamName)
+            addParameter(SQLiteDriverTypeNames.CONNECTION, connectionParamName)
             if (database.enableForeignKeys) {
-                addStatement("%L.execSQL(%S)", dbParamName, "PRAGMA foreign_keys = ON")
+                addStatement(
+                    "%L",
+                    XCodeBlock.ofExtensionCall(
+                        language = scope.language,
+                        memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
+                        receiverVarName = connectionParamName,
+                        args = XCodeBlock.of(scope.language, "%S", "PRAGMA foreign_keys = ON")
+                    )
+                )
             }
-            addStatement("internalInitInvalidationTracker(%L)", dbParamName)
-            addCode(createInvokeCallbacksCode(scope, "onOpen"))
+            addStatement("internalInitInvalidationTracker(%L)", connectionParamName)
         }.build()
     }
 
@@ -237,9 +208,17 @@ class SQLiteOpenHelperWriter(val database: Database) {
             visibility = VisibilityModifier.PUBLIC,
             isOverride = true
         ).apply {
-            addParameter(SupportDbTypeNames.DB, dbParamName)
-            database.bundle.buildCreateQueries().forEach {
-                addStatement("%L.execSQL(%S)", dbParamName, it)
+            addParameter(SQLiteDriverTypeNames.CONNECTION, connectionParamName)
+            database.bundle.buildCreateQueries().forEach { createQuery ->
+                addStatement(
+                    "%L",
+                    XCodeBlock.ofExtensionCall(
+                        language = scope.language,
+                        memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
+                        receiverVarName = connectionParamName,
+                        args = XCodeBlock.of(scope.language, "%S", createQuery)
+                    )
+                )
             }
         }.build()
     }
@@ -251,14 +230,29 @@ class SQLiteOpenHelperWriter(val database: Database) {
             visibility = VisibilityModifier.PUBLIC,
             isOverride = true
         ).apply {
-            addParameter(SupportDbTypeNames.DB, dbParamName)
+            addParameter(SQLiteDriverTypeNames.CONNECTION, connectionParamName)
             database.entities.forEach {
-                addStatement("%L.execSQL(%S)", dbParamName, createDropTableQuery(it))
+                addStatement(
+                    "%L",
+                    XCodeBlock.ofExtensionCall(
+                        language = scope.language,
+                        memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
+                        receiverVarName = connectionParamName,
+                        args = XCodeBlock.of(scope.language, "%S", createDropTableQuery(it))
+                    )
+                )
             }
             database.views.forEach {
-                addStatement("%L.execSQL(%S)", dbParamName, createDropViewQuery(it))
+                addStatement(
+                    "%L",
+                    XCodeBlock.ofExtensionCall(
+                        language = scope.language,
+                        memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
+                        receiverVarName = connectionParamName,
+                        args = XCodeBlock.of(scope.language, "%S", createDropViewQuery(it))
+                    )
+                )
             }
-            addCode(createInvokeCallbacksCode(scope, "onDestructiveMigration"))
         }.build()
     }
 
@@ -269,8 +263,12 @@ class SQLiteOpenHelperWriter(val database: Database) {
             visibility = VisibilityModifier.PUBLIC,
             isOverride = true
         ).apply {
-            addParameter(SupportDbTypeNames.DB, dbParamName)
-            addStatement("%M(%L)", RoomMemberNames.DB_UTIL_DROP_FTS_SYNC_TRIGGERS, dbParamName)
+            addParameter(SQLiteDriverTypeNames.CONNECTION, connectionParamName)
+            addStatement(
+                "%M(%L)",
+                RoomMemberNames.DB_UTIL_DROP_FTS_SYNC_TRIGGERS,
+                connectionParamName
+            )
         }.build()
     }
 
@@ -281,44 +279,21 @@ class SQLiteOpenHelperWriter(val database: Database) {
             visibility = VisibilityModifier.PUBLIC,
             isOverride = true
         ).apply {
-            addParameter(SupportDbTypeNames.DB, dbParamName)
+            addParameter(SQLiteDriverTypeNames.CONNECTION, connectionParamName)
             database.entities.filterIsInstance(FtsEntity::class.java)
                 .filter { it.ftsOptions.contentEntity != null }
                 .flatMap { it.contentSyncTriggerCreateQueries }
                 .forEach { syncTriggerQuery ->
-                    addStatement("%L.execSQL(%S)", dbParamName, syncTriggerQuery)
+                    addStatement(
+                        "%L",
+                        XCodeBlock.ofExtensionCall(
+                            language = scope.language,
+                            memberName = SQLiteDriverMemberNames.CONNECTION_EXEC_SQL,
+                            receiverVarName = connectionParamName,
+                            args = XCodeBlock.of(scope.language, "%S", syncTriggerQuery)
+                        )
+                    )
                 }
-        }.build()
-    }
-
-    private fun createInvokeCallbacksCode(scope: CodeGenScope, methodName: String): XCodeBlock {
-        val localCallbackListVarName = scope.getTmpVar("_callbacks")
-        val callbackVarName = scope.getTmpVar("_callback")
-        return XCodeBlock.builder(scope.language).apply {
-            addLocalVal(
-                localCallbackListVarName,
-                CommonTypeNames.LIST.parametrizedBy(
-                    // For Kotlin, the variance is redundant, but for Java, due to `mCallbacks`
-                    // not having @JvmSuppressWildcards, we use a wildcard name.
-                    if (language == CodeLanguage.KOTLIN) {
-                        RoomTypeNames.ROOM_DB_CALLBACK
-                    } else {
-                        XTypeName.getProducerExtendsName(RoomTypeNames.ROOM_DB_CALLBACK)
-                    }
-                ).copy(nullable = true),
-                "mCallbacks"
-            )
-            beginControlFlow("if (%L != null)", localCallbackListVarName).apply {
-                beginForEachControlFlow(
-                    itemVarName = callbackVarName,
-                    typeName = RoomTypeNames.ROOM_DB_CALLBACK,
-                    iteratorVarName = localCallbackListVarName
-                ).apply {
-                    addStatement("%L.%L(%L)", callbackVarName, methodName, dbParamName)
-                }
-                endControlFlow()
-            }
-            endControlFlow()
         }.build()
     }
 

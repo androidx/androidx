@@ -20,7 +20,8 @@ package androidx.room {
     field public final androidx.room.RoomDatabase.PrepackagedDatabaseCallback? prepackagedDatabaseCallback;
     field public final java.util.concurrent.Executor queryExecutor;
     field public final boolean requireMigration;
-    field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory;
+    field public final androidx.sqlite.SQLiteDriver? sqliteDriver;
+    field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Factory? sqliteOpenHelperFactory;
     field public final java.util.concurrent.Executor transactionExecutor;
     field public final java.util.List<java.lang.Object> typeConverters;
   }
@@ -63,7 +64,8 @@ package androidx.room {
     method public void close();
     method public androidx.sqlite.db.SupportSQLiteStatement compileStatement(String sql);
     method protected abstract androidx.room.InvalidationTracker createInvalidationTracker();
-    method protected abstract androidx.sqlite.db.SupportSQLiteOpenHelper createOpenHelper(androidx.room.DatabaseConfiguration config);
+    method protected androidx.room.RoomOpenDelegateMarker createOpenDelegate();
+    method @Deprecated protected androidx.sqlite.db.SupportSQLiteOpenHelper createOpenHelper(androidx.room.DatabaseConfiguration config);
     method @Deprecated public void endTransaction();
     method public androidx.room.InvalidationTracker getInvalidationTracker();
     method public androidx.sqlite.db.SupportSQLiteOpenHelper getOpenHelper();
@@ -73,6 +75,7 @@ package androidx.room {
     method public boolean inTransaction();
     method @CallSuper public void init(androidx.room.DatabaseConfiguration configuration);
     method protected void internalInitInvalidationTracker(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method protected void internalInitInvalidationTracker(androidx.sqlite.SQLiteConnection connection);
     method public boolean isOpen();
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query);
     method public android.database.Cursor query(androidx.sqlite.db.SupportSQLiteQuery query, optional android.os.CancellationSignal? signal);
@@ -111,6 +114,7 @@ package androidx.room {
     method public final androidx.room.RoomDatabase.Builder<T> fallbackToDestructiveMigrationOnDowngrade(boolean dropAllTables);
     method public androidx.room.RoomDatabase.Builder<T> openHelperFactory(androidx.sqlite.db.SupportSQLiteOpenHelper.Factory? factory);
     method @SuppressCompatibility @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T> setAutoCloseTimeout(@IntRange(from=0L) long autoCloseTimeout, java.util.concurrent.TimeUnit autoCloseTimeUnit);
+    method public final androidx.room.RoomDatabase.Builder<T> setDriver(androidx.sqlite.SQLiteDriver driver);
     method public androidx.room.RoomDatabase.Builder<T> setJournalMode(androidx.room.RoomDatabase.JournalMode journalMode);
     method @SuppressCompatibility @androidx.room.ExperimentalRoomApi public androidx.room.RoomDatabase.Builder<T> setMultiInstanceInvalidationServiceIntent(android.content.Intent invalidationServiceIntent);
     method public androidx.room.RoomDatabase.Builder<T> setQueryCallback(androidx.room.RoomDatabase.QueryCallback queryCallback, java.util.concurrent.Executor executor);
@@ -154,6 +158,9 @@ package androidx.room {
     method public void onQuery(String sqlQuery, java.util.List<?> bindArgs);
   }
 
+  public interface RoomOpenDelegateMarker {
+  }
+
 }
 
 package androidx.room.migration {
@@ -165,6 +172,7 @@ package androidx.room.migration {
   public abstract class Migration {
     ctor public Migration(int startVersion, int endVersion);
     method public abstract void migrate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public void migrate(androidx.sqlite.SQLiteConnection connection);
     field public final int endVersion;
     field public final int startVersion;
   }

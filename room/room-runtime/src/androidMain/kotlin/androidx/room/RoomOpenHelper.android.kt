@@ -23,8 +23,9 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper
 
 /**
  * An open helper that holds a reference to the configuration until the database is opened.
- *
  */
+@Suppress("DEPRECATION") // Due to usage of RoomOpenHelper.Delegate
+@Deprecated("Replaced by RoomConnectionManager and no longer used in generated code.")
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 open class RoomOpenHelper(
     configuration: DatabaseConfiguration,
@@ -179,8 +180,7 @@ open class RoomOpenHelper(
         db.execSQL(RoomMasterTable.CREATE_QUERY)
     }
 
-    /**
-     */
+    @Deprecated("Replaced by OpenDelegate  and no longer used in generated code.")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     abstract class Delegate(@JvmField val version: Int) {
         abstract fun dropAllTables(db: SupportSQLiteDatabase)
@@ -222,8 +222,7 @@ open class RoomOpenHelper(
         open fun onPostMigrate(db: SupportSQLiteDatabase) {}
     }
 
-    /**
-     */
+    @Deprecated("Replaced by OpenDelegate.ValidationResult and no longer used in generated code.")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     open class ValidationResult(
         @JvmField val isValid: Boolean,

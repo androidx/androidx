@@ -22,6 +22,8 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
 import androidx.room.ColumnInfo
 import androidx.room.ColumnInfo.SQLiteTypeAffinity
+import androidx.room.driver.SupportSQLiteConnection
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.Locale
 import java.util.TreeMap
@@ -129,6 +131,15 @@ class TableInfo(
                 database = database,
                 tableName = tableName
             )
+        }
+
+        @JvmStatic
+        fun read(connection: SQLiteConnection, tableName: String): TableInfo {
+            if (connection is SupportSQLiteConnection) {
+                return read(connection.db, tableName)
+            } else {
+                TODO("Not yet migrated to use SQLiteDriver")
+            }
         }
     }
 

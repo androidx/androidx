@@ -1,15 +1,14 @@
-import androidx.room.DatabaseConfiguration
 import androidx.room.InvalidationTracker
-import androidx.room.RoomDatabase
-import androidx.room.RoomOpenHelper
+import androidx.room.RoomOpenDelegate
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.room.util.FtsTableInfo
 import androidx.room.util.TableInfo
 import androidx.room.util.ViewInfo
 import androidx.room.util.dropFtsSyncTriggers
+import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
-import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.sqlite.execSQL
 import java.lang.Class
 import java.util.ArrayList
 import java.util.HashMap
@@ -36,62 +35,43 @@ public class MyDatabase_Impl : MyDatabase() {
     }
 
 
-    protected override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
-        val _openCallback: SupportSQLiteOpenHelper.Callback = RoomOpenHelper(config, object :
-            RoomOpenHelper.Delegate(1) {
-            public override fun createAllTables(db: SupportSQLiteDatabase) {
-                db.execSQL("CREATE TABLE IF NOT EXISTS `MyParentEntity` (`parentKey` INTEGER NOT NULL, PRIMARY KEY(`parentKey`))")
-                db.execSQL("CREATE TABLE IF NOT EXISTS `MyEntity` (`pk` INTEGER NOT NULL, `indexedCol` TEXT NOT NULL, PRIMARY KEY(`pk`), FOREIGN KEY(`indexedCol`) REFERENCES `MyParentEntity`(`parentKey`) ON UPDATE NO ACTION ON DELETE CASCADE )")
-                db.execSQL("CREATE INDEX IF NOT EXISTS `index_MyEntity_indexedCol` ON `MyEntity` (`indexedCol`)")
-                db.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `MyFtsEntity` USING FTS4(`text` TEXT NOT NULL)")
-                db.execSQL("CREATE VIEW `MyView` AS SELECT text FROM MyFtsEntity")
-                db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
-                db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '89ba16fb8b062b50acf0eb06c853efcb')")
+    protected override fun createOpenDelegate(): RoomOpenDelegate {
+        val _openDelegate: RoomOpenDelegate = object : RoomOpenDelegate(1,
+            "89ba16fb8b062b50acf0eb06c853efcb") {
+            public override fun createAllTables(connection: SQLiteConnection) {
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `MyParentEntity` (`parentKey` INTEGER NOT NULL, PRIMARY KEY(`parentKey`))")
+                connection.execSQL("CREATE TABLE IF NOT EXISTS `MyEntity` (`pk` INTEGER NOT NULL, `indexedCol` TEXT NOT NULL, PRIMARY KEY(`pk`), FOREIGN KEY(`indexedCol`) REFERENCES `MyParentEntity`(`parentKey`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                connection.execSQL("CREATE INDEX IF NOT EXISTS `index_MyEntity_indexedCol` ON `MyEntity` (`indexedCol`)")
+                connection.execSQL("CREATE VIRTUAL TABLE IF NOT EXISTS `MyFtsEntity` USING FTS4(`text` TEXT NOT NULL)")
+                connection.execSQL("CREATE VIEW `MyView` AS SELECT text FROM MyFtsEntity")
+                connection.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
+                connection.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '89ba16fb8b062b50acf0eb06c853efcb')")
             }
 
-            public override fun dropAllTables(db: SupportSQLiteDatabase) {
-                db.execSQL("DROP TABLE IF EXISTS `MyParentEntity`")
-                db.execSQL("DROP TABLE IF EXISTS `MyEntity`")
-                db.execSQL("DROP TABLE IF EXISTS `MyFtsEntity`")
-                db.execSQL("DROP VIEW IF EXISTS `MyView`")
-                val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
-                if (_callbacks != null) {
-                    for (_callback: RoomDatabase.Callback in _callbacks) {
-                        _callback.onDestructiveMigration(db)
-                    }
-                }
+            public override fun dropAllTables(connection: SQLiteConnection) {
+                connection.execSQL("DROP TABLE IF EXISTS `MyParentEntity`")
+                connection.execSQL("DROP TABLE IF EXISTS `MyEntity`")
+                connection.execSQL("DROP TABLE IF EXISTS `MyFtsEntity`")
+                connection.execSQL("DROP VIEW IF EXISTS `MyView`")
             }
 
-            public override fun onCreate(db: SupportSQLiteDatabase) {
-                val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
-                if (_callbacks != null) {
-                    for (_callback: RoomDatabase.Callback in _callbacks) {
-                        _callback.onCreate(db)
-                    }
-                }
+            public override fun onCreate(connection: SQLiteConnection) {
             }
 
-            public override fun onOpen(db: SupportSQLiteDatabase) {
-                mDatabase = db
-                db.execSQL("PRAGMA foreign_keys = ON")
-                internalInitInvalidationTracker(db)
-                val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
-                if (_callbacks != null) {
-                    for (_callback: RoomDatabase.Callback in _callbacks) {
-                        _callback.onOpen(db)
-                    }
-                }
+            public override fun onOpen(connection: SQLiteConnection) {
+                connection.execSQL("PRAGMA foreign_keys = ON")
+                internalInitInvalidationTracker(connection)
             }
 
-            public override fun onPreMigrate(db: SupportSQLiteDatabase) {
-                dropFtsSyncTriggers(db)
+            public override fun onPreMigrate(connection: SQLiteConnection) {
+                dropFtsSyncTriggers(connection)
             }
 
-            public override fun onPostMigrate(db: SupportSQLiteDatabase) {
+            public override fun onPostMigrate(connection: SQLiteConnection) {
             }
 
-            public override fun onValidateSchema(db: SupportSQLiteDatabase):
-                RoomOpenHelper.ValidationResult {
+            public override fun onValidateSchema(connection: SQLiteConnection):
+                RoomOpenDelegate.ValidationResult {
                 val _columnsMyParentEntity: HashMap<String, TableInfo.Column> =
                     HashMap<String, TableInfo.Column>(1)
                 _columnsMyParentEntity.put("parentKey", TableInfo.Column("parentKey", "INTEGER", true, 1,
@@ -101,15 +81,15 @@ public class MyDatabase_Impl : MyDatabase() {
                 val _indicesMyParentEntity: HashSet<TableInfo.Index> = HashSet<TableInfo.Index>(0)
                 val _infoMyParentEntity: TableInfo = TableInfo("MyParentEntity", _columnsMyParentEntity,
                     _foreignKeysMyParentEntity, _indicesMyParentEntity)
-                val _existingMyParentEntity: TableInfo = tableInfoRead(db, "MyParentEntity")
+                val _existingMyParentEntity: TableInfo = tableInfoRead(connection, "MyParentEntity")
                 if (!_infoMyParentEntity.equals(_existingMyParentEntity)) {
-                    return RoomOpenHelper.ValidationResult(false, """
-              |MyParentEntity(MyParentEntity).
-              | Expected:
-              |""".trimMargin() + _infoMyParentEntity + """
-              |
-              | Found:
-              |""".trimMargin() + _existingMyParentEntity)
+                    return RoomOpenDelegate.ValidationResult(false, """
+                  |MyParentEntity(MyParentEntity).
+                  | Expected:
+                  |""".trimMargin() + _infoMyParentEntity + """
+                  |
+                  | Found:
+                  |""".trimMargin() + _existingMyParentEntity)
                 }
                 val _columnsMyEntity: HashMap<String, TableInfo.Column> =
                     HashMap<String, TableInfo.Column>(2)
@@ -125,49 +105,46 @@ public class MyDatabase_Impl : MyDatabase() {
                     listOf("indexedCol"), listOf("ASC")))
                 val _infoMyEntity: TableInfo = TableInfo("MyEntity", _columnsMyEntity, _foreignKeysMyEntity,
                     _indicesMyEntity)
-                val _existingMyEntity: TableInfo = tableInfoRead(db, "MyEntity")
+                val _existingMyEntity: TableInfo = tableInfoRead(connection, "MyEntity")
                 if (!_infoMyEntity.equals(_existingMyEntity)) {
-                    return RoomOpenHelper.ValidationResult(false, """
-              |MyEntity(MyEntity).
-              | Expected:
-              |""".trimMargin() + _infoMyEntity + """
-              |
-              | Found:
-              |""".trimMargin() + _existingMyEntity)
+                    return RoomOpenDelegate.ValidationResult(false, """
+                  |MyEntity(MyEntity).
+                  | Expected:
+                  |""".trimMargin() + _infoMyEntity + """
+                  |
+                  | Found:
+                  |""".trimMargin() + _existingMyEntity)
                 }
                 val _columnsMyFtsEntity: HashSet<String> = HashSet<String>(2)
                 _columnsMyFtsEntity.add("text")
                 val _infoMyFtsEntity: FtsTableInfo = FtsTableInfo("MyFtsEntity", _columnsMyFtsEntity,
                     "CREATE VIRTUAL TABLE IF NOT EXISTS `MyFtsEntity` USING FTS4(`text` TEXT NOT NULL)")
-                val _existingMyFtsEntity: FtsTableInfo = ftsTableInfoRead(db, "MyFtsEntity")
+                val _existingMyFtsEntity: FtsTableInfo = ftsTableInfoRead(connection, "MyFtsEntity")
                 if (!_infoMyFtsEntity.equals(_existingMyFtsEntity)) {
-                    return RoomOpenHelper.ValidationResult(false, """
-              |MyFtsEntity(MyFtsEntity).
-              | Expected:
-              |""".trimMargin() + _infoMyFtsEntity + """
-              |
-              | Found:
-              |""".trimMargin() + _existingMyFtsEntity)
+                    return RoomOpenDelegate.ValidationResult(false, """
+                  |MyFtsEntity(MyFtsEntity).
+                  | Expected:
+                  |""".trimMargin() + _infoMyFtsEntity + """
+                  |
+                  | Found:
+                  |""".trimMargin() + _existingMyFtsEntity)
                 }
                 val _infoMyView: ViewInfo = ViewInfo("MyView",
                     "CREATE VIEW `MyView` AS SELECT text FROM MyFtsEntity")
-                val _existingMyView: ViewInfo = viewInfoRead(db, "MyView")
+                val _existingMyView: ViewInfo = viewInfoRead(connection, "MyView")
                 if (!_infoMyView.equals(_existingMyView)) {
-                    return RoomOpenHelper.ValidationResult(false, """
-              |MyView(MyView).
-              | Expected:
-              |""".trimMargin() + _infoMyView + """
-              |
-              | Found:
-              |""".trimMargin() + _existingMyView)
+                    return RoomOpenDelegate.ValidationResult(false, """
+                  |MyView(MyView).
+                  | Expected:
+                  |""".trimMargin() + _infoMyView + """
+                  |
+                  | Found:
+                  |""".trimMargin() + _existingMyView)
                 }
-                return RoomOpenHelper.ValidationResult(true, null)
+                return RoomOpenDelegate.ValidationResult(true, null)
             }
-        }, "89ba16fb8b062b50acf0eb06c853efcb", "8a71a68e07bdd62aa8c8324d870cf804")
-        val _sqliteConfig: SupportSQLiteOpenHelper.Configuration =
-            SupportSQLiteOpenHelper.Configuration.builder(config.context).name(config.name).callback(_openCallback).build()
-        val _helper: SupportSQLiteOpenHelper = config.sqliteOpenHelperFactory.create(_sqliteConfig)
-        return _helper
+        }
+        return _openDelegate
     }
 
     protected override fun createInvalidationTracker(): InvalidationTracker {

@@ -128,6 +128,12 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
 
         val hasForeignKeys = entities.any { it.foreignKeys.isNotEmpty() }
 
+        context.checker.check(
+            predicate = dbAnnotation.value.version > 0,
+            element = element,
+            errorMsg = ProcessorErrors.INVALID_DATABASE_VERSION
+        )
+
         val database = Database(
             version = dbAnnotation.value.version,
             element = element,

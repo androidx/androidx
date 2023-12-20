@@ -57,7 +57,7 @@ class DatabaseWriter(
                     VisibilityModifier.PUBLIC
                 }
             )
-            addFunction(createCreateOpenHelper())
+            addFunction(createOpenDelegate())
             addFunction(createCreateInvalidationTracker())
             addFunction(createClearAllTables())
             addFunction(createCreateTypeConvertersMap())
@@ -382,25 +382,23 @@ class DatabaseWriter(
         }.build()
     }
 
-    private fun createCreateOpenHelper(): XFunSpec {
+    private fun createOpenDelegate(): XFunSpec {
         val scope = CodeGenScope(this)
-        val configParamName = "config"
         val body = XCodeBlock.builder(codeLanguage).apply {
-            val openHelperVar = scope.getTmpVar("_helper")
-            val openHelperCode = scope.fork()
-            SQLiteOpenHelperWriter(database)
-                .write(openHelperVar, configParamName, openHelperCode)
-            add(openHelperCode.generate())
-            addStatement("return %L", openHelperVar)
+            val openDelegateVar = scope.getTmpVar("_openDelegate")
+            val openDelegateCode = scope.fork()
+            OpenDelegateWriter(database)
+                .write(openDelegateVar, openDelegateCode)
+            add(openDelegateCode.generate())
+            addStatement("return %L", openDelegateVar)
         }.build()
         return XFunSpec.builder(
             language = codeLanguage,
-            name = "createOpenHelper",
+            name = "createOpenDelegate",
             visibility = VisibilityModifier.PROTECTED,
             isOverride = true,
         ).apply {
-            returns(SupportDbTypeNames.SQLITE_OPEN_HELPER)
-            addParameter(RoomTypeNames.ROOM_DB_CONFIG, configParamName)
+            returns(RoomTypeNames.ROOM_OPEN_DELEGATE)
             addCode(body)
         }.build()
     }

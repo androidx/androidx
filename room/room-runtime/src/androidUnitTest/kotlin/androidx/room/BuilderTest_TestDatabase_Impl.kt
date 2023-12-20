@@ -29,7 +29,12 @@ internal class BuilderTest_TestDatabase_Impl : BuilderTest.TestDatabase() {
         mConfig = configuration
     }
 
+    @Deprecated("No longer implemented by generated")
     override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
+        return mock()
+    }
+
+    override fun createOpenDelegate(): RoomOpenDelegate {
         return mock()
     }
 
