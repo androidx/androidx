@@ -85,6 +85,7 @@ androidXMultiplatform {
             dependencies {
                 implementation("androidx.arch.core:core-testing:2.2.0")
                 implementation(libs.junit)
+                implementation(libs.byteBuddy)
                 implementation(libs.mockitoCore4)
                 implementation(libs.mockitoKotlin4)
                 implementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
