@@ -94,7 +94,6 @@ package androidx.window.extensions.embedding {
 
   public class ActivityStack {
     method public java.util.List<android.app.Activity!> getActivities();
-    method public android.graphics.Rect getRelativeBounds();
     method public String? getTag();
     method public android.os.IBinder getToken();
     method public boolean isEmpty();
