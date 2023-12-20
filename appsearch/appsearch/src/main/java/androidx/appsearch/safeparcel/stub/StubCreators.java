@@ -16,6 +16,7 @@
 package androidx.appsearch.safeparcel.stub;
 
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.GetSchemaResponse;
 import androidx.appsearch.app.InternalSetSchemaResponse;
 import androidx.appsearch.app.JoinSpec;
 import androidx.appsearch.app.SearchSpec;
@@ -125,10 +126,15 @@ public class StubCreators {
             AbstractCreator<InternalSetSchemaResponse> {
     }
 
+    /** Stub creator for {@link androidx.appsearch.app.SearchSpec}. */
     public static class SearchSpecCreator extends AbstractCreator<SearchSpec> {
     }
 
     /** Stub creator for {@link androidx.appsearch.app.JoinSpec}. */
     public static class JoinSpecCreator extends AbstractCreator<JoinSpec> {
+    }
+
+    /** Stub creator for {@link androidx.appsearch.app.GetSchemaResponse}. */
+    public static class GetSchemaResponseCreator extends AbstractCreator<GetSchemaResponse> {
     }
 }
