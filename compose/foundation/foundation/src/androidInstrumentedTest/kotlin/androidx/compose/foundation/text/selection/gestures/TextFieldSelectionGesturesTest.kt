@@ -34,7 +34,6 @@ import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.test.filters.FlakyTest
 import org.junit.Before
 import org.junit.Test
 
@@ -365,7 +364,6 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
     }
 
     @Test
-    @FlakyTest(bugId = 302703761)
     fun whenTouch_withLongPressThenDragUpAndBack_selectsWordsThenChars() {
         touchLongPressThenDragForwardAndBackTest(
             forwardOffset = characterPosition(2),
