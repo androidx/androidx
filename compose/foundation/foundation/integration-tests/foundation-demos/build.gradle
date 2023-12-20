@@ -23,7 +23,6 @@ plugins {
 
 dependencies {
 
-    implementation("androidx.core:core:1.12.0")
     implementation(libs.kotlinStdlib)
 
     implementation(project(":compose:animation:animation"))

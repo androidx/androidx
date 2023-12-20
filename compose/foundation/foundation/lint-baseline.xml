@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.3.0-alpha18" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha18)" variant="all" version="8.3.0-alpha18">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanSuppressTag"
@@ -44,33 +44,6 @@
         errorLine2="                   ~~~~~">
         <location
             file="src/androidInstrumentedTest/kotlin/androidx/compose/foundation/lazy/staggeredgrid/LazyStaggeredGridAnimatedScrollTest.kt"/>
-    </issue>
-
-    <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalTextApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/BasicText.kt"/>
-    </issue>
-
-    <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalTextApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNode.kt"/>
-    </issue>
-
-    <issue
-        id="IllegalExperimentalApiUsage"
-        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
-        errorLine1="@OptIn(ExperimentalTextApi::class)"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextLinkScope.kt"/>
     </issue>
 
     <issue
@@ -300,6 +273,15 @@
 
     <issue
         id="PrimitiveInCollection"
+        message="field map with type Map&lt;Object, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val map: Map&lt;Any, Int>"
+        errorLine2="                     ~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/lazy/layout/LazyLayoutKeyIndexMap.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
         message="field placeablesCache with type HashMap&lt;Integer, List&lt;Placeable>>: replace with IntObjectMap"
         errorLine1="    /**"
         errorLine2="    ^">
@@ -494,6 +476,34 @@
         errorLine2="                 ~~~~~~~~~">
         <location
             file="src/commonMain/kotlin/androidx/compose/foundation/pager/PagerMeasure.kt"/>
+    </issue>
+
+    <!-- TODO(soboleva) temporary change, remove when stable link annotations merged -->
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/BasicText.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/modifiers/TextAnnotatedStringNode.kt"/>
+    </issue>
+
+    <issue
+        id="IllegalExperimentalApiUsage"
+        message="`Experimental` and `RequiresOptIn` APIs may only be used within the same-version group where they were defined."
+        errorLine1="@OptIn(ExperimentalTextApi::class)"
+        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/commonMain/kotlin/androidx/compose/foundation/text/TextLinkScope.kt"/>
     </issue>
 
     <issue
