@@ -267,9 +267,10 @@ class ElementExtTest(
 
     private fun XTestInvocation.objectMethodNames(): List<String> {
         return processingEnv.requireTypeElement("java.lang.Object")
-            .getAllMethods().map {
-                it.jvmName
-            }.toList() - "registerNatives"
+            .getAllMethods()
+            .filterNot { it.isPrivate() }
+            .map { it.jvmName }
+            .toList()
     }
 
     private fun List<XMethodElement>.names() = map { it.jvmName }
