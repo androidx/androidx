@@ -18,8 +18,6 @@ package androidx.build.sbom
 
 import androidx.build.BundleInsideHelper
 import androidx.build.GMavenZipTask
-import androidx.inspection.gradle.EXPORT_INSPECTOR_DEPENDENCIES
-import androidx.inspection.gradle.IMPORT_INSPECTOR_DEPENDENCIES
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.gradle.api.GradleException
 import org.gradle.api.Project
@@ -38,8 +36,6 @@ fun Project.shouldSbomIncludeConfigurationName(configurationName: String): Boole
         BundleInsideHelper.CONFIGURATION_NAME -> true
         "shadowed" -> true
         "compileClasspath" -> appliesShadowPlugin()
-        EXPORT_INSPECTOR_DEPENDENCIES -> true
-        IMPORT_INSPECTOR_DEPENDENCIES -> true
         else -> false
     }
 }
@@ -85,15 +81,6 @@ fun Project.listSbomConfigurationNamesForArchive(task: AbstractArchiveTask): Lis
     // some tasks that embed other configurations
     if (taskName == BundleInsideHelper.REPACKAGE_TASK_NAME) {
         return listOf(BundleInsideHelper.CONFIGURATION_NAME)
-    }
-    if (
-        projectPath.contains("inspection") &&
-        (
-            taskName == "assembleInspectorJarRelease" ||
-            taskName == "inspectionShadowDependenciesRelease"
-        )
-    ) {
-        return listOf(EXPORT_INSPECTOR_DEPENDENCIES)
     }
 
     if (excludeTaskNames.contains(taskName))

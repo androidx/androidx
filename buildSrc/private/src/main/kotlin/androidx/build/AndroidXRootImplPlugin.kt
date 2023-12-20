@@ -167,7 +167,6 @@ abstract class AndroidXRootImplPlugin : Plugin<Project> {
         AffectedModuleDetector.configure(gradle, this)
 
         // Needs to be called before evaluationDependsOnChildren in usingMaxDepVersions block
-        publishInspectionArtifacts()
         registerOwnersServiceTasks()
 
         // If useMaxDepVersions is set, iterate through all the project and substitute any androidx

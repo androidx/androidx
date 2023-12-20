@@ -16,11 +16,6 @@ sourceSets {
     main.resources.srcDirs += "${supportRootFolder}" +
             "/benchmark/baseline-profile-gradle-plugin/src/main/resources"
 
-    // Inspection
-    main.java.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main/kotlin"
-    main.resources.srcDirs += "${supportRootFolder}/inspection/inspection-gradle-plugin/src/main" +
-            "/resources"
-
     // Compose
     main.java.srcDirs += "${supportRootFolder}/compose/material/material/icons/generator/src/main" +
             "/kotlin"
@@ -28,9 +23,6 @@ sourceSets {
     // Glance
     main.java.srcDirs += "${supportRootFolder}/glance/glance-appwidget/glance-layout-generator/" +
             "src/main/kotlin"
-
-    // Stable AIDL
-    main.java.srcDirs += "${supportRootFolder}/stableaidl/stableaidl-gradle-plugin/src/main/java"
 }
 
 dependencies {
@@ -60,17 +52,9 @@ gradlePlugin {
             id = "androidx.baselineprofile"
             implementationClass = "androidx.baselineprofile.gradle.wrapper.BaselineProfileWrapperPlugin"
         }
-        inspection {
-            id = "androidx.inspection"
-            implementationClass = "androidx.inspection.gradle.InspectionPlugin"
-        }
         darwinBenchmark {
             id = "androidx.benchmark.darwin"
             implementationClass = "androidx.benchmark.darwin.gradle.DarwinBenchmarkPlugin"
-        }
-        stableaidl {
-            id = "androidx.stableaidl"
-            implementationClass = "androidx.stableaidl.StableAidlPlugin"
         }
     }
 }

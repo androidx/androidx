@@ -26,7 +26,6 @@ import androidx.build.java.JavaCompileInputs
 import androidx.build.libabigail.NativeApiTasks
 import androidx.build.metalava.MetalavaTasks
 import androidx.build.resources.ResourceTasks
-import androidx.build.stableaidl.setupWithStableAidlPlugin
 import androidx.build.version
 import com.android.build.gradle.LibraryExtension
 import com.android.build.gradle.tasks.ProcessLibraryManifest
@@ -198,8 +197,6 @@ fun Project.configureProjectForApiTasks(
                 outputApiLocations = outputApiLocations.map { it.nativeApiDirectory }
             )
         }
-
-        project.setupWithStableAidlPlugin()
 
         if (config is LibraryApiTaskConfig) {
             ResourceTasks.setupProject(

@@ -16,9 +16,6 @@
 
 import androidx.build.AndroidXComposePlugin
 import androidx.build.LibraryType
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
-import static androidx.inspection.gradle.InspectionPluginKt.packageInspector
 
 plugins {
     id("AndroidXPlugin")
@@ -135,8 +132,6 @@ dependencies {
         samples(project(":compose:ui:ui:ui-samples"))
     }
 }
-
-packageInspector(project, ":compose:ui:ui-inspection")
 
 if(AndroidXComposePlugin.isMultiplatformEnabled(project)) {
     androidXComposeMultiplatform {
