@@ -356,6 +356,11 @@ fun loadTestSource(fileName: String, qName: String): Source {
     return Source.load(contents, qName, relativePath)
 }
 
+fun writeTestSource(source: Source, fileName: String) {
+    val contents = File("src/test/test-data/$fileName")
+    contents.writeText(source.contents)
+}
+
 fun createVerifierFromEntitiesAndViews(invocation: XTestInvocation): DatabaseVerifier {
     return DatabaseVerifier.create(
         invocation.context, mock(XElement::class.java),
