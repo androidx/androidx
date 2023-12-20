@@ -50,6 +50,7 @@ import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import java.lang.ref.WeakReference
+import kotlin.reflect.KClass
 import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
@@ -342,8 +343,8 @@ open class MigrationTestHelper : TestWatcher {
         val db: RoomDatabase = getGeneratedImplementation(
             databaseClass, "_Impl"
         )
-        val requiredAutoMigrationSpecs = db.getRequiredAutoMigrationSpecs()
-        return db.getAutoMigrations(
+        val requiredAutoMigrationSpecs = db.getRequiredAutoMigrationSpecClasses()
+        return db.createAutoMigrations(
             createAutoMigrationSpecMap(requiredAutoMigrationSpecs, userProvidedSpecs)
         )
     }
@@ -352,19 +353,19 @@ open class MigrationTestHelper : TestWatcher {
      * Maps auto migration spec classes to their provided instance.
      */
     private fun createAutoMigrationSpecMap(
-        requiredAutoMigrationSpecs: Set<Class<out AutoMigrationSpec>>,
+        requiredAutoMigrationSpecs: Set<KClass<out AutoMigrationSpec>>,
         userProvidedSpecs: List<AutoMigrationSpec>
-    ): Map<Class<out AutoMigrationSpec>, AutoMigrationSpec> {
+    ): Map<KClass<out AutoMigrationSpec>, AutoMigrationSpec> {
         if (requiredAutoMigrationSpecs.isEmpty()) {
             return emptyMap()
         }
         return buildMap {
             requiredAutoMigrationSpecs.forEach { spec ->
                 val match = userProvidedSpecs.firstOrNull { provided ->
-                    spec.isAssignableFrom(provided.javaClass)
+                    spec.java.isAssignableFrom(provided.javaClass)
                 }
                 require(match != null) {
-                    "A required auto migration spec (${spec.canonicalName}) has not been provided."
+                    "A required auto migration spec (${spec.qualifiedName}) has not been provided."
                 }
                 put(spec, match)
             }

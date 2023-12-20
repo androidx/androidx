@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import androidx.room.migration.AutoMigrationSpec
 import androidx.sqlite.SQLiteDriver
 
 /**
@@ -29,5 +30,6 @@ expect class DatabaseConfiguration {
     val requireMigration: Boolean
     val allowDestructiveMigrationOnDowngrade: Boolean
     internal val migrationNotRequiredFrom: Set<Int>?
+    val autoMigrationSpecs: List<AutoMigrationSpec>
     val sqliteDriver: SQLiteDriver?
 }

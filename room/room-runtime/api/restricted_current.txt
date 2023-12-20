@@ -297,6 +297,7 @@ package androidx.room.migration {
 
   public interface AutoMigrationSpec {
     method public default void onPostMigrate(androidx.sqlite.db.SupportSQLiteDatabase db);
+    method public default void onPostMigrate(androidx.sqlite.SQLiteConnection connection);
   }
 
   public abstract class Migration {

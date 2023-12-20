@@ -14,22 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.room
+@file:JvmName("KClassUtil")
+@file:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 
-import androidx.room.migration.AutoMigrationSpec
-import androidx.sqlite.SQLiteDriver
+package androidx.room.util
+
+import androidx.annotation.RestrictTo
+import kotlin.jvm.JvmName
+import kotlin.reflect.KClass
 
 /**
- * Configuration class for a [RoomDatabase].
+ * Determines if the class or interface represented by this object is the same as, or is a
+ * superclass or superinterface of the class or interface represented by the specified [KClass]
+ * parameter.
  */
-actual class DatabaseConfiguration(
-    /**
-     * Collection of available migrations.
-     */
-    actual val migrationContainer: RoomDatabase.MigrationContainer,
-    actual val requireMigration: Boolean,
-    actual val allowDestructiveMigrationOnDowngrade: Boolean,
-    internal actual val migrationNotRequiredFrom: Set<Int>?,
-    actual val autoMigrationSpecs: List<AutoMigrationSpec>,
-    actual val sqliteDriver: SQLiteDriver?
-)
+internal actual fun KClass<*>.isAssignableFrom(other: KClass<*>): Boolean {
+    return this.java.isAssignableFrom(other.java)
+}
