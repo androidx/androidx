@@ -39,6 +39,7 @@ import com.android.build.api.artifact.SingleArtifact
 import com.android.build.api.variant.AndroidComponentsExtension
 import com.android.build.api.variant.ApplicationAndroidComponentsExtension
 import com.android.build.api.variant.HasAndroidTest
+import com.android.build.api.variant.HasUnitTestBuilder
 import com.android.build.api.variant.LibraryAndroidComponentsExtension
 import com.android.build.api.variant.Variant
 import com.android.build.gradle.AppExtension
@@ -499,6 +500,13 @@ constructor(private val componentFactory: SoftwareComponentFactory) : Plugin<Pro
         }
 
         project.extensions.getByType<ApplicationAndroidComponentsExtension>().apply {
+            beforeVariants(selector().withBuildType("release")) { variant ->
+                // Cast is needed because ApplicationAndroidComponentsExtension implements both
+                // HasUnitTestBuilder and VariantBuilder, and VariantBuilder#enableUnitTest is
+                // deprecated in favor of HasUnitTestBuilder#enableUnitTest.
+                // Remove the cast when we upgrade to AGP 9.0.0
+                (variant as HasUnitTestBuilder).enableUnitTest = false
+            }
             onVariants {
                 it.configureTests()
                 it.artRewritingWorkaround()
