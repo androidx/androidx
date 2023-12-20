@@ -784,9 +784,6 @@ internal class DefaultSpecialEffectsController(
                                     operation.finalState.applyState(view, container)
                                 }
                             }
-                            transitionInfos.map { it.operation }.forEach { operation ->
-                                operation.completeEffect(this)
-                            }
                         }
                     }
                     if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
