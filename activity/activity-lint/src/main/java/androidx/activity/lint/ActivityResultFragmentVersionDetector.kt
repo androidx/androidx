@@ -120,8 +120,8 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
         val mainArtifact = getMemberWithReflection(buildVariant, "mainArtifact")
         val dependencies = getMemberWithReflection(mainArtifact, "dependencies")
         val all = callFunctionWithReflection(dependencies, "getAll")
-        (all as ArrayList<*>).forEach { lmLibrary ->
-            lmLibrary::class.memberProperties.forEach { libraryMembers ->
+        (all as List<*>).forEach { lmLibrary ->
+            lmLibrary!!::class.memberProperties.forEach { libraryMembers ->
                 if (libraryMembers.name == "resolvedCoordinates") {
                     libraryMembers.isAccessible = true
                     reportIssue(libraryMembers.call(lmLibrary).toString(), context, false)
