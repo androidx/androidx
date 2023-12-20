@@ -117,7 +117,7 @@ constructor(
     val prepackagedDatabaseCallback: RoomDatabase.PrepackagedDatabaseCallback?,
 
     @JvmField
-    val typeConverters: List<Any>,
+    actual val typeConverters: List<Any>,
 
     @JvmField
     actual val autoMigrationSpecs: List<AutoMigrationSpec>,

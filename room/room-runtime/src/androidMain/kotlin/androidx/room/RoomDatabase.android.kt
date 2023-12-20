@@ -44,7 +44,6 @@ import androidx.sqlite.db.SupportSQLiteStatement
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import java.io.File
 import java.io.InputStream
-import java.util.BitSet
 import java.util.Collections
 import java.util.TreeMap
 import java.util.concurrent.Callable
@@ -156,7 +155,7 @@ actual abstract class RoomDatabase {
     @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     val backingFieldMap: MutableMap<String, Any> = Collections.synchronizedMap(mutableMapOf())
 
-    private val typeConverters: MutableMap<Class<*>, Any> = mutableMapOf()
+    private val typeConverters: MutableMap<KClass<*>, Any> = mutableMapOf()
 
     /**
      * Gets the instance of the given Type Converter.
@@ -165,9 +164,35 @@ actual abstract class RoomDatabase {
      * @param T The type of the expected Type Converter subclass.
      * @return An instance of T if it is provided in the builder.
      */
+    @Deprecated("No longer called by generated implementation")
     @Suppress("UNCHECKED_CAST")
-    open fun <T> getTypeConverter(klass: Class<T>): T? {
-        return typeConverters[klass] as T?
+    open fun <T : Any> getTypeConverter(klass: Class<T>): T? {
+        return typeConverters[klass.kotlin] as T?
+    }
+
+    /**
+     * Gets the instance of the given type converter class.
+     *
+     * This method should only be called by the generated DAO implementations.
+     *
+     * @param klass The Type Converter class.
+     * @param T The type of the expected Type Converter subclass.
+     * @return An instance of T.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Suppress("UNCHECKED_CAST")
+    actual fun <T : Any> getTypeConverter(klass: KClass<T>): T {
+        return typeConverters[klass] as T
+    }
+
+    /**
+     * Adds a provided type converter to be used in the database DAOs.
+     *
+     * @param kclass the class of the type converter
+     * @param converter an instance of the converter
+     */
+    internal actual fun addTypeConverter(kclass: KClass<*>, converter: Any) {
+        typeConverters[kclass] = converter
     }
 
     /**
@@ -181,6 +206,7 @@ actual abstract class RoomDatabase {
     open fun init(configuration: DatabaseConfiguration) {
         connectionManager = createConnectionManager(configuration) as RoomAndroidConnectionManager
         validateAutoMigrations(configuration)
+        validateTypeConverters(configuration)
         // Configure SQLiteCopyOpenHelper if it is available
         unwrapOpenHelper(
                 clazz = SQLiteCopyOpenHelper::class.java,
@@ -211,41 +237,6 @@ actual abstract class RoomDatabase {
                 configuration.multiInstanceInvalidationServiceIntent
             )
         }
-        val requiredFactories = getRequiredTypeConverters()
-        // indices for each converter on whether it is used or not so that we can throw an exception
-        // if developer provides an unused converter. It is not necessarily an error but likely
-        // to be because why would developer add a converter if it won't be used?
-        val used = BitSet()
-        requiredFactories.forEach { (daoName, converters) ->
-            for (converter in converters) {
-                var foundIndex = -1
-                // traverse provided converters in reverse so that newer one overrides
-                for (providedIndex in configuration.typeConverters.indices.reversed()) {
-                    val provided = configuration.typeConverters[providedIndex]
-                    if (converter.isAssignableFrom(provided.javaClass)) {
-                        foundIndex = providedIndex
-                        used.set(foundIndex)
-                        break
-                    }
-                }
-                require(foundIndex >= 0) {
-                    "A required type converter ($converter) for" +
-                        " ${daoName.canonicalName} is missing in the database configuration."
-                }
-                typeConverters[converter] = configuration.typeConverters[foundIndex]
-            }
-        }
-        // now, make sure all provided factories are used
-        for (providedIndex in configuration.typeConverters.indices.reversed()) {
-            if (!used[providedIndex]) {
-                val converter = configuration.typeConverters[providedIndex]
-                throw IllegalArgumentException(
-                    "Unexpected type converter $converter. " +
-                        "Annotate TypeConverter class with @ProvidedTypeConverter annotation " +
-                        "or remove this converter from the builder."
-                )
-            }
-        }
     }
 
     /**
@@ -257,20 +248,25 @@ actual abstract class RoomDatabase {
     internal actual fun createConnectionManager(
         configuration: DatabaseConfiguration
     ): RoomConnectionManager {
-        return try {
-            RoomAndroidConnectionManager(
-                config = configuration,
-                openDelegate = createOpenDelegate() as RoomOpenDelegate
-            )
+        val openDelegate = try {
+            createOpenDelegate() as RoomOpenDelegate
         } catch (ex: NotImplementedError) {
-            // If createOpenDelegate() is not implemented then the database implementation was
-            // generated with an older compiler, we are force to create a connection manager
-            // using the SupportSQLiteOpenHelper return from createOpenHelper() with the
-            // deprecated RoomOpenHelper installed.
+            null
+        }
+        // If createOpenDelegate() is not implemented then the database implementation was
+        // generated with an older compiler, we are force to create a connection manager
+        // using the SupportSQLiteOpenHelper return from createOpenHelper() with the
+        // deprecated RoomOpenHelper installed.
+        return if (openDelegate == null) {
             @Suppress("DEPRECATION")
             RoomAndroidConnectionManager(
                 config = configuration,
                 supportOpenHelper = createOpenHelper(configuration)
+            )
+        } else {
+            RoomAndroidConnectionManager(
+                config = configuration,
+                openDelegate = openDelegate
             )
         }
     }
@@ -370,6 +366,31 @@ actual abstract class RoomDatabase {
     protected open fun getRequiredTypeConverters(): Map<Class<*>, List<Class<*>>> {
         return emptyMap()
     }
+
+    /**
+     * Returns a Map of String -> List&lt;KClass&gt; where each entry has the `key` as the DAO name
+     * and `value` as the list of type converter classes that are necessary for the database to
+     * function.
+     *
+     * An implementation of this function is generated by the Room processor. Note that this method
+     * is called when the [RoomDatabase] is initialized.
+     *
+     * @return A map that will include all required type converters for this database.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected actual open fun getRequiredTypeConverterClasses(): Map<KClass<*>, List<KClass<*>>> {
+        // For backwards compatibility when newer runtime is used with older generated code,
+        // call the Java version this function.
+        return getRequiredTypeConverters().entries.associate { (key, value) ->
+            key.kotlin to value.map { it.kotlin }
+        }
+    }
+
+    /**
+     * Property delegate of [getRequiredTypeConverterClasses] for common ext functionality.
+     */
+    internal actual val requiredTypeConverterClasses: Map<KClass<*>, List<KClass<*>>>
+        get() = getRequiredTypeConverterClasses()
 
     /**
      * Returns a Set of required AutoMigrationSpec classes.

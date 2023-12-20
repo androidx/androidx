@@ -3,7 +3,6 @@ import androidx.room.RoomDatabase
 import androidx.room.util.getColumnIndex
 import androidx.room.util.query
 import androidx.sqlite.db.SupportSQLiteQuery
-import java.lang.Class
 import javax.`annotation`.processing.Generated
 import kotlin.Double
 import kotlin.Float
@@ -12,6 +11,7 @@ import kotlin.Long
 import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
+import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
 @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
@@ -68,6 +68,6 @@ public class MyDao_Impl(
 
   public companion object {
     @JvmStatic
-    public fun getRequiredConverters(): List<Class<*>> = emptyList()
+    public fun getRequiredConverters(): List<KClass<*>> = emptyList()
   }
 }

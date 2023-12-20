@@ -30,6 +30,7 @@ actual class DatabaseConfiguration(
     actual val requireMigration: Boolean,
     actual val allowDestructiveMigrationOnDowngrade: Boolean,
     internal actual val migrationNotRequiredFrom: Set<Int>?,
+    actual val typeConverters: List<Any>,
     actual val autoMigrationSpecs: List<AutoMigrationSpec>,
     actual val sqliteDriver: SQLiteDriver?
 )

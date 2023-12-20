@@ -30,6 +30,7 @@ expect class DatabaseConfiguration {
     val requireMigration: Boolean
     val allowDestructiveMigrationOnDowngrade: Boolean
     internal val migrationNotRequiredFrom: Set<Int>?
+    val typeConverters: List<Any>
     val autoMigrationSpecs: List<AutoMigrationSpec>
     val sqliteDriver: SQLiteDriver?
 }
