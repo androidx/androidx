@@ -17,9 +17,8 @@
 package androidx.compose.ui.text
 
 /**
- * An annotation that contains the metadata intended for text-to-speech engine. If the text is
- * being processed by a text-to-speech engine, the engine may use the data in this annotation in
- * addition to or instead of its associated text.
+ * An annotation that contains a url string. When clicking on the text to which this annotation is
+ * attached, the app will try to open the url using [androidx.compose.ui.platform.UriHandler].
  */
 @ExperimentalTextApi
 class UrlAnnotation(val url: String) {

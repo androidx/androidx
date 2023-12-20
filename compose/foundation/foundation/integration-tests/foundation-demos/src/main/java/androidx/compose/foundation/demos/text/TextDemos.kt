@@ -89,7 +89,6 @@ val TextDemos = DemoCategory(
                 ComposableDemo("Line Height Behavior") { TextLineHeightDemo() },
                 ComposableDemo("Layout Reuse") { TextReuseLayoutDemo() },
                 ComposableDemo("Multi paragraph") { MultiParagraphDemo() },
-                ComposableDemo("Interactive text") { InteractiveTextDemo() },
             )
         ),
         DemoCategory(
@@ -189,6 +188,14 @@ val TextDemos = DemoCategory(
                 ComposableDemo("\uD83D\uDD75️ IfNotEmptyText") { MemoryAllocsIfNotEmptyText() },
                 ComposableDemo("\uD83E\uDDA5 LazyList reuse") { MemoryAllocsLazyList() }
             )
+        ),
+        DemoCategory(
+            "Interactive text",
+            listOf(
+                ComposableDemo("ClickableText with hover") { InteractiveTextDemo() },
+                ComposableDemo("\uD83D\uDD17 Hyperlinks") { Hyperlinks() }
+            )
         )
+
     )
 )

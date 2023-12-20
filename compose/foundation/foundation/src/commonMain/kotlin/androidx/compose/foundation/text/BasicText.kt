@@ -20,6 +20,7 @@ import androidx.compose.foundation.text.modifiers.SelectableTextAnnotatedStringE
 import androidx.compose.foundation.text.modifiers.SelectionController
 import androidx.compose.foundation.text.modifiers.TextAnnotatedStringElement
 import androidx.compose.foundation.text.modifiers.TextStringSimpleElement
+import androidx.compose.foundation.text.modifiers.hasLinks
 import androidx.compose.foundation.text.selection.LocalSelectionRegistrar
 import androidx.compose.foundation.text.selection.LocalTextSelectionColors
 import androidx.compose.foundation.text.selection.SelectionRegistrar
@@ -42,6 +43,7 @@ import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.layout.Placeable
 import androidx.compose.ui.platform.LocalFontFamilyResolver
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -49,6 +51,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastMapIndexedNotNull
 import androidx.compose.ui.util.fastRoundToInt
@@ -170,6 +173,7 @@ fun BasicText(
  * used to insert composables into text layout. Check [InlineTextContent] for more information.
  * @param color Overrides the text color provided in [style]
  */
+@OptIn(ExperimentalTextApi::class)
 @Composable
 fun BasicText(
     text: AnnotatedString,
@@ -204,7 +208,9 @@ fun BasicText(
     } else {
         null
     }
-    if (!text.hasInlineContent()) {
+    val hasInlineContent = text.hasInlineContent()
+    val hasLinks = text.hasLinks()
+    if (!hasInlineContent && !hasLinks) {
         // this is the same as text: String, use all the early exits
         Layout(
             modifier = modifier
@@ -227,33 +233,21 @@ fun BasicText(
             EmptyMeasurePolicy
         )
     } else {
-        // do the inline content allocs
-        val (placeholders, inlineComposables) = text.resolveInlineContent(
-            inlineContent = inlineContent
-        )
-        val measuredPlaceholderPositions = remember<MutableState<List<Rect?>?>> {
-            mutableStateOf(null)
-        }
-        Layout(
-            content = { InlineChildren(text = text, inlineContents = inlineComposables) },
-            modifier = modifier
-                // TODO(b/274781644): Remove this graphicsLayer
-                .graphicsLayer()
-                .textModifier(
-                text = text,
-                style = style,
-                onTextLayout = onTextLayout,
-                overflow = overflow,
-                softWrap = softWrap,
-                maxLines = maxLines,
-                minLines = minLines,
-                fontFamilyResolver = LocalFontFamilyResolver.current,
-                placeholders = placeholders,
-                onPlaceholderLayout = { measuredPlaceholderPositions.value = it },
-                selectionController = selectionController,
-                color = color
-            ),
-            measurePolicy = TextMeasurePolicy { measuredPlaceholderPositions.value }
+        LayoutWithLinksAndInlineContent(
+            modifier = modifier,
+            text = text,
+            onTextLayout = onTextLayout,
+            hasLinks = hasLinks,
+            hasInlineContent = hasInlineContent,
+            inlineContent = inlineContent,
+            style = style,
+            overflow = overflow,
+            softWrap = softWrap,
+            maxLines = maxLines,
+            minLines = minLines,
+            fontFamilyResolver = LocalFontFamilyResolver.current,
+            selectionController = selectionController,
+            color = color
         )
     }
 }
@@ -363,6 +357,7 @@ private object EmptyMeasurePolicy : MeasurePolicy {
     }
 }
 
+/** Measure policy for inline content and links */
 private class TextMeasurePolicy(
     private val placements: () -> List<Rect?>?
 ) : MeasurePolicy {
@@ -370,12 +365,16 @@ private class TextMeasurePolicy(
         measurables: List<Measurable>,
         constraints: Constraints
     ): MeasureResult {
-        val toPlace = placements()?.fastMapIndexedNotNull { index, rect ->
+        // inline content
+        val inlineContentMeasurables = measurables.fastFilter {
+            it.parentData !is TextRangeLayoutModifier
+        }
+        val inlineContentToPlace = placements()?.fastMapIndexedNotNull { index, rect ->
             // PlaceholderRect will be null if it's ellipsized. In that case, the corresponding
             // inline children won't be measured or placed.
             rect?.let {
                 Pair(
-                    measurables[index].measure(
+                    inlineContentMeasurables[index].measure(
                         Constraints(
                             maxWidth = floor(it.width).toInt(),
                             maxHeight = floor(it.height).toInt()
@@ -385,14 +384,54 @@ private class TextMeasurePolicy(
                 )
             }
         }
-        return layout(
-            constraints.maxWidth,
-            constraints.maxHeight,
-        ) {
-            toPlace?.fastForEach { (placeable, position) ->
+
+        // links
+        val linksMeasurables = measurables.fastFilter {
+            it.parentData is TextRangeLayoutModifier
+        }
+        val linksToPlace = measureWithTextRangeMeasureConstraints(linksMeasurables)
+
+        return layout(constraints.maxWidth, constraints.maxHeight) {
+            // inline content
+            inlineContentToPlace?.fastForEach { (placeable, position) ->
                 placeable.place(position)
             }
+            // links
+            linksToPlace.fastForEach { (placeable, measureResult) ->
+                placeable.place(measureResult?.invoke() ?: IntOffset.Zero)
+            }
         }
+    }
+}
+
+/** Measure policy for links only */
+private object LinksTextMeasurePolicy : MeasurePolicy {
+    override fun MeasureScope.measure(
+        measurables: List<Measurable>,
+        constraints: Constraints
+    ): MeasureResult {
+        val linksToPlace = measureWithTextRangeMeasureConstraints(measurables)
+        return layout(constraints.maxWidth, constraints.maxHeight) {
+            linksToPlace.fastForEach { (placeable, measureResult) ->
+                placeable.place(measureResult?.invoke() ?: IntOffset.Zero)
+            }
+        }
+    }
+}
+
+private fun measureWithTextRangeMeasureConstraints(
+    measurables: List<Measurable>
+): List<Pair<Placeable, (() -> IntOffset)?>> {
+    val textRangeLayoutMeasureScope = TextRangeLayoutMeasureScope()
+    return measurables.fastMapIndexedNotNull { _, measurable ->
+        val rangeMeasurePolicy = (measurable.parentData as TextRangeLayoutModifier).measurePolicy
+        val rangeMeasureResult = with(rangeMeasurePolicy) {
+            textRangeLayoutMeasureScope.measure()
+        }
+        val placeable = measurable.measure(
+            Constraints.fixed(rangeMeasureResult.width, rangeMeasureResult.height)
+        )
+        Pair(placeable, rangeMeasureResult.place)
     }
 }
 
@@ -443,4 +482,75 @@ private fun Modifier.textModifier(
         )
         return this then selectionController.modifier then selectableTextModifier
     }
+}
+
+@Composable
+private fun LayoutWithLinksAndInlineContent(
+    modifier: Modifier,
+    text: AnnotatedString,
+    onTextLayout: ((TextLayoutResult) -> Unit)?,
+    hasLinks: Boolean,
+    hasInlineContent: Boolean,
+    inlineContent: Map<String, InlineTextContent> = mapOf(),
+    style: TextStyle,
+    overflow: TextOverflow,
+    softWrap: Boolean,
+    maxLines: Int,
+    minLines: Int,
+    fontFamilyResolver: FontFamily.Resolver,
+    selectionController: SelectionController?,
+    color: ColorProducer?
+) {
+    val textScope = if (hasLinks) {
+        remember(text) { TextLinkScope(text) }
+    } else null
+
+    // do the inline content allocs
+    val (placeholders, inlineComposables) = if (hasInlineContent) {
+        text.resolveInlineContent(
+            inlineContent = inlineContent
+        )
+    } else Pair(null, null)
+
+    val measuredPlaceholderPositions = if (hasInlineContent) {
+        remember<MutableState<List<Rect?>?>> { mutableStateOf(null) }
+    } else null
+
+    val onPlaceholderLayout: ((List<Rect?>) -> Unit)? = if (hasInlineContent) {
+        { measuredPlaceholderPositions?.value = it }
+    } else null
+
+    Layout(
+        content = {
+            textScope?.LinksComposables()
+            inlineComposables?.let {
+                InlineChildren(text = text, inlineContents = it)
+            }
+        },
+        modifier = modifier
+            // TODO(b/274781644): Remove this graphicsLayer
+            .graphicsLayer()
+            .textModifier(
+                text = text,
+                style = style,
+                onTextLayout = {
+                    textScope?.textLayoutResult = it
+                    onTextLayout?.invoke(it)
+                },
+                overflow = overflow,
+                softWrap = softWrap,
+                maxLines = maxLines,
+                minLines = minLines,
+                fontFamilyResolver = fontFamilyResolver,
+                placeholders = placeholders,
+                onPlaceholderLayout = onPlaceholderLayout,
+                selectionController = selectionController,
+                color = color
+            ),
+        measurePolicy = if (!hasInlineContent) {
+            LinksTextMeasurePolicy
+        } else {
+            TextMeasurePolicy { measuredPlaceholderPositions?.value }
+        }
+    )
 }
