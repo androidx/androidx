@@ -193,6 +193,29 @@ interface XCodeBlock : TargetLanguage {
         }
 
         /**
+         * Convenience code block of a Kotlin class literal.
+         */
+        fun ofKotlinClassLiteral(
+            language: CodeLanguage,
+            typeName: XClassName,
+        ): XCodeBlock {
+            return when (language) {
+                CodeLanguage.JAVA -> of(
+                    language,
+                    "%T.getKotlinClass(%T.class)",
+                    XClassName.get("kotlin.jvm", "JvmClassMappingKt"),
+                    typeName
+                )
+
+                CodeLanguage.KOTLIN -> of(
+                    language,
+                    "%T::class",
+                    typeName
+                )
+            }
+        }
+
+        /**
          * Convenience code block of a conditional expression representing a ternary if.
          *
          * For Java this will emit: ` <condition> ? <leftExpr> : <rightExpr>)`

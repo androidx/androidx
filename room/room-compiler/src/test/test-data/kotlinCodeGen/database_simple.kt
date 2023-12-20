@@ -9,7 +9,6 @@ import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.execSQL
 import java.lang.Class
-import java.util.ArrayList
 import java.util.HashMap
 import java.util.HashSet
 import javax.`annotation`.processing.Generated
@@ -20,7 +19,11 @@ import kotlin.Suppress
 import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.MutableList
+import kotlin.collections.MutableSet
 import kotlin.collections.Set
+import kotlin.collections.mutableListOf
+import kotlin.collections.mutableSetOf
+import kotlin.reflect.KClass
 
 @Generated(value = ["androidx.room.RoomProcessor"])
 @Suppress(names = ["UNCHECKED_CAST", "DEPRECATION", "REDUNDANT_PROJECTION"])
@@ -112,16 +115,15 @@ public class MyDatabase_Impl : MyDatabase() {
         return _typeConvertersMap
     }
 
-    public override fun getRequiredAutoMigrationSpecs(): Set<Class<out AutoMigrationSpec>> {
-        val _autoMigrationSpecsSet: HashSet<Class<out AutoMigrationSpec>> =
-            HashSet<Class<out AutoMigrationSpec>>()
+    public override fun getRequiredAutoMigrationSpecClasses(): Set<KClass<out AutoMigrationSpec>> {
+        val _autoMigrationSpecsSet: MutableSet<KClass<out AutoMigrationSpec>> = mutableSetOf()
         return _autoMigrationSpecsSet
     }
 
     public override
-    fun getAutoMigrations(autoMigrationSpecs: Map<Class<out AutoMigrationSpec>, AutoMigrationSpec>):
+    fun createAutoMigrations(autoMigrationSpecs: Map<KClass<out AutoMigrationSpec>, AutoMigrationSpec>):
         List<Migration> {
-        val _autoMigrations: MutableList<Migration> = ArrayList<Migration>()
+        val _autoMigrations: MutableList<Migration> = mutableListOf()
         return _autoMigrations
     }
 

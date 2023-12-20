@@ -127,6 +127,9 @@ object CollectionTypeNames {
 object KotlinCollectionMemberNames {
     val ARRAY_OF_NULLS = XClassName.get("kotlin", "LibraryKt")
         .packageMember("arrayOfNulls")
+    val MUTABLE_LIST_OF = KotlinTypeNames.COLLECTIONS_KT.packageMember("mutableListOf")
+    val MUTABLE_SET_OF = KotlinTypeNames.SETS_KT.packageMember("mutableSetOf")
+    val MUTABLE_MAP_OF = KotlinTypeNames.MAPS_KT.packageMember("mutableMapOf")
 }
 
 object CommonTypeNames {
@@ -151,6 +154,7 @@ object CommonTypeNames {
     val UUID = XClassName.get("java.util", "UUID")
     val BYTE_BUFFER = XClassName.get("java.nio", "ByteBuffer")
     val JAVA_CLASS = XClassName.get("java.lang", "Class")
+    val KOTLIN_CLASS = XClassName.get("kotlin.reflect", "KClass")
     val CALLABLE = Callable::class.asClassName()
     val DATE = XClassName.get("java.util", "Date")
 }
@@ -277,6 +281,9 @@ object KotlinTypeNames {
     val SEND_CHANNEL = XClassName.get("kotlinx.coroutines.channels", "SendChannel")
     val FLOW = XClassName.get("kotlinx.coroutines.flow", "Flow")
     val LAZY = XClassName.get("kotlin", "Lazy")
+    val COLLECTIONS_KT = XClassName.get("kotlin.collections", "CollectionsKt")
+    val SETS_KT = XClassName.get("kotlin.collections", "SetsKt")
+    val MAPS_KT = XClassName.get("kotlin.collections", "MapsKt")
 }
 
 object RoomMemberNames {
