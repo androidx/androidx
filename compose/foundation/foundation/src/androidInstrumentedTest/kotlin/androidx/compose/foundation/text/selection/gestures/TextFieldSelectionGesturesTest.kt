@@ -31,11 +31,11 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.longClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.test.filters.FlakyTest
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Test
 
 @OptIn(ExperimentalTestApi::class)
@@ -53,7 +53,7 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
     protected abstract fun characterPosition(offset: Int): Offset
 
     @Before
-    fun setupAsserter() {
+    fun setupAsserterAndStartInput() {
         asserter = TextFieldSelectionAsserter(
             textContent = textFieldValue.value.text,
             rule = rule,
@@ -61,10 +61,18 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
             hapticFeedback = hapticFeedback,
             getActual = { textFieldValue.value }
         )
+
+        rule.waitForIdle()
+        rule.onNodeWithTag(pointerAreaTag).performTouchInput { click(characterPosition(0)) }
+        rule.waitForIdle()
     }
 
     @Test
     fun whenTouch_withLongPressOutOfBounds_nothingHappens() {
+        asserter.applyAndAssert {
+            cursorHandleShown = true
+        }
+
         performTouchGesture {
             longPress(topStart.nudge(yDirection = UP))
         }
@@ -119,7 +127,6 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
 
     // Regression for magnifier not showing when the text field begins empty,
     // then text is added, the magnifier continues not to show.
-    @Ignore("b/309165294")
     @Test
     fun whenTouch_withNoText_thenLongPressAndDrag_thenAddText_longPressAndDragAgain() {
         textFieldValue.value = TextFieldValue()
@@ -575,7 +582,6 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
         }
     }
 
-    @Ignore("b/309165294")
     @Test
     fun whenTouch_withLongPressInEndPaddingThenDragToLowerEndPadding_selectsNewLineAndParagraph() {
         performTouchGesture {
@@ -1039,7 +1045,6 @@ internal abstract class TextFieldSelectionGesturesTest : AbstractSelectionGestur
     }
 
     // Regression test for when this would result in text toolbar showing instead of the cursor.
-    @Ignore("b/305583551")
     @Test
     fun whenMouseCollapsedSelection_thenTouch_ToolbarAndCursorAppears() {
         performMouseGesture {
