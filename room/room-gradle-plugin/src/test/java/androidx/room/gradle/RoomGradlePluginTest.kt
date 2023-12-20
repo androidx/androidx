@@ -61,7 +61,9 @@ class RoomGradlePluginTest {
 
         val additionalPluginsBlock = when (backend) {
             ProcessingBackend.JAVAC ->
-                ""
+                """
+                |    id('kotlin-android')
+                """.trimMargin()
             ProcessingBackend.KAPT ->
                 """
                 |    id('kotlin-android')
