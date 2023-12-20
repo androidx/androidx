@@ -25,6 +25,8 @@ import org.junit.Test
 @SmallTest
 class PolygonTest {
     val square = RoundedPolygon(4)
+    val roundedSquare = RoundedPolygon(4, rounding = CornerRounding(.2f))
+    val pentagon = RoundedPolygon(5)
 
     @Test
     fun constructionTest() {
@@ -75,11 +77,29 @@ class PolygonTest {
 
     @Test
     fun boundsTest() {
-        val bounds = square.calculateBounds()
+        var bounds = square.calculateBounds()
         assertEqualish(-1f, bounds[0]) // Left
         assertEqualish(-1f, bounds[1]) // Top
         assertEqualish(1f, bounds[2]) // Right
         assertEqualish(1f, bounds[3]) // Bottom
+
+        var betterBounds = square.calculateBounds(approximate = false)
+        assertEqualish(-1f, betterBounds[0]) // Left
+        assertEqualish(-1f, betterBounds[1]) // Top
+        assertEqualish(1f, betterBounds[2]) // Right
+        assertEqualish(1f, betterBounds[3]) // Bottom
+
+        // roundedSquare's approximate bounds will be larger due to control points
+        bounds = roundedSquare.calculateBounds()
+        betterBounds = roundedSquare.calculateBounds(approximate = false)
+        assertTrue("bounds ${bounds[0]}, ${bounds[1]}, ${bounds[2]}, ${bounds[3]}, " +
+            "betterBounds = ${betterBounds[0]}, ${betterBounds[1]}, ${betterBounds[2]}, " +
+            "${betterBounds[3]}",
+            betterBounds[2] - betterBounds[0] < bounds[2] - bounds[0])
+
+        bounds = pentagon.calculateBounds()
+        val maxBounds = pentagon.calculateMaxBounds()
+        assertTrue(maxBounds[2] - maxBounds[0] > bounds[2] - bounds[0])
     }
 
     @Test
