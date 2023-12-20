@@ -147,7 +147,9 @@ class RoomIncrementalAnnotationProcessingTest(
                 apply plugin: "com.google.devtools.ksp"
             """
         } else {
-            ""
+            """
+                apply plugin: "kotlin-android"
+            """
         }
         val processorConfiguration = if (useKsp) {
             "ksp"
