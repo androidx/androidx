@@ -112,7 +112,6 @@ actual abstract class RoomDatabase {
      */
     open val invalidationTracker: InvalidationTracker = createInvalidationTracker()
     private var allowMainThreadQueries = false
-    private var writeAheadLoggingEnabled = false
 
     @JvmField
     @Deprecated(
@@ -198,20 +197,20 @@ actual abstract class RoomDatabase {
     /**
      * Called by Room when it is initialized.
      *
-     * @throws IllegalArgumentException if initialization fails.
-     *
      * @param configuration The database configuration.
+     * @throws IllegalArgumentException if initialization fails.
      */
     @CallSuper
     open fun init(configuration: DatabaseConfiguration) {
         connectionManager = createConnectionManager(configuration) as RoomAndroidConnectionManager
         validateAutoMigrations(configuration)
         validateTypeConverters(configuration)
+
         // Configure SQLiteCopyOpenHelper if it is available
         unwrapOpenHelper(
-                clazz = SQLiteCopyOpenHelper::class.java,
-                openHelper = connectionManager.supportOpenHelper
-            )?.setDatabaseConfiguration(configuration)
+            clazz = SQLiteCopyOpenHelper::class.java,
+            openHelper = connectionManager.supportOpenHelper
+        )?.setDatabaseConfiguration(configuration)
 
         // Configure AutoClosingRoomOpenHelper if it is available
         unwrapOpenHelper(
@@ -222,13 +221,11 @@ actual abstract class RoomDatabase {
             invalidationTracker.setAutoCloser(it.autoCloser)
         }
 
-        val wal = configuration.journalMode == JournalMode.WRITE_AHEAD_LOGGING
-        connectionManager.supportOpenHelper?.setWriteAheadLoggingEnabled(wal)
-
         internalQueryExecutor = configuration.queryExecutor
         internalTransactionExecutor = TransactionExecutor(configuration.transactionExecutor)
         allowMainThreadQueries = configuration.allowMainThreadQueries
-        writeAheadLoggingEnabled = wal
+
+        // Configure multi-instance invalidation, if enabled
         if (configuration.multiInstanceInvalidationServiceIntent != null) {
             requireNotNull(configuration.name)
             invalidationTracker.startMultiInstanceInvalidation(
@@ -689,7 +686,7 @@ actual abstract class RoomDatabase {
      *
      * @see Builder.setJournalMode
      */
-    enum class JournalMode {
+    actual enum class JournalMode {
         /**
          * Let Room choose the journal mode. This is the default value when no explicit value is
          * specified.

@@ -27,6 +27,7 @@ expect class DatabaseConfiguration {
      * Collection of available migrations.
      */
     val migrationContainer: RoomDatabase.MigrationContainer
+    val journalMode: RoomDatabase.JournalMode
     val requireMigration: Boolean
     val allowDestructiveMigrationOnDowngrade: Boolean
     internal val migrationNotRequiredFrom: Set<Int>?

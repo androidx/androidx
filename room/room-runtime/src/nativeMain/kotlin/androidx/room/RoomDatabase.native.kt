@@ -33,7 +33,21 @@ import kotlin.reflect.KClass
  */
 actual abstract class RoomDatabase {
 
+    private lateinit var connectionManager: RoomNativeConnectionManager
+
     private val typeConverters: MutableMap<KClass<*>, Any> = mutableMapOf()
+
+    /**
+     * Called by Room when it is initialized.
+     *
+     * @param configuration The database configuration.
+     * @throws IllegalArgumentException if initialization fails.
+     */
+    internal fun init(configuration: DatabaseConfiguration) {
+        connectionManager = createConnectionManager(configuration) as RoomNativeConnectionManager
+        validateAutoMigrations(configuration)
+        validateTypeConverters(configuration)
+    }
 
     /**
      * Creates a connection manager to manage database connection. Note that this method
@@ -139,6 +153,23 @@ actual abstract class RoomDatabase {
      */
     internal actual val requiredTypeConverterClasses: Map<KClass<*>, List<KClass<*>>>
         get() = getRequiredTypeConverterClasses()
+
+    /**
+     * Journal modes for SQLite database.
+     *
+     * @see Builder.setJournalMode
+     */
+    actual enum class JournalMode {
+        /**
+         * Truncate journal mode.
+         */
+        TRUNCATE,
+
+        /**
+         * Write-Ahead Logging mode.
+         */
+        WRITE_AHEAD_LOGGING;
+    }
 
     /**
      * Builder for [RoomDatabase].

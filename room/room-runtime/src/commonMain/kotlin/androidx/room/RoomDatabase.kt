@@ -125,6 +125,23 @@ expect abstract class RoomDatabase {
     internal val requiredTypeConverterClasses: Map<KClass<*>, List<KClass<*>>>
 
     /**
+     * Journal modes for SQLite database.
+     *
+     * @see Builder.setJournalMode
+     */
+    enum class JournalMode {
+        /**
+         * Truncate journal mode.
+         */
+        TRUNCATE,
+
+        /**
+         * Write-Ahead Logging mode.
+         */
+        WRITE_AHEAD_LOGGING;
+    }
+
+    /**
      * Builder for [RoomDatabase].
      *
      * @param T The type of the abstract database class.

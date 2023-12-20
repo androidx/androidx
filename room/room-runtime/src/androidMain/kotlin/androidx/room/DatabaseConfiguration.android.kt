@@ -73,7 +73,7 @@ constructor(
      * The journal mode for this database.
      */
     @JvmField
-    val journalMode: RoomDatabase.JournalMode,
+    actual val journalMode: RoomDatabase.JournalMode,
 
     /**
      * The Executor used to execute asynchronous queries.
