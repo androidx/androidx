@@ -115,6 +115,15 @@ package androidx.window.extensions.embedding {
     method public androidx.window.extensions.embedding.ParentContainerInfo getParentContainerInfo();
   }
 
+  public abstract class AnimationBackground {
+    method public static androidx.window.extensions.embedding.AnimationBackground.ColorBackground createColorBackground(@ColorInt int);
+    field public static final androidx.window.extensions.embedding.AnimationBackground ANIMATION_BACKGROUND_DEFAULT;
+  }
+
+  public static class AnimationBackground.ColorBackground extends androidx.window.extensions.embedding.AnimationBackground {
+    method @ColorInt public int getColor();
+  }
+
   public abstract class EmbeddingRule {
     method public String? getTag();
   }
@@ -126,22 +135,16 @@ package androidx.window.extensions.embedding {
   }
 
   public class SplitAttributes {
-    method public androidx.window.extensions.embedding.SplitAttributes.AnimationBackground getAnimationBackground();
+    method public androidx.window.extensions.embedding.AnimationBackground getAnimationBackground();
     method public int getLayoutDirection();
     method public androidx.window.extensions.embedding.SplitAttributes.SplitType getSplitType();
     method public androidx.window.extensions.embedding.WindowAttributes getWindowAttributes();
   }
 
-  public abstract static class SplitAttributes.AnimationBackground {
-    method public static androidx.window.extensions.embedding.SplitAttributes.AnimationBackground getColorBackground(@ColorInt int);
-    method @ColorInt public abstract int getColorOrElse(@ColorInt int);
-    method public static androidx.window.extensions.embedding.SplitAttributes.AnimationBackground getDefaultBackground();
-  }
-
   public static final class SplitAttributes.Builder {
     ctor public SplitAttributes.Builder();
     method public androidx.window.extensions.embedding.SplitAttributes build();
-    method public androidx.window.extensions.embedding.SplitAttributes.Builder setAnimationBackground(androidx.window.extensions.embedding.SplitAttributes.AnimationBackground);
+    method public androidx.window.extensions.embedding.SplitAttributes.Builder setAnimationBackground(androidx.window.extensions.embedding.AnimationBackground);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setLayoutDirection(int);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setSplitType(androidx.window.extensions.embedding.SplitAttributes.SplitType);
     method public androidx.window.extensions.embedding.SplitAttributes.Builder setWindowAttributes(androidx.window.extensions.embedding.WindowAttributes);

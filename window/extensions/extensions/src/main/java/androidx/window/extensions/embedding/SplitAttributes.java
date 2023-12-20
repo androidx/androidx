@@ -24,9 +24,7 @@ import static androidx.window.extensions.embedding.SplitAttributes.LayoutDirecti
 import static androidx.window.extensions.embedding.WindowAttributes.DIM_AREA_ON_ACTIVITY_STACK;
 
 import android.annotation.SuppressLint;
-import android.graphics.Color;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -50,9 +48,9 @@ import java.util.Objects;
  *         vertically or horizontally and in which direction the primary and
  *         secondary containers are respectively positioned (left to right,
  *         right to left, top to bottom, and so forth)</li>
- *     <li>Animation background color -- The color of the background during
- *         animation of the split involving this {@code SplitAttributes} object
- *         if the animation requires a background</li>
+ *     <li>Animation background -- The background to show during animation of
+ *         the split involving this {@code SplitAttributes} object if the
+ *         animation requires a background</li>
  * </ul>
  *
  * <p>Attributes can be configured by:
@@ -67,123 +65,10 @@ import java.util.Objects;
  *
  * @see SplitAttributes.SplitType
  * @see SplitAttributes.LayoutDirection
+ * @see AnimationBackground
  */
 @RequiresVendorApiLevel(level = 2)
 public class SplitAttributes {
-
-    /**
-     * A class to represent the background used while animating an {@link android.app.Activity} for
-     * embedding features.
-     */
-    @RequiresVendorApiLevel(level = 5)
-    public abstract static class AnimationBackground {
-
-        private AnimationBackground() {
-        }
-
-        /**
-         * Returns the animation background color if it was provided or the fallback value if
-         * it is the default background color from
-         * {@link AnimationBackground#getDefaultBackground()}.
-         * @param fallback the color when this is not a color background.
-         */
-        @ColorInt
-        public abstract int getColorOrElse(@ColorInt int fallback);
-
-        /**
-         * Returns an {@link AnimationBackground} that wraps the given color. Only opaque
-         * background is supported.
-         *
-         * @param color the color to be stored.
-         * @throws IllegalArgumentException if the color is not opaque.
-         */
-        @NonNull
-        public static AnimationBackground getColorBackground(@ColorInt int color) {
-            int alpha = Color.alpha(color);
-            if (alpha != 255) {
-                throw new IllegalArgumentException(
-                        "Color must be fully opaque, current alpha is " + alpha);
-            }
-            return new AnimationColorBackground(color);
-        }
-
-        /**
-         * Returns an {@link AnimationBackground} object representing the default,
-         * with which the system will determine the color to use, such as using the
-         * current theme window background color.
-         */
-        @NonNull
-        public static AnimationBackground getDefaultBackground() {
-            return DefaultAnimationBackgroundColor.sInstance;
-        }
-
-        /**
-         * A container to represent the background color to use for Activity Embedding
-         * animations.
-         */
-        private static class AnimationColorBackground extends AnimationBackground {
-            private final @ColorInt int mColor;
-
-            AnimationColorBackground(@ColorInt int color) {
-                mColor = color;
-            }
-
-            /**
-             * Returns the color as an integer.
-             */
-            @Override
-            @ColorInt
-            public int getColorOrElse(@ColorInt int fallback) {
-                return mColor;
-            }
-
-            @Override
-            public boolean equals(Object o) {
-                if (this == o) return true;
-                if (!(o instanceof AnimationColorBackground)) return false;
-                AnimationColorBackground that = (AnimationColorBackground) o;
-                return mColor == that.mColor;
-            }
-
-            @Override
-            public int hashCode() {
-                return Objects.hash(mColor);
-            }
-
-            @NonNull
-            @Override
-            public String toString() {
-                return AnimationColorBackground.class.getSimpleName() + " { color: " + mColor
-                        + " }";
-            }
-        }
-
-        /**
-         * An {@link AnimationBackground} object representing the default,
-         * with which the system will determine the color to use, such as using the
-         * current theme window background color.
-         */
-        private static class DefaultAnimationBackgroundColor extends AnimationBackground {
-
-            static final DefaultAnimationBackgroundColor sInstance =
-                    new DefaultAnimationBackgroundColor();
-
-            private DefaultAnimationBackgroundColor() {
-            }
-
-            @ColorInt
-            @Override
-            public int getColorOrElse(@ColorInt int fallback) {
-                return fallback;
-            }
-
-            @NonNull
-            @Override
-            public String toString() {
-                return DefaultAnimationBackgroundColor.class.getSimpleName();
-            }
-        }
-    }
 
     /**
      * The type of window split, which defines the proportion of the parent
@@ -504,16 +389,15 @@ public class SplitAttributes {
      *                                 right or top to bottom. See
      *                                 {@link SplitAttributes.LayoutDirection}.
      * @param animationBackground The {@link AnimationBackground} to use for the during animation
-     *                           of the split involving this {@code SplitAttributes} object if the
-     *                           animation requires a background.
+     *                            of the split involving this {@code SplitAttributes} object if the
+     *                            animation requires a background.
      * @param attributes          The {@link WindowAttributes} of the split, such as dim area
      *                            behavior.
      */
     SplitAttributes(
             @NonNull SplitType splitType,
             @ExtLayoutDirection int layoutDirection,
-            @NonNull
-            AnimationBackground animationBackground,
+            @NonNull AnimationBackground animationBackground,
             @NonNull WindowAttributes attributes
     ) {
         mSplitType = splitType;
@@ -577,7 +461,7 @@ public class SplitAttributes {
 
         @NonNull
         private AnimationBackground mAnimationBackground =
-                AnimationBackground.getDefaultBackground();
+                AnimationBackground.ANIMATION_BACKGROUND_DEFAULT;
 
         private WindowAttributes mWindowAttributes =
                 new WindowAttributes(DIM_AREA_ON_ACTIVITY_STACK);
@@ -626,7 +510,7 @@ public class SplitAttributes {
          * animation of the split involving this {@code SplitAttributes} object
          * if the animation requires a background.
          *
-         * The default value is {@link AnimationBackground#getDefaultBackground()}, which
+         * The default value is {@link AnimationBackground#ANIMATION_BACKGROUND_DEFAULT}, which
          * means to use the current theme window background color.
          *
          * @param background An {@link AnimationBackground} to be used for the animation of the

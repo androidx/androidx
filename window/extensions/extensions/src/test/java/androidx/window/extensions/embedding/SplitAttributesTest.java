@@ -24,7 +24,6 @@ import static org.junit.Assert.assertNotEquals;
 import android.graphics.Color;
 
 import androidx.test.filters.SmallTest;
-import androidx.window.extensions.embedding.SplitAttributes.AnimationBackground;
 import androidx.window.extensions.embedding.SplitAttributes.LayoutDirection;
 
 import org.junit.Test;
@@ -40,27 +39,27 @@ public class SplitAttributesTest {
         final SplitAttributes layout1 = new SplitAttributes.Builder()
                 .setSplitType(splitEqually())
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationBackground(AnimationBackground.getDefaultBackground())
+                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
                 .build();
         final SplitAttributes layout2 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.LOCALE)
-                .setAnimationBackground(AnimationBackground.getDefaultBackground())
+                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
                 .build();
         final SplitAttributes layout3 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackground(AnimationBackground.getDefaultBackground())
+                .setAnimationBackground(AnimationBackground.ANIMATION_BACKGROUND_DEFAULT)
                 .build();
         final SplitAttributes layout4 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackground(AnimationBackground.getColorBackground(Color.BLUE))
+                .setAnimationBackground(AnimationBackground.createColorBackground(Color.BLUE))
                 .build();
         final SplitAttributes layout5 = new SplitAttributes.Builder()
                 .setSplitType(new SplitAttributes.SplitType.HingeSplitType(splitEqually()))
                 .setLayoutDirection(LayoutDirection.TOP_TO_BOTTOM)
-                .setAnimationBackground(AnimationBackground.getColorBackground(Color.BLUE))
+                .setAnimationBackground(AnimationBackground.createColorBackground(Color.BLUE))
                 .build();
 
         assertNotEquals(layout1, layout2);
