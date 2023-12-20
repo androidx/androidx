@@ -2961,7 +2961,7 @@ class AndroidAccessibilityTest {
 
         // TODO(b/272068594): Extra TYPE_WINDOW_CONTENT_CHANGED sent 100ms after setup.
         rule.mainClock.advanceTimeBy(100L)
-        clearInvocations(container)
+        rule.runOnIdle { clearInvocations(container) }
 
         // Act.
         rule.onNodeWithTag(tag).performSemanticsAction(SetText) { it(AnnotatedString(finalText)) }
