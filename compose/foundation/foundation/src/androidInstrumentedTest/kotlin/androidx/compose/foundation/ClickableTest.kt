@@ -1368,7 +1368,6 @@ class ClickableTest {
                 "onClickLabel",
                 "onClick",
                 "role",
-                "lazilyCreateIndication",
                 "indication",
                 "interactionSource"
             )
@@ -1947,49 +1946,6 @@ class ClickableTest {
     }
 
     @Test
-    fun indicationNodeFactory_interactionSource_lazilyCreateIndicationTrue_pointerInput() {
-        var created = false
-        val interactionSource = MutableInteractionSource()
-        val interactions = mutableListOf<Interaction>()
-        val indication = TestIndicationNodeFactory { _, coroutineScope ->
-            created = true
-            coroutineScope.launch {
-                interactionSource.interactions.collect {
-                    interaction -> interactions.add(interaction)
-                }
-            }
-        }
-
-        rule.setContent {
-            Box(Modifier.padding(10.dp)) {
-                BasicText("ClickableText",
-                    modifier = Modifier
-                        .testTag("clickable")
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = indication,
-                            lazilyCreateIndication = true
-                        ) {}
-                )
-            }
-        }
-
-        rule.runOnIdle {
-            assertThat(created).isFalse()
-        }
-
-        // The touch event should cause the indication node to be created
-        rule.onNodeWithTag("clickable")
-            .performTouchInput { down(center) }
-
-        rule.runOnIdle {
-            assertThat(created).isTrue()
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-    }
-
-    @Test
     fun indicationNodeFactory_noInteractionSource_lazilyCreated_pointerInput() {
         var created = false
         lateinit var interactionSource: InteractionSource
@@ -2517,117 +2473,6 @@ class ClickableTest {
         rule.runOnIdle {
             assertThat(interactions).hasSize(1)
             assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-    }
-
-    /**
-     * Test case for changing lazilyCreateIndication from true to false before the node was created
-     * - this should cause the indication to be immediately created.
-     */
-    @Test
-    fun indicationNodeFactory_changingLazilyCreateIndicationToFalse_beforeCreation() {
-        var created = false
-        var lazilyCreateIndication by mutableStateOf(true)
-        val interactionSource = MutableInteractionSource()
-        val interactions = mutableListOf<Interaction>()
-        val indication = TestIndicationNodeFactory { _, coroutineScope ->
-            created = true
-            coroutineScope.launch {
-                interactionSource.interactions.collect {
-                        interaction -> interactions.add(interaction)
-                }
-            }
-        }
-
-        rule.setContent {
-            Box(Modifier.padding(10.dp)) {
-                BasicText("ClickableText",
-                    modifier = Modifier
-                        .testTag("clickable")
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = indication,
-                            lazilyCreateIndication = lazilyCreateIndication
-                        ) {}
-                )
-            }
-        }
-
-        rule.runOnIdle {
-            assertThat(created).isFalse()
-            lazilyCreateIndication = false
-        }
-
-        rule.runOnIdle {
-            // Changing lazilyCreateIndication to false should cause us to be created
-            assertThat(created).isTrue()
-        }
-
-        rule.onNodeWithTag("clickable")
-            .performTouchInput { down(center) }
-
-        rule.runOnIdle {
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-    }
-
-    /**
-     * Test case for changing lazilyCreateIndication from true to false after the node was created
-     * - this should not cause a recreation if there were no other changes.
-     */
-    @Test
-    fun indicationNodeFactory_changingLazilyCreateIndicationToFalse_afterCreation() {
-        var created = false
-        var detached = false
-        var lazilyCreateIndication by mutableStateOf(true)
-        val interactionSource = MutableInteractionSource()
-        val interactions = mutableListOf<Interaction>()
-        val indication = TestIndicationNodeFactory(
-            onDetach = { detached = true }
-        ) { _, coroutineScope ->
-            created = true
-            coroutineScope.launch {
-                interactionSource.interactions.collect {
-                        interaction -> interactions.add(interaction)
-                }
-            }
-        }
-
-        rule.setContent {
-            Box(Modifier.padding(10.dp)) {
-                BasicText("ClickableText",
-                    modifier = Modifier
-                        .testTag("clickable")
-                        .clickable(
-                            interactionSource = interactionSource,
-                            indication = indication,
-                            lazilyCreateIndication = true
-                        ) {}
-                )
-            }
-        }
-
-        rule.runOnIdle {
-            assertThat(created).isFalse()
-        }
-
-        rule.onNodeWithTag("clickable")
-            .performTouchInput { down(center) }
-
-        rule.runOnIdle {
-            assertThat(created).isTrue()
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-
-        rule.runOnIdle {
-            lazilyCreateIndication = false
-        }
-
-        rule.runOnIdle {
-            // We should not have recreated
-            assertThat(detached).isFalse()
         }
     }
 }

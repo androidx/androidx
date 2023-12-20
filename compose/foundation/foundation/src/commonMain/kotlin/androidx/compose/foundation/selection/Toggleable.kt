@@ -91,20 +91,14 @@ fun Modifier.toggleable(
 /**
  * Configure component to make it toggleable via input and accessibility events.
  *
- * By default, if [interactionSource] is `null`, and [indication] is an [IndicationNodeFactory], an
+ * If [interactionSource] is `null`, and [indication] is an [IndicationNodeFactory], an
  * internal [MutableInteractionSource] will be lazily created along with the [indication] only when
  * needed. This reduces the performance cost of toggleable during composition, as creating the
  * [indication] can be delayed until there is an incoming
  * [androidx.compose.foundation.interaction.Interaction]. If you are only passing a remembered
  * [MutableInteractionSource] and you are never using it outside of toggleable, it is recommended to
- * instead provide `null` to enable lazy creation.
- * If you are providing a [MutableInteractionSource], but you are only observing the
- * [MutableInteractionSource] and never emitting interactions, you can explicitly enable lazy
- * creation using [lazilyCreateIndication].
- * If you are emitting interactions or you need the [indication] to be created immediately, you can
- * pass `false` to [lazilyCreateIndication]. Note that [lazilyCreateIndication] only applies for
- * [IndicationNodeFactory] [indication]s. [Indication] instances using the deprecated
- * [Indication.rememberUpdatedInstance] API can not be lazily created.
+ * instead provide `null` to enable lazy creation. If you need [indication] to be created eagerly,
+ * provide a remembered [MutableInteractionSource].
  *
  * If [indication] is _not_ an [IndicationNodeFactory], and instead implements the deprecated
  * [Indication.rememberUpdatedInstance] method, you should explicitly pass a remembered
@@ -126,13 +120,6 @@ fun Modifier.toggleable(
  * enabled for semantics purposes
  * @param role the type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
- * @param lazilyCreateIndication if `true` (recommended for most cases), and [indication] is an
- * [IndicationNodeFactory], [indication] will only be created when this toggleable emits an
- * [androidx.compose.foundation.interaction.Interaction]. If [interactionSource] is `null`, or
- * you are only reading from the [interactionSource] and never emitting an interaction, you should
- * typically provide true. If you are emitting an interaction, or you need the indication to be
- * eagerly created, provide false. Note that this parameter has no effect if [indication] is not
- * an [IndicationNodeFactory].
  * @param onValueChange callback to be invoked when toggleable is clicked,
  * therefore the change of the state in requested.
  */
@@ -142,8 +129,6 @@ fun Modifier.toggleable(
     indication: Indication?,
     enabled: Boolean = true,
     role: Role? = null,
-    lazilyCreateIndication: Boolean = (interactionSource == null) &&
-        (indication is IndicationNodeFactory),
     onValueChange: (Boolean) -> Unit
 ) = inspectable(
     inspectorInfo = debugInspectorInfo {
@@ -153,7 +138,6 @@ fun Modifier.toggleable(
         properties["indication"] = indication
         properties["enabled"] = enabled
         properties["role"] = role
-        properties["lazilyCreateIndication"] = lazilyCreateIndication
         properties["onValueChange"] = onValueChange
     }
 ) {
@@ -163,28 +147,9 @@ fun Modifier.toggleable(
         indication = indication,
         enabled = enabled,
         role = role,
-        lazilyCreateIndication = lazilyCreateIndication,
         onClick = { onValueChange(!value) }
     )
 }
-
-@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-fun Modifier.toggleable(
-    value: Boolean,
-    interactionSource: MutableInteractionSource,
-    indication: Indication?,
-    enabled: Boolean = true,
-    role: Role? = null,
-    onValueChange: (Boolean) -> Unit
-): Modifier = toggleable(
-    value = value,
-    interactionSource = interactionSource,
-    indication = indication,
-    enabled = enabled,
-    role = role,
-    lazilyCreateIndication = false,
-    onValueChange = onValueChange
-)
 
 /**
  * Configure component to make it toggleable via input and accessibility events with three
@@ -252,20 +217,14 @@ fun Modifier.triStateToggleable(
  * TriStateToggleable should be used when there are dependent Toggleables associated to this
  * component and those can have different values.
  *
- * By default, if [interactionSource] is `null`, and [indication] is an [IndicationNodeFactory], an
+ * If [interactionSource] is `null`, and [indication] is an [IndicationNodeFactory], an
  * internal [MutableInteractionSource] will be lazily created along with the [indication] only when
  * needed. This reduces the performance cost of triStateToggleable during composition, as creating
  * the [indication] can be delayed until there is an incoming
  * [androidx.compose.foundation.interaction.Interaction]. If you are only passing a remembered
  * [MutableInteractionSource] and you are never using it outside of triStateToggleable, it is
- * recommended to instead provide `null` to enable lazy creation.
- * If you are providing a [MutableInteractionSource], but you are only observing the
- * [MutableInteractionSource] and never emitting interactions, you can explicitly enable lazy
- * creation using [lazilyCreateIndication].
- * If you are emitting interactions or you need the [indication] to be created immediately, you can
- * pass `false` to [lazilyCreateIndication]. Note that [lazilyCreateIndication] only applies for
- * [IndicationNodeFactory] [indication]s. [Indication] instances using the deprecated
- * [Indication.rememberUpdatedInstance] API can not be lazily created.
+ * recommended to instead provide `null` to enable lazy creation. If you need [indication] to be
+ * created eagerly, provide a remembered [MutableInteractionSource].
  *
  * If [indication] is _not_ an [IndicationNodeFactory], and instead implements the deprecated
  * [Indication.rememberUpdatedInstance] method, you should explicitly pass a remembered
@@ -287,13 +246,6 @@ fun Modifier.triStateToggleable(
  * appear enabled for semantics purposes
  * @param role the type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
- * @param lazilyCreateIndication if `true` (recommended for most cases), and [indication] is an
- * [IndicationNodeFactory], [indication] will only be created when this triStateToggleable emits an
- * [androidx.compose.foundation.interaction.Interaction]. If [interactionSource] is `null`, or
- * you are only reading from the [interactionSource] and never emitting an interaction, you should
- * typically provide true. If you are emitting an interaction, or you need the indication to be
- * eagerly created, provide false. Note that this parameter has no effect if [indication] is not
- * an [IndicationNodeFactory].
  * @param onClick will be called when user clicks the toggleable.
  */
 fun Modifier.triStateToggleable(
@@ -302,8 +254,6 @@ fun Modifier.triStateToggleable(
     indication: Indication?,
     enabled: Boolean = true,
     role: Role? = null,
-    lazilyCreateIndication: Boolean = (interactionSource == null) &&
-        (indication is IndicationNodeFactory),
     onClick: () -> Unit
 ) = inspectable(
     inspectorInfo = debugInspectorInfo {
@@ -313,7 +263,6 @@ fun Modifier.triStateToggleable(
         properties["indication"] = indication
         properties["enabled"] = enabled
         properties["role"] = role
-        properties["lazilyCreateIndication"] = lazilyCreateIndication
         properties["onClick"] = onClick
     }
 ) {
@@ -322,27 +271,8 @@ fun Modifier.triStateToggleable(
         indication = indication,
         enabled = enabled,
         role = role,
-        lazilyCreateIndication = lazilyCreateIndication,
         onClick = onClick
     ).semantics {
         this.toggleableState = state
     }
 }
-
-@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-fun Modifier.triStateToggleable(
-    state: ToggleableState,
-    interactionSource: MutableInteractionSource,
-    indication: Indication?,
-    enabled: Boolean = true,
-    role: Role? = null,
-    onClick: () -> Unit
-): Modifier = triStateToggleable(
-    state = state,
-    interactionSource = interactionSource,
-    indication = indication,
-    enabled = enabled,
-    role = role,
-    lazilyCreateIndication = false,
-    onClick = onClick
-)

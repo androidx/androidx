@@ -734,7 +734,6 @@ class ToggleableTest {
                 "interactionSource",
                 "enabled",
                 "role",
-                "lazilyCreateIndication",
                 "onValueChange"
             )
         }
@@ -773,7 +772,6 @@ class ToggleableTest {
                 "interactionSource",
                 "enabled",
                 "role",
-                "lazilyCreateIndication",
                 "onClick"
             )
         }
@@ -1368,50 +1366,6 @@ class ToggleableTest {
     }
 
     @Test
-    fun toggleableTest_interactionSource_lazilyCreateIndicationTrue() {
-        var created = false
-        val interactionSource = MutableInteractionSource()
-        val interactions = mutableListOf<Interaction>()
-        val indication = TestIndicationNodeFactory { _, coroutineScope ->
-            created = true
-            coroutineScope.launch {
-                interactionSource.interactions.collect {
-                    interaction -> interactions.add(interaction)
-                }
-            }
-        }
-
-        rule.setContent {
-            Box(Modifier.padding(10.dp)) {
-                BasicText("ToggleableText",
-                    modifier = Modifier
-                        .testTag("toggleable")
-                        .toggleable(
-                            value = false,
-                            interactionSource = interactionSource,
-                            indication = indication,
-                            lazilyCreateIndication = true
-                        ) {}
-                )
-            }
-        }
-
-        rule.runOnIdle {
-            assertThat(created).isFalse()
-        }
-
-        // The touch event should cause the indication node to be created
-        rule.onNodeWithTag("toggleable")
-            .performTouchInput { down(center) }
-
-        rule.runOnIdle {
-            assertThat(created).isTrue()
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-    }
-
-    @Test
     fun toggleableTest_noInteractionSource_lazilyCreated_pointerInput() {
         var created = false
         lateinit var interactionSource: InteractionSource
@@ -1435,51 +1389,6 @@ class ToggleableTest {
                             value = false,
                             interactionSource = null,
                             indication = indication
-                        ) {}
-                )
-            }
-        }
-
-        rule.runOnIdle {
-            assertThat(created).isFalse()
-        }
-
-        // The touch event should cause the indication node to be created
-        rule.onNodeWithTag("toggleable")
-            .performTouchInput { down(center) }
-
-        rule.runOnIdle {
-            assertThat(created).isTrue()
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
-        }
-    }
-
-    @Test
-    fun triStateToggleableTest_interactionSource_lazilyCreateIndicationTrue() {
-        var created = false
-        val state = ToggleableState(value = false)
-        val interactionSource = MutableInteractionSource()
-        val interactions = mutableListOf<Interaction>()
-        val indication = TestIndicationNodeFactory { _, coroutineScope ->
-            created = true
-            coroutineScope.launch {
-                interactionSource.interactions.collect {
-                        interaction -> interactions.add(interaction)
-                }
-            }
-        }
-
-        rule.setContent {
-            Box(Modifier.padding(10.dp)) {
-                BasicText("ToggleableText",
-                    modifier = Modifier
-                        .testTag("toggleable")
-                        .triStateToggleable(
-                            state = state,
-                            interactionSource = interactionSource,
-                            indication = indication,
-                            lazilyCreateIndication = true
                         ) {}
                 )
             }

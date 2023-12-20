@@ -134,20 +134,14 @@ fun Modifier.clickable(
  * Add this modifier to the element to make it clickable within its bounds and show an indication
  * as specified in [indication] parameter.
  *
- * By default, if [interactionSource] is `null`, and [indication] is an [IndicationNodeFactory], an
+ * If [interactionSource] is `null`, and [indication] is an [IndicationNodeFactory], an
  * internal [MutableInteractionSource] will be lazily created along with the [indication] only when
  * needed. This reduces the performance cost of clickable during composition, as creating the
  * [indication] can be delayed until there is an incoming
  * [androidx.compose.foundation.interaction.Interaction]. If you are only passing a remembered
  * [MutableInteractionSource] and you are never using it outside of clickable, it is recommended to
- * instead provide `null` to enable lazy creation.
- * If you are providing a [MutableInteractionSource], but you are only observing the
- * [MutableInteractionSource] and never emitting interactions, you can explicitly enable lazy
- * creation using [lazilyCreateIndication].
- * If you are emitting interactions or you need the [indication] to be created immediately, you can
- * pass `false` to [lazilyCreateIndication]. Note that [lazilyCreateIndication] only applies for
- * [IndicationNodeFactory] [indication]s. [Indication] instances using the deprecated
- * [Indication.rememberUpdatedInstance] API can not be lazily created.
+ * instead provide `null` to enable lazy creation. If you need [indication] to be created eagerly,
+ * provide a remembered [MutableInteractionSource].
  *
  * If [indication] is _not_ an [IndicationNodeFactory], and instead implements the deprecated
  * [Indication.rememberUpdatedInstance] method, you should explicitly pass a remembered
@@ -175,13 +169,6 @@ fun Modifier.clickable(
  * @param onClickLabel semantic / accessibility label for the [onClick] action
  * @param role the type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
- * @param lazilyCreateIndication if `true` (recommended for most cases), and [indication] is an
- * [IndicationNodeFactory], [indication] will only be created when this clickable emits an
- * [androidx.compose.foundation.interaction.Interaction]. If [interactionSource] is `null`, or
- * you are only reading from the [interactionSource] and never emitting an interaction, you should
- * typically provide true. If you are emitting an interaction, or you need the indication to be
- * eagerly created, provide false. Note that this parameter has no effect if [indication] is not
- * an [IndicationNodeFactory].
  * @param onClick will be called when user clicks on the element
  */
 fun Modifier.clickable(
@@ -190,8 +177,6 @@ fun Modifier.clickable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     role: Role? = null,
-    lazilyCreateIndication: Boolean = (interactionSource == null) &&
-        (indication is IndicationNodeFactory),
     onClick: () -> Unit
 ) = inspectable(
     inspectorInfo = debugInspectorInfo {
@@ -201,7 +186,6 @@ fun Modifier.clickable(
         properties["enabled"] = enabled
         properties["onClickLabel"] = onClickLabel
         properties["role"] = role
-        properties["lazilyCreateIndication"] = lazilyCreateIndication
         properties["onClick"] = onClick
     }
 ) {
@@ -213,7 +197,6 @@ fun Modifier.clickable(
             enabled = enabled,
             onClickLabel = onClickLabel,
             role = role,
-            lazilyCreateIndication = lazilyCreateIndication,
             onClick = onClick
         )
         // Fast path - no need for indication
@@ -223,7 +206,6 @@ fun Modifier.clickable(
             enabled = enabled,
             onClickLabel = onClickLabel,
             role = role,
-            lazilyCreateIndication = lazilyCreateIndication,
             onClick = onClick
         )
         // Non-null Indication (not IndicationNodeFactory) with a non-null InteractionSource
@@ -236,7 +218,6 @@ fun Modifier.clickable(
                     enabled = enabled,
                     onClickLabel = onClickLabel,
                     role = role,
-                    lazilyCreateIndication = lazilyCreateIndication,
                     onClick = onClick
                 )
             )
@@ -256,7 +237,6 @@ fun Modifier.clickable(
                                 enabled = enabled,
                                 onClickLabel = onClickLabel,
                                 role = role,
-                                lazilyCreateIndication = lazilyCreateIndication,
                                 onClick = onClick
                             )
                         )
@@ -264,24 +244,6 @@ fun Modifier.clickable(
     }
     clickableModifier.then(if (enabled) Modifier.focusTarget() else Modifier)
 }
-
-@Deprecated("Maintained for binary compatibility", level = DeprecationLevel.HIDDEN)
-fun Modifier.clickable(
-    interactionSource: MutableInteractionSource,
-    indication: Indication?,
-    enabled: Boolean = true,
-    onClickLabel: String? = null,
-    role: Role? = null,
-    onClick: () -> Unit
-): Modifier = clickable(
-    interactionSource = interactionSource,
-    indication = indication,
-    enabled = enabled,
-    onClickLabel = onClickLabel,
-    role = role,
-    lazilyCreateIndication = false,
-    onClick = onClick
-)
 
 /**
  * Configure component to receive clicks, double clicks and long clicks via input or accessibility
@@ -372,20 +334,14 @@ fun Modifier.combinedClickable(
  *
  * Add this modifier to the element to make it clickable within its bounds.
  *
- * By default, if [interactionSource] is `null`, and [indication] is an [IndicationNodeFactory], an
+ * If [interactionSource] is `null`, and [indication] is an [IndicationNodeFactory], an
  * internal [MutableInteractionSource] will be lazily created along with the [indication] only when
  * needed. This reduces the performance cost of clickable during composition, as creating the
  * [indication] can be delayed until there is an incoming
  * [androidx.compose.foundation.interaction.Interaction]. If you are only passing a remembered
  * [MutableInteractionSource] and you are never using it outside of clickable, it is recommended to
- * instead provide `null` to enable lazy creation.
- * If you are providing a [MutableInteractionSource], but you are only observing the
- * [MutableInteractionSource] and never emitting interactions, you can explicitly enable lazy
- * creation using [lazilyCreateIndication].
- * If you are emitting interactions or you need the [indication] to be created immediately, you can
- * pass `false` to [lazilyCreateIndication]. Note that [lazilyCreateIndication] only applies for
- * [IndicationNodeFactory] [indication]s. [Indication] instances using the deprecated
- * [Indication.rememberUpdatedInstance] API can not be lazily created.
+ * instead provide `null` to enable lazy creation. If you need [indication] to be created eagerly,
+ * provide a remembered [MutableInteractionSource].
  *
  * If [indication] is _not_ an [IndicationNodeFactory], and instead implements the deprecated
  * [Indication.rememberUpdatedInstance] method, you should explicitly pass a remembered
@@ -410,13 +366,6 @@ fun Modifier.combinedClickable(
  * @param onClickLabel semantic / accessibility label for the [onClick] action
  * @param role the type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
- * @param lazilyCreateIndication if `true` (recommended for most cases), and [indication] is an
- * [IndicationNodeFactory], [indication] will only be created when this clickable emits an
- * [androidx.compose.foundation.interaction.Interaction]. If [interactionSource] is `null`, or
- * you are only reading from the [interactionSource] and never emitting an interaction, you should
- * typically provide true. If you are emitting an interaction, or you need the indication to be
- * eagerly created, provide false. Note that this parameter has no effect if [indication] is not
- *  * an [IndicationNodeFactory].
  * @param onLongClickLabel semantic / accessibility label for the [onLongClick] action
  * @param onLongClick will be called when user long presses on the element
  * @param onDoubleClick will be called when user double clicks on the element
@@ -432,8 +381,6 @@ fun Modifier.combinedClickable(
     enabled: Boolean = true,
     onClickLabel: String? = null,
     role: Role? = null,
-    lazilyCreateIndication: Boolean = (interactionSource == null) &&
-        (indication is IndicationNodeFactory),
     onLongClickLabel: String? = null,
     onLongClick: (() -> Unit)? = null,
     onDoubleClick: (() -> Unit)? = null,
@@ -446,7 +393,6 @@ fun Modifier.combinedClickable(
         properties["enabled"] = enabled
         properties["onClickLabel"] = onClickLabel
         properties["role"] = role
-        properties["lazilyCreateIndication"] = lazilyCreateIndication
         properties["onClick"] = onClick
         properties["onDoubleClick"] = onDoubleClick
         properties["onLongClick"] = onLongClick
@@ -461,7 +407,6 @@ fun Modifier.combinedClickable(
             enabled = enabled,
             onClickLabel = onClickLabel,
             role = role,
-            lazilyCreateIndication = lazilyCreateIndication,
             onClick = onClick,
             onLongClickLabel = onLongClickLabel,
             onLongClick = onLongClick,
@@ -474,7 +419,6 @@ fun Modifier.combinedClickable(
             enabled = enabled,
             onClickLabel = onClickLabel,
             role = role,
-            lazilyCreateIndication = lazilyCreateIndication,
             onClick = onClick,
             onLongClickLabel = onLongClickLabel,
             onLongClick = onLongClick,
@@ -490,7 +434,6 @@ fun Modifier.combinedClickable(
                     enabled = enabled,
                     onClickLabel = onClickLabel,
                     role = role,
-                    lazilyCreateIndication = lazilyCreateIndication,
                     onClick = onClick,
                     onLongClickLabel = onLongClickLabel,
                     onLongClick = onLongClick,
@@ -513,7 +456,6 @@ fun Modifier.combinedClickable(
                                 enabled = enabled,
                                 onClickLabel = onClickLabel,
                                 role = role,
-                                lazilyCreateIndication = lazilyCreateIndication,
                                 onClick = onClick,
                                 onLongClickLabel = onLongClickLabel,
                                 onLongClick = onLongClick,
@@ -656,7 +598,6 @@ private class ClickableElement(
     private val enabled: Boolean,
     private val onClickLabel: String?,
     private val role: Role?,
-    private val lazilyCreateIndication: Boolean,
     private val onClick: () -> Unit
 ) : ModifierNodeElement<ClickableNode>() {
     override fun create() = ClickableNode(
@@ -665,7 +606,6 @@ private class ClickableElement(
         enabled,
         onClickLabel,
         role,
-        lazilyCreateIndication,
         onClick
     )
 
@@ -676,7 +616,6 @@ private class ClickableElement(
             enabled,
             onClickLabel,
             role,
-            lazilyCreateIndication,
             onClick
         )
     }
@@ -696,7 +635,6 @@ private class ClickableElement(
         if (enabled != other.enabled) return false
         if (onClickLabel != other.onClickLabel) return false
         if (role != other.role) return false
-        if (lazilyCreateIndication != other.lazilyCreateIndication) return false
         if (onClick != other.onClick) return false
 
         return true
@@ -708,7 +646,6 @@ private class ClickableElement(
         result = 31 * result + enabled.hashCode()
         result = 31 * result + (onClickLabel?.hashCode() ?: 0)
         result = 31 * result + (role?.hashCode() ?: 0)
-        result = 31 * result + lazilyCreateIndication.hashCode()
         result = 31 * result + onClick.hashCode()
         return result
     }
@@ -720,7 +657,6 @@ private class CombinedClickableElement(
     private val enabled: Boolean,
     private val onClickLabel: String?,
     private val role: Role?,
-    private val lazilyCreateIndication: Boolean,
     private val onClick: () -> Unit,
     private val onLongClickLabel: String?,
     private val onLongClick: (() -> Unit)?,
@@ -736,7 +672,6 @@ private class CombinedClickableElement(
         enabled,
         onClickLabel,
         role,
-        lazilyCreateIndication
     )
 
     override fun update(node: CombinedClickableNodeImpl) {
@@ -749,8 +684,7 @@ private class CombinedClickableElement(
             indicationNodeFactory,
             enabled,
             onClickLabel,
-            role,
-            lazilyCreateIndication
+            role
         )
     }
 
@@ -769,7 +703,6 @@ private class CombinedClickableElement(
         if (enabled != other.enabled) return false
         if (onClickLabel != other.onClickLabel) return false
         if (role != other.role) return false
-        if (lazilyCreateIndication != other.lazilyCreateIndication) return false
         if (onClick != other.onClick) return false
         if (onLongClickLabel != other.onLongClickLabel) return false
         if (onLongClick != other.onLongClick) return false
@@ -784,7 +717,6 @@ private class CombinedClickableElement(
         result = 31 * result + enabled.hashCode()
         result = 31 * result + (onClickLabel?.hashCode() ?: 0)
         result = 31 * result + (role?.hashCode() ?: 0)
-        result = 31 * result + lazilyCreateIndication.hashCode()
         result = 31 * result + onClick.hashCode()
         result = 31 * result + (onLongClickLabel?.hashCode() ?: 0)
         result = 31 * result + (onLongClick?.hashCode() ?: 0)
@@ -799,7 +731,6 @@ private class ClickableNode(
     enabled: Boolean,
     onClickLabel: String?,
     role: Role?,
-    lazilyCreateIndication: Boolean,
     onClick: () -> Unit
 ) : AbstractClickableNode(
     interactionSource,
@@ -807,7 +738,6 @@ private class ClickableNode(
     enabled,
     onClickLabel,
     role,
-    lazilyCreateIndication,
     onClick
 ) {
     override val clickableSemanticsNode = delegate(
@@ -836,7 +766,6 @@ private class ClickableNode(
         enabled: Boolean,
         onClickLabel: String?,
         role: Role?,
-        lazilyCreateIndication: Boolean,
         onClick: () -> Unit
     ) {
         updateCommon(
@@ -845,7 +774,6 @@ private class ClickableNode(
             enabled,
             onClickLabel,
             role,
-            lazilyCreateIndication,
             onClick
         )
         clickableSemanticsNode.update(
@@ -877,7 +805,7 @@ private class ClickableNode(
  * [PressInteraction.Press] when this clickable is pressed. Only the initial (first) press will be
  * recorded and emitted with [MutableInteractionSource]. If `null`, and there is an
  * [indicationNodeFactory] provided, an internal [MutableInteractionSource] will be created when
- * required. See [lazilyCreateIndication] for more information.
+ * required.
  * @param indicationNodeFactory the [IndicationNodeFactory] used to optionally render
  * [Indication] inside this node, instead of using a separate [Modifier.indication]. This should
  * be preferred for performance reasons over using [Modifier.indication] separately.
@@ -886,12 +814,6 @@ private class ClickableNode(
  * @param onClickLabel semantic / accessibility label for the [onClick] action
  * @param role the type of user interface element. Accessibility services might use this
  * to describe the element or do customizations
- * @param lazilyCreateIndication if `true` (recommended for most cases) the [indicationNodeFactory]
- * will only be created when this clickable emits
- * an [androidx.compose.foundation.interaction.Interaction]. If [interactionSource] is `null`, or
- * you are only reading from the [interactionSource] and never emitting an interaction, you should
- * typically provide true. If you are emitting an interaction, or you need the indication to be
- * eagerly created, provide false.
  *
  * Note: This API is experimental and is awaiting a rework. combinedClickable handles touch based
  * input quite well but provides subpar functionality for other input types.
@@ -907,7 +829,6 @@ fun CombinedClickableNode(
     enabled: Boolean,
     onClickLabel: String?,
     role: Role?,
-    lazilyCreateIndication: Boolean
 ): CombinedClickableNode = CombinedClickableNodeImpl(
     onClick,
     onLongClickLabel,
@@ -918,7 +839,6 @@ fun CombinedClickableNode(
     enabled,
     onClickLabel,
     role,
-    lazilyCreateIndication
 )
 
 /**
@@ -941,7 +861,7 @@ sealed interface CombinedClickableNode : PointerInputModifierNode {
      * [PressInteraction.Press] when this clickable is pressed. Only the initial (first) press will
      * be recorded and emitted with [MutableInteractionSource]. If `null`, and there is an
      * [indicationNodeFactory] provided, an internal [MutableInteractionSource] will be created
-     * when required. See [lazilyCreateIndication] for more information.
+     * when required.
      * @param indicationNodeFactory the [IndicationNodeFactory] used to optionally render
      * [Indication] inside this node, instead of using a separate [Modifier.indication]. This should
      * be preferred for performance reasons over using [Modifier.indication] separately.
@@ -950,12 +870,6 @@ sealed interface CombinedClickableNode : PointerInputModifierNode {
      * @param onClickLabel semantic / accessibility label for the [onClick] action
      * @param role the type of user interface element. Accessibility services might use this
      * to describe the element or do customizations
-     * @param lazilyCreateIndication if `true` (recommended for most cases) the
-     * [indicationNodeFactory] will only be created when this clickable emits an
-     * [androidx.compose.foundation.interaction.Interaction]. If [interactionSource] is `null`,
-     * or you are only reading from the [interactionSource] and never emitting an interaction,
-     * you should typically provide true. If you are emitting an interaction, or you need the
-     * indication to be eagerly created, provide false.
      */
     fun update(
         onClick: () -> Unit,
@@ -966,8 +880,7 @@ sealed interface CombinedClickableNode : PointerInputModifierNode {
         indicationNodeFactory: IndicationNodeFactory?,
         enabled: Boolean,
         onClickLabel: String?,
-        role: Role?,
-        lazilyCreateIndication: Boolean
+        role: Role?
     )
 }
 
@@ -982,7 +895,6 @@ private class CombinedClickableNodeImpl(
     enabled: Boolean,
     onClickLabel: String?,
     role: Role?,
-    lazilyCreateIndication: Boolean
 ) : CombinedClickableNode,
     AbstractClickableNode(
         interactionSource,
@@ -990,7 +902,6 @@ private class CombinedClickableNodeImpl(
         enabled,
         onClickLabel,
         role,
-        lazilyCreateIndication,
         onClick
     ) {
     override val clickableSemanticsNode = delegate(
@@ -1024,8 +935,7 @@ private class CombinedClickableNodeImpl(
         indicationNodeFactory: IndicationNodeFactory?,
         enabled: Boolean,
         onClickLabel: String?,
-        role: Role?,
-        lazilyCreateIndication: Boolean
+        role: Role?
     ) {
         // If we have gone from no long click to having a long click or vice versa,
         // cancel any existing press interactions.
@@ -1039,7 +949,6 @@ private class CombinedClickableNodeImpl(
             enabled,
             onClickLabel,
             role,
-            lazilyCreateIndication,
             onClick
         )
         clickableSemanticsNode.update(
@@ -1065,7 +974,6 @@ private sealed class AbstractClickableNode(
     private var enabled: Boolean,
     private var onClickLabel: String?,
     private var role: Role?,
-    private var lazilyCreateIndication: Boolean,
     private var onClick: () -> Unit
 ) : DelegatingNode(), PointerInputModifierNode, KeyInputModifierNode, FocusEventModifierNode {
     abstract val clickablePointerInputNode: AbstractClickablePointerInputNode
@@ -1081,6 +989,10 @@ private sealed class AbstractClickableNode(
 
     protected val interactionSourceProvider = { interactionSource }
 
+    private var lazilyCreateIndication = shouldLazilyCreateIndication()
+    private fun shouldLazilyCreateIndication() =
+        userProvidedInteractionSource == null && indicationNodeFactory != null
+
     class InteractionData {
         val currentKeyPressInteractions = mutableMapOf<Key, PressInteraction.Press>()
         var pressInteraction: PressInteraction.Press? = null
@@ -1095,7 +1007,6 @@ private sealed class AbstractClickableNode(
         enabled: Boolean,
         onClickLabel: String?,
         role: Role?,
-        lazilyCreateIndication: Boolean,
         onClick: () -> Unit
     ) {
         var isIndicationNodeDirty = false
@@ -1128,8 +1039,8 @@ private sealed class AbstractClickableNode(
         this.onClickLabel = onClickLabel
         this.role = role
         this.onClick = onClick
-        if (this.lazilyCreateIndication != lazilyCreateIndication) {
-            this.lazilyCreateIndication = lazilyCreateIndication
+        if (lazilyCreateIndication != shouldLazilyCreateIndication()) {
+            lazilyCreateIndication = shouldLazilyCreateIndication()
             // If we are no longer lazily creating the node, and we haven't created the node yet,
             // create it
             if (!lazilyCreateIndication && indicationNode == null) isIndicationNodeDirty = true

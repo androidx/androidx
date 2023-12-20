@@ -642,7 +642,6 @@ class SelectableTest {
                 "indication",
                 "enabled",
                 "role",
-                "lazilyCreateIndication",
                 "onClick"
             )
         }
@@ -1147,50 +1146,6 @@ class SelectableTest {
             assertThat(pressInteractions).hasSize(2)
             assertThat(pressInteractions.first()).isInstanceOf(PressInteraction.Press::class.java)
             assertThat(pressInteractions.last()).isInstanceOf(PressInteraction.Cancel::class.java)
-        }
-    }
-
-    @Test
-    fun selectableTest_interactionSource_lazilyCreateIndicationTrue() {
-        var created = false
-        val interactionSource = MutableInteractionSource()
-        val interactions = mutableListOf<Interaction>()
-        val indication = TestIndicationNodeFactory { _, coroutineScope ->
-            created = true
-            coroutineScope.launch {
-                interactionSource.interactions.collect {
-                    interaction -> interactions.add(interaction)
-                }
-            }
-        }
-
-        rule.setContent {
-            Box(Modifier.padding(10.dp)) {
-                BasicText("SelectableText",
-                    modifier = Modifier
-                        .testTag("selectable")
-                        .selectable(
-                            selected = false,
-                            interactionSource = interactionSource,
-                            indication = indication,
-                            lazilyCreateIndication = true
-                        ) {}
-                )
-            }
-        }
-
-        rule.runOnIdle {
-            assertThat(created).isFalse()
-        }
-
-        // The touch event should cause the indication node to be created
-        rule.onNodeWithTag("selectable")
-            .performTouchInput { down(center) }
-
-        rule.runOnIdle {
-            assertThat(created).isTrue()
-            assertThat(interactions).hasSize(1)
-            assertThat(interactions.first()).isInstanceOf(PressInteraction.Press::class.java)
         }
     }
 
