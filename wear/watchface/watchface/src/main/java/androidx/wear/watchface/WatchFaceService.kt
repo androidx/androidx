@@ -1673,7 +1673,8 @@ public abstract class WatchFaceService : WallpaperService() {
                         complicationSlotsManager.onComplicationDataUpdate(
                             idAndComplicationData.id,
                             idAndComplicationData.complicationData.toApiComplicationData(),
-                            now
+                            now,
+                            forceLoad = mutableWatchState.isAmbient.value ?: false,
                         )
                     }
                     complicationSlotsManager.onComplicationsUpdated()
