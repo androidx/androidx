@@ -2884,16 +2884,24 @@ public abstract class Transition implements Cloneable {
 
                     if (isReversed) {
                         long duration = getDurationMillis();
-                        Transition.this.setCurrentPlayTimeMillis(duration, mCurrentPlayTime);
+                        // controlDelayedTransition always wraps the transition in a TransitionSet
+                        Transition child = ((TransitionSet) Transition.this).getTransitionAt(0);
+                        Transition cloneParent = child.mCloneParent;
+                        child.mCloneParent = null;
+                        Transition.this.setCurrentPlayTimeMillis(-1, mCurrentPlayTime);
+                        Transition.this.setCurrentPlayTimeMillis(duration, -1);
                         mCurrentPlayTime = duration;
                         if (mResetToStartState != null) {
                             mResetToStartState.run();
                         }
                         mAnimators.clear();
+                        if (cloneParent != null) {
+                            cloneParent.notifyListeners(TransitionNotification.ON_END, true);
+                        }
+                    } else {
+                        notifyListeners(TransitionNotification.ON_END, false);
                     }
-                    notifyListeners(TransitionNotification.ON_END, isReversed);
                 }
-                mSpringAnimation = null;
             });
         }
 
@@ -2907,7 +2915,7 @@ public abstract class Transition implements Cloneable {
         public void animateToStart(@NonNull Runnable resetToStartState) {
             mResetToStartState = resetToStartState;
             ensureAnimation();
-            mSpringAnimation.animateToFinalPosition(-1);
+            mSpringAnimation.animateToFinalPosition(0);
         }
 
         @Override
