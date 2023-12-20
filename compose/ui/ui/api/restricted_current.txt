@@ -631,7 +631,7 @@ package androidx.compose.ui.graphics {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier toolingGraphicsLayer(androidx.compose.ui.Modifier);
   }
 
-  @kotlin.jvm.JvmDefaultWithCompatibility public interface GraphicsLayerScope extends androidx.compose.ui.unit.Density {
+  @androidx.compose.ui.layout.PlacementScopeMarker @kotlin.jvm.JvmDefaultWithCompatibility public interface GraphicsLayerScope extends androidx.compose.ui.unit.Density {
     method public float getAlpha();
     method public default long getAmbientShadowColor();
     method public float getCameraDistance();
@@ -2352,7 +2352,7 @@ package androidx.compose.ui.layout {
     property public final int width;
   }
 
-  public abstract static class Placeable.PlacementScope {
+  @androidx.compose.ui.layout.PlacementScopeMarker public abstract static class Placeable.PlacementScope {
     ctor public Placeable.PlacementScope();
     method public androidx.compose.ui.layout.LayoutCoordinates? getCoordinates();
     method protected abstract androidx.compose.ui.unit.LayoutDirection getParentLayoutDirection();
@@ -2368,6 +2368,9 @@ package androidx.compose.ui.layout {
     property public androidx.compose.ui.layout.LayoutCoordinates? coordinates;
     property protected abstract androidx.compose.ui.unit.LayoutDirection parentLayoutDirection;
     property protected abstract int parentWidth;
+  }
+
+  @kotlin.DslMarker public @interface PlacementScopeMarker {
   }
 
   public interface Remeasurement {
