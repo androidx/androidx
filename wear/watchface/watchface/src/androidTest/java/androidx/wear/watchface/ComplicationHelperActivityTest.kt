@@ -28,6 +28,7 @@ import androidx.wear.watchface.complications.data.ComplicationType
 import androidx.wear.watchface.complications.data.ComplicationType.LONG_TEXT
 import androidx.wear.watchface.complications.data.ComplicationType.MONOCHROMATIC_IMAGE
 import androidx.wear.watchface.complications.data.ComplicationType.SHORT_TEXT
+import androidx.wear.watchface.style.UserStyleData
 import com.google.common.truth.Truth.assertThat
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -283,7 +284,8 @@ public class ComplicationHelperActivityTest {
         instanceId: String? = null,
         vararg supportedTypes: ComplicationType = defaultSupportedTypes,
         complicationDeniedIntent: Intent? = Intent(),
-        complicationRationalIntent: Intent? = Intent()
+        complicationRationalIntent: Intent? = Intent(),
+        userStyleData: UserStyleData? = null
     ) =
         ComplicationHelperActivity.createComplicationDataSourceChooserHelperIntent(
             context,
@@ -292,7 +294,8 @@ public class ComplicationHelperActivityTest {
             supportedTypes.asList(),
             instanceId,
             complicationDeniedIntent,
-            complicationRationalIntent
+            complicationRationalIntent,
+            userStyleData
         )
 
     private fun createPermissionOnlyIntent(

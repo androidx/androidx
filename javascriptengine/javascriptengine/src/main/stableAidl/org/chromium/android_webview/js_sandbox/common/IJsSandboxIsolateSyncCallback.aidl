@@ -23,13 +23,15 @@ import android.content.res.AssetFileDescriptor;
  * sandbox to the embedding app.
  * This interface is not marked 'oneway' like IJsSandboxIsolateCallback and should be preferred for
  * ordering correctness.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IJsSandboxIsolateSyncCallback {
     // An exception was thrown during the JS evaluation.
     const int JS_EVALUATION_ERROR = 0;
     // The evaluation failed and the isolate crashed due to running out of heap memory.
     const int MEMORY_LIMIT_EXCEEDED = 1;
+    // The evaluation failed due to IO errors while reading from the file descriptor.
+    const int FILE_DESCRIPTOR_IO_ERROR = 2;
 
     /**
      * @param afd      input AssetFileDescriptor containing the return value of JS evaluation

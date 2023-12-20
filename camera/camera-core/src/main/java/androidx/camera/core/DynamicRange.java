@@ -24,35 +24,55 @@ import androidx.annotation.RestrictTo;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-/** A representation of the dynamic range of an image. */
+/**
+ * A representation of the dynamic range of an image.
+ *
+ * <p>The dynamic range specifies an encoding for how pixels will be displayed on screen along
+ * with the number of bits used to encode each pixel. In general, the encoding represents a set
+ * of operations applied to each pixel to expand the range of light and dark pixels on a
+ * specific screen. The bit depth represents the discrete number of steps those pixels can assume
+ * between the lightest and darkest pixels.
+ *
+ * <p>A category of dynamic ranges called high-dynamic range (HDR) are able to encode brighter
+ * highlights, darker shadows, and richer color. This class contains constants for specific HDR
+ * dynamic ranges, such as {@link DynamicRange#HLG_10_BIT}, but also unspecified HDR dynamic
+ * ranges, such as {@link DynamicRange#HDR_UNSPECIFIED_10_BIT}. When used with a camera API, such
+ * as {@link androidx.camera.video.VideoCapture.Builder#setDynamicRange(DynamicRange)}, these
+ * unspecified dynamic ranges will use device defaults as the HDR encoding.
+ *
+ * <p>The legacy behavior of most devices is to capture in standard dynamic range (SDR), which is
+ * represented by {@link DynamicRange#SDR}. This will be the default dynamic range encoding for
+ * most APIs taking dynamic range unless otherwise specified.
+ *
+ * @see androidx.camera.video.VideoCapture.Builder#setDynamicRange(DynamicRange)
+ */
 @RequiresApi(21) // TODO(b/200306659): Remove and replace with annotation on package-info.java
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class DynamicRange {
     /**
-     * An unspecified dynamic range format which allows the device to determine the underlying
-     * dynamic range format.
+     * An unspecified dynamic range encoding which allows the device to determine the underlying
+     * dynamic range encoding.
      */
-    public static final int FORMAT_UNSPECIFIED = 0;
+    public static final int ENCODING_UNSPECIFIED = 0;
 
-    /** Standard Dynamic Range (SDR) format. */
-    public static final int FORMAT_SDR = 1;
+    /** Standard Dynamic Range (SDR) encoding. */
+    public static final int ENCODING_SDR = 1;
 
     //------------------------------------------------------------------------------//
-    //                            HDR Formats                                       //
+    //                            HDR Encodings                                     //
     //------------------------------------------------------------------------------//
     /**
-     * An unspecified dynamic range format which allows the device to determine the
-     * underlying dynamic range format, limited to High Dynamic Range (HDR) encodings.
+     * An unspecified dynamic range encoding which allows the device to determine the
+     * underlying dynamic range encoding, limited to High Dynamic Range (HDR) encodings.
      */
-    public static final int FORMAT_HDR_UNSPECIFIED = 2;
-    /** Hybrid Log Gamma (HLG) dynamic range format. */
-    public static final int FORMAT_HLG = FORMAT_HDR_UNSPECIFIED + 1;
-    /** HDR10 dynamic range format. */
-    public static final int FORMAT_HDR10 = FORMAT_HDR_UNSPECIFIED + 2;
-    /** HDR10+ dynamic range format. */
-    public static final int FORMAT_HDR10_PLUS = FORMAT_HDR_UNSPECIFIED + 3;
-    /** Dolby Vision dynamic range format. */
-    public static final int FORMAT_DOLBY_VISION = FORMAT_HDR_UNSPECIFIED + 4;
+    public static final int ENCODING_HDR_UNSPECIFIED = 2;
+    /** Hybrid Log Gamma (HLG) dynamic range encoding. */
+    public static final int ENCODING_HLG = ENCODING_HDR_UNSPECIFIED + 1;
+    /** HDR10 dynamic range encoding. */
+    public static final int ENCODING_HDR10 = ENCODING_HDR_UNSPECIFIED + 2;
+    /** HDR10+ dynamic range encoding. */
+    public static final int ENCODING_HDR10_PLUS = ENCODING_HDR_UNSPECIFIED + 3;
+    /** Dolby Vision dynamic range encoding. */
+    public static final int ENCODING_DOLBY_VISION = ENCODING_HDR_UNSPECIFIED + 4;
     //------------------------------------------------------------------------------//
 
     /** Bit depth is unspecified and may be determined automatically by the device. */
@@ -63,10 +83,11 @@ public final class DynamicRange {
     public static final int BIT_DEPTH_10_BIT = 10;
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({FORMAT_UNSPECIFIED, FORMAT_SDR, FORMAT_HDR_UNSPECIFIED, FORMAT_HLG, FORMAT_HDR10,
-            FORMAT_HDR10_PLUS, FORMAT_DOLBY_VISION})
+    @IntDef({ENCODING_UNSPECIFIED, ENCODING_SDR, ENCODING_HDR_UNSPECIFIED, ENCODING_HLG,
+            ENCODING_HDR10,
+            ENCODING_HDR10_PLUS, ENCODING_DOLBY_VISION})
     @Retention(RetentionPolicy.SOURCE)
-    public @interface DynamicRangeFormat {
+    public @interface DynamicRangeEncoding {
     }
 
     @RestrictTo(RestrictTo.Scope.LIBRARY)
@@ -75,67 +96,155 @@ public final class DynamicRange {
     public @interface BitDepth {
     }
 
+    //------------------------------------------------------------------------------//
+    //                         Pre-defined DynamicRanges                            //
+    //------------------------------------------------------------------------------//
     /**
-     * A dynamic range with unspecified format and bit depth
+     * A dynamic range with unspecified encoding and bit depth.
      *
      * <p>The dynamic range is unspecified and may defer to device defaults when used to select a
      * dynamic range.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_UNSPECIFIED
+     *   Bit Depth: BIT_DEPTH_UNSPECIFIED
+     * </pre>
      */
     @NonNull
-    public static final DynamicRange UNSPECIFIED = new DynamicRange(FORMAT_UNSPECIFIED,
+    public static final DynamicRange UNSPECIFIED = new DynamicRange(ENCODING_UNSPECIFIED,
             BIT_DEPTH_UNSPECIFIED);
 
-    /** A dynamic range representing 8-bit standard dynamic range (SDR). */
+    /**
+     * A dynamic range representing 8-bit standard dynamic range (SDR).
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_SDR
+     *   Bit Depth: BIT_DEPTH_8_BIT
+     * </pre>
+     */
     @NonNull
-    public static final DynamicRange SDR = new DynamicRange(FORMAT_SDR, BIT_DEPTH_8_BIT);
+    public static final DynamicRange SDR = new DynamicRange(ENCODING_SDR, BIT_DEPTH_8_BIT);
 
     /**
-     * A dynamic range representing 10-bit high dynamic range (HDR) with unspecified format.
+     * A dynamic range representing 10-bit high dynamic range (HDR) with unspecified encoding.
      *
-     * <p>The HDR format is unspecified, and may defer to device defaults
+     * <p>The HDR encoding is unspecified, and may defer to device defaults
      * when used to select a dynamic range. In this case, the dynamic range will be limited to
      * 10-bit high dynamic ranges.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_HDR_UNSPECIFIED
+     *   Bit Depth: BIT_DEPTH_10_BIT
+     * </pre>
      */
     @NonNull
     public static final DynamicRange HDR_UNSPECIFIED_10_BIT =
-            new DynamicRange(FORMAT_HDR_UNSPECIFIED, BIT_DEPTH_10_BIT);
+            new DynamicRange(ENCODING_HDR_UNSPECIFIED, BIT_DEPTH_10_BIT);
 
-    private final @DynamicRangeFormat int mFormat;
+    /**
+     * A 10-bit high-dynamic range with HLG encoding.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_HLG
+     *   Bit Depth: BIT_DEPTH_10_BIT
+     * </pre>
+     */
+    @NonNull
+    public static final DynamicRange HLG_10_BIT = new DynamicRange(ENCODING_HLG, BIT_DEPTH_10_BIT);
+
+    /**
+     * A 10-bit high-dynamic range with HDR10 encoding.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_HDR10
+     *   Bit Depth: BIT_DEPTH_10_BIT
+     * </pre>
+     */
+    @NonNull
+    public static final DynamicRange HDR10_10_BIT = new DynamicRange(ENCODING_HDR10,
+            BIT_DEPTH_10_BIT);
+
+    /**
+     * A 10-bit high-dynamic range with HDR10+ encoding.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_HDR10_PLUS
+     *   Bit Depth: BIT_DEPTH_10_BIT
+     * </pre>
+     */
+    @NonNull
+    public static final DynamicRange HDR10_PLUS_10_BIT = new DynamicRange(ENCODING_HDR10_PLUS,
+            BIT_DEPTH_10_BIT);
+
+    /**
+     * A 10-bit high-dynamic range with Dolby Vision encoding.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_DOLBY_VISION
+     *   Bit Depth: BIT_DEPTH_10_BIT
+     * </pre>
+     */
+    @NonNull
+    public static final DynamicRange DOLBY_VISION_10_BIT = new DynamicRange(ENCODING_DOLBY_VISION,
+            BIT_DEPTH_10_BIT);
+
+    /**
+     * An 8-bit high-dynamic range with Dolby Vision encoding.
+     *
+     * <p>This dynamic range is composed of:
+     * <pre>
+     *   Encoding: ENCODING_DOLBY_VISION
+     *   Bit Depth: BIT_DEPTH_8_BIT
+     * </pre>
+     */
+    @NonNull
+    public static final DynamicRange DOLBY_VISION_8_BIT = new DynamicRange(ENCODING_DOLBY_VISION,
+            BIT_DEPTH_8_BIT);
+    //------------------------------------------------------------------------------//
+
+    private final @DynamicRangeEncoding int mEncoding;
     private final @BitDepth int mBitDepth;
 
     /**
-     * Creates a dynamic range representation from a format and bit depth.
+     * Creates a dynamic range representation from a encoding and bit depth.
      *
      * <p>This constructor is left public for testing purposes. It does not do any verification that
-     * the provided arguments are a valid combination of format and bit depth.
+     * the provided arguments are a valid combination of encoding and bit depth.
      *
-     * @param format   The dynamic range format.
+     * @param encoding The dynamic range encoding.
      * @param bitDepth The bit depth.
      */
     public DynamicRange(
-            @DynamicRangeFormat int format,
+            @DynamicRangeEncoding int encoding,
             @BitDepth int bitDepth) {
-        mFormat = format;
+        mEncoding = encoding;
         mBitDepth = bitDepth;
     }
 
     /**
-     * Returns the dynamic range format.
+     * Returns the dynamic range encoding.
      *
-     * @return The dynamic range format. Possible values are {@link #FORMAT_SDR},
-     * {@link #FORMAT_HLG}, {@link #FORMAT_HDR10}, {@link #FORMAT_HDR10_PLUS}, or
-     * {@link #FORMAT_DOLBY_VISION}.
+     * @return The dynamic range encoding. Possible values are {@link #ENCODING_SDR},
+     * {@link #ENCODING_HLG}, {@link #ENCODING_HDR10}, {@link #ENCODING_HDR10_PLUS}, or
+     * {@link #ENCODING_DOLBY_VISION}.
      */
-    @DynamicRangeFormat
-    public int getFormat() {
-        return mFormat;
+    @DynamicRangeEncoding
+    public int getEncoding() {
+        return mEncoding;
     }
 
     /**
      * Returns the bit depth used by this dynamic range configuration.
      *
-     * <p>Common values are {@link #BIT_DEPTH_8_BIT}, such as for {@link #FORMAT_SDR} or
-     * {@link #BIT_DEPTH_10_BIT}, such as for {@link #FORMAT_HDR10}.
+     * <p>Common values are {@link #BIT_DEPTH_8_BIT}, such as for {@link #ENCODING_SDR} or
+     * {@link #BIT_DEPTH_10_BIT}, such as for {@link #ENCODING_HDR10}.
      *
      * @return The bit depth. Possible values are {@link #BIT_DEPTH_8_BIT},
      * {@link #BIT_DEPTH_10_BIT}, or {@link #BIT_DEPTH_UNSPECIFIED}.
@@ -145,11 +254,33 @@ public final class DynamicRange {
         return mBitDepth;
     }
 
+    /**
+     * Returns {@code true} if both the encoding and bit depth are not unspecified types.
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isFullySpecified() {
+        return getEncoding() != ENCODING_UNSPECIFIED
+                && getEncoding() != ENCODING_HDR_UNSPECIFIED
+                && getBitDepth() != BIT_DEPTH_UNSPECIFIED;
+    }
+
+    /**
+     * Returns true if this dynamic range is fully specified, the encoding is one of the HDR
+     * encodings and bit depth is 10-bit.
+     *
+     * @see #isFullySpecified()
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean is10BitHdr() {
+        return isFullySpecified() && getEncoding() != ENCODING_SDR
+                && getBitDepth() == BIT_DEPTH_10_BIT;
+    }
+
     @NonNull
     @Override
     public String toString() {
         return "DynamicRange@" + Integer.toHexString(System.identityHashCode(this)) + "{"
-                + "format=" + getFormatLabel(mFormat) + ", "
+                + "encoding=" + getEncodingLabel(mEncoding) + ", "
                 + "bitDepth=" + mBitDepth
                 + "}";
     }
@@ -161,7 +292,7 @@ public final class DynamicRange {
         }
         if (o instanceof DynamicRange) {
             DynamicRange that = (DynamicRange) o;
-            return this.mFormat == that.getFormat()
+            return this.mEncoding == that.getEncoding()
                     && this.mBitDepth == that.getBitDepth();
         }
         return false;
@@ -171,22 +302,22 @@ public final class DynamicRange {
     public int hashCode() {
         int hashCode = 1;
         hashCode *= 1000003;
-        hashCode ^= mFormat;
+        hashCode ^= mEncoding;
         hashCode *= 1000003;
         hashCode ^= mBitDepth;
         return hashCode;
     }
 
     @NonNull
-    private static String getFormatLabel(@DynamicRangeFormat int format) {
-        switch (format) {
-            case FORMAT_UNSPECIFIED: return "FORMAT_UNSPECIFIED";
-            case FORMAT_SDR: return "FORMAT_SDR";
-            case FORMAT_HDR_UNSPECIFIED: return "FORMAT_HDR_UNSPECIFIED";
-            case FORMAT_HLG: return "FORMAT_HLG";
-            case FORMAT_HDR10: return "FORMAT_HDR10";
-            case FORMAT_HDR10_PLUS: return "FORMAT_HDR10_PLUS";
-            case FORMAT_DOLBY_VISION: return "FORMAT_DOLBY_VISION";
+    private static String getEncodingLabel(@DynamicRangeEncoding int encoding) {
+        switch (encoding) {
+            case ENCODING_UNSPECIFIED: return "UNSPECIFIED";
+            case ENCODING_SDR: return "SDR";
+            case ENCODING_HDR_UNSPECIFIED: return "HDR_UNSPECIFIED";
+            case ENCODING_HLG: return "HLG";
+            case ENCODING_HDR10: return "HDR10";
+            case ENCODING_HDR10_PLUS: return "HDR10_PLUS";
+            case ENCODING_DOLBY_VISION: return "DOLBY_VISION";
         }
 
         return "<Unknown>";

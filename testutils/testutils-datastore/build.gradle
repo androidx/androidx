@@ -45,6 +45,18 @@ androidXMultiplatform {
                 api(libs.kotlinTest)
             }
         }
+        commonTest {
+            dependencies {
+                implementation(project(":kruth:kruth"))
+                implementation(libs.kotlinTest)
+            }
+        }
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+                implementation(libs.kotlinTest)
+            }
+        }
     }
 }
 

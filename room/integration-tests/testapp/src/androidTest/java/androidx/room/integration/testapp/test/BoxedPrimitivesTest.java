@@ -96,7 +96,7 @@ public class BoxedPrimitivesTest {
     /**
      * assert the case where row was inserted via entity hence we should've read the default values
      * already.
-     **/
+     */
     private void testInsertedAsEntity(BaseDao<? extends BaseBoxed> dao, long rowId) {
         BaseBoxed read = dao.find(rowId);
         // default getter value

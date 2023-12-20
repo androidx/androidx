@@ -161,18 +161,17 @@ public class NavOptions internal constructor(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other == null || javaClass != other.javaClass) return false
-        val that = other as NavOptions
-        return singleTop == that.singleTop &&
-            restoreState == that.restoreState &&
-            popUpToId == that.popUpToId &&
-            popUpToRoute == that.popUpToRoute &&
-            popUpToInclusive == that.popUpToInclusive &&
-            popUpToSaveState == that.popUpToSaveState &&
-            enterAnim == that.enterAnim &&
-            exitAnim == that.exitAnim &&
-            popEnterAnim == that.popEnterAnim &&
-            popExitAnim == that.popExitAnim
+        if (other == null || other !is NavOptions) return false
+        return singleTop == other.singleTop &&
+            restoreState == other.restoreState &&
+            popUpToId == other.popUpToId &&
+            popUpToRoute == other.popUpToRoute &&
+            popUpToInclusive == other.popUpToInclusive &&
+            popUpToSaveState == other.popUpToSaveState &&
+            enterAnim == other.enterAnim &&
+            exitAnim == other.exitAnim &&
+            popEnterAnim == other.popEnterAnim &&
+            popExitAnim == other.popExitAnim
     }
 
     override fun hashCode(): Int {
@@ -187,6 +186,47 @@ public class NavOptions internal constructor(
         result = 31 * result + popEnterAnim
         result = 31 * result + popExitAnim
         return result
+    }
+
+    override fun toString(): String {
+        val sb = StringBuilder()
+        sb.append(javaClass.simpleName)
+        sb.append("(")
+        if (singleTop) {
+            sb.append("launchSingleTop ")
+        }
+        if (restoreState) {
+            sb.append("restoreState ")
+        }
+        if (popUpToRoute != null || popUpToId != -1)
+        if (popUpToRoute != null) {
+            sb.append("popUpTo(")
+            if (popUpToRoute != null) {
+                sb.append(popUpToRoute)
+            } else {
+                sb.append("0x")
+                sb.append(Integer.toHexString(popUpToId))
+            }
+            if (popUpToInclusive) {
+                sb.append(" inclusive")
+            }
+            if (popUpToSaveState) {
+                sb.append(" saveState")
+            }
+            sb.append(")")
+        }
+        if (enterAnim != -1 || exitAnim != -1 || popEnterAnim != -1 || popExitAnim != -1) {
+            sb.append("anim(enterAnim=0x")
+            sb.append(Integer.toHexString(enterAnim))
+            sb.append(" exitAnim=0x")
+            sb.append(Integer.toHexString(exitAnim))
+            sb.append(" popEnterAnim=0x")
+            sb.append(Integer.toHexString(popEnterAnim))
+            sb.append(" popExitAnim=0x")
+            sb.append(Integer.toHexString(popExitAnim))
+            sb.append(")")
+        }
+        return sb.toString()
     }
 
     /**

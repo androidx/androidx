@@ -377,6 +377,76 @@ class NavControllerRouteTest {
 
     @UiThreadTest
     @Test
+    fun testNavigateWithPopUpToFurthestRoute() {
+        val navController = createNavController()
+        navController.graph = nav_singleArg_graph
+
+        // series of alternate navigation between two destinations
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate("second_test/arg1")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.navigate("start_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        navController.navigate("second_test/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(4)
+
+        // now popUpTo the first time we navigated to second_test with args
+        val navOptions = navOptions {
+            popUpTo("second_test/arg1") { inclusive = true }
+        }
+        navController.navigate("start_test", navOptions)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+        assertThat(navigator.backStack.map { it.destination.route }).containsExactly(
+            "start_test", "start_test"
+        )
+    }
+
+    @UiThreadTest
+    @Test
+    fun testNavigateWithPopUpToClosestRoute() {
+        val navController = createNavController()
+        navController.graph = nav_singleArg_graph
+
+        // series of alternate navigation between two destinations
+        val navigator = navController.navigatorProvider.getNavigator(TestNavigator::class.java)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(1)
+
+        navController.navigate("second_test/arg1")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(2)
+
+        navController.navigate("start_test")
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(3)
+
+        navController.navigate("second_test/arg2")
+        assertThat(navController.currentDestination?.route).isEqualTo("second_test/{arg}")
+        assertThat(navigator.backStack.size).isEqualTo(4)
+
+        // now popUpTo the second time we navigated to second_test with args
+        val navOptions = navOptions {
+            popUpTo("second_test/arg2") { inclusive = true }
+        }
+        navController.navigate("start_test", navOptions)
+        assertThat(navController.currentDestination?.route).isEqualTo("start_test")
+        assertThat(navigator.backStack.size).isEqualTo(4)
+        assertThat(navigator.backStack.map { it.destination.route }).containsExactly(
+            "start_test", "second_test/{arg}", "start_test", "start_test"
+        ).inOrder()
+    }
+
+    @UiThreadTest
+    @Test
     fun testGetBackStackEntryWithExactRoute() {
         val navController = createNavController()
         navController.graph = nav_singleArg_graph

@@ -39,10 +39,10 @@ import java.time.Duration;
 import java.util.Set;
 
 /**
- * @hide
  */
 @RestrictTo(LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public interface ListBuilder {
 
     /**

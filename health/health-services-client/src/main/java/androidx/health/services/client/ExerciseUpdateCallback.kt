@@ -18,6 +18,7 @@ package androidx.health.services.client
 
 import androidx.health.services.client.data.Availability
 import androidx.health.services.client.data.DataType
+import androidx.health.services.client.data.ExerciseEvent
 import androidx.health.services.client.data.ExerciseLapSummary
 import androidx.health.services.client.data.ExerciseState
 import androidx.health.services.client.data.ExerciseUpdate
@@ -59,4 +60,14 @@ public interface ExerciseUpdateCallback {
      * @param availability the new [Availability] state
      */
     public fun onAvailabilityChanged(dataType: DataType<*, *>, availability: Availability)
+
+    /**
+     * Called when an [ExerciseEvent] is emitted. May be called during any exercise state
+     * except for PREPARING or ENDED.
+     *
+     * @param event the latest [ExerciseEvent] received during an active exercise. To access the
+     * data for each received [ExerciseEvent], clients can use conditional `when` on [ExerciseEvent]
+     * for a specific event type to access the event-specific data.
+     */
+    public fun onExerciseEventReceived(event: ExerciseEvent) {}
 }

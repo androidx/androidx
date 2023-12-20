@@ -54,6 +54,11 @@ import java.util.Set;
  * you have no control over this shrinking -- if you set a capacity and then remove an
  * item, it may reduce the capacity to better match the current size.  In the future an
  * explicit call to set the capacity should turn off this aggressive shrinking behavior.</p>
+ *
+ * <p><strong>NOTE:</strong> Consider using {@link MutableScatterMap} instead of this class.
+ * {@link MutableScatterMap} also avoids creating an extra object per entry but offers overall
+ * better performance characteristics. If a {@link Map}-like interface is required, please
+ * see {@link MutableScatterMap#asMap()} and {@link MutableScatterMap#asMutableMap()}.</p>
  */
 public class ArrayMap<K, V> extends SimpleArrayMap<K, V> implements Map<K, V> {
     @Nullable

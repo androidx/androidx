@@ -16,12 +16,9 @@
 
 package androidx.work;
 
-import androidx.annotation.RestrictTo;
-
 /**
  * The interface WorkManager uses to access to the current time.
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public interface Clock {
     /** @see java.lang.System#currentTimeMillis */
     long currentTimeMillis();

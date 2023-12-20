@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.2.0-alpha15" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-alpha15)" variant="all" version="8.2.0-alpha15">
 
     <issue
         id="BanSynchronizedMethods"
@@ -26,6 +26,15 @@
         errorLine2="        ~~~~~">
         <location
             file="src/main/java/com/example/android/support/text/emoji/ConfigLayout.java"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="EmojiCompat.reset can only be called from within the same library (androidx.emoji2:emoji2)"
+        errorLine1="        EmojiCompat.reset(config);"
+        errorLine2="                    ~~~~~">
+        <location
+            file="src/main/java/com/example/android/support/text/emoji/Config.java"/>
     </issue>
 
     <issue

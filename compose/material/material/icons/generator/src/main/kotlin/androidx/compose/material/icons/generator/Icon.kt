@@ -26,10 +26,12 @@ package androidx.compose.material.icons.generator
  * @property xmlFileName the name of the processed XML file
  * @property theme the theme of this icon
  * @property fileContent the content of the source XML file that will be parsed.
+ * @property autoMirrored indicates that this Icon can be auto-mirrored on Right to Left layouts.
  */
 data class Icon(
     val kotlinName: String,
     val xmlFileName: String,
     val theme: IconTheme,
-    val fileContent: String
+    val fileContent: String,
+    val autoMirrored: Boolean
 )

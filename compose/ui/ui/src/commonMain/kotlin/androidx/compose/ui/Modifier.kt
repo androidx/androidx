@@ -301,7 +301,7 @@ interface Modifier {
         }
 
         internal open fun reset() {
-            check(isAttached)
+            check(isAttached) { "reset() called on an unattached node" }
             onReset()
         }
 

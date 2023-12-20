@@ -175,6 +175,18 @@ class SemanticsNode internal constructor(
             ?: Offset.Zero
 
     /**
+     * The bounding box for this node relative to the parent semantics node, with clipping applied.
+     */
+    internal val boundsInParent: Rect
+        get() {
+            val parent = this.parent ?: return Rect.Zero
+            val currentCoordinates = findCoordinatorToGetBounds()?.takeIf { it.isAttached }
+                ?.coordinates ?: return Rect.Zero
+            return parent.outerSemanticsNode.requireCoordinator(Nodes.Semantics)
+                .localBoundingBoxOf(currentCoordinates)
+        }
+
+    /**
      * Whether this node is transparent.
      */
     internal val isTransparent: Boolean

@@ -39,7 +39,6 @@ import androidx.car.app.utils.RemoteUtils;
  * <p> This class exists because we don't want to expose {@link IConversationCallback} to the A4C
  * client.
  *
- * @hide
  */
 @ExperimentalCarApi
 @RestrictTo(LIBRARY)

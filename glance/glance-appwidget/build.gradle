@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-import androidx.build.AndroidXComposePlugin
 import androidx.build.BundleInsideHelper
 import androidx.build.LibraryType
 import androidx.glance.appwidget.layoutgenerator.gradle.LayoutGeneratorTask
 
 plugins {
     id("AndroidXPlugin")
+    id("org.jetbrains.kotlin.android")
     id("com.android.library")
     id("AndroidXComposePlugin")
     id("com.google.protobuf")
@@ -29,14 +29,14 @@ plugins {
 BundleInsideHelper.forInsideAar(
         project,
         /* from = */ "com.google.protobuf",
-        /* to =   */ "androidx.glance.appwidget.protobuf"
+        /* to =   */ "androidx.glance.appwidget.protobuf",
+        // proto-lite dependency includes .proto files, which are not used and would clash if
+        // users also use proto library directly
+        /* dropResourcesWithSuffix = */ ".proto"
 )
 
-// Disable multi-platform; this will only be used on Android.
-AndroidXComposePlugin.applyAndConfigureKotlinPlugin(project, /* isMultiplatformEnabled= */ false)
-
 dependencies {
-    bundleInside(project(path: ":glance:glance-appwidget-proto", configuration: "export"))
+    bundleInside(project(":glance:glance-appwidget-proto"))
 
     api(project(":glance:glance"))
     api("androidx.annotation:annotation:1.1.0")
@@ -120,7 +120,6 @@ androidx {
 
 LayoutGeneratorTask.registerLayoutGenerator(
         project,
-        android,
-        /* containerLayoutDirectory= */ file("src/androidMain/layoutTemplates"),
-        /* childLayoutDirectory= */ file("src/androidMain/res/layout")
+        /* containerLayoutDirectory= */ file("src/main/layoutTemplates"),
+        /* childLayoutDirectory= */ file("src/main/res/layout")
 )

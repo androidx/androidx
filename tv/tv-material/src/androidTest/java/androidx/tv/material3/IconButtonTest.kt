@@ -23,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
@@ -46,8 +45,8 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -58,7 +57,6 @@ import org.junit.runner.RunWith
 
 @OptIn(
     ExperimentalTestApi::class,
-    ExperimentalComposeUiApi::class,
     ExperimentalTvMaterial3Api::class
 )
 @RunWith(AndroidJUnit4::class)
@@ -216,6 +214,31 @@ class IconButtonTest {
 
         rule.onNodeWithTag(FilledIconButtonTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assertIsEnabled()
+    }
+
+    @Test
+    fun filledIconButton_longClickSemantics() {
+        rule.setContent {
+            Box {
+                IconButton(
+                    modifier = Modifier.testTag(FilledIconButtonTag),
+                    onClick = {},
+                    onLongClick = {}) {
+                    Box(
+                        modifier = Modifier
+                            .size(IconButtonDefaults.MediumIconSize)
+                            .semantics(mergeDescendants = true) {}
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(FilledIconButtonTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assertIsEnabled()
     }
 
@@ -262,8 +285,36 @@ class IconButtonTest {
             }
         }
         rule.onNodeWithTag(FilledIconButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.runOnIdle {
+            Truth.assertThat(counter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun filledIconButton_findByTagAndLongClick() {
+        var counter = 0
+        val onLongClick: () -> Unit = { ++counter }
+
+        rule.setContent {
+            Box {
+                IconButton(
+                    modifier = Modifier.testTag(FilledIconButtonTag),
+                    onClick = {},
+                    onLongClick = onLongClick
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(IconButtonDefaults.MediumIconSize)
+                            .semantics(mergeDescendants = true) {}
+                    )
+                }
+            }
+        }
+        rule.onNodeWithTag(FilledIconButtonTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter)
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
         }
@@ -291,7 +342,7 @@ class IconButtonTest {
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             // Then confirm it's disabled with click action after clicking it
             .assertHasClickAction()
@@ -334,7 +385,7 @@ class IconButtonTest {
         }
 
         rule.onNodeWithTag(addButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -343,7 +394,7 @@ class IconButtonTest {
         }
 
         rule.onNodeWithTag(phoneButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -670,6 +721,32 @@ class IconButtonTest {
 
         rule.onNodeWithTag(OutlinedIconButtonTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assertIsEnabled()
+    }
+
+    @Test
+    fun outlinedIconButton_longClickSemantics() {
+        rule.setContent {
+            Box {
+                OutlinedIconButton(
+                    modifier = Modifier.testTag(OutlinedIconButtonTag),
+                    onClick = {},
+                    onLongClick = {}
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(OutlinedIconButtonDefaults.MediumIconSize)
+                            .semantics(mergeDescendants = true) {}
+                    )
+                }
+            }
+        }
+
+        rule.onNodeWithTag(OutlinedIconButtonTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assertIsEnabled()
     }
 
@@ -716,8 +793,36 @@ class IconButtonTest {
             }
         }
         rule.onNodeWithTag(OutlinedIconButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.runOnIdle {
+            Truth.assertThat(counter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun outlinedIconButton_findByTagAndLongClick() {
+        var counter = 0
+        val onLongClick: () -> Unit = { ++counter }
+
+        rule.setContent {
+            Box {
+                OutlinedIconButton(
+                    modifier = Modifier.testTag(OutlinedIconButtonTag),
+                    onClick = {},
+                    onLongClick = onLongClick
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(OutlinedIconButtonDefaults.MediumIconSize)
+                            .semantics(mergeDescendants = true) {}
+                    )
+                }
+            }
+        }
+        rule.onNodeWithTag(OutlinedIconButtonTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter)
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
         }
@@ -745,7 +850,7 @@ class IconButtonTest {
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             // Then confirm it's disabled with click action after clicking it
             .assertHasClickAction()
@@ -788,7 +893,7 @@ class IconButtonTest {
         }
 
         rule.onNodeWithTag(addButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -797,7 +902,7 @@ class IconButtonTest {
         }
 
         rule.onNodeWithTag(phoneButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {

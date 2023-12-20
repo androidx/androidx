@@ -18,6 +18,8 @@ package androidx.room.paging.rxjava2
 
 import android.database.Cursor
 import androidx.arch.core.executor.testing.CountingTaskExecutorRule
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.paging.LoadType
 import androidx.paging.PagingConfig
 import androidx.paging.PagingSource.LoadParams
@@ -39,8 +41,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.TestExecutor
 import androidx.testutils.withTestTimeout
-import com.google.common.truth.Truth
-import com.google.common.truth.Truth.assertThat
 import io.reactivex.Single
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -225,7 +225,7 @@ class LimitOffsetRxPagingSourceTest {
 
         val single2 = pagingSource.append(key = 55)
         val result = single2.await()
-        Truth.assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
     }
 
     @Test
@@ -243,7 +243,7 @@ class LimitOffsetRxPagingSourceTest {
 
         // let room complete its tasks
         countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
-        Truth.assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
     }
 
     @Test
@@ -262,7 +262,7 @@ class LimitOffsetRxPagingSourceTest {
         // let room complete its tasks
         countingTaskExecutorRule.drainTasks(500, TimeUnit.MILLISECONDS)
         val result = observer.values().first()
-        Truth.assertThat(result).isInstanceOf(LoadResult.Invalid::class.java)
+        assertThat(result).isInstanceOf<LoadResult.Invalid<*, *>>()
         observer.dispose()
     }
 
@@ -279,7 +279,7 @@ class LimitOffsetRxPagingSourceTest {
         val pagingSource2 = LimitOffsetRxPagingSourceImpl(db)
         val single2 = pagingSource2.refresh()
         val result2 = single2.await() as LoadResult.Page
-        Truth.assertThat(result2.data).containsExactlyElementsIn(
+        assertThat(result2.data).containsExactlyElementsIn(
             ITEMS_LIST.subList(0, 15)
         )
     }
@@ -297,13 +297,13 @@ class LimitOffsetRxPagingSourceTest {
 
         val single2 = pagingSource.append(key = 40)
         val result2 = single2.await() as LoadResult.Page
-        Truth.assertThat(result2.data).containsExactlyElementsIn(
+        assertThat(result2.data).containsExactlyElementsIn(
             ITEMS_LIST.subList(40, 45)
         )
 
         val single3 = pagingSource.append(key = 45) // sequential append
         val result3 = single3.await() as LoadResult.Page
-        Truth.assertThat(result3.data).containsExactlyElementsIn(
+        assertThat(result3.data).containsExactlyElementsIn(
             ITEMS_LIST.subList(45, 50)
         )
     }
@@ -321,13 +321,13 @@ class LimitOffsetRxPagingSourceTest {
 
         val single2 = pagingSource.prepend(key = 40)
         val result2 = single2.await() as LoadResult.Page
-        Truth.assertThat(result2.data).containsExactlyElementsIn(
+        assertThat(result2.data).containsExactlyElementsIn(
             ITEMS_LIST.subList(35, 40)
         )
 
         val single3 = pagingSource.prepend(key = 45) // sequential prepend
         val result3 = single3.await() as LoadResult.Page
-        Truth.assertThat(result3.data).containsExactlyElementsIn(
+        assertThat(result3.data).containsExactlyElementsIn(
             ITEMS_LIST.subList(40, 45)
         )
     }
@@ -341,8 +341,8 @@ class LimitOffsetRxPagingSourceTest {
         val single = pagingSource.refresh()
             // dispose right after subscription
             .doOnSubscribe { disposable -> disposable.dispose() }
-            .doOnSuccess { Truth.assertWithMessage("The single should not succeed").fail() }
-            .doOnError { Truth.assertWithMessage("The single should not error out").fail() }
+            .doOnSuccess { assertWithMessage("The single should not succeed").fail() }
+            .doOnError { assertWithMessage("The single should not error out").fail() }
             .doOnDispose { isDisposed = true }
 
         assertFailsWith<AssertionError> { withTestTimeout(2) { single.await() } }
@@ -352,7 +352,7 @@ class LimitOffsetRxPagingSourceTest {
         // using same paging source
         val single2 = pagingSource.refresh()
         val result2 = single2.await() as LoadResult.Page
-        Truth.assertThat(result2.data).containsExactlyElementsIn(
+        assertThat(result2.data).containsExactlyElementsIn(
             ITEMS_LIST.subList(0, 15)
         )
     }
@@ -366,8 +366,8 @@ class LimitOffsetRxPagingSourceTest {
         val single = pagingSource.append(key = 15)
             // dispose right after subscription
             .doOnSubscribe { disposable -> disposable.dispose() }
-            .doOnSuccess { Truth.assertWithMessage("The single should not succeed").fail() }
-            .doOnError { Truth.assertWithMessage("The single should not error out").fail() }
+            .doOnSuccess { assertWithMessage("The single should not succeed").fail() }
+            .doOnError { assertWithMessage("The single should not error out").fail() }
             .doOnDispose { isDisposed = true }
 
         assertFailsWith<AssertionError> { withTestTimeout(2) { single.await() } }
@@ -377,7 +377,7 @@ class LimitOffsetRxPagingSourceTest {
         // try with same key same paging source
         val single2 = pagingSource.append(key = 15)
         val result2 = single2.await() as LoadResult.Page
-        Truth.assertThat(result2.data).containsExactlyElementsIn(
+        assertThat(result2.data).containsExactlyElementsIn(
             ITEMS_LIST.subList(15, 20)
         )
     }
@@ -391,8 +391,8 @@ class LimitOffsetRxPagingSourceTest {
         val single = pagingSource.prepend(key = 40)
             // dispose right after subscription
             .doOnSubscribe { disposable -> disposable.dispose() }
-            .doOnSuccess { Truth.assertWithMessage("The single should not succeed").fail() }
-            .doOnError { Truth.assertWithMessage("The single should not error out").fail() }
+            .doOnSuccess { assertWithMessage("The single should not succeed").fail() }
+            .doOnError { assertWithMessage("The single should not error out").fail() }
             .doOnDispose { isDisposed = true }
 
         assertFailsWith<AssertionError> { withTestTimeout(2) { single.await() } }
@@ -402,7 +402,7 @@ class LimitOffsetRxPagingSourceTest {
         // try with same key same paging source
         val single2 = pagingSource.prepend(key = 40)
         val result2 = single2.await() as LoadResult.Page
-        Truth.assertThat(result2.data).containsExactlyElementsIn(
+        assertThat(result2.data).containsExactlyElementsIn(
             ITEMS_LIST.subList(35, 40)
         )
     }
@@ -461,8 +461,8 @@ class LimitOffsetRxPagingSourceTest {
             var isDisposed = false
             val single = pagingSource.refresh()
                 .doOnSubscribe { Thread.sleep(300) } // subscribe but delay the load
-                .doOnSuccess { Truth.assertWithMessage("The single should not succeed").fail() }
-                .doOnError { Truth.assertWithMessage("The single should not error out").fail() }
+                .doOnSuccess { assertWithMessage("The single should not succeed").fail() }
+                .doOnError { assertWithMessage("The single should not error out").fail() }
                 .doOnDispose { isDisposed = true }
 
             val job = launch { single.await() }

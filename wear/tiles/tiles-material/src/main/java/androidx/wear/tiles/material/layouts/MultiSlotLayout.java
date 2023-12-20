@@ -17,11 +17,6 @@
 package androidx.wear.tiles.material.layouts;
 
 import static androidx.annotation.Dimension.DP;
-import static androidx.wear.tiles.material.Helper.checkNotNull;
-import static androidx.wear.tiles.material.Helper.checkTag;
-import static androidx.wear.tiles.material.Helper.getMetadataTagName;
-import static androidx.wear.tiles.material.Helper.getTagBytes;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH;
 
 import android.annotation.SuppressLint;
 
@@ -30,6 +25,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
 
 import java.util.ArrayList;
@@ -93,7 +89,7 @@ public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilder
 
         @NonNull
         private androidx.wear.tiles.DimensionBuilders.DpProp mHorizontalSpacerWidth =
-                MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH;
+                LayoutDefaults.MULTI_SLOT_LAYOUT_HORIZONTAL_SPACER_WIDTH;
 
         /**
          * Creates a builder for the {@link MultiSlotLayout}. Content inside of it can later be
@@ -142,7 +138,10 @@ public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilder
                                             .setMetadata(
                                                     new androidx.wear.tiles.ModifiersBuilders
                                                                     .ElementMetadata.Builder()
-                                                            .setTagData(getTagBytes(METADATA_TAG))
+                                                            .setTagData(
+                                                                    androidx.wear.tiles.material
+                                                                            .Helper.getTagBytes(
+                                                                            METADATA_TAG))
                                                             .build())
                                             .build());
             if (!mSlotsContent.isEmpty()) {
@@ -209,8 +208,10 @@ public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilder
     /** Returns metadata tag set to this MultiSlotLayout. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(
-                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
+        return androidx.wear.tiles.material.Helper.getMetadataTagName(
+                androidx.wear.tiles.material.Helper.checkNotNull(
+                        androidx.wear.tiles.material.Helper.checkNotNull(mElement.getModifiers())
+                                .getMetadata()));
     }
 
     /**
@@ -230,7 +231,8 @@ public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilder
         }
         androidx.wear.tiles.LayoutElementBuilders.Row rowElement =
                 (androidx.wear.tiles.LayoutElementBuilders.Row) element;
-        if (!checkTag(rowElement.getModifiers(), METADATA_TAG)) {
+        if (!androidx.wear.tiles.material.Helper.checkTag(
+                rowElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
         // Now we are sure that this element is a MultiSlotLayout.
@@ -242,5 +244,12 @@ public class MultiSlotLayout implements androidx.wear.tiles.LayoutElementBuilder
     @RestrictTo(Scope.LIBRARY_GROUP)
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
         return mElement.toLayoutElementProto();
+    }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public Fingerprint getFingerprint() {
+        return mElement.getFingerprint();
     }
 }

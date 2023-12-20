@@ -524,7 +524,7 @@ the prebuilt checked into
 `{androidx-main-checkout}/prebuilts/androidx/internal/androidx/`. We
 colloquially refer to this two step process of (1) updating `docs-public` and
 (2) checking in a prebuilt artifact into the prebuilts directory as
-[The Prebuilts Dance](/company/teams/androidx/releasing_detailed.md#the-prebuilts-dance™).
+[The Prebuilts Dance](/company/teams/androidx/releasing_prebuilts_dance.md#the-prebuilts-dance™).
 So, to build javadocs that will be published to
 https://developer.android.com/reference/androidx/packages, both of these steps
 need to be completed.
@@ -971,16 +971,20 @@ repository artifact:
 ./gradlew createArchive
 ```
 
-Using for your alternate (non-AndroidX) version of Android Studio open the
-project's 'build.gradle' and add the following within 'repositories' to make
-Android Gradle Plugin look for binaries in newly built repository:
+Using your alternate (non-AndroidX) version of Android Studio open the project's
+`settings.gradle.kts` and add the following within
+`dependencyResolutionManagement` to make your project look for binaries in the
+newly built repository:
 
-```groovy
-allprojects {
+```kotlin
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
-        ...
+        google()
+        mavenCentral()
+        // Add this
         maven {
-            url "<path-to-sdk>/out/androidx/build/support_repo/"
+            setUrl("<path-to-sdk>/out/androidx/build/support_repo/")
         }
     }
 }
@@ -999,7 +1003,7 @@ that you would like to test. Example:
 ```
 dependencies {
     ...
-    implementation "androidx.appcompat:appcompat::1.0.0-alpha02"
+    implementation "androidx.appcompat:appcompat:1.0.0-alpha02"
 }
 ```
 

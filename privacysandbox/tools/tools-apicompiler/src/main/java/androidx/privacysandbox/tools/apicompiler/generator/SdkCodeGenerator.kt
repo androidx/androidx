@@ -22,6 +22,7 @@ import androidx.privacysandbox.tools.core.generator.AidlGenerator
 import androidx.privacysandbox.tools.core.generator.ClientProxyTypeGenerator
 import androidx.privacysandbox.tools.core.generator.CoreLibInfoAndBinderWrapperConverterGenerator
 import androidx.privacysandbox.tools.core.generator.GenerationTarget
+import androidx.privacysandbox.tools.core.generator.SdkActivityLauncherWrapperGenerator
 import androidx.privacysandbox.tools.core.generator.ServerBinderCodeConverter
 import androidx.privacysandbox.tools.core.generator.ServiceFactoryFileGenerator
 import androidx.privacysandbox.tools.core.generator.StubDelegatesGenerator
@@ -29,6 +30,7 @@ import androidx.privacysandbox.tools.core.generator.ThrowableParcelConverterFile
 import androidx.privacysandbox.tools.core.generator.TransportCancellationGenerator
 import androidx.privacysandbox.tools.core.generator.ValueConverterFileGenerator
 import androidx.privacysandbox.tools.core.model.ParsedApi
+import androidx.privacysandbox.tools.core.model.containsSdkActivityLauncher
 import androidx.privacysandbox.tools.core.model.getOnlyService
 import androidx.privacysandbox.tools.core.model.hasSuspendFunctions
 import com.google.devtools.ksp.processing.CodeGenerator
@@ -68,6 +70,7 @@ internal class SdkCodeGenerator(
         generateCallbackProxies()
         generateToolMetadata()
         generateSuspendFunctionUtilities()
+        generateSdkActivityLauncherUtilities()
         generateServiceFactoryFile()
     }
 
@@ -87,7 +90,11 @@ internal class SdkCodeGenerator(
                         source.interfaceName,
                         extensionName = "java"
                     )
-                    source.file.inputStream().copyTo(kspGeneratedFile)
+                    kspGeneratedFile.use { outputStream ->
+                        source.file.inputStream().use { inputStream ->
+                            inputStream.copyTo(outputStream)
+                        }
+                    }
                 }
         } finally {
             workingDir.toFile().deleteRecursively()
@@ -149,6 +156,11 @@ internal class SdkCodeGenerator(
         TransportCancellationGenerator(basePackageName()).generate().also(::write)
         ThrowableParcelConverterFileGenerator(basePackageName(), target).generate()
             .also(::write)
+    }
+
+    private fun generateSdkActivityLauncherUtilities() {
+        if (!api.containsSdkActivityLauncher()) return
+        SdkActivityLauncherWrapperGenerator(basePackageName()).generate().also(::write)
     }
 
     private fun write(spec: FileSpec) {

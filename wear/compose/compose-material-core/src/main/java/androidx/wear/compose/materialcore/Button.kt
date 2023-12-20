@@ -34,6 +34,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 
 /**
@@ -75,22 +77,16 @@ fun Button(
     val borderStroke = border(enabled)?.value
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
+        modifier = modifier
+            .semantics { role = Role.Button }
+            .size(buttonSize)
             .clip(shape) // Clip for the touch area (e.g. for Ripple).
             .clickable(
                 onClick = onClick,
                 enabled = enabled,
-                role = Role.Button,
                 interactionSource = interactionSource,
                 indication = rememberRipple(),
             )
-            .then(
-                // Make sure modifier ordering is clip > clickable > padding > size,
-                // so that the ripple applies to the entire button shape and size.
-                modifier
-            )
-            .size(buttonSize)
-            .clip(shape) // Clip for the painted background area after size has been applied.
             .then(
                 if (borderStroke != null) Modifier.border(border = borderStroke, shape = shape)
                 else Modifier

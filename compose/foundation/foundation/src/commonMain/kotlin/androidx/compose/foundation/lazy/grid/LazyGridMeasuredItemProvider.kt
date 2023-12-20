@@ -46,7 +46,7 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
         val crossAxisSize = if (constraints.hasFixedWidth) {
             constraints.minWidth
         } else {
-            require(constraints.hasFixedHeight)
+            require(constraints.hasFixedHeight) { "does not have fixed height" }
             constraints.minHeight
         }
         return createItem(
@@ -62,7 +62,7 @@ internal abstract class LazyGridMeasuredItemProvider @ExperimentalFoundationApi 
     /**
      * Contains the mapping between the key and the index. It could contain not all the items of
      * the list as an optimization.
-     **/
+     */
     val keyIndexMap: LazyLayoutKeyIndexMap get() = itemProvider.keyIndexMap
 
     abstract fun createItem(

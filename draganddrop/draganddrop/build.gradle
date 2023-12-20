@@ -26,9 +26,8 @@ dependencies {
     api("androidx.appcompat:appcompat:1.4.0")
     api("androidx.core:core:1.7.0")
     annotationProcessor(libs.nullaway)
-    androidTestImplementation(libs.robolectric)
-    androidTestImplementation(libs.mockitoAndroid)
-
+    androidTestImplementation(libs.mockitoCore, excludes.bytebuddy)
+    androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy)
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -48,4 +47,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2021"
     description = "This library makes it easy for developers to accept data dragged-and-dropped from another app, and show a consistent affordance."
+    metalavaK2UastEnabled = true
 }

@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -39,8 +40,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
+import androidx.compose.ui.focus.FocusRequester.Companion.Default
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color.Companion.Black
@@ -96,6 +100,59 @@ fun CaptureFocusSample() {
             .focusRequester(focusRequester)
             .onFocusChanged { borderColor = if (it.isCaptured) Red else Transparent }
     )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Sampled
+@Composable
+fun RestoreFocusSample() {
+    val focusRequester = remember { FocusRequester() }
+    LazyRow(
+        Modifier
+            .focusRequester(focusRequester)
+            .focusProperties {
+                exit = { focusRequester.saveFocusedChild(); Default }
+                enter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
+            }
+    ) {
+        item { Button(onClick = {}) { Text("1") } }
+        item { Button(onClick = {}) { Text("2") } }
+        item { Button(onClick = {}) { Text("3") } }
+        item { Button(onClick = {}) { Text("4") } }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Sampled
+@Composable
+fun FocusRestorerSample() {
+    LazyRow(Modifier.focusRestorer()) {
+        item { Button(onClick = {}) { Text("1") } }
+        item { Button(onClick = {}) { Text("2") } }
+        item { Button(onClick = {}) { Text("3") } }
+        item { Button(onClick = {}) { Text("4") } }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Sampled
+@Composable
+fun FocusRestorerCustomFallbackSample() {
+    val focusRequester = remember { FocusRequester() }
+    LazyRow(
+        // If restoration fails, focus would fallback to the item associated with focusRequester.
+        Modifier.focusRestorer { focusRequester }
+    ) {
+        item {
+            Button(
+                modifier = Modifier.focusRequester(focusRequester),
+                onClick = {}
+            ) { Text("1") }
+        }
+        item { Button(onClick = {}) { Text("2") } }
+        item { Button(onClick = {}) { Text("3") } }
+        item { Button(onClick = {}) { Text("4") } }
+    }
 }
 
 @Sampled
@@ -243,7 +300,7 @@ fun CancelFocusMoveSample() {
         Box(Modifier.focusTarget())
         // Box 2.
         Box(modifier = Modifier
-            .focusProperties { up = FocusRequester.Cancel }
+            .focusProperties { up = Cancel }
             .focusTarget()
         )
         // Box 3.

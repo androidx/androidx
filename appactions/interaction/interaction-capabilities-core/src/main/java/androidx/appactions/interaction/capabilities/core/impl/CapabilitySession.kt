@@ -21,8 +21,6 @@ import androidx.appactions.interaction.proto.AppActionsContext.AppDialogState
 
 /**
  * Internal interface for a session, contains developer's Session instance
- *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface CapabilitySession {

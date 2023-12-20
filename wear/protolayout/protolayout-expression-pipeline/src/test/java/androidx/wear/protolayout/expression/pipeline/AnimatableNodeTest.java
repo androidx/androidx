@@ -17,6 +17,7 @@
 package androidx.wear.protolayout.expression.pipeline;
 
 import static com.google.common.truth.Truth.assertThat;
+
 import static org.robolectric.Shadows.shadowOf;
 
 import android.animation.TypeEvaluator;
@@ -33,12 +34,12 @@ import androidx.wear.protolayout.expression.proto.AnimationParameterProto.Repeat
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Range;
 
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 @RunWith(AndroidJUnit4.class)
 public class AnimatableNodeTest {

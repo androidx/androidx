@@ -134,8 +134,8 @@ public class TestUtil {
 
     public static void observeOnMainThread(final LiveData liveData, final LifecycleOwner provider,
             final Observer observer) throws ExecutionException, InterruptedException {
+        @SuppressWarnings("unchecked")
         FutureTask<Void> futureTask = new FutureTask<>(() -> {
-            //noinspection unchecked
             liveData.observe(provider, observer);
             return null;
         });
@@ -145,8 +145,8 @@ public class TestUtil {
 
     public static void observeForeverOnMainThread(final LiveData liveData, final Observer observer)
             throws ExecutionException, InterruptedException {
+        @SuppressWarnings("unchecked")
         FutureTask<Void> futureTask = new FutureTask<>(() -> {
-            //noinspection unchecked
             liveData.observeForever(observer);
             return null;
         });

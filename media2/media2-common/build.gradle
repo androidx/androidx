@@ -45,9 +45,6 @@ dependencies {
 }
 
 android {
-    defaultConfig {
-        minSdkVersion 16
-    }
     buildFeatures {
         aidl = true
     }
@@ -67,4 +64,5 @@ androidx {
     inceptionYear = "2018"
     description = "Media2 Common"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

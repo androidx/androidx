@@ -56,7 +56,7 @@ dependencies {
     testImplementation("androidx.lifecycle:lifecycle-livedata-core:2.0.0")
     testImplementation(libs.kotlinStdlib)
     testImplementation(libs.kotlinTest)
-    testImplementation(libs.truth)
+    testImplementation(project(":kruth:kruth"))
     testImplementation(libs.testRunner) // Needed for @FlakyTest and @Ignore
 
     androidTestImplementation(libs.junit)
@@ -68,6 +68,7 @@ dependencies {
     androidTestImplementation(libs.mockitoCore, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(libs.dexmakerMockito, excludes.bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(project(":internal-testutils-truth")) // for assertThrows
+    androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
 
 }
@@ -77,4 +78,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Room-Runtime"
+    metalavaK2UastEnabled = true
 }

@@ -45,7 +45,7 @@ import java.util.concurrent.ExecutorService;
  * <p>This model captures the data for displaying a list of {@link AppSearchSchema} objects that
  * compose of the schema. This also captures the overall schema version.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class SchemaTypeListModel extends ViewModel {

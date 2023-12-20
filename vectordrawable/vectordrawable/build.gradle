@@ -7,7 +7,7 @@ plugins {
 
 dependencies {
     api("androidx.annotation:annotation:1.1.0")
-    api("androidx.core:core:1.6.0")
+    api(project(":core:core"))
     implementation("androidx.collection:collection:1.1.0")
 
     androidTestImplementation(libs.testExtJunit)
@@ -34,4 +34,5 @@ androidx {
     inceptionYear = "2015"
     description = "Android Support VectorDrawable"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

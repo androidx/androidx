@@ -16,7 +16,9 @@
 
 package androidx.compose.ui.platform
 
+import androidx.annotation.RestrictTo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocal
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -29,10 +31,8 @@ import androidx.compose.ui.input.InputModeManager
 import androidx.compose.ui.input.pointer.PointerIconService
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.node.Owner
-import androidx.compose.ui.text.ExperimentalTextApi
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.input.PlatformTextInputPluginRegistry
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -92,13 +92,12 @@ val LocalFocusManager = staticCompositionLocalOf<FocusManager> {
 
 /**
  * The CompositionLocal to provide platform font loading methods.
- *
- * @suppress
  */
 @Suppress("DEPRECATION")
 @Deprecated("LocalFontLoader is replaced with LocalFontFamilyResolver",
     replaceWith = ReplaceWith("LocalFontFamilyResolver")
 )
+@get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 val LocalFontLoader = staticCompositionLocalOf<Font.ResourceLoader> {
     noLocalProvidedFor("LocalFontLoader")
 }
@@ -138,19 +137,12 @@ val LocalLayoutDirection = staticCompositionLocalOf<LayoutDirection> {
 val LocalTextInputService = staticCompositionLocalOf<TextInputService?> { null }
 
 /**
- * The CompositionLocal to provide platform text input services.
+ * The [CompositionLocal] to provide a [SoftwareKeyboardController] that can control the current
+ * software keyboard.
  *
- * This is a low-level API for code that talks directly to the platform input method framework.
- * Higher-level text input APIs in the Foundation library are more appropriate for most cases.
+ * Will be null if the software keyboard cannot be controlled.
  */
-// Experimental in desktop.
-@Suppress("OPT_IN_MARKER_ON_WRONG_TARGET")
-@ExperimentalTextApi
-@get:ExperimentalTextApi
-val LocalPlatformTextInputPluginRegistry =
-    staticCompositionLocalOf<PlatformTextInputPluginRegistry> {
-        error("No PlatformTextInputPluginRegistry provided")
-    }
+val LocalSoftwareKeyboardController = staticCompositionLocalOf<SoftwareKeyboardController?> { null }
 
 /**
  * The CompositionLocal to provide text-related toolbar.
@@ -184,7 +176,6 @@ internal val LocalPointerIconService = staticCompositionLocalOf<PointerIconServi
     null
 }
 
-@OptIn(ExperimentalTextApi::class)
 @ExperimentalComposeUiApi
 @Composable
 internal fun ProvideCommonCompositionLocals(
@@ -206,7 +197,7 @@ internal fun ProvideCommonCompositionLocals(
         LocalInputModeManager provides owner.inputModeManager,
         LocalLayoutDirection provides owner.layoutDirection,
         LocalTextInputService provides owner.textInputService,
-        LocalPlatformTextInputPluginRegistry provides owner.platformTextInputPluginRegistry,
+        LocalSoftwareKeyboardController provides owner.softwareKeyboardController,
         LocalTextToolbar provides owner.textToolbar,
         LocalUriHandler provides uriHandler,
         LocalViewConfiguration provides owner.viewConfiguration,

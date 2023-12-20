@@ -32,6 +32,7 @@ class TestActivity : RecreatedAppCompatActivity(R.layout.activity_test_layout) {
         onCreateCallback(this)
 
         // disable enter animation.
+        @Suppress("Deprecation")
         overridePendingTransition(0, 0)
     }
 
@@ -39,6 +40,7 @@ class TestActivity : RecreatedAppCompatActivity(R.layout.activity_test_layout) {
         super.finish()
 
         // disable exit animation
+        @Suppress("Deprecation")
         overridePendingTransition(0, 0)
     }
 

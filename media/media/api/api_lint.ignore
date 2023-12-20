@@ -661,6 +661,14 @@ MutableBareField: android.support.v4.media.session.ParcelableVolumeInfo#volumeTy
     Bare field volumeType must be marked final, or moved behind accessors if mutable
 
 
+NotCloseable: android.support.v4.media.MediaBrowserCompat:
+    Classes that release resources (disconnect()) should implement AutoCloseable and CloseGuard: class android.support.v4.media.MediaBrowserCompat
+NotCloseable: android.support.v4.media.session.MediaControllerCompat.TransportControls:
+    Classes that release resources (stop()) should implement AutoCloseable and CloseGuard: class android.support.v4.media.session.MediaControllerCompat.TransportControls
+NotCloseable: android.support.v4.media.session.MediaSessionCompat:
+    Classes that release resources (release()) should implement AutoCloseable and CloseGuard: class android.support.v4.media.session.MediaSessionCompat
+
+
 NullableCollection: android.support.v4.media.MediaBrowserCompat#getExtras():
     Return type of method android.support.v4.media.MediaBrowserCompat.getExtras() is a nullable collection (`android.os.Bundle`); must be non-null
 NullableCollection: android.support.v4.media.MediaDescriptionCompat#getExtras():

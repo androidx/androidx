@@ -323,7 +323,9 @@ internal class NodeChain(val layoutNode: LayoutNode) {
         val infoList = MutableVector<ModifierInfo>(current.size)
         var i = 0
         headToTailExclusive { node ->
-            val coordinator = requireNotNull(node.coordinator)
+            val coordinator = requireNotNull(node.coordinator) {
+                "getModifierInfo called on node with no coordinator"
+            }
             // placeWithLayer puts the layer on the _next_ coordinator
             //
             // - If the last node does placeWithLayer, the layer is on the innerCoordinator
@@ -586,7 +588,7 @@ internal class NodeChain(val layoutNode: LayoutNode) {
             }
             else -> BackwardsCompatNode(element)
         }
-        check(!node.isAttached)
+        check(!node.isAttached) { "createAndInsertNodeAsParent called on an attached node" }
         node.insertedNodeAwaitingAttachForInvalidation = true
         return insertParent(node, child)
     }
@@ -827,6 +829,7 @@ private fun Modifier.fillVector(
 ): MutableVector<Modifier.Element> {
     val capacity = result.size.coerceAtLeast(16)
     val stack = MutableVector<Modifier>(capacity).also { it.add(this) }
+    var predicate: ((Modifier.Element) -> Boolean)? = null
     while (stack.isNotEmpty()) {
         when (val next = stack.removeAt(stack.size - 1)) {
             is CombinedModifier -> {
@@ -835,10 +838,11 @@ private fun Modifier.fillVector(
             }
             is Modifier.Element -> result.add(next)
             // some other androidx.compose.ui.node.Modifier implementation that we don't know about...
-            else -> next.all {
-                result.add(it)
+            // late-allocate the predicate only once for the entire stack
+            else -> next.all(predicate ?: { element: Modifier.Element ->
+                result.add(element)
                 true
-            }
+            }.also { predicate = it })
         }
     }
     return result

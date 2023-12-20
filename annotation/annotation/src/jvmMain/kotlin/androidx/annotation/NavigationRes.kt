@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be a navigation resource reference (e.g. `R.navigation.flow`).
+ * Denotes that an integer parameter, field or method return value is expected to be a navigation
+ * resource reference (e.g. `R.navigation.flow`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XConstructorType
+import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XFiler
 import androidx.room.compiler.processing.XMessager
@@ -28,11 +29,15 @@ import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.XTypeElementStore
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getClassDeclarationByName
+import com.google.devtools.ksp.processing.JvmPlatformInfo
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFile
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSPropertyDeclaration
 import com.google.devtools.ksp.symbol.KSType
 import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeArgument
@@ -50,10 +55,19 @@ internal class KspProcessingEnv(
     private val logger = delegate.logger
     private val codeGenerator = delegate.codeGenerator
 
-    // No API to get this but Kotlin's default is 8, so go with it for now.
-    // TODO: https://github.com/google/ksp/issues/810
-    override val jvmVersion: Int
-        get() = 8
+    private val jvmPlatformInfo by lazy {
+        delegate.platforms.filterIsInstance<JvmPlatformInfo>().firstOrNull()
+    }
+
+    override val jvmVersion by lazy {
+       when (val jvmTarget = jvmPlatformInfo?.jvmTarget) {
+           // Special case "1.8" since it is the only valid value with the 1.x notation, it is
+           // also the default value.
+           // See https://kotlinlang.org/docs/compiler-reference.html#jvm-target-version
+           "1.8", null -> 8
+           else -> jvmTarget.toInt()
+       }
+    }
 
     private val ksFileMemberContainers = mutableMapOf<KSFile, KspFileMemberContainer>()
 
@@ -98,15 +112,18 @@ internal class KspProcessingEnv(
     override val filer: XFiler = KspFiler(codeGenerator, messager)
 
     val commonTypes
-        get() = CommonTypes(resolver)
+        get() = CommonTypes()
 
     val voidType
         get() = KspVoidType(
             env = this,
             ksType = resolver.builtIns.unitType,
             boxed = false,
-            scope = null
         )
+
+    internal val jvmDefaultMode by lazy {
+        jvmPlatformInfo?.let { JvmDefaultMode.fromStringOrNull(it.jvmDefaultMode) }
+    }
 
     override fun findTypeElement(qName: String): KspTypeElement? {
         return typeElementStore[qName]
@@ -189,6 +206,18 @@ internal class KspProcessingEnv(
         return arrayTypeFactory.createWithComponentType(type)
     }
 
+    @OptIn(KspExperimental::class)
+    override fun getElementsFromPackage(packageName: String): List<XElement> {
+        return resolver.getDeclarationsFromPackage(packageName).map {
+            when (it) {
+                is KSClassDeclaration -> wrapClassDeclaration(it)
+                is KSPropertyDeclaration -> KspFieldElement.create(this, it)
+                is KSFunctionDeclaration -> KspMethodElement.create(this, it)
+                else -> error("Unknown element type")
+            }
+        }.toList()
+    }
+
     /**
      * Wraps the given `ksType`.
      *
@@ -200,6 +229,7 @@ internal class KspProcessingEnv(
         ksType: KSType
     ): KspType {
         return wrap(
+            originalAnnotations = originatingReference.annotations,
             ksType = ksType,
             allowPrimitives = !originatingReference.isTypeParameterReference()
         )
@@ -218,8 +248,19 @@ internal class KspProcessingEnv(
     fun wrap(ksTypeArgument: KSTypeArgument): KspType {
         val typeRef = ksTypeArgument.type
         if (typeRef != null && ksTypeArgument.variance == Variance.INVARIANT) {
+            val declaration = typeRef.resolve().declaration
+            // inline classes can't be non-invariant.
+            if (declaration.isValueClass()) {
+                return KspValueClassArgumentType(
+                    env = this,
+                    typeArg = ksTypeArgument,
+                    originalKSAnnotations = ksTypeArgument.annotations
+                )
+            }
+
             // fully resolved type argument, return regular type.
             return wrap(
+                ksTypeArgument.annotations,
                 ksType = typeRef.resolve(),
                 allowPrimitives = false
             )
@@ -227,7 +268,6 @@ internal class KspProcessingEnv(
         return KspTypeArgumentType(
             env = this,
             typeArg = ksTypeArgument,
-            scope = null
         )
     }
 
@@ -240,43 +280,39 @@ internal class KspProcessingEnv(
      * decision.
      */
     fun wrap(ksType: KSType, allowPrimitives: Boolean): KspType {
+        return wrap(ksType.annotations, ksType, allowPrimitives)
+    }
+
+    fun wrap(
+        originalAnnotations: Sequence<KSAnnotation>,
+        ksType: KSType,
+        allowPrimitives: Boolean
+    ): KspType {
         val declaration = ksType.declaration
         if (declaration is KSTypeAlias) {
-            val actual = wrap(
-                ksType = declaration.type.resolve().replace(ksType.arguments),
+            return wrap(
+                originalAnnotations = originalAnnotations,
+                ksType = ksType.replaceTypeAliases(resolver),
                 allowPrimitives = allowPrimitives && ksType.nullability == Nullability.NOT_NULL
-            )
-            // if this type is nullable, carry it over
-            return if (ksType.nullability == Nullability.NULLABLE) {
-                actual.makeNullable()
-            } else {
-                actual
-            }
+            ).copyWithTypeAlias(ksType)
         }
         val qName = ksType.declaration.qualifiedName?.asString()
         if (declaration is KSTypeParameter) {
-            return KspTypeVariableType(
-                env = this,
-                ksType = ksType,
-                scope = null
-            )
+            return KspTypeVariableType(this, declaration, ksType, originalAnnotations)
         }
         if (allowPrimitives && qName != null && ksType.nullability == Nullability.NOT_NULL) {
             // check for primitives
             val javaPrimitive = KspTypeMapper.getPrimitiveJavaTypeName(qName)
             if (javaPrimitive != null) {
-                return KspPrimitiveType(this, ksType, scope = null)
+                return KspPrimitiveType(this, ksType, originalAnnotations)
             }
             // special case for void
             if (qName == "kotlin.Unit") {
                 return voidType
             }
         }
-        return arrayTypeFactory.createIfArray(ksType) ?: DefaultKspType(
-            this,
-            ksType,
-            scope = null
-        )
+        return arrayTypeFactory.createIfArray(ksType)
+            ?: DefaultKspType(this, ksType, originalAnnotations)
     }
 
     fun wrapClassDeclaration(declaration: KSClassDeclaration): KspTypeElement {
@@ -324,15 +360,22 @@ internal class KspProcessingEnv(
         return returnType(type1).isSameType(returnType(type2))
     }
 
-    class CommonTypes(resolver: Resolver) {
-        val nullableInt by lazy {
-            resolver.builtIns.intType.makeNullable()
-        }
-        val nullableLong by lazy {
-            resolver.builtIns.longType.makeNullable()
-        }
-        val nullableByte by lazy {
-            resolver.builtIns.byteType.makeNullable()
+    inner class CommonTypes() {
+        val anyType: XType = requireType("kotlin.Any")
+    }
+
+    internal enum class JvmDefaultMode(val option: String) {
+        DISABLE("disable"),
+        ALL_COMPATIBILITY("all-compatibility"),
+        ALL_INCOMPATIBLE("all");
+
+        companion object {
+            fun fromStringOrNull(string: String?): JvmDefaultMode? = when (string) {
+                DISABLE.option -> DISABLE
+                ALL_COMPATIBILITY.option -> ALL_COMPATIBILITY
+                ALL_INCOMPATIBLE.option -> ALL_INCOMPATIBLE
+                else -> null
+            }
         }
     }
 }

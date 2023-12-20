@@ -59,6 +59,7 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 @SdkSuppress(minSdkVersion = 19)
+@SuppressWarnings("deprecation")
 public class SliceSerializeMetrics {
 
     private static final boolean WRITE_SAMPLE_FILE = false;

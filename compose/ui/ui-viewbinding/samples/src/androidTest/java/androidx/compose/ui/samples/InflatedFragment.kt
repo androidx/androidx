@@ -19,4 +19,4 @@ package androidx.compose.ui.samples
 import androidx.compose.ui.viewbinding.samples.R
 import androidx.fragment.app.Fragment
 
-class InflatedFragment : Fragment(R.layout.sample_layout)
+class InflatedFragment : Fragment(R.layout.sample_edit_text_layout)

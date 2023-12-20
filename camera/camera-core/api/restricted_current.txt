@@ -53,6 +53,7 @@ package androidx.camera.core {
     method public androidx.lifecycle.LiveData<androidx.camera.core.ZoomState!> getZoomState();
     method public boolean hasFlashUnit();
     method public default boolean isFocusMeteringSupported(androidx.camera.core.FocusMeteringAction);
+    method @SuppressCompatibility @androidx.camera.core.ExperimentalZeroShutterLag public default boolean isZslSupported();
   }
 
   @RequiresApi(21) public final class CameraInfoUnavailableException extends java.lang.Exception {
@@ -68,6 +69,7 @@ package androidx.camera.core {
     field public static final androidx.camera.core.CameraSelector DEFAULT_BACK_CAMERA;
     field public static final androidx.camera.core.CameraSelector DEFAULT_FRONT_CAMERA;
     field public static final int LENS_FACING_BACK = 1; // 0x1
+    field @SuppressCompatibility @androidx.camera.core.ExperimentalLensFacing public static final int LENS_FACING_EXTERNAL = 2; // 0x2
     field public static final int LENS_FACING_FRONT = 0; // 0x0
     field public static final int LENS_FACING_UNKNOWN = -1; // 0xffffffff
   }
@@ -134,6 +136,7 @@ package androidx.camera.core {
   @RequiresApi(21) public final class CameraXConfig {
     method public androidx.camera.core.CameraSelector? getAvailableCamerasLimiter(androidx.camera.core.CameraSelector?);
     method public java.util.concurrent.Executor? getCameraExecutor(java.util.concurrent.Executor?);
+    method public long getCameraOpenRetryMaxTimeoutInMillisWhileResuming();
     method public int getMinimumLoggingLevel();
     method public android.os.Handler? getSchedulerHandler(android.os.Handler?);
   }
@@ -143,6 +146,7 @@ package androidx.camera.core {
     method public static androidx.camera.core.CameraXConfig.Builder fromConfig(androidx.camera.core.CameraXConfig);
     method public androidx.camera.core.CameraXConfig.Builder setAvailableCamerasLimiter(androidx.camera.core.CameraSelector);
     method public androidx.camera.core.CameraXConfig.Builder setCameraExecutor(java.util.concurrent.Executor);
+    method public androidx.camera.core.CameraXConfig.Builder setCameraOpenRetryMaxTimeoutInMillisWhileResuming(long);
     method public androidx.camera.core.CameraXConfig.Builder setMinimumLoggingLevel(@IntRange(from=android.util.Log.DEBUG, to=android.util.Log.ERROR) int);
     method public androidx.camera.core.CameraXConfig.Builder setSchedulerHandler(android.os.Handler);
   }
@@ -165,6 +169,42 @@ package androidx.camera.core {
 
   @RequiresApi(21) public final class DisplayOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
     ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraInfo, float, float);
+  }
+
+  @RequiresApi(21) public final class DynamicRange {
+    ctor public DynamicRange(int, int);
+    method public int getBitDepth();
+    method public int getEncoding();
+    field public static final int BIT_DEPTH_10_BIT = 10; // 0xa
+    field public static final int BIT_DEPTH_8_BIT = 8; // 0x8
+    field public static final int BIT_DEPTH_UNSPECIFIED = 0; // 0x0
+    field public static final androidx.camera.core.DynamicRange DOLBY_VISION_10_BIT;
+    field public static final androidx.camera.core.DynamicRange DOLBY_VISION_8_BIT;
+    field public static final int ENCODING_DOLBY_VISION = 6; // 0x6
+    field public static final int ENCODING_HDR10 = 4; // 0x4
+    field public static final int ENCODING_HDR10_PLUS = 5; // 0x5
+    field public static final int ENCODING_HDR_UNSPECIFIED = 2; // 0x2
+    field public static final int ENCODING_HLG = 3; // 0x3
+    field public static final int ENCODING_SDR = 1; // 0x1
+    field public static final int ENCODING_UNSPECIFIED = 0; // 0x0
+    field public static final androidx.camera.core.DynamicRange HDR10_10_BIT;
+    field public static final androidx.camera.core.DynamicRange HDR10_PLUS_10_BIT;
+    field public static final androidx.camera.core.DynamicRange HDR_UNSPECIFIED_10_BIT;
+    field public static final androidx.camera.core.DynamicRange HLG_10_BIT;
+    field public static final androidx.camera.core.DynamicRange SDR;
+    field public static final androidx.camera.core.DynamicRange UNSPECIFIED;
+  }
+
+  @SuppressCompatibility @RequiresApi(21) @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalGetImage {
+  }
+
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalLensFacing {
+  }
+
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalUseCaseApi {
+  }
+
+  @SuppressCompatibility @RequiresOptIn @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface ExperimentalZeroShutterLag {
   }
 
   @RequiresApi(21) public interface ExposureState {
@@ -205,6 +245,7 @@ package androidx.camera.core {
 
   @RequiresApi(21) public final class ImageAnalysis extends androidx.camera.core.UseCase {
     method public void clearAnalyzer();
+    method @SuppressCompatibility @androidx.camera.core.ExperimentalUseCaseApi public java.util.concurrent.Executor? getBackgroundExecutor();
     method public int getBackpressureStrategy();
     method public int getImageQueueDepth();
     method public int getOutputImageFormat();
@@ -214,7 +255,6 @@ package androidx.camera.core {
     method public boolean isOutputImageRotationEnabled();
     method public void setAnalyzer(java.util.concurrent.Executor, androidx.camera.core.ImageAnalysis.Analyzer);
     method public void setTargetRotation(int);
-    method @Deprecated public void setTargetRotationDegrees(int);
     field public static final int COORDINATE_SYSTEM_ORIGINAL = 0; // 0x0
     field public static final int OUTPUT_IMAGE_FORMAT_RGBA_8888 = 2; // 0x2
     field public static final int OUTPUT_IMAGE_FORMAT_YUV_420_888 = 1; // 0x1
@@ -250,15 +290,17 @@ package androidx.camera.core {
     method @IntRange(from=1, to=100) public int getJpegQuality();
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getResolutionSelector();
+    method public androidx.camera.core.ImageCapture.ScreenFlashUiControl? getScreenFlashUiControl();
     method public int getTargetRotation();
     method public void setCropAspectRatio(android.util.Rational);
     method public void setFlashMode(int);
+    method public void setScreenFlashUiControl(androidx.camera.core.ImageCapture.ScreenFlashUiControl?);
     method public void setTargetRotation(int);
-    method @Deprecated public void setTargetRotationDegrees(int);
-    method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     method public void takePicture(androidx.camera.core.ImageCapture.OutputFileOptions, java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageSavedCallback);
+    method public void takePicture(java.util.concurrent.Executor, androidx.camera.core.ImageCapture.OnImageCapturedCallback);
     field public static final int CAPTURE_MODE_MAXIMIZE_QUALITY = 0; // 0x0
     field public static final int CAPTURE_MODE_MINIMIZE_LATENCY = 1; // 0x1
+    field @SuppressCompatibility @androidx.camera.core.ExperimentalZeroShutterLag public static final int CAPTURE_MODE_ZERO_SHUTTER_LAG = 2; // 0x2
     field public static final int ERROR_CAMERA_CLOSED = 3; // 0x3
     field public static final int ERROR_CAPTURE_FAILED = 2; // 0x2
     field public static final int ERROR_FILE_IO = 1; // 0x1
@@ -267,6 +309,8 @@ package androidx.camera.core {
     field public static final int FLASH_MODE_AUTO = 0; // 0x0
     field public static final int FLASH_MODE_OFF = 2; // 0x2
     field public static final int FLASH_MODE_ON = 1; // 0x1
+    field public static final int FLASH_MODE_SCREEN = 3; // 0x3
+    field public static final long SCREEN_FLASH_UI_APPLY_TIMEOUT_SECONDS = 3L; // 0x3L
   }
 
   public static final class ImageCapture.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.ImageCapture> {
@@ -277,6 +321,7 @@ package androidx.camera.core {
     method public androidx.camera.core.ImageCapture.Builder setIoExecutor(java.util.concurrent.Executor);
     method public androidx.camera.core.ImageCapture.Builder setJpegQuality(@IntRange(from=1, to=100) int);
     method public androidx.camera.core.ImageCapture.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
+    method public androidx.camera.core.ImageCapture.Builder setScreenFlashUiControl(androidx.camera.core.ImageCapture.ScreenFlashUiControl);
     method @Deprecated public androidx.camera.core.ImageCapture.Builder setTargetAspectRatio(int);
     method public androidx.camera.core.ImageCapture.Builder setTargetName(String);
     method @Deprecated public androidx.camera.core.ImageCapture.Builder setTargetResolution(android.util.Size);
@@ -308,8 +353,8 @@ package androidx.camera.core {
   }
 
   public static final class ImageCapture.OutputFileOptions.Builder {
-    ctor public ImageCapture.OutputFileOptions.Builder(java.io.File);
     ctor public ImageCapture.OutputFileOptions.Builder(android.content.ContentResolver, android.net.Uri, android.content.ContentValues);
+    ctor public ImageCapture.OutputFileOptions.Builder(java.io.File);
     ctor public ImageCapture.OutputFileOptions.Builder(java.io.OutputStream);
     method public androidx.camera.core.ImageCapture.OutputFileOptions build();
     method public androidx.camera.core.ImageCapture.OutputFileOptions.Builder setMetadata(androidx.camera.core.ImageCapture.Metadata);
@@ -317,6 +362,15 @@ package androidx.camera.core {
 
   public static class ImageCapture.OutputFileResults {
     method public android.net.Uri? getSavedUri();
+  }
+
+  public static interface ImageCapture.ScreenFlashUiCompleter {
+    method public void complete();
+  }
+
+  public static interface ImageCapture.ScreenFlashUiControl {
+    method @UiThread public void applyScreenFlashUi(androidx.camera.core.ImageCapture.ScreenFlashUiCompleter);
+    method @UiThread public void clearScreenFlashUi();
   }
 
   @RequiresApi(21) public class ImageCaptureException extends java.lang.Exception {
@@ -348,6 +402,7 @@ package androidx.camera.core {
     method public android.graphics.Rect getCropRect();
     method public int getFormat();
     method public int getHeight();
+    method @SuppressCompatibility @androidx.camera.core.ExperimentalGetImage public android.media.Image? getImage();
     method public androidx.camera.core.ImageInfo getImageInfo();
     method public androidx.camera.core.ImageProxy.PlaneProxy![] getPlanes();
     method public int getWidth();
@@ -384,18 +439,21 @@ package androidx.camera.core {
   }
 
   @RequiresApi(21) public final class Preview extends androidx.camera.core.UseCase {
+    method public static androidx.camera.core.PreviewCapabilities getPreviewCapabilities(androidx.camera.core.CameraInfo);
     method public androidx.camera.core.ResolutionInfo? getResolutionInfo();
     method public androidx.camera.core.resolutionselector.ResolutionSelector? getResolutionSelector();
     method public android.util.Range<java.lang.Integer!> getTargetFrameRate();
     method public int getTargetRotation();
-    method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
+    method public boolean isPreviewStabilizationEnabled();
     method @UiThread public void setSurfaceProvider(androidx.camera.core.Preview.SurfaceProvider?);
+    method @UiThread public void setSurfaceProvider(java.util.concurrent.Executor, androidx.camera.core.Preview.SurfaceProvider?);
     method public void setTargetRotation(int);
   }
 
   public static final class Preview.Builder implements androidx.camera.core.ExtendableBuilder<androidx.camera.core.Preview> {
     ctor public Preview.Builder();
     method public androidx.camera.core.Preview build();
+    method public androidx.camera.core.Preview.Builder setPreviewStabilizationEnabled(boolean);
     method public androidx.camera.core.Preview.Builder setResolutionSelector(androidx.camera.core.resolutionselector.ResolutionSelector);
     method @Deprecated public androidx.camera.core.Preview.Builder setTargetAspectRatio(int);
     method public androidx.camera.core.Preview.Builder setTargetFrameRate(android.util.Range<java.lang.Integer!>);
@@ -406,6 +464,10 @@ package androidx.camera.core {
 
   public static interface Preview.SurfaceProvider {
     method public void onSurfaceRequested(androidx.camera.core.SurfaceRequest);
+  }
+
+  @RequiresApi(21) public interface PreviewCapabilities {
+    method public boolean isStabilizationSupported();
   }
 
   public class ProcessingException extends java.lang.Exception {
@@ -446,6 +508,7 @@ package androidx.camera.core {
   @RequiresApi(21) public final class SurfaceRequest {
     method public void addRequestCancellationListener(java.util.concurrent.Executor, Runnable);
     method public void clearTransformationInfoListener();
+    method public androidx.camera.core.DynamicRange getDynamicRange();
     method public android.util.Size getResolution();
     method public boolean invalidate();
     method public void provideSurface(android.view.Surface, java.util.concurrent.Executor, androidx.core.util.Consumer<androidx.camera.core.SurfaceRequest.Result!>);
@@ -543,8 +606,8 @@ package androidx.camera.core.resolutionselector {
     method public androidx.camera.core.resolutionselector.AspectRatioStrategy getAspectRatioStrategy();
     method public androidx.camera.core.resolutionselector.ResolutionFilter? getResolutionFilter();
     method public androidx.camera.core.resolutionselector.ResolutionStrategy? getResolutionStrategy();
-    field public static final int ALLOWED_RESOLUTIONS_NORMAL = 0; // 0x0
-    field public static final int ALLOWED_RESOLUTIONS_SLOW = 1; // 0x1
+    field public static final int PREFER_CAPTURE_RATE_OVER_HIGHER_RESOLUTION = 0; // 0x0
+    field public static final int PREFER_HIGHER_RESOLUTION_OVER_CAPTURE_RATE = 1; // 0x1
   }
 
   public static final class ResolutionSelector.Builder {

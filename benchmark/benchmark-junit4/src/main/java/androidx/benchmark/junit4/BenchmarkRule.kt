@@ -17,11 +17,15 @@
 package androidx.benchmark.junit4
 
 import android.Manifest
+import android.os.Build
 import android.util.Log
 import androidx.annotation.RestrictTo
 import androidx.benchmark.Arguments
 import androidx.benchmark.BenchmarkState
-import androidx.benchmark.UserspaceTracing
+import androidx.benchmark.DeviceInfo
+import androidx.benchmark.ExperimentalBenchmarkConfigApi
+import androidx.benchmark.MicrobenchmarkConfig
+import androidx.benchmark.perfetto.PerfettoCapture
 import androidx.benchmark.perfetto.PerfettoCaptureWrapper
 import androidx.benchmark.perfetto.PerfettoConfig
 import androidx.benchmark.perfetto.UiState
@@ -80,21 +84,25 @@ import org.junit.runners.model.Statement
  * See the [Benchmark Guide](https://developer.android.com/studio/profile/benchmark)
  * for more information on writing Benchmarks.
  */
-public class BenchmarkRule internal constructor(
+public class BenchmarkRule private constructor(
+    private val config: MicrobenchmarkConfig?,
     /**
-     * Used to disable reporting, for correctness tests that shouldn't report values
-     * (and would trigger warnings if they did, e.g. debuggable=true)
-     * Is always true when called non-internally.
+     * This param is ignored, and just present to disambiguate the internal (nullable) vs external
+     * (non-null) variants of the constructor, since a lint failure occurs if they have the same
+     * signature, even if the external variant uses `this(config as MicrobenchmarkConfig?)`.
+     *
+     * In the future, we should just always pass a "default" config object, which can reference
+     * default values from Arguments, but that's a deeper change.
      */
-    private val enableReport: Boolean,
-    private val packages: List<String> = emptyList() // TODO: revisit if needed
+    @Suppress("UNUSED_PARAMETER") ignored: Boolean = true
 ) : TestRule {
-    public constructor() : this(true)
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public constructor(packages: List<String>) : this(true, packages)
+    constructor() : this(config = null, ignored = true)
+
+    @ExperimentalBenchmarkConfigApi
+    constructor(config: MicrobenchmarkConfig) : this(config, ignored = true)
 
     internal // synthetic access
-    val internalState = BenchmarkState()
+    var internalState = BenchmarkState(config)
 
     /**
      * Object used for benchmarking in Java.
@@ -131,8 +139,7 @@ public class BenchmarkRule internal constructor(
     internal // synthetic access
     var applied = false
 
-    /** @suppress */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
     public val scope: Scope = Scope()
 
     /**
@@ -209,24 +216,39 @@ public class BenchmarkRule internal constructor(
             val uniqueName = description.testClass.simpleName + "_" + invokeMethodName
             internalState.traceUniqueName = uniqueName
 
-            var userspaceTrace: perfetto.protos.Trace? = null
-
             val tracePath = PerfettoCaptureWrapper().record(
                 fileLabel = uniqueName,
-                config = PerfettoConfig.Benchmark(packages),
-                userspaceTracingPackage = null
+                config = PerfettoConfig.Benchmark(
+                    appTagPackages = if (config?.shouldEnableTraceAppTag == true) {
+                        listOf(InstrumentationRegistry.getInstrumentation().context.packageName)
+                    } else {
+                        emptyList()
+                    },
+                    useStackSamplingConfig = false
+                ),
+                // TODO(290918736): add support for Perfetto SDK Tracing in
+                //  Microbenchmark in other cases, outside of MicrobenchmarkConfig
+                perfettoSdkConfig = if (config?.shouldEnablePerfettoSdkTracing == true &&
+                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+                ) {
+                    PerfettoCapture.PerfettoSdkConfig(
+                        InstrumentationRegistry.getInstrumentation().context.packageName,
+                        PerfettoCapture.PerfettoSdkConfig.InitialProcessState.Alive
+                    )
+                } else {
+                    null
+                },
+
+                // Optimize throughput in dryRunMode, since trace isn't useful, and extremely
+                //   expensive on some emulators. Could alternately use UserspaceTracing if desired
+                // Additionally, skip on misconfigured devices to still enable benchmarking.
+                enableTracing = !Arguments.dryRunMode && !DeviceInfo.misconfiguredForTracing,
+                inMemoryTracingLabel = "Microbenchmark"
             ) {
-                UserspaceTracing.commitToTrace() // clear buffer
-
                 trace(description.displayName) { base.evaluate() }
-
-                // To avoid b/174007010, userspace tracing is cleared and saved *during* trace, so
-                // that events won't lie outside the bounds of the trace content.
-                userspaceTrace = UserspaceTracing.commitToTrace()
             }?.apply {
                 // trace completed, and copied into shell writeable dir
                 val file = File(this)
-                file.appendBytes(userspaceTrace!!.encode())
                 file.appendUiState(
                     UiState(
                         timelineStart = null,
@@ -237,14 +259,12 @@ public class BenchmarkRule internal constructor(
                 )
             }
 
-            if (enableReport) {
-                internalState.report(
-                    fullClassName = description.className,
-                    simpleClassName = description.testClass.simpleName,
-                    methodName = invokeMethodName,
-                    tracePath = tracePath
-                )
-            }
+            internalState.report(
+                fullClassName = description.className,
+                simpleClassName = description.testClass.simpleName,
+                methodName = invokeMethodName,
+                tracePath = tracePath
+            )
         }
 
     internal companion object {

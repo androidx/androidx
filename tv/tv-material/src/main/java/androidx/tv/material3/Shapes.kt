@@ -65,6 +65,7 @@ import androidx.tv.material3.tokens.ShapeTokens
  * @param extraLarge A shape style with 4 same-sized corners whose size are bigger than
  * [Shapes.large] and smaller than [CircleShape]. By default large FABs use this shape.
  */
+@ExperimentalTvMaterial3Api
 @Immutable
 class Shapes(
     // Shapes None and Full are omitted as None is a RectangleShape and Full is a CircleShape.
@@ -122,6 +123,7 @@ class Shapes(
 /**
  * Contains the default values used by [Shapes]
  */
+@ExperimentalTvMaterial3Api
 object ShapeDefaults {
     /** Extra small sized corner shape */
     val ExtraSmall: CornerBasedShape = ShapeTokens.CornerExtraSmall
@@ -154,6 +156,7 @@ internal fun CornerBasedShape.end(): CornerBasedShape {
  * tokens:
  * ``MaterialTheme.shapes.fromToken(FabPrimarySmallTokens.ContainerShape)``
  */
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
     return when (value) {
         ShapeKeyTokens.CornerExtraLarge -> extraLarge
@@ -171,10 +174,12 @@ internal fun Shapes.fromToken(value: ShapeKeyTokens): Shape {
 }
 
 /** Converts a shape token key to the local shape provided by the theme */
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun ShapeKeyTokens.toShape(): Shape {
     return MaterialTheme.shapes.fromToken(this)
 }
 
 /** CompositionLocal used to specify the default shapes for the surfaces. */
+@OptIn(ExperimentalTvMaterial3Api::class)
 internal val LocalShapes = staticCompositionLocalOf { Shapes() }

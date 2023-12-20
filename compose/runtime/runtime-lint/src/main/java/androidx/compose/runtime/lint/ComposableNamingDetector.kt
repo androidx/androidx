@@ -48,10 +48,12 @@ class ComposableNamingDetector : Detector(), SourceCodeScanner {
             // Ignore non-composable functions
             if (!node.isComposable) return
 
-            // Ignore operator functions and any override of an operator function, as their name
-            // is case sensitive and cannot be changed
+            // Ignore operator functions as their name is case sensitive and cannot be changed
             if (context.evaluator.isOperator(node)) return
-            if (node.findSuperMethods().any { context.evaluator.isOperator(it) }) return
+
+            // Ignore overrides as the check will flag the base function. This also ignores a
+            // special case where a generic return type and a Unit type parameter is used.
+            if (node.findSuperMethods().isNotEmpty()) return
 
             val name = node.name
 

@@ -53,7 +53,7 @@ public final class ResourceBuilders {
      * @since 1.0
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({IMAGE_FORMAT_UNDEFINED, IMAGE_FORMAT_RGB_565})
+    @IntDef({IMAGE_FORMAT_UNDEFINED, IMAGE_FORMAT_RGB_565, IMAGE_FORMAT_ARGB_8888})
     @Retention(RetentionPolicy.SOURCE)
     public @interface ImageFormat {}
 
@@ -71,6 +71,14 @@ public final class ResourceBuilders {
      * @since 1.0
      */
     public static final int IMAGE_FORMAT_RGB_565 = 1;
+
+    /**
+     * An image format where each pixel is stored on 4 bytes. RGB and alpha (for translucency) is
+     * stored with 8 bits of precision.
+     *
+     * @since 1.2
+     */
+    public static final int IMAGE_FORMAT_ARGB_8888 = 2;
 
     /**
      * Format describing the contents of an animated image.
@@ -118,10 +126,8 @@ public final class ResourceBuilders {
         public int getResourceId() {
             return mImpl.getResourceId();
         }
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidImageResourceByResId fromProto(
@@ -129,10 +135,7 @@ public final class ResourceBuilders {
             return new AndroidImageResourceByResId(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.AndroidImageResourceByResId toProto() {
@@ -150,6 +153,7 @@ public final class ResourceBuilders {
             private final ResourceProto.AndroidImageResourceByResId.Builder mImpl =
                     ResourceProto.AndroidImageResourceByResId.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -229,10 +233,8 @@ public final class ResourceBuilders {
         public int getFormat() {
             return mImpl.getFormat().getNumber();
         }
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static InlineImageResource fromProto(
@@ -240,10 +242,7 @@ public final class ResourceBuilders {
             return new InlineImageResource(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.InlineImageResource toProto() {
@@ -270,6 +269,7 @@ public final class ResourceBuilders {
             private final ResourceProto.InlineImageResource.Builder mImpl =
                     ResourceProto.InlineImageResource.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -377,10 +377,8 @@ public final class ResourceBuilders {
                 return null;
             }
         }
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidAnimatedImageResourceByResId fromProto(
@@ -388,10 +386,7 @@ public final class ResourceBuilders {
             return new AndroidAnimatedImageResourceByResId(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.AndroidAnimatedImageResourceByResId toProto() {
@@ -416,6 +411,7 @@ public final class ResourceBuilders {
             private final ResourceProto.AndroidAnimatedImageResourceByResId.Builder mImpl =
                     ResourceProto.AndroidAnimatedImageResourceByResId.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -515,10 +511,8 @@ public final class ResourceBuilders {
                 return null;
             }
         }
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static AndroidSeekableAnimatedImageResourceByResId fromProto(
@@ -526,10 +520,7 @@ public final class ResourceBuilders {
             return new AndroidSeekableAnimatedImageResourceByResId(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.AndroidSeekableAnimatedImageResourceByResId toProto() {
@@ -554,6 +545,7 @@ public final class ResourceBuilders {
             private final ResourceProto.AndroidSeekableAnimatedImageResourceByResId.Builder mImpl =
                     ResourceProto.AndroidSeekableAnimatedImageResourceByResId.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -680,20 +672,15 @@ public final class ResourceBuilders {
                 return null;
             }
         }
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static ImageResource fromProto(@NonNull ResourceProto.ImageResource proto) {
             return new ImageResource(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.ImageResource toProto() {
@@ -721,6 +708,7 @@ public final class ResourceBuilders {
             private final ResourceProto.ImageResource.Builder mImpl =
                     ResourceProto.ImageResource.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**
@@ -830,20 +818,14 @@ public final class ResourceBuilders {
             return Collections.unmodifiableMap(map);
         }
 
-        /**
-         * Creates a new wrapper instance from the proto.
-         *
-         */
+        /** Creates a new wrapper instance from the proto. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public static Resources fromProto(@NonNull ResourceProto.Resources proto) {
             return new Resources(proto);
         }
 
-        /**
-         * Returns the internal proto instance.
-         *
-         */
+        /** Returns the internal proto instance. */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
         public ResourceProto.Resources toProto() {
@@ -866,6 +848,7 @@ public final class ResourceBuilders {
             private final ResourceProto.Resources.Builder mImpl =
                     ResourceProto.Resources.newBuilder();
 
+            /** Creates an instance of {@link Builder}. */
             public Builder() {}
 
             /**

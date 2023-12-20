@@ -108,3 +108,85 @@ fun ChainsAnimatedOrientationDemo() {
         }
     }
 }
+
+@Preview
+@Composable
+fun ChainsAnimatedOrientationDemo1() {
+    val boxColors = listOf(Color.Red, Color.Blue, Color.Green)
+    var isHorizontal by remember { mutableStateOf(true) }
+
+    Column(Modifier.fillMaxSize()) {
+        ConstraintLayout(
+            animateChanges = true, // Set to true, to automatically animate on ConstraintSet changes
+            animationSpec = tween(800),
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1.0f, true)
+        ) {
+            val (box0, box1, box2) = createRefs()
+
+            if (isHorizontal) {
+                createHorizontalChain(
+                    box0,
+                    box1.withChainParams(8.dp, 8.dp, 8.dp, 8.dp),
+                    box2
+                )
+            } else {
+                createVerticalChain(
+                    box0,
+                    box1.withChainParams(8.dp, 8.dp, 8.dp, 8.dp),
+                    box2
+                )
+            }
+
+            Box(
+                modifier = Modifier
+                    .constrainAs(box0) {
+                        if (isHorizontal) {
+                            width = Dimension.fillToConstraints
+                            height = Dimension.value(20.dp)
+                            centerVerticallyTo(parent)
+                        } else {
+                            width = Dimension.value(20.dp)
+                            height = Dimension.fillToConstraints
+                            centerHorizontallyTo(parent)
+                        }
+                    }
+                    .background(boxColors[0])
+            )
+            Box(
+                modifier = Modifier
+                    .constrainAs(box1) {
+                        if (isHorizontal) {
+                            width = Dimension.fillToConstraints
+                            height = Dimension.ratio("2:1")
+                            centerVerticallyTo(parent)
+                        } else {
+                            width = Dimension.ratio("2:1")
+                            height = Dimension.fillToConstraints
+                            centerHorizontallyTo(parent)
+                        }
+                    }
+                    .background(boxColors[1])
+            )
+            Box(
+                modifier = Modifier
+                    .constrainAs(box2) {
+                        if (isHorizontal) {
+                            width = Dimension.fillToConstraints
+                            height = Dimension.value(20.dp)
+                            centerVerticallyTo(parent)
+                        } else {
+                            width = Dimension.value(20.dp)
+                            height = Dimension.fillToConstraints
+                            centerHorizontallyTo(parent)
+                        }
+                    }
+                    .background(boxColors[2])
+            )
+        }
+        Button(onClick = { isHorizontal = !isHorizontal }) {
+            Text(text = "Toggle Orientation")
+        }
+    }
+}

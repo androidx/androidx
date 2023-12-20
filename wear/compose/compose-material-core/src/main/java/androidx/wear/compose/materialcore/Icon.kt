@@ -20,6 +20,7 @@ import androidx.annotation.RestrictTo
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Size
@@ -55,8 +56,9 @@ fun Icon(
     modifier: Modifier,
     tint: Color
 ) {
-    // TODO: b/149735981 semantics for content description
-    val colorFilter = if (tint == Color.Unspecified) null else ColorFilter.tint(tint)
+    val colorFilter = remember(tint) {
+        if (tint == Color.Unspecified) null else ColorFilter.tint(tint)
+    }
     val semantics = if (contentDescription != null) {
         Modifier.semantics {
             this.contentDescription = contentDescription

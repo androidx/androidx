@@ -31,7 +31,7 @@ dependencies {
     implementation(project(":room:room-paging"))
     implementation(project(":room:room-rxjava2"))
 
-    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation(libs.testExtJunitKtx)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinTestJunit) //
@@ -50,6 +50,7 @@ androidx {
     inceptionYear = "2022"
     description = "RxJava2 integration in Room Paging"
     publish = Publish.SNAPSHOT_AND_RELEASE
+    metalavaK2UastEnabled = true
 }
 
 android {

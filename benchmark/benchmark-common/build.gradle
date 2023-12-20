@@ -15,7 +15,7 @@
  */
 
 import androidx.build.Publish
-import androidx.build.SupportConfigKt
+import androidx.build.AndroidXConfig
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -28,15 +28,28 @@ plugins {
 android {
     sourceSets {
         main.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
+                AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/tracebox"
         )
         androidTest.assets.srcDirs += new File(
-                SupportConfigKt.getPrebuiltsRoot(project),
+                AndroidXConfig.getPrebuiltsRoot(project),
                 "androidx/traceprocessor/testdata"
         )
     }
     namespace "androidx.benchmark"
+    defaultConfig {
+        externalNativeBuild {
+            cmake {
+                cppFlags ''
+            }
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            path file('src/main/cpp/CMakeLists.txt')
+            version libs.versions.cmake.get()
+        }
+    }
 }
 
 wire {
@@ -56,8 +69,8 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     api("androidx.annotation:annotation-experimental:1.0.0")
     implementation("androidx.tracing:tracing-ktx:1.0.0")
-    implementation(project(":tracing:tracing-perfetto-common"))
-    implementation(libs.testMonitor)
+    implementation(project(":tracing:tracing-perfetto-handshake"))
+    implementation("androidx.test:monitor:1.6.1")
     implementation(libs.wireRuntime)
 
     androidTestImplementation(libs.testRules)
@@ -70,13 +83,15 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2018"
     description = "Android Benchmark - Common"
+    metalavaK2UastEnabled = true
 }
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         // Enable using experimental APIs from within same version group
         freeCompilerArgs += [
-                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi"
+                "-opt-in=androidx.benchmark.ExperimentalBenchmarkConfigApi",
+                "-opt-in=androidx.benchmark.perfetto.ExperimentalPerfettoCaptureApi",
         ]
     }
 }
@@ -84,10 +99,6 @@ tasks.withType(KotlinCompile).configureEach {
 // https://github.com/square/wire/issues/1947
 // Remove when we upgrade to fixed wire library
 afterEvaluate {
-    tasks.named("compileReleaseKotlin").configure {
-        it.dependsOn("generateDebugProtos")
-    }
-    tasks.named("compileDebugKotlin").configure {
-        it.dependsOn("generateReleaseProtos")
-    }
+    tasks.named("compileReleaseKotlin").configure {it.dependsOn("generateDebugProtos")}
+    tasks.named("compileDebugKotlin").configure {it.dependsOn("generateReleaseProtos")}
 }

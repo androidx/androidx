@@ -32,7 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.testutils.assertIsEqualTo
 import androidx.compose.testutils.assertShape
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
@@ -51,8 +50,8 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -66,7 +65,6 @@ import org.junit.runner.RunWith
 
 @OptIn(
     ExperimentalTestApi::class,
-    ExperimentalComposeUiApi::class,
     ExperimentalTvMaterial3Api::class
 )
 @LargeTest
@@ -124,10 +122,37 @@ class CardTest {
         rule.onNodeWithTag(CardTag)
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
+            .assertTextEquals("1")
+    }
+
+    @Test
+    fun card_longClickSemantics() {
+        val count = mutableStateOf(0)
+        rule.setContent {
+            Card(
+                modifier = Modifier.testTag(CardTag),
+                onClick = { },
+                onLongClick = {
+                    count.value += 1
+                }
+            ) {
+                Text("${count.value}")
+                Spacer(Modifier.size(30.dp))
+            }
+        }
+
+        rule.onNodeWithTag(CardTag)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+            .requestFocus()
+            .assertIsEnabled()
+            .assertTextEquals("0")
+            .performLongKeyPress(rule, Key.DirectionCenter)
             .assertTextEquals("1")
     }
 
@@ -145,14 +170,41 @@ class CardTest {
         }
 
         rule.onNodeWithTag(CardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(CardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(count.value).isEqualTo(3)
+    }
+
+    @Test
+    fun card_longClickAction() {
+        val count = mutableStateOf(0f)
+        rule.setContent {
+            Card(
+                modifier = Modifier.testTag(CardTag),
+                onClick = { },
+                onLongClick = {
+                    count.value += 1
+                }
+            ) {
+                Text("${count.value}")
+                Spacer(Modifier.size(30.dp))
+            }
+        }
+
+        rule.onNodeWithTag(CardTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter)
+        Truth.assertThat(count.value).isEqualTo(1)
+
+        rule.onNodeWithTag(CardTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter, count = 2)
         Truth.assertThat(count.value).isEqualTo(3)
     }
 
@@ -179,7 +231,7 @@ class CardTest {
 
         rule.runOnIdle { Truth.assertThat(interactions).isEmpty() }
 
-        rule.onNodeWithTag(CardTag).performSemanticsAction(SemanticsActions.RequestFocus)
+        rule.onNodeWithTag(CardTag).requestFocus()
 
         rule.runOnIdle {
             Truth.assertThat(interactions).hasSize(1)
@@ -213,10 +265,38 @@ class CardTest {
         rule.onNodeWithTag(ClassicCardTag)
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
+            .assertTextEquals("1")
+    }
+
+    @Test
+    fun classicCard_longClickSemantics() {
+        val count = mutableStateOf(0)
+        rule.setContent {
+            ClassicCard(
+                modifier = Modifier
+                    .semantics(mergeDescendants = true) {}
+                    .testTag(ClassicCardTag),
+                image = { SampleImage() },
+                title = { Text("${count.value}") },
+                onClick = { },
+                onLongClick = {
+                    count.value += 1
+                }
+            )
+        }
+
+        rule.onNodeWithTag(ClassicCardTag)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+            .requestFocus()
+            .assertIsEnabled()
+            .assertTextEquals("0")
+            .performLongKeyPress(rule, Key.DirectionCenter)
             .assertTextEquals("1")
     }
 
@@ -235,14 +315,42 @@ class CardTest {
         }
 
         rule.onNodeWithTag(ClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(ClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(count.value).isEqualTo(3)
+    }
+
+    @Test
+    fun classicCard_longClickAction() {
+        val count = mutableStateOf(0f)
+        rule.setContent {
+            ClassicCard(
+                modifier = Modifier
+                    .semantics(mergeDescendants = true) {}
+                    .testTag(ClassicCardTag),
+                image = { SampleImage() },
+                title = { Text("${count.value}") },
+                onClick = { },
+                onLongClick = {
+                    count.value += 1
+                }
+            )
+        }
+
+        rule.onNodeWithTag(ClassicCardTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter)
+        Truth.assertThat(count.value).isEqualTo(1)
+
+        rule.onNodeWithTag(ClassicCardTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter, count = 2)
         Truth.assertThat(count.value).isEqualTo(3)
     }
 
@@ -320,10 +428,38 @@ class CardTest {
         rule.onNodeWithTag(CompactCardTag)
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
+            .assertTextEquals("1")
+    }
+
+    @Test
+    fun compactCard_longClickSemantics() {
+        val count = mutableStateOf(0)
+        rule.setContent {
+            CompactCard(
+                modifier = Modifier
+                    .semantics(mergeDescendants = true) {}
+                    .testTag(CompactCardTag),
+                image = { SampleImage() },
+                title = { Text("${count.value}") },
+                onClick = { },
+                onLongClick = {
+                    count.value += 1
+                }
+            )
+        }
+
+        rule.onNodeWithTag(CompactCardTag)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+            .requestFocus()
+            .assertIsEnabled()
+            .assertTextEquals("0")
+            .performLongKeyPress(rule, Key.DirectionCenter)
             .assertTextEquals("1")
     }
 
@@ -342,14 +478,42 @@ class CardTest {
         }
 
         rule.onNodeWithTag(CompactCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(CompactCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(count.value).isEqualTo(3)
+    }
+
+    @Test
+    fun compactCard_longClickAction() {
+        val count = mutableStateOf(0f)
+        rule.setContent {
+            CompactCard(
+                modifier = Modifier
+                    .semantics(mergeDescendants = true) {}
+                    .testTag(CompactCardTag),
+                image = { SampleImage() },
+                title = { Text("${count.value}") },
+                onClick = { },
+                onLongClick = {
+                    count.value += 1
+                }
+            )
+        }
+
+        rule.onNodeWithTag(CompactCardTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter)
+        Truth.assertThat(count.value).isEqualTo(1)
+
+        rule.onNodeWithTag(CompactCardTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter, count = 2)
         Truth.assertThat(count.value).isEqualTo(3)
     }
 
@@ -370,10 +534,38 @@ class CardTest {
         rule.onNodeWithTag(WideClassicCardTag)
             .assertHasClickAction()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .assertIsEnabled()
             .assertTextEquals("0")
             .performKeyInput { pressKey(Key.DirectionCenter) }
+            .assertTextEquals("1")
+    }
+
+    @Test
+    fun wideClassicCard_longClickSemantics() {
+        val count = mutableStateOf(0)
+        rule.setContent {
+            WideClassicCard(
+                modifier = Modifier
+                    .semantics(mergeDescendants = true) {}
+                    .testTag(WideClassicCardTag),
+                image = { SampleImage() },
+                title = { Text("${count.value}") },
+                onClick = { },
+                onLongClick = {
+                    count.value += 1
+                }
+            )
+        }
+
+        rule.onNodeWithTag(WideClassicCardTag)
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+            .requestFocus()
+            .assertIsEnabled()
+            .assertTextEquals("0")
+            .performLongKeyPress(rule, Key.DirectionCenter)
             .assertTextEquals("1")
     }
 
@@ -392,14 +584,42 @@ class CardTest {
         }
 
         rule.onNodeWithTag(WideClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
         Truth.assertThat(count.value).isEqualTo(1)
 
         rule.onNodeWithTag(WideClassicCardTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             .performKeyInput { pressKey(Key.DirectionCenter) }
+        Truth.assertThat(count.value).isEqualTo(3)
+    }
+
+    @Test
+    fun wideClassicCard_longClickAction() {
+        val count = mutableStateOf(0f)
+        rule.setContent {
+            WideClassicCard(
+                modifier = Modifier
+                    .semantics(mergeDescendants = true) {}
+                    .testTag(WideClassicCardTag),
+                image = { SampleImage() },
+                title = { Text("${count.value}") },
+                onClick = { },
+                onLongClick = {
+                    count.value += 1
+                }
+            )
+        }
+
+        rule.onNodeWithTag(WideClassicCardTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter)
+        Truth.assertThat(count.value).isEqualTo(1)
+
+        rule.onNodeWithTag(WideClassicCardTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter, count = 2)
         Truth.assertThat(count.value).isEqualTo(3)
     }
 

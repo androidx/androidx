@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.messaging.model;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IConversationCallback {
   oneway void onMarkAsRead(androidx.car.app.IOnDoneCallback callback) = 1;
   oneway void onTextReply(androidx.car.app.IOnDoneCallback callback, String replyText) = 2;

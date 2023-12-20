@@ -43,6 +43,7 @@
             android:id="@+id/text_input_edit_text_display_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:enabled="false"
             android:inputType="text"
             android:maxLines="1" />
 

@@ -26,6 +26,7 @@ import android.os.LocaleList
 import androidx.appcompat.testutils.LocalesActivityTestRule
 import androidx.appcompat.testutils.LocalesUtils.CUSTOM_LOCALE_LIST
 import androidx.appcompat.testutils.LocalesUtils.assertConfigurationLocalesEquals
+import androidx.core.app.AppLocalesStorageHelper
 import androidx.core.os.LocaleListCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -72,7 +73,7 @@ class LocalesSyncToFrameworkTestCase {
 
         appLocalesComponent = ComponentName(
             instrumentation.context,
-            AppLocalesStorageHelper.APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME
+            AppCompatDelegate.APP_LOCALES_META_DATA_HOLDER_SERVICE_NAME
         )
     }
 

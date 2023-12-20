@@ -19,6 +19,7 @@ package androidx.wear.watchface.samples
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.TimeInterpolator
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -47,7 +48,6 @@ import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceColors
 import androidx.wear.watchface.WatchFaceExperimental
-import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.complications.ComplicationSlotBounds
@@ -72,7 +72,7 @@ import kotlinx.coroutines.android.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 
 /** A simple example canvas based digital watch face. */
-class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
+class ExampleCanvasDigitalWatchFaceService : SampleWatchFaceService() {
     // Lazy because the context isn't initialized til later.
     private val watchFaceStyle by lazy { WatchFaceColorStyle.create(this, RED_STYLE) }
 
@@ -137,6 +137,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                     ComplicationType.SMALL_IMAGE
                 ),
                 DefaultComplicationDataSourcePolicy(
+                    ComponentName(COMPLICATION_PACKAGE, "$COMPLICATION_CLASS_PREFIX\$Steps"),
+                    ComplicationType.RANGED_VALUE,
                     SystemDataSources.DATA_SOURCE_WATCH_BATTERY,
                     ComplicationType.SHORT_TEXT
                 ),
@@ -165,6 +167,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                     ComplicationType.SMALL_IMAGE
                 ),
                 DefaultComplicationDataSourcePolicy(
+                    ComponentName(COMPLICATION_PACKAGE, "$COMPLICATION_CLASS_PREFIX\$HeartRate"),
+                    ComplicationType.RANGED_VALUE,
                     SystemDataSources.DATA_SOURCE_DATE,
                     ComplicationType.SHORT_TEXT
                 ),
@@ -198,6 +202,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 canvasComplicationFactory,
                 upperAndLowerComplicationTypes,
                 DefaultComplicationDataSourcePolicy(
+                    ComponentName(COMPLICATION_PACKAGE, "$COMPLICATION_CLASS_PREFIX\$Calories"),
+                    ComplicationType.RANGED_VALUE,
                     SystemDataSources.DATA_SOURCE_WORLD_CLOCK,
                     ComplicationType.LONG_TEXT
                 ),
@@ -229,6 +235,8 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
                 canvasComplicationFactory,
                 upperAndLowerComplicationTypes,
                 DefaultComplicationDataSourcePolicy(
+                    ComponentName(COMPLICATION_PACKAGE, "$COMPLICATION_CLASS_PREFIX\$Distance"),
+                    ComplicationType.RANGED_VALUE,
                     SystemDataSources.DATA_SOURCE_NEXT_EVENT,
                     ComplicationType.LONG_TEXT
                 ),
@@ -1104,6 +1112,11 @@ class ExampleCanvasDigitalWatchFaceService : WatchFaceService() {
 
         // Render at approximately 60fps in interactive mode.
         private const val INTERACTIVE_UPDATE_RATE_MS = 16L
+
+        private const val COMPLICATION_PACKAGE =
+            "androidx.wear.watchface.complications.datasource.samples"
+        private const val COMPLICATION_CLASS_PREFIX =
+            "$COMPLICATION_PACKAGE.dynamic.HealthDataSourceServices"
 
         // Constants for the size of complication.
         private val CIRCLE_COMPLICATION_DIAMETER_FRACTION = Vec2f(0.252f, 0.252f)

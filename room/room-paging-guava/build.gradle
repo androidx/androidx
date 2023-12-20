@@ -31,7 +31,7 @@ dependencies {
     implementation(project(":room:room-guava"))
     api("androidx.paging:paging-guava:3.1.1")
 
-    androidTestImplementation(libs.truth)
+    androidTestImplementation(project(":kruth:kruth"))
     androidTestImplementation(libs.testExtJunitKtx)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinTestJunit)
@@ -51,6 +51,7 @@ androidx {
     inceptionYear = "2022"
     description = "Guava integration in Room Paging"
     publish = Publish.SNAPSHOT_AND_RELEASE
+    metalavaK2UastEnabled = true
 }
 
 android {

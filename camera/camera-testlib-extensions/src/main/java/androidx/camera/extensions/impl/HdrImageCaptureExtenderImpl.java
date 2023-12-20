@@ -19,10 +19,12 @@ import static android.hardware.camera2.CameraMetadata.CONTROL_AE_MODE_OFF;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
+import android.hardware.camera2.params.SessionConfiguration;
 import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Build;
@@ -38,6 +40,7 @@ import androidx.annotation.RequiresApi;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
@@ -106,6 +109,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         return false;
     }
 
+    @NonNull
     @Override
     public List<CaptureStageImpl> getCaptureStages() {
         // Under exposed capture stage
@@ -133,6 +137,8 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         return captureStages;
     }
 
+
+    @Nullable
     @Override
     public CaptureProcessorImpl getCaptureProcessor() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -154,6 +160,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
 
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onPresetSession() {
         // The CaptureRequest parameters will be set via SessionConfiguration#setSessionParameters
@@ -166,12 +173,14 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         return captureStage;
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onEnableSession() {
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
         return captureStage;
     }
 
+    @Nullable
     @Override
     public CaptureStageImpl onDisableSession() {
         SettableCaptureStage captureStage = new SettableCaptureStage(SESSION_STAGE_ID);
@@ -183,6 +192,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         return 4;
     }
 
+    @Nullable
     @Override
     public List<Pair<Integer, Size[]>> getSupportedResolutions() {
         return null;
@@ -197,6 +207,7 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
     @RequiresApi(23)
     static final class HdrImageCaptureExtenderCaptureProcessorImpl implements CaptureProcessorImpl {
         private ImageWriter mImageWriter;
+        private Surface mPostViewSurface;
 
         @Override
         public void onOutputSurface(@NonNull Surface surface, int imageFormat) {
@@ -204,8 +215,22 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         }
 
         @Override
-        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results) {
+        public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results) {
+            processInternal(results, null, null, false);
+        }
+
+        @Override
+        public void process(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
+            processInternal(results, resultCallback, executor, false);
+        }
+
+        public void processInternal(@NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @Nullable ProcessResultImpl resultCallback, @Nullable Executor executor,
+                boolean hasPostview) {
             Log.d(TAG, "Started HDR CaptureProcessor");
+
+            Executor executorForCallback = executor != null ? executor : (cmd) -> cmd.run();
 
             // Check for availability of all requested images
             if (!results.containsKey(UNDER_STAGE_ID)) {
@@ -238,6 +263,9 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
             // Do processing here
             // The sample here simply returns the normal image result
             Image normalImage = imageDataPairs.get(NORMAL_STAGE_ID).first;
+            if (hasPostview) {
+                YuvToJpegConverter.writeYuvToJpegSurface(normalImage, mPostViewSurface);
+            }
 
             if (outputImage.getWidth() != normalImage.getWidth()
                     || outputImage.getHeight() != normalImage.getHeight()) {
@@ -246,6 +274,12 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
                                 + "output image[%d, %d]", normalImage.getWidth(),
                         normalImage.getHeight(), outputImage.getWidth(),
                         outputImage.getHeight()));
+            }
+
+            if (resultCallback != null) {
+                executorForCallback.execute(() -> {
+                    resultCallback.onCaptureProcessProgressed(10);
+                });
             }
 
             try {
@@ -264,6 +298,11 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
                         int outIndex = x * outYRowStride + y * outYPixelStride;
                         outYBuffer.put(outIndex, inYBuffer.get(inIndex));
                     }
+                }
+
+                if (resultCallback != null) {
+                    executorForCallback.execute(
+                            () -> resultCallback.onCaptureProcessProgressed(50));
                 }
 
                 // Copy UV
@@ -294,15 +333,34 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
             }
 
             mImageWriter.queueInputImage(outputImage);
+            if (resultCallback != null) {
+                executorForCallback.execute(
+                        () -> resultCallback.onCaptureProcessProgressed(100));
+            }
+
+            TotalCaptureResult captureResult = results.get(NORMAL_STAGE_ID).second;
+
+            if (resultCallback != null) {
+                executorForCallback.execute(
+                        () -> resultCallback.onCaptureCompleted(
+                                captureResult.get(CaptureResult.SENSOR_TIMESTAMP),
+                                getFilteredResults(captureResult)));
+            }
 
             Log.d(TAG, "Completed HDR CaptureProcessor");
         }
 
-        @Override
-        public void process(Map<Integer, Pair<Image, TotalCaptureResult>> results,
-                ProcessResultImpl resultCallback, Executor executor) {
+        @SuppressWarnings("unchecked")
+        private List<Pair<CaptureResult.Key, Object>> getFilteredResults(
+                TotalCaptureResult captureResult) {
+            List<Pair<CaptureResult.Key, Object>> list = new ArrayList<>();
+            for (CaptureResult.Key key : captureResult.getKeys()) {
+                list.add(new Pair<>(key, captureResult.get(key)));
+            }
 
+            return list;
         }
+
 
         @Override
         public void onResolutionUpdate(@NonNull Size size) {
@@ -313,12 +371,58 @@ public final class HdrImageCaptureExtenderImpl implements ImageCaptureExtenderIm
         public void onImageFormatUpdate(int imageFormat) {
 
         }
+
+        @Override
+        public void onPostviewOutputSurface(@NonNull Surface surface) {
+            mPostViewSurface = surface;
+        }
+
+        @Override
+        public void onResolutionUpdate(@NonNull Size size, @NonNull Size postviewSize) {
+            onResolutionUpdate(size);
+        }
+
+        @Override
+        public void processWithPostview(
+                @NonNull Map<Integer, Pair<Image, TotalCaptureResult>> results,
+                @NonNull ProcessResultImpl resultCallback, @Nullable Executor executor) {
+            Log.d(TAG, "processWithPostview");
+            processInternal(results, resultCallback, executor, true);
+        }
     }
 
     @NonNull
     @Override
     public List<CaptureRequest.Key> getAvailableCaptureRequestKeys() {
         return null;
+    }
+
+    @Override
+    public int onSessionType() {
+        return SessionConfiguration.SESSION_REGULAR;
+    }
+
+    @Nullable
+    @Override
+    public List<Pair<Integer, Size[]>> getSupportedPostviewResolutions(@NonNull Size captureSize) {
+        Pair<Integer, Size[]> pair = new Pair<>(ImageFormat.JPEG, new Size[] {captureSize});
+        return Arrays.asList(pair);
+    }
+
+    @Override
+    public boolean isCaptureProcessProgressAvailable() {
+        return true;
+    }
+
+    @Nullable
+    @Override
+    public Pair<Long, Long> getRealtimeCaptureLatency() {
+        return null;
+    }
+
+    @Override
+    public boolean isPostviewAvailable() {
+        return true;
     }
 
     @NonNull

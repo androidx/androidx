@@ -19,12 +19,12 @@ package androidx.bluetooth
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
+import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.rule.GrantPermissionRule
 import java.util.UUID
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assume
 import org.junit.Before
@@ -48,7 +48,10 @@ class BluetoothLeTest {
     @Rule
     @JvmField
     val permissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH_ADVERTISE)
+        if (Build.VERSION.SDK_INT >= 31)
+            GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH_ADVERTISE)
+        else
+            GrantPermissionRule.grant(android.Manifest.permission.BLUETOOTH)
 
     private lateinit var context: Context
     private lateinit var bluetoothManager: BluetoothManager
@@ -71,10 +74,9 @@ class BluetoothLeTest {
     fun advertise() = runTest {
         val advertiseParams = AdvertiseParams()
 
-        val advertiseResultStarted = bluetoothLe.advertise(advertiseParams)
-            .first()
-
-        assertEquals(AdvertiseResult.ADVERTISE_STARTED, advertiseResultStarted)
+        bluetoothLe.advertise(advertiseParams) {
+            assertEquals(BluetoothLe.ADVERTISE_STARTED, it)
+        }
     }
 
     @Test
@@ -86,9 +88,8 @@ class BluetoothLeTest {
             serviceData = mapOf(parcelUuid to serviceData)
         )
 
-        val advertiseResultStarted = bluetoothLe.advertise(advertiseParams)
-            .first()
-
-        assertEquals(AdvertiseResult.ADVERTISE_FAILED_DATA_TOO_LARGE, advertiseResultStarted)
+        bluetoothLe.advertise(advertiseParams) {
+            assertEquals(BluetoothLe.ADVERTISE_FAILED_DATA_TOO_LARGE, it)
+        }
     }
 }

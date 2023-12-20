@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.car.app.model;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IOnCheckedChangeListener {
   oneway void onCheckedChange(boolean isChecked, androidx.car.app.IOnDoneCallback callback) = 1;
 }

@@ -217,7 +217,7 @@ public final class GridTemplate implements Template {
      */
     @ExperimentalCarApi
     @NonNull
-    @RequiresCarApi(6)
+    @RequiresCarApi(7)
     public List<Action> getActions() {
         return mActions;
     }
@@ -414,11 +414,12 @@ public final class GridTemplate implements Template {
          * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
          *                                  or does not contain a valid {@link CarIcon} and
          *                                  background {@link CarColor}, or if exceeds the
-         *                                  maximum number of allowed actions (1) for the template.
+         *                                  maximum number of allowed actions for the template.
+         * @see ActionsConstraints#ACTIONS_CONSTRAINTS_FAB
          */
         @ExperimentalCarApi
         @NonNull
-        @RequiresCarApi(6)
+        @RequiresCarApi(7)
         public Builder addAction(@NonNull Action action) {
             List<Action> mActionsCopy = new ArrayList<>(mActions);
             mActionsCopy.add(requireNonNull(action));

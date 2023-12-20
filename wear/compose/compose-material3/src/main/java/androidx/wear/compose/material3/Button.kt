@@ -17,35 +17,59 @@
 package androidx.wear.compose.material3
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.Interaction
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.wear.compose.material3.tokens.ChildButtonTokens
+import androidx.wear.compose.material3.tokens.FilledButtonTokens
+import androidx.wear.compose.material3.tokens.FilledTonalButtonTokens
+import androidx.wear.compose.material3.tokens.OutlinedButtonTokens
 
 /**
  * Base level Wear Material3 [Button] that offers a single slot to take any content.
  * Used as the container for more opinionated [Button] components that take specific
  * content such as icons and labels.
  *
- * The [Button] is Stadium-shaped by default and has a max height designed to take no more than
- * two lines of text of [Typography.buttonMedium] style. The [Button] can have an icon or image
- * horizontally parallel to the two lines of text.
+ * The [Button] is stadium-shaped by default and its standard height is designed to take 2 lines of
+ * text of [Typography.labelMedium] style. With localisation and/or large font sizes, the text can
+ * extend to a maximum of 3 lines in which case, the [Button] height adjusts to accommodate the
+ * contents.
  *
  * [Button] takes the [ButtonDefaults.filledButtonColors] color scheme by default,
  * with colored background, contrasting content color and no border. This is a high-emphasis button
@@ -59,7 +83,10 @@ import androidx.compose.ui.unit.dp
  *
  * Button can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
+ * TODO(b/261838497) Add Material3 UX guidance links
+ *
+ * Example of a [Button]:
+ * @sample androidx.wear.compose.material3.samples.SimpleButtonSample
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -83,30 +110,24 @@ fun Button(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = FilledButtonTokens.ContainerShape.value,
     colors: ButtonColors = ButtonDefaults.filledButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit,
-) {
-    androidx.wear.compose.materialcore.Chip(
-        modifier = modifier.height(ButtonDefaults.Height),
-        onClick = onClick,
-        background = { colors.containerPainter(enabled = it) },
-        border = { rememberUpdatedState(border) },
-        enabled = enabled,
-        contentPadding = contentPadding,
-        shape = shape,
-        interactionSource = interactionSource,
-        role = Role.Button,
-        content = provideScopeContent(
-            colors.contentColor(enabled = enabled),
-            MaterialTheme.typography.buttonMedium,
-            content
-        )
-    )
-}
+) = Button(
+    onClick = onClick,
+    modifier = modifier,
+    enabled = enabled,
+    shape = shape,
+    labelFont = FilledButtonTokens.LabelFont.value,
+    colors = colors,
+    border = border,
+    contentPadding = contentPadding,
+    interactionSource = interactionSource,
+    content = content
+)
 
 /**
  * Base level Wear Material3 [FilledTonalButton] that offers a single slot to take any content.
@@ -114,8 +135,10 @@ fun Button(
  * content such as icons and labels.
  *
  * The [FilledTonalButton] is Stadium-shaped by default and has a max height designed to take no
- * more than two lines of text of [Typography.buttonMedium] style. The [FilledTonalButton] can have
- * an icon or image horizontally parallel to the two lines of text.
+ * more than two lines of text of [Typography.labelMedium] style.
+ * With localisation and/or large font sizes, the text can extend to a maximum of 3 lines in which
+ * case, the [FilledTonalButton] height adjusts to accommodate the contents.
+ * The [FilledTonalButton] can have an icon or image horizontally parallel to the two lines of text.
  *
  * [FilledTonalButton] takes the [ButtonDefaults.filledTonalButtonColors] color scheme by default,
  * with muted background, contrasting content color and no border. This is a medium-emphasis button
@@ -130,7 +153,10 @@ fun Button(
  *
  * Button can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
+ * TODO(b/261838497) Add Material3 UX guidance links
+ *
+ * Example of a [FilledTonalButton]:
+ * @sample androidx.wear.compose.material3.samples.SimpleFilledTonalButtonSample
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -154,14 +180,23 @@ fun FilledTonalButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = FilledTonalButtonTokens.ContainerShape.value,
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit,
 ) = Button(
-    onClick, modifier, enabled, shape, colors, border, contentPadding, interactionSource, content
+    onClick = onClick,
+    modifier = modifier,
+    enabled = enabled,
+    shape = shape,
+    labelFont = FilledTonalButtonTokens.LabelFont.value,
+    colors = colors,
+    border = border,
+    contentPadding = contentPadding,
+    interactionSource = interactionSource,
+    content = content
 )
 
 /**
@@ -170,8 +205,10 @@ fun FilledTonalButton(
  * as icons and labels.
  *
  * The [OutlinedButton] is Stadium-shaped by default and has a max height designed to take no more
- * than two lines of text of [Typography.buttonMedium] style. The [OutlinedButton] can have an
- * icon or image horizontally parallel to the two lines of text.
+ * than two lines of text of [Typography.labelMedium] style.
+ * With localisation and/or large font sizes, the text can extend to a maximum of 3 lines in which
+ * case, the [OutlinedButton] height adjusts to accommodate the contents.
+ * The [OutlinedButton] can have an icon or image horizontally parallel to the two lines of text.
  *
  * [OutlinedButton] takes the [ButtonDefaults.outlinedButtonColors] color scheme by default,
  * with a transparent background and a thin border. This is a medium-emphasis button
@@ -185,7 +222,10 @@ fun FilledTonalButton(
  *
  * Button can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
+ * TODO(b/261838497) Add Material3 UX guidance links
+ *
+ * Example of an [OutlinedButton]:
+ * @sample androidx.wear.compose.material3.samples.SimpleOutlinedButtonSample
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -209,14 +249,23 @@ fun OutlinedButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = OutlinedButtonTokens.ContainerShape.value,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit,
 ) = Button(
-    onClick, modifier, enabled, shape, colors, border, contentPadding, interactionSource, content
+    onClick = onClick,
+    modifier = modifier,
+    enabled = enabled,
+    shape = shape,
+    labelFont = OutlinedButtonTokens.LabelFont.value,
+    colors = colors,
+    border = border,
+    contentPadding = contentPadding,
+    interactionSource = interactionSource,
+    content = content
 )
 
 /**
@@ -224,9 +273,11 @@ fun OutlinedButton(
  * the container for more opinionated [ChildButton] components that take specific content such
  * as icons and labels.
  *
- * The [ChildButton] is Stadium-shaped by default and has a max height designed to take no more than
- * two lines of text of [Typography.buttonMedium] style. The [ChildButton] can have an icon or image
- * horizontally parallel to the two lines of text.
+ * The [ChildButton] is stadium-shaped by default and its standard height is designed to
+ * take 2 lines of text of [Typography.labelMedium] style.
+ * With localisation and/or large font sizes, the text can extend to a maximum of 3 lines in which
+ * case, the [ChildButton] height adjusts to accommodate the contents.
+ * The [ChildButton] can have an icon or image horizontally parallel to the two lines of text.
  *
  * [ChildButton] takes the [ButtonDefaults.childButtonColors] color scheme by default,
  * with a transparent background and no border. This is a low-emphasis button for optional
@@ -240,7 +291,10 @@ fun OutlinedButton(
  *
  * Button can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
+ * TODO(b/261838497) Add Material3 UX guidance links
+ *
+ * Example of a [ChildButton]:
+ * @sample androidx.wear.compose.material3.samples.SimpleChildButtonSample
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -264,14 +318,23 @@ fun ChildButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = ChildButtonTokens.ContainerShape.value,
     colors: ButtonColors = ButtonDefaults.childButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     content: @Composable RowScope.() -> Unit,
 ) = Button(
-    onClick, modifier, enabled, shape, colors, border, contentPadding, interactionSource, content
+    onClick = onClick,
+    modifier = modifier,
+    enabled = enabled,
+    shape = shape,
+    labelFont = OutlinedButtonTokens.LabelFont.value,
+    colors = colors,
+    border = border,
+    contentPadding = contentPadding,
+    interactionSource = interactionSource,
+    content = content
 )
 
 /**
@@ -280,9 +343,11 @@ fun ChildButton(
  * The items are laid out with the icon, if provided, at the start of a row, with a column next
  * containing the two label slots.
  *
- * The [Button] is Stadium-shaped by default and has a max height designed to take no more than
- * two lines of text of [Typography.buttonMedium] style. If no secondary label is provided then
- * the label can be two lines of text. The label and secondary label should be consistently aligned.
+ * The [Button] is stadium-shaped by default and its standard height is designed to take 2 lines of
+ * text of [Typography.labelMedium] style - either a two-line label or both a single line label
+ * and a secondary label.
+ * With localisation and/or large font sizes, the [Button] height adjusts to
+ * accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -299,7 +364,10 @@ fun ChildButton(
  *
  * [Button] can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
+ * TODO(b/261838497) Add Material3 UX guidance links
+ *
+ * Example of a [Button] with an icon and secondary label:
+ * @sample androidx.wear.compose.material3.samples.ButtonSample
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -336,39 +404,27 @@ fun Button(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = FilledButtonTokens.ContainerShape.value,
     colors: ButtonColors = ButtonDefaults.filledButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     label: @Composable RowScope.() -> Unit,
-) {
-    androidx.wear.compose.materialcore.Chip(
-        modifier = modifier.height(ButtonDefaults.Height),
-        onClick = onClick,
-        background = { colors.containerPainter(enabled = it) },
-        border = { rememberUpdatedState(border) },
-        enabled = enabled,
-        interactionSource = interactionSource,
-        shape = shape,
-        contentPadding = contentPadding,
-        label = provideScopeContent(
-            colors.contentColor(enabled),
-            MaterialTheme.typography.buttonMedium,
-            label
-        ),
-        secondaryLabel = secondaryLabel?.let { provideScopeContent(
-            colors.secondaryContentColor(enabled),
-            MaterialTheme.typography.captionLarge,
-            secondaryLabel
-        ) },
-        icon = icon?.let {
-            provideScopeContent(colors.iconColor(enabled), icon)
-        },
-        defaultIconSpacing = ButtonDefaults.IconSpacing,
-        role = Role.Button
-    )
-}
+) = Button(
+    onClick = onClick,
+    modifier = modifier,
+    secondaryLabel = secondaryLabel,
+    icon = icon,
+    enabled = enabled,
+    shape = shape,
+    labelFont = FilledButtonTokens.LabelFont.value,
+    secondaryLabelFont = FilledButtonTokens.SecondaryLabelFont.value,
+    colors = colors,
+    border = border,
+    contentPadding = contentPadding,
+    interactionSource = interactionSource,
+    label = label
+)
 
 /**
  * Wear Material3 [FilledTonalButton] that offers three slots and a specific layout for an
@@ -376,10 +432,14 @@ fun Button(
  * The items are laid out with the icon, if provided, at the start of a row, with a column next
  * containing the two label slots.
  *
- * The [FilledTonalButton] is Stadium-shaped by default and has a max height designed to take no
- * more than two lines of text of [Typography.buttonMedium] style. If no secondary label is provided
- * then the label can be two lines of text. The label and secondary label should be consistently
- * aligned.
+ * The [FilledTonalButton] is stadium-shaped by default and its standard height is designed to take
+ * 2 lines of text of [Typography.labelMedium] style - either a two-line label or both a single
+ * line label and a secondary label.
+ * With localisation and/or large font sizes, the [FilledTonalButton] height adjusts
+ * to accommodate the contents. The label and secondary label should be consistently aligned.
+ *
+ * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
+ * the text starts next to the icon.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -398,7 +458,10 @@ fun Button(
  * [FilledTonalButton] can be enabled or disabled. A disabled button will not respond to
  * click events.
  *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
+ * TODO(b/261838497) Add Material3 UX guidance links
+ *
+ * Example of a [FilledTonalButton] with an icon and secondary label:
+ * @sample androidx.wear.compose.material3.samples.FilledTonalButtonSample
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -434,24 +497,26 @@ fun FilledTonalButton(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = FilledTonalButtonTokens.ContainerShape.value,
     colors: ButtonColors = ButtonDefaults.filledTonalButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     label: @Composable RowScope.() -> Unit,
 ) = Button(
-    onClick,
-    modifier,
-    secondaryLabel,
-    icon,
-    enabled,
-    shape,
-    colors,
-    border,
-    contentPadding,
-    interactionSource,
-    label
+    onClick = onClick,
+    modifier = modifier,
+    secondaryLabel = secondaryLabel,
+    icon = icon,
+    enabled = enabled,
+    shape = shape,
+    labelFont = FilledTonalButtonTokens.LabelFont.value,
+    secondaryLabelFont = FilledTonalButtonTokens.SecondaryLabelFont.value,
+    colors = colors,
+    border = border,
+    contentPadding = contentPadding,
+    interactionSource = interactionSource,
+    label = label
 )
 
 /**
@@ -460,9 +525,11 @@ fun FilledTonalButton(
  * The items are laid out with the icon, if provided, at the start of a row, with a column next
  * containing the two label slots.
  *
- * The [OutlinedButton] is Stadium-shaped by default and has a max height designed to take no more
- * than two lines of text of [Typography.buttonMedium] style. If no secondary label is provided then
- * the label can be two lines of text. The label and secondary label should be consistently aligned.
+ * The [OutlinedButton] is stadium-shaped by default and its standard height is designed to take
+ * 2 lines of text of [Typography.labelMedium] style - either a two-line label or both a single
+ * line label and a secondary label.
+ * With localisation and/or large font sizes, the [OutlinedButton] height adjusts to
+ * accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -479,7 +546,10 @@ fun FilledTonalButton(
  *
  * [OutlinedButton] can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
+ * TODO(b/261838497) Add Material3 UX guidance links
+ *
+ * Example of an [OutlinedButton] with an icon and secondary label:
+ * @sample androidx.wear.compose.material3.samples.OutlinedButtonSample
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -515,24 +585,26 @@ fun OutlinedButton(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = OutlinedButtonTokens.ContainerShape.value,
     colors: ButtonColors = ButtonDefaults.outlinedButtonColors(),
     border: BorderStroke? = ButtonDefaults.outlinedButtonBorder(enabled),
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     label: @Composable RowScope.() -> Unit,
 ) = Button(
-    onClick,
-    modifier,
-    secondaryLabel,
-    icon,
-    enabled,
-    shape,
-    colors,
-    border,
-    contentPadding,
-    interactionSource,
-    label,
+    onClick = onClick,
+    modifier = modifier,
+    secondaryLabel = secondaryLabel,
+    icon = icon,
+    enabled = enabled,
+    shape = shape,
+    labelFont = OutlinedButtonTokens.LabelFont.value,
+    secondaryLabelFont = OutlinedButtonTokens.SecondaryLabelFont.value,
+    colors = colors,
+    border = border,
+    contentPadding = contentPadding,
+    interactionSource = interactionSource,
+    label = label
 )
 
 /**
@@ -540,9 +612,11 @@ fun OutlinedButton(
  * secondaryLabel. The icon and secondaryLabel are optional. The items are laid out with the icon,
  * if provided, at the start of a row, with a column next containing the two label slots.
  *
- * The [ChildButton] is Stadium-shaped by default and has a max height designed to take no more than
- * two lines of text of [Typography.buttonMedium] style. If no secondary label is provided then
- * the label can be two lines of text. The label and secondary label should be consistently aligned.
+ * The [ChildButton] is stadium-shaped by default and its standard height is designed to take
+ * 2 lines of text of [Typography.labelMedium] style - either a two-line label or both a single
+ * line label and a secondary label.
+ * With localisation and/or large font sizes, the [ChildButton] height adjusts to
+ * accommodate the contents. The label and secondary label should be consistently aligned.
  *
  * If a icon is provided then the labels should be "start" aligned, e.g. left aligned in ltr so that
  * the text starts next to the icon.
@@ -559,7 +633,10 @@ fun OutlinedButton(
  *
  * [Button] can be enabled or disabled. A disabled button will not respond to click events.
  *
- * TODO(b/261838497) Add Material3 samples and UX guidance links
+ * TODO(b/261838497) Add Material3 UX guidance links
+ *
+ * Example of a [ChildButton] with an icon and secondary label:
+ * @sample androidx.wear.compose.material3.samples.ChildButtonSample
  *
  * @param onClick Will be called when the user clicks the button
  * @param modifier Modifier to be applied to the button
@@ -595,24 +672,26 @@ fun ChildButton(
     secondaryLabel: (@Composable RowScope.() -> Unit)? = null,
     icon: (@Composable BoxScope.() -> Unit)? = null,
     enabled: Boolean = true,
-    shape: Shape = MaterialTheme.shapes.full,
+    shape: Shape = ChildButtonTokens.ContainerShape.value,
     colors: ButtonColors = ButtonDefaults.childButtonColors(),
     border: BorderStroke? = null,
     contentPadding: PaddingValues = ButtonDefaults.ContentPadding,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     label: @Composable RowScope.() -> Unit,
 ) = Button(
-    onClick,
-    modifier,
-    secondaryLabel,
-    icon,
-    enabled,
-    shape,
-    colors,
-    border,
-    contentPadding,
-    interactionSource,
-    label,
+    onClick = onClick,
+    modifier = modifier,
+    secondaryLabel = secondaryLabel,
+    icon = icon,
+    enabled = enabled,
+    shape = shape,
+    labelFont = ChildButtonTokens.LabelFont.value,
+    secondaryLabelFont = ChildButtonTokens.SecondaryLabelFont.value,
+    colors = colors,
+    border = border,
+    contentPadding = contentPadding,
+    interactionSource = interactionSource,
+    label = label
 )
 
 /**
@@ -631,19 +710,42 @@ object ButtonDefaults {
      * @param secondaryContentColor The secondary content color of this [Button] when enabled, used
      * for secondaryLabel content
      * @param iconColor The icon color of this [Button] when enabled, used for icon content
+     * @param disabledContainerColor The background color of this [Button] when not enabled
+     * @param disabledContentColor The content color of this [Button] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [Button] when not
+     * enabled
+     * @param disabledIconColor The content color of this [Button] when not enabled
      */
     @Composable
     fun filledButtonColors(
-        containerColor: Color = MaterialTheme.colorScheme.primary,
-        contentColor: Color = MaterialTheme.colorScheme.onPrimary,
-        secondaryContentColor: Color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
-        iconColor: Color = MaterialTheme.colorScheme.onPrimary
+        containerColor: Color = FilledButtonTokens.ContainerColor.value,
+        contentColor: Color = FilledButtonTokens.LabelColor.value,
+        secondaryContentColor: Color = FilledButtonTokens.SecondaryLabelColor.value,
+        iconColor: Color = FilledButtonTokens.IconColor.value,
+        disabledContainerColor: Color =
+            FilledButtonTokens.DisabledContainerColor.value.toDisabledColor(
+                disabledAlpha = FilledButtonTokens.DisabledContainerOpacity
+            ),
+        disabledContentColor: Color = FilledButtonTokens.DisabledContentColor.value.toDisabledColor(
+            disabledAlpha = FilledButtonTokens.DisabledContentOpacity
+        ),
+        disabledSecondaryContentColor: Color =
+            FilledButtonTokens.DisabledContentColor.value.toDisabledColor(
+                disabledAlpha = FilledButtonTokens.DisabledContentOpacity
+            ),
+        disabledIconColor: Color = FilledButtonTokens.DisabledContentColor.value.toDisabledColor(
+            disabledAlpha = FilledButtonTokens.DisabledContentOpacity
+        )
     ): ButtonColors {
         return buttonColors(
             containerColor = containerColor,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconColor = iconColor
+            iconColor = iconColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
+            disabledSecondaryContentColor = disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor
         )
     }
 
@@ -662,19 +764,44 @@ object ButtonDefaults {
      * @param secondaryContentColor The secondary content color of this [Button] when enabled, used
      * for secondaryLabel content
      * @param iconColor The icon color of this [Button] when enabled, used for icon content
+     * @param disabledContainerColor The background color of this [Button] when not enabled
+     * @param disabledContentColor The content color of this [Button] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [Button] when not
+     * enabled
+     * @param disabledIconColor The content color of this [Button] when not enabled
      */
     @Composable
     fun filledTonalButtonColors(
-        containerColor: Color = MaterialTheme.colorScheme.surface,
-        contentColor: Color = MaterialTheme.colorScheme.onSurface,
-        secondaryContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        iconColor: Color = MaterialTheme.colorScheme.onSurface
+        containerColor: Color = FilledTonalButtonTokens.ContainerColor.value,
+        contentColor: Color = FilledTonalButtonTokens.LabelColor.value,
+        secondaryContentColor: Color = FilledTonalButtonTokens.SecondaryLabelColor.value,
+        iconColor: Color = FilledTonalButtonTokens.IconColor.value,
+        disabledContainerColor: Color =
+            FilledTonalButtonTokens.DisabledContainerColor.value.toDisabledColor(
+                disabledAlpha = FilledTonalButtonTokens.DisabledContainerOpacity
+            ),
+        disabledContentColor: Color =
+            FilledTonalButtonTokens.DisabledContentColor.value.toDisabledColor(
+                disabledAlpha = FilledTonalButtonTokens.DisabledContentOpacity
+            ),
+        disabledSecondaryContentColor: Color =
+            FilledTonalButtonTokens.DisabledContentColor.value.toDisabledColor(
+                disabledAlpha = FilledTonalButtonTokens.DisabledContentOpacity
+            ),
+        disabledIconColor: Color =
+            FilledTonalButtonTokens.DisabledContentColor.value.toDisabledColor(
+                disabledAlpha = FilledTonalButtonTokens.DisabledContentOpacity
+            )
     ): ButtonColors {
         return buttonColors(
             containerColor = containerColor,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconColor = iconColor
+            iconColor = iconColor,
+            disabledContainerColor = disabledContainerColor,
+            disabledContentColor = disabledContentColor,
+            disabledSecondaryContentColor = disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor
         )
     }
 
@@ -690,18 +817,37 @@ object ButtonDefaults {
      * @param secondaryContentColor The secondary content color of this [Button] when enabled, used
      * for secondaryLabel content
      * @param iconColor The icon color of this [Button] when enabled, used for icon content
+     * @param disabledContentColor The content color of this [Button] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [Button] when not
+     * enabled
+     * @param disabledIconColor The content color of this [Button] when not enabled
      */
     @Composable
     fun outlinedButtonColors(
-        contentColor: Color = MaterialTheme.colorScheme.onSurface,
-        secondaryContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        iconColor: Color = MaterialTheme.colorScheme.onSurface
+        contentColor: Color = OutlinedButtonTokens.LabelColor.value,
+        secondaryContentColor: Color = OutlinedButtonTokens.SecondaryLabelColor.value,
+        iconColor: Color = OutlinedButtonTokens.IconColor.value,
+        disabledContentColor: Color =
+            OutlinedButtonTokens.DisabledContentColor.value.toDisabledColor(
+                disabledAlpha = OutlinedButtonTokens.DisabledContentOpacity
+            ),
+        disabledSecondaryContentColor: Color =
+            OutlinedButtonTokens.DisabledContentColor.value.toDisabledColor(
+                disabledAlpha = OutlinedButtonTokens.DisabledContentOpacity
+            ),
+        disabledIconColor: Color = OutlinedButtonTokens.DisabledContentColor.value.toDisabledColor(
+            disabledAlpha = OutlinedButtonTokens.DisabledContentOpacity
+        )
     ): ButtonColors {
         return buttonColors(
             containerColor = Color.Transparent,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconColor = iconColor
+            iconColor = iconColor,
+            disabledContainerColor = Color.Transparent,
+            disabledContentColor = disabledContentColor,
+            disabledSecondaryContentColor = disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor
         )
     }
 
@@ -717,18 +863,36 @@ object ButtonDefaults {
      * @param secondaryContentColor The secondary content color of this [Button] when enabled, used
      * for secondaryLabel content
      * @param iconColor The icon color of this [Button] when enabled, used for icon content
+     * @param disabledContentColor The content color of this [Button] when not enabled
+     * @param disabledSecondaryContentColor The secondary content color of this [Button] when not
+     * enabled
+     * @param disabledIconColor The content color of this [Button] when not enabled
      */
     @Composable
     fun childButtonColors(
-        contentColor: Color = MaterialTheme.colorScheme.onSurface,
-        secondaryContentColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
-        iconColor: Color = MaterialTheme.colorScheme.onSurface
+        contentColor: Color = ChildButtonTokens.LabelColor.value,
+        secondaryContentColor: Color = ChildButtonTokens.SecondaryLabelColor.value,
+        iconColor: Color = ChildButtonTokens.IconColor.value,
+        disabledContentColor: Color = ChildButtonTokens.DisabledContentColor.value.toDisabledColor(
+            disabledAlpha = ChildButtonTokens.DisabledContentOpacity
+        ),
+        disabledSecondaryContentColor: Color =
+            ChildButtonTokens.DisabledContentColor.value.toDisabledColor(
+                disabledAlpha = ChildButtonTokens.DisabledContentOpacity
+            ),
+        disabledIconColor: Color = ChildButtonTokens.DisabledContentColor.value.toDisabledColor(
+            disabledAlpha = ChildButtonTokens.DisabledContentOpacity
+        ),
     ): ButtonColors {
         return buttonColors(
             containerColor = Color.Transparent,
             contentColor = contentColor,
             secondaryContentColor = secondaryContentColor,
-            iconColor = iconColor
+            iconColor = iconColor,
+            disabledContainerColor = Color.Transparent,
+            disabledContentColor = disabledContentColor,
+            disabledSecondaryContentColor = disabledSecondaryContentColor,
+            disabledIconColor = disabledIconColor
         )
     }
 
@@ -802,10 +966,11 @@ object ButtonDefaults {
     @Composable
     fun outlinedButtonBorder(
         enabled: Boolean,
-        borderColor: Color = MaterialTheme.colorScheme.outline,
-        disabledBorderColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
-        ),
+        borderColor: Color = OutlinedButtonTokens.ContainerBorderColor.value,
+        disabledBorderColor: Color =
+            OutlinedButtonTokens.DisabledContainerBorderColor.value.toDisabledColor(
+                disabledAlpha = OutlinedButtonTokens.DisabledContainerBorderOpacity
+            ),
         borderWidth: Dp = 1.dp
     ): BorderStroke {
         return remember {
@@ -813,8 +978,8 @@ object ButtonDefaults {
         }
     }
 
-    private val ButtonHorizontalPadding = 14.dp
-    private val ButtonVerticalPadding = 6.dp
+    val ButtonHorizontalPadding = 14.dp
+    val ButtonVerticalPadding = 6.dp
 
     /**
      * The default content padding used by [Button]
@@ -827,12 +992,12 @@ object ButtonDefaults {
     /**
      * The default size of the icon when used inside a [Button].
      */
-    val IconSize: Dp = 24.dp
+    val IconSize: Dp = FilledButtonTokens.IconSize
 
     /**
      * The size of the icon when used inside a Large "Avatar" [Button].
      */
-    val LargeIconSize: Dp = 32.dp
+    val LargeIconSize: Dp = FilledButtonTokens.IconLargeSize
 
     /**
      * Creates a [ButtonColors] that represents the default background and content colors used in
@@ -849,17 +1014,24 @@ object ButtonDefaults {
      */
     @Composable
     fun buttonColors(
-        containerColor: Color = MaterialTheme.colorScheme.primary,
-        contentColor: Color = contentColorFor(containerColor),
-        secondaryContentColor: Color = contentColor,
-        iconColor: Color = contentColor,
-        disabledContainerColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(
-            disabledAlpha = DisabledBorderAndContainerAlpha
+        containerColor: Color = FilledButtonTokens.ContainerColor.value,
+        contentColor: Color = FilledButtonTokens.LabelColor.value,
+        secondaryContentColor: Color = FilledButtonTokens.SecondaryLabelColor.value,
+        iconColor: Color = FilledButtonTokens.IconColor.value,
+        disabledContainerColor: Color =
+            FilledButtonTokens.DisabledContainerColor.value.toDisabledColor(
+                disabledAlpha = FilledButtonTokens.DisabledContainerOpacity
+            ),
+        disabledContentColor: Color = FilledButtonTokens.DisabledContentColor.value.toDisabledColor(
+            disabledAlpha = FilledButtonTokens.DisabledContentOpacity
         ),
-        disabledContentColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor(),
         disabledSecondaryContentColor: Color =
-            MaterialTheme.colorScheme.onSurface.toDisabledColor(),
-        disabledIconColor: Color = MaterialTheme.colorScheme.onSurface.toDisabledColor()
+            FilledButtonTokens.DisabledContentColor.value.toDisabledColor(
+                disabledAlpha = FilledButtonTokens.DisabledContentOpacity
+            ),
+        disabledIconColor: Color = FilledButtonTokens.DisabledContentColor.value.toDisabledColor(
+            disabledAlpha = FilledButtonTokens.DisabledContentOpacity
+        )
     ): ButtonColors = ButtonColors(
         containerColor = containerColor,
         contentColor = contentColor,
@@ -875,7 +1047,7 @@ object ButtonDefaults {
      * The default height applied for the [Button].
      * Note that you can override it by applying Modifier.heightIn directly on [Button].
      */
-    internal val Height = 52.dp
+    val Height = FilledButtonTokens.ContainerHeight
 
     /**
      * The default size of the spacing between an icon and a text when they are used inside a
@@ -887,17 +1059,26 @@ object ButtonDefaults {
 /**
  * Represents the container and content colors used in buttons
  * in different states.
+ *
+ * @param containerPainter [Painter] to use to draw the background of the [Button] when enabled.
+ * @param contentColor The content color of this [Button] when enabled.
+ * @param secondaryContentColor The content color of this [Button] when enabled.
+ * @param iconColor The content color of this [Button] when enabled.
+ * @param disabledContainerPainter [Painter] to use to draw the background of the [Button] when not enabled.
+ * @param disabledContentColor The content color of this [Button] when not enabled.
+ * @param disabledSecondaryContentColor The content color of this [Button] when not enabled.
+ * @param disabledIconColor The content color of this [Button] when not enabled.
  */
 @Immutable
 class ButtonColors constructor(
-    private val containerPainter: Painter,
-    private val contentColor: Color,
-    private val secondaryContentColor: Color,
-    private val iconColor: Color,
-    private val disabledContainerPainter: Painter,
-    private val disabledContentColor: Color,
-    private val disabledSecondaryContentColor: Color,
-    private val disabledIconColor: Color,
+    val containerPainter: Painter,
+    val contentColor: Color,
+    val secondaryContentColor: Color,
+    val iconColor: Color,
+    val disabledContainerPainter: Painter,
+    val disabledContentColor: Color,
+    val disabledSecondaryContentColor: Color,
+    val disabledIconColor: Color,
 ) {
     /**
      * Creates a [ButtonColors] where all of the values are explicitly defined.
@@ -1003,5 +1184,119 @@ class ButtonColors constructor(
         result = 31 * result + disabledSecondaryContentColor.hashCode()
         result = 31 * result + disabledIconColor.hashCode()
         return result
+    }
+}
+
+/**
+ * Button with label. This allows to use the token values for
+ * individual buttons instead of relying on common values.
+ */
+@Composable
+private fun Button(
+    onClick: () -> Unit,
+    modifier: Modifier,
+    enabled: Boolean,
+    shape: Shape,
+    labelFont: TextStyle,
+    colors: ButtonColors,
+    border: BorderStroke?,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource,
+    content: @Composable RowScope.() -> Unit
+) {
+    val borderModifier = if (border != null)
+        modifier.border(
+            border = border,
+            shape = shape
+        ) else modifier
+    Row(
+        modifier = borderModifier
+            .defaultMinSize(minHeight = ButtonDefaults.Height)
+            .height(IntrinsicSize.Min)
+            .clip(shape = shape)
+            .width(intrinsicSize = IntrinsicSize.Max)
+            .paint(
+                painter = colors.containerPainter(enabled = enabled).value,
+                contentScale = ContentScale.Crop
+            )
+            .clickable(
+                enabled = enabled,
+                onClick = onClick,
+                role = Role.Button,
+                indication = rememberRipple(),
+                interactionSource = interactionSource,
+            )
+            .padding(contentPadding),
+        content = provideScopeContent(
+            colors.contentColor(enabled = enabled),
+            labelFont,
+            content
+        )
+    )
+}
+
+/**
+ * Button with icon, label and secondary label. This allows to use the token values for
+ * individual buttons instead of relying on common values.
+ */
+@Composable
+private fun Button(
+    onClick: () -> Unit,
+    modifier: Modifier,
+    secondaryLabel: (@Composable RowScope.() -> Unit)?,
+    icon: (@Composable BoxScope.() -> Unit)?,
+    enabled: Boolean,
+    shape: Shape,
+    labelFont: TextStyle,
+    secondaryLabelFont: TextStyle,
+    colors: ButtonColors,
+    border: BorderStroke?,
+    contentPadding: PaddingValues,
+    interactionSource: MutableInteractionSource,
+    label: @Composable RowScope.() -> Unit
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        enabled = enabled,
+        shape = shape,
+        labelFont = labelFont,
+        colors = colors,
+        border = border,
+        contentPadding = contentPadding,
+        interactionSource = interactionSource,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            // Fill the container height but not its width as chips have fixed size height but we
+            // want them to be able to fit their content
+            modifier = Modifier.fillMaxHeight()
+        ) {
+            if (icon != null) {
+                Box(
+                    modifier = Modifier.wrapContentSize(align = Alignment.Center),
+                    content = provideScopeContent(colors.iconColor(enabled), icon)
+                )
+                Spacer(modifier = Modifier.size(ButtonDefaults.IconSpacing))
+            }
+            Column {
+                Row(
+                    content = provideScopeContent(
+                        colors.contentColor(enabled),
+                        labelFont,
+                        label
+                    )
+                )
+                secondaryLabel?.let {
+                    Row(
+                        content = provideScopeContent(
+                            colors.secondaryContentColor(enabled),
+                            secondaryLabelFont,
+                            secondaryLabel
+                        )
+                    )
+                }
+            }
+        }
     }
 }

@@ -32,24 +32,7 @@ dependencies {
 
 }
 
-def latestSdkVersion = 31
-
 android {
-    defaultConfig {
-        minSdkVersion 14
-        targetSdkVersion latestSdkVersion
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-
-    buildFeatures {
-        buildConfig = false
-    }
-
     namespace "androidx.constraintlayout.widget"
 }
 
@@ -59,4 +42,5 @@ androidx {
     mavenVersion = LibraryVersions.CONSTRAINTLAYOUT
     inceptionYear = "2022"
     description = "This library offers a flexible and adaptable way to position and animate widgets"
+    metalavaK2UastEnabled = true
 }

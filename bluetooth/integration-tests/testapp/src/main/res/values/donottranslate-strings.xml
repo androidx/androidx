@@ -17,24 +17,43 @@
 <resources>
     <string name="app_name">AndroidX Bluetooth Test App</string>
 
-    <string name="title_home">AndroidX Bluetooth</string>
-    <string name="title_scanner">Scanner</string>
-    <string name="title_advertiser">Advertiser</string>
+    <!-- Main -->
+    <string name="bluetooth_is_disabled">Bluetooth is disabled</string>
+    <string name="enable">Enable</string>
 
     <!-- Scanner -->
+    <string name="title_scanner">Scanner</string>
     <string name="start_scanning">Start Scanning</string>
     <string name="stop_scanning">Stop scanning</string>
     <string name="scan_result_icon">Scan Result Icon</string>
     <string name="connect">Connect</string>
-    <string name="scan_results">Scan Results</string>
-    <string name="not_connected">Not Connected</string>
+    <string name="reconnect">Reconnect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="disconnected">Disconnected</string>
     <string name="connecting">Connecting…</string>
     <string name="connected">Connected</string>
-    <string name="connection_failed">Connection Failed</string>
     <string name="generic_attribute">Generic Attribute</string>
+
+    <!-- Connections -->
+    <string name="title_connections">Connections</string>
+
+    <!-- Service & Characteristic -->
     <string name="primary_service">Primary Service</string>
+    <string name="uuid">Uuid</string>
+    <string name="permissions">Permissions</string>
+    <string name="properties">Properties</string>
+    <string name="broadcast">Broadcast</string>
+    <string name="indicate">Indicate</string>
+    <string name="notify">Notify</string>
+    <string name="read">Read</string>
+    <string name="signed_write">Signed Write</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="write">Write</string>
+    <string name="write_no_response">Write No Response</string>
+    <string name="value">Value</string>
 
     <!-- Advertiser -->
+    <string name="title_advertiser">Advertiser</string>
     <string name="configure_advertising_packet">Configure Advertising Packet</string>
     <string name="display_name">Display Name</string>
     <string name="include_device_name">Include Device Name</string>
@@ -54,12 +73,12 @@
     <string name="cancel">Cancel</string>
     <string name="clear_data">Clear Data</string>
 
-    <string name="scan_using_androidx_bluetooth">Scan using AndroidX Bluetooth APIs</string>
-    <string name="scan_start_message">Scan started. Results are in Logcat</string>
-
-    <string name="advertise_using_androidx_bluetooth">Advertise using AndroidX Bluetooth APIs</string>
-    <string name="advertise_start_message">Advertise started</string>
-
-    <string name="open_gatt_server_using_androidx_bluetooth">Open GATT Server using AndroidX Bluetooth APIs</string>
-    <string name="gatt_server_open">GATT Server open</string>
+    <!-- GATT Server -->
+    <string name="title_gatt_server">Gatt Server</string>
+    <string name="add_service">Add Service</string>
+    <string name="add_characteristic">Add Characteristic</string>
+    <string name="add_descriptor">Add Descriptor</string>
+    <string name="open_gatt_server">Open Gatt Server</string>
+    <string name="stop_gatt_server">Stop Gatt Server</string>
+    <string name="invalid_uuid">Invalid UUID</string>
 </resources>

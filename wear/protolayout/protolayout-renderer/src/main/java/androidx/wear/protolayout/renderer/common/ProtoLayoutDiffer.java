@@ -272,11 +272,22 @@ public class ProtoLayoutDiffer {
         return new LayoutDiff(changedNodes);
     }
 
-    /** Check whether 2 nodes represented by the given fingerprints are equivalent. */
+    /** Check whether two nodes represented by the given fingerprints are equivalent. */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static boolean areNodesEquivalent(
             @NonNull NodeFingerprint nodeA, @NonNull NodeFingerprint nodeB) {
         return getChangeType(nodeA, nodeB) == NodeChangeType.NO_CHANGE;
+    }
+
+    /** Check whether two {@link TreeFingerprint} objects are equivalent. */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public static boolean areSameFingerprints(
+            @NonNull TreeFingerprint first, @NonNull TreeFingerprint second) {
+        NodeFingerprint prev = first.getRoot();
+        NodeFingerprint current = second.getRoot();
+        return current.getSelfTypeValue() == prev.getSelfTypeValue()
+                && current.getSelfPropsValue() == prev.getSelfPropsValue()
+                && current.getChildNodesValue() == prev.getChildNodesValue();
     }
 
     private static void addChangedNodes(

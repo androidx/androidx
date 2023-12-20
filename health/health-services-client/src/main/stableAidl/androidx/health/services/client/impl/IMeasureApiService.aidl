@@ -26,8 +26,8 @@ import androidx.health.services.client.impl.response.MeasureCapabilitiesResponse
 /**
  * Interface to make ipc calls for health services api.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IMeasureApiService {
     /**
      * API version of the AIDL interface. Should be incremented every time a new

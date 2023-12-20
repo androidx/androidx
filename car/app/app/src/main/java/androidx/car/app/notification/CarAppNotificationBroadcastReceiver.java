@@ -41,7 +41,6 @@ import androidx.car.app.utils.RemoteUtils;
  *
  * <p>This is only used for Android Auto.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public class CarAppNotificationBroadcastReceiver extends BroadcastReceiver {

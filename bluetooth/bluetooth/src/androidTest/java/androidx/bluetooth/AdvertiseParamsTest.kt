@@ -16,6 +16,7 @@
 
 package androidx.bluetooth
 
+import java.time.Duration
 import java.util.UUID
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -33,10 +34,11 @@ class AdvertiseParamsTest {
         assertEquals(false, advertiseParams.shouldIncludeDeviceName)
         assertEquals(false, advertiseParams.isConnectable)
         assertEquals(false, advertiseParams.isDiscoverable)
-        assertEquals(0, advertiseParams.timeoutMillis)
+        assertEquals(Duration.ZERO, advertiseParams.duration)
         assertEquals(0, advertiseParams.manufacturerData.size)
         assertEquals(0, advertiseParams.serviceData.size)
         assertEquals(0, advertiseParams.serviceUuids.size)
+        assertEquals(0, advertiseParams.serviceSolicitationUuids.size)
     }
 
     @Test
@@ -122,5 +124,23 @@ class AdvertiseParamsTest {
         assertEquals(serviceUuid1, advertiseParams.serviceUuids[0])
         assertEquals(serviceUuid2, advertiseParams.serviceUuids[1])
         assertEquals(serviceUuid3, advertiseParams.serviceUuids[2])
+    }
+
+    @Test
+    fun serviceSolicitationUuidsParams() {
+        val serviceSolicitationUuid1 = UUID.randomUUID()
+        val serviceSolicitationUuid2 = UUID.randomUUID()
+        val serviceSolicitationUuid3 = UUID.randomUUID()
+
+        val serviceSolicitationUuids =
+            listOf(serviceSolicitationUuid1, serviceSolicitationUuid2, serviceSolicitationUuid3)
+
+        val advertiseParams = AdvertiseParams(
+            serviceSolicitationUuids = serviceSolicitationUuids
+        )
+
+        assertEquals(serviceSolicitationUuid1, advertiseParams.serviceSolicitationUuids[0])
+        assertEquals(serviceSolicitationUuid2, advertiseParams.serviceSolicitationUuids[1])
+        assertEquals(serviceSolicitationUuid3, advertiseParams.serviceSolicitationUuids[2])
     }
 }

@@ -17,14 +17,18 @@ package androidx.fragment.app
 
 import android.app.Instrumentation
 import android.graphics.Canvas
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
+import android.view.animation.Animation.AnimationListener
 import android.view.animation.AnimationUtils
 import android.view.animation.TranslateAnimation
+import android.window.BackEvent
+import androidx.activity.BackEventCompat
 import androidx.annotation.AnimRes
 import androidx.annotation.LayoutRes
 import androidx.core.view.ViewCompat
@@ -35,6 +39,7 @@ import androidx.lifecycle.ViewModelStore
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.testutils.waitForExecution
 import androidx.testutils.withActivity
@@ -83,6 +88,7 @@ class FragmentAnimationTest {
         activityRule.waitForExecution()
 
         assertEnterPopExit(fragment)
+        assertThat(fragment.onResumeCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
 
     // Ensure that removing and popping a Fragment uses the exit and popEnter animators
@@ -94,6 +100,7 @@ class FragmentAnimationTest {
         val fragment = AnimationFragment()
         fm.beginTransaction().add(R.id.fragmentContainer, fragment, "1").commit()
         activityRule.waitForExecution()
+        assertThat(fragment.onResumeCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         fm.beginTransaction()
             .setCustomAnimations(ENTER, EXIT, POP_ENTER, POP_EXIT)
@@ -199,6 +206,8 @@ class FragmentAnimationTest {
             .add(R.id.fragmentContainer, fragment2, "2")
             .commit()
         activityRule.waitForExecution()
+        assertThat(fragment1.onResumeCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        assertThat(fragment2.onResumeCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         val fragment3 = AnimationFragment()
         fm.beginTransaction()
@@ -207,6 +216,7 @@ class FragmentAnimationTest {
             .addToBackStack(null)
             .commit()
         activityRule.waitForExecution()
+        assertThat(fragment3.onResumeCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         assertFragmentAnimation(fragment1, 1, false, EXIT)
         assertFragmentAnimation(fragment2, 1, false, EXIT)
@@ -236,6 +246,10 @@ class FragmentAnimationTest {
             .commit()
         activityRule.executePendingTransactions()
 
+        assertThat(
+            parent.animationStartedCountDownLatch.await(1000, TimeUnit.MILLISECONDS)
+        ).isTrue()
+
         assertFragmentAnimation(parent, 1, true, ENTER)
 
         val child = AnimationFragment()
@@ -254,6 +268,10 @@ class FragmentAnimationTest {
         activityRule.executePendingTransactions()
 
         assertThat(childContainer.findViewById<View>(childView.id)).isNotNull()
+        assertThat(
+            parent.animationStartedCountDownLatch.await(1000, TimeUnit.MILLISECONDS)
+        ).isTrue()
+
         assertFragmentAnimation(parent, 2, false, EXIT)
     }
 
@@ -269,6 +287,10 @@ class FragmentAnimationTest {
             .add(R.id.fragmentContainer, parent, "parent")
             .commit()
         activityRule.executePendingTransactions()
+
+        assertThat(
+            parent.animationStartedCountDownLatch.await(1000, TimeUnit.MILLISECONDS)
+        ).isTrue()
 
         assertFragmentAnimation(parent, 1, true, ENTER)
 
@@ -298,6 +320,10 @@ class FragmentAnimationTest {
 
         assertThat(childContainer.findViewById<View>(childView.id)).isNotNull()
         assertThat(grandChildContainer.findViewById<View>(grandChildView.id)).isNotNull()
+        assertThat(
+            parent.animationStartedCountDownLatch.await(1000, TimeUnit.MILLISECONDS)
+        ).isTrue()
+
         assertFragmentAnimation(parent, 2, false, EXIT)
     }
 
@@ -398,7 +424,7 @@ class FragmentAnimationTest {
             .setReorderingAllowed(true)
             .commit()
         activityRule.waitForExecution()
-        assertThat(fragment1.numAnimators).isEqualTo(0)
+        assertThat(fragment1.numStartedAnimators).isEqualTo(0)
 
         val fragment2 = AnimationFragment()
         fragment2.postponeEnterTransition()
@@ -426,10 +452,8 @@ class FragmentAnimationTest {
         assertThat(fragment2.view).isNull()
         assertThat(fragment2.isAdded).isFalse()
 
-        assertThat(fragment1.numAnimators).isEqualTo(0)
-        assertThat(fragment2.numAnimators).isEqualTo(0)
-        assertThat(fragment1.animation).isNull()
-        assertThat(fragment2.animation).isNull()
+        assertThat(fragment1.numStartedAnimators).isEqualTo(0)
+        assertThat(fragment2.numStartedAnimators).isEqualTo(0)
     }
 
     // Make sure that if the state was saved while a Fragment was animating that its
@@ -608,6 +632,69 @@ class FragmentAnimationTest {
 
         // We need to wait for the exit animation to end
         assertThat(fragment2.exitLatch.await(6000, TimeUnit.MILLISECONDS)).isTrue()
+
+        // Make sure the original fragment was correctly readded to the container
+        assertThat(fragment1.requireView().parent).isNotNull()
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.UPSIDE_DOWN_CAKE)
+    @Test
+    fun replaceOperationWithAnimationsThenSystemBack() {
+        waitForAnimationReady()
+        val fm1 = activityRule.activity.supportFragmentManager
+
+        val fragment1 = AnimationListenerFragment(R.layout.scene1)
+        fm1.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment1, "1")
+            .addToBackStack(null)
+            .commit()
+        activityRule.waitForExecution()
+
+        val fragment2 = AnimationListenerFragment()
+
+        fm1.beginTransaction()
+            .setCustomAnimations(
+                R.anim.fade_in,
+                R.anim.fade_out,
+                R.anim.fade_in,
+                R.anim.fade_out
+            )
+            .replace(R.id.fragmentContainer, fragment2, "2")
+            .addToBackStack(null)
+            .commit()
+        activityRule.executePendingTransactions(fm1)
+
+        assertThat(fragment2.startAnimationLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        // We need to wait for the exit animation to end
+        assertThat(fragment1.exitLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+
+        val dispatcher = activityRule.activity.onBackPressedDispatcher
+        activityRule.runOnUiThread {
+            dispatcher.dispatchOnBackStarted(BackEventCompat(0.1F, 0.1F, 0.1F, BackEvent.EDGE_LEFT))
+        }
+        activityRule.executePendingTransactions(fm1)
+
+        // We should not start any animations when we get the started callback
+        assertThat(fragment1.enterStartCount).isEqualTo(0)
+
+        activityRule.runOnUiThread {
+            dispatcher.dispatchOnBackProgressed(
+                BackEventCompat(0.2F, 0.2F, 0.2F, BackEvent.EDGE_LEFT)
+            )
+            dispatcher.onBackPressed()
+        }
+        activityRule.executePendingTransactions(fm1)
+
+        assertThat(fragment2.startAnimationLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+        // Now fragment2 should be animating away
+        assertThat(fragment2.isAdded).isFalse()
+        assertThat(fm1.findFragmentByTag("2"))
+            .isEqualTo(null) // fragmentManager does not know about animating fragment
+        assertThat(fragment2.parentFragmentManager)
+            .isEqualTo(fm1) // but the animating fragment knows the fragmentManager
+
+        // We need to wait for the exit animation to end
+        assertThat(fragment2.exitLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
 
         // Make sure the original fragment was correctly readded to the container
         assertThat(fragment1.requireView().parent).isNotNull()
@@ -1022,7 +1109,7 @@ class FragmentAnimationTest {
         isEnter: Boolean,
         animatorResourceId: Int
     ) {
-        assertThat(fragment.numAnimators).isEqualTo(numAnimators)
+        assertThat(fragment.numStartedAnimators).isEqualTo(numAnimators)
         assertThat(fragment.enter).isEqualTo(isEnter)
         assertThat(fragment.resourceId).isEqualTo(animatorResourceId)
         assertThat(fragment.animation).isNotNull()
@@ -1038,7 +1125,7 @@ class FragmentAnimationTest {
         assertThat(fragment.onCreateViewCalled).isTrue()
         assertThat(fragment.requireView().visibility).isEqualTo(View.VISIBLE)
         assertThat(fragment.requireView().alpha).isWithin(0f).of(0f)
-        assertThat(fragment.numAnimators).isEqualTo(expectedAnimators)
+        assertThat(fragment.numStartedAnimators).isEqualTo(expectedAnimators)
     }
 
     // On Lollipop and earlier, animations are not allowed during window transitions
@@ -1073,11 +1160,13 @@ class FragmentAnimationTest {
 
     class AnimationFragment(@LayoutRes contentLayoutId: Int = R.layout.strict_view_fragment) :
         StrictViewFragment(contentLayoutId) {
-        var numAnimators: Int = 0
+        var numStartedAnimators: Int = 0
+        var animationStartedCountDownLatch = CountDownLatch(1)
         var animation: Animation? = null
         var enter: Boolean = false
         var resourceId: Int = 0
         var loadedAnimation = 0
+        val onResumeCountDownLatch = CountDownLatch(1)
 
         override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
             if (nextAnim == 0 ||
@@ -1086,12 +1175,27 @@ class FragmentAnimationTest {
                 return null
             }
             loadedAnimation = nextAnim
-            numAnimators++
             animation = TranslateAnimation(-10f, 0f, 0f, 0f)
             (animation as TranslateAnimation).duration = 1
+            animationStartedCountDownLatch = CountDownLatch(1)
+            (animation as TranslateAnimation).setAnimationListener(object : AnimationListener {
+                override fun onAnimationStart(p0: Animation?) {
+                    numStartedAnimators++
+                    animationStartedCountDownLatch.countDown()
+                }
+
+                override fun onAnimationEnd(p0: Animation?) { }
+
+                override fun onAnimationRepeat(p0: Animation?) { }
+            })
             resourceId = nextAnim
             this.enter = enter
             return animation
+        }
+
+        override fun onResume() {
+            super.onResume()
+            onResumeCountDownLatch.countDown()
         }
     }
 

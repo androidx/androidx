@@ -25,7 +25,8 @@ plugins {
 
 dependencies {
     api(libs.kotlinStdlib)
-    implementation 'androidx.annotation:annotation:1.2.0'
+    implementation("androidx.annotation:annotation-experimental:1.1.0-rc01")
+    implementation("androidx.core:core:1.8.0")
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
     androidTestImplementation(libs.testRunner)
@@ -33,13 +34,14 @@ dependencies {
     androidTestImplementation("androidx.lifecycle:lifecycle-common:2.5.0-alpha01")
     androidTestImplementation("androidx.test:core:1.4.0@aar")
     androidTestImplementation(project(":core:core"))
+
+    samples(project(":graphics:graphics-core:graphics-core-samples"))
 }
 
 android {
     namespace 'androidx.graphics.core'
 
     defaultConfig {
-        minSdkVersion 17
         externalNativeBuild {
             def versionScript = file("src/main/cpp/jni.lds").getAbsolutePath()
 
@@ -51,6 +53,7 @@ android {
                                 "-Wl,--version-script=${versionScript}"
             }
         }
+        consumerProguardFiles 'proguard-rules.pro'
     }
     externalNativeBuild {
         cmake {
@@ -66,4 +69,5 @@ androidx {
     mavenVersion = LibraryVersions.GRAPHICS_CORE
     inceptionYear = "2021"
     description = "Leverage graphics facilities across multiple Android platform releases"
+    metalavaK2UastEnabled = true
 }

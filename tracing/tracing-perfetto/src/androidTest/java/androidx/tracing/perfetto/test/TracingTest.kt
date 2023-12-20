@@ -20,9 +20,9 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import androidx.tracing.perfetto.PerfettoHandshake.RequestKeys.RECEIVER_CLASS_NAME
-import androidx.tracing.perfetto.Tracing
+import androidx.tracing.perfetto.PerfettoSdkTrace
 import androidx.tracing.perfetto.TracingReceiver
+import androidx.tracing.perfetto.internal.handshake.protocol.RequestKeys.RECEIVER_CLASS_NAME
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,20 +33,20 @@ import org.junit.runner.RunWith
 class TracingTest {
     @Test
     fun test_endToEnd_binaryDependenciesPresent() {
-        assertThat(Tracing.isEnabled).isEqualTo(false)
+        assertThat(PerfettoSdkTrace.isEnabled).isEqualTo(false)
 
         // Note: no path to binary dependencies provided, so we are testing the case where the app
         // directly depends on :tracing:tracing-perfetto-binary
-        Tracing.enable()
-        assertThat(Tracing.isEnabled).isEqualTo(true)
+        PerfettoSdkTrace.enable()
+        assertThat(PerfettoSdkTrace.isEnabled).isEqualTo(true)
 
-        Tracing.enable()
-        assertThat(Tracing.isEnabled).isEqualTo(true)
+        PerfettoSdkTrace.enable()
+        assertThat(PerfettoSdkTrace.isEnabled).isEqualTo(true)
 
-        Tracing.traceEventStart(123, "foo")
-        Tracing.traceEventStart(321, "bar")
-        Tracing.traceEventEnd()
-        Tracing.traceEventEnd()
+        PerfettoSdkTrace.beginSection("foo")
+        PerfettoSdkTrace.beginSection("bar")
+        PerfettoSdkTrace.endSection()
+        PerfettoSdkTrace.endSection()
 
         // Note: content of the trace is verified by another test: TrivialTracingBenchmark
     }

@@ -28,12 +28,13 @@ import java.nio.channels.Channels
 
 /**
  * Loading SDK in memory on API 27+
+ * Also support single DEX SDKs on API 26.
  */
 internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFactory {
 
     @RequiresApi(Build.VERSION_CODES.O_MR1)
-    internal class InMemoryImpl(
-        private val assetManager: AssetManager
+    private class Api27Impl(
+        private val assetLoader: AssetLoader
     ) : InMemorySdkClassLoaderFactory() {
 
         @DoNotInline
@@ -44,12 +45,7 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
             try {
                 val buffers = arrayOfNulls<ByteBuffer>(sdkConfig.dexPaths.size)
                 for (i in sdkConfig.dexPaths.indices) {
-                    assetManager.open(sdkConfig.dexPaths[i]).use { inputStream ->
-                        val byteBuffer = ByteBuffer.allocate(inputStream.available())
-                        Channels.newChannel(inputStream).read(byteBuffer)
-                        byteBuffer.flip()
-                        buffers[i] = byteBuffer
-                    }
+                    buffers[i] = assetLoader.load(sdkConfig.dexPaths[i])
                 }
                 return InMemoryDexClassLoader(buffers, parent)
             } catch (ex: Exception) {
@@ -62,7 +58,36 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
         }
     }
 
-    internal class FailImpl : InMemorySdkClassLoaderFactory() {
+    @RequiresApi(Build.VERSION_CODES.O)
+    private class Api26Impl(
+        private val assetLoader: AssetLoader
+    ) : InMemorySdkClassLoaderFactory() {
+
+        @DoNotInline
+        override fun createClassLoaderFor(
+            sdkConfig: LocalSdkConfig,
+            parent: ClassLoader
+        ): ClassLoader {
+            if (sdkConfig.dexPaths.size != 1) {
+                throw LoadSdkCompatException(
+                    LoadSdkCompatException.LOAD_SDK_SDK_SANDBOX_DISABLED,
+                    "Can't use InMemoryDexClassLoader - API 26 supports only single DEX"
+                )
+            }
+            try {
+                val byteBuffer = assetLoader.load(sdkConfig.dexPaths[0])
+                return InMemoryDexClassLoader(byteBuffer, parent)
+            } catch (ex: Exception) {
+                throw LoadSdkCompatException(
+                    LoadSdkCompatException.LOAD_SDK_INTERNAL_ERROR,
+                    "Failed to instantiate classloader",
+                    ex
+                )
+            }
+        }
+    }
+
+    private class FailImpl : InMemorySdkClassLoaderFactory() {
         @DoNotInline
         override fun createClassLoaderFor(
             sdkConfig: LocalSdkConfig,
@@ -75,10 +100,25 @@ internal abstract class InMemorySdkClassLoaderFactory : SdkLoader.ClassLoaderFac
         }
     }
 
+    private class AssetLoader(
+        private val assetManager: AssetManager
+    ) {
+        fun load(assetName: String): ByteBuffer {
+            return assetManager.open(assetName).use { inputStream ->
+                val byteBuffer = ByteBuffer.allocate(inputStream.available())
+                Channels.newChannel(inputStream).read(byteBuffer)
+                byteBuffer.flip()
+                byteBuffer
+            }
+        }
+    }
+
     companion object {
         fun create(context: Context): InMemorySdkClassLoaderFactory {
             return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
-                InMemoryImpl(context.assets)
+                Api27Impl(AssetLoader(context.assets))
+            } else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+                Api26Impl(AssetLoader(context.assets))
             } else {
                 FailImpl()
             }

@@ -54,6 +54,8 @@ import androidx.compose.ui.platform.inspectable
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.lerp
+import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
+import androidx.wear.compose.foundation.LocalReduceMotion
 import kotlin.math.max
 import kotlin.math.pow
 import kotlinx.coroutines.coroutineScope
@@ -93,6 +95,7 @@ import kotlinx.coroutines.isActive
 public class PlaceholderState internal constructor(
     private val isContentReady: State<() -> Boolean>,
     private val maxScreenDimension: Float,
+    private val isReduceMotionEnabled: Boolean
 ) {
 
     /**
@@ -113,10 +116,12 @@ public class PlaceholderState internal constructor(
      * Start the animation of the placeholder state.
      */
     public suspend fun startPlaceholderAnimation() {
-        coroutineScope {
-            while (isActive) {
-                withInfiniteAnimationFrameMillis {
-                    frameMillis.longValue = it
+        if (!isReduceMotionEnabled) {
+            coroutineScope {
+                while (isActive) {
+                    withInfiniteAnimationFrameMillis {
+                        frameMillis.longValue = it
+                    }
                 }
             }
         }
@@ -206,6 +211,36 @@ public class PlaceholderState internal constructor(
     }
 
     /**
+     * The current value of the placeholder visual effect gradient progression alpha/opacity during
+     * the fade-in part of reset placeholder animation. This allows the effect to be faded in
+     * during the [PLACEHOLDER_RESET_ANIMATION_DURATION].
+     */
+    internal val resetPlaceholderFadeInAlpha: Float by derivedStateOf {
+        val absoluteProgression =
+            (frameMillis.longValue - startOfResetAnimation - RAPID).coerceAtMost(QUICK.toLong())
+                .toFloat() / QUICK.toFloat()
+        if (absoluteProgression < 0f) {
+            0f
+        } else {
+            val alpha = lerp(0.1f, 1f, absoluteProgression)
+            resetFadeInInterpolator.transform(alpha)
+        }
+    }
+
+    /**
+     * The current value of the placeholder visual effect gradient progression alpha/opacity during
+     * the fade-out part of reset placeholder animation. This allows the effect to be faded out
+     * during the [PLACEHOLDER_RESET_ANIMATION_DURATION].
+     */
+    internal val resetPlaceholderFadeOutAlpha: Float by derivedStateOf {
+        val absoluteProgression =
+            (frameMillis.longValue - startOfResetAnimation).coerceAtMost(RAPID.toLong())
+                .toFloat() / RAPID.toFloat()
+        val alpha = lerp(1f, 0f, absoluteProgression)
+        resetFadeOutInterpolator.transform(alpha)
+    }
+
+    /**
      * Returns true if the placeholder content should be shown with no placeholders effects and
      * false if either the placeholder or the wipe-off effect are being shown.
      */
@@ -233,22 +268,47 @@ public class PlaceholderState internal constructor(
     internal var placeholderStage: PlaceholderStage =
         if (isContentReady.value.invoke()) PlaceholderStage.ShowContent
         else PlaceholderStage.ShowPlaceholder
-        get() {
-            if (field != PlaceholderStage.ShowContent) {
+        get() = derivedStateOf {
+            if (field == PlaceholderStage.WipeOff || field == PlaceholderStage.ShowPlaceholder) {
                 // WipeOff
                 if (startOfWipeOffAnimation != 0L) {
                     if ((frameMillis.longValue - startOfWipeOffAnimation) >=
-                        PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS) {
+                        PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS
+                    ) {
                         field = PlaceholderStage.ShowContent
                     }
                     // Placeholder
                 } else if (isContentReady.value()) {
-                    startOfWipeOffAnimation = frameMillis.longValue
-                    field = PlaceholderStage.WipeOff
+                    if (isReduceMotionEnabled) {
+                        field = PlaceholderStage.ShowContent
+                    } else {
+                        startOfWipeOffAnimation = frameMillis.longValue
+                        field = PlaceholderStage.WipeOff
+                    }
+                }
+            } else {
+                if (!isContentReady.value()) {
+                    // Reset
+                    if (startOfResetAnimation != 0L) {
+                        if (frameMillis.longValue - startOfResetAnimation >=
+                            PLACEHOLDER_RESET_ANIMATION_DURATION) {
+                            startOfResetAnimation = 0L
+                            field = PlaceholderStage.ShowPlaceholder
+                        }
+                    } else {
+                        // ShowContent
+                        startOfWipeOffAnimation = 0L
+                        if (isReduceMotionEnabled) {
+                            field = PlaceholderStage.ShowPlaceholder
+                        } else {
+                            startOfResetAnimation = frameMillis.longValue
+                            field = PlaceholderStage.ResetContent
+                        }
+                    }
                 }
             }
-            return field
-        }
+            field
+        }.value
 
     /**
      * The frame time in milliseconds in the calling context of frame dispatch. Used to coordinate
@@ -256,10 +316,13 @@ public class PlaceholderState internal constructor(
      */
     internal val frameMillis = mutableLongStateOf(0L)
 
+    private var startOfResetAnimation = 0L
     private var startOfWipeOffAnimation = 0L
 
     private val progressionInterpolator: Easing = CubicBezierEasing(0.3f, 0f, 0.7f, 1f)
     private val wipeOffInterpolator: Easing = CubicBezierEasing(0f, 0.2f, 1f, 0.6f)
+    private val resetFadeInInterpolator: Easing = CubicBezierEasing(0.2f, 0f, 0f, 1f)
+    private val resetFadeOutInterpolator: Easing = CubicBezierEasing(0.3f, 0f, 1f, 1f)
 }
 
 /**
@@ -287,6 +350,7 @@ public class PlaceholderState internal constructor(
  * @param isContentReady a lambda to determine whether all of the data/content has been loaded for a
  * given component and is ready to be displayed.
  */
+@OptIn(ExperimentalWearFoundationApi::class)
 @ExperimentalWearMaterialApi
 @Composable
 public fun rememberPlaceholderState(
@@ -295,8 +359,15 @@ public fun rememberPlaceholderState(
     val maxScreenDimension = with(LocalDensity.current) {
         Dp(max(screenHeightDp(), screenWidthDp()).toFloat()).toPx()
     }
+    val isReduceMotionEnabled = LocalReduceMotion.current.enabled()
     val myLambdaState = rememberUpdatedState(isContentReady)
-    return remember { PlaceholderState(myLambdaState, maxScreenDimension) }
+    return remember {
+        PlaceholderState(
+            myLambdaState,
+            maxScreenDimension,
+            isReduceMotionEnabled
+        )
+    }
 }
 
 /**
@@ -373,8 +444,10 @@ public fun Modifier.placeholder(
  * @param shape the shape of the component.
  * @param color the color to use in the shimmer.
  */
+
 @Suppress("ComposableModifierFactory")
 @ExperimentalWearMaterialApi
+@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
 public fun Modifier.placeholderShimmer(
     placeholderState: PlaceholderState,
@@ -388,11 +461,15 @@ public fun Modifier.placeholderShimmer(
         properties["color"] = color
     }
 ) {
-    PlaceholderShimmerModifier(
-        placeholderState = placeholderState,
-        color = color,
-        shape = shape
-    )
+    if (LocalReduceMotion.current.enabled()) {
+        Modifier
+    } else {
+        PlaceholderShimmerModifier(
+            placeholderState = placeholderState,
+            color = color,
+            shape = shape
+        )
+    }
 }
 
 /**
@@ -573,12 +650,19 @@ internal value class PlaceholderStage internal constructor(internal val type: In
          * [WipeOff] in the loop after the wire-off animation.
          */
         val ShowContent = PlaceholderStage(2)
+
+        /**
+         * Resets the component to remove the content and reinstate the placeholders so that new
+         * content can be loaded. Enter this stage from [ShowContent] and exit to [ShowPlaceholder].
+         */
+        val ResetContent = PlaceholderStage(3)
     }
 
     override fun toString(): String {
         return when (this) {
             ShowPlaceholder -> "PlaceholderStage.ShowPlaceholder"
             WipeOff -> "PlaceholderStage.WipeOff"
+            ResetContent -> "PlaceholderStage.ResetContent"
             else -> "PlaceholderStage.ShowContent"
         }
     }
@@ -630,7 +714,8 @@ internal class PlaceholderBackgroundPainter(
                     placeholderState
                 ) to null
             }
-            PlaceholderStage.ShowPlaceholder -> {
+
+            PlaceholderStage.ShowPlaceholder, PlaceholderStage.ResetContent -> {
                 if (painter == null) {
                     SolidColor(color) to null
                 } else {
@@ -641,6 +726,12 @@ internal class PlaceholderBackgroundPainter(
             else -> {
                 null to null
             }
+        }
+
+        alpha = if (placeholderState.placeholderStage == PlaceholderStage.ResetContent) {
+            1f - placeholderState.resetPlaceholderFadeOutAlpha
+        } else {
+            1f
         }
 
         val size = this.size
@@ -749,15 +840,20 @@ private class PlaceholderModifier constructor(
     val shape: Shape
 ) : AbstractPlaceholderModifier(alpha, shape) {
     override fun generateBrush(offset: Offset): Brush? {
-            return when (placeholderState.placeholderStage) {
-                PlaceholderStage.ShowPlaceholder -> {
-                    SolidColor(color)
-                }
-                PlaceholderStage.WipeOff -> {
-                    wipeOffBrush(color, offset, placeholderState)
-                }
-                else -> {
-                    null
+        return when (placeholderState.placeholderStage) {
+            PlaceholderStage.ShowPlaceholder, PlaceholderStage.ResetContent -> {
+                SolidColor(color.copy(
+                    alpha =
+                    if (placeholderState.placeholderStage == PlaceholderStage.ResetContent) {
+                        placeholderState.resetPlaceholderFadeInAlpha * color.alpha
+                    } else color.alpha
+                ))
+            }
+            PlaceholderStage.WipeOff -> {
+                wipeOffBrush(color, offset, placeholderState)
+            }
+            else -> {
+                null
             }
         }
     }
@@ -842,3 +938,4 @@ internal const val PLACEHOLDER_SHIMMER_DURATION_MS = 800L
 internal const val PLACEHOLDER_WIPE_OFF_PROGRESSION_DURATION_MS = 300L
 internal const val PLACEHOLDER_SHIMMER_GAP_BETWEEN_ANIMATION_LOOPS_MS = 2000L
 internal const val PLACEHOLDER_WIPE_OFF_PROGRESSION_ALPHA_DURATION_MS = 80L
+internal const val PLACEHOLDER_RESET_ANIMATION_DURATION = 400L

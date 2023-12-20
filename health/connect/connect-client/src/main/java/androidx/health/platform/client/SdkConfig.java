@@ -20,12 +20,11 @@ import androidx.annotation.RestrictTo;
 /**
  * SDK Configurations
  *
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class SdkConfig {
     // should be increased everytime a new SDK is released
-    public static final int SDK_VERSION = 12;
+    public static final int SDK_VERSION = 112;
 
     private SdkConfig() {}
 }

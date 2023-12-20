@@ -31,7 +31,6 @@ import androidx.compose.ui.semantics.collectionInfo
 import androidx.compose.ui.semantics.collectionItemInfo
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.tv.foundation.ExperimentalTvFoundationApi
 import androidx.tv.foundation.PivotOffsets
 import androidx.tv.foundation.lazy.list.TvLazyColumn
 import androidx.tv.foundation.lazy.list.TvLazyRow
@@ -57,31 +56,27 @@ fun LazyRowsAndColumns() {
     }
 }
 
-@OptIn(ExperimentalTvFoundationApi::class)
 @Composable
 fun SampleLazyRow(modifier: Modifier = Modifier) {
     val colors = listOf(Color.Red, Color.Magenta, Color.Green, Color.Yellow, Color.Blue, Color.Cyan)
     val backgroundColors = List(columnsCount) { colors.random() }
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
 
-    FocusGroup {
-        TvLazyRow(
-            modifier = modifier.lazyListSemantics(1, columnsCount),
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
-        ) {
-            itemsIndexed(backgroundColors) { index, item ->
-                val cardModifier =
-                    if (index == 0)
-                        Modifier.initiallyFocused()
-                    else
-                        Modifier.restorableFocus()
-
-                Card(
-                    modifier = cardModifier.semantics {
+    TvLazyRow(
+        modifier = modifier
+            .lazyListSemantics(1, columnsCount)
+            .then(focusRestorerModifiers.parentModifier),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        itemsIndexed(backgroundColors) { index, item ->
+            Card(
+                modifier = Modifier
+                    .ifElse(index == 0, focusRestorerModifiers.childModifier)
+                    .semantics {
                         collectionItemInfo = CollectionItemInfo(0, 1, index, 1)
                     },
-                    backgroundColor = item
-                )
-            }
+                backgroundColor = item
+            )
         }
     }
 }

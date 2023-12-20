@@ -30,7 +30,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Assorted common utilities.
  *
- * @hide
  */
 @RestrictTo(LIBRARY_GROUP)
 public final class CommonUtils {

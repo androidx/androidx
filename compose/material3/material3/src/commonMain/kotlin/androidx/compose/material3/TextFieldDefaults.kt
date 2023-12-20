@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.dp
 @Immutable
 object TextFieldDefaults {
     /** Default shape for a [TextField]. */
-    val shape: Shape @Composable get() = FilledTextFieldTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = FilledTextFieldTokens.ContainerShape.value
 
     /**
      * The default min width applied to a [TextField].
@@ -245,58 +245,58 @@ object TextFieldDefaults {
      */
     @Composable
     fun colors(
-        focusedTextColor: Color = FilledTextFieldTokens.FocusInputColor.toColor(),
-        unfocusedTextColor: Color = FilledTextFieldTokens.InputColor.toColor(),
-        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+        focusedTextColor: Color = FilledTextFieldTokens.FocusInputColor.value,
+        unfocusedTextColor: Color = FilledTextFieldTokens.InputColor.value,
+        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        errorTextColor: Color = FilledTextFieldTokens.ErrorInputColor.toColor(),
-        focusedContainerColor: Color = FilledTextFieldTokens.ContainerColor.toColor(),
-        unfocusedContainerColor: Color = FilledTextFieldTokens.ContainerColor.toColor(),
-        disabledContainerColor: Color = FilledTextFieldTokens.ContainerColor.toColor(),
-        errorContainerColor: Color = FilledTextFieldTokens.ContainerColor.toColor(),
-        cursorColor: Color = FilledTextFieldTokens.CaretColor.toColor(),
-        errorCursorColor: Color = FilledTextFieldTokens.ErrorFocusCaretColor.toColor(),
+        errorTextColor: Color = FilledTextFieldTokens.ErrorInputColor.value,
+        focusedContainerColor: Color = FilledTextFieldTokens.ContainerColor.value,
+        unfocusedContainerColor: Color = FilledTextFieldTokens.ContainerColor.value,
+        disabledContainerColor: Color = FilledTextFieldTokens.ContainerColor.value,
+        errorContainerColor: Color = FilledTextFieldTokens.ContainerColor.value,
+        cursorColor: Color = FilledTextFieldTokens.CaretColor.value,
+        errorCursorColor: Color = FilledTextFieldTokens.ErrorFocusCaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedIndicatorColor: Color = FilledTextFieldTokens.FocusActiveIndicatorColor.toColor(),
-        unfocusedIndicatorColor: Color = FilledTextFieldTokens.ActiveIndicatorColor.toColor(),
-        disabledIndicatorColor: Color = FilledTextFieldTokens.DisabledActiveIndicatorColor.toColor()
+        focusedIndicatorColor: Color = FilledTextFieldTokens.FocusActiveIndicatorColor.value,
+        unfocusedIndicatorColor: Color = FilledTextFieldTokens.ActiveIndicatorColor.value,
+        disabledIndicatorColor: Color = FilledTextFieldTokens.DisabledActiveIndicatorColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledActiveIndicatorOpacity),
-        errorIndicatorColor: Color = FilledTextFieldTokens.ErrorActiveIndicatorColor.toColor(),
-        focusedLeadingIconColor: Color = FilledTextFieldTokens.FocusLeadingIconColor.toColor(),
-        unfocusedLeadingIconColor: Color = FilledTextFieldTokens.LeadingIconColor.toColor(),
-        disabledLeadingIconColor: Color = FilledTextFieldTokens.DisabledLeadingIconColor.toColor()
+        errorIndicatorColor: Color = FilledTextFieldTokens.ErrorActiveIndicatorColor.value,
+        focusedLeadingIconColor: Color = FilledTextFieldTokens.FocusLeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = FilledTextFieldTokens.LeadingIconColor.value,
+        disabledLeadingIconColor: Color = FilledTextFieldTokens.DisabledLeadingIconColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
-        errorLeadingIconColor: Color = FilledTextFieldTokens.ErrorLeadingIconColor.toColor(),
-        focusedTrailingIconColor: Color = FilledTextFieldTokens.FocusTrailingIconColor.toColor(),
-        unfocusedTrailingIconColor: Color = FilledTextFieldTokens.TrailingIconColor.toColor(),
-        disabledTrailingIconColor: Color = FilledTextFieldTokens.DisabledTrailingIconColor.toColor()
+        errorLeadingIconColor: Color = FilledTextFieldTokens.ErrorLeadingIconColor.value,
+        focusedTrailingIconColor: Color = FilledTextFieldTokens.FocusTrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = FilledTextFieldTokens.TrailingIconColor.value,
+        disabledTrailingIconColor: Color = FilledTextFieldTokens.DisabledTrailingIconColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
-        errorTrailingIconColor: Color = FilledTextFieldTokens.ErrorTrailingIconColor.toColor(),
-        focusedLabelColor: Color = FilledTextFieldTokens.FocusLabelColor.toColor(),
-        unfocusedLabelColor: Color = FilledTextFieldTokens.LabelColor.toColor(),
-        disabledLabelColor: Color = FilledTextFieldTokens.DisabledLabelColor.toColor()
+        errorTrailingIconColor: Color = FilledTextFieldTokens.ErrorTrailingIconColor.value,
+        focusedLabelColor: Color = FilledTextFieldTokens.FocusLabelColor.value,
+        unfocusedLabelColor: Color = FilledTextFieldTokens.LabelColor.value,
+        disabledLabelColor: Color = FilledTextFieldTokens.DisabledLabelColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledLabelOpacity),
-        errorLabelColor: Color = FilledTextFieldTokens.ErrorLabelColor.toColor(),
-        focusedPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.toColor(),
-        unfocusedPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.toColor(),
-        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+        errorLabelColor: Color = FilledTextFieldTokens.ErrorLabelColor.value,
+        focusedPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.value,
+        unfocusedPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.value,
+        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        errorPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.toColor(),
-        focusedSupportingTextColor: Color = FilledTextFieldTokens.FocusSupportingColor.toColor(),
-        unfocusedSupportingTextColor: Color = FilledTextFieldTokens.SupportingColor.toColor(),
-        disabledSupportingTextColor: Color = FilledTextFieldTokens.DisabledSupportingColor.toColor()
+        errorPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.value,
+        focusedSupportingTextColor: Color = FilledTextFieldTokens.FocusSupportingColor.value,
+        unfocusedSupportingTextColor: Color = FilledTextFieldTokens.SupportingColor.value,
+        disabledSupportingTextColor: Color = FilledTextFieldTokens.DisabledSupportingColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledSupportingOpacity),
-        errorSupportingTextColor: Color = FilledTextFieldTokens.ErrorSupportingColor.toColor(),
-        focusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor(),
-        unfocusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor(),
-        disabledPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor()
+        errorSupportingTextColor: Color = FilledTextFieldTokens.ErrorSupportingColor.value,
+        focusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value,
+        unfocusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value,
+        disabledPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        errorPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor(),
-        focusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor(),
-        unfocusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor(),
-        disabledSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor()
+        errorPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value,
+        focusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value,
+        unfocusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value,
+        disabledSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        errorSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor(),
+        errorSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value,
     ): TextFieldColors =
         TextFieldColors(
             focusedTextColor = focusedTextColor,
@@ -536,7 +536,7 @@ object TextFieldDefaults {
         isError: Boolean,
         interactionSource: InteractionSource,
         colors: TextFieldColors,
-        shape: Shape = OutlinedTextFieldTokens.ContainerShape.toShape(),
+        shape: Shape = OutlinedTextFieldTokens.ContainerShape.value,
         focusedBorderThickness: Dp = OutlinedTextFieldDefaults.FocusedBorderThickness,
         unfocusedBorderThickness: Dp = OutlinedTextFieldDefaults.UnfocusedBorderThickness
     ) = OutlinedTextFieldDefaults.ContainerBox(
@@ -669,56 +669,56 @@ object TextFieldDefaults {
     @ExperimentalMaterial3Api
     @Composable
     fun textFieldColors(
-        focusedTextColor: Color = FilledTextFieldTokens.FocusInputColor.toColor(),
-        unfocusedTextColor: Color = FilledTextFieldTokens.InputColor.toColor(),
-        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+        focusedTextColor: Color = FilledTextFieldTokens.FocusInputColor.value,
+        unfocusedTextColor: Color = FilledTextFieldTokens.InputColor.value,
+        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        errorTextColor: Color = FilledTextFieldTokens.ErrorInputColor.toColor(),
-        containerColor: Color = FilledTextFieldTokens.ContainerColor.toColor(),
-        errorContainerColor: Color = FilledTextFieldTokens.ContainerColor.toColor(),
-        cursorColor: Color = FilledTextFieldTokens.CaretColor.toColor(),
-        errorCursorColor: Color = FilledTextFieldTokens.ErrorFocusCaretColor.toColor(),
+        errorTextColor: Color = FilledTextFieldTokens.ErrorInputColor.value,
+        containerColor: Color = FilledTextFieldTokens.ContainerColor.value,
+        errorContainerColor: Color = FilledTextFieldTokens.ContainerColor.value,
+        cursorColor: Color = FilledTextFieldTokens.CaretColor.value,
+        errorCursorColor: Color = FilledTextFieldTokens.ErrorFocusCaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedIndicatorColor: Color = FilledTextFieldTokens.FocusActiveIndicatorColor.toColor(),
-        unfocusedIndicatorColor: Color = FilledTextFieldTokens.ActiveIndicatorColor.toColor(),
-        disabledIndicatorColor: Color = FilledTextFieldTokens.DisabledActiveIndicatorColor.toColor()
+        focusedIndicatorColor: Color = FilledTextFieldTokens.FocusActiveIndicatorColor.value,
+        unfocusedIndicatorColor: Color = FilledTextFieldTokens.ActiveIndicatorColor.value,
+        disabledIndicatorColor: Color = FilledTextFieldTokens.DisabledActiveIndicatorColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledActiveIndicatorOpacity),
-        errorIndicatorColor: Color = FilledTextFieldTokens.ErrorActiveIndicatorColor.toColor(),
-        focusedLeadingIconColor: Color = FilledTextFieldTokens.FocusLeadingIconColor.toColor(),
-        unfocusedLeadingIconColor: Color = FilledTextFieldTokens.LeadingIconColor.toColor(),
-        disabledLeadingIconColor: Color = FilledTextFieldTokens.DisabledLeadingIconColor.toColor()
+        errorIndicatorColor: Color = FilledTextFieldTokens.ErrorActiveIndicatorColor.value,
+        focusedLeadingIconColor: Color = FilledTextFieldTokens.FocusLeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = FilledTextFieldTokens.LeadingIconColor.value,
+        disabledLeadingIconColor: Color = FilledTextFieldTokens.DisabledLeadingIconColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
-        errorLeadingIconColor: Color = FilledTextFieldTokens.ErrorLeadingIconColor.toColor(),
-        focusedTrailingIconColor: Color = FilledTextFieldTokens.FocusTrailingIconColor.toColor(),
-        unfocusedTrailingIconColor: Color = FilledTextFieldTokens.TrailingIconColor.toColor(),
-        disabledTrailingIconColor: Color = FilledTextFieldTokens.DisabledTrailingIconColor.toColor()
+        errorLeadingIconColor: Color = FilledTextFieldTokens.ErrorLeadingIconColor.value,
+        focusedTrailingIconColor: Color = FilledTextFieldTokens.FocusTrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = FilledTextFieldTokens.TrailingIconColor.value,
+        disabledTrailingIconColor: Color = FilledTextFieldTokens.DisabledTrailingIconColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
-        errorTrailingIconColor: Color = FilledTextFieldTokens.ErrorTrailingIconColor.toColor(),
-        focusedLabelColor: Color = FilledTextFieldTokens.FocusLabelColor.toColor(),
-        unfocusedLabelColor: Color = FilledTextFieldTokens.LabelColor.toColor(),
-        disabledLabelColor: Color = FilledTextFieldTokens.DisabledLabelColor.toColor()
+        errorTrailingIconColor: Color = FilledTextFieldTokens.ErrorTrailingIconColor.value,
+        focusedLabelColor: Color = FilledTextFieldTokens.FocusLabelColor.value,
+        unfocusedLabelColor: Color = FilledTextFieldTokens.LabelColor.value,
+        disabledLabelColor: Color = FilledTextFieldTokens.DisabledLabelColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledLabelOpacity),
-        errorLabelColor: Color = FilledTextFieldTokens.ErrorLabelColor.toColor(),
-        focusedPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.toColor(),
-        unfocusedPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.toColor(),
-        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+        errorLabelColor: Color = FilledTextFieldTokens.ErrorLabelColor.value,
+        focusedPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.value,
+        unfocusedPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.value,
+        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        errorPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.toColor(),
-        focusedSupportingTextColor: Color = FilledTextFieldTokens.FocusSupportingColor.toColor(),
-        unfocusedSupportingTextColor: Color = FilledTextFieldTokens.SupportingColor.toColor(),
-        disabledSupportingTextColor: Color = FilledTextFieldTokens.DisabledSupportingColor.toColor()
+        errorPlaceholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.value,
+        focusedSupportingTextColor: Color = FilledTextFieldTokens.FocusSupportingColor.value,
+        unfocusedSupportingTextColor: Color = FilledTextFieldTokens.SupportingColor.value,
+        disabledSupportingTextColor: Color = FilledTextFieldTokens.DisabledSupportingColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledSupportingOpacity),
-        errorSupportingTextColor: Color = FilledTextFieldTokens.ErrorSupportingColor.toColor(),
-        focusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor(),
-        unfocusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor(),
-        disabledPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor()
+        errorSupportingTextColor: Color = FilledTextFieldTokens.ErrorSupportingColor.value,
+        focusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value,
+        unfocusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value,
+        disabledPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        errorPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor(),
-        focusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor(),
-        unfocusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor(),
-        disabledSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor()
+        errorPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value,
+        focusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value,
+        unfocusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value,
+        disabledSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        errorSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor(),
+        errorSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value,
     ): TextFieldColors = colors(
         focusedTextColor = focusedTextColor,
         unfocusedTextColor = unfocusedTextColor,
@@ -819,56 +819,56 @@ object TextFieldDefaults {
     @ExperimentalMaterial3Api
     @Composable
     fun outlinedTextFieldColors(
-        focusedTextColor: Color = OutlinedTextFieldTokens.FocusInputColor.toColor(),
-        unfocusedTextColor: Color = OutlinedTextFieldTokens.InputColor.toColor(),
-        disabledTextColor: Color = OutlinedTextFieldTokens.DisabledInputColor.toColor()
+        focusedTextColor: Color = OutlinedTextFieldTokens.FocusInputColor.value,
+        unfocusedTextColor: Color = OutlinedTextFieldTokens.InputColor.value,
+        disabledTextColor: Color = OutlinedTextFieldTokens.DisabledInputColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-        errorTextColor: Color = OutlinedTextFieldTokens.ErrorInputColor.toColor(),
+        errorTextColor: Color = OutlinedTextFieldTokens.ErrorInputColor.value,
         containerColor: Color = Color.Transparent,
         errorContainerColor: Color = Color.Transparent,
-        cursorColor: Color = OutlinedTextFieldTokens.CaretColor.toColor(),
-        errorCursorColor: Color = OutlinedTextFieldTokens.ErrorFocusCaretColor.toColor(),
+        cursorColor: Color = OutlinedTextFieldTokens.CaretColor.value,
+        errorCursorColor: Color = OutlinedTextFieldTokens.ErrorFocusCaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedBorderColor: Color = OutlinedTextFieldTokens.FocusOutlineColor.toColor(),
-        unfocusedBorderColor: Color = OutlinedTextFieldTokens.OutlineColor.toColor(),
-        disabledBorderColor: Color = OutlinedTextFieldTokens.DisabledOutlineColor.toColor()
+        focusedBorderColor: Color = OutlinedTextFieldTokens.FocusOutlineColor.value,
+        unfocusedBorderColor: Color = OutlinedTextFieldTokens.OutlineColor.value,
+        disabledBorderColor: Color = OutlinedTextFieldTokens.DisabledOutlineColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledOutlineOpacity),
-        errorBorderColor: Color = OutlinedTextFieldTokens.ErrorOutlineColor.toColor(),
-        focusedLeadingIconColor: Color = OutlinedTextFieldTokens.FocusLeadingIconColor.toColor(),
-        unfocusedLeadingIconColor: Color = OutlinedTextFieldTokens.LeadingIconColor.toColor(),
-        disabledLeadingIconColor: Color = OutlinedTextFieldTokens.DisabledLeadingIconColor.toColor()
+        errorBorderColor: Color = OutlinedTextFieldTokens.ErrorOutlineColor.value,
+        focusedLeadingIconColor: Color = OutlinedTextFieldTokens.FocusLeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = OutlinedTextFieldTokens.LeadingIconColor.value,
+        disabledLeadingIconColor: Color = OutlinedTextFieldTokens.DisabledLeadingIconColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledLeadingIconOpacity),
-        errorLeadingIconColor: Color = OutlinedTextFieldTokens.ErrorLeadingIconColor.toColor(),
-        focusedTrailingIconColor: Color = OutlinedTextFieldTokens.FocusTrailingIconColor.toColor(),
-        unfocusedTrailingIconColor: Color = OutlinedTextFieldTokens.TrailingIconColor.toColor(),
+        errorLeadingIconColor: Color = OutlinedTextFieldTokens.ErrorLeadingIconColor.value,
+        focusedTrailingIconColor: Color = OutlinedTextFieldTokens.FocusTrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = OutlinedTextFieldTokens.TrailingIconColor.value,
         disabledTrailingIconColor: Color = OutlinedTextFieldTokens.DisabledTrailingIconColor
-            .toColor().copy(alpha = OutlinedTextFieldTokens.DisabledTrailingIconOpacity),
-        errorTrailingIconColor: Color = OutlinedTextFieldTokens.ErrorTrailingIconColor.toColor(),
-        focusedLabelColor: Color = OutlinedTextFieldTokens.FocusLabelColor.toColor(),
-        unfocusedLabelColor: Color = OutlinedTextFieldTokens.LabelColor.toColor(),
-        disabledLabelColor: Color = OutlinedTextFieldTokens.DisabledLabelColor.toColor()
+            .value.copy(alpha = OutlinedTextFieldTokens.DisabledTrailingIconOpacity),
+        errorTrailingIconColor: Color = OutlinedTextFieldTokens.ErrorTrailingIconColor.value,
+        focusedLabelColor: Color = OutlinedTextFieldTokens.FocusLabelColor.value,
+        unfocusedLabelColor: Color = OutlinedTextFieldTokens.LabelColor.value,
+        disabledLabelColor: Color = OutlinedTextFieldTokens.DisabledLabelColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledLabelOpacity),
-        errorLabelColor: Color = OutlinedTextFieldTokens.ErrorLabelColor.toColor(),
-        focusedPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.toColor(),
-        unfocusedPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.toColor(),
-        disabledPlaceholderColor: Color = OutlinedTextFieldTokens.DisabledInputColor.toColor()
+        errorLabelColor: Color = OutlinedTextFieldTokens.ErrorLabelColor.value,
+        focusedPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.value,
+        unfocusedPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.value,
+        disabledPlaceholderColor: Color = OutlinedTextFieldTokens.DisabledInputColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-        errorPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.toColor(),
-        focusedSupportingTextColor: Color = OutlinedTextFieldTokens.FocusSupportingColor.toColor(),
-        unfocusedSupportingTextColor: Color = OutlinedTextFieldTokens.SupportingColor.toColor(),
+        errorPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.value,
+        focusedSupportingTextColor: Color = OutlinedTextFieldTokens.FocusSupportingColor.value,
+        unfocusedSupportingTextColor: Color = OutlinedTextFieldTokens.SupportingColor.value,
         disabledSupportingTextColor: Color = OutlinedTextFieldTokens.DisabledSupportingColor
-            .toColor().copy(alpha = OutlinedTextFieldTokens.DisabledSupportingOpacity),
-        errorSupportingTextColor: Color = OutlinedTextFieldTokens.ErrorSupportingColor.toColor(),
-        focusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor(),
-        unfocusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor(),
-        disabledPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor()
+            .value.copy(alpha = OutlinedTextFieldTokens.DisabledSupportingOpacity),
+        errorSupportingTextColor: Color = OutlinedTextFieldTokens.ErrorSupportingColor.value,
+        focusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value,
+        unfocusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value,
+        disabledPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-        errorPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor(),
-        focusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor(),
-        unfocusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor(),
-        disabledSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor()
+        errorPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value,
+        focusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value,
+        unfocusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value,
+        disabledSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-        errorSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor(),
+        errorSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value,
     ): TextFieldColors = OutlinedTextFieldDefaults.colors(
         focusedTextColor = focusedTextColor,
         unfocusedTextColor = unfocusedTextColor,
@@ -1058,51 +1058,51 @@ object TextFieldDefaults {
     @ExperimentalMaterial3Api
     @Composable
     fun textFieldColors(
-        textColor: Color = FilledTextFieldTokens.InputColor.toColor(),
-        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+        textColor: Color = FilledTextFieldTokens.InputColor.value,
+        disabledTextColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        containerColor: Color = FilledTextFieldTokens.ContainerColor.toColor(),
-        cursorColor: Color = FilledTextFieldTokens.CaretColor.toColor(),
-        errorCursorColor: Color = FilledTextFieldTokens.ErrorFocusCaretColor.toColor(),
+        containerColor: Color = FilledTextFieldTokens.ContainerColor.value,
+        cursorColor: Color = FilledTextFieldTokens.CaretColor.value,
+        errorCursorColor: Color = FilledTextFieldTokens.ErrorFocusCaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedIndicatorColor: Color = FilledTextFieldTokens.FocusActiveIndicatorColor.toColor(),
-        unfocusedIndicatorColor: Color = FilledTextFieldTokens.ActiveIndicatorColor.toColor(),
-        disabledIndicatorColor: Color = FilledTextFieldTokens.DisabledActiveIndicatorColor.toColor()
+        focusedIndicatorColor: Color = FilledTextFieldTokens.FocusActiveIndicatorColor.value,
+        unfocusedIndicatorColor: Color = FilledTextFieldTokens.ActiveIndicatorColor.value,
+        disabledIndicatorColor: Color = FilledTextFieldTokens.DisabledActiveIndicatorColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledActiveIndicatorOpacity),
-        errorIndicatorColor: Color = FilledTextFieldTokens.ErrorActiveIndicatorColor.toColor(),
-        focusedLeadingIconColor: Color = FilledTextFieldTokens.FocusLeadingIconColor.toColor(),
-        unfocusedLeadingIconColor: Color = FilledTextFieldTokens.LeadingIconColor.toColor(),
-        disabledLeadingIconColor: Color = FilledTextFieldTokens.DisabledLeadingIconColor.toColor()
+        errorIndicatorColor: Color = FilledTextFieldTokens.ErrorActiveIndicatorColor.value,
+        focusedLeadingIconColor: Color = FilledTextFieldTokens.FocusLeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = FilledTextFieldTokens.LeadingIconColor.value,
+        disabledLeadingIconColor: Color = FilledTextFieldTokens.DisabledLeadingIconColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledLeadingIconOpacity),
-        errorLeadingIconColor: Color = FilledTextFieldTokens.ErrorLeadingIconColor.toColor(),
-        focusedTrailingIconColor: Color = FilledTextFieldTokens.FocusTrailingIconColor.toColor(),
-        unfocusedTrailingIconColor: Color = FilledTextFieldTokens.TrailingIconColor.toColor(),
-        disabledTrailingIconColor: Color = FilledTextFieldTokens.DisabledTrailingIconColor.toColor()
+        errorLeadingIconColor: Color = FilledTextFieldTokens.ErrorLeadingIconColor.value,
+        focusedTrailingIconColor: Color = FilledTextFieldTokens.FocusTrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = FilledTextFieldTokens.TrailingIconColor.value,
+        disabledTrailingIconColor: Color = FilledTextFieldTokens.DisabledTrailingIconColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledTrailingIconOpacity),
-        errorTrailingIconColor: Color = FilledTextFieldTokens.ErrorTrailingIconColor.toColor(),
-        focusedLabelColor: Color = FilledTextFieldTokens.FocusLabelColor.toColor(),
-        unfocusedLabelColor: Color = FilledTextFieldTokens.LabelColor.toColor(),
-        disabledLabelColor: Color = FilledTextFieldTokens.DisabledLabelColor.toColor()
+        errorTrailingIconColor: Color = FilledTextFieldTokens.ErrorTrailingIconColor.value,
+        focusedLabelColor: Color = FilledTextFieldTokens.FocusLabelColor.value,
+        unfocusedLabelColor: Color = FilledTextFieldTokens.LabelColor.value,
+        disabledLabelColor: Color = FilledTextFieldTokens.DisabledLabelColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledLabelOpacity),
-        errorLabelColor: Color = FilledTextFieldTokens.ErrorLabelColor.toColor(),
-        placeholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.toColor(),
-        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.toColor()
+        errorLabelColor: Color = FilledTextFieldTokens.ErrorLabelColor.value,
+        placeholderColor: Color = FilledTextFieldTokens.InputPlaceholderColor.value,
+        disabledPlaceholderColor: Color = FilledTextFieldTokens.DisabledInputColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        focusedSupportingTextColor: Color = FilledTextFieldTokens.FocusSupportingColor.toColor(),
-        unfocusedSupportingTextColor: Color = FilledTextFieldTokens.SupportingColor.toColor(),
-        disabledSupportingTextColor: Color = FilledTextFieldTokens.DisabledSupportingColor.toColor()
+        focusedSupportingTextColor: Color = FilledTextFieldTokens.FocusSupportingColor.value,
+        unfocusedSupportingTextColor: Color = FilledTextFieldTokens.SupportingColor.value,
+        disabledSupportingTextColor: Color = FilledTextFieldTokens.DisabledSupportingColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledSupportingOpacity),
-        errorSupportingTextColor: Color = FilledTextFieldTokens.ErrorSupportingColor.toColor(),
-        focusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor(),
-        unfocusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor(),
-        disabledPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor()
+        errorSupportingTextColor: Color = FilledTextFieldTokens.ErrorSupportingColor.value,
+        focusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value,
+        unfocusedPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value,
+        disabledPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        errorPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.toColor(),
-        focusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor(),
-        unfocusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor(),
-        disabledSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor()
+        errorPrefixColor: Color = FilledTextFieldTokens.InputPrefixColor.value,
+        focusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value,
+        unfocusedSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value,
+        disabledSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value
             .copy(alpha = FilledTextFieldTokens.DisabledInputOpacity),
-        errorSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.toColor(),
+        errorSuffixColor: Color = FilledTextFieldTokens.InputSuffixColor.value,
     ): TextFieldColors = colors(
         focusedTextColor = textColor,
         unfocusedTextColor = textColor,
@@ -1153,51 +1153,51 @@ object TextFieldDefaults {
     @ExperimentalMaterial3Api
     @Composable
     fun outlinedTextFieldColors(
-        textColor: Color = OutlinedTextFieldTokens.InputColor.toColor(),
-        disabledTextColor: Color = OutlinedTextFieldTokens.DisabledInputColor.toColor()
+        textColor: Color = OutlinedTextFieldTokens.InputColor.value,
+        disabledTextColor: Color = OutlinedTextFieldTokens.DisabledInputColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
         containerColor: Color = Color.Transparent,
-        cursorColor: Color = OutlinedTextFieldTokens.CaretColor.toColor(),
-        errorCursorColor: Color = OutlinedTextFieldTokens.ErrorFocusCaretColor.toColor(),
+        cursorColor: Color = OutlinedTextFieldTokens.CaretColor.value,
+        errorCursorColor: Color = OutlinedTextFieldTokens.ErrorFocusCaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedBorderColor: Color = OutlinedTextFieldTokens.FocusOutlineColor.toColor(),
-        unfocusedBorderColor: Color = OutlinedTextFieldTokens.OutlineColor.toColor(),
-        disabledBorderColor: Color = OutlinedTextFieldTokens.DisabledOutlineColor.toColor()
+        focusedBorderColor: Color = OutlinedTextFieldTokens.FocusOutlineColor.value,
+        unfocusedBorderColor: Color = OutlinedTextFieldTokens.OutlineColor.value,
+        disabledBorderColor: Color = OutlinedTextFieldTokens.DisabledOutlineColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledOutlineOpacity),
-        errorBorderColor: Color = OutlinedTextFieldTokens.ErrorOutlineColor.toColor(),
-        focusedLeadingIconColor: Color = OutlinedTextFieldTokens.FocusLeadingIconColor.toColor(),
-        unfocusedLeadingIconColor: Color = OutlinedTextFieldTokens.LeadingIconColor.toColor(),
-        disabledLeadingIconColor: Color = OutlinedTextFieldTokens.DisabledLeadingIconColor.toColor()
+        errorBorderColor: Color = OutlinedTextFieldTokens.ErrorOutlineColor.value,
+        focusedLeadingIconColor: Color = OutlinedTextFieldTokens.FocusLeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = OutlinedTextFieldTokens.LeadingIconColor.value,
+        disabledLeadingIconColor: Color = OutlinedTextFieldTokens.DisabledLeadingIconColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledLeadingIconOpacity),
-        errorLeadingIconColor: Color = OutlinedTextFieldTokens.ErrorLeadingIconColor.toColor(),
-        focusedTrailingIconColor: Color = OutlinedTextFieldTokens.FocusTrailingIconColor.toColor(),
-        unfocusedTrailingIconColor: Color = OutlinedTextFieldTokens.TrailingIconColor.toColor(),
+        errorLeadingIconColor: Color = OutlinedTextFieldTokens.ErrorLeadingIconColor.value,
+        focusedTrailingIconColor: Color = OutlinedTextFieldTokens.FocusTrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = OutlinedTextFieldTokens.TrailingIconColor.value,
         disabledTrailingIconColor: Color = OutlinedTextFieldTokens.DisabledTrailingIconColor
-            .toColor().copy(alpha = OutlinedTextFieldTokens.DisabledTrailingIconOpacity),
-        errorTrailingIconColor: Color = OutlinedTextFieldTokens.ErrorTrailingIconColor.toColor(),
-        focusedLabelColor: Color = OutlinedTextFieldTokens.FocusLabelColor.toColor(),
-        unfocusedLabelColor: Color = OutlinedTextFieldTokens.LabelColor.toColor(),
-        disabledLabelColor: Color = OutlinedTextFieldTokens.DisabledLabelColor.toColor()
+            .value.copy(alpha = OutlinedTextFieldTokens.DisabledTrailingIconOpacity),
+        errorTrailingIconColor: Color = OutlinedTextFieldTokens.ErrorTrailingIconColor.value,
+        focusedLabelColor: Color = OutlinedTextFieldTokens.FocusLabelColor.value,
+        unfocusedLabelColor: Color = OutlinedTextFieldTokens.LabelColor.value,
+        disabledLabelColor: Color = OutlinedTextFieldTokens.DisabledLabelColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledLabelOpacity),
-        errorLabelColor: Color = OutlinedTextFieldTokens.ErrorLabelColor.toColor(),
-        placeholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.toColor(),
-        disabledPlaceholderColor: Color = OutlinedTextFieldTokens.DisabledInputColor.toColor()
+        errorLabelColor: Color = OutlinedTextFieldTokens.ErrorLabelColor.value,
+        placeholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.value,
+        disabledPlaceholderColor: Color = OutlinedTextFieldTokens.DisabledInputColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-        focusedSupportingTextColor: Color = OutlinedTextFieldTokens.FocusSupportingColor.toColor(),
-        unfocusedSupportingTextColor: Color = OutlinedTextFieldTokens.SupportingColor.toColor(),
+        focusedSupportingTextColor: Color = OutlinedTextFieldTokens.FocusSupportingColor.value,
+        unfocusedSupportingTextColor: Color = OutlinedTextFieldTokens.SupportingColor.value,
         disabledSupportingTextColor: Color = OutlinedTextFieldTokens.DisabledSupportingColor
-            .toColor().copy(alpha = OutlinedTextFieldTokens.DisabledSupportingOpacity),
-        errorSupportingTextColor: Color = OutlinedTextFieldTokens.ErrorSupportingColor.toColor(),
-        focusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor(),
-        unfocusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor(),
-        disabledPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor()
+            .value.copy(alpha = OutlinedTextFieldTokens.DisabledSupportingOpacity),
+        errorSupportingTextColor: Color = OutlinedTextFieldTokens.ErrorSupportingColor.value,
+        focusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value,
+        unfocusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value,
+        disabledPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-        errorPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor(),
-        focusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor(),
-        unfocusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor(),
-        disabledSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor()
+        errorPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value,
+        focusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value,
+        unfocusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value,
+        disabledSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-        errorSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor(),
+        errorSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value,
     ): TextFieldColors = OutlinedTextFieldDefaults.colors(
         focusedTextColor = textColor,
         unfocusedTextColor = textColor,
@@ -1345,7 +1345,7 @@ object TextFieldDefaults {
 @Immutable
 object OutlinedTextFieldDefaults {
     /** Default shape for an [OutlinedTextField]. */
-    val shape: Shape @Composable get() = OutlinedTextFieldTokens.ContainerShape.toShape()
+    val shape: Shape @Composable get() = OutlinedTextFieldTokens.ContainerShape.value
 
     /**
      * The default min width applied to an [OutlinedTextField].
@@ -1392,7 +1392,7 @@ object OutlinedTextFieldDefaults {
         isError: Boolean,
         interactionSource: InteractionSource,
         colors: TextFieldColors,
-        shape: Shape = OutlinedTextFieldTokens.ContainerShape.toShape(),
+        shape: Shape = OutlinedTextFieldTokens.ContainerShape.value,
         focusedBorderThickness: Dp = FocusedBorderThickness,
         unfocusedBorderThickness: Dp = UnfocusedBorderThickness
     ) {
@@ -1477,58 +1477,58 @@ object OutlinedTextFieldDefaults {
      */
     @Composable
     fun colors(
-        focusedTextColor: Color = OutlinedTextFieldTokens.FocusInputColor.toColor(),
-        unfocusedTextColor: Color = OutlinedTextFieldTokens.InputColor.toColor(),
-        disabledTextColor: Color = OutlinedTextFieldTokens.DisabledInputColor.toColor()
+        focusedTextColor: Color = OutlinedTextFieldTokens.FocusInputColor.value,
+        unfocusedTextColor: Color = OutlinedTextFieldTokens.InputColor.value,
+        disabledTextColor: Color = OutlinedTextFieldTokens.DisabledInputColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-        errorTextColor: Color = OutlinedTextFieldTokens.ErrorInputColor.toColor(),
+        errorTextColor: Color = OutlinedTextFieldTokens.ErrorInputColor.value,
         focusedContainerColor: Color = Color.Transparent,
         unfocusedContainerColor: Color = Color.Transparent,
         disabledContainerColor: Color = Color.Transparent,
         errorContainerColor: Color = Color.Transparent,
-        cursorColor: Color = OutlinedTextFieldTokens.CaretColor.toColor(),
-        errorCursorColor: Color = OutlinedTextFieldTokens.ErrorFocusCaretColor.toColor(),
+        cursorColor: Color = OutlinedTextFieldTokens.CaretColor.value,
+        errorCursorColor: Color = OutlinedTextFieldTokens.ErrorFocusCaretColor.value,
         selectionColors: TextSelectionColors = LocalTextSelectionColors.current,
-        focusedBorderColor: Color = OutlinedTextFieldTokens.FocusOutlineColor.toColor(),
-        unfocusedBorderColor: Color = OutlinedTextFieldTokens.OutlineColor.toColor(),
-        disabledBorderColor: Color = OutlinedTextFieldTokens.DisabledOutlineColor.toColor()
+        focusedBorderColor: Color = OutlinedTextFieldTokens.FocusOutlineColor.value,
+        unfocusedBorderColor: Color = OutlinedTextFieldTokens.OutlineColor.value,
+        disabledBorderColor: Color = OutlinedTextFieldTokens.DisabledOutlineColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledOutlineOpacity),
-        errorBorderColor: Color = OutlinedTextFieldTokens.ErrorOutlineColor.toColor(),
-        focusedLeadingIconColor: Color = OutlinedTextFieldTokens.FocusLeadingIconColor.toColor(),
-        unfocusedLeadingIconColor: Color = OutlinedTextFieldTokens.LeadingIconColor.toColor(),
-        disabledLeadingIconColor: Color = OutlinedTextFieldTokens.DisabledLeadingIconColor.toColor()
+        errorBorderColor: Color = OutlinedTextFieldTokens.ErrorOutlineColor.value,
+        focusedLeadingIconColor: Color = OutlinedTextFieldTokens.FocusLeadingIconColor.value,
+        unfocusedLeadingIconColor: Color = OutlinedTextFieldTokens.LeadingIconColor.value,
+        disabledLeadingIconColor: Color = OutlinedTextFieldTokens.DisabledLeadingIconColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledLeadingIconOpacity),
-        errorLeadingIconColor: Color = OutlinedTextFieldTokens.ErrorLeadingIconColor.toColor(),
-        focusedTrailingIconColor: Color = OutlinedTextFieldTokens.FocusTrailingIconColor.toColor(),
-        unfocusedTrailingIconColor: Color = OutlinedTextFieldTokens.TrailingIconColor.toColor(),
+        errorLeadingIconColor: Color = OutlinedTextFieldTokens.ErrorLeadingIconColor.value,
+        focusedTrailingIconColor: Color = OutlinedTextFieldTokens.FocusTrailingIconColor.value,
+        unfocusedTrailingIconColor: Color = OutlinedTextFieldTokens.TrailingIconColor.value,
         disabledTrailingIconColor: Color = OutlinedTextFieldTokens.DisabledTrailingIconColor
-            .toColor().copy(alpha = OutlinedTextFieldTokens.DisabledTrailingIconOpacity),
-        errorTrailingIconColor: Color = OutlinedTextFieldTokens.ErrorTrailingIconColor.toColor(),
-        focusedLabelColor: Color = OutlinedTextFieldTokens.FocusLabelColor.toColor(),
-        unfocusedLabelColor: Color = OutlinedTextFieldTokens.LabelColor.toColor(),
-        disabledLabelColor: Color = OutlinedTextFieldTokens.DisabledLabelColor.toColor()
+            .value.copy(alpha = OutlinedTextFieldTokens.DisabledTrailingIconOpacity),
+        errorTrailingIconColor: Color = OutlinedTextFieldTokens.ErrorTrailingIconColor.value,
+        focusedLabelColor: Color = OutlinedTextFieldTokens.FocusLabelColor.value,
+        unfocusedLabelColor: Color = OutlinedTextFieldTokens.LabelColor.value,
+        disabledLabelColor: Color = OutlinedTextFieldTokens.DisabledLabelColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledLabelOpacity),
-        errorLabelColor: Color = OutlinedTextFieldTokens.ErrorLabelColor.toColor(),
-        focusedPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.toColor(),
-        unfocusedPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.toColor(),
-        disabledPlaceholderColor: Color = OutlinedTextFieldTokens.DisabledInputColor.toColor()
+        errorLabelColor: Color = OutlinedTextFieldTokens.ErrorLabelColor.value,
+        focusedPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.value,
+        unfocusedPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.value,
+        disabledPlaceholderColor: Color = OutlinedTextFieldTokens.DisabledInputColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-        errorPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.toColor(),
-        focusedSupportingTextColor: Color = OutlinedTextFieldTokens.FocusSupportingColor.toColor(),
-        unfocusedSupportingTextColor: Color = OutlinedTextFieldTokens.SupportingColor.toColor(),
+        errorPlaceholderColor: Color = OutlinedTextFieldTokens.InputPlaceholderColor.value,
+        focusedSupportingTextColor: Color = OutlinedTextFieldTokens.FocusSupportingColor.value,
+        unfocusedSupportingTextColor: Color = OutlinedTextFieldTokens.SupportingColor.value,
         disabledSupportingTextColor: Color = OutlinedTextFieldTokens.DisabledSupportingColor
-            .toColor().copy(alpha = OutlinedTextFieldTokens.DisabledSupportingOpacity),
-        errorSupportingTextColor: Color = OutlinedTextFieldTokens.ErrorSupportingColor.toColor(),
-        focusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor(),
-        unfocusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor(),
-        disabledPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor()
+            .value.copy(alpha = OutlinedTextFieldTokens.DisabledSupportingOpacity),
+        errorSupportingTextColor: Color = OutlinedTextFieldTokens.ErrorSupportingColor.value,
+        focusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value,
+        unfocusedPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value,
+        disabledPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-        errorPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.toColor(),
-        focusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor(),
-        unfocusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor(),
-        disabledSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor()
+        errorPrefixColor: Color = OutlinedTextFieldTokens.InputPrefixColor.value,
+        focusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value,
+        unfocusedSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value,
+        disabledSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value
             .copy(alpha = OutlinedTextFieldTokens.DisabledInputOpacity),
-        errorSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.toColor(),
+        errorSuffixColor: Color = OutlinedTextFieldTokens.InputSuffixColor.value,
     ): TextFieldColors =
         TextFieldColors(
             focusedTextColor = focusedTextColor,
@@ -1688,54 +1688,105 @@ object OutlinedTextFieldDefaults {
  * Represents the colors of the input text, container, and content (including label, placeholder,
  * leading and trailing icons) used in a text field in different states.
  *
+ * @constructor create an instance with arbitrary colors.
  * See [TextFieldDefaults.colors] for the default colors used in [TextField].
  * See [OutlinedTextFieldDefaults.colors] for the default colors used in [OutlinedTextField].
+ *
+ * @param focusedTextColor the color used for the input text of this text field when focused
+ * @param unfocusedTextColor the color used for the input text of this text field when not
+ * focused
+ * @param disabledTextColor the color used for the input text of this text field when disabled
+ * @param errorTextColor the color used for the input text of this text field when in error
+ * state
+ * @param focusedContainerColor the container color for this text field when focused
+ * @param unfocusedContainerColor the container color for this text field when not focused
+ * @param disabledContainerColor the container color for this text field when disabled
+ * @param errorContainerColor the container color for this text field when in error state
+ * @param cursorColor the cursor color for this text field
+ * @param errorCursorColor the cursor color for this text field when in error state
+ * @param textSelectionColors the colors used when the input text of this text field is selected
+ * @param focusedIndicatorColor the indicator color for this text field when focused
+ * @param unfocusedIndicatorColor the indicator color for this text field when not focused
+ * @param disabledIndicatorColor the indicator color for this text field when disabled
+ * @param errorIndicatorColor the indicator color for this text field when in error state
+ * @param focusedLeadingIconColor the leading icon color for this text field when focused
+ * @param unfocusedLeadingIconColor the leading icon color for this text field when not focused
+ * @param disabledLeadingIconColor the leading icon color for this text field when disabled
+ * @param errorLeadingIconColor the leading icon color for this text field when in error state
+ * @param focusedTrailingIconColor the trailing icon color for this text field when focused
+ * @param unfocusedTrailingIconColor the trailing icon color for this text field when not
+ * focused
+ * @param disabledTrailingIconColor the trailing icon color for this text field when disabled
+ * @param errorTrailingIconColor the trailing icon color for this text field when in error state
+ * @param focusedLabelColor the label color for this text field when focused
+ * @param unfocusedLabelColor the label color for this text field when not focused
+ * @param disabledLabelColor the label color for this text field when disabled
+ * @param errorLabelColor the label color for this text field when in error state
+ * @param focusedPlaceholderColor the placeholder color for this text field when focused
+ * @param unfocusedPlaceholderColor the placeholder color for this text field when not focused
+ * @param disabledPlaceholderColor the placeholder color for this text field when disabled
+ * @param errorPlaceholderColor the placeholder color for this text field when in error state
+ * @param focusedSupportingTextColor the supporting text color for this text field when focused
+ * @param unfocusedSupportingTextColor the supporting text color for this text field when not
+ * focused
+ * @param disabledSupportingTextColor the supporting text color for this text field when
+ * disabled
+ * @param errorSupportingTextColor the supporting text color for this text field when in error
+ * state
+ * @param focusedPrefixColor the prefix color for this text field when focused
+ * @param unfocusedPrefixColor the prefix color for this text field when not focused
+ * @param disabledPrefixColor the prefix color for this text field when disabled
+ * @param errorPrefixColor the prefix color for this text field when in error state
+ * @param focusedSuffixColor the suffix color for this text field when focused
+ * @param unfocusedSuffixColor the suffix color for this text field when not focused
+ * @param disabledSuffixColor the suffix color for this text field when disabled
+ * @param errorSuffixColor the suffix color for this text field when in error state
  */
 @Immutable
-class TextFieldColors internal constructor(
-    private val focusedTextColor: Color,
-    private val unfocusedTextColor: Color,
-    private val disabledTextColor: Color,
-    private val errorTextColor: Color,
-    private val focusedContainerColor: Color,
-    private val unfocusedContainerColor: Color,
-    private val disabledContainerColor: Color,
-    private val errorContainerColor: Color,
-    private val cursorColor: Color,
-    private val errorCursorColor: Color,
-    private val textSelectionColors: TextSelectionColors,
-    private val focusedIndicatorColor: Color,
-    private val unfocusedIndicatorColor: Color,
-    private val disabledIndicatorColor: Color,
-    private val errorIndicatorColor: Color,
-    private val focusedLeadingIconColor: Color,
-    private val unfocusedLeadingIconColor: Color,
-    private val disabledLeadingIconColor: Color,
-    private val errorLeadingIconColor: Color,
-    private val focusedTrailingIconColor: Color,
-    private val unfocusedTrailingIconColor: Color,
-    private val disabledTrailingIconColor: Color,
-    private val errorTrailingIconColor: Color,
-    private val focusedLabelColor: Color,
-    private val unfocusedLabelColor: Color,
-    private val disabledLabelColor: Color,
-    private val errorLabelColor: Color,
-    private val focusedPlaceholderColor: Color,
-    private val unfocusedPlaceholderColor: Color,
-    private val disabledPlaceholderColor: Color,
-    private val errorPlaceholderColor: Color,
-    private val focusedSupportingTextColor: Color,
-    private val unfocusedSupportingTextColor: Color,
-    private val disabledSupportingTextColor: Color,
-    private val errorSupportingTextColor: Color,
-    private val focusedPrefixColor: Color,
-    private val unfocusedPrefixColor: Color,
-    private val disabledPrefixColor: Color,
-    private val errorPrefixColor: Color,
-    private val focusedSuffixColor: Color,
-    private val unfocusedSuffixColor: Color,
-    private val disabledSuffixColor: Color,
-    private val errorSuffixColor: Color,
+class TextFieldColors constructor(
+    val focusedTextColor: Color,
+    val unfocusedTextColor: Color,
+    val disabledTextColor: Color,
+    val errorTextColor: Color,
+    val focusedContainerColor: Color,
+    val unfocusedContainerColor: Color,
+    val disabledContainerColor: Color,
+    val errorContainerColor: Color,
+    val cursorColor: Color,
+    val errorCursorColor: Color,
+    val textSelectionColors: TextSelectionColors,
+    val focusedIndicatorColor: Color,
+    val unfocusedIndicatorColor: Color,
+    val disabledIndicatorColor: Color,
+    val errorIndicatorColor: Color,
+    val focusedLeadingIconColor: Color,
+    val unfocusedLeadingIconColor: Color,
+    val disabledLeadingIconColor: Color,
+    val errorLeadingIconColor: Color,
+    val focusedTrailingIconColor: Color,
+    val unfocusedTrailingIconColor: Color,
+    val disabledTrailingIconColor: Color,
+    val errorTrailingIconColor: Color,
+    val focusedLabelColor: Color,
+    val unfocusedLabelColor: Color,
+    val disabledLabelColor: Color,
+    val errorLabelColor: Color,
+    val focusedPlaceholderColor: Color,
+    val unfocusedPlaceholderColor: Color,
+    val disabledPlaceholderColor: Color,
+    val errorPlaceholderColor: Color,
+    val focusedSupportingTextColor: Color,
+    val unfocusedSupportingTextColor: Color,
+    val disabledSupportingTextColor: Color,
+    val errorSupportingTextColor: Color,
+    val focusedPrefixColor: Color,
+    val unfocusedPrefixColor: Color,
+    val disabledPrefixColor: Color,
+    val errorPrefixColor: Color,
+    val focusedSuffixColor: Color,
+    val unfocusedSuffixColor: Color,
+    val disabledSuffixColor: Color,
+    val errorSuffixColor: Color,
 ) {
     /**
      * Represents the color used for the leading icon of this text field.

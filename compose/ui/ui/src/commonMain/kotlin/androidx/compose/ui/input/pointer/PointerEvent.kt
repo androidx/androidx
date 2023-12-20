@@ -499,6 +499,7 @@ class PointerInputChange(
         type: PointerType,
         historical: List<HistoricalChange>,
         scrollDelta: Offset,
+        originalEventPosition: Offset,
     ) : this(
         id,
         uptimeMillis,
@@ -513,6 +514,7 @@ class PointerInputChange(
         scrollDelta
     ) {
         _historical = historical
+        this.originalEventPosition = originalEventPosition
     }
 
     /**
@@ -527,8 +529,11 @@ class PointerInputChange(
     @get:ExperimentalComposeUiApi
     val historical: List<HistoricalChange>
         get() = _historical ?: listOf()
+
     @OptIn(ExperimentalComposeUiApi::class)
     private var _historical: List<HistoricalChange>? = null
+
+    internal var originalEventPosition: Offset = Offset.Zero
 
     /**
      * Indicates whether the change was consumed or not. Note that the change must be consumed in
@@ -590,7 +595,8 @@ class PointerInputChange(
         consumed.downChange || consumed.positionChange,
         type,
         this.historical,
-        this.scrollDelta
+        this.scrollDelta,
+        this.originalEventPosition,
     ).also {
         this.consumed = consumed
     }
@@ -663,7 +669,8 @@ class PointerInputChange(
         consumed.downChange || consumed.positionChange,
         type,
         this.historical,
-        scrollDelta
+        scrollDelta,
+        this.originalEventPosition,
     ).also {
         this.consumed = consumed
     }
@@ -701,7 +708,8 @@ class PointerInputChange(
         isInitiallyConsumed = false, // doesn't matter, we will pass a holder anyway
         type,
         historical = this.historical,
-        scrollDelta
+        scrollDelta,
+        this.originalEventPosition,
     ).also {
         it.consumed = this.consumed
     }
@@ -755,6 +763,7 @@ class PointerInputChange(
         id: PointerId = this.id,
         currentTime: Long = this.uptimeMillis,
         currentPosition: Offset = this.position,
+        originalEventPosition: Offset = this.originalEventPosition,
         currentPressed: Boolean = this.pressed,
         pressure: Float = this.pressure,
         previousTime: Long = this.previousUptimeMillis,
@@ -763,7 +772,7 @@ class PointerInputChange(
         type: PointerType = this.type,
         historical: List<HistoricalChange> = this.historical,
         scrollDelta: Offset = this.scrollDelta
-        ): PointerInputChange = PointerInputChange(
+    ): PointerInputChange = PointerInputChange(
         id,
         currentTime,
         currentPosition,
@@ -775,7 +784,8 @@ class PointerInputChange(
         isInitiallyConsumed = false, // doesn't matter, we will pass a holder anyway
         type,
         historical,
-        scrollDelta
+        scrollDelta,
+        originalEventPosition,
     ).also {
         it.consumed = this.consumed
     }
@@ -814,6 +824,17 @@ class HistoricalChange(
     val uptimeMillis: Long,
     val position: Offset
 ) {
+    internal var originalEventPosition: Offset = Offset.Zero
+        private set
+
+    internal constructor(
+        uptimeMillis: Long,
+        position: Offset,
+        originalEventPosition: Offset
+    ) : this(uptimeMillis, position) {
+        this.originalEventPosition = originalEventPosition
+    }
+
     override fun toString(): String {
         return "HistoricalChange(uptimeMillis=$uptimeMillis, " +
             "position=$position)"

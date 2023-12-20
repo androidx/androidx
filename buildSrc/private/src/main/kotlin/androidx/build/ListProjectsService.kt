@@ -20,9 +20,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.api.services.BuildService
 import org.gradle.api.services.BuildServiceParameters
 
-/**
- * Lists projects as specified by settings.gradle
- */
+/** Lists projects as specified by settings.gradle */
 abstract class ListProjectsService : BuildService<ListProjectsService.Parameters> {
     interface Parameters : BuildServiceParameters {
         var settingsFile: Provider<String>

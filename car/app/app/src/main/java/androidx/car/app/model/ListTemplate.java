@@ -30,9 +30,13 @@ import androidx.car.app.annotations.CarProtocol;
 import androidx.car.app.annotations.ExperimentalCarApi;
 import androidx.car.app.annotations.KeepFields;
 import androidx.car.app.annotations.RequiresCarApi;
+import androidx.car.app.messaging.model.CarMessage;
+import androidx.car.app.messaging.model.ConversationItem;
 import androidx.car.app.model.constraints.ActionsConstraints;
 import androidx.car.app.model.constraints.CarTextConstraints;
 import androidx.car.app.utils.CollectionUtils;
+
+import com.google.errorprone.annotations.CanIgnoreReturnValue;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,6 +65,11 @@ import java.util.Objects;
 @CarProtocol
 @KeepFields
 public final class ListTemplate implements Template {
+    // These restrictions are imposed on ListTemplate to avoid exceeding the Android binder
+    // transaction limit of 1MB.
+    static final int MAX_ALLOWED_ITEMS = 100;
+    static final int MAX_MESSAGES_PER_CONVERSATION = 10;
+
     private final boolean mIsLoading;
     @Nullable
     private final CarText mTitle;
@@ -140,7 +149,6 @@ public final class ListTemplate implements Template {
      *
      * @see ListTemplate.Builder#addAction(Action)
      */
-    @ExperimentalCarApi
     @NonNull
     @RequiresCarApi(6)
     public List<Action> getActions() {
@@ -383,9 +391,9 @@ public final class ListTemplate implements Template {
          * @throws IllegalArgumentException if {@code action} contains unsupported Action types,
          *                                  or does not contain a valid {@link CarIcon} and
          *                                  background {@link CarColor}, or if exceeds the
-         *                                  maximum number of allowed actions (1) for the template.
+         *                                  maximum number of allowed actions for the template.
+         * @see ActionsConstraints#ACTIONS_CONSTRAINTS_FAB
          */
-        @ExperimentalCarApi
         @NonNull
         @RequiresCarApi(6)
         public Builder addAction(@NonNull Action action) {
@@ -432,6 +440,14 @@ public final class ListTemplate implements Template {
                 }
             }
 
+            if (!mSectionedLists.isEmpty()) {
+                List<SectionedItemList> truncatedList = getTruncatedCopy(mSectionedLists);
+                mSectionedLists.clear();
+                mSectionedLists.addAll(truncatedList);
+            } else if (mSingleList != null) {
+                mSingleList = truncate(mSingleList, new TruncateCounter(MAX_ALLOWED_ITEMS));
+            }
+
             return new ListTemplate(this);
         }
 
@@ -455,5 +471,91 @@ public final class ListTemplate implements Template {
             mActionStrip = listTemplate.getActionStrip();
             mActions = new ArrayList<>(listTemplate.getActions());
         }
+    }
+
+    /** A wrapper around an int with helper methods to keep track of a truncation limit. */
+    private static class TruncateCounter {
+        private int mRemainingItems;
+
+        TruncateCounter(int initialLimit) {
+            mRemainingItems = initialLimit;
+        }
+
+        @CanIgnoreReturnValue
+        public int decrement() {
+            return --mRemainingItems;
+        }
+
+        @CanIgnoreReturnValue
+        public int decrement(int minus) {
+            mRemainingItems -= minus;
+            return mRemainingItems;
+        }
+
+        public boolean canFit(int value) {
+            return mRemainingItems >= value;
+        }
+
+        public int remainingItems() {
+            return mRemainingItems;
+        }
+    }
+
+    static List<SectionedItemList> getTruncatedCopy(List<SectionedItemList> originalList) {
+        TruncateCounter itemLimit = new TruncateCounter(MAX_ALLOWED_ITEMS);
+        List<SectionedItemList> result = new ArrayList<>();
+        for (SectionedItemList original : originalList) {
+            ItemList truncatedItemList = truncate(original.getItemList(), itemLimit);
+            result.add(SectionedItemList.create(
+                    truncatedItemList, original.getHeader().toCharSequence()));
+            if (itemLimit.remainingItems() <= 0) {
+                break;
+            }
+        }
+        return result;
+    }
+
+    /** Truncates ListTemplates to not exceed the Android maximum binder transaction limit. */
+    @OptIn(markerClass = ExperimentalCarApi.class)
+    static ItemList truncate(ItemList itemList, TruncateCounter limit) {
+        ItemList.Builder builder = new ItemList.Builder(itemList);
+        builder.clearItems();
+        for (Item item : itemList.getItems()) {
+            // For Row and Grid items, no special truncation logic. Each item counts as 1.
+            if (!(item instanceof ConversationItem)) {
+                if (!limit.canFit(1)) {
+                    break;
+                }
+                builder.addItem(item);
+                limit.decrement();
+                continue;
+            }
+
+            // For ConversationItem, truncate the messages to max 10.
+            ConversationItem conversationItem = (ConversationItem) item;
+
+            // Each message counts a 1, and each ConversationItem counts as 1, so a minimum of 2
+            // spaces needs to remain.
+            if (!limit.canFit(2)) {
+                break;
+            }
+
+            // Rebuild the conversation item
+            ConversationItem.Builder conversationBuilder =
+                    new ConversationItem.Builder(conversationItem);
+            int maxMessagesAllowed =
+                    Math.min(limit.decrement(), MAX_MESSAGES_PER_CONVERSATION);
+            int messagesToAdd =
+                    Math.min(conversationItem.getMessages().size(), maxMessagesAllowed);
+            List<CarMessage> truncatedMessagesList =
+                    conversationItem.getMessages().subList(0, messagesToAdd);
+            conversationBuilder.setMessages(truncatedMessagesList);
+
+            builder.addItem(conversationBuilder.build());
+
+            limit.decrement(messagesToAdd);
+        }
+
+        return builder.build();
     }
 }

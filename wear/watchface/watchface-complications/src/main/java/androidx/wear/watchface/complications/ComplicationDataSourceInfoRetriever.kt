@@ -15,7 +15,6 @@
  */
 package androidx.wear.watchface.complications
 
-import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -47,9 +46,9 @@ import androidx.wear.watchface.complications.data.SmallImageComplicationData
 import androidx.wear.watchface.complications.data.SmallImageType
 import androidx.wear.watchface.complications.data.toApiComplicationData
 import androidx.wear.watchface.utility.TraceEvent
+import androidx.wear.watchface.utility.aidlMethod
 import androidx.wear.watchface.utility.iconEquals
 import androidx.wear.watchface.utility.iconHashCode
-import java.lang.IllegalArgumentException
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellableContinuation
@@ -81,33 +80,30 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
     )
 
     private inner class ProviderInfoServiceConnection : ServiceConnection {
-        @SuppressLint("SyntheticAccessor")
         override fun onServiceConnected(name: ComponentName, service: IBinder) {
             deferredService.complete(IProviderInfoService.Stub.asInterface(service))
         }
 
-        @SuppressLint("SyntheticAccessor")
         override fun onBindingDied(name: ComponentName?) {
             synchronized(lock) { closed = true }
             deferredService.completeExceptionally(ServiceDisconnectedException())
         }
 
-        @SuppressLint("SyntheticAccessor")
         override fun onServiceDisconnected(name: ComponentName) {
             synchronized(lock) { closed = true }
             deferredService.completeExceptionally(ServiceDisconnectedException())
         }
     }
 
-    @SuppressLint("SyntheticAccessor")
     private val serviceConnection: ServiceConnection = ProviderInfoServiceConnection()
     private var context: Context? = null
     private val deferredService = CompletableDeferred<IProviderInfoService>()
     private val lock = Any()
 
-    /** @hide */
     @VisibleForTesting
     @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY)
     public var closed: Boolean = false
         private set
 
@@ -226,13 +222,14 @@ public class ComplicationDataSourceInfoRetriever : AutoCloseable {
 
         override fun updateComplicationData(
             data: android.support.wearable.complications.ComplicationData?
-        ) {
-            safeUnlinkToDeath()
-            continuation!!.resume(data?.toApiComplicationData())
+        ) =
+            aidlMethod(TAG, "updateComplicationData") {
+                safeUnlinkToDeath()
+                continuation!!.resume(data?.toApiComplicationData())
 
-            // Re http://b/249121838 this is important, it prevents a memory leak.
-            continuation = null
-        }
+                // Re http://b/249121838 this is important, it prevents a memory leak.
+                continuation = null
+            }
 
         internal fun safeUnlinkToDeath() {
             try {

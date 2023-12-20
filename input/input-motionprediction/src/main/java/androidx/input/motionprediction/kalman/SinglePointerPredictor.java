@@ -49,11 +49,15 @@ public class SinglePointerPredictor implements KalmanPredictor {
     // Low value will use maximum prediction, high value will use no prediction.
     private static final float LOW_JANK = 0.02f;
     private static final float HIGH_JANK = 0.2f;
+    private static final float ACCURATE_LOW_JANK = 0.1f;
+    private static final float ACCURATE_HIGH_JANK = 0.7f;
 
     // Range of pen speed to expect (in dp / ms).
     // Low value will not use prediction, high value will use full prediction.
     private static final float LOW_SPEED = 0.0f;
     private static final float HIGH_SPEED = 2.0f;
+    private static final float ACCURATE_LOW_SPEED = 0.0f;
+    private static final float ACCURATE_HIGH_SPEED = 0.0f;
 
     private static final int EVENT_TIME_IGNORED_THRESHOLD_MS = 20;
 
@@ -67,6 +71,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
 
     private final DVector2 mLastPosition = new DVector2();
     private long mPrevEventTime;
+    private long mDownEventTime;
     private List<Float> mReportRates = new LinkedList<>();
     private int mExpectedPredictionSampleSize = -1;
     private float mReportRateMs = 0;
@@ -77,10 +82,10 @@ public class SinglePointerPredictor implements KalmanPredictor {
     private final DVector2 mJank = new DVector2();
 
     /* pointer of the gesture that requires prediction */
-    private int mPointerId = 0;
+    private int mPointerId;
 
     /* tool type of the gesture that requires prediction */
-    private int mToolType = MotionEvent.TOOL_TYPE_UNKNOWN;
+    private int mToolType;
 
     private double mPressure = 0;
     private double mLastOrientation = 0;
@@ -94,14 +99,10 @@ public class SinglePointerPredictor implements KalmanPredictor {
      * achieving close-to-zero latency, prediction errors can be more visible and the target should
      * be reduced to 20ms.
      */
-    public SinglePointerPredictor() {
+    public SinglePointerPredictor(int pointerId, int toolType) {
         mKalman.reset();
         mPrevEventTime = 0;
-    }
-
-    void initStrokePrediction(int pointerId, int toolType) {
-        mKalman.reset();
-        mPrevEventTime = 0;
+        mDownEventTime = 0;
         mPointerId = pointerId;
         mToolType = toolType;
     }
@@ -173,6 +174,9 @@ public class SinglePointerPredictor implements KalmanPredictor {
                             event));
             return false;
         }
+
+        mDownEventTime = event.getDownTime();
+
         for (BatchedMotionEvent ev : BatchedMotionEvent.iterate(event)) {
             MotionEvent.PointerCoords pointerCoords = ev.coords[pointerIndex];
             update(pointerCoords.x, pointerCoords.y, pointerCoords.pressure,
@@ -204,9 +208,21 @@ public class SinglePointerPredictor implements KalmanPredictor {
         // Adjust prediction distance based on confidence of mKalman filter as well as movement
         // speed.
         double speedAbs = mVelocity.magnitude() / mReportRateMs;
-        double speedFactor = normalizeRange(speedAbs, LOW_SPEED, HIGH_SPEED);
+        float lowSpeed, highSpeed, lowJank, highJank;
+        if (usingAccurateTool()) {
+            lowSpeed = ACCURATE_LOW_SPEED;
+            highSpeed = ACCURATE_HIGH_SPEED;
+            lowJank = ACCURATE_LOW_JANK;
+            highJank = ACCURATE_HIGH_JANK;
+        } else {
+            lowSpeed = LOW_SPEED;
+            highSpeed = HIGH_SPEED;
+            lowJank = LOW_JANK;
+            highJank = HIGH_JANK;
+        }
+        double speedFactor = normalizeRange(speedAbs, lowSpeed, highSpeed);
         double jankAbs = mJank.magnitude();
-        double jankFactor = 1.0 - normalizeRange(jankAbs, LOW_JANK, HIGH_JANK);
+        double jankFactor = 1.0 - normalizeRange(jankAbs, lowJank, highJank);
         double confidenceFactor = speedFactor * jankFactor;
 
         MotionEvent predictedEvent = null;
@@ -226,6 +242,7 @@ public class SinglePointerPredictor implements KalmanPredictor {
             predictionTargetInSamples = mExpectedPredictionSampleSize;
         }
 
+        long nextPredictedEventTime = mPrevEventTime + Math.round(mReportRateMs);
         int i = 0;
         for (; i < predictionTargetInSamples; i++) {
             mAcceleration.a1 += mJank.a1 * JANK_INFLUENCE;
@@ -252,8 +269,8 @@ public class SinglePointerPredictor implements KalmanPredictor {
             if (predictedEvent == null) {
                 predictedEvent =
                         MotionEvent.obtain(
-                                0 /* downTime */,
-                                0 /* eventTime */,
+                                mDownEventTime /* downTime */,
+                                nextPredictedEventTime /* eventTime */,
                                 MotionEvent.ACTION_MOVE /* action */,
                                 1 /* pointerCount */,
                                 pointerProperties /* pointer properties */,
@@ -267,11 +284,16 @@ public class SinglePointerPredictor implements KalmanPredictor {
                                 0 /* source */,
                                 0 /* flags */);
             } else {
-                predictedEvent.addBatch(0, coords, 0);
+                predictedEvent.addBatch(nextPredictedEventTime, coords, 0);
             }
+            nextPredictedEventTime += Math.round(mReportRateMs);
         }
 
         return predictedEvent;
+    }
+
+    private boolean usingAccurateTool() {
+        return (mToolType != MotionEvent.TOOL_TYPE_FINGER);
     }
 
     private double normalizeRange(double x, double min, double max) {

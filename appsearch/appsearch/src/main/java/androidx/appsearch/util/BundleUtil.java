@@ -29,7 +29,7 @@ import java.util.Arrays;
 
 /**
  * Utilities for working with {@link android.os.Bundle}.
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class BundleUtil {
@@ -70,7 +70,7 @@ public final class BundleUtil {
      *
      * <p>Values of type Bundle are compared using {@link #deepEquals}.
      */
-    private static boolean bundleValueEquals(@Nullable Object one, @Nullable Object two) {
+    public static boolean bundleValueEquals(@Nullable Object one, @Nullable Object two) {
         if (one == null && two == null) {
             return true;
         }

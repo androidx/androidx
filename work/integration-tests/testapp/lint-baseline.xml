@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanThreadSleep"
@@ -13,15 +13,6 @@
     <issue
         id="BanThreadSleep"
         message="Uses Thread.sleep()"
-        errorLine1="                    Thread.sleep(1000L);"
-        errorLine2="                           ~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/RetryActivity.java"/>
-    </issue>
-
-    <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
         errorLine1="            Thread.sleep(200);"
         errorLine2="                   ~~~~~">
         <location
@@ -29,75 +20,93 @@
     </issue>
 
     <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is reachable from earlier API levels and will fail run-time class verification."
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        remoteWorkManager.enqueue(listOf(request)).await()"
+        errorLine2="                                                   ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        ).await()"
+        errorLine2="          ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        ).await()"
+        errorLine2="          ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="            .await()"
+        errorLine2="             ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        remoteWorkManager.cancelAllWorkByTag(WORK_TAG).await()"
+        errorLine2="                                                       ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        remoteWorkManager.cancelAllWork().await()"
+        errorLine2="                                          ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="        val workInfoList: List&lt;WorkInfo> = remoteWorkManager.getWorkInfos(query).await()"
+        errorLine2="                                                                                 ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteService.kt"/>
+    </issue>
+
+    <issue
+        id="RestrictedApiAndroidX"
+        message="ListenableFutureKt.await can only be called from within the same library group (referenced groupId=`androidx.work` from groupId=`androidx.work.integration-tests`)"
+        errorLine1="                    setProgressAsync(progress).await()"
+        errorLine2="                                               ~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/RemoteWorker.kt"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= 18) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
         errorLine1="                &amp;&amp; Build.VERSION.SDK_INT >= 16 &amp;&amp; data.getClipData() != null) {"
-        errorLine2="                                                       ~~~~~~~~~~~">
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            int count = data.getClipData().getItemCount();"
-        errorLine2="                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 16; however, the containing class androidx.work.integration.testapp.imageprocessing.ImageProcessingActivity is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                String uriString = data.getClipData().getItemAt(i).getUri().toString();"
-        errorLine2="                                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageProcessingActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    jobScheduler.cancelAll();"
-        errorLine2="                                 ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                        jobScheduler.schedule("
-        errorLine2="                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                new JobInfo.Builder("
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                        .setMinimumLatency(10 * 60 * 1000)"
-        errorLine2="                                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                                        .build());"
-        errorLine2="                                         ~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
     </issue>
 
     <issue
@@ -215,15 +224,6 @@
         errorLine2="                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/integration/testapp/imageprocessing/ImageRecyclerViewAdapter.java"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
-        errorLine1="    protected void onCreate(Bundle savedInstanceState) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/work/integration/testapp/MainActivity.java"/>
     </issue>
 
     <issue

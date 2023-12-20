@@ -34,4 +34,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Lifecycle-Common for Java 8 Language"
+    metalavaK2UastEnabled = true
 }

@@ -47,6 +47,11 @@ interface XMethodElement : XExecutableElement {
     val returnType: XType
 
     /**
+     * The property name if this is a setter/getter method for a kotlin property.
+     */
+    val propertyName: String?
+
+    /**
      * The type representation of the method where more type parameters might be resolved.
      */
     override val executableType: XMethodType
@@ -134,6 +139,16 @@ interface XMethodElement : XExecutableElement {
      * the method name matches the property naming convention.
      */
     fun isKotlinPropertyMethod(): Boolean
+
+    /**
+     * Returns true if this method is a Kotlin property setter.
+     */
+    fun isKotlinPropertySetter(): Boolean
+
+    /**
+     * Returns true if this method is a Kotlin property getter.
+     */
+    fun isKotlinPropertyGetter(): Boolean
 }
 
 internal fun <T : XMethodElement> List<T>.filterMethodsByConfig(

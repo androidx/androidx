@@ -28,6 +28,7 @@ class Material3IssueRegistry : IssueRegistry() {
     override val api = 14
     override val minApi = CURRENT_API
     override val issues get() = listOf(
+        MaterialImportDetector.UsingMaterialAndMaterial3Libraries,
         ScaffoldPaddingDetector.UnusedMaterial3ScaffoldPaddingParameter
     )
     override val vendor = Vendor(

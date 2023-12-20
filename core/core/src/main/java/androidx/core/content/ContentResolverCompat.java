@@ -53,6 +53,7 @@ public final class ContentResolverCompat {
      * </ul>
      * </p>
      *
+     * @param resolver resolver to use for the query.
      * @param uri The URI, using the content:// scheme, for the content to
      *         retrieve.
      * @param projection A list of which columns to return. Passing null will

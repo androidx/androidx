@@ -22,7 +22,7 @@
     <string name="call_notification_answer_video_action" msgid="8793775615905189152">"Bideoa"</string>
     <string name="call_notification_decline_action" msgid="3229508546291798546">"Baztertu"</string>
     <string name="call_notification_hang_up_action" msgid="2659457946726154263">"Amaitu deia"</string>
-    <string name="call_notification_incoming_text" msgid="6107532579223922871">"Jasotako deia"</string>
+    <string name="call_notification_incoming_text" msgid="6107532579223922871">"Sarrerako deia"</string>
     <string name="call_notification_ongoing_text" msgid="8623827134497363134">"Deia abian da"</string>
-    <string name="call_notification_screening_text" msgid="59049573811482460">"Jasotako dei bat bistaratzen"</string>
+    <string name="call_notification_screening_text" msgid="59049573811482460">"Sarrerako dei bat bistaratzen"</string>
 </resources>

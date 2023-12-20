@@ -22,7 +22,6 @@ import androidx.annotation.RestrictTo;
 /**
  * Holder for parameters, used when a Tile update request is triggered. This is currently a
  * placeholder to allow for future expansion, and should be filled in with an empty byte array.
- *
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public final class TileUpdateRequestData extends ProtoParcelable {

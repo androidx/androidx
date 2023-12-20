@@ -28,7 +28,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 public class BenchmarkRuleTest {
     @get:Rule
-    public val benchmarkRule: BenchmarkRule = BenchmarkRule(enableReport = false)
+    public val benchmarkRule: BenchmarkRule = BenchmarkRule()
 
     @Test
     public fun runWithTimingDisabled() {

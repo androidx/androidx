@@ -17,10 +17,13 @@
 package androidx.compose.runtime
 
 import androidx.compose.runtime.collection.IdentityArraySet
+import androidx.compose.runtime.collection.fastForEach
 import androidx.compose.runtime.external.kotlinx.collections.immutable.persistentSetOf
 import androidx.compose.runtime.snapshots.MutableSnapshot
+import androidx.compose.runtime.snapshots.ReaderKind
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.snapshots.SnapshotApplyResult
+import androidx.compose.runtime.snapshots.StateObjectImpl
 import androidx.compose.runtime.snapshots.fastAny
 import androidx.compose.runtime.snapshots.fastForEach
 import androidx.compose.runtime.snapshots.fastGroupBy
@@ -198,7 +201,14 @@ class Recomposer(
     // Begin properties guarded by stateLock
     private var runnerJob: Job? = null
     private var closeCause: Throwable? = null
-    private val knownCompositions = mutableListOf<ControlledComposition>()
+    private val _knownCompositions = mutableListOf<ControlledComposition>()
+    private var _knownCompositionsCache: List<ControlledComposition>? = null
+    private val knownCompositions get() = _knownCompositionsCache ?: run {
+        val compositions = _knownCompositions
+        val newCache = if (compositions.isEmpty()) emptyList() else ArrayList(compositions)
+        _knownCompositionsCache = newCache
+        newCache
+    }
     private var snapshotInvalidations = IdentityArraySet<Any>()
     private val compositionInvalidations = mutableListOf<ControlledComposition>()
     private val compositionsAwaitingApply = mutableListOf<ControlledComposition>()
@@ -286,7 +296,7 @@ class Recomposer(
      */
     private fun deriveStateLocked(): CancellableContinuation<Unit>? {
         if (_state.value <= State.ShuttingDown) {
-            knownCompositions.clear()
+            clearKnownCompositionsLocked()
             snapshotInvalidations = IdentityArraySet()
             compositionInvalidations.clear()
             compositionsAwaitingApply.clear()
@@ -361,7 +371,7 @@ class Recomposer(
 
         fun invalidateGroupsWithKey(key: Int) {
             val compositions: List<ControlledComposition> = synchronized(stateLock) {
-                knownCompositions.toMutableList()
+                knownCompositions
             }
             compositions
                 .fastMapNotNull { it as? CompositionImpl }
@@ -369,7 +379,7 @@ class Recomposer(
         }
         fun saveStateAndDisposeForHotReload(): List<HotReloadable> {
             val compositions: List<ControlledComposition> = synchronized(stateLock) {
-                knownCompositions.toMutableList()
+                knownCompositions
             }
             return compositions
                 .fastMapNotNull { it as? CompositionImpl }
@@ -428,7 +438,7 @@ class Recomposer(
             snapshotInvalidations.also { snapshotInvalidations = IdentityArraySet() }
         }
         val compositions = synchronized(stateLock) {
-            knownCompositions.toMutableList()
+            knownCompositions
         }
         var complete = false
         try {
@@ -505,6 +515,8 @@ class Recomposer(
         val toApply = mutableListOf<ControlledComposition>()
         val toLateApply = mutableSetOf<ControlledComposition>()
         val toComplete = mutableSetOf<ControlledComposition>()
+        val modifiedValues = IdentityArraySet<Any>()
+        val alreadyComposed = IdentityArraySet<ControlledComposition>()
 
         fun clearRecompositionState() {
             toRecompose.clear()
@@ -512,6 +524,8 @@ class Recomposer(
             toApply.clear()
             toLateApply.clear()
             toComplete.clear()
+            modifiedValues.clear()
+            alreadyComposed.clear()
         }
 
         fun fillToInsert() {
@@ -560,8 +574,8 @@ class Recomposer(
                     }
 
                     // Perform recomposition for any invalidated composers
-                    val modifiedValues = IdentityArraySet<Any>()
-                    val alreadyComposed = IdentityArraySet<ControlledComposition>()
+                    modifiedValues.clear()
+                    alreadyComposed.clear()
                     while (toRecompose.isNotEmpty() || toInsert.isNotEmpty()) {
                         try {
                             toRecompose.fastForEach { composition ->
@@ -616,7 +630,7 @@ class Recomposer(
                         // Perform apply changes
                         try {
                             // We could do toComplete += toApply but doing it like below
-                            // avoids unncessary allocations since toApply is a mutable list
+                            // avoids unnecessary allocations since toApply is a mutable list
                             // toComplete += toApply
                             toApply.fastForEach { composition ->
                                 toComplete.add(composition)
@@ -672,6 +686,8 @@ class Recomposer(
                     // sendApplyNotifications to ensure that objects that were _created_ in this
                     // snapshot are also considered changed after this point.
                     Snapshot.notifyObjectsInitialized()
+                    alreadyComposed.clear()
+                    modifiedValues.clear()
                     compositionsRemoved = null
                 }
             }
@@ -711,14 +727,47 @@ class Recomposer(
                     if (failedInitialComposition !in failedCompositions) {
                         failedCompositions += failedInitialComposition
                     }
-                    knownCompositions -= failedInitialComposition
+                    removeKnownCompositionLocked(failedInitialComposition)
                 }
 
                 deriveStateLocked()
             }
         } else {
+            // withFrameNanos uses `runCatching` to ensure that crashes are not propagated to
+            // AndroidUiDispatcher. This means that errors that happen during recomposition might
+            // be delayed by a frame and swallowed if composed into inconsistent state caused by
+            // the error.
+            // Common case is subcomposition: if measure occurs after recomposition has thrown,
+            // composeInitial will throw because of corrupted composition while original exception
+            // won't be recorded.
+            synchronized(stateLock) {
+                val errorState = errorState
+                if (errorState == null) {
+                    // Record exception if current error state is empty.
+                    this.errorState = RecomposerErrorState(recoverable = false, e)
+                } else {
+                    // Re-throw original cause if we recorded it previously.
+                    throw errorState.cause
+                }
+            }
+
             throw e
         }
+    }
+
+    private fun clearKnownCompositionsLocked() {
+        _knownCompositions.clear()
+        _knownCompositionsCache = emptyList()
+    }
+
+    private fun removeKnownCompositionLocked(composition: ControlledComposition) {
+        _knownCompositions -= composition
+        _knownCompositionsCache = null
+    }
+
+    private fun addKnownCompositionLocked(composition: ControlledComposition) {
+        _knownCompositions += composition
+        _knownCompositionsCache = null
     }
 
     private fun resetErrorState(): RecomposerErrorState? {
@@ -927,7 +976,16 @@ class Recomposer(
             val unregisterApplyObserver = Snapshot.registerApplyObserver { changed, _ ->
                 synchronized(stateLock) {
                     if (_state.value >= State.Idle) {
-                        snapshotInvalidations.addAll(changed)
+                        changed.fastForEach {
+                            if (
+                                it is StateObjectImpl &&
+                                    !it.isReadIn(ReaderKind.Composition)
+                            ) {
+                                // continue if we know that state is never read in composition
+                                return@fastForEach
+                            }
+                            snapshotInvalidations.add(it)
+                        }
                         deriveStateLocked()
                     } else null
                 }?.resume(Unit)
@@ -939,7 +997,7 @@ class Recomposer(
                 // Invalidate all registered composers when we start since we weren't observing
                 // snapshot changes on their behalf. Assume anything could have changed.
                 synchronized(stateLock) {
-                    knownCompositions.toMutableList()
+                    knownCompositions
                 }.fastForEach { it.invalidateAll() }
 
                 coroutineScope {
@@ -1025,7 +1083,7 @@ class Recomposer(
         synchronized(stateLock) {
             if (_state.value > State.ShuttingDown) {
                 if (composition !in knownCompositions) {
-                    knownCompositions += composition
+                    addKnownCompositionLocked(composition)
                 }
             }
         }
@@ -1234,7 +1292,7 @@ class Recomposer(
     /**
      * Resume broadcasting the frame clock after is has been paused. Pending calls to
      * [withFrameNanos] will start receiving frame clock broadcasts at the beginning of the frame
-     * and a frame will be requested if there are pending calls to [withFrameNaons] if a frame
+     * and a frame will be requested if there are pending calls to [withFrameNanos] if a frame
      * has not already been scheduled.
      *
      * Calls to [resumeCompositionFrameClock] are thread-safe and idempotent (calling it when the
@@ -1257,6 +1315,9 @@ class Recomposer(
     internal override val collectingParameterInformation: Boolean
         get() = false
 
+    internal override val collectingSourceInformation: Boolean
+        get() = false
+
     internal override fun recordInspectionTable(table: MutableSet<CompositionData>) {
         // TODO: The root recomposer might be a better place to set up inspection
         // than the current configuration with an CompositionLocal
@@ -1268,7 +1329,7 @@ class Recomposer(
 
     internal override fun unregisterComposition(composition: ControlledComposition) {
         synchronized(stateLock) {
-            knownCompositions -= composition
+            removeKnownCompositionLocked(composition)
             compositionInvalidations -= composition
             compositionsAwaitingApply -= composition
         }

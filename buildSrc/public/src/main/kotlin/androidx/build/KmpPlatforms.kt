@@ -29,21 +29,18 @@ import org.gradle.kotlin.dsl.findByType
  */
 const val ENABLED_KMP_TARGET_PLATFORMS = "androidx.enabled.kmp.target.platforms"
 
-/**
- * Target platform groups supported by the AndroidX implementation of Kotlin multi-platform.
- */
+/** Target platform groups supported by the AndroidX implementation of Kotlin multi-platform. */
 enum class PlatformGroup {
     JVM,
     JS,
     MAC,
     LINUX,
-    DESKTOP;
+    DESKTOP,
+    ANDROID_NATIVE;
 
     companion object {
-        /**
-         * Target platform groups which require native compilation (e.g. LLVM).
-         */
-        val native = listOf(MAC, LINUX)
+        /** Target platform groups which require native compilation (e.g. LLVM). */
+        val native = listOf(MAC, LINUX, ANDROID_NATIVE)
 
         /**
          * Target platform groups which are enabled by default.
@@ -55,9 +52,7 @@ enum class PlatformGroup {
     }
 }
 
-/**
- * Target platforms supported by the AndroidX implementation of Kotlin multi-platform.
- */
+/** Target platforms supported by the AndroidX implementation of Kotlin multi-platform. */
 enum class PlatformIdentifier(
     val id: String,
     @Suppress("unused") private val group: PlatformGroup
@@ -65,6 +60,10 @@ enum class PlatformIdentifier(
     JVM("jvm", PlatformGroup.JVM),
     JS("js", PlatformGroup.JS),
     ANDROID("android", PlatformGroup.JVM),
+    ANDROID_NATIVE_ARM32("androidNativeArm32", PlatformGroup.ANDROID_NATIVE),
+    ANDROID_NATIVE_ARM64("androidNativeArm64", PlatformGroup.ANDROID_NATIVE),
+    ANDROID_NATIVE_X86("androidNativeX86", PlatformGroup.ANDROID_NATIVE),
+    ANDROID_NATIVE_X64("androidNativeX64", PlatformGroup.ANDROID_NATIVE),
     MAC_ARM_64("macosarm64", PlatformGroup.MAC),
     MAC_OSX_64("macosx64", PlatformGroup.MAC),
     LINUX_64("linuxx64", PlatformGroup.LINUX),
@@ -99,33 +98,44 @@ fun parseTargetPlatformsFlag(flag: String?): Set<PlatformGroup> {
     return enabled.toSortedSet()
 }
 
-private fun matchingPlatformGroups(flag: String) = if (flag == "native") {
-    PlatformGroup.native
-} else {
-    listOf(PlatformGroup.valueOf(flag.uppercase(Locale.getDefault())))
-}
+private fun matchingPlatformGroups(flag: String) =
+    if (flag == "native") {
+        PlatformGroup.native
+    } else {
+        listOf(PlatformGroup.valueOf(flag.uppercase(Locale.getDefault())))
+    }
 
 private val Project.enabledKmpPlatforms: Set<PlatformGroup>
     get() {
-        val extension: KmpPlatformsExtension = extensions.findByType()
-            ?: extensions.create("androidx.build.KmpPlatforms", this)
+        val extension: KmpPlatformsExtension =
+            extensions.findByType() ?: extensions.create("androidx.build.KmpPlatforms", this)
         return extension.enabledKmpPlatforms
     }
 
-/**
- * Extension used to store parsed KMP configuration information.
- */
+/** Returns true if kotlin native targets should be enabled. */
+private fun Project.isKotlinNativeEnabled(): Boolean {
+    return "KMP".equals(System.getenv()["ANDROIDX_PROJECTS"], ignoreCase = true) ||
+        "INFRAROGUE".equals(System.getenv()["ANDROIDX_PROJECTS"], ignoreCase = true) ||
+        ProjectLayoutType.isPlayground(project) ||
+        project.providers.gradleProperty("androidx.kmp.native.enabled").orNull?.toBoolean() == true
+}
+
+/** Extension used to store parsed KMP configuration information. */
 private open class KmpPlatformsExtension(project: Project) {
-    val enabledKmpPlatforms = parseTargetPlatformsFlag(
-        project.findProperty(ENABLED_KMP_TARGET_PLATFORMS) as? String
-    )
+    val enabledKmpPlatforms =
+        parseTargetPlatformsFlag(project.findProperty(ENABLED_KMP_TARGET_PLATFORMS) as? String)
 }
 
 fun Project.enableJs(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JS)
+
 fun Project.enableMac(): Boolean =
-    enabledKmpPlatforms.contains(PlatformGroup.MAC) || Multiplatform.isKotlinNativeEnabled(this)
+    enabledKmpPlatforms.contains(PlatformGroup.MAC) || isKotlinNativeEnabled()
+
 fun Project.enableLinux(): Boolean =
-    enabledKmpPlatforms.contains(PlatformGroup.LINUX) || Multiplatform.isKotlinNativeEnabled(this)
+    enabledKmpPlatforms.contains(PlatformGroup.LINUX) || isKotlinNativeEnabled()
+
 fun Project.enableJvm(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.JVM)
+
 fun Project.enableDesktop(): Boolean = enabledKmpPlatforms.contains(PlatformGroup.DESKTOP)
+
 fun Project.enableNative(): Boolean = enableMac() && enableLinux()

@@ -19,8 +19,8 @@ package androidx.camera.integration.uiwidgets.compose
 import android.os.Build
 import androidx.camera.integration.uiwidgets.compose.ui.navigation.ComposeCameraScreen
 import androidx.camera.integration.uiwidgets.compose.ui.screen.imagecapture.DEFAULT_LENS_FACING
-import androidx.camera.testing.CameraUtil
-import androidx.camera.testing.LabTestRule
+import androidx.camera.testing.impl.CameraUtil
+import androidx.camera.testing.impl.LabTestRule
 import androidx.camera.view.PreviewView
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties

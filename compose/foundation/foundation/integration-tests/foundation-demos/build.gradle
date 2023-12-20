@@ -40,6 +40,7 @@ dependencies {
     implementation(project(":compose:ui:ui-tooling-preview"))
     debugImplementation(project(":compose:ui:ui-tooling"))
     implementation(project(":internal-testutils-fonts"))
+    implementation(project(":collection:collection"))
 }
 
 android {

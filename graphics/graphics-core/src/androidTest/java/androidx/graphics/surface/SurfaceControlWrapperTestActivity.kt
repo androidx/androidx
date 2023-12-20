@@ -33,6 +33,12 @@ class SurfaceControlWrapperTestActivity : Activity() {
         var DEFAULT_HEIGHT = 100
     }
 
+    private var mDestroyCallback: (() -> Unit)? = null
+
+    fun setDestroyCallback(callback: () -> Unit) {
+        mDestroyCallback = callback
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -56,5 +62,10 @@ class SurfaceControlWrapperTestActivity : Activity() {
 
     fun getSurfaceView(): SurfaceView {
         return mSurfaceView
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mDestroyCallback?.invoke()
     }
 }

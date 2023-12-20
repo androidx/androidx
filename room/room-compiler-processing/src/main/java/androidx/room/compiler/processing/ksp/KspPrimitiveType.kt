@@ -16,8 +16,8 @@
 
 package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.tryUnbox
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSType
 import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.KTypeName
@@ -32,8 +32,9 @@ import com.squareup.kotlinpoet.javapoet.KTypeName
 internal class KspPrimitiveType(
     env: KspProcessingEnv,
     ksType: KSType,
-    scope: KSTypeVarianceResolverScope?
-) : KspType(env, ksType, scope) {
+    originalKSAnnotations: Sequence<KSAnnotation> = ksType.annotations,
+    typeAlias: KSType? = null,
+) : KspType(env, ksType, originalKSAnnotations, null, typeAlias) {
     override fun resolveJTypeName(): JTypeName {
         return ksType.asJTypeName(env.resolver).tryUnbox()
     }
@@ -49,28 +50,11 @@ internal class KspPrimitiveType(
         )
     }
 
-    override fun copyWithNullability(nullability: XNullability): KspType {
-        return when (nullability) {
-            XNullability.NONNULL -> {
-                this
-            }
-            XNullability.NULLABLE -> {
-                // primitive types cannot be nullable hence we box them.
-                boxed().makeNullable()
-            }
-            else -> {
-                // this should actually never happens as the only time this is called is from
-                // make nullable-make nonnull but we have this error here for completeness.
-                error("cannot set nullability to unknown in KSP")
-            }
-        }
-    }
-
-    override fun copyWithScope(scope: KSTypeVarianceResolverScope): KspType {
-        return KspPrimitiveType(
-            env = env,
-            ksType = ksType,
-            scope = scope
-        )
-    }
+    override fun copy(
+        env: KspProcessingEnv,
+        ksType: KSType,
+        originalKSAnnotations: Sequence<KSAnnotation>,
+        scope: KSTypeVarianceResolverScope?,
+        typeAlias: KSType?
+    ) = KspPrimitiveType(env, ksType, originalKSAnnotations, typeAlias)
 }

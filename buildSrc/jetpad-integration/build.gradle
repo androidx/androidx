@@ -4,3 +4,6 @@ java {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
 }
+
+apply from: "../out.gradle"
+init.chooseBuildSrcBuildDir()

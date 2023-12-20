@@ -22,9 +22,9 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import android.app.UiAutomation;
 import android.graphics.Point;
 import android.view.KeyEvent;
+import android.view.Surface;
 import android.widget.TextView;
 
 import androidx.test.filters.LargeTest;
@@ -36,7 +36,6 @@ import androidx.test.uiautomator.UiDevice;
 import androidx.test.uiautomator.UiObject2;
 import androidx.test.uiautomator.Until;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -59,6 +58,7 @@ import javax.xml.xpath.XPathFactory;
 public class UiDeviceTest extends BaseTest {
 
     private static final long TIMEOUT_MS = 5_000;
+    private static final long LONG_TIMEOUT_MS = 30_000;
     private static final String PACKAGE_NAME = "androidx.test.uiautomator.testapp";
     // Defined in 'AndroidManifest.xml'.
     private static final String APP_NAME = "UiAutomator Test App";
@@ -243,15 +243,15 @@ public class UiDeviceTest extends BaseTest {
         assertEquals("keycode Z pressed with meta shift left on", textView.getText());
     }
 
-    @Ignore // b/266617096
     @Test
     public void testPressRecentApps() throws Exception {
         launchTestActivity(MainActivity.class);
 
-        // Test app appears in the "Recent Apps" screen after pressing button.
-        assertFalse(mDevice.wait(Until.hasObject(By.desc(APP_NAME)), TIMEOUT_MS));
+        // Test app appears in the "Recent Apps" screen after pressing button (may need to wait
+        // for a tooltip that shows up the first time the screen is opened).
+        assertFalse(mDevice.hasObject(By.desc(APP_NAME)));
         mDevice.pressRecentApps();
-        assertTrue(mDevice.wait(Until.hasObject(By.desc(APP_NAME)), TIMEOUT_MS));
+        assertTrue(mDevice.wait(Until.hasObject(By.desc(APP_NAME)), LONG_TIMEOUT_MS));
     }
 
     @Test
@@ -354,63 +354,26 @@ public class UiDeviceTest extends BaseTest {
     }
 
     @Test
-    @Ignore("b/280669851")
-    public void testSetOrientationLeft() throws Exception {
+    public void testSetOrientations() throws Exception {
         launchTestActivity(KeycodeTestActivity.class);
+
         try {
-            assertTrue(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
+            mDevice.setOrientationNatural();
+            assertEquals(Surface.ROTATION_0, mDevice.getDisplayRotation());
 
             mDevice.setOrientationLeft();
-            assertFalse(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_90, mDevice.getDisplayRotation());
-
-            mDevice.setOrientationNatural();
-            assertTrue(mDevice.isNaturalOrientation());
-        } finally {
-            mDevice.unfreezeRotation();
-        }
-    }
-
-    @Test
-    @Ignore("b/280669851")
-    public void testSetOrientationRight() throws Exception {
-        launchTestActivity(KeycodeTestActivity.class);
-        try {
-            assertTrue(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_0, mDevice.getDisplayRotation());
+            assertEquals(Surface.ROTATION_90, mDevice.getDisplayRotation());
 
             mDevice.setOrientationRight();
-            assertFalse(mDevice.isNaturalOrientation());
-            assertEquals(UiAutomation.ROTATION_FREEZE_270, mDevice.getDisplayRotation());
+            assertEquals(Surface.ROTATION_270, mDevice.getDisplayRotation());
 
-            mDevice.setOrientationNatural();
-            assertTrue(mDevice.isNaturalOrientation());
-        } finally {
-            mDevice.unfreezeRotation();
-        }
-    }
-
-    @Test
-    public void testSetOrientationPortrait() throws Exception {
-        launchTestActivity(KeycodeTestActivity.class);
-        try {
             mDevice.setOrientationPortrait();
-            assertTrue(mDevice.getDisplayHeight() > mDevice.getDisplayWidth());
-        } finally {
-            mDevice.unfreezeRotation();
-        }
-    }
+            assertTrue(mDevice.getDisplayHeight() >= mDevice.getDisplayWidth());
 
-    @Test
-    @Ignore("b/280669851")
-    public void testSetOrientationLandscape() throws Exception {
-        launchTestActivity(KeycodeTestActivity.class);
-        try {
             mDevice.setOrientationLandscape();
-            assertTrue(mDevice.getDisplayWidth() > mDevice.getDisplayHeight());
+            assertTrue(mDevice.getDisplayHeight() <= mDevice.getDisplayWidth());
         } finally {
-            mDevice.unfreezeRotation();
+            mDevice.setOrientationNatural();
         }
     }
 

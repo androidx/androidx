@@ -1,0 +1,5 @@
+// Baseline format: 1.0
+DefaultValueChange: androidx.wear.compose.material.ScalingLazyListState#animateScrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
+    Attempted to remove default value from parameter arg3 in androidx.wear.compose.material.ScalingLazyListState.animateScrollToItem
+DefaultValueChange: androidx.wear.compose.material.ScalingLazyListState#scrollToItem(int, int, kotlin.coroutines.Continuation<? super kotlin.Unit>) parameter #2:
+    Attempted to remove default value from parameter arg3 in androidx.wear.compose.material.ScalingLazyListState.scrollToItem

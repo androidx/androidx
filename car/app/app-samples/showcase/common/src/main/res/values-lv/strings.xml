@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Saraksta skata cilne"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Režģa skata cilne ar garu cilnes nosaukumu"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Cilne meklēšanai"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Notiek cilnes ielāde…"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Cilnes veidnes ielādes demonstrācija"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Demonstrācija cilnes veidnei, kurā nav ciļņu"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Nevar rādīt attēlus nezināmam saimniekdatoram"</string>

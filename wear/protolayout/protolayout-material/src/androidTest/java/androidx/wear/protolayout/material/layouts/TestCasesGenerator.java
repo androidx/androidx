@@ -75,9 +75,12 @@ public class TestCasesGenerator {
         HashMap<String, LayoutElement> testCases = new HashMap<>();
 
         TitleChip content =
-                new TitleChip.Builder(context, "Action", clickable, deviceParameters).build();
+                new TitleChip.Builder(context, "Action", clickable, deviceParameters)
+                        .setExcludeFontPadding(true)
+                        .build();
         CompactChip.Builder primaryChipBuilder =
-                new CompactChip.Builder(context, "Action", clickable, deviceParameters);
+                new CompactChip.Builder(context, "Action", clickable, deviceParameters)
+                        .setExcludeFontPadding(true);
 
         testCases.put(
                 "default_empty_primarychiplayout_golden" + goldenSuffix,
@@ -93,6 +96,7 @@ public class TestCasesGenerator {
                                                 "Too_long_textToo_long_textToo_long_text",
                                                 clickable,
                                                 deviceParameters)
+                                        .setExcludeFontPadding(true)
                                         .build())
                         .build());
         testCases.put(
@@ -162,7 +166,8 @@ public class TestCasesGenerator {
                         .build());
 
         primaryChipBuilder =
-                new CompactChip.Builder(context, "Action", clickable, deviceParameters);
+                new CompactChip.Builder(context, "Action", clickable, deviceParameters)
+                        .setExcludeFontPadding(true);
         testCases.put(
                 "coloredbox_1_chip_columnslayout_golden" + goldenSuffix,
                 new PrimaryLayout.Builder(deviceParameters)
@@ -358,6 +363,44 @@ public class TestCasesGenerator {
                                         .setCircularProgressIndicatorColors(
                                                 new ProgressIndicatorColors(
                                                         Color.YELLOW, Color.GREEN))
+                                        .build())
+                        .build());
+        testCases.put(
+                "custom_edgecontent_above_progressindicatorlayout_golden" + NORMAL_SCALE_SUFFIX,
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setContent(textContent)
+                        // Default value is to be above all content.
+                        .setEdgeContent(
+                                new Box.Builder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .setModifiers(
+                                                new Modifiers.Builder()
+                                                        .setBackground(
+                                                                new Background.Builder()
+                                                                        .setColor(
+                                                                                argb(Color.YELLOW))
+                                                                        .build())
+                                                        .build())
+                                        .build())
+                        .build());
+        testCases.put(
+                "custom_edgecontent_below_progressindicatorlayout_golden" + goldenSuffix,
+                new EdgeContentLayout.Builder(deviceParameters)
+                        .setContent(textContent)
+                        .setEdgeContentBehindAllOtherContent(true)
+                        .setEdgeContent(
+                                new Box.Builder()
+                                        .setWidth(expand())
+                                        .setHeight(expand())
+                                        .setModifiers(
+                                                new Modifiers.Builder()
+                                                        .setBackground(
+                                                                new Background.Builder()
+                                                                        .setColor(
+                                                                                argb(Color.YELLOW))
+                                                                        .build())
+                                                        .build())
                                         .build())
                         .build());
         testCases.put(
@@ -614,8 +657,8 @@ public class TestCasesGenerator {
     @NonNull
     private static Box buildColoredBoxMSL(int color) {
         return new Box.Builder()
-                .setWidth(dp(60))
-                .setHeight(dp(60))
+                .setWidth(dp(45))
+                .setHeight(dp(45))
                 .setModifiers(
                         new Modifiers.Builder()
                                 .setBackground(

@@ -141,9 +141,6 @@ public abstract class AbstractSavedStateViewModelFactory :
         handle: SavedStateHandle
     ): T
 
-    /**
-     * @hide
-     */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     override fun onRequery(viewModel: ViewModel) {
         // is need only for legacy path

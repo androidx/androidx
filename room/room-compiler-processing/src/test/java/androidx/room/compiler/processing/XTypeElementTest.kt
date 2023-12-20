@@ -16,6 +16,8 @@
 
 package androidx.room.compiler.processing
 
+import androidx.kruth.assertThat
+import androidx.kruth.assertWithMessage
 import androidx.room.compiler.codegen.XClassName
 import androidx.room.compiler.codegen.XTypeName
 import androidx.room.compiler.codegen.asClassName
@@ -25,14 +27,12 @@ import androidx.room.compiler.processing.util.XTestInvocation
 import androidx.room.compiler.processing.util.asKClassName
 import androidx.room.compiler.processing.util.asMutableKClassName
 import androidx.room.compiler.processing.util.compileFiles
-import androidx.room.compiler.processing.util.createXTypeVariableName
 import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getDeclaredField
+import androidx.room.compiler.processing.util.getDeclaredMethodByJvmName
 import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.getMethodByJvmName
 import androidx.room.compiler.processing.util.runProcessorTest
-import com.google.common.truth.Truth.assertThat
-import com.google.common.truth.Truth.assertWithMessage
 import com.squareup.kotlinpoet.INT
 import com.squareup.kotlinpoet.ParameterizedTypeName.Companion.parameterizedBy
 import com.squareup.kotlinpoet.javapoet.JClassName
@@ -41,6 +41,7 @@ import com.squareup.kotlinpoet.javapoet.JTypeName
 import com.squareup.kotlinpoet.javapoet.JTypeVariableName
 import com.squareup.kotlinpoet.javapoet.KClassName
 import com.squareup.kotlinpoet.javapoet.KTypeVariableName
+import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -232,6 +233,55 @@ class XTypeElementTest(
     }
 
     @Test
+    fun superTypeWithNoSuperClass() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "foo.bar.KotlinClass.kt",
+                    """
+                    package foo.bar
+                    class KotlinClass
+                    class KotlinClassWithInterface : KotlinInterface
+                    interface KotlinInterface
+                    """.trimIndent()
+                ),
+                Source.java(
+                    "foo.bar.JavaClass",
+                    """
+                    package foo.bar;
+                    class JavaClass {}
+                    class JavaClassWithInterface implements JavaInterface {}
+                    interface JavaInterface {}
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            invocation.processingEnv.requireTypeElement("foo.bar.KotlinClass").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.KotlinClassWithInterface").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.JavaClass").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+            invocation.processingEnv.requireTypeElement("foo.bar.JavaClassWithInterface").let {
+                assertThat(it.superClass?.asTypeName()).isEqualTo(XTypeName.ANY_OBJECT)
+            }
+        }
+    }
+
+    @Test
+    fun superTypeOfAny() {
+        runTest(sources = listOf()) { invocation ->
+            val any = invocation.processingEnv.requireTypeElement(Any::class)
+            val obj = invocation.processingEnv.requireTypeElement(Object::class)
+            assertThat(any.superClass).isNull()
+            assertThat(obj.superClass).isNull()
+        }
+    }
+
+    @Test
     fun superInterfaces() {
         val src = Source.kotlin(
             "foo.kt",
@@ -339,7 +389,7 @@ class XTypeElementTest(
                 val result = mutableSetOf<String>()
                 if (element.isAbstract()) result.add("abstract")
                 if (element.isFinal()) result.add("final")
-                if (element.isPrivate()) result.add("private")
+                if (element.isPrivate() || element.isKtPrivate()) result.add("private")
                 if (element.isProtected()) result.add("protected")
                 if (element.isPublic()) result.add("public")
                 if (element.isKotlinObject()) result.add("object")
@@ -371,14 +421,7 @@ class XTypeElementTest(
             assertThat(getModifiers("Final"))
                 .containsExactly("final", "public", "class")
             assertThat(getModifiers("PrivateClass"))
-                .containsExactlyElementsIn(
-                    if (invocation.isKsp) {
-                        listOf("private", "final", "class")
-                    } else {
-                        // java does not support top level private classes.
-                        listOf("final", "class")
-                    }
-                )
+                .containsExactly("private", "final", "class")
             assertThat(getModifiers("OuterKotlinClass.InnerKotlinClass"))
                 .containsExactly("final", "public", "class")
             assertThat(getModifiers("OuterKotlinClass.NestedKotlinClass"))
@@ -496,7 +539,7 @@ class XTypeElementTest(
             }
 
             baseClass.getField("genericProp").let { field ->
-                assertThat(field.type.asTypeName()).isEqualTo(createXTypeVariableName("T"))
+                assertThat(field.type.asTypeName()).isEqualTo(XTypeName.getTypeVariableName("T"))
             }
 
             subClass.getField("genericProp").let { field ->
@@ -764,18 +807,70 @@ class XTypeElementTest(
                     ).containsExactly(
                         "getMutable", "setMutable", "getImmutable"
                     )
-                methods.forEach {
-                    assertWithMessage("${subject.qualifiedName}.${it.jvmName}()")
-                        .that(it.isKotlinPropertyMethod())
-                        .apply {
-                            if (subject.name.contains("Kotlin")) {
-                                isTrue()
-                            } else {
-                                isFalse()
-                            }
-                        }
+
+                subject.getDeclaredMethodByJvmName("getMutable").let {
+                    if (subject.name.contains("Kotlin")) {
+                        assertThat(it.isKotlinPropertyMethod()).isTrue()
+                        assertThat(it.isKotlinPropertySetter()).isFalse()
+                        assertThat(it.isKotlinPropertyGetter()).isTrue()
+                        assertThat(it.propertyName).isEqualTo("mutable")
+                    } else {
+                        assertThat(it.isKotlinPropertyMethod()).isFalse()
+                        assertThat(it.isKotlinPropertySetter()).isFalse()
+                        assertThat(it.isKotlinPropertyGetter()).isFalse()
+                        assertThat(it.propertyName).isNull()
+                    }
+                }
+
+                subject.getDeclaredMethodByJvmName("setMutable").let {
+                    if (subject.name.contains("Kotlin")) {
+                        assertThat(it.isKotlinPropertyMethod()).isTrue()
+                        assertThat(it.isKotlinPropertySetter()).isTrue()
+                        assertThat(it.propertyName).isEqualTo("mutable")
+                    } else {
+                        assertThat(it.isKotlinPropertyMethod()).isFalse()
+                        assertThat(it.isKotlinPropertySetter()).isFalse()
+                        assertThat(it.isKotlinPropertyGetter()).isFalse()
+                        assertThat(it.propertyName).isNull()
+                    }
+                }
+
+                subject.getDeclaredMethodByJvmName("getImmutable").let {
+                    if (subject.name.contains("Kotlin")) {
+                        assertThat(it.isKotlinPropertyMethod()).isTrue()
+                        assertThat(it.isKotlinPropertySetter()).isFalse()
+                        assertThat(it.isKotlinPropertyGetter()).isTrue()
+                        assertThat(it.propertyName).isEqualTo("immutable")
+                    } else {
+                        assertThat(it.isKotlinPropertyMethod()).isFalse()
+                        assertThat(it.isKotlinPropertySetter()).isFalse()
+                        assertThat(it.isKotlinPropertyGetter()).isFalse()
+                        assertThat(it.propertyName).isNull()
+                    }
                 }
             }
+        }
+    }
+
+    @Test
+    fun lazyProperty() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            class Subject {
+              val myLazy by lazy { "wow" }
+            }
+            """.trimIndent()
+        )
+        runTest(sources = listOf(src)) {
+            val subject = it.processingEnv.requireTypeElement("Subject")
+            val fields = subject.getDeclaredFields()
+            assertThat(fields).isEmpty()
+
+            val method = subject.getDeclaredMethodByJvmName("getMyLazy")
+            assertThat(method).isNotNull()
+            assertThat(method.isKotlinPropertyMethod()).isTrue()
+            assertThat(method.isKotlinPropertySetter()).isFalse()
         }
     }
 
@@ -787,12 +882,15 @@ class XTypeElementTest(
             open class Base(x:Int) {
                 open fun baseFun(): Int = TODO()
                 suspend fun suspendFun(): Int = TODO()
-                private fun privateBaseFun(): Int = TODO()
                 companion object {
                     @JvmStatic
                     fun staticBaseFun(): Int = TODO()
                     fun companionMethod(): Int = TODO()
+                    @JvmStatic val name: String get() = "hello"
+                    @JvmStatic suspend fun suspendFun2():Int = TODO()
+                    @JvmStatic fun String.extFun(): Int = TODO()
                 }
+                private fun privateBaseFun(): Int = TODO()
             }
             open class SubClass : Base {
                 constructor(y:Int): super(y) {
@@ -811,10 +909,28 @@ class XTypeElementTest(
         )
         runTest(sources = listOf(src)) { invocation ->
             val base = invocation.processingEnv.requireTypeElement("Base")
+            val baseCompanion = invocation.processingEnv.requireTypeElement("Base.Companion")
             val objectMethodNames = invocation.objectMethodNames()
-            assertThat(base.getDeclaredMethods().jvmNames()).containsExactly(
-                "baseFun", "suspendFun", "privateBaseFun", "staticBaseFun"
-            )
+            val declaredMethods = base.getDeclaredMethods()
+            assertThat(declaredMethods.jvmNames()).containsExactly(
+                "baseFun",
+                "suspendFun",
+                "privateBaseFun",
+                "staticBaseFun",
+                "getName",
+                "suspendFun2",
+                "extFun"
+            ).inOrder()
+            declaredMethods.forEach { method ->
+                assertWithMessage("Enclosing element of method ${method.jvmName}")
+                    .that(method.enclosingElement.name)
+                    .isEqualTo("Base")
+            }
+            baseCompanion.getDeclaredMethods().forEach { method ->
+                assertWithMessage("Enclosing element of method ${method.jvmName}")
+                    .that(method.enclosingElement.name)
+                    .isEqualTo("Companion")
+            }
 
             val sub = invocation.processingEnv.requireTypeElement("SubClass")
             assertThat(sub.getDeclaredMethods().jvmNames()).containsExactly(
@@ -1375,13 +1491,14 @@ class XTypeElementTest(
             }
             abstract class AbstractNoExplicit
             abstract class AbstractExplicit(x:Int)
+            annotation class AnnotationClass
             """.trimIndent()
         )
         runTest(sources = listOf(src)) { invocation ->
             val subjects = listOf(
                 "MyInterface", "NoExplicitConstructor", "Base", "ExplicitConstructor",
                 "BaseWithSecondary", "Sub", "SubWith3Constructors",
-                "AbstractNoExplicit", "AbstractExplicit"
+                "AbstractNoExplicit", "AbstractExplicit", "AnnotationClass"
             )
             val constructorCounts = subjects.map {
                 it to invocation.processingEnv.requireTypeElement(it).getConstructors().size
@@ -1396,7 +1513,8 @@ class XTypeElementTest(
                     "Sub" to 1,
                     "SubWith3Constructors" to 3,
                     "AbstractNoExplicit" to 1,
-                    "AbstractExplicit" to 1
+                    "AbstractExplicit" to 1,
+                    "AnnotationClass" to 0
                 )
 
             val primaryConstructorParameterNames = subjects.map {
@@ -1416,11 +1534,157 @@ class XTypeElementTest(
                     "Sub" to listOf("x"),
                     "SubWith3Constructors" to emptyList<String>(),
                     "AbstractNoExplicit" to emptyList<String>(),
-                    "AbstractExplicit" to listOf("x")
+                    "AbstractExplicit" to listOf("x"),
+                    "AnnotationClass" to null
                 )
         }
     }
 
+    @Test
+    fun constructorsWithOverloads() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            class DefaultArgs @JvmOverloads constructor(x:Int = 1, y: Double, z: Long = 1) {}
+            class NoDefaultArgs @JvmOverloads constructor(x:Int, y: Double, z: Long) {}
+            class AllDefaultArgs @JvmOverloads constructor(x:Int = 1, y: Double = 0.0, z: Long = 1) {}
+            """.trimIndent()
+        )
+        runTest(sources = listOf(src)) { invocation ->
+            val defaultArgsConstructors =
+                invocation.processingEnv.requireTypeElement("DefaultArgs")
+                    .getConstructorSignatures()
+            val noDefaultArgsConstructors =
+                invocation.processingEnv.requireTypeElement("NoDefaultArgs")
+                    .getConstructorSignatures()
+            val allDefaultArgsConstructors =
+                invocation.processingEnv.requireTypeElement("AllDefaultArgs")
+                    .getConstructorSignatures()
+
+            if (isPreCompiled) {
+                assertThat(defaultArgsConstructors)
+                    .containsExactly(
+                        "DefaultArgs(int,double,long)",
+                        "DefaultArgs(int,double)",
+                        "DefaultArgs(double)"
+                    ).inOrder()
+                assertThat(noDefaultArgsConstructors)
+                    .containsExactly(
+                        "NoDefaultArgs(int,double,long)"
+                    ).inOrder()
+                assertThat(allDefaultArgsConstructors)
+                    .containsExactly(
+                        "AllDefaultArgs(int,double,long)",
+                        "AllDefaultArgs(int,double)",
+                        "AllDefaultArgs(int)",
+                        "AllDefaultArgs()"
+                    ).inOrder()
+            } else {
+                assertThat(defaultArgsConstructors)
+                    .containsExactly(
+                        "DefaultArgs(int,double,long)",
+                        "DefaultArgs(double)",
+                        "DefaultArgs(int,double)"
+                    ).inOrder()
+                assertThat(noDefaultArgsConstructors)
+                    .containsExactly(
+                        "NoDefaultArgs(int,double,long)"
+                    ).inOrder()
+                assertThat(allDefaultArgsConstructors)
+                    .containsExactly(
+                        "AllDefaultArgs(int,double,long)",
+                        "AllDefaultArgs()",
+                        "AllDefaultArgs(int)",
+                        "AllDefaultArgs(int,double)"
+                    ).inOrder()
+            }
+
+            val subjects = listOf("DefaultArgs", "NoDefaultArgs", "AllDefaultArgs")
+            if (invocation.isKsp) {
+                val syntheticConstructorCounts = subjects.map {
+                    it to invocation.processingEnv.requireTypeElement(it)
+                        .getConstructors()
+                        .filter { it.isSyntheticConstructorForJvmOverloads() }
+                        .size
+                }
+                assertThat(syntheticConstructorCounts)
+                    .containsExactly(
+                        "DefaultArgs" to 2,
+                        "NoDefaultArgs" to 0,
+                        "AllDefaultArgs" to 3,
+                    )
+            }
+        }
+    }
+
+    @Test
+    fun constructorsWithDefaultValues() {
+        val src = Source.kotlin(
+            "Subject.kt",
+            """
+            // These should have a no-arg constructor
+            class DefaultCtor
+            class DefaultArgsPrimary(val x: String = "")
+            class AlreadyHasPrimaryNoArgsCtor() {
+                constructor(y: Int = 1) : this()
+            }
+            class AlreadyHasSecondaryNoArgsCtor(val x: String) {
+                constructor() : this("")
+            }
+
+            // These can't have no arg constructor
+            class DefaultArgsSecondary(val x: String) {
+                constructor(y: Int = 1) : this("")
+            }
+            class CantHaveNoArgsCtor(val x: String = "", val y: Int)
+
+            // Shouldn't synthesize no-arg for annotation classes
+            annotation class AnnotationClass(val x: String = "")
+            """.trimIndent()
+        )
+        runTest(sources = listOf(src)) { invocation ->
+            val subjects = listOf(
+                "DefaultCtor", "DefaultArgsPrimary", "AlreadyHasPrimaryNoArgsCtor",
+                "AlreadyHasSecondaryNoArgsCtor", "DefaultArgsSecondary", "CantHaveNoArgsCtor",
+                "AnnotationClass"
+            )
+            val constructorCounts =
+                subjects.associateWith {
+                    invocation.processingEnv.requireTypeElement(it).getConstructors().size
+                }
+            assertThat(constructorCounts)
+                .containsExactlyEntriesIn(
+                    mapOf(
+                        "DefaultCtor" to 1,
+                        "DefaultArgsPrimary" to 2,
+                        "AlreadyHasPrimaryNoArgsCtor" to 2,
+                        "AlreadyHasSecondaryNoArgsCtor" to 2,
+                        "DefaultArgsSecondary" to 2,
+                        "CantHaveNoArgsCtor" to 1,
+                        "AnnotationClass" to 0,
+                    )
+                )
+
+            val hasNoArgConstructor = subjects.associateWith {
+                invocation.processingEnv.requireTypeElement(it)
+                    .getConstructors().any { it.parameters.isEmpty() }
+            }
+            assertThat(hasNoArgConstructor)
+                .containsExactlyEntriesIn(
+                    mapOf(
+                        "DefaultCtor" to true,
+                        "DefaultArgsPrimary" to true,
+                        "AlreadyHasPrimaryNoArgsCtor" to true,
+                        "AlreadyHasSecondaryNoArgsCtor" to true,
+                        "DefaultArgsSecondary" to false,
+                        "CantHaveNoArgsCtor" to false,
+                        "AnnotationClass" to false,
+                    )
+                )
+        }
+    }
+
+    @Ignore("b/284452502")
     @Test
     fun jvmDefault() {
         val src = Source.kotlin(
@@ -1698,26 +1962,26 @@ class XTypeElementTest(
                     method = method,
                     name = "method",
                     enclosingElement = abstractClass,
-                    returnType = createXTypeVariableName("T2"),
+                    returnType = XTypeName.getTypeVariableName("T2"),
                     parameterTypes = arrayOf(
-                        createXTypeVariableName("T1"),
-                        createXTypeVariableName("T2")
+                        XTypeName.getTypeVariableName("T1"),
+                        XTypeName.getTypeVariableName("T2")
                     )
                 )
                 checkMethodType(
                     methodType = method.executableType,
-                    returnType = createXTypeVariableName("T2"),
+                    returnType = XTypeName.getTypeVariableName("T2"),
                     parameterTypes = arrayOf(
-                        createXTypeVariableName("T1"),
-                        createXTypeVariableName("T2")
+                        XTypeName.getTypeVariableName("T1"),
+                        XTypeName.getTypeVariableName("T2")
                     )
                 )
                 checkMethodType(
                     methodType = method.asMemberOf(abstractClass.type),
-                    returnType = createXTypeVariableName("T2"),
+                    returnType = XTypeName.getTypeVariableName("T2"),
                     parameterTypes = arrayOf(
-                        createXTypeVariableName("T1"),
-                        createXTypeVariableName("T2")
+                        XTypeName.getTypeVariableName("T1"),
+                        XTypeName.getTypeVariableName("T2")
                     )
                 )
                 checkMethodType(
@@ -1770,26 +2034,26 @@ class XTypeElementTest(
                 method = abstractClassMethod,
                 name = "method",
                 enclosingElement = abstractClass,
-                returnType = createXTypeVariableName("T2"),
+                returnType = XTypeName.getTypeVariableName("T2"),
                 parameterTypes = arrayOf(
-                    createXTypeVariableName("T1"),
-                    createXTypeVariableName("T2")
+                    XTypeName.getTypeVariableName("T1"),
+                    XTypeName.getTypeVariableName("T2")
                 )
             )
             checkMethodType(
                 methodType = abstractClassMethod.executableType,
-                returnType = createXTypeVariableName("T2"),
+                returnType = XTypeName.getTypeVariableName("T2"),
                 parameterTypes = arrayOf(
-                    createXTypeVariableName("T1"),
-                    createXTypeVariableName("T2")
+                    XTypeName.getTypeVariableName("T1"),
+                    XTypeName.getTypeVariableName("T2")
                 )
             )
             checkMethodType(
                 methodType = abstractClassMethod.asMemberOf(abstractClass.type),
-                returnType = createXTypeVariableName("T2"),
+                returnType = XTypeName.getTypeVariableName("T2"),
                 parameterTypes = arrayOf(
-                    createXTypeVariableName("T1"),
-                    createXTypeVariableName("T2"),
+                    XTypeName.getTypeVariableName("T1"),
+                    XTypeName.getTypeVariableName("T2"),
                 )
             )
             checkMethodType(
@@ -1877,7 +2141,7 @@ class XTypeElementTest(
             checkConstructorParameters(
                 typeElement = abstractClass,
                 expectedParameters = arrayOf(
-                    createXTypeVariableName("T")
+                    XTypeName.getTypeVariableName("T")
                 )
             )
             checkConstructorParameters(
@@ -2075,6 +2339,82 @@ class XTypeElementTest(
         }
     }
 
+    @Test
+    fun testClassNameWithDollarSign() {
+        runTest(
+            sources = listOf(
+                Source.java(
+                    "test.MyClass\$Foo",
+                    """
+                    package test;
+                    class MyClass${'$'}Foo {}
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("test.MyClass\$Foo")
+            assertThat(subject.asClassName().canonicalName).isEqualTo("test.MyClass\$Foo")
+        }
+    }
+
+    @Test
+    fun propertyAccessors() {
+        runTest(
+            sources = listOf(
+                Source.kotlin(
+                    "Subject.kt",
+                    """
+                    class Subject {
+                        val val1: String = TODO()
+                        @get:JvmName("getVal2JvmName")
+                        val val2: String = TODO()
+                        var var1: String = TODO()
+                        @get:JvmName("getVar2JvmName")
+                        var var2: String = TODO()
+                        @set:JvmName("setVar3JvmName")
+                        var var3: String = TODO()
+                        @get:JvmName("getVar4JvmName")
+                        @set:JvmName("setVar4JvmName")
+                        var var4: String = TODO()
+                        @set:JvmName("setVar5JvmName")
+                        @get:JvmName("getVar5JvmName")
+                        var var5: String = TODO()
+                    }
+                    """.trimIndent()
+                )
+            )
+        ) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("Subject")
+
+            // Check method names
+            assertThat(subject.getDeclaredMethods().map { it.name })
+                .containsExactly(
+                    "getVal1", // val1 accessors
+                    "getVal2", // val2 accessors
+                    "getVar1", "setVar1", // var1 accessors
+                    "getVar2", "setVar2", // var2 accessors
+                    "getVar3", "setVar3", // var3 accessors
+                    "getVar4", "setVar4", // var4 accessors
+                    "getVar5", "setVar5", // var5 accessors
+                ).inOrder()
+
+            // Check property names and corresponding accessors
+            assertThat(
+                subject.getDeclaredFields().map {
+                    it.name to listOf(it.getter?.name, it.setter?.name)
+                }
+            ).containsExactly(
+                "val1" to listOf("getVal1", null),
+                "val2" to listOf("getVal2", null),
+                "var1" to listOf("getVar1", "setVar1"),
+                "var2" to listOf("getVar2", "setVar2"),
+                "var3" to listOf("getVar3", "setVar3"),
+                "var4" to listOf("getVar4", "setVar4"),
+                "var5" to listOf("getVar5", "setVar5"),
+            )
+        }
+    }
+
     /**
      * it is good to exclude methods coming from Object when testing as they differ between KSP
      * and KAPT but irrelevant for Room.
@@ -2091,6 +2431,17 @@ class XTypeElementTest(
     private fun List<XMethodElement>.jvmNames() = map {
         it.jvmName
     }.toList()
+
+    private fun XTypeElement.getConstructorSignatures(): List<String> =
+        getConstructors().map { it.signature() }
+
+    private fun XConstructorElement.signature(): String {
+        val params = executableType.parameterTypes.joinToString(",") {
+            it.asTypeName().java.toString()
+        }
+        val enclosingName = enclosingElement.name
+        return "$enclosingName($params)"
+    }
 
     private fun XMethodElement.signature(owner: XType): String {
         val methodType = this.asMemberOf(owner)

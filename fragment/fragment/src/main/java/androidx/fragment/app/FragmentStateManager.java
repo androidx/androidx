@@ -18,6 +18,7 @@ package androidx.fragment.app;
 
 import android.app.Activity;
 import android.content.res.Resources;
+import android.os.BadParcelableException;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
@@ -235,6 +236,11 @@ class FragmentStateManager {
         if (mFragment.mDeferStart && mFragment.mState < Fragment.STARTED) {
             maxState = Math.min(maxState, Fragment.ACTIVITY_CREATED);
         }
+        // Fragments that are transitioning are part of a seeking effect and must be at least
+        // AWAITING_EXIT_EFFECTS
+        if (mFragment.mTransitioning) {
+            maxState = Math.max(maxState, Fragment.AWAITING_EXIT_EFFECTS);
+        }
         if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
             Log.v(FragmentManager.TAG, "computeExpectedState() of " + maxState + " for "
                     + mFragment);
@@ -359,7 +365,7 @@ class FragmentStateManager {
                     if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                         Log.d(TAG, "Cleaning up state of never attached fragment: " + mFragment);
                     }
-                    mFragmentStore.getNonConfig().clearNonConfigState(mFragment);
+                    mFragmentStore.getNonConfig().clearNonConfigState(mFragment, true);
                     mFragmentStore.makeInactive(this);
                     if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
                         Log.d(TAG, "initState called for fragment: " + mFragment);
@@ -431,8 +437,14 @@ class FragmentStateManager {
                     new Bundle());
         }
 
-        mFragment.mSavedViewState = mFragment.mSavedFragmentState.getSparseParcelableArray(
-                VIEW_STATE_KEY);
+        try {
+            mFragment.mSavedViewState = mFragment.mSavedFragmentState.getSparseParcelableArray(
+                    VIEW_STATE_KEY);
+        } catch (BadParcelableException e) {
+            throw new IllegalStateException(
+                    "Failed to restore view hierarchy state for fragment " + getFragment(), e
+            );
+        }
         mFragment.mSavedViewRegistryState = mFragment.mSavedFragmentState.getBundle(
                 VIEW_REGISTRY_STATE_KEY);
 
@@ -645,6 +657,7 @@ class FragmentStateManager {
         mFragment.setFocusedView(null);
         mFragment.performResume();
         mDispatcher.dispatchOnFragmentResumed(mFragment, false);
+        mFragmentStore.setSavedState(mFragment.mWho, null);
         mFragment.mSavedFragmentState = null;
         mFragment.mSavedViewState = null;
         mFragment.mSavedViewRegistryState = null;
@@ -806,7 +819,7 @@ class FragmentStateManager {
                 shouldClear = true;
             }
             if ((beingRemoved && !mFragment.mBeingSaved) || shouldClear) {
-                mFragmentStore.getNonConfig().clearNonConfigState(mFragment);
+                mFragmentStore.getNonConfig().clearNonConfigState(mFragment, false);
             }
             mFragment.performDestroy();
             mDispatcher.dispatchOnFragmentDestroyed(mFragment, false);

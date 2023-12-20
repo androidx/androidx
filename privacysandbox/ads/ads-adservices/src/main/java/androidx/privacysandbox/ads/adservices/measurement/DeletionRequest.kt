@@ -17,9 +17,9 @@
 package androidx.privacysandbox.ads.adservices.measurement
 
 import android.net.Uri
-import android.os.Build
 import androidx.annotation.IntDef
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
 import java.time.Instant
 
 /**
@@ -56,7 +56,7 @@ import java.time.Instant
  *     https://example.com}, {@code https://b.example.com} and {@code https://abcexample.com}
  *     will NOT match. A null or empty list will match everything.
  */
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
+@RequiresApi(android.os.Build.VERSION_CODES.O)
 class DeletionRequest(
     @DeletionMode val deletionMode: Int,
     @MatchBehavior val matchBehavior: Int,
@@ -107,7 +107,7 @@ class DeletionRequest(
          */
         public const val DELETION_MODE_EXCLUDE_INTERNAL_DATA = 1
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
             DELETION_MODE_ALL,
@@ -124,7 +124,7 @@ class DeletionRequest(
          */
         public const val MATCH_BEHAVIOR_PRESERVE = 1
 
-        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY)
         @Retention(AnnotationRetention.SOURCE)
         @IntDef(
             MATCH_BEHAVIOR_DELETE,
@@ -148,7 +148,7 @@ class DeletionRequest(
      *     {@link #MATCH_BEHAVIOR_PRESERVE}: This option will preserve the data associated with the
      *     supplied params (Origin URIs & Domain URIs) and select remaining records for deletion.
      */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    @RequiresApi(android.os.Build.VERSION_CODES.O)
     public class Builder constructor(
         @DeletionMode private val deletionMode: Int,
         @MatchBehavior private val matchBehavior: Int

@@ -20,9 +20,8 @@ import androidx.work.multiprocess.IWorkManagerImplCallback;
 
 /**
  * Implementation for a multi-process {@link ListenableWorker}.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IListenableWorkerImpl {
    // request is a ParcelablelRemoteRequest instance.
    // callback gets a parcelized representation of Result

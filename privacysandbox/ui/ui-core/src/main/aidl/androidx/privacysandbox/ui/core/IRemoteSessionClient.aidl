@@ -19,7 +19,7 @@ package androidx.privacysandbox.ui.core;
 import androidx.privacysandbox.ui.core.IRemoteSessionController;
 import android.view.SurfaceControlViewHost.SurfacePackage;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IRemoteSessionClient {
     void onRemoteSessionOpened(in SurfacePackage surfacePackage,
         IRemoteSessionController remoteSessionController, boolean isZOrderOnTop);

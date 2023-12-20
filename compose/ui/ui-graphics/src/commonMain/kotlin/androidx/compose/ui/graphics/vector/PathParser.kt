@@ -49,9 +49,8 @@ import kotlin.math.tan
 internal val EmptyArray = FloatArray(0)
 
 class PathParser {
-    private val nodes = mutableListOf<PathNode>()
+    private val nodes = ArrayList<PathNode>()
 
-    private val floatResult = FloatResult()
     private var nodeData = FloatArray(64)
 
     fun clear() {
@@ -106,16 +105,19 @@ class PathParser {
                         // Find the next float and add it to the data array if we got a valid result
                         // An invalid result could be a malformed float, or simply that we reached
                         // the end of the list of floats
-                        index = FastFloatParser.nextFloat(pathData, index, end, floatResult)
+                        val result = nextFloat(pathData, index, end)
+                        index = result.index
+                        val value = result.floatValue
 
-                        if (floatResult.isValid) {
-                            nodeData[dataCount++] = floatResult.value
+                        // If the number is not a NaN
+                        if (!value.isNaN()) {
+                            nodeData[dataCount++] = value
                             resizeNodeData(dataCount)
                         }
 
                         // Skip any commas
                         while (index < end && pathData[index] == ',') index++
-                    } while (index < end && floatResult.isValid)
+                    } while (index < end && !value.isNaN())
                 }
 
                 addNodes(command, nodeData, dataCount)
@@ -139,7 +141,7 @@ class PathParser {
         return this
     }
 
-    fun toNodes() = nodes
+    fun toNodes(): List<PathNode> = nodes
 
     fun toPath(target: Path = Path()) = nodes.toPath(target)
 

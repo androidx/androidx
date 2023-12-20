@@ -26,7 +26,6 @@ import androidx.annotation.RestrictTo.Scope;
  *
  * @param <S> type of the remote service
  * @param <R> type of the returned value
- * @hide
  */
 @RestrictTo(Scope.LIBRARY)
 public interface RemoteOperation<S, R> {

@@ -42,16 +42,18 @@ import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.input.pointer.positionChangeIgnoreConsumed
 import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.input.pointer.util.addPointerInputChange
+import androidx.compose.ui.node.CompositionLocalConsumerModifierNode
 import androidx.compose.ui.node.DelegatingNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.PointerInputModifierNode
+import androidx.compose.ui.node.currentValueOf
 import androidx.compose.ui.platform.InspectorInfo
+import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Velocity
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.math.sign
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.coroutineScope
@@ -152,6 +154,8 @@ fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {
  * If you need to control the whole dragging flow, consider using [pointerInput] instead with the
  * helper functions like [detectDragGestures].
  *
+ * If you want to enable dragging in 2 dimensions, consider using [draggable2D].
+ *
  * If you are implementing scroll/fling behavior, consider using [scrollable].
  *
  * @sample androidx.compose.foundation.samples.DraggableSample
@@ -168,10 +172,15 @@ fun rememberDraggableState(onDelta: (Float) -> Unit): DraggableState {
  * pressing on it. It's useful to set it when value you're dragging is settling / animating.
  * @param onDragStarted callback that will be invoked when drag is about to start at the starting
  * position, allowing user to suspend and perform preparation for drag, if desired. This suspend
- * function is invoked with the draggable scope, allowing for async processing, if desired
+ * function is invoked with the draggable scope, allowing for async processing, if desired. Note
+ * that the scope used here is the one provided by the draggable node, for long running work that
+ * needs to outlast the modifier being in the composition you should use a scope that fits the
+ * lifecycle needed.
  * @param onDragStopped callback that will be invoked when drag is finished, allowing the
  * user to react on velocity and process it. This suspend function is invoked with the draggable
- * scope, allowing for async processing, if desired
+ * scope, allowing for async processing, if desired.  Note that the scope used here is the one
+ * provided by the draggable node, for long running work that needs to outlast the modifier being
+ * in the composition you should use a scope that fits the lifecycle needed.
  * @param reverseDirection reverse the direction of the scroll, so top to bottom scroll will
  * behave like bottom to top and left to right will behave like right to left.
  */
@@ -235,7 +244,8 @@ internal class DraggableElement(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (javaClass != other?.javaClass) return false
+        if (other === null) return false
+        if (this::class != other::class) return false
 
         other as DraggableElement
 
@@ -281,108 +291,43 @@ internal class DraggableElement(
 
 internal class DraggableNode(
     private var state: DraggableState,
-    private var canDrag: (PointerInputChange) -> Boolean,
+    canDrag: (PointerInputChange) -> Boolean,
     private var orientation: Orientation,
-    private var enabled: Boolean,
-    private var interactionSource: MutableInteractionSource?,
-    private var startDragImmediately: () -> Boolean,
-    private var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
-    private var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
-    private var reverseDirection: Boolean
-) : DelegatingNode(), PointerInputModifierNode {
-    // Use wrapper lambdas here to make sure that if these properties are updated while we suspend,
-    // we point to the new reference when we invoke them.
-    private val _canDrag: (PointerInputChange) -> Boolean = { canDrag(it) }
-    private val _startDragImmediately: () -> Boolean = { startDragImmediately() }
-    private val velocityTracker = VelocityTracker()
+    enabled: Boolean,
+    interactionSource: MutableInteractionSource?,
+    startDragImmediately: () -> Boolean,
+    onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
+    onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
+    reverseDirection: Boolean
+) : AbstractDraggableNode(
+    canDrag,
+    enabled,
+    interactionSource,
+    startDragImmediately,
+    onDragStarted,
+    onDragStopped,
+    reverseDirection
+) {
+    var dragScope: DragScope = NoOpDragScope
 
-    private val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
-        // TODO: conditionally undelegate when aosp/2462416 lands?
-        if (!enabled) return@SuspendingPointerInputModifierNode
-        coroutineScope {
-            launch(start = CoroutineStart.UNDISPATCHED) {
-                while (isActive) {
-                    var event = channel.receive()
-                    if (event !is DragStarted) continue
-                    processDragStart(event)
-                    try {
-                        state.drag(MutatePriority.UserInput) {
-                            while (event !is DragStopped && event !is DragCancelled) {
-                                (event as? DragDelta)?.let { dragBy(it.delta.toFloat(orientation)) }
-                                event = channel.receive()
-                            }
-                        }
-                        if (event is DragStopped) {
-                            processDragStop(event as DragStopped)
-                        } else if (event is DragCancelled) {
-                            processDragCancel()
-                        }
-                    } catch (c: CancellationException) {
-                        processDragCancel()
-                    }
-                }
-            }
-            try {
-                awaitPointerEventScope {
-                    while (isActive) {
-                        awaitDownAndSlop(
-                            _canDrag,
-                            _startDragImmediately,
-                            velocityTracker,
-                            orientation
-                        )?.let {
-                            var isDragSuccessful = false
-                            try {
-                                isDragSuccessful = awaitDrag(
-                                    it.first,
-                                    it.second,
-                                    velocityTracker,
-                                    channel,
-                                    reverseDirection,
-                                    orientation
-                                )
-                            } catch (cancellation: CancellationException) {
-                                isDragSuccessful = false
-                                if (!isActive) throw cancellation
-                            } finally {
-                                val event = if (isDragSuccessful) {
-                                    val velocity = velocityTracker.calculateVelocity()
-                                    velocityTracker.resetTracking()
-                                    DragStopped(velocity * if (reverseDirection) -1f else 1f)
-                                } else {
-                                    DragCancelled
-                                }
-                                channel.trySend(event)
-                            }
-                        }
-                    }
-                }
-            } catch (exception: CancellationException) {
-                if (!isActive) {
-                    throw exception
-                }
-            }
+    private val abstractDragScope = object : AbstractDragScope {
+        override fun dragBy(pixels: Offset) {
+            dragScope.dragBy(pixels.toFloat(orientation))
         }
-    })
-
-    private val channel = Channel<DragEvent>(capacity = Channel.UNLIMITED)
-    private var dragInteraction: DragInteraction.Start? = null
-
-    override fun onDetach() {
-        disposeInteractionSource()
     }
 
-    override fun onPointerEvent(
-        pointerEvent: PointerEvent,
-        pass: PointerEventPass,
-        bounds: IntSize
-    ) {
-        pointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
+    override suspend fun drag(block: suspend AbstractDragScope.() -> Unit) {
+        state.drag(MutatePriority.UserInput) {
+            dragScope = this
+            block.invoke(abstractDragScope)
+        }
     }
 
-    override fun onCancelPointerInput() {
-        pointerInputNode.onCancelPointerInput()
+    override suspend fun AbstractDragScope.draggingBy(dragDelta: DragDelta) {
+        dragBy(dragDelta.delta)
     }
+
+    override val pointerDirectionConfig = orientation.toPointerDirectionConfig()
 
     fun update(
         state: DraggableState,
@@ -427,6 +372,164 @@ internal class DraggableNode(
             pointerInputNode.resetPointerInputHandler()
         }
     }
+}
+
+private val NoOpDragScope: DragScope = object : DragScope {
+    override fun dragBy(pixels: Float) {}
+}
+
+internal interface AbstractDragScope {
+    fun dragBy(pixels: Offset)
+}
+
+internal abstract class AbstractDraggableNode(
+    var canDrag: (PointerInputChange) -> Boolean,
+    var enabled: Boolean,
+    var interactionSource: MutableInteractionSource?,
+    var startDragImmediately: () -> Boolean,
+    var onDragStarted: suspend CoroutineScope.(startedPosition: Offset) -> Unit,
+    var onDragStopped: suspend CoroutineScope.(velocity: Velocity) -> Unit,
+    var reverseDirection: Boolean
+) : DelegatingNode(), PointerInputModifierNode, CompositionLocalConsumerModifierNode {
+
+    // Use wrapper lambdas here to make sure that if these properties are updated while we suspend,
+    // we point to the new reference when we invoke them.
+    private val _canDrag: (PointerInputChange) -> Boolean = { canDrag(it) }
+    private val _startDragImmediately: () -> Boolean = { startDragImmediately() }
+    private val velocityTracker = VelocityTracker()
+    private var isListeningForEvents = false
+
+    /**
+     * Passes the drag method from the state.
+     */
+    abstract suspend fun drag(block: suspend AbstractDragScope.() -> Unit)
+
+    /**
+     * Performs dragging by calling the scope's dragBy method
+     */
+    abstract suspend fun AbstractDragScope.draggingBy(dragDelta: DragDelta)
+
+    /**
+     * Returns the pointerDirectionConfig which specifies the main and cross axis deltas. This is
+     * important when observing the delta change for Draggable, as we want to observe the change
+     * in the main axis only.
+     */
+    abstract val pointerDirectionConfig: PointerDirectionConfig
+
+    private fun startListeningForEvents() {
+        isListeningForEvents = true
+
+        /**
+         * To preserve the original behavior we had (before the Modifier.Node migration) we need to
+         * scope the DragStopped and DragCancel methods to the node's coroutine scope instead of using
+         * the one provided by the pointer input modifier, this is to ensure that even when the pointer
+         * input scope is reset we will continue any coroutine scope scope that we started from these
+         * methods while the pointer input scope was active.
+         */
+        coroutineScope.launch {
+            while (isActive) {
+                var event = channel.receive()
+                if (event !is DragStarted) continue
+                processDragStart(event)
+                try {
+                    drag {
+                        while (event !is DragStopped && event !is DragCancelled) {
+                            (event as? DragDelta)?.let { draggingBy(event as DragDelta) }
+                            event = channel.receive()
+                        }
+                    }
+                    if (event is DragStopped) {
+                        processDragStop(event as DragStopped)
+                    } else if (event is DragCancelled) {
+                        processDragCancel()
+                    }
+                } catch (c: CancellationException) {
+                    processDragCancel()
+                }
+            }
+        }
+    }
+
+    val pointerInputNode = delegate(SuspendingPointerInputModifierNode {
+        // TODO: conditionally undelegate when aosp/2462416 lands?
+        if (!enabled) return@SuspendingPointerInputModifierNode
+        coroutineScope {
+            try {
+                awaitPointerEventScope {
+                    while (isActive) {
+                        awaitDownAndSlop(
+                            _canDrag,
+                            _startDragImmediately,
+                            velocityTracker,
+                            pointerDirectionConfig
+                        )?.let {
+                            /**
+                             * The gesture crossed the touch slop, events are now relevant
+                             * and should be propagated
+                             */
+                            if (!isListeningForEvents) {
+                                startListeningForEvents()
+                            }
+                            var isDragSuccessful = false
+                            try {
+                                isDragSuccessful = awaitDrag(
+                                    it.first,
+                                    it.second,
+                                    velocityTracker,
+                                    channel,
+                                    reverseDirection
+                                ) { event ->
+                                    pointerDirectionConfig.calculateDeltaChange(
+                                        event.positionChangeIgnoreConsumed()
+                                    ) != 0f
+                                }
+                            } catch (cancellation: CancellationException) {
+                                isDragSuccessful = false
+                                if (!isActive) throw cancellation
+                            } finally {
+                                val maximumVelocity = currentValueOf(LocalViewConfiguration)
+                                    .maximumFlingVelocity.toFloat()
+                                val event = if (isDragSuccessful) {
+                                    val velocity = velocityTracker.calculateVelocity(
+                                        Velocity(maximumVelocity, maximumVelocity)
+                                    )
+                                    velocityTracker.resetTracking()
+                                    DragStopped(velocity * if (reverseDirection) -1f else 1f)
+                                } else {
+                                    DragCancelled
+                                }
+                                channel.trySend(event)
+                            }
+                        }
+                    }
+                }
+            } catch (exception: CancellationException) {
+                if (!isActive) {
+                    throw exception
+                }
+            }
+        }
+    })
+
+    private val channel = Channel<DragEvent>(capacity = Channel.UNLIMITED)
+    private var dragInteraction: DragInteraction.Start? = null
+
+    override fun onDetach() {
+        isListeningForEvents = false
+        disposeInteractionSource()
+    }
+
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ) {
+        pointerInputNode.onPointerEvent(pointerEvent, pass, bounds)
+    }
+
+    override fun onCancelPointerInput() {
+        pointerInputNode.onCancelPointerInput()
+    }
 
     private suspend fun CoroutineScope.processDragStart(event: DragStarted) {
         dragInteraction?.let { oldInteraction ->
@@ -454,7 +557,7 @@ internal class DraggableNode(
         onDragStopped.invoke(this, Velocity.Zero)
     }
 
-    private fun disposeInteractionSource() {
+    fun disposeInteractionSource() {
         dragInteraction?.let { interaction ->
             interactionSource?.tryEmit(DragInteraction.Cancel(interaction))
             dragInteraction = null
@@ -466,7 +569,7 @@ private suspend fun AwaitPointerEventScope.awaitDownAndSlop(
     canDrag: (PointerInputChange) -> Boolean,
     startDragImmediately: () -> Boolean,
     velocityTracker: VelocityTracker,
-    orientation: Orientation
+    pointerDirectionConfig: PointerDirectionConfig
 ): Pair<PointerInputChange, Offset>? {
     val initialDown =
         awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
@@ -490,7 +593,7 @@ private suspend fun AwaitPointerEventScope.awaitDownAndSlop(
         val afterSlopResult = awaitPointerSlopOrCancellation(
             down.id,
             down.type,
-            pointerDirectionConfig = orientation.toPointerDirectionConfig(),
+            pointerDirectionConfig = pointerDirectionConfig,
             onPointerSlopReached = postPointerSlop
         )
 
@@ -504,7 +607,7 @@ private suspend fun AwaitPointerEventScope.awaitDrag(
     velocityTracker: VelocityTracker,
     channel: SendChannel<DragEvent>,
     reverseDirection: Boolean,
-    orientation: Orientation
+    hasDragged: (PointerInputChange) -> Boolean,
 ): Boolean {
 
     val overSlopOffset = initialDelta
@@ -516,7 +619,7 @@ private suspend fun AwaitPointerEventScope.awaitDrag(
 
     channel.trySend(DragDelta(if (reverseDirection) initialDelta * -1f else initialDelta))
 
-    return onDragOrUp(orientation, startEvent.id) { event ->
+    return onDragOrUp(hasDragged, startEvent.id) { event ->
         // Velocity tracker takes all events, even UP
         velocityTracker.addPointerInputChange(event)
 
@@ -530,20 +633,14 @@ private suspend fun AwaitPointerEventScope.awaitDrag(
 }
 
 private suspend fun AwaitPointerEventScope.onDragOrUp(
-    orientation: Orientation,
+    hasDragged: (PointerInputChange) -> Boolean,
     pointerId: PointerId,
     onDrag: (PointerInputChange) -> Unit
 ): Boolean {
-    val motionFromChange: (PointerInputChange) -> Float = if (orientation == Orientation.Vertical) {
-        { it.positionChangeIgnoreConsumed().y }
-    } else {
-        { it.positionChangeIgnoreConsumed().x }
-    }
-
     return drag(
         pointerId = pointerId,
         onDrag = onDrag,
-        motionFromChange = motionFromChange,
+        hasDragged = hasDragged,
         motionConsumed = { it.isConsumed }
     )?.let(onDrag) != null
 }
@@ -568,7 +665,7 @@ private class DefaultDraggableState(val onDelta: (Float) -> Unit) : DraggableSta
     }
 }
 
-private sealed class DragEvent {
+internal sealed class DragEvent {
     class DragStarted(val startPoint: Offset) : DragEvent()
     class DragStopped(val velocity: Velocity) : DragEvent()
     object DragCancelled : DragEvent()

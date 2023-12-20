@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-import androidx.build.LibraryType
+
 import androidx.build.Publish
 import androidx.build.RunApiTasks
 
@@ -47,10 +47,6 @@ dependencies {
     compileOnly("androidx.annotation:annotation:1.1.0")
 }
 
-jar {
-    exclude "**/*.proto"
-}
-
 protobuf {
     protoc {
         artifact = libs.protobufCompiler.get()
@@ -62,9 +58,6 @@ protobuf {
         }
     }
 
-    // Generates the java proto-lite code for the protos in this project. See
-    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
-    // for more information.
     generateProtoTasks {
         // Add any additional directories specified in the "main" source set to the Java
         // source directories of the main source set.
@@ -89,8 +82,8 @@ protobuf {
 afterEvaluate {
     lint {
         lintOptions {
-            // protobuf generates unannotated and synthetic accessor methods
-            disable("UnknownNullness", "SyntheticAccessor")
+            // protobuf generates unannotated methods
+            disable("UnknownNullness")
             abortOnError(false)
             checkReleaseBuilds(false)
         }

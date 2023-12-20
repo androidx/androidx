@@ -24,9 +24,8 @@ import androidx.car.app.serialization.Bundleable;
 
 /**
  * An interface to be used for communicating with the renderer.
- *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IRendererService {
 
   /**

@@ -15,9 +15,7 @@
  */
 
 
-import androidx.build.BundleInsideHelper
 import androidx.build.Publish
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -26,43 +24,23 @@ plugins {
     id("kotlin-kapt")
 }
 
-apply from: "../camera-camera2-pipe/dependencies.gradle"
-
-BundleInsideHelper.forInsideAar(
-    project,
-    /* from = */ "androidx.camera.camera2.pipe",
-    /* to =   */ "androidx.camera.camera2.pipe"
-)
-
-configurations {
-    bundleInside {
-        attributes {
-            attribute(Attribute.of("com.android.build.api.attributes.BuildTypeAttr", String), "release")
-            attribute(Attribute.of("artifactType", String), "jar")
-        }
-        transitive = false
-    }
-}
-
-
 dependencies {
     implementation("androidx.core:core:1.3.2")
     implementation("androidx.concurrent:concurrent-listenablefuture-callback:1.0.0-beta01")
-    bundleInside(project(path: ":camera:camera-camera2-pipe"))
 
     // Classes and types that are needed at compile & runtime
-    api("androidx.annotation:annotation:1.1.0")
+    api("androidx.annotation:annotation:1.2.0")
     api(project(":camera:camera-core"))
 
     // Classes and types that are only needed at runtime
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.3.1")
     implementation("androidx.concurrent:concurrent-futures:1.0.0")
+    implementation(libs.atomicFu)
+    implementation(libs.dagger)
     implementation(libs.kotlinStdlib)
+    implementation(libs.kotlinCoroutinesAndroid)
+    implementation(project(":camera:camera-camera2-pipe"))
     implementation(project(":concurrent:concurrent-futures-ktx"))
-
-    // Since we jarjar CameraPipe, include the transitive dependencies as implementation
-    implementation(CAMERA_PIPE_DEPS.API)
-    implementation(CAMERA_PIPE_DEPS.IMPLEMENTATION)
 
     kapt(libs.daggerCompiler)
 
@@ -74,6 +52,7 @@ dependencies {
     testImplementation(libs.mockitoKotlin4)
     testImplementation(libs.robolectric)
     testImplementation(libs.kotlinCoroutinesTest)
+    testImplementation(libs.kotlinTestJunit)
     testImplementation(project(":camera:camera-camera2-pipe-testing"))
     testImplementation(project(":camera:camera-testing"))
     testImplementation(project(":internal-testutils-ktx"))
@@ -84,13 +63,17 @@ dependencies {
 
     androidTestImplementation(libs.multidex)
     androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.testRules)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.kotlinCoroutinesAndroid)
     androidTestImplementation(libs.kotlinStdlib)
     androidTestImplementation(libs.truth)
     androidTestImplementation(project(":annotation:annotation-experimental"))
     androidTestImplementation(project(":camera:camera-lifecycle"))
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     androidTestImplementation(project(":camera:camera-video"))
     androidTestImplementation(project(":concurrent:concurrent-futures-ktx"))
     androidTestImplementation(project(":internal-testutils-truth"))
@@ -105,6 +88,10 @@ android {
         enable 'CameraXQuirksClassDetector'
     }
     namespace "androidx.camera.camera2.pipe.integration"
+}
+
+tasks.withType(Test).configureEach { test ->
+    test.maxParallelForks(2)
 }
 
 kapt {
@@ -122,4 +109,5 @@ androidx {
     description = "A Camera2 Pipe implementation of CameraX, a library providing a consistent " +
             "and reliable camera foundation that enables great camera driven experiences across " +
             "all of Android."
+    metalavaK2UastEnabled = true
 }

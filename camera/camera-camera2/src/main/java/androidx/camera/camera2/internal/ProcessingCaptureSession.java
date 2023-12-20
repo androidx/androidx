@@ -142,7 +142,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     @NonNull
     @Override
     public ListenableFuture<Void> open(@NonNull SessionConfig sessionConfig,
-            @NonNull CameraDevice cameraDevice, @NonNull SynchronizedCaptureSessionOpener opener) {
+            @NonNull CameraDevice cameraDevice, @NonNull SynchronizedCaptureSession.Opener opener) {
         Preconditions.checkArgument(mProcessorState == ProcessorState.UNINITIALIZED,
                 "Invalid state state:" + mProcessorState);
         Preconditions.checkArgument(!sessionConfig.getSurfaces().isEmpty(),
@@ -171,12 +171,6 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                                 return Futures.immediateFailedFuture(
                                         new DeferrableSurface.SurfaceClosedException(
                                                 "Surface closed", deferrableSurface));
-                            }
-
-                            try {
-                                DeferrableSurfaces.incrementAll(mOutputSurfaces);
-                            } catch (DeferrableSurface.SurfaceClosedException e) {
-                                return Futures.immediateFailedFuture(e);
                             }
 
                             OutputSurface previewOutputSurface = null;
@@ -210,13 +204,24 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                             }
 
                             mProcessorState = ProcessorState.SESSION_INITIALIZED;
+                            try {
+                                DeferrableSurfaces.incrementAll(mOutputSurfaces);
+                            } catch (DeferrableSurface.SurfaceClosedException e) {
+                                return Futures.immediateFailedFuture(e);
+                            }
                             Logger.w(TAG, "== initSession (id=" + mInstanceId + ")");
-                            mProcessorSessionConfig = mSessionProcessor.initSession(
-                                    mCamera2CameraInfoImpl,
-                                    previewOutputSurface,
-                                    captureOutputSurface,
-                                    analysisOutputSurface
-                            );
+                            try {
+                                mProcessorSessionConfig = mSessionProcessor.initSession(
+                                        mCamera2CameraInfoImpl,
+                                        previewOutputSurface,
+                                        captureOutputSurface,
+                                        analysisOutputSurface
+                                );
+                            } catch (Throwable e) {
+                                // Ensure we decrement the output surfaces if initSession failed.
+                                DeferrableSurfaces.decrementAll(mOutputSurfaces);
+                                throw e;
+                            }
 
                             // DecrementAll the output surfaces when ProcessorSurface
                             // terminates.
@@ -447,7 +452,12 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         switch (mProcessorState) {
             case ON_CAPTURE_SESSION_ENDED:
             case SESSION_INITIALIZED:
-                future.addListener(() -> mSessionProcessor.deInitSession(), mExecutor);
+                future.addListener(() -> {
+                    Logger.d(TAG, "== deInitSession (id=" + mInstanceId + ")");
+                    mSessionProcessor.deInitSession();
+                    // Use direct executor to ensure deInitSession is invoked as soon as session is
+                    // closed.
+                }, CameraXExecutors.directExecutor());
                 break;
             default:
                 break;
@@ -468,11 +478,12 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
     }
 
     void onConfigured(@NonNull CaptureSession captureSession) {
-        Preconditions.checkArgument(mProcessorState == ProcessorState.SESSION_INITIALIZED,
-                "Invalid state state:" + mProcessorState);
-
+        if (mProcessorState != ProcessorState.SESSION_INITIALIZED) {
+            return;
+        }
         mRequestProcessor = new Camera2RequestProcessor(captureSession,
                 getSessionProcessorSurfaceList(mProcessorSessionConfig.getSurfaces()));
+        Logger.d(TAG, "== onCaptureSessinStarted (id = " + mInstanceId + ")");
         mSessionProcessor.onCaptureSessionStart(mRequestProcessor);
         mProcessorState = ProcessorState.ON_CAPTURE_SESSION_STARTED;
 
@@ -529,6 +540,7 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
         Logger.d(TAG, "close (id=" + mInstanceId + ") state=" + mProcessorState);
 
         if (mProcessorState == ProcessorState.ON_CAPTURE_SESSION_STARTED) {
+            Logger.d(TAG, "== onCaptureSessionEnd (id = " + mInstanceId + ")");
             mSessionProcessor.onCaptureSessionEnd();
             if (mRequestProcessor != null) {
                 mRequestProcessor.close();
@@ -571,8 +583,26 @@ final class ProcessingCaptureSession implements CaptureSessionInterface {
                     CaptureRequestOptions.Builder.from(sessionConfig.getImplementationOptions())
                             .build();
             updateParameters(mSessionOptions, mStillCaptureOptions);
-            mSessionProcessor.startRepeating(mSessionProcessorCaptureCallback);
+
+            // We can't disable only preview stream but enable ImageAnalysis in Extensions.
+            // The best we can do is, if the preview stream is not in repeating request,
+            // stop the repeating request totally. This is needed to stop the preview when
+            // Preview surfaceProvider is set to null.
+            if (!hasPreviewSurface(sessionConfig.getRepeatingCaptureConfig())) {
+                mSessionProcessor.stopRepeating();
+            } else {
+                mSessionProcessor.startRepeating(mSessionProcessorCaptureCallback);
+            }
         }
+    }
+
+    private boolean hasPreviewSurface(CaptureConfig captureConfig) {
+        for (DeferrableSurface surface : captureConfig.getSurfaces()) {
+            if (Objects.equals(surface.getContainerClass(), Preview.class)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

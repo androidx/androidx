@@ -20,13 +20,8 @@ import android.adservices.common.AdServicesPermissions
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.LimitExceededException
-import android.os.ext.SdkExtensions
-import androidx.annotation.DoNotInline
-import androidx.annotation.RequiresExtension
 import androidx.annotation.RequiresPermission
-import androidx.core.os.asOutcomeReceiver
 import androidx.privacysandbox.ads.adservices.internal.AdServicesInfo
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 /**
  * TopicsManager provides APIs for App and Ad-Sdks to get the user interest topics in a privacy
@@ -45,55 +40,6 @@ abstract class TopicsManager internal constructor() {
     @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_TOPICS)
     abstract suspend fun getTopics(request: GetTopicsRequest): GetTopicsResponse
 
-    @SuppressLint("NewApi", "ClassVerificationFailure")
-    @RequiresExtension(extension = SdkExtensions.AD_SERVICES, version = 4)
-    private class Api33Ext4Impl(
-        private val mTopicsManager: android.adservices.topics.TopicsManager
-        ) : TopicsManager() {
-        constructor(context: Context) : this(
-            context.getSystemService<android.adservices.topics.TopicsManager>(
-                android.adservices.topics.TopicsManager::class.java
-            )
-        )
-
-        @DoNotInline
-        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_TOPICS)
-        override suspend fun getTopics(request: GetTopicsRequest): GetTopicsResponse {
-            return convertResponse(getTopicsAsyncInternal(convertRequest(request)))
-        }
-
-        @RequiresPermission(AdServicesPermissions.ACCESS_ADSERVICES_TOPICS)
-        private suspend fun getTopicsAsyncInternal(
-            getTopicsRequest: android.adservices.topics.GetTopicsRequest
-        ): android.adservices.topics.GetTopicsResponse = suspendCancellableCoroutine { continuation
-            ->
-            mTopicsManager.getTopics(
-                getTopicsRequest,
-                Runnable::run,
-                continuation.asOutcomeReceiver()
-            )
-        }
-
-        private fun convertRequest(
-            request: GetTopicsRequest
-        ): android.adservices.topics.GetTopicsRequest {
-            return android.adservices.topics.GetTopicsRequest.Builder()
-                .setAdsSdkName(request.adsSdkName)
-                .setShouldRecordObservation(request.shouldRecordObservation)
-                .build()
-        }
-
-        internal fun convertResponse(
-            response: android.adservices.topics.GetTopicsResponse
-        ): GetTopicsResponse {
-            var topics = mutableListOf<Topic>()
-            for (topic in response.topics) {
-                topics.add(Topic(topic.taxonomyVersion, topic.modelVersion, topic.topicId))
-            }
-            return GetTopicsResponse(topics)
-        }
-    }
-
     companion object {
         /**
          *  Creates [TopicsManager].
@@ -104,8 +50,12 @@ abstract class TopicsManager internal constructor() {
         @JvmStatic
         @SuppressLint("NewApi", "ClassVerificationFailure")
         fun obtain(context: Context): TopicsManager? {
-            return if (AdServicesInfo.version() >= 4) {
-                Api33Ext4Impl(context)
+            return if (AdServicesInfo.adServicesVersion() >= 5) {
+                TopicsManagerApi33Ext5Impl(context)
+            } else if (AdServicesInfo.adServicesVersion() == 4) {
+                TopicsManagerApi33Ext4Impl(context)
+            } else if (AdServicesInfo.extServicesVersion() >= 9) {
+                TopicsManagerApi31Ext9Impl(context)
             } else {
                 null
             }

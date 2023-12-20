@@ -16,14 +16,15 @@
 
 package androidx.datastore.preferences
 
+import androidx.annotation.RestrictTo
 import androidx.datastore.core.CorruptionException
 import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 
 /**
  * Read PreferenceMap proto but convert InvalidProtocolBufferExceptions to CorruptionExceptions.
- * @hide
  */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class PreferencesMapCompat {
     companion object {
         fun readFrom(input: InputStream): PreferencesProto.PreferenceMap {

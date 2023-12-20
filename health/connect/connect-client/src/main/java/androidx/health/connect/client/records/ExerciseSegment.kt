@@ -397,7 +397,6 @@ public class ExerciseSegment(
         /**
          * List of supported segment types on Health Platform.
          *
-         * @suppress
          */
         @Retention(AnnotationRetention.SOURCE)
         @RestrictTo(RestrictTo.Scope.LIBRARY)

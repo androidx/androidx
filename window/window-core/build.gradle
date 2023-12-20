@@ -15,20 +15,38 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
-dependencies {
-    api(libs.kotlinStdlib)
-    // Add dependencies here
+androidXMultiplatform {
+    jvm()
+    android()
 
-    testImplementation(libs.kotlinTest)
-    testImplementation(libs.kotlinTestAnnotationsCommon)
-    testImplementation(libs.kotlinCoroutinesCore)
+    defaultPlatform(PlatformIdentifier.JVM)
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                api("androidx.annotation:annotation:1.7.0")
+            }
+        }
+
+        commonTest {
+            dependencies {
+                implementation(libs.kotlinTest)
+                implementation(libs.kotlinTestAnnotationsCommon)
+                implementation(libs.kotlinCoroutinesCore)
+                // TODO remove when https://youtrack.jetbrains.com/issue/KT-62368/Kotlin-1.9.X-fails-to-detect-kotlin.test.Test-annotation-reference-on-commonTest-source-set-when-targeting-JVMAndroid
+                // is fixed
+                implementation(libs.kotlinTestJunit)
+            }
+        }
+    }
 }
 
 android {
@@ -40,4 +58,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "WindowManager Core Library."
+    metalavaK2UastEnabled = true
 }

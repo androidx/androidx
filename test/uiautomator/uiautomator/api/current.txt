@@ -4,9 +4,9 @@ package androidx.test.uiautomator {
   public class By {
     method public static androidx.test.uiautomator.BySelector checkable(boolean);
     method public static androidx.test.uiautomator.BySelector checked(boolean);
+    method public static androidx.test.uiautomator.BySelector clazz(Class);
     method public static androidx.test.uiautomator.BySelector clazz(String);
     method public static androidx.test.uiautomator.BySelector clazz(String, String);
-    method public static androidx.test.uiautomator.BySelector clazz(Class);
     method public static androidx.test.uiautomator.BySelector clazz(java.util.regex.Pattern);
     method public static androidx.test.uiautomator.BySelector clickable(boolean);
     method public static androidx.test.uiautomator.BySelector copy(androidx.test.uiautomator.BySelector);
@@ -16,6 +16,7 @@ package androidx.test.uiautomator {
     method public static androidx.test.uiautomator.BySelector descContains(String);
     method public static androidx.test.uiautomator.BySelector descEndsWith(String);
     method public static androidx.test.uiautomator.BySelector descStartsWith(String);
+    method @RequiresApi(30) public static androidx.test.uiautomator.BySelector displayId(int);
     method public static androidx.test.uiautomator.BySelector enabled(boolean);
     method public static androidx.test.uiautomator.BySelector focusable(boolean);
     method public static androidx.test.uiautomator.BySelector focused(boolean);
@@ -25,6 +26,11 @@ package androidx.test.uiautomator {
     method public static androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector);
     method public static androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector, int);
     method public static androidx.test.uiautomator.BySelector hasParent(androidx.test.uiautomator.BySelector);
+    method @RequiresApi(26) public static androidx.test.uiautomator.BySelector hint(String);
+    method @RequiresApi(26) public static androidx.test.uiautomator.BySelector hint(java.util.regex.Pattern);
+    method @RequiresApi(26) public static androidx.test.uiautomator.BySelector hintContains(String);
+    method @RequiresApi(26) public static androidx.test.uiautomator.BySelector hintEndsWith(String);
+    method @RequiresApi(26) public static androidx.test.uiautomator.BySelector hintStartsWith(String);
     method public static androidx.test.uiautomator.BySelector longClickable(boolean);
     method public static androidx.test.uiautomator.BySelector pkg(String);
     method public static androidx.test.uiautomator.BySelector pkg(java.util.regex.Pattern);
@@ -43,9 +49,9 @@ package androidx.test.uiautomator {
   public class BySelector {
     method public androidx.test.uiautomator.BySelector checkable(boolean);
     method public androidx.test.uiautomator.BySelector checked(boolean);
+    method public androidx.test.uiautomator.BySelector clazz(Class);
     method public androidx.test.uiautomator.BySelector clazz(String);
     method public androidx.test.uiautomator.BySelector clazz(String, String);
-    method public androidx.test.uiautomator.BySelector clazz(Class);
     method public androidx.test.uiautomator.BySelector clazz(java.util.regex.Pattern);
     method public androidx.test.uiautomator.BySelector clickable(boolean);
     method public androidx.test.uiautomator.BySelector depth(int);
@@ -55,6 +61,7 @@ package androidx.test.uiautomator {
     method public androidx.test.uiautomator.BySelector descContains(String);
     method public androidx.test.uiautomator.BySelector descEndsWith(String);
     method public androidx.test.uiautomator.BySelector descStartsWith(String);
+    method @RequiresApi(30) public androidx.test.uiautomator.BySelector displayId(int);
     method public androidx.test.uiautomator.BySelector enabled(boolean);
     method public androidx.test.uiautomator.BySelector focusable(boolean);
     method public androidx.test.uiautomator.BySelector focused(boolean);
@@ -64,6 +71,11 @@ package androidx.test.uiautomator {
     method public androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector);
     method public androidx.test.uiautomator.BySelector hasDescendant(androidx.test.uiautomator.BySelector, int);
     method public androidx.test.uiautomator.BySelector hasParent(androidx.test.uiautomator.BySelector);
+    method @RequiresApi(26) public androidx.test.uiautomator.BySelector hint(String);
+    method @RequiresApi(26) public androidx.test.uiautomator.BySelector hint(java.util.regex.Pattern);
+    method @RequiresApi(26) public androidx.test.uiautomator.BySelector hintContains(String);
+    method @RequiresApi(26) public androidx.test.uiautomator.BySelector hintEndsWith(String);
+    method @RequiresApi(26) public androidx.test.uiautomator.BySelector hintStartsWith(String);
     method public androidx.test.uiautomator.BySelector longClickable(boolean);
     method public androidx.test.uiautomator.BySelector maxDepth(int);
     method public androidx.test.uiautomator.BySelector minDepth(int);
@@ -154,19 +166,24 @@ package androidx.test.uiautomator {
     method public void clearLastTraversedText();
     method public boolean click(int, int);
     method public boolean drag(int, int, int, int, int);
-    method @Deprecated public void dumpWindowHierarchy(String);
     method public void dumpWindowHierarchy(java.io.File) throws java.io.IOException;
     method public void dumpWindowHierarchy(java.io.OutputStream) throws java.io.IOException;
-    method public androidx.test.uiautomator.UiObject findObject(androidx.test.uiautomator.UiSelector);
+    method @Deprecated public void dumpWindowHierarchy(String);
+    method @Discouraged(message="Can be useful for simple commands, but lacks support for proper error handling, input data, or complex commands (quotes, pipes) that can be obtained from UiAutomation#executeShellCommandRwe or similar utilities.") @RequiresApi(21) public String executeShellCommand(String) throws java.io.IOException;
     method public androidx.test.uiautomator.UiObject2! findObject(androidx.test.uiautomator.BySelector);
+    method public androidx.test.uiautomator.UiObject findObject(androidx.test.uiautomator.UiSelector);
     method public java.util.List<androidx.test.uiautomator.UiObject2!> findObjects(androidx.test.uiautomator.BySelector);
     method public void freezeRotation() throws android.os.RemoteException;
+    method @RequiresApi(30) public void freezeRotation(int);
     method @Deprecated public String! getCurrentActivityName();
     method public String! getCurrentPackageName();
-    method public int getDisplayHeight();
+    method @Px public int getDisplayHeight();
+    method @Px public int getDisplayHeight(int);
     method public int getDisplayRotation();
+    method public int getDisplayRotation(int);
     method public android.graphics.Point getDisplaySizeDp();
-    method public int getDisplayWidth();
+    method @Px public int getDisplayWidth();
+    method @Px public int getDisplayWidth(int);
     method @Deprecated public static androidx.test.uiautomator.UiDevice getInstance();
     method public static androidx.test.uiautomator.UiDevice getInstance(android.app.Instrumentation);
     method public String! getLastTraversedText();
@@ -203,17 +220,24 @@ package androidx.test.uiautomator {
     method @Deprecated public void setCompressedLayoutHeirarchy(boolean);
     method public void setCompressedLayoutHierarchy(boolean);
     method public void setOrientationLandscape() throws android.os.RemoteException;
+    method @RequiresApi(30) public void setOrientationLandscape(int);
     method public void setOrientationLeft() throws android.os.RemoteException;
+    method @RequiresApi(30) public void setOrientationLeft(int);
     method public void setOrientationNatural() throws android.os.RemoteException;
+    method @RequiresApi(30) public void setOrientationNatural(int);
     method public void setOrientationPortrait() throws android.os.RemoteException;
+    method @RequiresApi(30) public void setOrientationPortrait(int);
     method public void setOrientationRight() throws android.os.RemoteException;
+    method @RequiresApi(30) public void setOrientationRight(int);
     method public void sleep() throws android.os.RemoteException;
-    method public boolean swipe(int, int, int, int, int);
     method public boolean swipe(android.graphics.Point![], int);
+    method public boolean swipe(int, int, int, int, int);
     method public boolean takeScreenshot(java.io.File);
     method public boolean takeScreenshot(java.io.File, float, int);
     method public void unfreezeRotation() throws android.os.RemoteException;
+    method @RequiresApi(30) public void unfreezeRotation(int);
     method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiDevice,U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
     method public void waitForIdle();
     method public void waitForIdle(long);
     method public boolean waitForWindowUpdate(String?, long);
@@ -277,10 +301,10 @@ package androidx.test.uiautomator {
     method public void clear();
     method public void click();
     method public void click(android.graphics.Point);
-    method public void click(long);
     method public void click(android.graphics.Point, long);
-    method public <U> U! clickAndWait(androidx.test.uiautomator.EventCondition<U!>, long);
+    method public void click(long);
     method public <U> U! clickAndWait(android.graphics.Point, androidx.test.uiautomator.EventCondition<U!>, long);
+    method public <U> U! clickAndWait(androidx.test.uiautomator.EventCondition<U!>, long);
     method public void drag(android.graphics.Point);
     method public void drag(android.graphics.Point, int);
     method public androidx.test.uiautomator.UiObject2! findObject(androidx.test.uiautomator.BySelector);
@@ -293,6 +317,8 @@ package androidx.test.uiautomator {
     method public String! getClassName();
     method public String! getContentDescription();
     method public int getDisplayId();
+    method @RequiresApi(24) public int getDrawingOrder();
+    method @RequiresApi(26) public String? getHint();
     method public androidx.test.uiautomator.UiObject2! getParent();
     method public String! getResourceName();
     method public String! getText();
@@ -326,6 +352,8 @@ package androidx.test.uiautomator {
     method public void swipe(androidx.test.uiautomator.Direction, float);
     method public void swipe(androidx.test.uiautomator.Direction, float, int);
     method public <U> U! wait(androidx.test.uiautomator.Condition<? super androidx.test.uiautomator.UiObject2,U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.SearchCondition<U!>, long);
+    method public <U> U! wait(androidx.test.uiautomator.UiObject2Condition<U!>, long);
   }
 
   public abstract class UiObject2Condition<U> implements androidx.test.uiautomator.Condition<androidx.test.uiautomator.UiObject2,U> {
@@ -357,10 +385,10 @@ package androidx.test.uiautomator {
     method public boolean scrollIntoView(androidx.test.uiautomator.UiObject) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollIntoView(androidx.test.uiautomator.UiSelector) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollTextIntoView(String) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean scrollToBeginning(int, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollToBeginning(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
-    method public boolean scrollToEnd(int, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean scrollToBeginning(int, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public boolean scrollToEnd(int) throws androidx.test.uiautomator.UiObjectNotFoundException;
+    method public boolean scrollToEnd(int, int) throws androidx.test.uiautomator.UiObjectNotFoundException;
     method public androidx.test.uiautomator.UiScrollable setAsHorizontalList();
     method public androidx.test.uiautomator.UiScrollable setAsVerticalList();
     method public androidx.test.uiautomator.UiScrollable setMaxSearchSwipes(int);
@@ -372,8 +400,8 @@ package androidx.test.uiautomator {
     method public androidx.test.uiautomator.UiSelector checkable(boolean);
     method public androidx.test.uiautomator.UiSelector checked(boolean);
     method public androidx.test.uiautomator.UiSelector childSelector(androidx.test.uiautomator.UiSelector);
-    method public androidx.test.uiautomator.UiSelector className(String);
     method public <T> androidx.test.uiautomator.UiSelector className(Class<T!>);
+    method public androidx.test.uiautomator.UiSelector className(String);
     method public androidx.test.uiautomator.UiSelector classNameMatches(String);
     method public androidx.test.uiautomator.UiSelector clickable(boolean);
     method protected androidx.test.uiautomator.UiSelector cloneSelector();
@@ -411,8 +439,8 @@ package androidx.test.uiautomator {
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descContains(String);
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descEndsWith(String);
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descEquals(String);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descMatches(java.util.regex.Pattern);
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descMatches(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descMatches(java.util.regex.Pattern);
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> descStartsWith(String);
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> enabled(boolean);
     method public static androidx.test.uiautomator.SearchCondition<androidx.test.uiautomator.UiObject2!> findObject(androidx.test.uiautomator.BySelector);
@@ -429,8 +457,8 @@ package androidx.test.uiautomator {
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textContains(String);
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textEndsWith(String);
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textEquals(String);
-    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textMatches(java.util.regex.Pattern);
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textMatches(String);
+    method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textMatches(java.util.regex.Pattern);
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textNotEquals(String);
     method public static androidx.test.uiautomator.UiObject2Condition<java.lang.Boolean!> textStartsWith(String);
   }

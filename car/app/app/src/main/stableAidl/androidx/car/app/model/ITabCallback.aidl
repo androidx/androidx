@@ -18,7 +18,7 @@ package androidx.car.app.model;
 
 import androidx.car.app.IOnDoneCallback;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface ITabCallback {
     /** Will be triggered when a tab is selected */
     void onTabSelected(String tabContentId, IOnDoneCallback callback) = 1;

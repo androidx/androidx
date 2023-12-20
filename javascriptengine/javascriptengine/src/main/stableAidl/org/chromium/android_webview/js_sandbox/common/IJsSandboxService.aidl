@@ -16,11 +16,12 @@
 
 package org.chromium.android_webview.js_sandbox.common;
 import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolate;
+import org.chromium.android_webview.js_sandbox.common.IJsSandboxIsolateClient;
 
 /**
  * Used by the embedding app to execute JavaScript in a sandboxed environment.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IJsSandboxService {
     IJsSandboxIsolate createIsolate() = 0;
 
@@ -62,9 +63,27 @@ interface IJsSandboxService {
     const String CONSOLE_MESSAGING = "CONSOLE_MESSAGING";
 
     /**
+     * Feature flag indicating that the client may provide the service side with an
+     * IJsSandboxIsolateClient, allowing the service to call into the client regardless of ongoing
+     * evaluations.
+     */
+    const String ISOLATE_CLIENT = "ISOLATE_CLIENT";
+
+     /**
+     * Feature flag indicating that an embedder can evaluate JavaScript through
+     * an AssetFileDescriptor or ParcelFileDescriptor with knwon or unknown length.
+     */
+    const String EVALUATE_FROM_FD = "EVALUATE_FROM_FD";
+
+    /**
      * @return A list of feature names supported by this implementation.
      */
     List<String> getSupportedFeatures() = 1;
 
     IJsSandboxIsolate createIsolateWithMaxHeapSizeBytes(long maxHeapSize) = 2;
+
+    /**
+     * Create an isolate with a given heap size and service-to-client interface.
+     */
+    IJsSandboxIsolate createIsolate2(long maxHeapSize, IJsSandboxIsolateClient isolateClient) = 3;
 }

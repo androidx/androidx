@@ -34,12 +34,31 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".SimpleWidgetViewer"
+            android:exported="true"
+            android:label="@string/demo_widget_viewer"
+            android:theme="@android:style/Theme.Material.Light.NoActionBar" >
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".ActionDemoActivity" />
         <service
             android:name=".ActionDemoService"
             tools:ignore="MissingServiceExportedEqualsTrue" />
 
         <activity android:name=".ListClickDestinationActivity" android:exported="false" />
+        <activity android:name=".ErrorUiAppWidgetConfigurationActivity"
+            android:exported="false"
+            >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
 
         <receiver
             android:name="androidx.glance.appwidget.demos.ResponsiveAppWidgetReceiver"
@@ -121,7 +140,7 @@
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/default_app_widget_info" />
+                android:resource="@xml/error_ui_demo_app_widget_info" />
         </receiver>
 
         <receiver
@@ -132,6 +151,19 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.TypographyDemoAppWidgetReceiver"
+            android:label="@string/typography_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
@@ -232,6 +264,46 @@
         <receiver
             android:name="androidx.glance.appwidget.demos.DefaultColorsAppWidgetReceiver"
             android:label="@string/default_color_widget_name"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.ButtonsWidgetBroadcastReceiver"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false"
+            android:label="@string/buttons_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="android.intent.action.LOCALE_CHANGED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.BackgroundTintWidgetBroadcastReceiver"
+            android:label="@string/tint_widget"
+            android:enabled="@bool/glance_appwidget_available"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/default_app_widget_info" />
+        </receiver>
+
+        <receiver
+            android:name="androidx.glance.appwidget.demos.TitleBarWidgetBroadcastReceiver"
+            android:label="@string/title_bar_widget"
             android:enabled="@bool/glance_appwidget_available"
             android:exported="false">
             <intent-filter>

@@ -43,6 +43,8 @@ class LineRenderer {
 
     fun initialize() {
         release()
+        GLES20.glEnable(GLES20.GL_BLEND)
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
         mVertexShader = loadShader(GLES20.GL_VERTEX_SHADER, VertexShaderCode)
         mFragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, FragmentShaderCode)
 
@@ -97,10 +99,10 @@ class LineRenderer {
         GLES20.glUseProgram(mGlProgram)
         GLES20.glLineWidth(lineWidth)
         GLES20.glEnableVertexAttribArray(mPositionHandle)
-        mColorArray[0] = Color.red(color).toFloat()
-        mColorArray[1] = Color.green(color).toFloat()
-        mColorArray[2] = Color.blue(color).toFloat()
-        mColorArray[3] = Color.alpha(color).toFloat()
+        mColorArray[0] = Color.red(color) / 255f
+        mColorArray[1] = Color.green(color) / 255f
+        mColorArray[2] = Color.blue(color) / 255f
+        mColorArray[3] = Color.alpha(color) / 255f
         // Set color for drawing the triangle
         GLES20.glUniform4fv(mColorHandle, 1, mColorArray, 0)
         GLES20.glUniformMatrix4fv(mMvpMatrixHandle, 1, false, mvpMatrix, 0)

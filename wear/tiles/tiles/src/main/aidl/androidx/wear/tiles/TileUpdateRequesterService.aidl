@@ -23,8 +23,8 @@ import androidx.wear.tiles.TileUpdateRequestData;
   * Interface, implemented by Tile Renderers, which allows a Tile Provider to
   * request that a Tile Renderer fetches a new Timeline from it.
   *
-  * @hide
   */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface TileUpdateRequesterService {
     const int API_VERSION = 1;
 

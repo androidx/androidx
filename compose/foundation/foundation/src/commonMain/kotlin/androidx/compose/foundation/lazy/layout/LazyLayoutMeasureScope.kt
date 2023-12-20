@@ -40,6 +40,10 @@ import androidx.compose.ui.unit.sp
  * Main difference from the regular flow of writing any custom layout is that you have a new
  * function [measure] which accepts item index and constraints, composes the item based and then
  * measures all the layouts emitted in the item content block.
+ *
+ * Note: this interface is a part of [LazyLayout] harness that allows for building custom lazy
+ * layouts. LazyLayout and all corresponding APIs are still under development and are subject to
+ * change.
  */
 @Stable
 @ExperimentalFoundationApi

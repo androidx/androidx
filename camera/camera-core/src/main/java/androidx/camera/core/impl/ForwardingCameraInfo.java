@@ -192,4 +192,14 @@ public class ForwardingCameraInfo implements CameraInfoInternal {
     public CameraSelector getCameraSelector() {
         return mCameraInfoInternal.getCameraSelector();
     }
+
+    @Override
+    public boolean isPreviewStabilizationSupported() {
+        return mCameraInfoInternal.isPreviewStabilizationSupported();
+    }
+
+    @Override
+    public boolean isVideoStabilizationSupported() {
+        return mCameraInfoInternal.isVideoStabilizationSupported();
+    }
 }

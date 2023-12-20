@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.text
 
-import androidx.compose.foundation.fastMapIndexedNotNull
 import androidx.compose.foundation.text.modifiers.SelectableTextAnnotatedStringElement
 import androidx.compose.foundation.text.modifiers.SelectionController
 import androidx.compose.foundation.text.modifiers.TextAnnotatedStringElement
@@ -30,6 +29,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.ColorProducer
@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastForEach
+import androidx.compose.ui.util.fastMapIndexedNotNull
 import kotlin.math.floor
 import kotlin.math.roundToInt
 
@@ -95,8 +96,13 @@ fun BasicText(
     val selectionRegistrar = LocalSelectionRegistrar.current
     val selectionController = if (selectionRegistrar != null) {
         val backgroundSelectionColor = LocalTextSelectionColors.current.backgroundColor
-        remember(selectionRegistrar, backgroundSelectionColor) {
+        val selectableId =
+            rememberSaveable(selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
+                selectionRegistrar.nextSelectableId()
+            }
+        remember(selectableId, selectionRegistrar, backgroundSelectionColor) {
             SelectionController(
+                selectableId,
                 selectionRegistrar,
                 backgroundSelectionColor
             )
@@ -184,8 +190,13 @@ fun BasicText(
     val selectionRegistrar = LocalSelectionRegistrar.current
     val selectionController = if (selectionRegistrar != null) {
         val backgroundSelectionColor = LocalTextSelectionColors.current.backgroundColor
-        remember(selectionRegistrar, backgroundSelectionColor) {
+        val selectableId =
+            rememberSaveable(selectionRegistrar, saver = selectionIdSaver(selectionRegistrar)) {
+                selectionRegistrar.nextSelectableId()
+            }
+        remember(selectableId, selectionRegistrar, backgroundSelectionColor) {
             SelectionController(
+                selectableId,
                 selectionRegistrar,
                 backgroundSelectionColor
             )

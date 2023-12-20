@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="NewApi"
-        message="Call requires API level 27 (current min is 16): `android.app.Activity#setTurnScreenOn`"
+        message="Call requires API level 27 (current min is 19): `android.app.Activity#setTurnScreenOn`"
         errorLine1="                mActivity.setTurnScreenOn(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
@@ -12,7 +12,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 27 (current min is 16): `android.app.Activity#setShowWhenLocked`"
+        message="Call requires API level 27 (current min is 19): `android.app.Activity#setShowWhenLocked`"
         errorLine1="                mActivity.setShowWhenLocked(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~~~">
         <location
@@ -21,7 +21,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 16): `android.app.KeyguardManager#requestDismissKeyguard`"
+        message="Call requires API level 26 (current min is 19): `android.app.KeyguardManager#requestDismissKeyguard`"
         errorLine1="                mKeyguardManager.requestDismissKeyguard(mActivity, null);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
         <location
@@ -30,16 +30,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 18 (current min is 16): `android.media.MediaDrm.KeyRequest#getData`"
-        errorLine1="        if (0 == getKeyIds(keyRequest.getData(), keyIds)) {"
-        errorLine2="                                      ~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayer2DrmTestBase.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 27 (current min is 16): `android.app.Activity#setTurnScreenOn`"
+        message="Call requires API level 27 (current min is 19): `android.app.Activity#setTurnScreenOn`"
         errorLine1="                mActivity.setTurnScreenOn(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
@@ -48,7 +39,7 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 27 (current min is 16): `android.app.Activity#setShowWhenLocked`"
+        message="Call requires API level 27 (current min is 19): `android.app.Activity#setShowWhenLocked`"
         errorLine1="                mActivity.setShowWhenLocked(true);"
         errorLine2="                          ~~~~~~~~~~~~~~~~~">
         <location
@@ -57,18 +48,9 @@
 
     <issue
         id="NewApi"
-        message="Call requires API level 26 (current min is 16): `android.app.KeyguardManager#requestDismissKeyguard`"
+        message="Call requires API level 26 (current min is 19): `android.app.KeyguardManager#requestDismissKeyguard`"
         errorLine1="                mKeyguardManager.requestDismissKeyguard(mActivity, null);"
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 18 (current min is 16): `android.media.MediaDrm.KeyRequest#getData`"
-        errorLine1="        if (0 == getKeyIds(keyRequest.getData(), keyIds)) {"
-        errorLine2="                                      ~~~~~~~">
         <location
             file="src/androidTest/java/androidx/media2/player/MediaPlayerDrmTest.java"/>
     </issue>

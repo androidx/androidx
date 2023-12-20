@@ -16,12 +16,16 @@
 
 package androidx.compose.foundation.lazy.grid
 
-import androidx.compose.foundation.lazy.layout.LazyLayoutAnimateItemModifierNode
+import androidx.collection.mutableScatterMapOf
+import androidx.collection.mutableScatterSetOf
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimation
+import androidx.compose.foundation.lazy.layout.LazyLayoutAnimationSpecsNode
 import androidx.compose.foundation.lazy.layout.LazyLayoutKeyIndexMap
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.util.fastForEach
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * Handles the item placement animations when it is set via [LazyGridItemScope.animateItemPlacement].
@@ -31,7 +35,7 @@ import androidx.compose.ui.util.fastForEach
  */
 internal class LazyGridItemPlacementAnimator {
     // state containing relevant info for active items.
-    private val keyToItemInfoMap = mutableMapOf<Any, ItemInfo>()
+    private val keyToItemInfoMap = mutableScatterMapOf<Any, ItemInfo>()
 
     // snapshot of the key to index map used for the last measuring.
     private var keyIndexMap: LazyLayoutKeyIndexMap = LazyLayoutKeyIndexMap.Empty
@@ -40,7 +44,7 @@ internal class LazyGridItemPlacementAnimator {
     private var firstVisibleIndex = 0
 
     // stored to not allocate it every pass.
-    private val movingAwayKeys = LinkedHashSet<Any>()
+    private val movingAwayKeys = mutableScatterSetOf<Any>()
     private val movingInFromStartBound = mutableListOf<LazyGridMeasuredItem>()
     private val movingInFromEndBound = mutableListOf<LazyGridMeasuredItem>()
     private val movingAwayToStartBound = mutableListOf<LazyGridMeasuredItem>()
@@ -58,7 +62,8 @@ internal class LazyGridItemPlacementAnimator {
         positionedItems: MutableList<LazyGridMeasuredItem>,
         itemProvider: LazyGridMeasuredItemProvider,
         spanLayoutProvider: LazyGridSpanLayoutProvider,
-        isVertical: Boolean
+        isVertical: Boolean,
+        coroutineScope: CoroutineScope
     ) {
         if (!positionedItems.fastAny { it.hasAnimations } && keyToItemInfoMap.isEmpty()) {
             // no animations specified - no work needed
@@ -81,7 +86,7 @@ internal class LazyGridItemPlacementAnimator {
         }
 
         // first add all items we had in the previous run
-        movingAwayKeys.addAll(keyToItemInfoMap.keys)
+        keyToItemInfoMap.forEachKey { movingAwayKeys.add(it) }
         // iterate through the items which are visible (without animated offsets)
         positionedItems.fastForEach { item ->
             // remove items we have in the current one as they are still visible.
@@ -90,8 +95,9 @@ internal class LazyGridItemPlacementAnimator {
                 val itemInfo = keyToItemInfoMap[item.key]
                 // there is no state associated with this item yet
                 if (itemInfo == null) {
-                    keyToItemInfoMap[item.key] =
-                        ItemInfo(item.crossAxisSize, item.crossAxisOffset)
+                    val newItemInfo = ItemInfo(item.crossAxisSize, item.crossAxisOffset)
+                    newItemInfo.updateAnimation(item, coroutineScope)
+                    keyToItemInfoMap[item.key] = newItemInfo
                     val previousIndex = previousKeyToIndexMap.getIndex(item.key)
                     if (previousIndex != -1 && item.index != previousIndex) {
                         if (previousIndex < previousFirstVisibleIndex) {
@@ -101,15 +107,18 @@ internal class LazyGridItemPlacementAnimator {
                             movingInFromEndBound.add(item)
                         }
                     } else {
-                        initializeNode(
+                        initializeAnimation(
                             item,
-                            item.offset.let { if (item.isVertical) it.y else it.x }
+                            item.offset.let { if (item.isVertical) it.y else it.x },
+                            newItemInfo
                         )
                     }
                 } else {
-                    item.forEachNode {
-                        if (it.rawOffset != LazyLayoutAnimateItemModifierNode.NotInitialized) {
-                            it.rawOffset += scrollOffset
+                    itemInfo.animations.forEach { animation ->
+                        if (animation != null &&
+                            animation.rawOffset != LazyLayoutAnimation.NotInitialized
+                        ) {
+                            animation.rawOffset += scrollOffset
                         }
                     }
                     itemInfo.crossAxisSize = item.crossAxisSize
@@ -136,7 +145,7 @@ internal class LazyGridItemPlacementAnimator {
                 previousLine = line
             }
             val mainAxisOffset = 0 - accumulatedOffset - item.mainAxisSize
-            initializeNode(item, mainAxisOffset)
+            initializeAnimation(item, mainAxisOffset)
             startAnimationsIfNeeded(item)
         }
         accumulatedOffset = 0
@@ -153,14 +162,14 @@ internal class LazyGridItemPlacementAnimator {
                 previousLine = line
             }
             val mainAxisOffset = mainAxisLayoutSize + accumulatedOffset
-            initializeNode(item, mainAxisOffset)
+            initializeAnimation(item, mainAxisOffset)
             startAnimationsIfNeeded(item)
         }
 
         movingAwayKeys.forEach { key ->
             // found an item which was in our map previously but is not a part of the
             // positionedItems now
-            val itemInfo = keyToItemInfoMap.getValue(key)
+            val itemInfo = keyToItemInfoMap[key]!!
             val newIndex = keyIndexMap.getIndex(key)
 
             if (newIndex == -1) {
@@ -174,14 +183,10 @@ internal class LazyGridItemPlacementAnimator {
                         Constraints.fixedHeight(itemInfo.crossAxisSize)
                     }
                 )
+                item.nonScrollableItem = true
                 // check if we have any active placement animation on the item
-                var inProgress = false
-                repeat(item.placeablesCount) {
-                    if (item.getParentData(it).node?.isAnimationInProgress == true) {
-                        inProgress = true
-                        return@repeat
-                    }
-                }
+                val inProgress =
+                    itemInfo.animations.any { it?.isPlacementAnimationInProgress == true }
                 if ((!inProgress && newIndex == previousKeyToIndexMap.getIndex(key))) {
                     keyToItemInfoMap.remove(key)
                 } else {
@@ -209,7 +214,7 @@ internal class LazyGridItemPlacementAnimator {
             }
             val mainAxisOffset = 0 - accumulatedOffset - item.mainAxisSize
 
-            val itemInfo = keyToItemInfoMap.getValue(item.key)
+            val itemInfo = keyToItemInfoMap[item.key]!!
 
             item.position(
                 mainAxisOffset = mainAxisOffset,
@@ -235,7 +240,7 @@ internal class LazyGridItemPlacementAnimator {
             }
             val mainAxisOffset = mainAxisLayoutSize + accumulatedOffset
 
-            val itemInfo = keyToItemInfoMap.getValue(item.key)
+            val itemInfo = keyToItemInfoMap[item.key]!!
             item.position(
                 mainAxisOffset = mainAxisOffset,
                 crossAxisOffset = itemInfo.crossAxisOffset,
@@ -264,9 +269,10 @@ internal class LazyGridItemPlacementAnimator {
         firstVisibleIndex = -1
     }
 
-    private fun initializeNode(
+    private fun initializeAnimation(
         item: LazyGridMeasuredItem,
-        mainAxisOffset: Int
+        mainAxisOffset: Int,
+        itemInfo: ItemInfo = keyToItemInfoMap[item.key]!!
     ) {
         val firstPlaceableOffset = item.offset
 
@@ -277,44 +283,85 @@ internal class LazyGridItemPlacementAnimator {
         }
 
         // initialize offsets
-        item.forEachNode { node ->
-            val diffToFirstPlaceableOffset =
-                item.offset - firstPlaceableOffset
-            node.rawOffset = targetFirstPlaceableOffset + diffToFirstPlaceableOffset
+        itemInfo.animations.forEach { animation ->
+            if (animation != null) {
+                val diffToFirstPlaceableOffset =
+                    item.offset - firstPlaceableOffset
+                animation.rawOffset = targetFirstPlaceableOffset + diffToFirstPlaceableOffset
+            }
         }
     }
 
     private fun startAnimationsIfNeeded(item: LazyGridMeasuredItem) {
-        item.forEachNode { node ->
-            val newTarget = item.offset
-            val currentTarget = node.rawOffset
-            if (currentTarget != LazyLayoutAnimateItemModifierNode.NotInitialized &&
-                currentTarget != newTarget
-            ) {
-                node.animatePlacementDelta(newTarget - currentTarget)
+        val itemInfo = keyToItemInfoMap[item.key]!!
+        itemInfo.animations.forEach { animation ->
+            if (animation != null) {
+                val newTarget = item.offset
+                val currentTarget = animation.rawOffset
+                if (currentTarget != LazyLayoutAnimation.NotInitialized &&
+                    currentTarget != newTarget
+                ) {
+                    animation.animatePlacementDelta(newTarget - currentTarget)
+                }
+                animation.rawOffset = newTarget
             }
-            node.rawOffset = newTarget
         }
     }
 
-    private val Any?.node get() = this as? LazyLayoutAnimateItemModifierNode
+    fun getAnimation(key: Any, placeableIndex: Int): LazyLayoutAnimation? {
+        return if (keyToItemInfoMap.isEmpty()) {
+            null
+        } else {
+            keyToItemInfoMap[key]?.animations?.get(placeableIndex)
+        }
+    }
 
     private val LazyGridMeasuredItem.hasAnimations: Boolean
         get() {
-            forEachNode { return true }
+            repeat(placeablesCount) { index ->
+                getParentData(index).specs?.let {
+                    // found at least one
+                    return true
+                }
+            }
             return false
         }
-
-    private inline fun LazyGridMeasuredItem.forEachNode(
-        block: (LazyLayoutAnimateItemModifierNode) -> Unit
-    ) {
-        repeat(placeablesCount) { index ->
-            getParentData(index).node?.let(block)
-        }
-    }
 }
 
 private class ItemInfo(
     var crossAxisSize: Int,
     var crossAxisOffset: Int
-)
+) {
+    /**
+     * This array will have the same amount of elements as there are placeables on the item.
+     * If the element is not null this means there are specs associated with the given placeable.
+     */
+    var animations = EmptyArray
+        private set
+
+    fun updateAnimation(positionedItem: LazyGridMeasuredItem, coroutineScope: CoroutineScope) {
+        for (i in positionedItem.placeablesCount until animations.size) {
+            animations[i]?.stopAnimations()
+        }
+        if (animations.size != positionedItem.placeablesCount) {
+            animations = animations.copyOf(positionedItem.placeablesCount)
+        }
+        repeat(positionedItem.placeablesCount) { index ->
+            val specs = positionedItem.getParentData(index).specs
+            if (specs == null) {
+                animations[index]?.stopAnimations()
+                animations[index] = null
+            } else {
+                val item = animations[index] ?: LazyLayoutAnimation(coroutineScope).also {
+                    animations[index] = it
+                }
+                item.appearanceSpec = specs.appearanceSpec
+                item.placementSpec = specs.placementSpec
+            }
+        }
+    }
+}
+
+private val Any?.specs get() = this as? LazyLayoutAnimationSpecsNode
+
+private val EmptyArray = emptyArray<LazyLayoutAnimation?>()

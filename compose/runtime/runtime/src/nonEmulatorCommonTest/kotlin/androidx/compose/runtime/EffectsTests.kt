@@ -40,7 +40,7 @@ class EffectsTests {
             val someInt = remember {
                 ++inc
             }
-            println(someInt)
+            use(someInt)
         }
 
         assertEquals(1, inc)
@@ -722,3 +722,5 @@ class Trigger {
     fun subscribe() { count.value }
     fun recompose() { count.value += 1 }
 }
+
+fun use(@Suppress("UNUSED_PARAMETER") value: Any) { }

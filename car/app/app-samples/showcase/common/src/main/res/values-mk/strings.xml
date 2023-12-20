@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Картичка во вид на список"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Картичка во вид на решетка со долг наслов на картичката"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Картичка за пребарување"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Картичката се вчитува"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Демо за вчитување шаблон за картичка"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Демо за немање картички за шаблон за картичка"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Сликите не може да се прикажат за непознат хост"</string>

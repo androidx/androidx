@@ -46,6 +46,7 @@ actual object PreferenceDataStoreFactory {
      *
      * @return a new DataStore instance with the provided configuration
      */
+    @kotlin.jvm.JvmOverloads // annotation has to match common
     public actual fun createWithPath(
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>?,
         migrations: List<DataMigration<Preferences>>,
@@ -84,6 +85,7 @@ actual object PreferenceDataStoreFactory {
      *
      * @return a new DataStore instance with the provided configuration
      */
+    @kotlin.jvm.JvmOverloads // annotation has to match common
     public actual fun create(
         storage: Storage<Preferences>,
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>?,

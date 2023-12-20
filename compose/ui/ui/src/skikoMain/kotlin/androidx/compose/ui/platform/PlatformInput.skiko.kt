@@ -17,7 +17,12 @@ package androidx.compose.ui.platform
 
 import androidx.compose.ui.text.input.PlatformTextInputService
 
-internal expect interface PlatformInputComponent
+internal expect interface PlatformInputComponent {
+    /** @see SkiaBasedOwner.textInputSession */
+    suspend fun textInputSession(
+        session: suspend PlatformTextInputSessionScope.() -> Nothing
+    ): Nothing
+}
 
 internal expect class PlatformInput(component: PlatformComponent) :
     PlatformTextInputService

@@ -18,8 +18,6 @@ package androidx.core.content;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-import static android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1;
 import static android.os.Build.VERSION_CODES.LOLLIPOP;
 import static android.os.Build.VERSION_CODES.M;
 import static android.os.Build.VERSION_CODES.Q;
@@ -43,10 +41,10 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.Signature;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import androidx.core.os.BuildCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -81,20 +79,6 @@ public class IntentCompatTest {
     }
 
     @Test
-    @SdkSuppress(maxSdkVersion = ICE_CREAM_SANDWICH)
-    public void makeMainSelectorActivity_preApi14() {
-        String selectorAction = Intent.ACTION_MAIN;
-        String selectorCategory = Intent.CATEGORY_APP_BROWSER;
-
-        Intent activityIntent = IntentCompat.makeMainSelectorActivity(selectorAction,
-                selectorCategory);
-
-        assertThat(activityIntent.getAction()).isEqualTo(selectorAction);
-        assertThat(activityIntent.getCategories()).containsExactly(selectorCategory);
-    }
-
-    @Test
-    @SdkSuppress(minSdkVersion = ICE_CREAM_SANDWICH_MR1)
     public void makeMainSelectorActivity() {
         String selectorAction = Intent.ACTION_MAIN;
         String selectorCategory = Intent.CATEGORY_APP_BROWSER;
@@ -224,7 +208,7 @@ public class IntentCompatTest {
 
     @Test
     public void getParcelableArrayExtra_postU() {
-        if (!BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT < 34) return;
         Intent intent = new Intent();
         Signature[] signature = new Signature[] { new Signature("") };
         intent.putExtra("extra", signature);
@@ -237,7 +221,7 @@ public class IntentCompatTest {
 
     @Test
     public void getParcelableArrayExtra_returnsNullOnClassMismatch_postU() {
-        if (!BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT < 34) return;
         Intent intent = new Intent();
         Signature[] signature = new Signature[] { new Signature("") };
         intent.putExtra("extra", signature);
@@ -248,7 +232,7 @@ public class IntentCompatTest {
 
     @Test
     public void getParcelableArrayExtra_preU() {
-        if (BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT >= 34) return;
         Intent intent = new Intent();
         Signature[] signature = new Signature[] { new Signature("") };
         intent.putExtra("extra", signature);
@@ -282,7 +266,7 @@ public class IntentCompatTest {
 
     @Test
     public void getParcelableArrayListExtra_returnsNullOnClassMismatch_postU() {
-        if (!BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT < 34) return;
         Intent intent = new Intent();
         ArrayList<Signature> signature = Lists.newArrayList(new Signature(""));
         intent.putParcelableArrayListExtra("extra", signature);
@@ -293,7 +277,7 @@ public class IntentCompatTest {
 
     @Test
     public void getParcelableArrayListExtra_noTypeCheck_preU() {
-        if (BuildCompat.isAtLeastU()) return;
+        if (Build.VERSION.SDK_INT >= 34) return;
         Intent intent = new Intent();
         ArrayList<Signature> signature = Lists.newArrayList(new Signature(""));
         intent.putParcelableArrayListExtra("extra", signature);

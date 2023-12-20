@@ -18,7 +18,6 @@ package androidx.annotation
 /**
  * Denotes that any overriding methods should invoke this method as well.
  *
- *
  * Example:
  * ```
  * @CallSuper

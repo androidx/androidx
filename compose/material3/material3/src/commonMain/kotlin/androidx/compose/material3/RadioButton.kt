@@ -143,13 +143,13 @@ object RadioButtonDefaults {
      */
     @Composable
     fun colors(
-        selectedColor: Color = RadioButtonTokens.SelectedIconColor.toColor(),
-        unselectedColor: Color = RadioButtonTokens.UnselectedIconColor.toColor(),
+        selectedColor: Color = RadioButtonTokens.SelectedIconColor.value,
+        unselectedColor: Color = RadioButtonTokens.UnselectedIconColor.value,
         disabledSelectedColor: Color = RadioButtonTokens.DisabledSelectedIconColor
-            .toColor()
+            .value
             .copy(alpha = RadioButtonTokens.DisabledSelectedIconOpacity),
         disabledUnselectedColor: Color = RadioButtonTokens.DisabledUnselectedIconColor
-            .toColor()
+            .value
             .copy(alpha = RadioButtonTokens.DisabledUnselectedIconOpacity)
     ): RadioButtonColors = RadioButtonColors(
         selectedColor,
@@ -162,15 +162,22 @@ object RadioButtonDefaults {
 /**
  * Represents the color used by a [RadioButton] in different states.
  *
+ * @constructor create an instance with arbitrary colors.
  * See [RadioButtonDefaults.colors] for the default implementation that follows Material
  * specifications.
+ *
+ * @param selectedColor the color to use for the RadioButton when selected and enabled.
+ * @param unselectedColor the color to use for the RadioButton when unselected and enabled.
+ * @param disabledSelectedColor the color to use for the RadioButton when disabled and selected.
+ * @param disabledUnselectedColor the color to use for the RadioButton when disabled and not
+ * selected.
  */
 @Immutable
-class RadioButtonColors internal constructor(
-    private val selectedColor: Color,
-    private val unselectedColor: Color,
-    private val disabledSelectedColor: Color,
-    private val disabledUnselectedColor: Color
+class RadioButtonColors constructor(
+    val selectedColor: Color,
+    val unselectedColor: Color,
+    val disabledSelectedColor: Color,
+    val disabledUnselectedColor: Color
 ) {
     /**
      * Represents the main color used to draw the outer and inner circles, depending on whether

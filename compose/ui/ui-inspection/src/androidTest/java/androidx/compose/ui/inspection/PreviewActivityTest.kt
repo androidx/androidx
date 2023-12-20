@@ -24,15 +24,18 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.inspection.framework.ancestors
 import androidx.compose.ui.inspection.inspector.RESERVED_FOR_GENERATED_IDS
-import androidx.compose.ui.inspection.rules.DebugViewAttributeRule
+import androidx.compose.ui.inspection.rules.JvmtiRule
 import androidx.compose.ui.inspection.rules.sendCommand
 import androidx.compose.ui.inspection.util.GetComposablesCommand
+import androidx.compose.ui.inspection.util.GetUpdateSettingsCommand
 import androidx.compose.ui.inspection.util.toMap
 import androidx.compose.ui.tooling.PreviewActivity
 import androidx.inspection.testing.InspectorTester
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
+import org.junit.After
 import org.junit.Before
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.RuleChain
@@ -51,26 +54,38 @@ class PreviewActivityTest {
     private val activityTestRule = androidx.test.rule.ActivityTestRule(PreviewActivity::class.java)
 
     @get:Rule
-    val chain = RuleChain.outerRule(DebugViewAttributeRule()).around(activityTestRule)!!
+    val chain = RuleChain.outerRule(activityTestRule).around(JvmtiRule())!!
 
-    private lateinit var intent: Intent
+    private lateinit var inspectorTester: InspectorTester
 
     @Before
     fun setup() {
-        intent = Intent(activityTestRule.activity, PreviewActivity::class.java)
-    }
-
-    @Test
-    fun testPreviewTopComposableHasAnAchor(): Unit = runBlocking() {
+        val intent = Intent(activityTestRule.activity, PreviewActivity::class.java)
         intent.putExtra(
             "composable",
             "androidx.compose.ui.inspection.PreviewActivityTestKt.MainBlock"
         )
         activityTestRule.launchActivity(intent)
+        runBlocking {
+            inspectorTester = InspectorTester(inspectorId = "layoutinspector.compose.inspection")
+        }
+    }
+
+    @After
+    fun after() {
+        inspectorTester.dispose()
+    }
+
+    @Ignore("b/295186037")
+    @Test
+    fun testPreviewTopComposableHasAnAchor(): Unit = runBlocking() {
+        inspectorTester.sendCommand(
+            GetUpdateSettingsCommand()
+        ).updateSettingsResponse
+
         val mainContent: View =
             activityTestRule.activity.findViewById<ViewGroup>(android.R.id.content)
         val root = mainContent.ancestors().lastOrNull()
-        val inspectorTester = InspectorTester("layoutinspector.compose.inspection")
         val rootId = root!!.uniqueDrawingId
         val composables = inspectorTester.sendCommand(
             GetComposablesCommand(rootId, skipSystemComposables = false)
@@ -81,10 +96,6 @@ class PreviewActivityTest {
         val node = composables.rootsList.single().nodesList.first()
         assertThat(strings[node.name]).isEqualTo("MainBlock")
         assertThat(node.id).isLessThan(RESERVED_FOR_GENERATED_IDS)
-    }
-
-    private fun View.isAndroidComposeView(): Boolean {
-        return javaClass.canonicalName == "androidx.compose.ui.platform.AndroidComposeView"
     }
 }
 

@@ -59,11 +59,13 @@ public class MultiPointerPredictor implements KalmanPredictor {
         int actionIndex = event.getActionIndex();
         int pointerId = event.getPointerId(actionIndex);
         if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_POINTER_DOWN) {
-            SinglePointerPredictor predictor = new SinglePointerPredictor();
+            SinglePointerPredictor predictor = new SinglePointerPredictor(
+                    pointerId,
+                    event.getToolType(actionIndex)
+            );
             if (mReportRateMs > 0) {
                 predictor.setReportRate(mReportRateMs);
             }
-            predictor.initStrokePrediction(pointerId, event.getToolType(actionIndex));
             predictor.onTouchEvent(event);
             mPredictorMap.put(pointerId, predictor);
         } else if (action == MotionEvent.ACTION_UP) {
@@ -123,9 +125,6 @@ public class MultiPointerPredictor implements KalmanPredictor {
             pointerIds[i] = mPredictorMap.keyAt(i);
             SinglePointerPredictor predictor = mPredictorMap.valueAt(i);
             singlePointerEvents[i] = predictor.predict(predictionTargetMs);
-            // If predictor consumer expect more sample, generate sample where position and
-            // pressure are constant
-            singlePointerEvents[i] = predictor.appendPredictedEvent(singlePointerEvents[i]);
         }
 
         // Compute minimal history size for every predicted single pointer MotionEvent
@@ -156,11 +155,13 @@ public class MultiPointerPredictor implements KalmanPredictor {
         // Merge single pointer MotionEvent into a single MotionEvent
         MotionEvent.PointerCoords[][] pointerCoords =
                 new MotionEvent.PointerCoords[minHistorySize][pointerCount];
+        long[] pointerEventTimes = new long[minHistorySize];
         for (int pointerIndex = 0; pointerIndex < pointerCount; pointerIndex++) {
             int historyIndex = 0;
             for (BatchedMotionEvent ev :
                     BatchedMotionEvent.iterate(singlePointerEvents[pointerIndex])) {
                 pointerCoords[historyIndex][pointerIndex] = ev.coords[0];
+                pointerEventTimes[historyIndex] = ev.timeMs;
                 if (minHistorySize <= ++historyIndex) {
                     break;
                 }
@@ -196,7 +197,10 @@ public class MultiPointerPredictor implements KalmanPredictor {
                         0 /* source */,
                         0 /* flags */);
         for (int historyIndex = 1; historyIndex < minHistorySize; historyIndex++) {
-            multiPointerEvent.addBatch(0, pointerCoords[historyIndex], 0);
+            multiPointerEvent.addBatch(
+                    pointerEventTimes[historyIndex],
+                    pointerCoords[historyIndex],
+                    0);
         }
         if (DEBUG_PREDICTION) {
             final StringBuilder builder =

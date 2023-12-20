@@ -16,6 +16,7 @@
 
 package androidx.privacysandbox.ui.integration.testsdkprovider
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
@@ -24,6 +25,9 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.IBinder
+import android.os.Looper
 import android.provider.Settings
 import android.util.Log
 import android.view.View
@@ -36,13 +40,20 @@ import java.util.concurrent.Executor
 
 class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
     private var mContext: Context? = null
+    private val handler = Handler(Looper.getMainLooper())
+    private lateinit var bannerAd: BannerAd
 
     init {
         mContext = sdkContext
     }
 
-    override fun loadAd(isWebView: Boolean): Bundle {
-        return BannerAd(isWebView).toCoreLibInfo(mContext!!)
+    override fun loadAd(isWebView: Boolean, text: String, withSlowDraw: Boolean): Bundle {
+        bannerAd = BannerAd(isWebView, withSlowDraw, text)
+        return bannerAd.toCoreLibInfo(mContext!!)
+    }
+
+    override fun requestResize(width: Int, height: Int) {
+        bannerAd.requestResize(width, height)
     }
 
     private fun isAirplaneModeOn(): Boolean {
@@ -50,36 +61,56 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
             mContext?.contentResolver, Settings.Global.AIRPLANE_MODE_ON, 0) != 0
     }
 
-    private inner class BannerAd(private val isWebView: Boolean) : SandboxedUiAdapter {
+    private inner class BannerAd(
+        private val isWebView: Boolean,
+        private val withSlowDraw: Boolean,
+        private val text: String
+    ) :
+        SandboxedUiAdapter {
+        lateinit var sessionClientExecutor: Executor
+        lateinit var sessionClient: SandboxedUiAdapter.SessionClient
         override fun openSession(
             context: Context,
+            windowInputToken: IBinder,
             initialWidth: Int,
             initialHeight: Int,
             isZOrderOnTop: Boolean,
             clientExecutor: Executor,
-            client: SandboxedUiAdapter.SessionClient
+            client: SandboxedUiAdapter.SessionClient,
         ) {
-            Log.d(TAG, "Session requested")
-            lateinit var adView: View
-            if (isWebView) {
-                // To test error cases.
-                if (isAirplaneModeOn()) {
-                    clientExecutor.execute {
-                        client.onSessionError(Throwable("Cannot load WebView in airplane mode."))
+            sessionClientExecutor = clientExecutor
+            sessionClient = client
+            handler.post(Runnable lambda@{
+                Log.d(TAG, "Session requested")
+                lateinit var adView: View
+                if (isWebView) {
+                    // To test error cases.
+                    if (isAirplaneModeOn()) {
+                        clientExecutor.execute {
+                            client.onSessionError(
+                                Throwable("Cannot load WebView in airplane mode.")
+                            )
+                        }
+                        return@lambda
                     }
-                    return
+                    val webView = WebView(context)
+                    webView.loadUrl(AD_URL)
+                    webView.layoutParams = ViewGroup.LayoutParams(
+                        initialWidth, initialHeight
+                    )
+                    adView = webView
+                } else {
+                    adView = TestView(context, withSlowDraw, text)
                 }
-                val webView = WebView(context)
-                webView.loadUrl(AD_URL)
-                webView.layoutParams = ViewGroup.LayoutParams(
-                    initialWidth, initialHeight
-                )
-                adView = webView
-            } else {
-                adView = TestView(context)
-            }
-            clientExecutor.execute {
-                client.onSessionOpened(BannerAdSession(adView))
+                clientExecutor.execute {
+                    client.onSessionOpened(BannerAdSession(adView))
+                }
+            })
+        }
+
+        fun requestResize(width: Int, height: Int) {
+            sessionClientExecutor.execute {
+                sessionClient.onResizeRequested(width, height)
             }
         }
 
@@ -89,7 +120,8 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
 
             override fun notifyResized(width: Int, height: Int) {
                 Log.i(TAG, "Resized $width $height")
-                view.layoutParams = ViewGroup.LayoutParams(width, height)
+                view.layoutParams.width = width
+                view.layoutParams.height = height
             }
 
             override fun notifyZOrderChanged(isZOrderOnTop: Boolean) {
@@ -106,16 +138,27 @@ class SdkApi(sdkContext: Context) : ISdkApi.Stub() {
         }
     }
 
-    private inner class TestView(context: Context) : View(context) {
-        override fun onDraw(canvas: Canvas?) {
+    private inner class TestView(
+        context: Context,
+        private val withSlowDraw: Boolean,
+        private val text: String
+    ) : View(context) {
+
+        @SuppressLint("BanThreadSleep")
+        override fun onDraw(canvas: Canvas) {
+            // We are adding sleep to test the synchronization of the app and the sandbox view's
+            // size changes.
+            if (withSlowDraw)
+                Thread.sleep(500)
             super.onDraw(canvas)
 
             val paint = Paint()
             paint.textSize = 50F
-            canvas!!.drawColor(
+            canvas.drawColor(
                 Color.rgb((0..255).random(), (0..255).random(), (0..255).random())
             )
-            canvas.drawText("Hey", 75F, 75F, paint)
+
+            canvas.drawText(text, 75F, 75F, paint)
 
             setOnClickListener {
                 Log.i(TAG, "Click on ad detected")

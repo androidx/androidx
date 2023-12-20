@@ -24,8 +24,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.text.Editable;
 import android.text.method.KeyListener;
 import android.view.KeyEvent;
@@ -50,9 +48,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -160,7 +158,6 @@ public class EmojiCompat {
     public static final int LOAD_STATE_FAILED = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({LOAD_STATE_DEFAULT, LOAD_STATE_LOADING, LOAD_STATE_SUCCEEDED, LOAD_STATE_FAILED})
@@ -188,7 +185,6 @@ public class EmojiCompat {
     public static final int REPLACE_STRATEGY_NON_EXISTENT = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({REPLACE_STRATEGY_DEFAULT, REPLACE_STRATEGY_NON_EXISTENT, REPLACE_STRATEGY_ALL})
@@ -212,7 +208,6 @@ public class EmojiCompat {
     public static final int LOAD_STRATEGY_MANUAL = 1;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({LOAD_STRATEGY_DEFAULT, LOAD_STRATEGY_MANUAL})
@@ -221,7 +216,6 @@ public class EmojiCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @IntDef({EMOJI_UNSUPPORTED, EMOJI_SUPPORTED,
@@ -341,7 +335,6 @@ public class EmojiCompat {
     public static final int EMOJI_FALLBACK = 2;
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     static final int EMOJI_COUNT_UNLIMITED = Integer.MAX_VALUE;
@@ -357,16 +350,11 @@ public class EmojiCompat {
     private final @NonNull ReadWriteLock mInitLock;
 
     @GuardedBy("mInitLock")
-    private final @NonNull Set<InitCallback> mInitCallbacks;
+    private final @NonNull Set<InitWithExecutor> mInitCallbacks;
 
     @GuardedBy("mInitLock")
     @LoadState
     private volatile int mLoadState;
-
-    /**
-     * Handler with main looper to run the callbacks on.
-     */
-    private final @NonNull Handler mMainHandler;
 
     /**
      * Helper class for pre 19 compatibility.
@@ -469,7 +457,6 @@ public class EmojiCompat {
         mMetadataLoader = config.mMetadataLoader;
         mMetadataLoadStrategy = config.mMetadataLoadStrategy;
         mGlyphChecker = config.mGlyphChecker;
-        mMainHandler = new Handler(Looper.getMainLooper());
         mInitCallbacks = new ArraySet<>();
         SpanFactory localSpanFactory = config.mSpanFactory;
         mSpanFactory = localSpanFactory != null ? localSpanFactory : new DefaultSpanFactory();
@@ -502,7 +489,6 @@ public class EmojiCompat {
     }
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     @Nullable
@@ -602,8 +588,8 @@ public class EmojiCompat {
      * Used by the tests to reset EmojiCompat with a new configuration. Every time it is called a
      * new instance is created with the new configuration.
      *
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     @NonNull
     public static EmojiCompat reset(@NonNull final Config config) {
         synchronized (INSTANCE_LOCK) {
@@ -616,8 +602,8 @@ public class EmojiCompat {
     /**
      * Used by the tests to reset EmojiCompat with a new singleton instance.
      *
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     @VisibleForTesting
     @Nullable
     public static EmojiCompat reset(@Nullable final EmojiCompat emojiCompat) {
@@ -630,8 +616,8 @@ public class EmojiCompat {
     /**
      * Reset default configuration lookup flag, for tests.
      *
-     * @hide
      */
+    @RestrictTo(LIBRARY)
     @VisibleForTesting
     public static void skipDefaultConfigurationLookup(boolean shouldSkip) {
         synchronized (CONFIG_LOCK) {
@@ -705,31 +691,37 @@ public class EmojiCompat {
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void onMetadataLoadSuccess() {
-        final Collection<InitCallback> initCallbacks = new ArrayList<>();
+        Set<InitWithExecutor> localRefCbs = mInitCallbacks;
+        final ArrayList<InitWithExecutor> initCallbacks = new ArrayList<>(localRefCbs.size());
         mInitLock.writeLock().lock();
         try {
             mLoadState = LOAD_STATE_SUCCEEDED;
-            initCallbacks.addAll(mInitCallbacks);
-            mInitCallbacks.clear();
+            initCallbacks.addAll(localRefCbs);
+            localRefCbs.clear();
         } finally {
             mInitLock.writeLock().unlock();
         }
 
-        mMainHandler.post(new ListenerDispatcher(initCallbacks, mLoadState));
+        for (int i = 0; i < initCallbacks.size(); i++) {
+            initCallbacks.get(i).dispatchInitialized();
+        }
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void onMetadataLoadFailed(@Nullable final Throwable throwable) {
-        final Collection<InitCallback> initCallbacks = new ArrayList<>();
+    void onMetadataLoadFailed(@NonNull final Throwable throwable) {
+        Set<InitWithExecutor> localRefCbs = mInitCallbacks;
+        final ArrayList<InitWithExecutor> initCallbacks = new ArrayList<>(localRefCbs.size());
         mInitLock.writeLock().lock();
         try {
             mLoadState = LOAD_STATE_FAILED;
-            initCallbacks.addAll(mInitCallbacks);
-            mInitCallbacks.clear();
+            initCallbacks.addAll(localRefCbs);
+            localRefCbs.clear();
         } finally {
             mInitLock.writeLock().unlock();
         }
-        mMainHandler.post(new ListenerDispatcher(initCallbacks, mLoadState, throwable));
+        for (int i = 0; i < initCallbacks.size(); i++) {
+            initCallbacks.get(i).dispatchFailed(throwable);
+        }
     }
 
     /**
@@ -747,14 +739,38 @@ public class EmojiCompat {
      */
     @SuppressWarnings("ExecutorRegistration")
     public void registerInitCallback(@NonNull InitCallback initCallback) {
-        Preconditions.checkNotNull(initCallback, "initCallback cannot be null");
+        registerInitCallback(ConcurrencyHelpers.mainThreadExecutor(), initCallback);
+    }
 
+    /**
+     * Registers an initialization callback. If the initialization is already completed by the time
+     * the listener is added, the callback functions are called immediately.
+     * <p/>
+     * When used on devices running API 18 or below, {@link InitCallback#onInitialized()} is called
+     * without loading any metadata. In such cases {@link InitCallback#onFailed(Throwable)} is never
+     * called.
+     *
+     * @param executor executor to dispatch callback on
+     * @param initCallback the initialization callback to register, cannot be {@code null}
+     *
+     * @see #unregisterInitCallback(InitCallback)
+     */
+    public void registerInitCallback(@NonNull Executor executor,
+            @NonNull InitCallback initCallback) {
+        Preconditions.checkNotNull(initCallback, "initCallback cannot be null");
+        Preconditions.checkNotNull(executor, "executor cannot be null");
+
+        InitWithExecutor newCb = new InitWithExecutor(executor, initCallback);
         mInitLock.writeLock().lock();
         try {
-            if (mLoadState == LOAD_STATE_SUCCEEDED || mLoadState == LOAD_STATE_FAILED) {
-                mMainHandler.post(new ListenerDispatcher(initCallback, mLoadState));
+            if (mLoadState == LOAD_STATE_SUCCEEDED) {
+                newCb.dispatchInitialized();
+            } else if (mLoadState == LOAD_STATE_FAILED) {
+                newCb.dispatchFailed(new IllegalStateException("Initialization failed prior to "
+                        + "registering this callback, please add an initialization callback to "
+                        + "the EmojiCompat.Config instead to see the cause."));
             } else {
-                mInitCallbacks.add(initCallback);
+                mInitCallbacks.add(newCb);
             }
         } finally {
             mInitLock.writeLock().unlock();
@@ -770,7 +786,15 @@ public class EmojiCompat {
         Preconditions.checkNotNull(initCallback, "initCallback cannot be null");
         mInitLock.writeLock().lock();
         try {
-            mInitCallbacks.remove(initCallback);
+            ArrayList<InitWithExecutor> toRemove = new ArrayList<>();
+            for (InitWithExecutor item : mInitCallbacks) {
+                if (item.mInitCallback == initCallback) {
+                    toRemove.add(item);
+                }
+            }
+            for (InitWithExecutor item : toRemove) {
+                mInitCallbacks.remove(item);
+            }
         } finally {
             mInitLock.writeLock().unlock();
         }
@@ -801,7 +825,6 @@ public class EmojiCompat {
 
     /**
      * @return whether a background should be drawn for the emoji for debugging
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public boolean isEmojiSpanIndicatorEnabled() {
@@ -810,7 +833,6 @@ public class EmojiCompat {
 
     /**
      * @return color of background drawn if {@link EmojiCompat#isEmojiSpanIndicatorEnabled} is true
-     * @hide
      */
     @RestrictTo(LIBRARY_GROUP)
     public @ColorInt int getEmojiSpanIndicatorColor() {
@@ -1205,7 +1227,6 @@ public class EmojiCompat {
 
 
     /**
-     * @hide
      */
     @RestrictTo(LIBRARY)
     public static class DefaultSpanFactory implements SpanFactory {
@@ -1261,6 +1282,24 @@ public class EmojiCompat {
         void load(@NonNull MetadataRepoLoaderCallback loaderCallback);
     }
 
+    private static final class InitWithExecutor {
+        InitCallback mInitCallback;
+        Executor mExecutor;
+
+        InitWithExecutor(@NonNull Executor executor, @NonNull InitCallback initCallback) {
+            mInitCallback = initCallback;
+            mExecutor = executor;
+        }
+
+        void dispatchInitialized() {
+            mExecutor.execute(() -> mInitCallback.onInitialized());
+        }
+
+        void dispatchFailed(Throwable throwable) {
+            mExecutor.execute(() -> mInitCallback.onFailed(throwable));
+        }
+    }
+
     /**
      * Interface to check if a given emoji exists on the system.
      */
@@ -1295,7 +1334,7 @@ public class EmojiCompat {
          * information, and some predefined OEMs, it is possible to write the following code
          * snippet.
          *
-         * {@sample frameworks/support/samples/SupportEmojiDemos/src/main/java/com/example/android/support/text/emoji/sample/GlyphCheckerSample.java glyphchecker}
+         * {@sample samples/SupportEmojiDemos/src/main/java/com/example/android/support/text/emoji/sample/GlyphCheckerSample.java glyphchecker}
          *
          * @param charSequence the CharSequence that is being processed
          * @param start the inclusive starting offset for the emoji in the {@code charSequence}
@@ -1358,7 +1397,7 @@ public class EmojiCompat {
         int[] mEmojiAsDefaultStyleExceptions;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         @Nullable
-        Set<InitCallback> mInitCallbacks;
+        Set<InitWithExecutor> mInitCallbacks;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
         boolean mEmojiSpanIndicatorEnabled;
         @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -1389,13 +1428,27 @@ public class EmojiCompat {
         @SuppressWarnings("ExecutorRegistration")
         @NonNull
         public Config registerInitCallback(@NonNull InitCallback initCallback) {
+            registerInitCallback(ConcurrencyHelpers.mainThreadExecutor(), initCallback);
+            return this;
+        }
+
+        /**
+         * Registers an initialization callback.
+         *
+         * @param executor executor to dispatch callback on
+         * @param initCallback the initialization callback to register, cannot be {@code null}
+         *
+         * @return EmojiCompat.Config instance
+         */
+        @NonNull
+        public Config registerInitCallback(@NonNull Executor executor,
+                @NonNull InitCallback initCallback) {
             Preconditions.checkNotNull(initCallback, "initCallback cannot be null");
+            Preconditions.checkNotNull(executor, "executor cannot be null");
             if (mInitCallbacks == null) {
                 mInitCallbacks = new ArraySet<>();
             }
-
-            mInitCallbacks.add(initCallback);
-
+            mInitCallbacks.add(new InitWithExecutor(executor, initCallback));
             return this;
         }
 
@@ -1410,7 +1463,15 @@ public class EmojiCompat {
         public Config unregisterInitCallback(@NonNull InitCallback initCallback) {
             Preconditions.checkNotNull(initCallback, "initCallback cannot be null");
             if (mInitCallbacks != null) {
-                mInitCallbacks.remove(initCallback);
+                ArrayList<InitWithExecutor> toRemove = new ArrayList<>();
+                for (InitWithExecutor item : mInitCallbacks) {
+                    if (item.mInitCallback == initCallback) {
+                        toRemove.add(item);
+                    }
+                }
+                for (InitWithExecutor item : toRemove) {
+                    mInitCallbacks.remove(item);
+                }
             }
             return this;
         }
@@ -1586,54 +1647,6 @@ public class EmojiCompat {
     }
 
     /**
-     * Runnable to call success/failure case for the listeners.
-     */
-    private static class ListenerDispatcher implements Runnable {
-        private final List<InitCallback> mInitCallbacks;
-        private final Throwable mThrowable;
-        private final int mLoadState;
-
-        @SuppressWarnings("ArraysAsListWithZeroOrOneArgument")
-        ListenerDispatcher(@NonNull final InitCallback initCallback,
-                @LoadState final int loadState) {
-            this(Arrays.asList(Preconditions.checkNotNull(initCallback,
-                    "initCallback cannot be null")), loadState, null);
-        }
-
-        ListenerDispatcher(@NonNull final Collection<InitCallback> initCallbacks,
-                @LoadState final int loadState) {
-            this(initCallbacks, loadState, null);
-        }
-
-        ListenerDispatcher(@NonNull final Collection<InitCallback> initCallbacks,
-                @LoadState final int loadState,
-                @Nullable final Throwable throwable) {
-            Preconditions.checkNotNull(initCallbacks, "initCallbacks cannot be null");
-            mInitCallbacks = new ArrayList<>(initCallbacks);
-            mLoadState = loadState;
-            mThrowable = throwable;
-        }
-
-        @Override
-        public void run() {
-            final int size = mInitCallbacks.size();
-            switch (mLoadState) {
-                case LOAD_STATE_SUCCEEDED:
-                    for (int i = 0; i < size; i++) {
-                        mInitCallbacks.get(i).onInitialized();
-                    }
-                    break;
-                case LOAD_STATE_FAILED:
-                default:
-                    for (int i = 0; i < size; i++) {
-                        mInitCallbacks.get(i).onFailed(mThrowable);
-                    }
-                    break;
-            }
-        }
-    }
-
-    /**
      * Internal helper class to behave no-op for certain functions.
      */
     private static class CompatInternal {
@@ -1727,7 +1740,6 @@ public class EmojiCompat {
             }
         }
 
-        @SuppressWarnings("SyntheticAccessor")
         void onMetadataLoadSuccess(@NonNull final MetadataRepo metadataRepo) {
             //noinspection ConstantConditions
             if (metadataRepo == null) {

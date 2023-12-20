@@ -25,7 +25,10 @@ import android.hardware.camera2.CameraAccessException.MAX_CAMERAS_IN_USE
 import android.hardware.camera2.CameraDevice.StateCallback
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.annotation.RestrictTo
+import androidx.camera.camera2.pipe.core.Log
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 @JvmInline
 @RequiresApi(21)
 value class CameraError private constructor(val value: Int) {
@@ -101,6 +104,19 @@ value class CameraError private constructor(val value: Int) {
          */
         val ERROR_DO_NOT_DISTURB_ENABLED = CameraError(10)
 
+        /**
+         * The CameraManager.openCamera() call threw an undocumented Exception. This can happen on
+         * camera devices that encountered an unhandled error, and thereby throwing an unknown
+         * Exception.
+         */
+        val ERROR_UNKNOWN_EXCEPTION = CameraError(11)
+
+        /**
+         * The internal camera manager at CameraPipe has encountered an error, and isn't able to
+         * handle the incoming camera request.
+         */
+        val ERROR_CAMERA_OPENER = CameraError(12)
+
         internal fun from(throwable: Throwable) =
             when (throwable) {
                 is CameraAccessException -> from(throwable)
@@ -110,7 +126,8 @@ value class CameraError private constructor(val value: Int) {
                     if (shouldHandleDoNotDisturbException(throwable)) {
                         ERROR_DO_NOT_DISTURB_ENABLED
                     } else {
-                        throw IllegalArgumentException("Unexpected throwable: $throwable")
+                        Log.warn { "Unexpected throwable: $throwable" }
+                        ERROR_UNKNOWN_EXCEPTION
                     }
                 }
             }
@@ -138,7 +155,7 @@ value class CameraError private constructor(val value: Int) {
                 StateCallback.ERROR_CAMERA_SERVICE -> ERROR_CAMERA_SERVICE
                 else -> {
                     throw IllegalArgumentException(
-                        "Unexpected StateCallback error code:" + "$stateCallbackError"
+                        "Unexpected StateCallback error code: $stateCallbackError"
                     )
                 }
             }
@@ -172,7 +189,9 @@ value class CameraError private constructor(val value: Int) {
 }
 
 // TODO(b/276918807): When we have CameraProperties, handle the exception on a more granular level.
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class DoNotDisturbException(message: String) : RuntimeException(message)
 
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 // An exception indicating that the CameraDevice.close() call has stalled.
 class CameraCloseStallException(message: String) : RuntimeException(message)

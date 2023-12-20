@@ -18,16 +18,16 @@ package androidx.wear.protolayout.material.layouts;
 
 import static androidx.wear.protolayout.DimensionBuilders.dp;
 import static androidx.wear.protolayout.DimensionBuilders.expand;
-import static androidx.wear.protolayout.material.Helper.checkNotNull;
-import static androidx.wear.protolayout.material.Helper.checkTag;
-import static androidx.wear.protolayout.material.Helper.getMetadataTagBytes;
-import static androidx.wear.protolayout.material.Helper.getTagBytes;
-import static androidx.wear.protolayout.material.Helper.isRoundDevice;
 import static androidx.wear.protolayout.material.ProgressIndicatorDefaults.DEFAULT_PADDING;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_ROUND_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_MARGIN_HORIZONTAL_SQUARE_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_PADDING_ABOVE_MAIN_CONTENT_DP;
 import static androidx.wear.protolayout.material.layouts.LayoutDefaults.EDGE_CONTENT_LAYOUT_PADDING_BELOW_MAIN_CONTENT_DP;
+import static androidx.wear.protolayout.materialcore.Helper.checkNotNull;
+import static androidx.wear.protolayout.materialcore.Helper.checkTag;
+import static androidx.wear.protolayout.materialcore.Helper.getMetadataTagBytes;
+import static androidx.wear.protolayout.materialcore.Helper.getTagBytes;
+import static androidx.wear.protolayout.materialcore.Helper.isRoundDevice;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
@@ -55,9 +55,9 @@ import java.util.List;
 
 /**
  * ProtoLayout layout that represents the suggested layout style for Material ProtoLayout, which has
- * content around the edge of the screen (e.g. a ProgressIndicator) and the given content inside
- * of it with the recommended margin and padding applied. Optional primary or secondary label can
- * be added above and below the main content, respectively.
+ * content around the edge of the screen (e.g. a ProgressIndicator) and the given content inside of
+ * it with the recommended margin and padding applied. Optional primary or secondary label can be
+ * added above and below the main content, respectively.
  *
  * <p>When accessing the contents of a container for testing, note that this element can't be simply
  * casted back to the original type, i.e.:
@@ -121,6 +121,12 @@ public class EdgeContentLayout implements LayoutElement {
      */
     static final int CONTENT_PRESENT = 0x8;
 
+    /**
+     * Bit position in a byte on {@link #FLAG_INDEX} index in metadata byte array to check whether
+     * the edge content is added before the main content (0) or after it (1).
+     */
+    static final int EDGE_CONTENT_POSITION = 0x10;
+
     @RestrictTo(Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(
@@ -128,23 +134,32 @@ public class EdgeContentLayout implements LayoutElement {
             value = {
                 EDGE_CONTENT_PRESENT,
                 PRIMARY_LABEL_PRESENT,
+                SECONDARY_LABEL_PRESENT,
                 CONTENT_PRESENT,
-                SECONDARY_LABEL_PRESENT
+                EDGE_CONTENT_POSITION
             })
     @interface ContentBits {}
 
     @NonNull private final Box mImpl;
 
-    // This contains inner columns and edge content.
-    @NonNull private final List<LayoutElement> mContents;
-
     // This contains optional labels, spacers and main content.
     @NonNull private final List<LayoutElement> mInnerColumn;
 
+    // This contains edge content;
+    @Nullable private final LayoutElement mEdgeContent;
+    private final boolean mIsEdgeContentBehind;
+
     EdgeContentLayout(@NonNull Box layoutElement) {
         this.mImpl = layoutElement;
-        this.mContents = mImpl.getContents();
-        this.mInnerColumn = ((Column) ((Box) mContents.get(0)).getContents().get(0)).getContents();
+        // This contains inner columns and edge content.
+        List<LayoutElement> contents = mImpl.getContents();
+        int edgeContentIndex = (getMetadataTag()[FLAG_INDEX] & EDGE_CONTENT_POSITION) == 0 ? 0 : 1;
+        int contentIndex = 1 - edgeContentIndex;
+        this.mInnerColumn =
+                ((Column) ((Box) contents.get(contentIndex)).getContents().get(0)).getContents();
+        this.mEdgeContent =
+                areElementsPresent(EDGE_CONTENT_PRESENT) ? contents.get(edgeContentIndex) : null;
+        mIsEdgeContentBehind = edgeContentIndex == 0;
     }
 
     /** Builder class for {@link EdgeContentLayout}. */
@@ -155,6 +170,7 @@ public class EdgeContentLayout implements LayoutElement {
         @Nullable private LayoutElement mSecondaryLabelText = null;
         @Nullable private LayoutElement mContent = null;
         private byte mMetadataContentByte = 0;
+        private boolean mIsEdgeContentBehind = false;
 
         /**
          * Creates a builder for the {@link EdgeContentLayout}t. Custom content inside of it can
@@ -201,6 +217,17 @@ public class EdgeContentLayout implements LayoutElement {
             return this;
         }
 
+        /**
+         * Sets whether the edge content passed in with {@link #setEdgeContent} should be positioned
+         * behind all other content in this layout or above it. If not set, defaults to {@code
+         * false}, meaning that the edge content will be placed above all other content.
+         */
+        @NonNull
+        public Builder setEdgeContentBehindAllOtherContent(boolean isBehind) {
+            this.mIsEdgeContentBehind = isBehind;
+            return this;
+        }
+
         /** Constructs and returns {@link EdgeContentLayout} with the provided content and look. */
         @NonNull
         @Override
@@ -228,6 +255,12 @@ public class EdgeContentLayout implements LayoutElement {
                                             .setEnd(dp(horizontalPaddingDp))
                                             .build())
                             .build();
+
+            if (!mIsEdgeContentBehind) {
+                // If the edge content is above the main one, then its index should be 1.
+                // Otherwise it's 0.
+                mMetadataContentByte = (byte) (mMetadataContentByte | EDGE_CONTENT_POSITION);
+            }
 
             byte[] metadata = METADATA_TAG_BASE.clone();
             metadata[FLAG_INDEX] = mMetadataContentByte;
@@ -273,7 +306,7 @@ public class EdgeContentLayout implements LayoutElement {
                 innerContentBuilder.addContent(mSecondaryLabelText);
             }
 
-            mainBoxBuilder.addContent(
+            Box innerContentBox =
                     new Box.Builder()
                             .setModifiers(modifiers)
                             .setVerticalAlignment(LayoutElementBuilders.VERTICAL_ALIGN_CENTER)
@@ -281,10 +314,18 @@ public class EdgeContentLayout implements LayoutElement {
                             .setHeight(mainContentHeight)
                             .setWidth(mainContentWidth)
                             .addContent(innerContentBuilder.build())
-                            .build());
+                            .build();
 
-            if (mEdgeContent != null) {
-                mainBoxBuilder.addContent(mEdgeContent);
+            if (mIsEdgeContentBehind) {
+                if (mEdgeContent != null) {
+                    mainBoxBuilder.addContent(mEdgeContent);
+                }
+                mainBoxBuilder.addContent(innerContentBox);
+            } else {
+                mainBoxBuilder.addContent(innerContentBox);
+                if (mEdgeContent != null) {
+                    mainBoxBuilder.addContent(mEdgeContent);
+                }
             }
 
             return new EdgeContentLayout(mainBoxBuilder.build());
@@ -336,10 +377,12 @@ public class EdgeContentLayout implements LayoutElement {
     /** Returns the edge content from this layout. */
     @Nullable
     public LayoutElement getEdgeContent() {
-        if (areElementsPresent(EDGE_CONTENT_PRESENT)) {
-            return mContents.get(1);
-        }
-        return null;
+        return mEdgeContent;
+    }
+
+    /** Returns if the edge content has been placed behind the other contents. */
+    public boolean isEdgeContentBehindAllOtherContent() {
+        return mIsEdgeContentBehind;
     }
 
     /**

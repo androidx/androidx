@@ -22,7 +22,6 @@ import android.view.View
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -82,7 +81,6 @@ class AnimatorTest {
     }
 
     @UiThreadTest
-    @SdkSuppress(minSdkVersion = 19)
     @Test fun testDoOnPause() {
         var called = false
         animator.doOnPause {
@@ -98,7 +96,6 @@ class AnimatorTest {
     }
 
     @UiThreadTest
-    @SdkSuppress(minSdkVersion = 19)
     @Test fun testDoOnResume() {
         var called = false
         animator.doOnResume {

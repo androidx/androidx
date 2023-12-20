@@ -15,6 +15,8 @@
  * limitations under the License.
  */
 
+import androidx.build.ApkCopyHelperKt
+
 plugins {
     id("AndroidXPlugin")
     id("com.android.application")
@@ -69,12 +71,29 @@ dependencies {
     androidTestImplementation(libs.testUiautomator)
     androidTestImplementation(libs.truth)
     androidTestImplementation("androidx.test.espresso:espresso-core:3.3.0")
-    androidTestImplementation(project(":camera:camera-testing"))
+    androidTestImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     androidTestImplementation(project(":internal-testutils-runtime"))
     androidTestCompileOnly(project(":camera:camera-extensions-stub"))
 
     // Testing resource dependency for manifest
-    debugImplementation(project(":camera:camera-testing"))
+    debugImplementation(project(":camera:camera-testing")) {
+        // Ensure camera-testing does not pull in androidx.test dependencies
+        exclude(group:"androidx.test")
+    }
     debugImplementation(libs.testCore)
 }
 
+// Copy apks to dist/apks as they are used outside of androidx test infrastructure
+ApkCopyHelperKt.setupAppApkCopy(project, "debug")
+ApkCopyHelperKt.setupTestApkCopy(project)
+
+androidx {
+    deviceTests {
+        // These tests only work on devices that ship extensions
+        // and androidx test infrastructure has no such devices b/284404606
+        enabled = false
+    }
+}

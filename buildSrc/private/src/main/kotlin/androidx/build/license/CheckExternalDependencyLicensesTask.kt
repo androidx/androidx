@@ -40,15 +40,12 @@ import org.gradle.util.GradleVersion
 import org.gradle.work.DisableCachingByDefault
 
 /**
- * This task creates a configuration for the project that has all of its external dependencies
- * and then ensures that those dependencies:
- * a) come from prebuilts
- * b) has a license file.
+ * This task creates a configuration for the project that has all of its external dependencies and
+ * then ensures that those dependencies: a) come from prebuilts b) has a license file.
  */
 @DisableCachingByDefault(because = "Too many inputs to declare")
 abstract class CheckExternalDependencyLicensesTask : DefaultTask() {
-    @get:Input
-    abstract val prebuiltsRoot: Property<String>
+    @get:Input abstract val prebuiltsRoot: Property<String>
 
     @get:[InputFiles PathSensitive(PathSensitivity.ABSOLUTE)]
     abstract val filesToCheck: ConfigurableFileCollection
@@ -57,21 +54,24 @@ abstract class CheckExternalDependencyLicensesTask : DefaultTask() {
     fun checkDependencies() {
         val prebuiltsRoot = File(prebuiltsRoot.get())
         val dependencyArtifacts = filesToCheck
-        val missingLicenses = dependencyArtifacts.filter {
-            findLicenseFile(it.canonicalFile, prebuiltsRoot) == null
-        }.files
+        val missingLicenses =
+            dependencyArtifacts
+                .filter { findLicenseFile(it.canonicalFile, prebuiltsRoot) == null }
+                .files
         if (missingLicenses.isNotEmpty()) {
-            val suggestions = missingLicenses.joinToString("\n") {
-                "$it does not have a license file. It should probably live in " +
-                    "${it.parentFile.parentFile}"
-            }
+            val suggestions =
+                missingLicenses.joinToString("\n") {
+                    "$it does not have a license file. It should probably live in " +
+                        "${it.parentFile.parentFile}"
+                }
             throw GradleException(
                 """
                 Any external library referenced in the support library
                 build must have a LICENSE or NOTICE file next to it in the prebuilts.
                 The following libraries are missing it:
                 $suggestions
-                """.trimIndent()
+                """
+                    .trimIndent()
             )
         }
     }
@@ -88,10 +88,11 @@ abstract class CheckExternalDependencyLicensesTask : DefaultTask() {
                 return recurse(folder.parentFile)
             }
 
-            val found = folder.listFiles()!!.firstOrNull {
-                it.name.startsWith("NOTICE", ignoreCase = true) ||
-                    it.name.startsWith("LICENSE", ignoreCase = true)
-            }
+            val found =
+                folder.listFiles()!!.firstOrNull {
+                    it.name.startsWith("NOTICE", ignoreCase = true) ||
+                        it.name.startsWith("LICENSE", ignoreCase = true)
+                }
             return found ?: recurse(folder.parentFile)
         }
         return recurse(dependency)
@@ -108,60 +109,49 @@ fun Project.configureExternalDependencyLicenseCheck() {
         CheckExternalDependencyLicensesTask.TASK_NAME,
         CheckExternalDependencyLicensesTask::class.java
     ) { task ->
-        task.prebuiltsRoot.set(project.provider {
-            project.getPrebuiltsRoot().absolutePath
-        })
+        task.prebuiltsRoot.set(project.provider { project.getPrebuiltsRoot().absolutePath })
 
         task.filesToCheck.from(
             project.provider {
-
                 val configName = "CheckExternalLicences"
                 val container = project.configurations
                 val checkerConfig =
-                container.findByName(configName) ?: container.create(configName) { checkerConfig ->
+                    container.findByName(configName)
+                        ?: container.create(configName) { checkerConfig ->
+                            checkerConfig.isCanBeConsumed = false
+                            checkerConfig.attributes {
+                                it.attribute(
+                                    Usage.USAGE_ATTRIBUTE,
+                                    project.objects.named<Usage>(Usage.JAVA_RUNTIME)
+                                )
+                                it.attribute(
+                                    Category.CATEGORY_ATTRIBUTE,
+                                    project.objects.named<Category>(Category.LIBRARY)
+                                )
+                                it.attribute(
+                                    GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
+                                    project.objects.named<GradlePluginApiVersion>(
+                                        GradleVersion.current().getVersion()
+                                    )
+                                )
+                            }
 
-                    checkerConfig.isCanBeConsumed = false
-                    checkerConfig.attributes {
-                        it.attribute(
-                            Usage.USAGE_ATTRIBUTE,
-                            project.objects.named<Usage>(Usage.JAVA_RUNTIME)
-                        )
-                        it.attribute(
-                            Category.CATEGORY_ATTRIBUTE,
-                            project.objects.named<Category>(Category.LIBRARY)
-                        )
-                        it.attribute(
-                            GradlePluginApiVersion.GRADLE_PLUGIN_API_VERSION_ATTRIBUTE,
-                            project.objects.named<GradlePluginApiVersion>(
-                                GradleVersion.current().getVersion()
-                            )
-                        )
-                    }
-
-                    project
-                        .configurations
-                        .flatMap {
-                            it.allDependencies
-                                .filterIsInstance(ExternalDependency::class.java)
-                                .filterNot {
-                                    it.group?.startsWith("com.android") == true
+                            project.configurations
+                                .flatMap {
+                                    it.allDependencies
+                                        .filterIsInstance(ExternalDependency::class.java)
+                                        .filterNot { it.group?.startsWith("com.android") == true }
+                                        .filterNot { it.group?.startsWith("android.arch") == true }
+                                        .filterNot { it.group?.startsWith("androidx") == true }
                                 }
-                                .filterNot {
-                                    it.group?.startsWith("android.arch") == true
-                                }
-                                .filterNot {
-                                    it.group?.startsWith("androidx") == true
-                                }
+                                .forEach { checkerConfig.dependencies.add(it) }
                         }
-                        .forEach {
-                            checkerConfig.dependencies.add(it)
-                        }
-                }
 
                 val localArtifactRepositories = project.findLocalMavenRepositories()
-                val dependencyArtifacts = checkerConfig.incoming.artifacts.artifacts.mapNotNull {
-                    project.validateAndGetArtifactInPrebuilts(it, localArtifactRepositories)
-                }
+                val dependencyArtifacts =
+                    checkerConfig.incoming.artifacts.artifacts.mapNotNull {
+                        project.validateAndGetArtifactInPrebuilts(it, localArtifactRepositories)
+                    }
 
                 dependencyArtifacts
             }
@@ -170,28 +160,28 @@ fun Project.configureExternalDependencyLicenseCheck() {
 }
 
 /**
- * Checks if the given [ResolvedArtifactResult] resolves to an artifact in prebuilts and if
- * so, returns that File.
+ * Checks if the given [ResolvedArtifactResult] resolves to an artifact in prebuilts and if so,
+ * returns that File.
  *
- * Note that, when artifacts are published with gradle metadata, the actual resolved file may
- * not reside in prebuilts directory. For those cases, this code re-resolves the artifact
- * from the [repoPaths] and returns the file in prebuilts instead.
+ * Note that, when artifacts are published with gradle metadata, the actual resolved file may not
+ * reside in prebuilts directory. For those cases, this code re-resolves the artifact from the
+ * [repoPaths] and returns the file in prebuilts instead.
  *
  * Returns null if the file does not exist in prebuilts. When it is an error (files outside
  * prebuitls filder is allowed for IDE plugins), throws a [GradleException].
  *
  * @param resolvedArtifact Resolved artifact from the configuration
  * @param repoPaths List of local maven repositories that can be used to resolve the artifact.
- *
  * @return The artifact in prebuilts or null if it does not exist.
  */
 private fun Project.validateAndGetArtifactInPrebuilts(
     resolvedArtifact: ResolvedArtifactResult,
     repoPaths: FileCollection
 ): File? {
-    val fileInPrebuilts = repoPaths.any { repoPath ->
-        resolvedArtifact.file.absolutePath.startsWith(repoPath.absolutePath)
-    }
+    val fileInPrebuilts =
+        repoPaths.any { repoPath ->
+            resolvedArtifact.file.absolutePath.startsWith(repoPath.absolutePath)
+        }
     if (fileInPrebuilts) {
         return resolvedArtifact.file
     }
@@ -204,8 +194,7 @@ private fun Project.validateAndGetArtifactInPrebuilts(
         // artifact.
         // For a module: com.google:artifact:1.2.3; the path would be
         // <repo-root>/com/google/artifact/1.2.3
-        val subFolder = (id.group.split('.') + id.module + id.version)
-            .joinToString(File.separator)
+        val subFolder = (id.group.split('.') + id.module + id.version).joinToString(File.separator)
         // if it exists in one of the local repositories, return it.
         repoPaths.forEach {
             val artifactFolder = it.resolve(subFolder)
@@ -225,16 +214,17 @@ private fun Project.validateAndGetArtifactInPrebuilts(
     return null
 }
 
-/**
- * Returns the list of local maven repository File paths declared in this project.
- */
+/** Returns the list of local maven repository File paths declared in this project. */
 private fun Project.findLocalMavenRepositories(): FileCollection {
-    val fileList = project.repositories.mapNotNull {
-        if (it is MavenArtifactRepository && it.url.scheme == "file") {
-            it.url
-        } else {
-            null
-        }
-    }.map { File(it) }
+    val fileList =
+        project.repositories
+            .mapNotNull {
+                if (it is MavenArtifactRepository && it.url.scheme == "file") {
+                    it.url
+                } else {
+                    null
+                }
+            }
+            .map { File(it) }
     return project.files(fileList)
 }

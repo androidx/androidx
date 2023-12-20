@@ -50,12 +50,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
-public class CardTest {
+class CardTest {
     @get:Rule
-    public val rule: ComposeContentTestRule = createComposeRule()
+    val rule: ComposeContentTestRule = createComposeRule()
 
     @Test
-    public fun supports_test_tag() {
+    fun supports_test_tag() {
         rule.setContentWithTheme {
             Card(
                 onClick = {},
@@ -69,7 +69,7 @@ public class CardTest {
     }
 
     @Test
-    public fun has_clickaction_when_enabled() {
+    fun has_clickaction_when_enabled() {
         rule.setContentWithTheme {
             Card(
                 onClick = {},
@@ -84,7 +84,7 @@ public class CardTest {
     }
 
     @Test
-    public fun has_clickaction_when_disabled() {
+    fun has_clickaction_when_disabled() {
         rule.setContentWithTheme {
             Card(
                 onClick = {},
@@ -99,7 +99,7 @@ public class CardTest {
     }
 
     @Test
-    public fun is_correctly_enabled_when_enabled_equals_true() {
+    fun is_correctly_enabled_when_enabled_equals_true() {
         rule.setContentWithTheme {
             Card(
                 onClick = {},
@@ -114,7 +114,7 @@ public class CardTest {
     }
 
     @Test
-    public fun is_correctly_disabled_when_enabled_equals_false() {
+    fun is_correctly_disabled_when_enabled_equals_false() {
         rule.setContentWithTheme {
             Card(
                 onClick = {},
@@ -129,7 +129,7 @@ public class CardTest {
     }
 
     @Test
-    public fun responds_to_click_when_enabled() {
+    fun responds_to_click_when_enabled() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -150,7 +150,7 @@ public class CardTest {
     }
 
     @Test
-    public fun does_not_respond_to_click_when_disabled() {
+    fun does_not_respond_to_click_when_disabled() {
         var clicked = false
 
         rule.setContentWithTheme {
@@ -171,7 +171,7 @@ public class CardTest {
     }
 
     @Test
-    public fun has_role_button_if_explicitly_set() {
+    fun has_role_button_if_explicitly_set() {
         rule.setContentWithTheme {
             Card(
                 onClick = {},
@@ -193,7 +193,17 @@ public class CardTest {
     }
 
     @Test
-    public fun gives_base_card_correct_default_max_height(): Unit =
+    fun gives_base_card_with_text_minimum_height(): Unit =
+        rule.verifyHeight(48.dp) {
+            Card(
+                onClick = {},
+            ) {
+                Text("Card")
+            }
+        }
+
+    @Test
+    fun gives_base_card_correct_default_max_height(): Unit =
         verifyHeight(
             expectedHeight = 100.dp +
                 CardDefaults.ContentPadding.calculateBottomPadding() +
@@ -202,19 +212,19 @@ public class CardTest {
         )
 
     @Test
-    public fun gives_enabled_default_colors(): Unit =
+    fun gives_enabled_default_colors(): Unit =
         verifyColors(
             CardStatus.Enabled,
         ) { MaterialTheme.colorScheme.onSurfaceVariant }
 
     @Test
-    public fun gives_disabled_default_colors(): Unit =
+    fun gives_disabled_default_colors(): Unit =
         verifyColors(
             CardStatus.Disabled,
         ) { MaterialTheme.colorScheme.onSurfaceVariant }
 
     @Test
-    public fun app_card_gives_default_colors() {
+    fun app_card_gives_default_colors() {
         var expectedAppColor = Color.Transparent
         var expectedTimeColor = Color.Transparent
         var expectedTitleColor = Color.Transparent
@@ -254,7 +264,7 @@ public class CardTest {
     }
 
     @Test
-    public fun title_card_gives_default_colors() {
+    fun title_card_gives_default_colors() {
         var expectedTimeColor = Color.Transparent
         var expectedTitleColor = Color.Transparent
         var expectedContentColor = Color.Transparent
@@ -288,9 +298,43 @@ public class CardTest {
         assertEquals(expectedContentColor, actualContentColor)
     }
 
+    @Test
+    public fun title_card_with_time_and_subtitle_gives_default_colors() {
+        var expectedTimeColor = Color.Transparent
+        var expectedSubtitleColor = Color.Transparent
+        var expectedTitleColor = Color.Transparent
+        var actualTimeColor = Color.Transparent
+        var actualSubtitleColor = Color.Transparent
+        var actualTitleColor = Color.Transparent
+        val testBackground = Color.White
+
+        rule.setContentWithTheme {
+            expectedTimeColor = MaterialTheme.colorScheme.onSurfaceVariant
+            expectedSubtitleColor = MaterialTheme.colorScheme.tertiary
+            expectedTitleColor = MaterialTheme.colorScheme.onSurface
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(testBackground)
+            ) {
+                TitleCard(
+                    onClick = {},
+                    time = { actualTimeColor = LocalContentColor.current },
+                    subtitle = { actualSubtitleColor = LocalContentColor.current },
+                    title = { actualTitleColor = LocalContentColor.current },
+                    modifier = Modifier.testTag(TEST_TAG)
+                )
+            }
+        }
+
+        assertEquals(expectedTimeColor, actualTimeColor)
+        assertEquals(expectedSubtitleColor, actualSubtitleColor)
+        assertEquals(expectedTitleColor, actualTitleColor)
+    }
+
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun outlined_card_has_outlined_border_and_transparent() {
+    fun outlined_card_has_outlined_border_and_transparent() {
         val outlineColor = Color.Red
         val testBackground = Color.Green
 
@@ -320,7 +364,7 @@ public class CardTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun outlined_titlecard_has_outlined_border_and_transparent() {
+    fun outlined_titlecard_has_outlined_border_and_transparent() {
         val outlineColor = Color.Red
         val testBackground = Color.Green
 
@@ -352,7 +396,7 @@ public class CardTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun outlined_appcard_has_outlined_border_and_transparent() {
+    fun outlined_appcard_has_outlined_border_and_transparent() {
         val outlineColor = Color.Red
         val testBackground = Color.Green
 
@@ -384,7 +428,7 @@ public class CardTest {
     }
 
     @Test
-    public fun gives_correct_text_style_base() {
+    fun gives_correct_text_style_base() {
         var actualTextStyle = TextStyle.Default
         var expectedTextStyle = TextStyle.Default
         rule.setContentWithTheme {
@@ -402,7 +446,7 @@ public class CardTest {
     }
 
     @Test
-    public fun app_card_gives_correct_text_style_base() {
+    fun app_card_gives_correct_text_style_base() {
         var actualAppTextStyle = TextStyle.Default
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
@@ -413,9 +457,9 @@ public class CardTest {
         var expectedContentTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedAppTextStyle = MaterialTheme.typography.captionLarge
-            expectedTimeTextStyle = MaterialTheme.typography.captionLarge
-            expectedTitleTextStyle = MaterialTheme.typography.titleSmall
+            expectedAppTextStyle = MaterialTheme.typography.labelSmall
+            expectedTimeTextStyle = MaterialTheme.typography.labelSmall
+            expectedTitleTextStyle = MaterialTheme.typography.titleMedium
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
             AppCard(
@@ -441,7 +485,7 @@ public class CardTest {
     }
 
     @Test
-    public fun title_card_gives_correct_text_style_base() {
+    fun title_card_gives_correct_text_style_base() {
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
         var actuaContentTextStyle = TextStyle.Default
@@ -450,8 +494,8 @@ public class CardTest {
         var expectedContentTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedTimeTextStyle = MaterialTheme.typography.captionLarge
-            expectedTitleTextStyle = MaterialTheme.typography.titleSmall
+            expectedTimeTextStyle = MaterialTheme.typography.labelSmall
+            expectedTitleTextStyle = MaterialTheme.typography.titleMedium
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
             TitleCard(
@@ -474,7 +518,7 @@ public class CardTest {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Test
-    public fun outlined_app_card_gives_correct_text_style_base() {
+    fun outlined_app_card_gives_correct_text_style_base() {
         var actualAppTextStyle = TextStyle.Default
         var actualTimeTextStyle = TextStyle.Default
         var actualTitleTextStyle = TextStyle.Default
@@ -485,9 +529,9 @@ public class CardTest {
         var expectedContentTextStyle = TextStyle.Default
 
         rule.setContentWithTheme {
-            expectedAppTextStyle = MaterialTheme.typography.captionLarge
-            expectedTimeTextStyle = MaterialTheme.typography.captionLarge
-            expectedTitleTextStyle = MaterialTheme.typography.titleSmall
+            expectedAppTextStyle = MaterialTheme.typography.labelSmall
+            expectedTimeTextStyle = MaterialTheme.typography.labelSmall
+            expectedTitleTextStyle = MaterialTheme.typography.titleMedium
             expectedContentTextStyle = MaterialTheme.typography.bodyLarge
 
             AppCard(

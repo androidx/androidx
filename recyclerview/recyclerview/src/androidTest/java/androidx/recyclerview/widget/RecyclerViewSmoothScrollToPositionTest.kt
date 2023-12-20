@@ -158,10 +158,19 @@ class RecyclerViewSmoothScrollToPositionTest {
             "onStop should be called eventually",
             calledOnStop.await(30, TimeUnit.SECONDS)
         )
-        Assert.assertNotNull(
-            "smoothScrollToPosition should succeed",
-            recyclerView.findViewHolderForLayoutPosition(targetPosition)
-        )
+
+        // This needs to be run on the UI thread 1) due to inspecting the results of operations
+        // (such as layout) that may occur after the latch is counted down, and 2) in order to
+        // ensure that it doesn't run concurrently with operations on the UI thread that might
+        // affect the state.
+        mActivityTestRule.runOnUiThread {
+            Assert.assertNotNull(
+                "smoothScrollToPosition should succeed " +
+                    "(first visible item: " + layoutManager.findFirstVisibleItemPosition() +
+                    ", last visible item: " + layoutManager.findLastVisibleItemPosition() + ")",
+                recyclerView.findViewHolderForLayoutPosition(targetPosition)
+            )
+        }
     }
 
     private fun setup(

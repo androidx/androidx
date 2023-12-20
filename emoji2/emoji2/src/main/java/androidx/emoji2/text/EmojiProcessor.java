@@ -45,7 +45,6 @@ import java.util.Set;
 /**
  * Processes the CharSequence and adds the emojis.
  *
- * @hide
  */
 @AnyThread
 @RestrictTo(LIBRARY)

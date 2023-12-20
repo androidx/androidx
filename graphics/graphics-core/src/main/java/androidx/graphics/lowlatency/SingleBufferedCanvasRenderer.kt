@@ -17,17 +17,19 @@
 package androidx.graphics.lowlatency
 
 import android.graphics.Canvas
+import android.graphics.ColorSpace
 import android.hardware.HardwareBuffer
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.annotation.WorkerThread
+import androidx.graphics.utils.HandlerThreadExecutor
 import androidx.hardware.SyncFenceCompat
-import java.util.concurrent.Executor
 
 /**
  * Interface to provide an abstraction around implementations for a low latency hardware
  * accelerated [Canvas] that provides a [HardwareBuffer] with the [Canvas] rendered scene
  */
+@RequiresApi(Build.VERSION_CODES.Q)
 internal interface SingleBufferedCanvasRenderer<T> {
 
     interface RenderCallbacks<T> {
@@ -36,6 +38,14 @@ internal interface SingleBufferedCanvasRenderer<T> {
 
         @WorkerThread
         fun onBufferReady(hardwareBuffer: HardwareBuffer, syncFenceCompat: SyncFenceCompat?)
+
+        @WorkerThread
+        fun onBufferCancelled(
+            hardwareBuffer: HardwareBuffer,
+            syncFenceCompat: SyncFenceCompat?
+        ) {
+            // NO-OP
+        }
     }
 
     /**
@@ -58,31 +68,44 @@ internal interface SingleBufferedCanvasRenderer<T> {
     /**
      * Clear the contents of the [HardwareBuffer]
      */
-    fun clear()
+    fun clear(clearComplete: (() -> Unit)? = null)
 
     /**
      * Cancel all pending render requests
      */
     fun cancelPending()
 
+    /**
+     * Configure the color space that the content is rendered with
+     */
+    var colorSpace: ColorSpace
+
     companion object {
 
-        @RequiresApi(Build.VERSION_CODES.Q)
         fun <T> create(
             width: Int,
             height: Int,
             bufferTransformer: BufferTransformer,
-            executor: Executor,
+            executor: HandlerThreadExecutor,
             bufferReadyListener: RenderCallbacks<T>
         ): SingleBufferedCanvasRenderer<T> {
-            // TODO return different instance for corresponding platform version
-            return SingleBufferedCanvasRendererV29(
-                width,
-                height,
-                bufferTransformer,
-                executor,
-                bufferReadyListener
-            )
+            return if (Build.VERSION.SDK_INT >= 34) {
+                SingleBufferedCanvasRendererV34(
+                    width,
+                    height,
+                    bufferTransformer,
+                    executor,
+                    bufferReadyListener
+                )
+            } else {
+                SingleBufferedCanvasRendererV29(
+                    width,
+                    height,
+                    bufferTransformer,
+                    executor,
+                    bufferReadyListener
+                )
+            }
         }
     }
 }

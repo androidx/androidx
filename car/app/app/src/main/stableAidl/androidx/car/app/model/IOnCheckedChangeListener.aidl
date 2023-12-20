@@ -18,7 +18,7 @@ package androidx.car.app.model;
 
 import androidx.car.app.IOnDoneCallback;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IOnCheckedChangeListener {
   void onCheckedChange(boolean isChecked, IOnDoneCallback callback) = 1;
 }

@@ -15,6 +15,7 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.KotlinTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -42,7 +43,7 @@ dependencies {
  */
 def writeTestPropsTask = tasks.register("prepareTestConfiguration", WriteProperties.class) {
     description = "Generates a properties file with the current environment for compilation tests"
-    setOutputFile(project.layout.buildDirectory.dir("test-config").map {
+    destinationFile.set(project.layout.buildDirectory.dir("test-config").map {
         it.file("androidx.room.compiler.processing.util.CompilationTestCapabilities.Config" +
                 ".properties")
     })
@@ -50,13 +51,14 @@ def writeTestPropsTask = tasks.register("prepareTestConfiguration", WritePropert
     property("kspVersion", libs.versions.ksp.get())
 }
 
-// Remove upon updating to version 8.0 of lint plugin, b/253219347
-tasks.named("compileKotlin").configure { it.dependsOn(writeTestPropsTask) }
-
 java {
     sourceSets {
         main {
-            resources.srcDir(writeTestPropsTask.map { it.outputFile.parentFile })
+            resources.srcDir(
+                    writeTestPropsTask.map {
+                        it.destinationFile.asFile.get().parentFile
+                    }
+            )
         }
     }
 }
@@ -74,6 +76,7 @@ tasks.named("compileTestKotlin", KotlinCompile.class).configure {
 androidx {
     name = "Room XProcessor Testing"
     type = LibraryType.ANNOTATION_PROCESSOR_UTILS
+    kotlinTarget = KotlinTarget.KOTLIN_1_9
     inceptionYear = "2020"
     description = "Testing helpers for Room XProcessing APIs"
 }

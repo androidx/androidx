@@ -21,6 +21,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -150,6 +151,52 @@ public abstract class FragmentTransitionImpl {
             @Nullable Object transition);
 
     /**
+     * Returns {@code true} if the Transition is seekable.
+     */
+    public boolean isSeekingSupported() {
+        if (FragmentManager.isLoggingEnabled(Log.INFO)) {
+            Log.i(FragmentManager.TAG,
+                    "Older versions of AndroidX Transition do not support seeking. Add dependency "
+                            + "on AndroidX Transition 1.5.0 or higher to enable seeking.");
+        }
+        return false;
+    }
+
+    /**
+     * Returns {@code true} if the Transition is seekable.
+     */
+    public boolean isSeekingSupported(@NonNull Object transition) {
+        return false;
+    }
+
+    /**
+     * Allows for controlling a seekable transition
+     */
+    @Nullable
+    public Object controlDelayedTransition(@NonNull ViewGroup sceneRoot,
+            @NonNull Object transition) {
+        return null;
+    }
+
+    /**
+     * Uses given progress to set the current play time of the transition.
+     */
+    public void setCurrentPlayTime(@NonNull Object transitionController, float progress) { }
+
+    /**
+     * Animate the transition to end.
+     */
+    public void animateToEnd(@NonNull Object transitionController) { }
+
+    /**
+     * Animate the transition to start.
+     */
+    public void animateToStart(
+            @NonNull Object transitionController,
+            @NonNull Runnable completeRunnable) {
+    }
+
+    /**
      * Prepares for setting the shared element names by gathering the names of the incoming
      * shared elements and clearing them. {@link #setNameOverridesReordered(View, ArrayList,
      * ArrayList, ArrayList, Map)} must be called after this to complete setting the shared element
@@ -229,6 +276,32 @@ public abstract class FragmentTransitionImpl {
      */
     public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
             @NonNull Object transition, @NonNull CancellationSignal signal,
+            @NonNull Runnable transitionCompleteRunnable) {
+        setListenerForTransitionEnd(
+                outFragment, transition, signal, null, transitionCompleteRunnable
+        );
+    }
+
+    /**
+     * Set a listener for Transition end events. The default behavior immediately completes the
+     * transition.
+     *
+     * Use this when the given transition is seeking. The cancelRunnable should handle
+     * cleaning up the transition when seeking is cancelled.
+     *
+     * If the transition is not seeking, you should use
+     * {@link #setListenerForTransitionEnd(Fragment, Object, CancellationSignal, Runnable)}.
+     *
+     * @param outFragment The first fragment that is exiting
+     * @param transition all transitions to be executed on a single container
+     * @param signal used indicate the desired behavior on transition cancellation
+     * @param cancelRunnable runnable to handle the logic when the signal is cancelled
+     * @param transitionCompleteRunnable used to notify the FragmentManager when a transition is
+     *                                   complete
+     */
+    public void setListenerForTransitionEnd(@NonNull final Fragment outFragment,
+            @NonNull Object transition, @NonNull CancellationSignal signal,
+            @Nullable Runnable cancelRunnable,
             @NonNull Runnable transitionCompleteRunnable) {
         transitionCompleteRunnable.run();
     }

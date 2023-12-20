@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -38,12 +39,15 @@ fun AppTabRow(
     onSelectedTabIndexChange: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val focusRestorerModifiers = createCustomInitialFocusRestorerModifiers()
+
     AlignmentCenter(horizontalAxis = true) {
-        FocusGroup {
-            TabRow(
-                selectedTabIndex = selectedTabIndex,
-                separator = { Spacer(modifier = Modifier.width(4.dp)) },
-                modifier = modifier.padding(top = 20.dp),
+        TabRow(
+            selectedTabIndex = selectedTabIndex,
+            separator = { Spacer(modifier = Modifier.width(4.dp)) },
+            modifier = modifier
+                .padding(top = 20.dp)
+                .then(focusRestorerModifiers.parentModifier),
 //                indicator = @Composable { tabPositions ->
 //                    tabPositions.getOrNull(selectedTabIndex)?.let {
 //                        TabRowDefaults.PillIndicator(
@@ -52,20 +56,18 @@ fun AppTabRow(
 //                        )
 //                    }
 //                }
-            ) {
-                tabs.forEachIndexed { index, tabLabel ->
-                    val tabModifier = Modifier.restorableFocus()
-                    val firstTabModifier = Modifier.initiallyFocused()
-                    val isFirstTab = index == 0
-
+        ) {
+            tabs.forEachIndexed { index, tabLabel ->
+                key(index) {
                     Tab(
                         selected = selectedTabIndex == index,
                         onFocus = { onSelectedTabIndexChange(index) },
                         colors = TabDefaults.pillIndicatorTabColors(
-                            contentColor = LocalContentColor.current,
+                            inactiveContentColor = LocalContentColor.current,
 //                            selectedContentColor = Color(0xFF313033),
                         ),
-                        modifier = if (isFirstTab) firstTabModifier else tabModifier
+                        modifier = Modifier
+                            .ifElse(index == 0, focusRestorerModifiers.childModifier),
                     ) {
                         Text(
                             text = tabLabel,

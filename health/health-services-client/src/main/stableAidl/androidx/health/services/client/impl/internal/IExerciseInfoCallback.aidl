@@ -22,8 +22,8 @@ import androidx.health.services.client.impl.response.ExerciseInfoResponse;
  * Callback for an operation that returns an ExerciseInfo on successful
  * completion.
  *
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 oneway interface IExerciseInfoCallback {
     /**
      * Method invoked when the operation is a success and exercise info is

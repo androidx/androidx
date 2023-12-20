@@ -25,7 +25,7 @@ import android.util.Size
 import androidx.camera.camera2.pipe.integration.compat.StreamConfigurationMapCompat
 import androidx.camera.camera2.pipe.integration.compat.workaround.OutputSizesCorrector
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
-import androidx.camera.testing.EncoderProfilesUtil
+import androidx.camera.testing.impl.EncoderProfilesUtil
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith

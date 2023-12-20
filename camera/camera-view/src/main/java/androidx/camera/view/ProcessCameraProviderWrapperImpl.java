@@ -70,7 +70,7 @@ class ProcessCameraProviderWrapperImpl implements ProcessCameraProviderWrapper {
     @VisibleForTesting
     @NonNull
     @Override
-    public ListenableFuture<Void> shutdown() {
-        return mProcessCameraProvider.shutdown();
+    public ListenableFuture<Void> shutdownAsync() {
+        return mProcessCameraProvider.shutdownAsync();
     }
 }

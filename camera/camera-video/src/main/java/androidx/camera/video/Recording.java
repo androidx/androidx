@@ -54,13 +54,15 @@ public final class Recording implements AutoCloseable {
     private final Recorder mRecorder;
     private final long mRecordingId;
     private final OutputOptions mOutputOptions;
+    private final boolean mIsPersistent;
     private final CloseGuardHelper mCloseGuard = CloseGuardHelper.create();
 
     Recording(@NonNull Recorder recorder, long recordingId, @NonNull OutputOptions options,
-            boolean finalizedOnCreation) {
+            boolean isPersistent, boolean finalizedOnCreation) {
         mRecorder = recorder;
         mRecordingId = recordingId;
         mOutputOptions = options;
+        mIsPersistent = isPersistent;
 
         if (finalizedOnCreation) {
             mIsClosed.set(true);
@@ -81,6 +83,7 @@ public final class Recording implements AutoCloseable {
         return new Recording(pendingRecording.getRecorder(),
                 recordingId,
                 pendingRecording.getOutputOptions(),
+                pendingRecording.isPersistent(),
                 /*finalizedOnCreation=*/false);
     }
 
@@ -101,12 +104,27 @@ public final class Recording implements AutoCloseable {
         return new Recording(pendingRecording.getRecorder(),
                 recordingId,
                 pendingRecording.getOutputOptions(),
+                pendingRecording.isPersistent(),
                 /*finalizedOnCreation=*/true);
     }
 
     @NonNull
     OutputOptions getOutputOptions() {
         return mOutputOptions;
+    }
+
+    /**
+     * Returns whether this recording is a persistent recording.
+     *
+     * <p>A persistent recording will only be stopped by explicitly calling of
+     * {@link Recording#stop()} and will ignore the lifecycle events or source state changes.
+     * Users are responsible of stopping a persistent recording.
+     *
+     * @return {@code true} if the recording is a persistent recording, otherwise {@code false}.
+     */
+    @ExperimentalPersistentRecording
+    public boolean isPersistent() {
+        return mIsPersistent;
     }
 
     /**

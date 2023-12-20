@@ -18,7 +18,6 @@ import kotlin.Any
 import kotlin.Lazy
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.collections.Map
 import kotlin.collections.MutableList
@@ -35,13 +34,13 @@ internal class MyDatabase_Impl : MyDatabase() {
     protected override fun createOpenHelper(config: DatabaseConfiguration): SupportSQLiteOpenHelper {
         val _openCallback: SupportSQLiteOpenHelper.Callback = RoomOpenHelper(config, object :
             RoomOpenHelper.Delegate(1) {
-            public override fun createAllTables(db: SupportSQLiteDatabase): Unit {
+            public override fun createAllTables(db: SupportSQLiteDatabase) {
                 db.execSQL("CREATE TABLE IF NOT EXISTS `MyEntity` (`pk` INTEGER NOT NULL, PRIMARY KEY(`pk`))")
                 db.execSQL("CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)")
                 db.execSQL("INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '195d7974660177325bd1a32d2c7b8b8c')")
             }
 
-            public override fun dropAllTables(db: SupportSQLiteDatabase): Unit {
+            public override fun dropAllTables(db: SupportSQLiteDatabase) {
                 db.execSQL("DROP TABLE IF EXISTS `MyEntity`")
                 val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
                 if (_callbacks != null) {
@@ -51,7 +50,7 @@ internal class MyDatabase_Impl : MyDatabase() {
                 }
             }
 
-            public override fun onCreate(db: SupportSQLiteDatabase): Unit {
+            public override fun onCreate(db: SupportSQLiteDatabase) {
                 val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
                 if (_callbacks != null) {
                     for (_callback: RoomDatabase.Callback in _callbacks) {
@@ -60,7 +59,7 @@ internal class MyDatabase_Impl : MyDatabase() {
                 }
             }
 
-            public override fun onOpen(db: SupportSQLiteDatabase): Unit {
+            public override fun onOpen(db: SupportSQLiteDatabase) {
                 mDatabase = db
                 internalInitInvalidationTracker(db)
                 val _callbacks: List<RoomDatabase.Callback>? = mCallbacks
@@ -71,11 +70,11 @@ internal class MyDatabase_Impl : MyDatabase() {
                 }
             }
 
-            public override fun onPreMigrate(db: SupportSQLiteDatabase): Unit {
+            public override fun onPreMigrate(db: SupportSQLiteDatabase) {
                 dropFtsSyncTriggers(db)
             }
 
-            public override fun onPostMigrate(db: SupportSQLiteDatabase): Unit {
+            public override fun onPostMigrate(db: SupportSQLiteDatabase) {
             }
 
             public override fun onValidateSchema(db: SupportSQLiteDatabase):
@@ -113,7 +112,7 @@ internal class MyDatabase_Impl : MyDatabase() {
         return InvalidationTracker(this, _shadowTablesMap, _viewTables, "MyEntity")
     }
 
-    public override fun clearAllTables(): Unit {
+    public override fun clearAllTables() {
         super.assertNotMainThread()
         val _db: SupportSQLiteDatabase = super.openHelper.writableDatabase
         try {

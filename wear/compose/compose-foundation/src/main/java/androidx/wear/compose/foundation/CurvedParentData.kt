@@ -16,6 +16,8 @@
 
 package androidx.wear.compose.foundation
 
+import androidx.annotation.FloatRange
+
 /**
  * A [CurvedModifier] that provides data to the parent layout.
  * The parent data is commonly used to inform the parent how the child Layout should be measured
@@ -41,7 +43,7 @@ public fun CurvedModifier.parentDataModifier(
  * all weighted siblings. Must be positive.
  */
 public fun CurvedModifier.weight(
-    /* @FloatRange(from = 0f, fromInclusive = false) */
+    @FloatRange(from = 0.0, fromInclusive = false)
     weight: Float
 ) = parentDataModifier { parentData ->
     require(weight > 0f) { "Weights must be positive." }

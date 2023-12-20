@@ -24,10 +24,10 @@ import androidx.annotation.RestrictTo;
 /**
  * Class containing configurable settings for SliceView that may impact interaction and contents
  * of the slice that are displayed.
- * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 @RequiresApi(19)
+@Deprecated
 public class SliceViewPolicy {
 
     /**

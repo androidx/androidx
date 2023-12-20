@@ -14,22 +14,26 @@
  * limitations under the License.
  */
 package androidx.camera.testing
+
 import android.graphics.BitmapFactory.decodeByteArray
+import android.graphics.Color
 import android.graphics.Color.BLUE
 import android.graphics.Color.GREEN
 import android.graphics.Color.RED
 import android.graphics.Color.YELLOW
 import android.graphics.Rect
 import androidx.camera.core.internal.utils.ImageUtil.jpegImageToJpegByteArray
-import androidx.camera.testing.TestImageUtil.createJpegBytes
-import androidx.camera.testing.TestImageUtil.createJpegFakeImageProxy
-import androidx.camera.testing.TestImageUtil.getAverageDiff
+import androidx.camera.testing.impl.TestImageUtil.createBitmap
+import androidx.camera.testing.impl.TestImageUtil.createJpegBytes
+import androidx.camera.testing.impl.TestImageUtil.createJpegFakeImageProxy
+import androidx.camera.testing.impl.TestImageUtil.getAverageDiff
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+
 /**
  * Unit tests for [TestImageUtil]
  */
@@ -54,6 +58,18 @@ class TestImageUtilDeviceTest {
         assertThat(getAverageDiff(bitmap, Rect(321, 0, 640, 240), GREEN)).isEqualTo(0)
         assertThat(getAverageDiff(bitmap, Rect(321, 241, 640, 480), YELLOW)).isEqualTo(0)
         assertThat(getAverageDiff(bitmap, Rect(0, 241, 320, 480), BLUE)).isEqualTo(0)
+    }
+
+    @Test
+    fun createBitmap_verifyWithIncorrectColor() {
+        // The color is supposed to be RED.
+        assertThat(
+            getAverageDiff(
+                createBitmap(WIDTH, HEIGHT),
+                Rect(0, 0, 320, 240),
+                Color.CYAN
+            )
+        ).isEqualTo(255)
     }
 
     @Test

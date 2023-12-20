@@ -32,6 +32,92 @@
         android:text="@string/mr_chooser_title"
         android:textAppearance="@style/TextAppearance.MediaRouter.Title" />
 
+    <TextView
+        android:id="@+id/mr_chooser_searching"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="@string/mr_chooser_looking_for_devices"
+        android:textAppearance="@style/TextAppearance.MediaRouter.SecondaryText" />
+
+    <RelativeLayout
+        android:id="@+id/mr_chooser_wifi_warning_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <LinearLayout
+            android:id="@+id/mr_chooser_wifi_warning"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="@dimen/mr_controller_wifi_icon_size"
+                android:layout_height="@dimen/mr_controller_wifi_icon_size"
+                android:layout_margin="16dp"
+                android:src="?attr/mediaRouteWifiIconDrawable"
+                android:contentDescription="@string/ic_media_route_learn_more_accessibility"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
+                android:layout_marginStart="24dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/mr_chooser_wifi_warning_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mr_chooser_wifi_warning_description_phone"
+                    android:textAppearance="@style/TextAppearance.MediaRouter.SecondaryText" />
+
+                <TextView
+                    android:id="@+id/mr_chooser_wifi_learn_more"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/mr_chooser_wifi_learn_more"
+                    android:textAppearance="@style/TextAppearance.MediaRouter.SecondaryText"
+                    android:visibility="invisible" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/mr_chooser_ok_button_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/mr_chooser_wifi_warning">
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/mr_chooser_ok_button"
+                style="?android:attr/borderlessButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@android:string/ok"
+                android:minWidth="0dp"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <ProgressBar
+        android:id="@+id/mr_chooser_search_progress_bar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:indeterminate="true" />
+
     <ListView
         android:id="@+id/mr_chooser_list"
         android:layout_width="fill_parent"
@@ -39,87 +125,5 @@
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp"
         android:visibility="gone" />
-
-    <RelativeLayout
-        android:id="@+id/mr_empty_view"
-        android:layout_width="fill_parent"
-        android:layout_height="240dp"
-        android:visibility="visible">
-
-        <LinearLayout
-            android:id="@+id/mr_chooser_searching"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:orientation="vertical"
-            android:visibility="visible">
-
-            <ProgressBar
-                android:id="@+id/mr_chooser_search_progress_bar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="150dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:indeterminate="true" />
-
-            <TextView
-                android:id="@+id/mr_chooser_search_status"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="@string/mr_chooser_searching"
-                android:textAppearance="@style/TextAppearance.MediaRouter.SecondaryText" />
-
-        </LinearLayout>
-
-        <FrameLayout
-            android:id="@+id/mr_chooser_no_routes"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/mr_chooser_zero_routes_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/mr_chooser_zero_routes_description"
-                android:textAppearance="@style/TextAppearance.MediaRouter.SecondaryText" />
-
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/mr_chooser_wifi_warning"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/mr_chooser_wifi_warning_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/mr_chooser_wifi_warning_description"
-                android:textAppearance="@style/TextAppearance.MediaRouter.SecondaryText" />
-
-        </FrameLayout>
-
-        <FrameLayout
-            android:id="@+id/mr_chooser_footer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:gravity="bottom"
-            android:visibility="gone">
-
-            <Button
-                android:id="@+id/mr_chooser_done_button"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|right"
-                android:text="@string/mr_chooser_done_button_label" />
-
-        </FrameLayout>
-
-    </RelativeLayout>
 
 </LinearLayout>

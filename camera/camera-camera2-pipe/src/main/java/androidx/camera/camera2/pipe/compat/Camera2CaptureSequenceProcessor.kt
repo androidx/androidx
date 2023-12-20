@@ -37,13 +37,13 @@ import androidx.camera.camera2.pipe.StreamGraph
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.core.Debug
 import androidx.camera.camera2.pipe.core.Log
+import androidx.camera.camera2.pipe.core.Threading.runBlockingWithTimeout
 import androidx.camera.camera2.pipe.core.Threads
 import androidx.camera.camera2.pipe.graph.StreamGraphImpl
 import androidx.camera.camera2.pipe.writeParameters
 import javax.inject.Inject
 import kotlin.reflect.KClass
 import kotlinx.atomicfu.atomic
-import kotlinx.coroutines.runBlocking
 
 internal interface Camera2CaptureSequenceProcessorFactory {
     fun create(
@@ -65,7 +65,6 @@ constructor(
         session: CameraCaptureSessionWrapper,
         surfaceMap: Map<StreamId, Surface>
     ): CaptureSequenceProcessor<*, CaptureSequence<Any>> {
-        @Suppress("SyntheticAccessor")
         return Camera2CaptureSequenceProcessor(
             session,
             threads,
@@ -213,7 +212,6 @@ internal class Camera2CaptureSequenceProcessor(
                     captureRequests.addAll(highSpeedRequestList)
                 }
 
-                @Suppress("SyntheticAccessor")
                 val metadata =
                     Camera2RequestMetadata(
                         session,
@@ -231,7 +229,6 @@ internal class Camera2CaptureSequenceProcessor(
             } else {
                 captureRequests.add(captureRequest)
 
-                @Suppress("SyntheticAccessor")
                 val metadata =
                     Camera2RequestMetadata(
                         session,
@@ -250,7 +247,6 @@ internal class Camera2CaptureSequenceProcessor(
         }
 
         // Create the captureSequence listener
-        @Suppress("SyntheticAccessor")
         return Camera2CaptureSequence(
             session.device.cameraId,
             isRepeating,
@@ -277,34 +273,26 @@ internal class Camera2CaptureSequenceProcessor(
                 if (shouldWaitForRepeatingRequest) {
                     lastSingleRepeatingRequestSequence = captureSequence
                 }
-                session.setRepeatingRequest(
-                    captureSequence.captureRequestList[0], captureCallback, threads.camera2Handler
-                )
+                session.setRepeatingRequest(captureSequence.captureRequestList[0], captureCallback)
             } else {
-                session.capture(
-                    captureSequence.captureRequestList[0], captureSequence, threads.camera2Handler
-                )
+                session.capture(captureSequence.captureRequestList[0], captureSequence)
             }
         } else {
             if (captureSequence.repeating) {
-                session.setRepeatingBurst(
-                    captureSequence.captureRequestList, captureSequence, threads.camera2Handler
-                )
+                session.setRepeatingBurst(captureSequence.captureRequestList, captureSequence)
             } else {
-                session.captureBurst(
-                    captureSequence.captureRequestList, captureSequence, threads.camera2Handler
-                )
+                session.captureBurst(captureSequence.captureRequestList, captureSequence)
             }
         }
     }
 
     override fun abortCaptures(): Unit = synchronized(lock) {
-        if (closed) return
+        Log.debug { "$this#abortCaptures" }
         session.abortCaptures()
     }
 
     override fun stopRepeating(): Unit = synchronized(lock) {
-        if (closed) return
+        Log.debug { "$this#stopRepeating" }
         session.stopRepeating()
     }
 
@@ -314,7 +302,16 @@ internal class Camera2CaptureSequenceProcessor(
             if (shouldWaitForRepeatingRequest) {
                 lastSingleRepeatingRequestSequence?.let {
                     Log.debug { "Waiting for the last repeating request sequence $it" }
-                    runBlocking { it.awaitStarted() }
+                    // On certain devices, the submitted repeating request sequence may not give us
+                    // onCaptureStarted() or onCaptureSequenceAborted() [1]. Hence we wrap the wait
+                    // under a timeout to prevent us from waiting forever.
+                    //
+                    // [1] b/307588161 - [ANR] at
+                    //                   androidx.camera.camera2.pipe.compat.Camera2CaptureSequenceProcessor.close
+                    runBlockingWithTimeout(
+                        threads.backgroundDispatcher,
+                        WAIT_FOR_REPEATING_TIMEOUT_MS
+                    ) { it.awaitStarted() }
                 }
             }
             closed = true
@@ -451,11 +448,14 @@ internal class Camera2CaptureSequenceProcessor(
         }
         return true
     }
+
+    companion object {
+        private const val WAIT_FOR_REPEATING_TIMEOUT_MS = 2_000L // 2s
+    }
 }
 
 /** This class packages together information about a request that was submitted to the camera. */
 @RequiresApi(21)
-@Suppress("SyntheticAccessor") // Using an inline class generates a synthetic constructor
 internal class Camera2RequestMetadata(
     private val cameraCaptureSessionWrapper: CameraCaptureSessionWrapper,
     private val captureRequest: CaptureRequest,

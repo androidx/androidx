@@ -484,6 +484,19 @@ public class WebViewCompat {
      * {@link WebViewFeature#isFeatureSupported(String)}
      * returns true for {@link WebViewFeature#POST_WEB_MESSAGE}.
      *
+     * <p>
+     * When posting a {@link WebMessageCompat} with type {@link WebMessageCompat#TYPE_ARRAY_BUFFER},
+     * this method should check if {@link WebViewFeature#isFeatureSupported(String)} returns true
+     * for {@link WebViewFeature#WEB_MESSAGE_ARRAY_BUFFER}. Example:
+     * <pre class="prettyprint">
+     * if (message.getType() == WebMessageCompat.TYPE_ARRAY_BUFFER) {
+     *     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER) {
+     *         // ArrayBuffer message is supported, send message here.
+     *         WebViewCompat.postWebMessage(webview, message, ...);
+     *     }
+     * }
+     * </pre
+     *
      * @param message the WebMessage
      * @param targetOrigin the target origin.
      */
@@ -601,18 +614,19 @@ public class WebViewCompat {
      * methods on that object once it is available to use:
      * <pre class="prettyprint">
      * // Web page (in JavaScript)
-     * // message needs to be a JavaScript String, MessagePorts is an optional parameter.
+     * // message needs to be a JavaScript String or ArrayBuffer, MessagePorts is an optional
+     * // parameter.
      * myObject.postMessage(message[, MessagePorts])
      *
      * // To receive messages posted from the app side, assign a function to the "onmessage"
      * // property. This function should accept a single "event" argument. "event" has a "data"
-     * // property, which is the message string from the app side.
+     * // property, which is the message String or ArrayBuffer from the app side.
      * myObject.onmessage = function(event) { ... }
      *
      * // To be compatible with DOM EventTarget's addEventListener, it accepts type and listener
      * // parameters, where type can be only "message" type and listener can only be a JavaScript
      * // function for myObject. An event object will be passed to listener with a "data" property,
-     * // which is the message string from the app side.
+     * // which is the message String or ArrayBuffer from the app side.
      * myObject.addEventListener(type, listener)
      *
      * // To be compatible with DOM EventTarget's removeEventListener, it accepts type and listener
@@ -646,6 +660,63 @@ public class WebViewCompat {
      * if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
      *   WebViewCompat.addWebMessageListener(webView, "myObject", rules, myListener);
      * }
+     * </pre>
+     *
+     * <p>
+     * Suppose the communication is already setup, to send ArrayBuffer from the app to web, it
+     * needs to check feature flag({@link WebViewFeature#WEB_MESSAGE_ARRAY_BUFFER}). Here is a
+     * example to send file content from app to web:
+     * <pre class="prettyprint">
+     * // App (in Java)
+     * WebMessageListener myListener = new WebMessageListener() {
+     *   &#064;Override
+     *   public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
+     *            boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
+     *     // Communication is setup, send file data to web.
+     *     if (WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_ARRAY_BUFFER)) {
+     *       // Suppose readFileData method is to read content from file.
+     *       byte[] fileData = readFileData("myFile.dat");
+     *       replyProxy.postMessage(fileData);
+     *     }
+     *   }
+     * }
+     * </pre>
+     * <pre class="prettyprint">
+     * // Web page (in JavaScript)
+     * myObject.onmessage = function(event) {
+     *   if (event.data instanceof ArrayBuffer) {
+     *     const data = event.data;  // Received file content from app.
+     *     const dataView = new DataView(data);
+     *     // Consume file content by using JavaScript DataView to access ArrayBuffer.
+     *   }
+     * }
+     * myObject.postMessage("Setup!");
+     * </pre>
+     *
+     * <p>
+     * Suppose the communication is already setup, and feature flag
+     * {@link WebViewFeature#WEB_MESSAGE_ARRAY_BUFFER} is check. Here is a example to download
+     * image in WebView, and send to app:
+     * <pre class="prettyprint">
+     * // Web page (in JavaScript)
+     * const response = await fetch('example.jpg');
+     * if (response.ok) {
+     *     const imageData = await response.arrayBuffer();
+     *     myObject.postMessage(imageData);
+     * }
+     * </pre>
+     * <pre class="prettyprint">
+     * // App (in Java)
+     * WebMessageListener myListener = new WebMessageListener() {
+     *   &#064;Override
+     *   public void onPostMessage(WebView view, WebMessageCompat message, Uri sourceOrigin,
+     *            boolean isMainFrame, JavaScriptReplyProxy replyProxy) {
+     *     if (message.getType() == WebMessageCompat.TYPE_ARRAY_BUFFER) {
+     *       byte[] imageData = message.getArrayBuffer();
+     *       // do something like draw image on ImageView.
+     *     }
+     *   }
+     * };
      * </pre>
      *
      * <p>
@@ -711,7 +782,7 @@ public class WebViewCompat {
      * origin matches {@code allowedOriginRules} when the document begins to load.
      *
      * <p>Note that the script will run before any of the page's JavaScript code and the DOM tree
-     * might not be ready at this moment. It will block the loadng of the page until it's finished,
+     * might not be ready at this moment. It will block the loading of the page until it's finished,
      * so should be kept as short as possible.
      *
      * <p>The injected object from {@link #addWebMessageListener(WebView, String, Set,
@@ -738,10 +809,7 @@ public class WebViewCompat {
      * @throws IllegalArgumentException If one of the {@code allowedOriginRules} is invalid.
      * @see #addWebMessageListener(WebView, String, Set, WebMessageListener)
      * @see ScriptHandler
-     *
-     * TODO(swestphal): unhide when ready.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @RequiresFeature(
             name = WebViewFeature.DOCUMENT_START_SCRIPT,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -999,6 +1067,64 @@ public class WebViewCompat {
         final ApiFeature.NoFramework feature = WebViewFeatureInternal.GET_VARIATIONS_HEADER;
         if (feature.isSupportedByWebView()) {
             return getFactory().getStatics().getVariationsHeader();
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Sets the Profile with its name as the current Profile for this WebView.
+     * <ul>
+     * <li> This should be called before doing anything else with WebView other than attaching it to
+     * the view hierarchy.
+     * <li> This should be only called if WebView is to use a Profile other than the default.
+     * <li> This method will create the profile if it doesn't exist.
+     * </ul>
+     *
+     * @param webView the WebView to modify.
+     * @param profileName the name of the profile to use in the passed {@code webView}.
+     * @throws IllegalStateException if the WebView has been destroyed.
+     * @throws IllegalStateException if the previous profile has been accessed via a call to
+     * {@link WebViewCompat#getProfile(WebView)}.
+     * @throws IllegalStateException if the profile has already been set previously via this method.
+     * @throws IllegalStateException if {@link WebView#evaluateJavascript(String, ValueCallback)} is
+     * called on the WebView before this method.
+     * @throws IllegalStateException if the WebView has previously navigated to a web page.
+     */
+    @UiThread
+    @RequiresFeature(
+            name = WebViewFeature.MULTI_PROFILE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setProfile(@NonNull WebView webView,
+            @NonNull String profileName) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.MULTI_PROFILE;
+        if (feature.isSupportedByWebView()) {
+            getProvider(webView).setProfileWithName(profileName);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
+     * Gets the Profile associated with this WebView.
+     * <p>
+     * Gets the profile object set on this WebView using
+     * {@link WebViewCompat#setProfile(WebView, String)}, or the default profile if it has not
+     * been changed.
+     *
+     * @param webView the WebView to get the profile object associated with.
+     * @return the profile object set to this WebView.
+     * @throws IllegalStateException if the WebView has been destroyed.
+     */
+    @UiThread
+    @NonNull
+    @RequiresFeature(
+            name = WebViewFeature.MULTI_PROFILE,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static Profile getProfile(@NonNull WebView webView) {
+        final ApiFeature.NoFramework feature = WebViewFeatureInternal.MULTI_PROFILE;
+        if (feature.isSupportedByWebView()) {
+            return getProvider(webView).getProfile();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
         }

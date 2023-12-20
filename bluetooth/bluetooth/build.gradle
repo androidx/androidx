@@ -26,9 +26,7 @@ dependencies {
     implementation(libs.kotlinStdlib)
     implementation(libs.kotlinCoroutinesCore)
 
-    implementation(project(":annotation:annotation-experimental"))
-
-    implementation("androidx.annotation:annotation:1.6.0")
+    implementation("androidx.annotation:annotation:1.7.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testExtTruth)
@@ -49,6 +47,6 @@ androidx {
 android {
     namespace "androidx.bluetooth"
     defaultConfig {
-        minSdkVersion 33
+        minSdkVersion 29
     }
 }

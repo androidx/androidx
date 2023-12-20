@@ -15,7 +15,7 @@
  */
 
 /**
- * Contains {@link androidx.wear.tiles.TileService}, which all apps using the Tiles API
- * should extend in order to provide tile data.
+ * Contains {@link androidx.wear.tiles.TileService}, which all apps using the Tiles API should
+ * extend in order to provide tile data.
  */
 package androidx.wear.tiles;

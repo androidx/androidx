@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 7.4.0-alpha08" type="baseline" client="gradle" dependencies="false" name="AGP (7.4.0-alpha08)" variant="all" version="7.4.0-alpha08">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="ClassVerificationFailure"
@@ -17,33 +17,6 @@
         errorLine2="                    ^">
         <location
             file="src/main/java/androidx/navigation/testapp/AndroidFragment.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.navigation.testapp.HelpActivity is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            val fade = Fade()"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.navigation.testapp.HelpActivity is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            fade.excludeTarget(android.R.id.statusBarBackground, true)"
-        errorLine2="                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 19; however, the containing class androidx.navigation.testapp.HelpActivity is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            fade.excludeTarget(android.R.id.navigationBarBackground, true)"
-        errorLine2="                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/navigation/testapp/HelpActivity.kt"/>
     </issue>
 
     <issue

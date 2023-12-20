@@ -30,7 +30,7 @@ dependencies {
     implementation("androidx.arch.core:core-runtime:2.2.0")
     implementation(libs.kotlinStdlib)
 
-    testImplementation(libs.truth)
+    testImplementation(project(":kruth:kruth"))
     testImplementation(libs.kotlinTest)
     testImplementation(libs.mockitoCore4)
     testImplementation(libs.mockitoKotlin4)
@@ -43,6 +43,7 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2017"
     description = "Android Room RXJava2"
+    metalavaK2UastEnabled = true
 }
 
 android {

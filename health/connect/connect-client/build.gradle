@@ -27,7 +27,10 @@ plugins {
 BundleInsideHelper.forInsideAar(
         project,
         /* from = */ "com.google.protobuf",
-        /* to =   */ "androidx.health.platform.client.proto"
+        /* to =   */ "androidx.health.platform.client.proto",
+        // proto-lite dependency includes .proto files, which are not used and would clash if
+        // users also use proto library directly
+        /* dropResourcesWithSuffix = */ ".proto"
 )
 
 dependencies {
@@ -35,11 +38,12 @@ dependencies {
     // Add dependencies here
     api("androidx.activity:activity:1.2.0")
     api("androidx.annotation:annotation:1.2.0")
-    bundleInside(project(path: ":health:connect:connect-client-proto", configuration: "export"))
+    bundleInside(project(":health:connect:connect-client-proto"))
     implementation(libs.guavaListenableFuture)
     implementation(libs.guavaAndroid)
     implementation(libs.kotlinCoroutinesAndroid)
     implementation(libs.kotlinCoroutinesGuava)
+    implementation("androidx.core:core-ktx:1.12.0-alpha05")
 
     testImplementation(libs.testCore)
     testImplementation(libs.testRunner)
@@ -54,6 +58,13 @@ dependencies {
     testImplementation(libs.espressoCore)
     testImplementation(libs.espressoIntents)
     testImplementation(libs.kotlinReflect)
+
+    androidTestImplementation(libs.testExtJunit)
+    androidTestImplementation(libs.kotlinCoroutinesTest)
+    androidTestImplementation(libs.kotlinReflect)
+    androidTestImplementation(libs.kotlinTest)
+    androidTestImplementation(libs.junit)
+    androidTestImplementation(libs.truth)
 
     samples(project(":health:connect:connect-client-samples"))
 }
@@ -77,4 +88,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2022"
     description = "read or write user's health and fitness records."
+    metalavaK2UastEnabled = true
 }

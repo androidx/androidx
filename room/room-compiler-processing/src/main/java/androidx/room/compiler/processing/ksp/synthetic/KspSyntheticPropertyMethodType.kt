@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.ksp.synthetic
 import androidx.room.compiler.processing.XExecutableType
 import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeVariableType
 import androidx.room.compiler.processing.ksp.KSTypeVarianceResolverScope
 import androidx.room.compiler.processing.ksp.KspProcessingEnv
 import androidx.room.compiler.processing.ksp.KspType
@@ -47,6 +48,16 @@ internal sealed class KspSyntheticPropertyMethodType(
         }
     }
 
+    override val typeVariables: List<XTypeVariableType>
+        get() = emptyList()
+
+    @Deprecated(
+        "Use typeVariables property and convert to JavaPoet names.",
+        replaceWith = ReplaceWith(
+            "typeVariables.map { it.asTypeName().toJavaPoet() }",
+            "androidx.room.compiler.codegen.toJavaPoet"
+        )
+    )
     override val typeVariableNames: List<TypeVariableName>
         get() = emptyList()
 

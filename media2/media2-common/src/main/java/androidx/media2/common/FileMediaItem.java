@@ -32,14 +32,17 @@ import java.io.IOException;
 
 /**
  * Structure for media item for a file.
- * <p>
- * Users should use {@link Builder} to create {@link FileMediaItem}.
- * <p>
- * You cannot directly send this object across the process through {@link ParcelUtils}. See
+ *
+ * <p>Users should use {@link Builder} to create {@link FileMediaItem}.
+ *
+ * <p>You cannot directly send this object across the process through {@link ParcelUtils}. See
  * {@link MediaItem} for detail.
  *
  * @see MediaItem
+ * @deprecated androidx.media2 is deprecated. Please migrate to <a
+ *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
  */
+@Deprecated
 public class FileMediaItem extends MediaItem {
     private static final String TAG = "FileMediaItem";
     /**
@@ -159,7 +162,11 @@ public class FileMediaItem extends MediaItem {
 
     /**
      * This Builder class simplifies the creation of a {@link FileMediaItem} object.
+     *
+     * @deprecated androidx.media2 is deprecated. Please migrate to <a
+     *     href="https://developer.android.com/guide/topics/media/media3">androidx.media3</a>.
      */
+    @Deprecated
     public static final class Builder extends MediaItem.Builder {
 
         @SuppressWarnings("WeakerAccess") /* synthetic access */

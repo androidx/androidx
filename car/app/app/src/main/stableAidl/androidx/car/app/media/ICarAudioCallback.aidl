@@ -15,7 +15,7 @@
  */
 package androidx.car.app.media;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface ICarAudioCallback {
     /**
      * Signifies to stop processing audio input.

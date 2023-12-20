@@ -22,7 +22,7 @@ import android.os.Build;
 
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
-import androidx.camera.testing.fakes.FakeImageInfo;
+import androidx.camera.testing.impl.fakes.FakeImageInfo;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

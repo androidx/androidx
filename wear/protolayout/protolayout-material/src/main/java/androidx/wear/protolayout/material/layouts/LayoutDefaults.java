@@ -107,28 +107,48 @@ public class LayoutDefaults {
     /** The recommended space between the main content and additional labels in layouts. */
     public static final DpProp DEFAULT_VERTICAL_SPACER_HEIGHT = dp(8);
 
-    /** The maximum number of button that can be added to the {@link MultiButtonLayout}. */
-    public static final int MULTI_BUTTON_MAX_NUMBER = 7;
-
     /**
-     * The default size of button in case when there are 3 or more buttons in the {@link
-     * MultiButtonLayout}.
+     * The maximum number of button that can be added to the {@link MultiButtonLayout}.
+     *
+     * @deprecated Use {@link MultiButtonLayoutDefaults#MAX_BUTTONS} instead.
      */
-    static final DpProp MULTI_BUTTON_3_PLUS_SIZE = ButtonDefaults.DEFAULT_SIZE;
+    @Deprecated public static final int MULTI_BUTTON_MAX_NUMBER = 7;
 
-    /** The default size of button in case when there 2 buttons in the {@link MultiButtonLayout}. */
-    static final DpProp MULTI_BUTTON_2_SIZE = ButtonDefaults.LARGE_SIZE;
+    /** Contains default values used for {@link MultiButtonLayout}. */
+    public static final class MultiButtonLayoutDefaults {
+        private MultiButtonLayoutDefaults() {}
 
-    /**
-     * The default size of button in case when there is 1 button in the {@link MultiButtonLayout}.
-     */
-    static final DpProp MULTI_BUTTON_1_SIZE = ButtonDefaults.EXTRA_LARGE_SIZE;
+        /** The maximum number of button that can be added to the {@link MultiButtonLayout}. */
+        @SuppressWarnings("MinMaxConstant")
+        public static final int MAX_BUTTONS = 7;
 
-    /** The default width for vertical spacer between buttons in the {@link MultiButtonLayout}. */
-    static final DpProp MULTI_BUTTON_SPACER_WIDTH = dp(6);
+        /**
+         * The default size of button in case when there are 3 or more buttons in the {@link
+         * MultiButtonLayout}.
+         */
+        public static final DpProp BUTTON_SIZE_FOR_3_PLUS_BUTTONS = ButtonDefaults.DEFAULT_SIZE;
 
-    /**
-     * The default height for horizontal spacer between buttons in the {@link MultiButtonLayout}.
-     */
-    static final DpProp MULTI_BUTTON_SPACER_HEIGHT = dp(4);
+        /**
+         * The default size of button in case when there are 2 buttons in the {@link
+         * MultiButtonLayout}.
+         */
+        public static final DpProp BUTTON_SIZE_FOR_2_BUTTONS = ButtonDefaults.LARGE_SIZE;
+
+        /**
+         * The default size of button in case when there is 1 button in the {@link
+         * MultiButtonLayout}.
+         */
+        public static final DpProp BUTTON_SIZE_FOR_1_BUTTON = ButtonDefaults.EXTRA_LARGE_SIZE;
+
+        /**
+         * The default width for vertical spacer between buttons in the {@link MultiButtonLayout}.
+         */
+        static final DpProp SPACER_WIDTH = dp(6);
+
+        /**
+         * The default height for horizontal spacer between buttons in the {@link
+         * MultiButtonLayout}.
+         */
+        static final DpProp SPACER_HEIGHT = dp(4);
+    }
 }

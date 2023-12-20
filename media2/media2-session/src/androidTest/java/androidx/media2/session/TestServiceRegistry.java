@@ -18,6 +18,7 @@ package androidx.media2.session;
 
 import static org.junit.Assert.fail;
 
+import android.os.ConditionVariable;
 import android.os.Handler;
 
 import androidx.annotation.GuardedBy;
@@ -25,6 +26,7 @@ import androidx.media2.session.MediaLibraryService.MediaLibrarySession.MediaLibr
 import androidx.media2.session.TestUtils.SyncHandler;
 
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Keeps the instance of currently running {@link MockMediaSessionService}. And also provides
@@ -35,6 +37,9 @@ import java.util.List;
 public class TestServiceRegistry {
     @GuardedBy("TestServiceRegistry.class")
     private static TestServiceRegistry sInstance;
+
+    private final ConditionVariable mServiceSet;
+
     @GuardedBy("TestServiceRegistry.class")
     private MediaSessionService mService;
     @GuardedBy("TestServiceRegistry.class")
@@ -45,6 +50,10 @@ public class TestServiceRegistry {
     private SessionServiceCallback mSessionServiceCallback;
     @GuardedBy("TestServiceRegistry.class")
     private OnGetSessionHandler mOnGetSessionHandler;
+
+    private TestServiceRegistry() {
+        this.mServiceSet = new ConditionVariable();
+    }
 
     /**
      * Callback for session service's lifecyle (onCreate() / onDestroy())
@@ -112,13 +121,20 @@ public class TestServiceRegistry {
                         + " previoulsy running service doesn't break current test");
             }
             mService = service;
+            if (service != null) {
+                mServiceSet.open();
+            }
             if (mSessionServiceCallback != null) {
                 mSessionServiceCallback.onCreated();
             }
         }
     }
 
-    public MediaSessionService getServiceInstance() {
+    public MediaSessionService getServiceInstanceBlocking() throws TimeoutException {
+        if (!mServiceSet.block(5_000)) {
+            throw new TimeoutException(
+                    "Timed out waiting for TestServiceRegistry.setServiceInstance() to be called.");
+        }
         synchronized (TestServiceRegistry.class) {
             return mService;
         }
@@ -136,6 +152,7 @@ public class TestServiceRegistry {
                 // bindService() exists, and close() above will do the job instead.
                 // So stopSelf() isn't really needed, but just for sure.
                 mService.stopSelf();
+                mServiceSet.close();
                 mService = null;
             }
             if (mHandler != null) {

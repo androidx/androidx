@@ -33,7 +33,6 @@ internal class StubEmbeddingBackendTest {
 
     @Test
     fun removingSplitInfoListenerClearsListeners() {
-        val backend = StubEmbeddingBackend()
         val mockActivity = mock<Activity>()
         val mockCallback = mock<Consumer<List<SplitInfo>>>()
 

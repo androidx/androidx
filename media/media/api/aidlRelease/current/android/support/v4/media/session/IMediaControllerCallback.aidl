@@ -31,7 +31,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.support.v4.media.session;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IMediaControllerCallback {
   oneway void onEvent(String event, in android.os.Bundle extras);
   oneway void onSessionDestroyed();

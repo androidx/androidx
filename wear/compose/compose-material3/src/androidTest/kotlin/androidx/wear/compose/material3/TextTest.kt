@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
-import com.google.common.truth.Truth
+import com.google.common.truth.Truth.assertThat
 import java.lang.IllegalArgumentException
 import org.junit.Rule
 import org.junit.Test
@@ -59,6 +59,26 @@ class TextTest {
     )
 
     private val TestText = "TestText"
+
+    @Test
+    fun testDefaultIncludeFontPadding() {
+        var localTextStyle: TextStyle? = null
+        var displayMediumTextStyle: TextStyle? = null
+        rule.setContent {
+            MaterialTheme {
+                localTextStyle = LocalTextStyle.current
+                displayMediumTextStyle = LocalTypography.current.displayMedium
+            }
+        }
+
+        assertThat(
+            localTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
+        ).isEqualTo(false)
+
+        assertThat(
+            displayMediumTextStyle?.platformStyle?.paragraphStyle?.includeFontPadding
+        ).isEqualTo(false)
+    }
 
     @Test
     fun validateGreaterMinLinesResultsGreaterSize() {
@@ -90,7 +110,7 @@ class TextTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(size2).isGreaterThan(size1)
+            assertThat(size2).isGreaterThan(size1)
         }
     }
 
@@ -137,7 +157,7 @@ class TextTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(textColor).isEqualTo(expectedColor)
+            assertThat(textColor).isEqualTo(expectedColor)
         }
     }
 
@@ -161,7 +181,7 @@ class TextTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(textColor).isEqualTo(ExpectedTextStyle.color)
+            assertThat(textColor).isEqualTo(ExpectedTextStyle.color)
         }
     }
 
@@ -183,7 +203,7 @@ class TextTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(textColor).isEqualTo(Color.Blue)
+            assertThat(textColor).isEqualTo(Color.Blue)
         }
     }
 
@@ -217,13 +237,13 @@ class TextTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(fontSize).isEqualTo(ExpectedTextStyle.fontSize)
-            Truth.assertThat(fontStyle).isEqualTo(ExpectedTextStyle.fontStyle)
-            Truth.assertThat(fontWeight).isEqualTo(ExpectedTextStyle.fontWeight)
-            Truth.assertThat(fontFamily).isEqualTo(ExpectedTextStyle.fontFamily)
-            Truth.assertThat(letterSpacing).isEqualTo(ExpectedTextStyle.letterSpacing)
-            Truth.assertThat(textDecoration).isEqualTo(ExpectedTextStyle.textDecoration)
-            Truth.assertThat(textAlign).isEqualTo(ExpectedTextStyle.textAlign)
+            assertThat(fontSize).isEqualTo(ExpectedTextStyle.fontSize)
+            assertThat(fontStyle).isEqualTo(ExpectedTextStyle.fontStyle)
+            assertThat(fontWeight).isEqualTo(ExpectedTextStyle.fontWeight)
+            assertThat(fontFamily).isEqualTo(ExpectedTextStyle.fontFamily)
+            assertThat(letterSpacing).isEqualTo(ExpectedTextStyle.letterSpacing)
+            assertThat(textDecoration).isEqualTo(ExpectedTextStyle.textDecoration)
+            assertThat(textAlign).isEqualTo(ExpectedTextStyle.textAlign)
         }
     }
 
@@ -262,10 +282,10 @@ class TextTest {
         }
 
         rule.runOnIdle {
-            Truth.assertThat(textAlign).isEqualTo(expectedTextAlign)
-            Truth.assertThat(fontSize).isEqualTo(expectedFontSize)
-            Truth.assertThat(fontStyle).isEqualTo(expectedFontStyle)
-            Truth.assertThat(letterSpacing).isEqualTo(expectedLetterSpacing)
+            assertThat(textAlign).isEqualTo(expectedTextAlign)
+            assertThat(fontSize).isEqualTo(expectedFontSize)
+            assertThat(fontStyle).isEqualTo(expectedFontStyle)
+            assertThat(letterSpacing).isEqualTo(expectedLetterSpacing)
         }
     }
 }

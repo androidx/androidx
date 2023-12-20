@@ -19,18 +19,16 @@ package androidx.appactions.interaction.capabilities.fitness.fitness
 import androidx.appactions.interaction.capabilities.core.BaseExecutionSession
 import androidx.appactions.interaction.capabilities.core.Capability
 import androidx.appactions.interaction.capabilities.core.CapabilityFactory
-import androidx.appactions.interaction.capabilities.core.impl.BuilderOf
 import androidx.appactions.interaction.capabilities.core.impl.converters.TypeConverters
 import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecBuilder
+import androidx.appactions.interaction.capabilities.core.impl.spec.ActionSpecRegistry
 import androidx.appactions.interaction.capabilities.core.properties.Property
 import androidx.appactions.interaction.capabilities.core.properties.StringValue
 
-private const val CAPABILITY_NAME = "actions.intent.STOP_EXERCISE"
-
 /** A capability corresponding to actions.intent.STOP_EXERCISE */
-@CapabilityFactory(name = CAPABILITY_NAME)
+@CapabilityFactory(name = StopExercise.CAPABILITY_NAME)
 class StopExercise private constructor() {
-    internal enum class PropertyMapStrings(val key: String) {
+    internal enum class SlotMetadata(val path: String) {
         NAME("exercise.name")
     }
 
@@ -42,15 +40,11 @@ class StopExercise private constructor() {
             Confirmation,
             ExecutionSession
             >(ACTION_SPEC) {
-        private var properties = mutableMapOf<String, Property<*>>()
-
-        fun setName(name: Property<StringValue>): CapabilityBuilder =
-            apply { properties[PropertyMapStrings.NAME.key] = name }
-
-        override fun build(): Capability {
-            super.setProperty(properties)
-            return super.build()
-        }
+        fun setNameProperty(name: Property<StringValue>): CapabilityBuilder = setProperty(
+            SlotMetadata.NAME.path,
+            name,
+            TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+        )
     }
 
     class Arguments internal constructor(
@@ -75,13 +69,13 @@ class StopExercise private constructor() {
             return name.hashCode()
         }
 
-        class Builder : BuilderOf<Arguments> {
+        class Builder {
             private var name: String? = null
 
             fun setName(name: String): Builder =
                 apply { this.name = name }
 
-            override fun build(): Arguments = Arguments(name)
+            fun build(): Arguments = Arguments(name)
         }
     }
 
@@ -92,21 +86,22 @@ class StopExercise private constructor() {
     sealed interface ExecutionSession : BaseExecutionSession<Arguments, Output>
 
     companion object {
+        /** Canonical name for [StopExercise] capability */
+        const val CAPABILITY_NAME = "actions.intent.STOP_EXERCISE"
         // TODO(b/273602015): Update to use Name property from builtintype library.
-        @Suppress("UNCHECKED_CAST")
         private val ACTION_SPEC =
             ActionSpecBuilder.ofCapabilityNamed(CAPABILITY_NAME)
-                .setArguments(Arguments::class.java, Arguments::Builder)
+                .setArguments(Arguments::class.java, Arguments::Builder, Arguments.Builder::build)
                 .setOutput(Output::class.java)
                 .bindParameter(
-                    "exercise.name",
-                    { properties ->
-                        properties[PropertyMapStrings.NAME.key] as? Property<StringValue>
-                    },
+                    SlotMetadata.NAME.path,
+                    Arguments::name,
                     Arguments.Builder::setName,
-                    TypeConverters.STRING_PARAM_VALUE_CONVERTER,
-                    TypeConverters.STRING_VALUE_ENTITY_CONVERTER
+                    TypeConverters.STRING_PARAM_VALUE_CONVERTER
                 )
                 .build()
+        init {
+            ActionSpecRegistry.registerActionSpec(Arguments::class, Output::class, ACTION_SPEC)
+        }
     }
 }

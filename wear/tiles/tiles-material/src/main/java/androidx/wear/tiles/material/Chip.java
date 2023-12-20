@@ -17,17 +17,6 @@
 package androidx.wear.tiles.material;
 
 import static androidx.annotation.Dimension.DP;
-import static androidx.wear.tiles.material.ChipDefaults.DEFAULT_HEIGHT;
-import static androidx.wear.tiles.material.ChipDefaults.DEFAULT_MARGIN_PERCENT;
-import static androidx.wear.tiles.material.ChipDefaults.HORIZONTAL_PADDING;
-import static androidx.wear.tiles.material.ChipDefaults.ICON_SIZE;
-import static androidx.wear.tiles.material.ChipDefaults.ICON_SPACER_WIDTH;
-import static androidx.wear.tiles.material.ChipDefaults.PRIMARY_COLORS;
-import static androidx.wear.tiles.material.Helper.checkNotNull;
-import static androidx.wear.tiles.material.Helper.checkTag;
-import static androidx.wear.tiles.material.Helper.getMetadataTagName;
-import static androidx.wear.tiles.material.Helper.getTagBytes;
-import static androidx.wear.tiles.material.Helper.radiusOf;
 
 import android.content.Context;
 
@@ -37,8 +26,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
-import androidx.wear.tiles.material.Typography.TypographyName;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -89,11 +78,13 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
      * androidx.wear.tiles.LayoutElementBuilders.Box is actually a Chip with only text.
      */
     static final String METADATA_TAG_TEXT = "TXTCHP";
+
     /**
      * Tool tag for Metadata in androidx.wear.tiles.ModifiersBuilders.Modifiers, so we know that
      * androidx.wear.tiles.LayoutElementBuilders.Box is actually a Chip with icon.
      */
     static final String METADATA_TAG_ICON = "ICNCHP";
+
     /**
      * Tool tag for Metadata in androidx.wear.tiles.ModifiersBuilders.Modifiers, so we know that
      * androidx.wear.tiles.LayoutElementBuilders.Box is actually a Chip with custom content.
@@ -105,6 +96,7 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
     Chip(@NonNull androidx.wear.tiles.LayoutElementBuilders.Box element) {
         mElement = element;
     }
+
     /** Builder class for {@link androidx.wear.tiles.material.Chip}. */
     public static final class Builder
             implements androidx.wear.tiles.LayoutElementBuilders.LayoutElement.Builder {
@@ -126,18 +118,21 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
         @NonNull private final androidx.wear.tiles.ModifiersBuilders.Clickable mClickable;
         @NonNull private CharSequence mContentDescription = "";
         @NonNull private androidx.wear.tiles.DimensionBuilders.ContainerDimension mWidth;
-        @NonNull private androidx.wear.tiles.DimensionBuilders.DpProp mHeight = DEFAULT_HEIGHT;
-        @NonNull private ChipColors mChipColors = PRIMARY_COLORS;
+
+        @NonNull
+        private androidx.wear.tiles.DimensionBuilders.DpProp mHeight = ChipDefaults.DEFAULT_HEIGHT;
+
+        @NonNull private ChipColors mChipColors = ChipDefaults.PRIMARY_COLORS;
 
         @androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment
         private int mHorizontalAlign =
                 androidx.wear.tiles.LayoutElementBuilders.HORIZONTAL_ALIGN_UNDEFINED;
 
-        @TypographyName private int mPrimaryLabelTypography;
+        @Typography.TypographyName private int mPrimaryLabelTypography;
 
         @NonNull
         private androidx.wear.tiles.DimensionBuilders.DpProp mHorizontalPadding =
-                HORIZONTAL_PADDING;
+                ChipDefaults.HORIZONTAL_PADDING;
 
         private boolean mIsScalable = true;
         private int mMaxLines = 0; // 0 indicates that is not set.
@@ -170,7 +165,7 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
             mClickable = clickable;
             mWidth =
                     androidx.wear.tiles.DimensionBuilders.dp(
-                            (100 - 2 * DEFAULT_MARGIN_PERCENT)
+                            (100 - 2 * ChipDefaults.DEFAULT_MARGIN_PERCENT)
                                     * deviceParameters.getScreenWidthDp()
                                     / 100);
             mPrimaryLabelTypography = Typography.TYPOGRAPHY_BUTTON;
@@ -238,7 +233,7 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
          * <p>Sets the font for the primary label and should only be used internally.
          */
         @NonNull
-        Builder setPrimaryLabelTypography(@TypographyName int typography) {
+        Builder setPrimaryLabelTypography(@Typography.TypographyName int typography) {
             this.mPrimaryLabelTypography = typography;
             return this;
         }
@@ -355,13 +350,13 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
                                             .setCorner(
                                                     new androidx.wear.tiles.ModifiersBuilders.Corner
                                                                     .Builder()
-                                                            .setRadius(radiusOf(mHeight))
+                                                            .setRadius(Helper.radiusOf(mHeight))
                                                             .build())
                                             .build())
                             .setMetadata(
                                     new androidx.wear.tiles.ModifiersBuilders.ElementMetadata
                                                     .Builder()
-                                            .setTagData(getTagBytes(getCorrectMetadataTag()))
+                                            .setTagData(Helper.getTagBytes(getCorrectMetadataTag()))
                                             .build())
                             .setSemantics(
                                     new androidx.wear.tiles.ModifiersBuilders.Semantics.Builder()
@@ -426,7 +421,7 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
             }
 
             Text mainTextElement =
-                    new Text.Builder(mContext, checkNotNull(mPrimaryLabel))
+                    new Text.Builder(mContext, Helper.checkNotNull(mPrimaryLabel))
                             .setTypography(mPrimaryLabelTypography)
                             .setColor(mChipColors.getContentColor())
                             .setMaxLines(getCorrectMaxLines())
@@ -470,8 +465,8 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
                         .addContent(
                                 new androidx.wear.tiles.LayoutElementBuilders.Image.Builder()
                                         .setResourceId(mImageResourceId)
-                                        .setWidth(ICON_SIZE)
-                                        .setHeight(ICON_SIZE)
+                                        .setWidth(ChipDefaults.ICON_SIZE)
+                                        .setHeight(ChipDefaults.ICON_SIZE)
                                         .setColorFilter(
                                                 new androidx.wear.tiles.LayoutElementBuilders
                                                                 .ColorFilter.Builder()
@@ -481,7 +476,7 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
                         .addContent(
                                 new androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder()
                                         .setHeight(mHeight)
-                                        .setWidth(ICON_SPACER_WIDTH)
+                                        .setWidth(ChipDefaults.ICON_SPACER_WIDTH)
                                         .build())
                         .addContent(texts)
                         .setVerticalAlignment(
@@ -507,26 +502,27 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
     /** Returns height of this Chip. */
     @NonNull
     public androidx.wear.tiles.DimensionBuilders.ContainerDimension getHeight() {
-        return checkNotNull(mElement.getHeight());
+        return Helper.checkNotNull(mElement.getHeight());
     }
 
     /** Returns width of this Chip. */
     @NonNull
     public androidx.wear.tiles.DimensionBuilders.ContainerDimension getWidth() {
-        return checkNotNull(mElement.getWidth());
+        return Helper.checkNotNull(mElement.getWidth());
     }
 
     /** Returns click event action associated with this Chip. */
     @NonNull
     public androidx.wear.tiles.ModifiersBuilders.Clickable getClickable() {
-        return checkNotNull(checkNotNull(mElement.getModifiers()).getClickable());
+        return Helper.checkNotNull(Helper.checkNotNull(mElement.getModifiers()).getClickable());
     }
 
     /** Returns background color of this Chip. */
     @NonNull
     private androidx.wear.tiles.ColorBuilders.ColorProp getBackgroundColor() {
-        return checkNotNull(
-                checkNotNull(checkNotNull(mElement.getModifiers()).getBackground()).getColor());
+        return Helper.checkNotNull(
+                Helper.checkNotNull(Helper.checkNotNull(mElement.getModifiers()).getBackground())
+                        .getColor());
     }
 
     /** Returns chip colors of this Chip. */
@@ -540,11 +536,12 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
         if (!getMetadataTag().equals(METADATA_TAG_CUSTOM_CONTENT)) {
             if (getMetadataTag().equals(METADATA_TAG_ICON)) {
                 androidx.wear.tiles.LayoutElementBuilders.Image icon =
-                        checkNotNull(getIconContentObject());
-                iconTintColor = checkNotNull(checkNotNull(icon.getColorFilter()).getTint());
+                        Helper.checkNotNull(getIconContentObject());
+                iconTintColor =
+                        Helper.checkNotNull(Helper.checkNotNull(icon.getColorFilter()).getTint());
             }
 
-            contentColor = checkNotNull(getPrimaryLabelContentObject()).getColor();
+            contentColor = Helper.checkNotNull(getPrimaryLabelContentObject()).getColor();
             Text label = getSecondaryLabelContentObject();
             if (label != null) {
                 secondaryContentColor = label.getColor();
@@ -569,7 +566,7 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
     @Nullable
     public CharSequence getContentDescription() {
         androidx.wear.tiles.ModifiersBuilders.Semantics semantics =
-                checkNotNull(mElement.getModifiers()).getSemantics();
+                Helper.checkNotNull(mElement.getModifiers()).getSemantics();
         if (semantics == null) {
             return null;
         }
@@ -580,7 +577,7 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
     @Nullable
     public androidx.wear.tiles.LayoutElementBuilders.LayoutElement getCustomContent() {
         if (getMetadataTag().equals(METADATA_TAG_CUSTOM_CONTENT)) {
-            return checkNotNull(checkNotNull(mElement.getContents()).get(0));
+            return Helper.checkNotNull(Helper.checkNotNull(mElement.getContents()).get(0));
         }
         return null;
     }
@@ -603,7 +600,7 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
     @Nullable
     public String getIconContent() {
         androidx.wear.tiles.LayoutElementBuilders.Image icon = getIconContentObject();
-        return icon != null ? checkNotNull(icon.getResourceId()).getValue() : null;
+        return icon != null ? Helper.checkNotNull(icon.getResourceId()).getValue() : null;
     }
 
     @Nullable
@@ -668,14 +665,14 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
     /** Returns the horizontal alignment of the content in this Chip. */
     @androidx.wear.tiles.LayoutElementBuilders.HorizontalAlignment
     public int getHorizontalAlignment() {
-        return checkNotNull(mElement.getHorizontalAlignment()).getValue();
+        return Helper.checkNotNull(mElement.getHorizontalAlignment()).getValue();
     }
 
     /** Returns metadata tag set to this Chip. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(
-                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
+        return Helper.getMetadataTagName(
+                Helper.checkNotNull(Helper.checkNotNull(mElement.getModifiers()).getMetadata()));
     }
 
     /**
@@ -695,7 +692,7 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
         }
         androidx.wear.tiles.LayoutElementBuilders.Box boxElement =
                 (androidx.wear.tiles.LayoutElementBuilders.Box) element;
-        if (!checkTag(boxElement.getModifiers(), Builder.TYPE_TO_TAG.values())) {
+        if (!Helper.checkTag(boxElement.getModifiers(), Builder.TYPE_TO_TAG.values())) {
             return null;
         }
         // Now we are sure that this element is a Chip.
@@ -707,5 +704,12 @@ public class Chip implements androidx.wear.tiles.LayoutElementBuilders.LayoutEle
     @RestrictTo(Scope.LIBRARY_GROUP)
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
         return mElement.toLayoutElementProto();
+    }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public Fingerprint getFingerprint() {
+        return mElement.getFingerprint();
     }
 }

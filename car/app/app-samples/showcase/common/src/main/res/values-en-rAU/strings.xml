@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"List tab"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Grid tab with long tab title"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Search tab"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Loading tab"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Tab template loading demo"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Tab template no tabs demo"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Images cannot be displayed for an unknown host"</string>

@@ -18,6 +18,8 @@ package androidx.glance.session
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.glance.EmittableWithChildren
 import androidx.glance.GlanceComposable
@@ -34,7 +36,9 @@ import androidx.work.WorkerParameters
 import androidx.work.testing.TestListenableWorkerBuilder
 import com.google.common.truth.Truth.assertThat
 import kotlin.test.assertIs
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlin.time.Duration
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -44,7 +48,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 class SessionWorkerTest {
     private val sessionManager = TestSessionManager()
@@ -87,7 +90,7 @@ class SessionWorkerTest {
             Box {
                 Text("Hello World")
             }
-        }.first()
+        }.first().getOrThrow()
         val box = assertIs<EmittableBox>(root.children.single())
         val text = assertIs<EmittableText>(box.children.single())
         assertThat(text.text).isEqualTo("Hello World")
@@ -117,13 +120,13 @@ class SessionWorkerTest {
         val uiFlow = sessionManager.startSession(context) {
                 Text(state.value)
         }
-        uiFlow.first().let { root ->
+        uiFlow.first().getOrThrow().let { root ->
             val text = assertIs<EmittableText>(root.children.single())
             assertThat(text.text).isEqualTo("Hello World")
         }
 
         state.value = "Hello Earth"
-        uiFlow.first().let { root ->
+        uiFlow.first().getOrThrow().let { root ->
             val text = assertIs<EmittableText>(root.children.single())
             assertThat(text.text).isEqualTo("Hello Earth")
         }
@@ -141,7 +144,7 @@ class SessionWorkerTest {
         val uiFlow = sessionManager.startSession(context) {
             Text(state.value)
         }
-        uiFlow.first().let { root ->
+        uiFlow.first().getOrThrow().let { root ->
             val text = assertIs<EmittableText>(root.children.single())
             assertThat(text.text).isEqualTo("Hello World")
         }
@@ -149,10 +152,149 @@ class SessionWorkerTest {
         session.sendEvent {
             state.value = "Hello Earth"
         }
-        uiFlow.first().let { root ->
+        uiFlow.first().getOrThrow().let { root ->
             val text = assertIs<EmittableText>(root.children.single())
             assertThat(text.text).isEqualTo("Hello Earth")
         }
+        sessionManager.closeSession()
+    }
+
+    @Test
+    fun sessionWorkerCancelsProcessingWhenRecomposerStateChanges() = runTest {
+        launch {
+            val result = worker.doWork()
+            assertThat(result).isEqualTo(Result.success())
+        }
+
+        val state = mutableStateOf("Hello World")
+        val uiFlow = sessionManager.startDelayedProcessingSession(context) {
+            Text(state.value)
+        }
+        uiFlow.first().getOrThrow().let { root ->
+            val text = assertIs<EmittableText>(root.children.single())
+            assertThat(text.text).isEqualTo("Hello World")
+        }
+
+        // Changing the value triggers recomposition, which should cancel the currently running call
+        // to processEmittableTree.
+        state.value = "Hello Earth"
+        uiFlow.first().getOrThrow().let { root ->
+            val text = assertIs<EmittableText>(root.children.single())
+            assertThat(text.text).isEqualTo("Hello Earth")
+        }
+
+        val session = assertIs<TestSession>(sessionManager.getSession(SESSION_KEY))
+        assertThat(session.processEmittableTreeCancelCount).isEqualTo(1)
+        sessionManager.closeSession()
+    }
+
+    @Test
+    fun sessionWorkerCatchesCompositionError() = runTest {
+        launch {
+            val result = worker.doWork()
+            assertThat(result).isEqualTo(Result.success())
+        }
+
+        val cause = Throwable()
+        val exception = Exception("message", cause)
+        val result = sessionManager.startSession(context) {
+            throw exception
+        }.first().exceptionOrNull()
+        assertThat(result).hasCauseThat().isEqualTo(cause)
+        assertThat(result).hasMessageThat().isEqualTo("message")
+    }
+
+    @Test
+    fun sessionWorkerCatchesRecompositionError() = runTest {
+        launch {
+            val result = worker.doWork()
+            assertThat(result).isEqualTo(Result.success())
+        }
+
+        val runError = mutableStateOf(false)
+        val cause = Throwable()
+        val exception = Exception("message", cause)
+        val resultFlow = sessionManager.startSession(context) {
+            if (runError.value) {
+                throw exception
+            } else {
+                Text("Hello World")
+            }
+        }
+
+        resultFlow.first().getOrThrow().let { root ->
+            val text = assertIs<EmittableText>(root.children.single())
+            assertThat(text.text).isEqualTo("Hello World")
+        }
+
+        runError.value = true
+        val result = resultFlow.first().exceptionOrNull()
+        // Errors thrown on recomposition are wrapped in an identical outer exception with the
+        // original exception as the `cause`.
+        assertThat(result).hasCauseThat().isEqualTo(exception)
+        assertThat(result?.cause?.cause).isEqualTo(cause)
+        assertThat(result).hasMessageThat().isEqualTo("message")
+    }
+
+    @Test
+    fun sessionWorkerCatchesSideEffectError() = runTest {
+        launch {
+            val result = worker.doWork()
+            assertThat(result).isEqualTo(Result.success())
+        }
+
+        val cause = Throwable()
+        val exception = Exception("message", cause)
+        val result = sessionManager.startSession(context) {
+            SideEffect { throw exception }
+        }.first().exceptionOrNull()
+        assertThat(result).hasCauseThat().isEqualTo(cause)
+        assertThat(result).hasMessageThat().isEqualTo("message")
+    }
+
+    @Test
+    fun sessionWorkerCatchesLaunchedEffectError() = runTest {
+        launch {
+            val result = worker.doWork()
+            assertThat(result).isEqualTo(Result.success())
+        }
+
+        val cause = Throwable()
+        val exception = Exception("message", cause)
+        val result = sessionManager.startSession(context) {
+            LaunchedEffect(true) { throw exception }
+        }.first().exceptionOrNull()
+        assertThat(result).hasCauseThat().isEqualTo(cause)
+        assertThat(result).hasMessageThat().isEqualTo("message")
+    }
+
+    @Test
+    fun sessionWorkerDoesNotLeakEffectJobOnCancellation() = runTest {
+        val workerJob = launch {
+            var wasCancelled = false
+            try {
+                worker.doWork()
+            } catch (e: CancellationException) {
+                wasCancelled = true
+                assertThat(worker.effectJob?.isCancelled).isTrue()
+            } finally {
+                assertThat(wasCancelled).isTrue()
+            }
+        }
+
+        sessionManager.startSession(context).first()
+        workerJob.cancel()
+    }
+
+    @Test
+    fun sessionWorkerDoesNotLeakEffectJobOnClose() = runTest {
+        launch {
+            val result = worker.doWork()
+            assertThat(result).isEqualTo(Result.success())
+            assertThat(worker.effectJob?.isCancelled).isTrue()
+        }
+
+        sessionManager.startSession(context).first()
         sessionManager.closeSession()
     }
 }
@@ -165,8 +307,22 @@ class TestSessionManager : SessionManager {
     suspend fun startSession(
         context: Context,
         content: @GlanceComposable @Composable () -> Unit = {}
-    ) = MutableSharedFlow<EmittableWithChildren>().also { flow ->
-        startSession(context, TestSession(onUiFlow = flow, content = content))
+    ) = MutableSharedFlow<kotlin.Result<EmittableWithChildren>>().also { flow ->
+        startSession(context, TestSession(resultFlow = flow, content = content))
+    }
+
+    suspend fun startDelayedProcessingSession(
+        context: Context,
+        content: @GlanceComposable @Composable () -> Unit = {}
+    ) = MutableSharedFlow<kotlin.Result<EmittableWithChildren>>().also { flow ->
+        startSession(
+            context,
+            TestSession(
+                resultFlow = flow,
+                content = content,
+                processEmittableTreeHasInfiniteDelay = true,
+            )
+        )
     }
 
     suspend fun closeSession() {
@@ -190,8 +346,9 @@ class TestSessionManager : SessionManager {
 
 class TestSession(
     key: String = SESSION_KEY,
-    val onUiFlow: MutableSharedFlow<EmittableWithChildren>? = null,
+    val resultFlow: MutableSharedFlow<kotlin.Result<EmittableWithChildren>>? = null,
     val content: @GlanceComposable @Composable () -> Unit = {},
+    var processEmittableTreeHasInfiniteDelay: Boolean = false,
 ) : Session(key) {
     override fun createRootEmittable() = object : EmittableWithChildren() {
         override var modifier: GlanceModifier = GlanceModifier
@@ -207,11 +364,19 @@ class TestSession(
         return content
     }
 
+    var processEmittableTreeCancelCount = 0
     override suspend fun processEmittableTree(
         context: Context,
         root: EmittableWithChildren
     ): Boolean {
-        onUiFlow?.emit(root)
+        resultFlow?.emit(kotlin.Result.success(root))
+        try {
+            if (processEmittableTreeHasInfiniteDelay) {
+                delay(Duration.INFINITE)
+            }
+        } catch (e: CancellationException) {
+            processEmittableTreeCancelCount++
+        }
         return true
     }
 
@@ -220,5 +385,9 @@ class TestSession(
     override suspend fun processEvent(context: Context, event: Any) {
         require(event is Function0<*>)
         event.invoke()
+    }
+
+    override suspend fun onCompositionError(context: Context, throwable: Throwable) {
+        resultFlow?.emit(kotlin.Result.failure(throwable))
     }
 }

@@ -44,13 +44,14 @@ internal class SingleLocalMap(
     }
 
     override operator fun <T> set(key: ModifierLocal<T>, value: T) {
+        @Suppress("ExceptionMessage")
         check(key === this.key)
         this.value = value
     }
 
+    @Suppress("UNCHECKED_CAST", "ExceptionMessage")
     override operator fun <T> get(key: ModifierLocal<T>): T? {
         check(key === this.key)
-        @Suppress("UNCHECKED_CAST")
         return value as? T?
     }
 
@@ -64,9 +65,9 @@ internal class BackwardsCompatLocalMap(
         error("Set is not allowed on a backwards compat provider")
     }
 
+    @Suppress("UNCHECKED_CAST", "ExceptionMessage")
     override operator fun <T> get(key: ModifierLocal<T>): T? {
         check(key === element.key)
-        @Suppress("UNCHECKED_CAST")
         return element.value as T
     }
 
@@ -158,7 +159,7 @@ interface ModifierLocalModifierNode : ModifierLocalReadScope, DelegatableNode {
      */
     override val <T> ModifierLocal<T>.current: T
         get() {
-            require(node.isAttached)
+            require(node.isAttached) { "ModifierLocal accessed from an unattached node" }
             val key = this
             visitAncestors(Nodes.Locals) {
                 if (it.providedValues.contains(key)) {

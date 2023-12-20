@@ -11,7 +11,6 @@ import javax.`annotation`.processing.Generated
 import kotlin.Int
 import kotlin.String
 import kotlin.Suppress
-import kotlin.Unit
 import kotlin.collections.List
 import kotlin.jvm.JvmStatic
 
@@ -26,10 +25,10 @@ public class MyDao_Impl(
     init {
         this.__db = __db
         this.__insertionAdapterOfMyEntity = object : EntityInsertionAdapter<MyEntity>(__db) {
-            public override fun createQuery(): String =
+            protected override fun createQuery(): String =
                 "INSERT OR ABORT INTO `MyEntity` (`pk`,`foo`,`bar`) VALUES (?,?,?)"
 
-            public override fun bind(statement: SupportSQLiteStatement, entity: MyEntity): Unit {
+            protected override fun bind(statement: SupportSQLiteStatement, entity: MyEntity) {
                 statement.bindLong(1, entity.pk.toLong())
                 val _tmp: String? = FooBarConverter.toString(entity.foo)
                 if (_tmp == null) {
@@ -48,7 +47,7 @@ public class MyDao_Impl(
         }
     }
 
-    public override fun addEntity(item: MyEntity): Unit {
+    public override fun addEntity(item: MyEntity) {
         __db.assertNotSuspendingTransaction()
         __db.beginTransaction()
         try {
@@ -81,7 +80,7 @@ public class MyDao_Impl(
                 }
                 val _tmp_1: Foo? = FooBarConverter.fromString(_tmp)
                 if (_tmp_1 == null) {
-                    error("Expected non-null Foo, but it was null.")
+                    error("Expected NON-NULL 'Foo', but it was NULL.")
                 } else {
                     _tmpFoo = _tmp_1
                 }
@@ -100,13 +99,13 @@ public class MyDao_Impl(
                     _tmp_4 = FooBarConverter.fromFoo(_tmp_3)
                 }
                 if (_tmp_4 == null) {
-                    error("Expected non-null Bar, but it was null.")
+                    error("Expected NON-NULL 'Bar', but it was NULL.")
                 } else {
                     _tmpBar = _tmp_4
                 }
                 _result = MyEntity(_tmpPk,_tmpFoo,_tmpBar)
             } else {
-                error("Cursor was empty, but expected a single item.")
+                error("The query result was empty, but expected a single row to return a NON-NULL object of type <MyEntity>.")
             }
             return _result
         } finally {

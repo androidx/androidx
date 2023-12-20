@@ -16,76 +16,182 @@
 
 package androidx.wear.compose.integration.demos
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.MoreVert
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.foundation.ExpandableState
 import androidx.wear.compose.foundation.ExperimentalWearFoundationApi
-import androidx.wear.compose.foundation.RevealScope
-import androidx.wear.compose.foundation.RevealState
+import androidx.wear.compose.foundation.RevealActionType
 import androidx.wear.compose.foundation.RevealValue
-import androidx.wear.compose.foundation.SwipeToReveal
-import androidx.wear.compose.foundation.createAnchors
+import androidx.wear.compose.foundation.SwipeToDismissBoxState
+import androidx.wear.compose.foundation.edgeSwipeToDismiss
 import androidx.wear.compose.foundation.expandableItem
-import androidx.wear.compose.foundation.fractionalPositionalThreshold
 import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.rememberExpandableState
+import androidx.wear.compose.foundation.rememberExpandableStateMapping
 import androidx.wear.compose.foundation.rememberRevealState
 import androidx.wear.compose.material.AppCard
 import androidx.wear.compose.material.Chip
 import androidx.wear.compose.material.ChipDefaults
+import androidx.wear.compose.material.ExperimentalWearMaterialApi
 import androidx.wear.compose.material.Icon
-import androidx.wear.compose.material.MaterialTheme
+import androidx.wear.compose.material.SwipeToRevealCard
+import androidx.wear.compose.material.SwipeToRevealChip
+import androidx.wear.compose.material.SwipeToRevealDefaults
+import androidx.wear.compose.material.SwipeToRevealPrimaryAction
+import androidx.wear.compose.material.SwipeToRevealSecondaryAction
+import androidx.wear.compose.material.SwipeToRevealUndoAction
 import androidx.wear.compose.material.Text
-import kotlin.math.abs
-import kotlinx.coroutines.CoroutineScope
+import androidx.wear.compose.material.dialog.Alert
+import androidx.wear.compose.material.dialog.Dialog
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalWearFoundationApi::class, ExperimentalWearMaterialApi::class)
 @Composable
-fun SwipeToRevealChips() {
-    val expandableStates = List(3) { rememberExpandableState(initiallyExpanded = true) }
+fun SwipeToRevealChips(swipeToDismissBoxState: SwipeToDismissBoxState) {
+    val expandableStateMapping = rememberExpandableStateMapping<Int>(
+        initiallyExpanded = { true }
+    )
+    var itemCount by remember { mutableIntStateOf(3) }
+
     ScalingLazyColumn(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            Text(text = "Swipe To Reveal Chips")
+            Text(text = "Swipe To Reveal Chips - Undo")
             Spacer(Modifier.size(15.dp))
         }
-        repeat(3) {
-            val currentState = expandableStates[it]
+        repeat(itemCount) {
+            val currentState = expandableStateMapping.getOrPutNew(it)
             expandableItem(
                 state = currentState
             ) { expanded ->
+                val revealState = rememberRevealState()
+                val coroutineScope = rememberCoroutineScope()
+                val deleteItem = {
+                    coroutineScope.launch {
+                        revealState.animateTo(RevealValue.Revealed)
+
+                        // hide the content after some time if the state is still revealed
+                        delay(1500)
+                        if (revealState.currentValue == RevealValue.Revealed) {
+                            currentState.expanded = false
+                        }
+                    }
+                }
+                val addItem = {
+                    coroutineScope.launch {
+                        revealState.animateTo(RevealValue.Revealed)
+                        itemCount++
+
+                        // reset the state after some delay if the state is still revealed
+                        delay(2000)
+                        if (revealState.currentValue == RevealValue.Revealed) {
+                            revealState.animateTo(RevealValue.Covered)
+                            revealState.lastActionType = RevealActionType.None
+                        }
+                    }
+                }
                 if (expanded) {
-                    SwipeToRevealChipExpandable(
-                        expandableState = currentState
-                    )
+                    SwipeToRevealChip(
+                        modifier = Modifier
+                            .edgeSwipeToDismiss(swipeToDismissBoxState)
+                            .semantics {
+                                customActions = listOf(
+                                    CustomAccessibilityAction("Delete") {
+                                        deleteItem()
+                                        true
+                                    },
+                                    CustomAccessibilityAction("Duplicate") {
+                                        addItem()
+                                        true
+                                    }
+                                )
+                            },
+                        revealState = revealState,
+                        onFullSwipe = { deleteItem() },
+                        primaryAction = {
+                            SwipeToRevealPrimaryAction(
+                                revealState = revealState,
+                                icon = {
+                                    Icon(
+                                        SwipeToRevealDefaults.Delete,
+                                        contentDescription = "Delete"
+                                    )
+                                },
+                                label = { Text(text = "Delete") },
+                                onClick = { deleteItem() },
+                            )
+                        },
+                        secondaryAction = {
+                            SwipeToRevealSecondaryAction(
+                                revealState = revealState,
+                                content = {
+                                    Icon(Icons.Outlined.Add, contentDescription = "Duplicate")
+                                },
+                                onClick = { addItem() }
+                            )
+                        },
+                        undoPrimaryAction = {
+                            SwipeToRevealUndoAction(
+                                revealState = revealState,
+                                label = { Text("Undo Primary Action") },
+                                onClick = {
+                                    coroutineScope.launch {
+                                        // reset the state when undo is clicked
+                                        revealState.animateTo(RevealValue.Covered)
+                                        revealState.lastActionType = RevealActionType.None
+                                    }
+                                }
+                            )
+                        },
+                        undoSecondaryAction = {
+                            SwipeToRevealUndoAction(
+                                revealState = revealState,
+                                label = { Text("Undo Secondary Action") },
+                                onClick = {
+                                    coroutineScope.launch {
+                                        itemCount--
+                                        // reset the state when undo is clicked
+                                        revealState.animateTo(RevealValue.Covered)
+                                        revealState.lastActionType = RevealActionType.None
+                                    }
+                                }
+                            )
+                        }
+                    ) {
+                        Chip(
+                            onClick = { /*TODO*/ },
+                            colors = ChipDefaults.secondaryChipColors(),
+                            modifier = Modifier.fillMaxWidth(),
+                            label = {
+                                Text("Chip #$it")
+                            }
+                        )
+                    }
+                } else {
+                    Spacer(modifier = Modifier.width(200.dp))
                 }
             }
         }
@@ -93,7 +199,7 @@ fun SwipeToRevealChips() {
 }
 
 @Composable
-fun SwipeToRevealCards() {
+fun SwipeToRevealCards(swipeToDismissBoxState: SwipeToDismissBoxState) {
     val emailMap = mutableMapOf(
         "Android In" to
             "Please add Swipe to dismiss to the demo.",
@@ -121,86 +227,108 @@ fun SwipeToRevealCards() {
                     SwipeToRevealCardExpandable(
                         expandableState = currentState,
                         from = currentFrom,
-                        email = currentEmail
+                        email = currentEmail,
+                        modifier = Modifier.edgeSwipeToDismiss(swipeToDismissBoxState)
                     )
-                }
-
-                LaunchedEffect(currentState.expanded) {
-                    if (!currentState.expanded) {
-                        emailMap.remove(currentFrom)
-                    }
+                } else {
+                    Spacer(modifier = Modifier.width(200.dp))
                 }
             }
         }
     }
 }
 
-@Composable
-fun SwipeToRevealWithSingleAction() {
-    SwipeToRevealSingleAction()
-}
-
-@Composable
-fun SwipeToRevealInRtl() {
-    SwipeToRevealSingleAction(LayoutDirection.Rtl)
-}
-
-@OptIn(ExperimentalWearFoundationApi::class)
-@Composable
-private fun SwipeToRevealChipExpandable(
-    expandableState: ExpandableState
-) {
-    val state = rememberRevealState()
-    LaunchedEffect(state.currentValue) {
-        if (state.currentValue == RevealValue.Revealed) {
-            delay(2000)
-            expandableState.expanded = false
-            state.snapTo(RevealValue.Covered)
-        }
-    }
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.size(width = 200.dp, height = 50.dp)
-    ) {
-        SwipeToRevealWithDefaultButtons(
-            shape = CircleShape,
-            state = state,
-        ) {
-            Chip(
-                onClick = { /*TODO*/ },
-                colors = ChipDefaults.secondaryChipColors(),
-                modifier = Modifier.fillMaxWidth(),
-                label = {
-                    Text("S2R Chip with defaults")
-                }
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalWearFoundationApi::class)
+@OptIn(ExperimentalWearFoundationApi::class, ExperimentalWearMaterialApi::class)
 @Composable
 private fun SwipeToRevealCardExpandable(
     expandableState: ExpandableState,
     from: String,
-    email: String
+    email: String,
+    modifier: Modifier = Modifier
 ) {
-
-    val state = rememberRevealState()
-    LaunchedEffect(state.currentValue) {
-        if (state.currentValue == RevealValue.Revealed) {
+    val revealState = rememberRevealState()
+    val coroutineScope = rememberCoroutineScope()
+    var showDialog by remember { mutableStateOf(false) }
+    LaunchedEffect(revealState.currentValue) {
+        if (revealState.currentValue == RevealValue.Revealed) {
             delay(2000)
             expandableState.expanded = false
-            state.snapTo(RevealValue.Covered)
         }
     }
-    SwipeToRevealWithDefaultButtons(
-        shape = RoundedCornerShape(10.dp),
-        state = state
+    LaunchedEffect(showDialog) {
+        if (!showDialog) {
+            delay(500)
+            revealState.animateTo(RevealValue.Covered)
+        }
+    }
+    ShowDialog(
+        showDialog = showDialog,
+        onClick = { showDialog = false },
+        onDismiss = { showDialog = false },
+    )
+    SwipeToRevealCard(
+        modifier = modifier.semantics {
+            customActions = listOf(
+                CustomAccessibilityAction("Delete") {
+                    coroutineScope.launch {
+                        revealState.animateTo(RevealValue.Revealed)
+                    }
+                    true
+                },
+                CustomAccessibilityAction("More Options") {
+                    showDialog = true
+                    true
+                }
+            )
+        },
+        revealState = revealState,
+        onFullSwipe = {
+            coroutineScope.launch {
+                revealState.animateTo(RevealValue.Revealed)
+            }
+        },
+        primaryAction = {
+            SwipeToRevealPrimaryAction(
+                revealState = revealState,
+                icon = { Icon(SwipeToRevealDefaults.Delete, contentDescription = "Delete") },
+                label = { Text(text = "Delete") },
+                onClick = {
+                    coroutineScope.launch {
+                        revealState.animateTo(RevealValue.Revealed)
+                    }
+                }
+            )
+        },
+        secondaryAction = {
+            SwipeToRevealSecondaryAction(
+                revealState = revealState,
+                content = {
+                    Icon(SwipeToRevealDefaults.MoreOptions, contentDescription = "More Options")
+                },
+                onClick = {
+                    showDialog = true
+                    // reset click type since there is no undo for this
+                    revealState.lastActionType = RevealActionType.None
+                }
+            )
+        },
+        undoPrimaryAction = {
+            SwipeToRevealUndoAction(
+                revealState = revealState,
+                label = { Text(text = "Undo") },
+                onClick = {
+                    coroutineScope.launch {
+                        // reset the state when undo is clicked
+                        revealState.animateTo(RevealValue.Covered)
+                        revealState.lastActionType = RevealActionType.None
+                    }
+                }
+            )
+        },
     ) {
         AppCard(
             onClick = {},
-            modifier = Modifier.size(width = 200.dp, height = 100.dp),
+            modifier = Modifier.width(width = 200.dp),
             appName = { Text("Gmail") },
             appImage = {
                 Icon(
@@ -209,7 +337,7 @@ private fun SwipeToRevealCardExpandable(
                 )
             },
             time = { Text("now") },
-            title = { Text("From: $from") }
+            title = { Text("From: $from", maxLines = 1, overflow = TextOverflow.Ellipsis) }
         ) {
             Text(
                 text = email,
@@ -220,137 +348,29 @@ private fun SwipeToRevealCardExpandable(
     }
 }
 
-@OptIn(ExperimentalWearFoundationApi::class)
 @Composable
-private fun SwipeToRevealWithDefaultButtons(
-    state: RevealState = rememberRevealState(),
-    shape: Shape = CircleShape,
-    content: @Composable () -> Unit
+private fun ShowDialog(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    onClick: () -> Unit,
 ) {
-    val coroutineScope = rememberCoroutineScope()
-    SwipeToReveal(
-        action = {
-            SwipeToRevealAction(
-                color = MaterialTheme.colors.error,
-                icon = Icons.Outlined.Delete,
-                text = "Clear",
-                contentDescription = "Delete",
-                onClick = { state.animateTo(RevealValue.Revealed) },
-                shape = shape,
-                coroutineScope = coroutineScope,
-                state = state
-            )
-        },
-        additionalAction = {
-            SwipeToRevealAction(
-                color = MaterialTheme.colors.onSurfaceVariant,
-                icon = Icons.Outlined.MoreVert,
-                onClick = { state.animateTo(RevealValue.Covered) },
-                shape = shape,
-                coroutineScope = coroutineScope,
-                state = state
-            )
-        },
-        undoAction = {
-            Chip(
-                modifier = Modifier.fillMaxWidth(),
-                onClick = { coroutineScope.launch { state.animateTo(RevealValue.Covered) } },
-                colors = ChipDefaults.secondaryChipColors(),
-                border = ChipDefaults.outlinedChipBorder(),
-                label = { Text(text = "Undo") }
-            )
-        },
-        state = state,
-        content = content,
-    )
-}
-
-@OptIn(ExperimentalWearFoundationApi::class)
-@Composable
-private fun SwipeToRevealSingleAction(
-    layoutDirection: LayoutDirection = LayoutDirection.Ltr
-) {
-    val itemCount = 2
-    val expandableState = List(itemCount) {
-        rememberExpandableState(initiallyExpanded = true)
-    }
-    ScalingLazyColumn {
-        item {
-            Text("Swipe to reveal One-Action")
-            Spacer(Modifier.size(10.dp))
-        }
-        repeat(itemCount) { curr ->
-            expandableItem(
-                state = expandableState[curr]
-            ) { expanded ->
-                val state = rememberRevealState(
-                    anchors = createAnchors(revealingAnchor = 0.5f),
-                    positionalThreshold = fractionalPositionalThreshold(0.5f)
-                )
-                if (expanded) {
-                    CompositionLocalProvider(
-                        LocalLayoutDirection provides layoutDirection
-                    ) {
-                        SwipeToReveal(
-                            action = {
-                                SwipeToRevealAction(
-                                    color = MaterialTheme.colors.error,
-                                    icon = Icons.Outlined.Delete,
-                                    text = "Clear",
-                                    contentDescription = "Delete",
-                                    onClick = { state.animateTo(RevealValue.Revealed) },
-                                    shape = CircleShape,
-                                    state = state
-                                )
-                            },
-                            state = state
-                        ) {
-                            Chip(
-                                onClick = { /*TODO*/ },
-                                colors = ChipDefaults.secondaryChipColors(),
-                                modifier = Modifier.fillMaxWidth(),
-                                label = { Text("Try this") }
-                            )
-                        }
-                    }
-                }
-                LaunchedEffect(state.currentValue) {
-                    if (state.currentValue == RevealValue.Revealed) {
-                        delay(2000)
-                        expandableState[curr].expanded = false
-                    }
-                }
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalWearFoundationApi::class)
-@Composable
-private fun RevealScope.SwipeToRevealAction(
-    color: Color,
-    icon: ImageVector,
-    text: String? = null,
-    contentDescription: String? = null,
-    onClick: suspend () -> Unit = {},
-    shape: Shape = RoundedCornerShape(15.dp),
-    state: RevealState = rememberRevealState(),
-    coroutineScope: CoroutineScope = rememberCoroutineScope(),
-) {
-    Row(
-        modifier = Modifier
-            .clickable {
-                coroutineScope.launch { onClick() }
-            }
-            .background(color, shape)
-            .fillMaxSize(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
+    Dialog(
+        showDialog = showDialog,
+        onDismissRequest = onDismiss,
     ) {
-        Icon(imageVector = icon, contentDescription = contentDescription, tint = Color.DarkGray)
-        if (abs(state.offset) > revealOffset && text != null) {
-            Spacer(Modifier.size(5.dp))
-            Text(text = text)
+        Alert(
+            title = { Text("Other options", textAlign = TextAlign.Center) }
+        ) {
+            repeat(3) {
+                item {
+                    Chip(
+                        label = { Text("Option $it") },
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = onClick,
+                        colors = ChipDefaults.primaryChipColors()
+                    )
+                }
+            }
         }
     }
 }

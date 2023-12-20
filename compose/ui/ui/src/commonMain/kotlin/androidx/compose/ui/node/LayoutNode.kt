@@ -474,13 +474,13 @@ internal class LayoutNode(
             // is a virtual lookahead root
             lookaheadRoot = _foldedParent?.lookaheadRoot ?: lookaheadRoot
         }
-        if (!deactivated) {
+        if (!isDeactivated) {
             nodes.markAsAttached()
         }
         _foldedChildren.forEach { child ->
             child.attach(owner)
         }
-        if (!deactivated) {
+        if (!isDeactivated) {
             nodes.runAttachLifecycle()
         }
 
@@ -491,7 +491,7 @@ internal class LayoutNode(
         onAttach?.invoke(owner)
 
         layoutDelegate.updateParentData()
-        if (!deactivated) {
+        if (!isDeactivated) {
             invalidateFocusOnAttach()
         }
     }
@@ -735,6 +735,13 @@ internal class LayoutNode(
         get() = measurePassDelegate.isPlaced
 
     /**
+     * Whether or not this [LayoutNode] was placed by its parent. The node can still be considered
+     * not placed if some of the modifiers on it not placed the placeable.
+     */
+    val isPlacedByParent: Boolean
+        get() = measurePassDelegate.isPlacedByParent
+
+    /**
      * The order in which this node was placed by its parent during the previous `layoutChildren`.
      * Before the placement the order is set to [NotPlacedPlaceOrder] to all the children. Then
      * every placed node assigns this variable to [parent]s MeasurePassDelegate's
@@ -812,7 +819,7 @@ internal class LayoutNode(
             }
             val layerCoordinator = _innerLayerCoordinator
             if (layerCoordinator != null) {
-                requireNotNull(layerCoordinator.layer)
+                checkNotNull(layerCoordinator.layer) { "layer was not set" }
             }
             return layerCoordinator
         }
@@ -839,6 +846,9 @@ internal class LayoutNode(
         set(value) {
             require(!isVirtual || modifier === Modifier) {
                 "Modifiers are not supported on virtual LayoutNodes"
+            }
+            require(!isDeactivated) {
+                "modifier is updated when deactivated"
             }
             field = value
             nodes.updateFrom(value)
@@ -887,14 +897,8 @@ internal class LayoutNode(
             // clear the intrinsics usage for everything that was requested previously.
             clearSubtreePlacementIntrinsicsUsage()
         }
-        with(measurePassDelegate) {
-            Placeable.PlacementScope.executeWithRtlMirroringValues(
-                measuredWidth,
-                layoutDirection,
-                parent?.innerCoordinator
-            ) {
-                placeRelative(x, y)
-            }
+        with(parent?.innerCoordinator?.placementScope ?: requireOwner().placementScope) {
+            measurePassDelegate.placeRelative(x, y)
         }
     }
 
@@ -1018,7 +1022,7 @@ internal class LayoutNode(
     ) {
         check(lookaheadRoot != null) {
             "Lookahead measure cannot be requested on a node that is not a part of the" +
-                "LookaheadLayout"
+                "LookaheadScope"
         }
         val owner = owner ?: return
         if (!ignoreRemeasureRequests && !isVirtual) {
@@ -1033,7 +1037,7 @@ internal class LayoutNode(
     }
 
     /**
-     * This gets called when both lookahead measurement (if in a LookaheadLayout) and actual
+     * This gets called when both lookahead measurement (if in a LookaheadScope) and actual
      * measurement need to be re-done. Such events include modifier change, attach/detach, etc.
      */
     internal fun invalidateMeasurements() {
@@ -1085,7 +1089,7 @@ internal class LayoutNode(
     }
 
     internal fun dispatchOnPositionedCallbacks() {
-        if (layoutState != Idle || layoutPending || measurePending) {
+        if (layoutState != Idle || layoutPending || measurePending || isDeactivated) {
             return // it hasn't yet been properly positioned, so don't make a call
         }
         if (!isPlaced) {
@@ -1320,13 +1324,16 @@ internal class LayoutNode(
     override val parentInfo: LayoutInfo?
         get() = parent
 
-    private var deactivated = false
+    override var isDeactivated = false
+        private set
 
     override fun onReuse() {
         require(isAttached) { "onReuse is only expected on attached node" }
         interopViewFactoryHolder?.onReuse()
-        if (deactivated) {
-            deactivated = false
+        subcompositionsState?.onReuse()
+        if (isDeactivated) {
+            isDeactivated = false
+            invalidateSemantics()
             // we don't need to reset state as it was done when deactivated
         } else {
             resetModifierState()
@@ -1335,16 +1342,23 @@ internal class LayoutNode(
         semanticsId = generateSemanticsId()
         nodes.markAsAttached()
         nodes.runAttachLifecycle()
+        rescheduleRemeasureOrRelayout(this)
     }
 
     override fun onDeactivate() {
         interopViewFactoryHolder?.onDeactivate()
-        deactivated = true
+        subcompositionsState?.onDeactivate()
+        isDeactivated = true
         resetModifierState()
+        // if the node is detached the semantics were already updated without this node.
+        if (isAttached) {
+            invalidateSemantics()
+        }
     }
 
     override fun onRelease() {
         interopViewFactoryHolder?.onRelease()
+        subcompositionsState?.onRelease()
         forEachCoordinatorIncludingInner { it.onRelease() }
     }
 
@@ -1402,7 +1416,7 @@ internal class LayoutNode(
     /**
      * Describes the current state the [LayoutNode] is in. A [LayoutNode] is expected to be in
      * [LookaheadMeasuring] first, followed by [LookaheadLayingOut] if it is in a
-     * LookaheadLayout. After the lookahead is finished, [Measuring] and then [LayingOut] will
+     * LookaheadScope. After the lookahead is finished, [Measuring] and then [LayingOut] will
      * happen as needed.
      */
     internal enum class LayoutState {

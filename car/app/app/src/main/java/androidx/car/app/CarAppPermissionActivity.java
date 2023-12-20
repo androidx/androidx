@@ -44,7 +44,6 @@ import java.util.Map;
 /**
  * An activity for use by the car app library to request a permission.
  *
- * @hide
  */
 @RestrictTo(LIBRARY)
 public class CarAppPermissionActivity extends ComponentActivity {

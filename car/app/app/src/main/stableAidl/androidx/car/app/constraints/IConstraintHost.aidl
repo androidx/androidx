@@ -18,7 +18,7 @@ package androidx.car.app.constraints;
 
 import androidx.car.app.serialization.Bundleable;
 
-/** @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IConstraintHost {
  /**
   * Queries the host for the limit for a content type.

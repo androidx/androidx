@@ -1,148 +1,256 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.1.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.1.0-alpha07">
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class ApiVersionException extends ExecutionException {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class AggregateDataRequest(override val proto: RequestProto.AggregateDataRequest) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/ApiVersionException.java"/>
+            file="src/main/java/androidx/health/platform/client/request/AggregateDataRequest.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class BaseQueueOperation implements QueueOperation {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class AggregateDataResponse(override val proto: ResponseProto.AggregateDataResponse) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/BaseQueueOperation.java"/>
+            file="src/main/java/androidx/health/platform/client/response/AggregateDataResponse.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public abstract class Client&lt;S extends IInterface> {"
-        errorLine2="                      ~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class ChangesEvent(override val proto: ChangeProto.ChangesEvent) :"
+        errorLine2="      ~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/Client.java"/>
+            file="src/main/java/androidx/health/platform/client/changes/ChangesEvent.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class ClientConfiguration {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class DeleteDataRangeRequest(override val proto: RequestProto.DeleteDataRangeRequest) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/ClientConfiguration.java"/>
+            file="src/main/java/androidx/health/platform/client/request/DeleteDataRangeRequest.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public final class ConnectionConfiguration {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class DeleteDataRequest("
+        errorLine2="      ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionConfiguration.java"/>
+            file="src/main/java/androidx/health/platform/client/request/DeleteDataRequest.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public final class ConnectionManager implements Handler.Callback, ServiceConnection.Callback {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="annotation class ErrorCode {"
+        errorLine2="                 ~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ConnectionManager.java"/>
+            file="src/main/java/androidx/health/platform/client/error/ErrorCode.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class DefaultExecutionTracker implements ExecutionTracker {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class ErrorStatus"
+        errorLine2="      ~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/DefaultExecutionTracker.java"/>
+            file="src/main/java/androidx/health/platform/client/error/ErrorStatus.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public interface ExecutionTracker {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class ExerciseRoute(override val proto: DataProto.DataPoint.SubTypeDataList) :"
+        errorLine2="      ~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ExecutionTracker.java"/>
+            file="src/main/java/androidx/health/platform/client/exerciseroute/ExerciseRoute.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public final class HealthDataServiceConstants {"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class GetChangesRequest(override val proto: RequestProto.GetChangesRequest) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/service/HealthDataServiceConstants.java"/>
+            file="src/main/java/androidx/health/platform/client/request/GetChangesRequest.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public final class ListenerKey {"
-        errorLine2="                   ~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class GetChangesResponse(override val proto: ResponseProto.GetChangesResponse) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ListenerKey.java"/>
+            file="src/main/java/androidx/health/platform/client/response/GetChangesResponse.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public interface QueueOperation {"
-        errorLine2="                 ~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class GetChangesTokenRequest(override val proto: RequestProto.GetChangesTokenRequest) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/QueueOperation.java"/>
+            file="src/main/java/androidx/health/platform/client/request/GetChangesTokenRequest.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public interface RemoteFutureOperation&lt;S, R> {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class GetChangesTokenResponse(override val proto: ResponseProto.GetChangesTokenResponse) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/RemoteFutureOperation.java"/>
+            file="src/main/java/androidx/health/platform/client/response/GetChangesTokenResponse.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public interface RemoteOperation&lt;S, R> {"
-        errorLine2="                 ~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="interface HealthDataAsyncClient {"
+        errorLine2="          ~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/RemoteOperation.java"/>
+            file="src/main/java/androidx/health/platform/client/HealthDataAsyncClient.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public final class SdkConfig {"
-        errorLine2="                   ~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="object HealthDataService {"
+        errorLine2="       ~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/SdkConfig.java"/>
+            file="src/main/java/androidx/health/platform/client/HealthDataService.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public class ServiceConnection implements android.content.ServiceConnection {"
-        errorLine2="             ~~~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class InsertDataResponse(val dataPointUids: List&lt;String>) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ServiceConnection.java"/>
+            file="src/main/java/androidx/health/platform/client/response/InsertDataResponse.kt"/>
     </issue>
 
     <issue
-        id="BanHideAnnotation"
-        message="@hide is not allowed in Javadoc"
-        errorLine1="public interface ServiceOperation&lt;R> {"
-        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class Permission(override val proto: PermissionProto.Permission) :"
+        errorLine2="      ~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/health/platform/client/impl/ipc/ServiceOperation.java"/>
+            file="src/main/java/androidx/health/platform/client/permission/Permission.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class ReadDataRangeRequest(override val proto: RequestProto.ReadDataRangeRequest) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/request/ReadDataRangeRequest.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class ReadDataRangeResponse(override val proto: ResponseProto.ReadDataRangeResponse) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/response/ReadDataRangeResponse.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class ReadDataRequest(override val proto: RequestProto.ReadDataRequest) :"
+        errorLine2="      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/request/ReadDataRequest.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class ReadDataResponse(override val proto: ResponseProto.ReadDataResponse) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/response/ReadDataResponse.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class ReadExerciseRouteRequest(override val proto: RequestProto.ReadExerciseRouteRequest) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/request/ReadExerciseRouteRequest.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class ReadExerciseRouteResponse(override val proto: ResponseProto.ReadExerciseRouteResponse) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/response/ReadExerciseRouteResponse.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class RegisterForDataNotificationsRequest("
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/request/RegisterForDataNotificationsRequest.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class RequestContext("
+        errorLine2="      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/request/RequestContext.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="object SharedMemory27Impl {"
+        errorLine2="       ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/impl/data/SharedMemory27Impl.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class UnregisterFromDataNotificationsRequest("
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/request/UnregisterFromDataNotificationsRequest.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class UpsertDataRequest(val dataPoints: List&lt;DataProto.DataPoint>) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/request/UpsertDataRequest.kt"/>
+    </issue>
+
+    <issue
+        id="BanSuppressTag"
+        message="@suppress is not allowed in documentation"
+        errorLine1="class UpsertExerciseRouteRequest(val sessionUid: String, val route: DataProto.DataPoint) :"
+        errorLine2="      ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/health/platform/client/request/UpsertExerciseRouteRequest.kt"/>
     </issue>
 
     <issue
@@ -152,429 +260,6 @@
         errorLine2="    ^">
         <location
             file="src/main/java/androidx/health/platform/client/impl/ipc/internal/ServiceConnection.java"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable AggregateDataRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/AggregateDataRequest.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable AggregateDataResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/response/AggregateDataResponse.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ChangesEvent;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/changes/ChangesEvent.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable DeleteDataRangeRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/DeleteDataRangeRequest.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable DeleteDataRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/DeleteDataRequest.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ErrorStatus;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/error/ErrorStatus.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable GetChangesRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/GetChangesRequest.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable GetChangesResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/response/GetChangesResponse.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable GetChangesTokenRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/GetChangesTokenRequest.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable GetChangesTokenResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/response/GetChangesTokenResponse.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IAggregateDataCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IAggregateDataCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IClearOnChangesListenerCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IClearOnChangesListenerCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IDeleteDataCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IDeleteDataCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IDeleteDataRangeCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IDeleteDataRangeCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IFilterGrantedPermissionsCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IFilterGrantedPermissionsCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IGetChangesCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IGetChangesCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IGetChangesTokenCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IGetChangesTokenCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IGetGrantedPermissionsCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IGetGrantedPermissionsCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IGetIsInForegroundCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/impl/sdkservice/IGetIsInForegroundCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IGetPermissionTokenCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/impl/sdkservice/IGetPermissionTokenCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IHealthDataSdkService {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/impl/sdkservice/IHealthDataSdkService.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="interface IHealthDataService {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IHealthDataService.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IInsertDataCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IInsertDataCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IOnChangesListener {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IOnChangesListener.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IReadDataCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IReadDataCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IReadDataRangeCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IReadDataRangeCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IReadExerciseRouteCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IReadExerciseRouteCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IRegisterForDataNotificationsCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IRegisterForDataNotificationsCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IRevokeAllPermissionsCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IRevokeAllPermissionsCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface ISetOnChangesListenerCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/ISetOnChangesListenerCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface ISetPermissionTokenCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/impl/sdkservice/ISetPermissionTokenCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IUnregisterFromDataNotificationsCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IUnregisterFromDataNotificationsCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IUpdateDataCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IUpdateDataCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="oneway interface IUpsertExerciseRouteCallback {"
-        errorLine2="^">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/service/IUpsertExerciseRouteCallback.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable InsertDataResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/response/InsertDataResponse.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable Permission;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/permission/Permission.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ReadDataRangeRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/ReadDataRangeRequest.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ReadDataRangeResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/response/ReadDataRangeResponse.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ReadDataRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/ReadDataRequest.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ReadDataResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/response/ReadDataResponse.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ReadExerciseRouteRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/ReadExerciseRouteRequest.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable ReadExerciseRouteResponse;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/response/ReadExerciseRouteResponse.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable RegisterForDataNotificationsRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/RegisterForDataNotificationsRequest.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable RequestContext;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/RequestContext.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable UnregisterFromDataNotificationsRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/UnregisterFromDataNotificationsRequest.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable UpsertDataRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/UpsertDataRequest.aidl"/>
-    </issue>
-
-    <issue
-        id="RequireUnstableAidlAnnotation"
-        message="Unstable AIDL files must be annotated with `@RequiresOptIn` marker"
-        errorLine1="parcelable UpsertExerciseRouteRequest;"
-        errorLine2="~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/aidl/androidx/health/platform/client/request/UpsertExerciseRouteRequest.aidl"/>
     </issue>
 
     <issue

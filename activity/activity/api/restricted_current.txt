@@ -1,18 +1,38 @@
 // Signature format: 4.0
 package androidx.activity {
 
+  public final class BackEventCompat {
+    ctor @RequiresApi(34) public BackEventCompat(android.window.BackEvent backEvent);
+    ctor @VisibleForTesting public BackEventCompat(float touchX, float touchY, @FloatRange(from=0.0, to=1.0) float progress, int swipeEdge);
+    method public float getProgress();
+    method public int getSwipeEdge();
+    method public float getTouchX();
+    method public float getTouchY();
+    method @RequiresApi(34) public android.window.BackEvent toBackEvent();
+    property public final float progress;
+    property public final int swipeEdge;
+    property public final float touchX;
+    property public final float touchY;
+    field public static final androidx.activity.BackEventCompat.Companion Companion;
+    field public static final int EDGE_LEFT = 0; // 0x0
+    field public static final int EDGE_RIGHT = 1; // 0x1
+  }
+
+  public static final class BackEventCompat.Companion {
+  }
+
   public class ComponentActivity extends androidx.core.app.ComponentActivity implements androidx.activity.result.ActivityResultCaller androidx.activity.result.ActivityResultRegistryOwner androidx.activity.contextaware.ContextAware androidx.activity.FullyDrawnReporterOwner androidx.lifecycle.HasDefaultViewModelProviderFactory androidx.lifecycle.LifecycleOwner androidx.core.view.MenuHost androidx.activity.OnBackPressedDispatcherOwner androidx.core.content.OnConfigurationChangedProvider androidx.core.app.OnMultiWindowModeChangedProvider androidx.core.app.OnNewIntentProvider androidx.core.app.OnPictureInPictureModeChangedProvider androidx.core.content.OnTrimMemoryProvider androidx.savedstate.SavedStateRegistryOwner androidx.lifecycle.ViewModelStoreOwner {
     ctor public ComponentActivity();
-    ctor @ContentView public ComponentActivity(@LayoutRes int);
-    method public void addMenuProvider(androidx.core.view.MenuProvider);
-    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner);
-    method public void addMenuProvider(androidx.core.view.MenuProvider, androidx.lifecycle.LifecycleOwner, androidx.lifecycle.Lifecycle.State);
-    method public final void addOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
-    method public final void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
-    method public final void addOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
-    method public final void addOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
-    method public final void addOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo!>);
-    method public final void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
+    ctor @ContentView public ComponentActivity(@LayoutRes int contentLayoutId);
+    method public void addMenuProvider(androidx.core.view.MenuProvider provider);
+    method public void addMenuProvider(androidx.core.view.MenuProvider provider, androidx.lifecycle.LifecycleOwner owner);
+    method public void addMenuProvider(androidx.core.view.MenuProvider provider, androidx.lifecycle.LifecycleOwner owner, androidx.lifecycle.Lifecycle.State state);
+    method public final void addOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration> listener);
+    method public final void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
+    method public final void addOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo> listener);
+    method public final void addOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent> listener);
+    method public final void addOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo> listener);
+    method public final void addOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer> listener);
     method public final androidx.activity.result.ActivityResultRegistry getActivityResultRegistry();
     method public androidx.lifecycle.ViewModelProvider.Factory getDefaultViewModelProviderFactory();
     method public androidx.activity.FullyDrawnReporter getFullyDrawnReporter();
@@ -22,31 +42,38 @@ package androidx.activity {
     method public androidx.lifecycle.ViewModelStore getViewModelStore();
     method @CallSuper public void initializeViewTreeOwners();
     method public void invalidateMenu();
-    method @Deprecated @CallSuper protected void onActivityResult(int, int, android.content.Intent?);
-    method @CallSuper public void onMultiWindowModeChanged(boolean);
-    method @CallSuper public void onPictureInPictureModeChanged(boolean);
-    method @Deprecated @CallSuper public void onRequestPermissionsResult(int, String![], int[]);
+    method @Deprecated @CallSuper protected void onActivityResult(int requestCode, int resultCode, android.content.Intent? data);
+    method @Deprecated @CallSuper public void onRequestPermissionsResult(int requestCode, String![] permissions, int[] grantResults);
     method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
     method public final Object? onRetainNonConfigurationInstance();
     method public android.content.Context? peekAvailableContext();
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
-    method public void removeMenuProvider(androidx.core.view.MenuProvider);
-    method public final void removeOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration!>);
-    method public final void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
-    method public final void removeOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo!>);
-    method public final void removeOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent!>);
-    method public final void removeOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo!>);
-    method public final void removeOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer!>);
-    method @Deprecated public void startActivityForResult(android.content.Intent, int);
-    method @Deprecated public void startActivityForResult(android.content.Intent, int, android.os.Bundle?);
-    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent?, int, int, int) throws android.content.IntentSender.SendIntentException;
-    method @Deprecated public void startIntentSenderForResult(android.content.IntentSender, int, android.content.Intent?, int, int, int, android.os.Bundle?) throws android.content.IntentSender.SendIntentException;
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, androidx.activity.result.ActivityResultCallback<O> callback);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, androidx.activity.result.ActivityResultRegistry registry, androidx.activity.result.ActivityResultCallback<O> callback);
+    method public void removeMenuProvider(androidx.core.view.MenuProvider provider);
+    method public final void removeOnConfigurationChangedListener(androidx.core.util.Consumer<android.content.res.Configuration> listener);
+    method public final void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener listener);
+    method public final void removeOnMultiWindowModeChangedListener(androidx.core.util.Consumer<androidx.core.app.MultiWindowModeChangedInfo> listener);
+    method public final void removeOnNewIntentListener(androidx.core.util.Consumer<android.content.Intent> listener);
+    method public final void removeOnPictureInPictureModeChangedListener(androidx.core.util.Consumer<androidx.core.app.PictureInPictureModeChangedInfo> listener);
+    method public final void removeOnTrimMemoryListener(androidx.core.util.Consumer<java.lang.Integer> listener);
+    method @Deprecated public void startActivityForResult(android.content.Intent intent, int requestCode);
+    method @Deprecated public void startActivityForResult(android.content.Intent intent, int requestCode, android.os.Bundle? options);
+    method @Deprecated @kotlin.jvm.Throws(exceptionClasses=SendIntentException::class) public void startIntentSenderForResult(android.content.IntentSender intent, int requestCode, android.content.Intent? fillInIntent, int flagsMask, int flagsValues, int extraFlags) throws android.content.IntentSender.SendIntentException;
+    method @Deprecated @kotlin.jvm.Throws(exceptionClasses=SendIntentException::class) public void startIntentSenderForResult(android.content.IntentSender intent, int requestCode, android.content.Intent? fillInIntent, int flagsMask, int flagsValues, int extraFlags, android.os.Bundle? options) throws android.content.IntentSender.SendIntentException;
+    property public final androidx.activity.result.ActivityResultRegistry activityResultRegistry;
+    property @CallSuper public androidx.lifecycle.viewmodel.CreationExtras defaultViewModelCreationExtras;
+    property public androidx.lifecycle.ViewModelProvider.Factory defaultViewModelProviderFactory;
+    property public androidx.activity.FullyDrawnReporter fullyDrawnReporter;
+    property @Deprecated public Object? lastCustomNonConfigurationInstance;
+    property public androidx.lifecycle.Lifecycle lifecycle;
+    property public final androidx.activity.OnBackPressedDispatcher onBackPressedDispatcher;
+    property public final androidx.savedstate.SavedStateRegistry savedStateRegistry;
+    property public androidx.lifecycle.ViewModelStore viewModelStore;
   }
 
   public class ComponentDialog extends android.app.Dialog implements androidx.lifecycle.LifecycleOwner androidx.activity.OnBackPressedDispatcherOwner androidx.savedstate.SavedStateRegistryOwner {
-    ctor public ComponentDialog(android.content.Context context, optional @StyleRes int themeResId);
     ctor public ComponentDialog(android.content.Context context);
+    ctor public ComponentDialog(android.content.Context context, optional @StyleRes int themeResId);
     method public androidx.lifecycle.Lifecycle getLifecycle();
     method public final androidx.activity.OnBackPressedDispatcher getOnBackPressedDispatcher();
     method public androidx.savedstate.SavedStateRegistry getSavedStateRegistry();
@@ -58,9 +85,9 @@ package androidx.activity {
   }
 
   public final class EdgeToEdge {
-    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle, optional androidx.activity.SystemBarStyle navigationBarStyle);
-    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle);
     method public static void enable(androidx.activity.ComponentActivity);
+    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle);
+    method public static void enable(androidx.activity.ComponentActivity, optional androidx.activity.SystemBarStyle statusBarStyle, optional androidx.activity.SystemBarStyle navigationBarStyle);
   }
 
   public final class FullyDrawnReporter {
@@ -84,7 +111,10 @@ package androidx.activity {
 
   public abstract class OnBackPressedCallback {
     ctor public OnBackPressedCallback(boolean enabled);
+    method @MainThread public void handleOnBackCancelled();
     method @MainThread public abstract void handleOnBackPressed();
+    method @MainThread public void handleOnBackProgressed(androidx.activity.BackEventCompat backEvent);
+    method @MainThread public void handleOnBackStarted(androidx.activity.BackEventCompat backEvent);
     method @MainThread public final boolean isEnabled();
     method @MainThread public final void remove();
     method @MainThread public final void setEnabled(boolean);
@@ -92,10 +122,14 @@ package androidx.activity {
   }
 
   public final class OnBackPressedDispatcher {
-    ctor public OnBackPressedDispatcher(optional Runnable? fallbackOnBackPressed);
     ctor public OnBackPressedDispatcher();
+    ctor public OnBackPressedDispatcher(optional Runnable? fallbackOnBackPressed);
+    ctor public OnBackPressedDispatcher(Runnable? fallbackOnBackPressed, androidx.core.util.Consumer<java.lang.Boolean>? onHasEnabledCallbacksChanged);
     method @MainThread public void addCallback(androidx.activity.OnBackPressedCallback onBackPressedCallback);
     method @MainThread public void addCallback(androidx.lifecycle.LifecycleOwner owner, androidx.activity.OnBackPressedCallback onBackPressedCallback);
+    method @MainThread @VisibleForTesting public void dispatchOnBackCancelled();
+    method @MainThread @VisibleForTesting public void dispatchOnBackProgressed(androidx.activity.BackEventCompat backEvent);
+    method @MainThread @VisibleForTesting public void dispatchOnBackStarted(androidx.activity.BackEventCompat backEvent);
     method @MainThread public boolean hasEnabledCallbacks();
     method @MainThread public void onBackPressed();
     method @RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU) public void setOnBackInvokedDispatcher(android.window.OnBackInvokedDispatcher invoker);
@@ -112,6 +146,7 @@ package androidx.activity {
 
   public final class SystemBarStyle {
     method public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method public static androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim, optional kotlin.jvm.functions.Function1<? super android.content.res.Resources,java.lang.Boolean> detectDarkMode);
     method public static androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
     method public static androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
     field public static final androidx.activity.SystemBarStyle.Companion Companion;
@@ -119,6 +154,7 @@ package androidx.activity {
 
   public static final class SystemBarStyle.Companion {
     method public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim);
+    method public androidx.activity.SystemBarStyle auto(@ColorInt int lightScrim, @ColorInt int darkScrim, optional kotlin.jvm.functions.Function1<? super android.content.res.Resources,java.lang.Boolean> detectDarkMode);
     method public androidx.activity.SystemBarStyle dark(@ColorInt int scrim);
     method public androidx.activity.SystemBarStyle light(@ColorInt int scrim, @ColorInt int darkScrim);
   }
@@ -179,16 +215,27 @@ package androidx.activity.result {
   }
 
   public interface ActivityResultCaller {
-    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
-    method public <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, androidx.activity.result.ActivityResultCallback<O> callback);
+    method public <I, O> androidx.activity.result.ActivityResultLauncher<I> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I,O> contract, androidx.activity.result.ActivityResultRegistry registry, androidx.activity.result.ActivityResultCallback<O> callback);
+  }
+
+  public final class ActivityResultCallerKt {
+    method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I input, androidx.activity.result.ActivityResultRegistry registry, kotlin.jvm.functions.Function1<O,kotlin.Unit> callback);
+    method public static <I, O> androidx.activity.result.ActivityResultLauncher<kotlin.Unit> registerForActivityResult(androidx.activity.result.ActivityResultCaller, androidx.activity.result.contract.ActivityResultContract<I,O> contract, I input, kotlin.jvm.functions.Function1<O,kotlin.Unit> callback);
   }
 
   public abstract class ActivityResultLauncher<I> {
     ctor public ActivityResultLauncher();
-    method public abstract androidx.activity.result.contract.ActivityResultContract<I!,?> getContract();
-    method public void launch(I!);
-    method public abstract void launch(I!, androidx.core.app.ActivityOptionsCompat?);
+    method public abstract androidx.activity.result.contract.ActivityResultContract<I,?> getContract();
+    method public void launch(I input);
+    method public abstract void launch(I input, androidx.core.app.ActivityOptionsCompat? options);
     method @MainThread public abstract void unregister();
+    property public abstract androidx.activity.result.contract.ActivityResultContract<I,?> contract;
+  }
+
+  public final class ActivityResultLauncherKt {
+    method public static void launch(androidx.activity.result.ActivityResultLauncher<java.lang.Void>, optional androidx.core.app.ActivityOptionsCompat? options);
+    method public static void launchUnit(androidx.activity.result.ActivityResultLauncher<kotlin.Unit>, optional androidx.core.app.ActivityOptionsCompat? options);
   }
 
   public abstract class ActivityResultRegistry {
@@ -198,8 +245,8 @@ package androidx.activity.result {
     method @MainThread public abstract <I, O> void onLaunch(int, androidx.activity.result.contract.ActivityResultContract<I!,O!>, I!, androidx.core.app.ActivityOptionsCompat?);
     method public final void onRestoreInstanceState(android.os.Bundle?);
     method public final void onSaveInstanceState(android.os.Bundle);
-    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
+    method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> register(String, androidx.lifecycle.LifecycleOwner, androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
   }
 
   public interface ActivityResultRegistryOwner {
@@ -223,8 +270,8 @@ package androidx.activity.result {
   }
 
   public static final class IntentSenderRequest.Builder {
-    ctor public IntentSenderRequest.Builder(android.content.IntentSender intentSender);
     ctor public IntentSenderRequest.Builder(android.app.PendingIntent pendingIntent);
+    ctor public IntentSenderRequest.Builder(android.content.IntentSender intentSender);
     method public androidx.activity.result.IntentSenderRequest build();
     method public androidx.activity.result.IntentSenderRequest.Builder setFillInIntent(android.content.Intent? fillInIntent);
     method public androidx.activity.result.IntentSenderRequest.Builder setFlags(int values, int mask);
@@ -233,7 +280,7 @@ package androidx.activity.result {
   public static final class IntentSenderRequest.Companion {
   }
 
-  public final class PickVisualMediaRequest {
+  @RequiresApi(19) public final class PickVisualMediaRequest {
     method public androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType getMediaType();
     property public final androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType;
   }
@@ -245,7 +292,7 @@ package androidx.activity.result {
   }
 
   public final class PickVisualMediaRequestKt {
-    method public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
+    method @RequiresApi(19) public static androidx.activity.result.PickVisualMediaRequest PickVisualMediaRequest(optional androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia.VisualMediaType mediaType);
   }
 
 }
@@ -276,8 +323,8 @@ package androidx.activity.result.contract {
   }
 
   @RequiresApi(19) public static class ActivityResultContracts.CreateDocument extends androidx.activity.result.contract.ActivityResultContract<java.lang.String,android.net.Uri> {
-    ctor public ActivityResultContracts.CreateDocument(String mimeType);
     ctor @Deprecated public ActivityResultContracts.CreateDocument();
+    ctor public ActivityResultContracts.CreateDocument(String mimeType);
     method @CallSuper public android.content.Intent createIntent(android.content.Context context, String input);
     method public final androidx.activity.result.contract.ActivityResultContract.SynchronousResult<android.net.Uri>? getSynchronousResult(android.content.Context context, String input);
     method public final android.net.Uri? parseResult(int resultCode, android.content.Intent? intent);

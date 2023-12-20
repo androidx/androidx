@@ -2,9 +2,9 @@
 package androidx.customview.view {
 
   public abstract class AbsSavedState implements android.os.Parcelable {
-    ctor protected AbsSavedState(android.os.Parcelable);
     ctor protected AbsSavedState(android.os.Parcel);
     ctor protected AbsSavedState(android.os.Parcel, ClassLoader?);
+    ctor protected AbsSavedState(android.os.Parcelable);
     method public int describeContents();
     method public final android.os.Parcelable? getSuperState();
     method public void writeToParcel(android.os.Parcel!, int);

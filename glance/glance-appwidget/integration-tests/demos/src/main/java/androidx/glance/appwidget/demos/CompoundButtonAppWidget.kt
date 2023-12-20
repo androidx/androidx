@@ -80,6 +80,7 @@ class CompoundButtonAppWidget : GlanceAppWidget() {
             var checkbox3Checked by remember { mutableStateOf(false) }
             var switch1Checked by remember { mutableStateOf(false) }
             var switch2Checked by remember { mutableStateOf(false) }
+            @Suppress("AutoboxingStateCreation")
             var radioChecked by remember { mutableStateOf(0) }
 
             CheckBox(

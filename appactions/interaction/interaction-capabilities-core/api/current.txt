@@ -17,7 +17,7 @@ package androidx.appactions.interaction.capabilities.core {
     method public androidx.appactions.interaction.capabilities.core.Capability build();
     method public final BuilderT setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallback<ArgumentsT,OutputT> executionCallback);
     method public final BuilderT setExecutionCallback(androidx.appactions.interaction.capabilities.core.ExecutionCallbackAsync<ArgumentsT,OutputT> executionCallbackAsync);
-    method public BuilderT setExecutionSessionFactory(kotlin.jvm.functions.Function1<? super androidx.appactions.interaction.capabilities.core.HostProperties,? extends ExecutionSessionT> sessionFactory);
+    method protected BuilderT setExecutionSessionFactory(kotlin.jvm.functions.Function1<? super androidx.appactions.interaction.capabilities.core.HostProperties,? extends ExecutionSessionT> sessionFactory);
     method public final BuilderT setId(String id);
   }
 
@@ -46,6 +46,42 @@ package androidx.appactions.interaction.capabilities.core {
   }
 
   public final class SessionConfig {
+  }
+
+}
+
+package androidx.appactions.interaction.capabilities.core.properties {
+
+  public final class Property<T> {
+    ctor public Property(optional java.util.List<? extends T> possibleValues);
+    ctor public Property(optional java.util.List<? extends T> possibleValues, optional boolean isRequiredForExecution);
+    ctor public Property(optional java.util.List<? extends T> possibleValues, optional boolean isRequiredForExecution, optional boolean shouldMatchPossibleValues);
+    ctor public Property(kotlin.jvm.functions.Function0<? extends java.util.List<? extends T>> possibleValueSupplier);
+    ctor public Property(kotlin.jvm.functions.Function0<? extends java.util.List<? extends T>> possibleValueSupplier, optional boolean isRequiredForExecution);
+    ctor public Property(kotlin.jvm.functions.Function0<? extends java.util.List<? extends T>> possibleValueSupplier, optional boolean isRequiredForExecution, optional boolean shouldMatchPossibleValues);
+    method public java.util.List<T> getPossibleValues();
+    method public boolean isRequiredForExecution();
+    method public boolean isSupported();
+    method public boolean shouldMatchPossibleValues();
+    method public static <T> androidx.appactions.interaction.capabilities.core.properties.Property<T> unsupported();
+    property public final boolean isRequiredForExecution;
+    property public final boolean isSupported;
+    property public final java.util.List<T> possibleValues;
+    property public final boolean shouldMatchPossibleValues;
+    field public static final androidx.appactions.interaction.capabilities.core.properties.Property.Companion Companion;
+  }
+
+  public static final class Property.Companion {
+    method public <T> androidx.appactions.interaction.capabilities.core.properties.Property<T> unsupported();
+  }
+
+  public final class StringValue {
+    ctor public StringValue(String name);
+    ctor public StringValue(String name, optional java.util.List<java.lang.String> alternateNames);
+    method public java.util.List<java.lang.String> getAlternateNames();
+    method public String getName();
+    property public final java.util.List<java.lang.String> alternateNames;
+    property public final String name;
   }
 
 }

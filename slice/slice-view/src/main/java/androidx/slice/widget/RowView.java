@@ -119,8 +119,13 @@ import java.util.Set;
 /**
  * Row item is in small template format and can be used to construct list items for use
  * with {@link TemplateView}.
+ *
+ * @deprecated Slice framework has been deprecated, it will not receive any updates moving
+ * forward. If you are looking for a framework that handles communication across apps,
+ * consider using {@link android.app.appsearch.AppSearchManager}.
  */
 @RequiresApi(19)
+@Deprecated
 public class RowView extends SliceChildView implements View.OnClickListener,
         AdapterView.OnItemSelectedListener {
 
@@ -159,7 +164,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     private boolean mIsStarRating;
     private final ProgressBar mActionSpinner;
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     protected Set<SliceItem> mLoadingActions = new HashSet<>();
@@ -236,7 +240,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -314,7 +317,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -386,7 +388,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -402,7 +403,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
      * @param actions if the actions are null then there are no header actions for this row.
      * If the actions are an empty list, then something has explicitly set that no header
      * actions should appear.
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -414,7 +414,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -426,7 +425,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -706,7 +704,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -1148,7 +1145,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override
@@ -1367,7 +1363,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Override

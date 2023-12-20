@@ -19,9 +19,9 @@ package androidx.javascriptengine;
 import androidx.annotation.NonNull;
 
 /**
- * Indicates that a JavaScriptIsolate's evaluation failed due to it returning a oversized result.
- *
- * This exception is thrown when exceeding the size limit configured for the isolate via
+ * Indicates that a JavaScriptIsolate's evaluation failed due to it returning an oversized result.
+ * <p>
+ * This exception is produced when exceeding the size limit configured for the isolate via
  * {@link IsolateStartupParameters}, or the default limit.
  * <p>
  * The isolate may continue to be used after this exception has been thrown.

@@ -30,8 +30,8 @@ import org.gradle.api.tasks.TaskAction
  * Task for building all of Androidx libraries and documentation
  *
  * AndroidXImplPlugin configuration adds dependencies to BuildOnServer for all of the tasks that
- * produce artifacts that we want to build on server builds
- * When BuildOnServer executes, it double-checks that all expected artifacts were built
+ * produce artifacts that we want to build on server builds When BuildOnServer executes, it
+ * double-checks that all expected artifacts were built
  */
 @CacheableTask
 open class BuildOnServerTask : DefaultTask() {
@@ -41,14 +41,15 @@ open class BuildOnServerTask : DefaultTask() {
         description = "Builds all of the Androidx libraries and documentation"
     }
 
-    @Internal
-    lateinit var distributionDirectory: File
+    @Internal lateinit var distributionDirectory: File
 
-    @InputFiles @PathSensitive(PathSensitivity.RELATIVE)
+    @InputFiles
+    @PathSensitive(PathSensitivity.RELATIVE)
     fun getRequiredFiles(): List<File> {
         return mutableListOf(
-            "androidx_aggregate_build_info.txt",
-        ).map { fileName -> File(distributionDirectory, fileName) }
+                "androidx_aggregate_build_info.txt",
+            )
+            .map { fileName -> File(distributionDirectory, fileName) }
     }
 
     @TaskAction

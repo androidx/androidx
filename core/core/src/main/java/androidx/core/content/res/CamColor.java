@@ -21,6 +21,7 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.Size;
 import androidx.core.graphics.ColorUtils;
 
 /**
@@ -170,6 +171,10 @@ public class CamColor {
      *
      * Get the values for M3HCT color from ARGB color.
      *
+     * HCT color space is a new color space proposed in Material Design 3
+     * @see
+     * <a href="https://developer.android.com/design/ui/mobile/guides/styles/color#about-color-spaces">About Color Spaces</a>
+     *
      *<ul>
      *<li>outM3HCT[0] is Hue in M3HCT [0, 360); invalid values are corrected.</li>
      *<li>outM3HCT[1] is Chroma in M3HCT [0, ?); Chroma may decrease because chroma has a
@@ -182,7 +187,7 @@ public class CamColor {
      *      Chroma, Tone).
      */
     public static void getM3HCTfromColor(@ColorInt int color,
-            @NonNull float[] outM3HCT) {
+            @NonNull @Size(3) float[] outM3HCT) {
         fromColorInViewingConditions(color, ViewingConditions.DEFAULT, null, outM3HCT);
         outM3HCT[2] = CamUtils.lStarFromInt(color);
     }
@@ -192,8 +197,8 @@ public class CamColor {
      * ViewingConditions in which the color was viewed. Prefer Cam.fromColor.
      */
     static void fromColorInViewingConditions(@ColorInt int color,
-            @NonNull ViewingConditions viewingConditions, @Nullable float[] outCamColor,
-            @NonNull float[] outM3HCT) {
+            @NonNull ViewingConditions viewingConditions, @Nullable @Size(7) float[] outCamColor,
+            @NonNull @Size(3) float[] outM3HCT) {
         // Transform ARGB int to XYZ, reusing outM3HCT array to avoid a new allocation.
         CamUtils.xyzFromInt(color, outM3HCT);
         float[] xyz = outM3HCT;

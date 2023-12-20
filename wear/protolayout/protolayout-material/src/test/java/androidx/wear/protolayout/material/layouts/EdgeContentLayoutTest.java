@@ -66,6 +66,24 @@ public class EdgeContentLayoutTest {
     }
 
     @Test
+    public void testAllBehind() {
+        LayoutElement content = new Box.Builder().build();
+        CircularProgressIndicator progressIndicator =
+                new CircularProgressIndicator.Builder().build();
+        EdgeContentLayout layout =
+                new EdgeContentLayout.Builder(DEVICE_PARAMETERS)
+                        .setEdgeContentBehindAllOtherContent(true)
+                        .setContent(content)
+                        .setEdgeContent(progressIndicator)
+                        .setPrimaryLabelTextContent(PRIMARY_LABEL)
+                        .setSecondaryLabelTextContent(SECONDARY_LABEL)
+                        .build();
+
+        assertLayout(layout, progressIndicator, content, PRIMARY_LABEL, SECONDARY_LABEL);
+        assertThat(layout.isEdgeContentBehindAllOtherContent()).isTrue();
+    }
+
+    @Test
     public void testContentOnly() {
         LayoutElement content = new Box.Builder().build();
         EdgeContentLayout layout =
@@ -222,6 +240,19 @@ public class EdgeContentLayoutTest {
                                     | EdgeContentLayout.SECONDARY_LABEL_PRESENT);
         }
 
-        assertThat(actualLayout.getMetadataTag()).isEqualTo(expectedMetadata);
+        // Reset bit for edge content position. If that bit is wrong, the above checks around
+        // content will fail, so we don't need to specifically check it here.
+        resetEdgeContentPositionFlag(expectedMetadata);
+        byte[] actualMetadata = actualLayout.getMetadataTag();
+        resetEdgeContentPositionFlag(actualMetadata);
+
+        assertThat(actualMetadata).isEqualTo(expectedMetadata);
+    }
+
+    private static void resetEdgeContentPositionFlag(byte[] expectedMetadata) {
+        expectedMetadata[EdgeContentLayout.FLAG_INDEX] =
+                (byte)
+                        (expectedMetadata[EdgeContentLayout.FLAG_INDEX]
+                                & ~EdgeContentLayout.EDGE_CONTENT_POSITION);
     }
 }

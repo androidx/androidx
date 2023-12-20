@@ -17,11 +17,11 @@
 package androidx.compose.ui.test
 
 import androidx.compose.ui.semantics.SemanticsActions
-import androidx.compose.ui.semantics.SemanticsActions.PerformImeAction
+import androidx.compose.ui.semantics.SemanticsActions.OnImeAction
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
-import androidx.compose.ui.semantics.performImeAction
+import androidx.compose.ui.semantics.onImeAction
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
@@ -39,6 +39,8 @@ fun SemanticsNodeInteraction.performTextClearance() {
  * @param text Text to send.
  */
 fun SemanticsNodeInteraction.performTextInput(text: String) {
+    @OptIn(ExperimentalTestApi::class)
+    invokeGlobalAssertions()
     getNodeAndFocus()
     performSemanticsAction(SemanticsActions.InsertTextAtCursor) {
         it(AnnotatedString(text))
@@ -76,21 +78,23 @@ fun SemanticsNodeInteraction.performTextReplacement(text: String) {
  * Sends to this node the IME action associated with it in a similar way to the IME.
  *
  * The node needs to define its IME action in semantics via
- * [SemanticsPropertyReceiver.performImeAction].
+ * [SemanticsPropertyReceiver.onImeAction].
  *
  * @throws AssertionError if the node does not support input or does not define IME action.
  * @throws IllegalStateException if the node did is not an editor or would not be able to establish
  * an input connection (e.g. does not define [ImeAction][SemanticsProperties.ImeAction] or
- * [PerformImeAction] or is not focused).
+ * [OnImeAction] or is not focused).
  */
 fun SemanticsNodeInteraction.performImeAction() {
     val errorOnFail = "Failed to perform IME action."
     assert(hasPerformImeAction()) { errorOnFail }
     assert(!hasImeAction(ImeAction.Default)) { errorOnFail }
+    @OptIn(ExperimentalTestApi::class)
+    invokeGlobalAssertions()
     val node = getNodeAndFocus(errorOnFail)
 
     wrapAssertionErrorsWithNodeInfo(selector, node) {
-        performSemanticsAction(PerformImeAction) {
+        performSemanticsAction(OnImeAction) {
             assert(it()) {
                 buildGeneralErrorMessage(
                     "Failed to perform IME action, handler returned false.",
@@ -105,6 +109,8 @@ fun SemanticsNodeInteraction.performImeAction() {
 private fun SemanticsNodeInteraction.getNodeAndFocus(
     errorOnFail: String = "Failed to perform text input."
 ): SemanticsNode {
+    @OptIn(ExperimentalTestApi::class)
+    invokeGlobalAssertions()
     val node = fetchSemanticsNode(errorOnFail)
     assert(isEnabled()) { errorOnFail }
     assert(hasSetTextAction()) { errorOnFail }

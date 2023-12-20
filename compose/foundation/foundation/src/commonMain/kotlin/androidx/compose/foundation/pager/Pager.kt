@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.pager
 
+import androidx.annotation.FloatRange
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.LinearEasing
@@ -28,10 +29,12 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.FlingBehavior
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.ScrollScope
+import androidx.compose.foundation.gestures.snapping.FinalSnappingItem
 import androidx.compose.foundation.gestures.snapping.MinFlingVelocityDp
 import androidx.compose.foundation.gestures.snapping.SnapFlingBehavior
 import androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider
 import androidx.compose.foundation.gestures.snapping.calculateDistanceToDesiredSnapPosition
+import androidx.compose.foundation.gestures.snapping.calculateFinalSnappingItem
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -52,12 +55,10 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastFirstOrNull
-import androidx.compose.ui.util.fastForEach
+import kotlin.math.abs
 import kotlin.math.absoluteValue
-import kotlin.math.ceil
-import kotlin.math.floor
 import kotlin.math.sign
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.launch
 
 /**
@@ -82,11 +83,12 @@ import kotlinx.coroutines.launch
  * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
  * between the pages.
  * @param pageSize Use this to change how the pages will look like inside this pager.
- * @param beyondBoundsPageCount Pages to load before and after the list of visible
+ * @param beyondBoundsPageCount Pages to compose and layout before and after the list of visible
  * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
  * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
  * This should be used as an optimization to pre-load a couple of pages before and after the visible
- * ones.
+ * ones. This does not include the pages automatically composed and laid out by the pre-fetcher in
+ * the direction of the scroll during scroll events.
  * @param pageSpacing The amount of space to be used to separate the pages in this Pager
  * @param verticalAlignment How pages are aligned vertically in this Pager.
  * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
@@ -96,7 +98,8 @@ import kotlinx.coroutines.launch
  * @param reverseLayout reverse the direction of scrolling and layout.
  * @param key a stable and unique key representing the item. When you specify the key the scroll
  * position will be maintained based on the key, which means if you add/remove items before the
- * current visible item the item with the given key will be kept as the first visible one.
+ * current visible item the item with the given key will be kept as the first visible one. If null
+ * is passed the position in the list will represent the key.
  * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager]
  * behaves with nested lists. The default behavior will see [Pager] to consume all nested deltas.
  * @param pageContent This Pager's page Composable.
@@ -108,124 +111,16 @@ fun HorizontalPager(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     pageSize: PageSize = PageSize.Fill,
-    beyondBoundsPageCount: Int = 0,
+    beyondBoundsPageCount: Int = PagerDefaults.BeyondBoundsPageCount,
     pageSpacing: Dp = 0.dp,
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
-    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
-        Orientation.Horizontal
-    ),
-    pageContent: @Composable PagerScope.(page: Int) -> Unit
-) {
-    Pager(
-        state = state,
-        modifier = modifier,
-        contentPadding = contentPadding,
-        pageSize = pageSize,
-        beyondBoundsPageCount = beyondBoundsPageCount,
-        pageSpacing = pageSpacing,
-        orientation = Orientation.Horizontal,
-        verticalAlignment = verticalAlignment,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        flingBehavior = flingBehavior,
-        userScrollEnabled = userScrollEnabled,
-        reverseLayout = reverseLayout,
-        key = key,
-        pageNestedScrollConnection = pageNestedScrollConnection,
-        pageContent = pageContent
-    )
-}
-
-/**
- * A Pager that scrolls horizontally. Pages are lazily placed in accordance to the available
- * viewport size. By definition, pages in a [Pager] have the same size, defined by [pageSize] and
- * use a snap animation (provided by [flingBehavior] to scroll pages into a specific position). You
- * can use [beyondBoundsPageCount] to place more pages before and after the visible pages.
- *
- * If you need snapping with pages of different size, you can use a [SnapFlingBehavior] with a
- * [SnapLayoutInfoProvider] adapted to a LazyList.
- * @see androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider for the implementation
- * of a [SnapLayoutInfoProvider] that uses [androidx.compose.foundation.lazy.LazyListState].
- *
- * Please refer to the sample to learn how to use this API.
- * @sample androidx.compose.foundation.samples.SimpleHorizontalPagerSample
- *
- * @param pageCount The number of pages this Pager will contain
- * @param modifier A modifier instance to be applied to this Pager outer layout
- * @param state The state to control this pager
- * @param contentPadding a padding around the whole content. This will add padding for the
- * content after it has been clipped, which is not possible via [modifier] param. You can use it
- * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
- * between the pages.
- * @param pageSize Use this to change how the pages will look like inside this pager.
- * @param beyondBoundsPageCount Pages to load before and after the list of visible
- * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
- * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
- * This should be used as an optimization to pre-load a couple of pages before and after the visible
- * ones.
- * @param pageSpacing The amount of space to be used to separate the pages in this Pager
- * @param verticalAlignment How pages are aligned vertically in this Pager.
- * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
- * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
- * is allowed. You can still scroll programmatically using [PagerState.scroll] even when it is
- * disabled.
- * @param reverseLayout reverse the direction of scrolling and layout.
- * @param key a stable and unique key representing the page. When you specify the key the scroll
- * position will be maintained based on the key, which means if you add/remove pages before the
- * current visible page the page with the given key will be kept as the first visible one.
- * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager]
- * behaves with nested lists. The default behavior will see [Pager] to consume all nested deltas.
- * @param pageContent This Pager's page Composable.
- */
-@Deprecated(
-    "Please use the overload without pageCount. pageCount should be provided " +
-        "through PagerState.",
-    ReplaceWith(
-        """HorizontalPager(
-            modifier = modifier,
-            state = state,
-            pageSpacing = pageSpacing,
-            horizontalAlignment = horizontalAlignment,
-            userScrollEnabled = userScrollEnabled,
-            reverseLayout = reverseLayout,
-            contentPadding = contentPadding,
-            beyondBoundsPageCount = beyondBoundsPageCount,
-            pageSize = pageSize,
-            flingBehavior = flingBehavior,
-            key = key,
-            pageNestedScrollConnection = pageNestedScrollConnection,
-            pageContent = pageContent
-        )""",
-        imports = arrayOf(
-            "androidx.compose.foundation.gestures.Orientation",
-            "androidx.compose.foundation.layout.PaddingValues",
-            "androidx.compose.foundation.pager.PageSize",
-            "androidx.compose.foundation.pager.PagerDefaults"
-        ),
-    ),
-    level = DeprecationLevel.ERROR
-)
-@Composable
-@ExperimentalFoundationApi
-fun HorizontalPager(
-    pageCount: Int,
-    modifier: Modifier = Modifier,
-    state: PagerState = rememberPagerState { pageCount },
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    pageSize: PageSize = PageSize.Fill,
-    beyondBoundsPageCount: Int = 0,
-    pageSpacing: Dp = 0.dp,
-    verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
-    flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
-    userScrollEnabled: Boolean = true,
-    reverseLayout: Boolean = false,
-    key: ((index: Int) -> Any)? = null,
-    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
-        Orientation.Horizontal
-    ),
+    pageNestedScrollConnection: NestedScrollConnection = remember(state) {
+        PagerDefaults.pageNestedScrollConnection(state, Orientation.Horizontal)
+    },
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(
@@ -268,11 +163,12 @@ fun HorizontalPager(
  * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
  * between the pages.
  * @param pageSize Use this to change how the pages will look like inside this pager.
- * @param beyondBoundsPageCount Pages to load before and after the list of visible
+ * @param beyondBoundsPageCount Pages to compose and layout before and after the list of visible
  * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
  * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
  * This should be used as an optimization to pre-load a couple of pages before and after the visible
- * ones.
+ * ones. This does not include the pages automatically composed and laid out by the pre-fetcher in
+ *  * the direction of the scroll during scroll events.
  * @param pageSpacing The amount of space to be used to separate the pages in this Pager
  * @param horizontalAlignment How pages are aligned horizontally in this Pager.
  * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
@@ -282,7 +178,8 @@ fun HorizontalPager(
  * @param reverseLayout reverse the direction of scrolling and layout.
  * @param key a stable and unique key representing the item. When you specify the key the scroll
  * position will be maintained based on the key, which means if you add/remove items before the
- * current visible item the item with the given key will be kept as the first visible one.
+ * current visible item the item with the given key will be kept as the first visible one. If null
+ * is passed the position in the list will represent the key.
  * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager] behaves
  * with nested lists. The default behavior will see [Pager] to consume all nested deltas.
  * @param pageContent This Pager's page Composable.
@@ -294,123 +191,16 @@ fun VerticalPager(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     pageSize: PageSize = PageSize.Fill,
-    beyondBoundsPageCount: Int = 0,
+    beyondBoundsPageCount: Int = PagerDefaults.BeyondBoundsPageCount,
     pageSpacing: Dp = 0.dp,
     horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
     flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
     userScrollEnabled: Boolean = true,
     reverseLayout: Boolean = false,
     key: ((index: Int) -> Any)? = null,
-    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
-        Orientation.Vertical
-    ),
-    pageContent: @Composable PagerScope.(page: Int) -> Unit
-) {
-    Pager(
-        state = state,
-        modifier = modifier,
-        contentPadding = contentPadding,
-        pageSize = pageSize,
-        beyondBoundsPageCount = beyondBoundsPageCount,
-        pageSpacing = pageSpacing,
-        orientation = Orientation.Vertical,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalAlignment = horizontalAlignment,
-        flingBehavior = flingBehavior,
-        userScrollEnabled = userScrollEnabled,
-        reverseLayout = reverseLayout,
-        key = key,
-        pageNestedScrollConnection = pageNestedScrollConnection,
-        pageContent = pageContent
-    )
-}
-
-/**
- * A Pager that scrolls vertically. Pages are lazily placed in accordance to the available
- * viewport size. By definition, pages in a [Pager] have the same size, defined by [pageSize] and
- * use a snap animation (provided by [flingBehavior] to scroll pages into a specific position). You
- * can use [beyondBoundsPageCount] to place more pages before and after the visible pages.
- *
- * If you need snapping with pages of different size, you can use a [SnapFlingBehavior] with a
- * [SnapLayoutInfoProvider] adapted to a LazyList.
- * @see androidx.compose.foundation.gestures.snapping.SnapLayoutInfoProvider for the implementation
- * of a [SnapLayoutInfoProvider] that uses [androidx.compose.foundation.lazy.LazyListState].
- *
- * Please refer to the sample to learn how to use this API.
- * @sample androidx.compose.foundation.samples.SimpleVerticalPagerSample
- *
- * @param pageCount The number of pages this Pager will contain
- * @param modifier A modifier instance to be apply to this Pager outer layout
- * @param state The state to control this pager
- * @param contentPadding a padding around the whole content. This will add padding for the
- * content after it has been clipped, which is not possible via [modifier] param. You can use it
- * to add a padding before the first page or after the last one. Use [pageSpacing] to add spacing
- * between the pages.
- * @param pageSize Use this to change how the pages will look like inside this pager.
- * @param beyondBoundsPageCount Pages to load before and after the list of visible
- * pages. Note: Be aware that using a large value for [beyondBoundsPageCount] will cause a lot of
- * pages to be composed, measured and placed which will defeat the purpose of using lazy loading.
- * This should be used as an optimization to pre-load a couple of pages before and after the visible
- * ones.
- * @param pageSpacing The amount of space to be used to separate the pages in this Pager
- * @param horizontalAlignment How pages are aligned horizontally in this Pager.
- * @param flingBehavior The [FlingBehavior] to be used for post scroll gestures.
- * @param userScrollEnabled whether the scrolling via the user gestures or accessibility actions
- * is allowed. You can still scroll programmatically using [PagerState.scroll] even when it is
- * disabled.
- * @param reverseLayout reverse the direction of scrolling and layout.
- * @param key a stable and unique key representing the page. When you specify the key the scroll
- * position will be maintained based on the key, which means if you add/remove pages before the
- * current visible page the page with the given key will be kept as the first visible one.
- * @param pageNestedScrollConnection A [NestedScrollConnection] that dictates how this [Pager] behaves
- * with nested lists. The default behavior will see [Pager] to consume all nested deltas.
- * @param pageContent This Pager's page Composable.
- */
-@Deprecated(
-    "Please use the overload without pageCount. pageCount should be provided " +
-        "through PagerState.", ReplaceWith(
-        """VerticalPager(
-            modifier = modifier,
-            state = state,
-            pageSpacing = pageSpacing,
-            horizontalAlignment = horizontalAlignment,
-            userScrollEnabled = userScrollEnabled,
-            reverseLayout = reverseLayout,
-            contentPadding = contentPadding,
-            beyondBoundsPageCount = beyondBoundsPageCount,
-            pageSize = pageSize,
-            flingBehavior = flingBehavior,
-            key = key,
-            pageNestedScrollConnection = pageNestedScrollConnection,
-            pageContent = pageContent
-        )""",
-        imports = arrayOf(
-            "androidx.compose.foundation.gestures.Orientation",
-            "androidx.compose.foundation.layout.PaddingValues",
-            "androidx.compose.foundation.pager.PageSize",
-            "androidx.compose.foundation.pager.PagerDefaults"
-        )
-    ),
-    level = DeprecationLevel.ERROR
-)
-@Composable
-@ExperimentalFoundationApi
-fun VerticalPager(
-    pageCount: Int,
-    modifier: Modifier = Modifier,
-    state: PagerState = rememberPagerState { pageCount },
-    contentPadding: PaddingValues = PaddingValues(0.dp),
-    pageSize: PageSize = PageSize.Fill,
-    beyondBoundsPageCount: Int = 0,
-    pageSpacing: Dp = 0.dp,
-    horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
-    flingBehavior: SnapFlingBehavior = PagerDefaults.flingBehavior(state = state),
-    userScrollEnabled: Boolean = true,
-    reverseLayout: Boolean = false,
-    key: ((index: Int) -> Any)? = null,
-    pageNestedScrollConnection: NestedScrollConnection = PagerDefaults.pageNestedScrollConnection(
-        Orientation.Vertical
-    ),
+    pageNestedScrollConnection: NestedScrollConnection = remember(state) {
+        PagerDefaults.pageNestedScrollConnection(state, Orientation.Vertical)
+    },
     pageContent: @Composable PagerScope.(page: Int) -> Unit
 ) {
     Pager(
@@ -470,6 +260,16 @@ interface PageSize {
         override fun Density.calculateMainAxisPageSize(availableSpace: Int, pageSpacing: Int): Int {
             return pageSize.roundToPx()
         }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (other !is Fixed) return false
+            return pageSize == other.pageSize
+        }
+
+        override fun hashCode(): Int {
+            return pageSize.hashCode()
+        }
     }
 }
 
@@ -485,52 +285,67 @@ object PagerDefaults {
      * @see androidx.compose.foundation.gestures.snapping.SnapFlingBehavior for more information
      * on what which parameter controls in the overall snapping animation.
      *
+     * The animation specs used by the fling behavior will depend on 2 factors:
+     * 1) The gesture velocity.
+     * 2) The target page proposed by [pagerSnapDistance].
+     *
+     * If you're using single page snapping (the most common use case for [Pager]), there won't
+     * be enough space to actually run a decay animation to approach the target page, so the Pager
+     * will always use the snapping animation from [snapAnimationSpec].
+     * If you're using multi-page snapping (this means you're abs(targetPage - currentPage) > 1)
+     * the Pager may use [highVelocityAnimationSpec] or [lowVelocityAnimationSpec] to approach the
+     * targetPage, it will depend on the velocity generated by the triggering gesture.
+     * If the gesture has a high enough velocity to approach the target page, the Pager will use
+     * [highVelocityAnimationSpec] followed by [snapAnimationSpec] for the final step of the
+     * animation. If the gesture doesn't have enough velocity, the Pager will use
+     * [lowVelocityAnimationSpec] + [snapAnimationSpec] in a similar fashion.
+     *
      * @param state The [PagerState] that controls the which to which this FlingBehavior will
      * be applied to.
      * @param pagerSnapDistance A way to control the snapping destination for this [Pager].
      * The default behavior will result in any fling going to the next page in the direction of the
-     * fling (if the fling has enough velocity, otherwise we'll bounce back). Use
+     * fling (if the fling has enough velocity, otherwise  the Pager will bounce back). Use
      * [PagerSnapDistance.atMost] to define a maximum number of pages this [Pager] is allowed to
      * fling after scrolling is finished and fling has started.
-     * @param lowVelocityAnimationSpec The animation spec used to approach the target offset. When
+     * @param lowVelocityAnimationSpec An animation spec used to approach the target offset. When
      * the fling velocity is not large enough. Large enough means large enough to naturally decay.
+     * When snapping through many pages, the Pager may not be able to run a decay animation, so it
+     * will use this spec to run an animation to approach the target page requested by
+     * [pagerSnapDistance].
      * @param highVelocityAnimationSpec The animation spec used to approach the target offset. When
-     * the fling velocity is large enough. Large enough means large enough to naturally decay.
-     * @param snapAnimationSpec The animation spec used to finally snap to the position.
-     * @param snapVelocityThreshold The minimum velocity required for a fling to be considered
-     * high enough to make pages animate through [lowVelocityAnimationSpec] and
-     * [highVelocityAnimationSpec].
+     * the fling velocity is large enough. Large enough means large enough to naturally decay. For
+     * single page snapping this usually never happens since there won't be enough space to run a
+     * decay animation.
+     * @param snapAnimationSpec The animation spec used to finally snap to the position. This
+     * animation will be often used in 2 cases: 1) There was enough space to an approach animation,
+     * the Pager will use [snapAnimationSpec] in the last step of the animation to settle the page
+     * into position. 2) There was not enough space to run the approach animation.
      * @param snapPositionalThreshold If the fling has a low velocity (e.g. slow scroll),
      * this fling behavior will use this snap threshold in order to determine if the pager should
      * snap back or move forward. Use a number between 0 and 1 as a fraction of the page size that
-     * needs to be scrolled before we consider it should move to the next page. For instance, if
-     * snapPositionalThreshold = 0.35, it means if this pager is scrolled with a slow velocity and
-     * we scroll more than 35% of the page size, then will jump to the next page, if not we scroll
-     * back. The default value is 50% meaning if we scroll the page more than 50% and let go it will
-     * snap to the next page.
+     * needs to be scrolled before the Pager considers it should move to the next page.
+     * For instance, if snapPositionalThreshold = 0.35, it means if this pager is scrolled with a
+     * slow velocity and the Pager scrolls more than 35% of the page size, then will jump to the
+     * next page, if not it scrolls back.
      * Note that any fling that has high enough velocity will *always* move to the next page
      * in the direction of the fling.
      *
      * @return An instance of [FlingBehavior] that will perform Snapping to the next page by
-     * default. The animation will be governed by the post scroll velocity and we'll use either
+     * default. The animation will be governed by the post scroll velocity and the Pager will use
+     * either
      * [lowVelocityAnimationSpec] or [highVelocityAnimationSpec] to approach the snapped position
-     * and the last step of the animation will be performed by [snapAnimationSpec]. If a velocity
-     * is not high enough (lower than [snapVelocityThreshold]) the pager will use
-     * [snapAnimationSpec] to reach the snapped position. If the velocity is high enough, we'll
-     * use the logic described in [highVelocityAnimationSpec] and [lowVelocityAnimationSpec].
+     * If a velocity is not high enough the pager will use [snapAnimationSpec] to reach the snapped
+     * position. If the velocity is high enough, the Pager will use the logic described in
+     * [highVelocityAnimationSpec] and [lowVelocityAnimationSpec].
      */
     @Composable
     fun flingBehavior(
         state: PagerState,
         pagerSnapDistance: PagerSnapDistance = PagerSnapDistance.atMost(1),
-        lowVelocityAnimationSpec: AnimationSpec<Float> = tween(
-            easing = LinearEasing,
-            durationMillis = LowVelocityAnimationDefaultDuration
-        ),
+        lowVelocityAnimationSpec: AnimationSpec<Float> = LowVelocityAnimationSpec,
         highVelocityAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
         snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
-        snapVelocityThreshold: Dp = MinFlingVelocityDp,
-        snapPositionalThreshold: Float = 0.5f
+        @FloatRange(from = 0.0, to = 1.0) snapPositionalThreshold: Float = 0.5f
     ): SnapFlingBehavior {
         require(snapPositionalThreshold in 0f..1f) {
             "snapPositionalThreshold should be a number between 0 and 1. " +
@@ -557,27 +372,131 @@ object PagerDefaults {
                 snapLayoutInfoProvider = snapLayoutInfoProvider,
                 lowVelocityAnimationSpec = lowVelocityAnimationSpec,
                 highVelocityAnimationSpec = highVelocityAnimationSpec,
-                snapAnimationSpec = snapAnimationSpec,
-                density = density,
-                shortSnapVelocityThreshold = snapVelocityThreshold
+                snapAnimationSpec = snapAnimationSpec
             )
         }
     }
 
     /**
-     * The default implementation of Pager's pageNestedScrollConnection. All fling scroll deltas
-     * will be consumed by the Pager.
-     *
-     * @param orientation The orientation of the pager. This will be used to determine which
-     * direction it will consume everything. The other direction will not be consumed.
+     * The [AnimationSpec] used by [flingBehavior] in flings with low velocity.
      */
-    fun pageNestedScrollConnection(orientation: Orientation): NestedScrollConnection {
-        return if (orientation == Orientation.Horizontal) {
-            ConsumeHorizontalFlingNestedScrollConnection
-        } else {
-            ConsumeVerticalFlingNestedScrollConnection
-        }
+    val LowVelocityAnimationSpec: AnimationSpec<Float> =
+        tween(easing = LinearEasing, durationMillis = LowVelocityAnimationDefaultDuration)
+
+    /**
+     * A [SnapFlingBehavior] that will snap pages to the start of the layout. One can use the
+     * given parameters to control how the snapping animation will happen.
+     * @see androidx.compose.foundation.gestures.snapping.SnapFlingBehavior for more information
+     * on what which parameter controls in the overall snapping animation.
+     *
+     * The animation specs used by the fling behavior will depend on 3 factors:
+     * 1) The gesture velocity.
+     * 2) The target page proposed by [pagerSnapDistance].
+     * 3) The minimum velocity determined by [snapVelocityThreshold].
+     *
+     * If you're using single page snapping (the most common use case for [Pager]), there won't
+     * be enough space to actually run a decay animation to approach the target page, so the Pager
+     * will always use the snapping animation from [snapAnimationSpec].
+     * If the gesture velocity is smaller than the [snapVelocityThreshold], the Pager will also use
+     * [snapAnimationSpec].
+     * If you're using multi-page snapping (this means you're abs(targetPage - currentPage) > 1)
+     * the Pager may use [highVelocityAnimationSpec] or [lowVelocityAnimationSpec] to approach the
+     * targetPage, it will depend on the velocity generated by the triggering gesture.
+     * If the gesture has a high enough velocity to approach the target page, the Pager will use
+     * [highVelocityAnimationSpec] followed by [snapAnimationSpec] for the final step of the
+     * animation. If the gesture doesn't have enough velocity, the Pager will use
+     * [lowVelocityAnimationSpec] + [snapAnimationSpec] in a similar fashion.
+     *
+     * @param state The [PagerState] that controls the which to which this FlingBehavior will
+     * be applied to.
+     * @param pagerSnapDistance A way to control the snapping destination for this [Pager].
+     * The default behavior will result in any fling going to the next page in the direction of the
+     * fling (if the fling has enough velocity, otherwise  the Pager will bounce back). Use
+     * [PagerSnapDistance.atMost] to define a maximum number of pages this [Pager] is allowed to
+     * fling after scrolling is finished and fling has started.
+     * @param lowVelocityAnimationSpec An animation spec used to approach the target offset. When
+     * the fling velocity is not large enough. Large enough means large enough to naturally decay.
+     * When snapping through many pages, the Pager may not be able to run a decay animation, so it
+     * will use this spec to run an animation to approach the target page requested by
+     * [pagerSnapDistance].
+     * @param highVelocityAnimationSpec The animation spec used to approach the target offset. When
+     * the fling velocity is large enough. Large enough means large enough to naturally decay. For
+     * single page snapping this usually never happens since there won't be enough space to run a
+     * decay animation.
+     * @param snapAnimationSpec The animation spec used to finally snap to the position. This
+     * animation will be often used in 2 cases: 1) There was enough space to an approach animation,
+     * the Pager will use [snapAnimationSpec] in the last step of the animation to settle the page
+     * into position. 2) There was not enough space to run the approach animation. 3) In snapping
+     * when the gesture velocity is below the [snapVelocityThreshold].
+     * @param snapVelocityThreshold The minimum velocity required for a fling to be considered
+     * high enough to make pages animate through [lowVelocityAnimationSpec] and
+     * [highVelocityAnimationSpec].
+     * @param snapPositionalThreshold If the fling has a low velocity (e.g. slow scroll),
+     * this fling behavior will use this snap threshold in order to determine if the pager should
+     * snap back or move forward. Use a number between 0 and 1 as a fraction of the page size that
+     * needs to be scrolled before the Pager considers it should move to the next page.
+     * For instance, if snapPositionalThreshold = 0.35, it means if this pager is scrolled with a
+     * slow velocity and the Pager scrolls more than 35% of the page size, then will jump to the
+     * next page, if not it scrolls back. The default value is 50% meaning if the Pager scrolls the
+     * page more than 50% and let go it will snap to the next page.
+     * Note that any fling that has high enough velocity will *always* move to the next page
+     * in the direction of the fling.
+     *
+     * @return An instance of [FlingBehavior] that will perform Snapping to the next page by
+     * default. The animation will be governed by the post scroll velocity and the Pager will use
+     * either
+     * [lowVelocityAnimationSpec] or [highVelocityAnimationSpec] to approach the snapped position
+     * If a velocity is not high enough (lower than [snapVelocityThreshold]) the pager will use
+     * [snapAnimationSpec] to reach the snapped position. If the velocity is high enough, the Pager
+     * will use the logic described in [highVelocityAnimationSpec] and [lowVelocityAnimationSpec].
+     */
+    @Suppress("UNUSED_PARAMETER")
+    @Deprecated(
+        "Please use the overload without snapVelocityThreshold. For Pager" +
+            "the functionalities provided by snapVelocityThreshold were already being provided by" +
+            "other APIS."
+    )
+    @Composable
+    fun flingBehavior(
+        state: PagerState,
+        pagerSnapDistance: PagerSnapDistance = PagerSnapDistance.atMost(1),
+        lowVelocityAnimationSpec: AnimationSpec<Float> = tween(
+            easing = LinearEasing,
+            durationMillis = LowVelocityAnimationDefaultDuration
+        ),
+        highVelocityAnimationSpec: DecayAnimationSpec<Float> = rememberSplineBasedDecay(),
+        snapAnimationSpec: AnimationSpec<Float> = spring(stiffness = Spring.StiffnessMediumLow),
+        snapVelocityThreshold: Dp = MinFlingVelocityDp,
+        snapPositionalThreshold: Float = 0.5f
+    ) = flingBehavior(
+        state,
+        pagerSnapDistance,
+        lowVelocityAnimationSpec,
+        highVelocityAnimationSpec,
+        snapAnimationSpec,
+        snapPositionalThreshold
+    )
+
+    /**
+     * The default implementation of Pager's pageNestedScrollConnection.
+     *
+     * @param state state of the pager
+     * @param orientation The orientation of the pager. This will be used to determine which
+     * direction the nested scroll connection will operate and react on.
+     */
+    fun pageNestedScrollConnection(
+        state: PagerState,
+        orientation: Orientation
+    ): NestedScrollConnection {
+        return DefaultPagerNestedScrollConnection(state, orientation)
     }
+
+    /**
+     * The default value of beyondBoundsPageCount used to specify the number of pages to compose
+     * and layout before and after the visible pages. It does not include the pages automatically
+     * composed and laid out by the pre-fetcher in the direction of the scroll during scroll events.
+     */
+    const val BeyondBoundsPageCount = 0
 }
 
 /**
@@ -637,6 +556,13 @@ internal class PagerSnapDistanceMaxPages(private val pagesLimit: Int) : PagerSna
         pageSize: Int,
         pageSpacing: Int,
     ): Int {
+        debugLog {
+            "PagerSnapDistanceMaxPages: startPage=$startPage " +
+                "suggestedTargetPage=$suggestedTargetPage " +
+                "velocity=$velocity " +
+                "pageSize=$pageSize " +
+                "pageSpacing$pageSpacing"
+        }
         return suggestedTargetPage.coerceIn(startPage - pagesLimit, startPage + pagesLimit)
     }
 
@@ -668,53 +594,64 @@ private fun SnapLayoutInfoProvider(
             return this != Float.POSITIVE_INFINITY && this != Float.NEGATIVE_INFINITY
         }
 
-        override fun Density.calculateSnappingOffset(currentVelocity: Float): Float {
-            var lowerBoundOffset = Float.NEGATIVE_INFINITY
-            var upperBoundOffset = Float.POSITIVE_INFINITY
-
-            layoutInfo.visiblePagesInfo.fastForEach { page ->
-                val offset = calculateDistanceToDesiredSnapPosition(
-                    mainAxisViewPortSize = layoutInfo.mainAxisViewportSize,
-                    beforeContentPadding = layoutInfo.beforeContentPadding,
-                    afterContentPadding = layoutInfo.afterContentPadding,
-                    itemSize = layoutInfo.pageSize,
-                    itemOffset = page.offset,
-                    itemIndex = page.index,
-                    snapPositionInLayout = SnapAlignmentStartToStart
-                )
-
-                // Find page that is closest to the snap position, but before it
-                if (offset <= 0 && offset > lowerBoundOffset) {
-                    lowerBoundOffset = offset
-                }
-
-                // Find page that is closest to the snap position, but after it
-                if (offset >= 0 && offset < upperBoundOffset) {
-                    upperBoundOffset = offset
-                }
-            }
+        override fun calculateSnappingOffset(currentVelocity: Float): Float {
+            val (lowerBoundOffset, upperBoundOffset) = searchForSnappingBounds()
 
             val isForward = pagerState.isScrollingForward()
 
+            debugLog { "isForward=$isForward" }
+
+            // how many pages have I scrolled using a drag gesture.
             val offsetFromSnappedPosition =
                 pagerState.dragGestureDelta() / layoutInfo.pageSize.toFloat()
 
+            // we're only interested in the decimal part of the offset.
             val offsetFromSnappedPositionOverflow =
                 offsetFromSnappedPosition - offsetFromSnappedPosition.toInt().toFloat()
 
-            val finalDistance = when (sign(currentVelocity)) {
-                0f -> {
+            // If the velocity is not high, use the positional threshold to decide where to go.
+            // This is applicable mainly when the user scrolls and lets go without flinging.
+            val finalSnappingItem =
+                with(pagerState.density) { calculateFinalSnappingItem(currentVelocity) }
+
+            debugLog {
+                "\nfinalSnappingItem=$finalSnappingItem" +
+                    "\nlower=$lowerBoundOffset" +
+                    "\nupper=$upperBoundOffset"
+            }
+
+            val finalDistance = when (finalSnappingItem) {
+                FinalSnappingItem.ClosestItem -> {
                     if (offsetFromSnappedPositionOverflow.absoluteValue > snapPositionalThreshold) {
+                        // If we crossed the threshold, go to the next bound
+                        debugLog { "Crossed Snap Positional Threshold" }
                         if (isForward) upperBoundOffset else lowerBoundOffset
                     } else {
-                        if (isForward) lowerBoundOffset else upperBoundOffset
+                        // if we haven't crossed the threshold. but scrolled minimally, we should
+                        // bound to the previous bound
+                        if (abs(pagerState.currentPageOffsetFraction) >=
+                            abs(pagerState.positionThresholdFraction)
+                        ) {
+                            debugLog { "Crossed Positional Threshold Fraction" }
+                            if (isForward) lowerBoundOffset else upperBoundOffset
+                        } else {
+                            // if we haven't scrolled minimally, settle for the closest bound
+                            debugLog { "Snap To Closest" }
+                            if (lowerBoundOffset.absoluteValue < upperBoundOffset.absoluteValue) {
+                                lowerBoundOffset
+                            } else {
+                                upperBoundOffset
+                            }
+                        }
                     }
                 }
 
-                1f -> upperBoundOffset
-                -1f -> lowerBoundOffset
+                FinalSnappingItem.NextItem -> upperBoundOffset
+                FinalSnappingItem.PreviousItem -> lowerBoundOffset
                 else -> 0f
             }
+
+            debugLog { "Snapping to=$finalDistance" }
 
             return if (finalDistance.isValidDistance()) {
                 finalDistance
@@ -723,39 +660,38 @@ private fun SnapLayoutInfoProvider(
             }
         }
 
-        override fun Density.calculateSnapStepSize(): Float = layoutInfo.pageSize.toFloat()
-
-        override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
+        override fun calculateApproachOffset(initialVelocity: Float): Float {
+            debugLog { "Approach Velocity=$initialVelocity" }
             val effectivePageSizePx = pagerState.pageSize + pagerState.pageSpacing
+
+            // given this velocity, where can I go with a decay animation.
             val animationOffsetPx =
                 decayAnimationSpec.calculateTargetValue(0f, initialVelocity)
+
             val startPage = if (initialVelocity < 0) {
                 pagerState.firstVisiblePage + 1
             } else {
                 pagerState.firstVisiblePage
             }
 
-            val scrollOffset =
-                layoutInfo.visiblePagesInfo.fastFirstOrNull { it.index == startPage }?.offset ?: 0
-
             debugLog {
-                "Initial Offset=$scrollOffset " +
-                    "\nAnimation Offset=$animationOffsetPx " +
+                "\nAnimation Offset=$animationOffsetPx " +
                     "\nFling Start Page=$startPage " +
                     "\nEffective Page Size=$effectivePageSizePx"
             }
 
-            val targetOffsetPx = startPage * effectivePageSizePx + animationOffsetPx
+            // How many pages fit in the animation offset.
+            val pagesInAnimationOffset = animationOffsetPx / effectivePageSizePx
 
-            val targetPageValue = targetOffsetPx / effectivePageSizePx
-            val targetPage = if (initialVelocity > 0) {
-                ceil(targetPageValue)
-            } else {
-                floor(targetPageValue)
-            }.toInt().coerceIn(0, pagerState.pageCount)
+            debugLog { "Pages in Animation Offset=$pagesInAnimationOffset" }
+
+            // Decide where this will get us in terms of target page.
+            val targetPage =
+                (startPage + pagesInAnimationOffset.toInt()).coerceIn(0, pagerState.pageCount)
 
             debugLog { "Fling Target Page=$targetPage" }
 
+            // Apply the snap distance suggestion.
             val correctedTargetPage = pagerSnapDistance.calculateTargetPage(
                 startPage,
                 targetPage,
@@ -766,13 +702,18 @@ private fun SnapLayoutInfoProvider(
 
             debugLog { "Fling Corrected Target Page=$correctedTargetPage" }
 
+            // Calculate the offset with the new target page. The offset is the amount of
+            // pixels between the start page and the new target page.
             val proposedFlingOffset = (correctedTargetPage - startPage) * effectivePageSizePx
 
             debugLog { "Proposed Fling Approach Offset=$proposedFlingOffset" }
 
-            val flingApproachOffsetPx =
-                (proposedFlingOffset.absoluteValue - scrollOffset.absoluteValue).coerceAtLeast(0)
+            // We'd like the approach animation to finish right before the last page so we can
+            // use a snapping animation for the rest.
+            val flingApproachOffsetPx = (abs(proposedFlingOffset) - effectivePageSizePx)
+                .coerceAtLeast(0)
 
+            // Apply the correct sign.
             return if (flingApproachOffsetPx == 0) {
                 flingApproachOffsetPx.toFloat()
             } else {
@@ -780,6 +721,100 @@ private fun SnapLayoutInfoProvider(
             }.also {
                 debugLog { "Fling Approach Offset=$it" }
             }
+        }
+
+        private fun searchForSnappingBounds(): Pair<Float, Float> {
+            debugLog { "Calculating Snapping Bounds" }
+            var lowerBoundOffset = Float.NEGATIVE_INFINITY
+            var upperBoundOffset = Float.POSITIVE_INFINITY
+            val totalPageSize = pagerState.pageSize + pagerState.pageSpacing
+
+            val currentPage = pagerState.currentPage
+            val currentPageScrollOffset = pagerState.calculateCurrentPageLayoutOffset(totalPageSize)
+
+            // the closest page should be close to the current page, we'll start from current page
+            // and search both sides.
+            var page = currentPage
+            var currentOffset = currentPageScrollOffset
+
+            debugLog { "Start Search: Page=$currentPage Offset=$currentOffset" }
+
+            // The snapping bounds will be at most visiblePages/2 from the current page.
+            val maxDistanceFromCurrentPage = layoutInfo.visiblePagesInfo.size / 2
+
+            // go back
+            while (page >= (currentPage - maxDistanceFromCurrentPage).coerceAtLeast(0)) {
+                val offset = calculateDistanceToDesiredSnapPosition(
+                    mainAxisViewPortSize = layoutInfo.mainAxisViewportSize,
+                    beforeContentPadding = layoutInfo.beforeContentPadding,
+                    afterContentPadding = layoutInfo.afterContentPadding,
+                    itemSize = layoutInfo.pageSize,
+                    itemOffset = currentOffset,
+                    itemIndex = page,
+                    snapPositionInLayout = SnapAlignmentStartToStart
+                )
+
+                debugLog { "Snapping Offset=$offset for page=$page" }
+
+                // Find page that is closest to the snap position, but before it
+                if (offset <= 0 && offset > lowerBoundOffset) {
+                    lowerBoundOffset = offset
+                }
+
+                // Find page that is closest to the snap position, but after it
+                if (offset >= 0 && offset < upperBoundOffset) {
+                    upperBoundOffset = offset
+                }
+
+                currentOffset -= totalPageSize
+                page--
+            }
+
+            page = currentPage + 1
+            currentOffset = currentPageScrollOffset + totalPageSize
+
+            // go forward
+            while (page <= (currentPage + maxDistanceFromCurrentPage)
+                    .coerceAtMost(pagerState.pageCount - 1)
+            ) {
+                val offset = calculateDistanceToDesiredSnapPosition(
+                    mainAxisViewPortSize = layoutInfo.mainAxisViewportSize,
+                    beforeContentPadding = layoutInfo.beforeContentPadding,
+                    afterContentPadding = layoutInfo.afterContentPadding,
+                    itemSize = layoutInfo.pageSize,
+                    itemOffset = currentOffset,
+                    itemIndex = page,
+                    snapPositionInLayout = SnapAlignmentStartToStart
+                )
+
+                debugLog {
+                    "Snapping Offset=$offset for page=$page"
+                }
+
+                // Find page that is closest to the snap position, but after it
+                if (offset >= 0 && offset < upperBoundOffset) {
+                    upperBoundOffset = offset
+                }
+
+                // Find page that is closest to the snap position, but before it
+                if (offset <= 0 && offset > lowerBoundOffset) {
+                    lowerBoundOffset = offset
+                }
+
+                currentOffset += totalPageSize
+                page++
+            }
+
+            // If any of the bounds is unavailable, use the other.
+            if (lowerBoundOffset == Float.NEGATIVE_INFINITY) {
+                lowerBoundOffset = upperBoundOffset
+            }
+
+            if (upperBoundOffset == Float.POSITIVE_INFINITY) {
+                upperBoundOffset = lowerBoundOffset
+            }
+
+            return lowerBoundOffset to upperBoundOffset
         }
     }
 }
@@ -798,12 +833,11 @@ internal class PagerWrapperFlingBehavior(
     }
 }
 
-private val ConsumeHorizontalFlingNestedScrollConnection =
-    ConsumeAllFlingOnDirection(Orientation.Horizontal)
-private val ConsumeVerticalFlingNestedScrollConnection =
-    ConsumeAllFlingOnDirection(Orientation.Vertical)
-
-private class ConsumeAllFlingOnDirection(val orientation: Orientation) : NestedScrollConnection {
+@OptIn(ExperimentalFoundationApi::class)
+private class DefaultPagerNestedScrollConnection(
+    val state: PagerState,
+    val orientation: Orientation
+) : NestedScrollConnection {
 
     fun Velocity.consumeOnOrientation(orientation: Orientation): Velocity {
         return if (orientation == Orientation.Vertical) {
@@ -821,15 +855,50 @@ private class ConsumeAllFlingOnDirection(val orientation: Orientation) : NestedS
         }
     }
 
+    override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+        return if (
+        // rounding error and drag only
+            source == NestedScrollSource.Drag && abs(state.currentPageOffsetFraction) > 0e-6
+        ) {
+            // find the current and next page (in the direction of dragging)
+            val currentPageOffset = state.currentPageOffsetFraction * state.pageSize
+            val pageAvailableSpace = state.layoutInfo.pageSize + state.layoutInfo.pageSpacing
+            val nextClosestPageOffset =
+                currentPageOffset + pageAvailableSpace * -sign(state.currentPageOffsetFraction)
+
+            val minBound: Float
+            val maxBound: Float
+            // build min and max bounds in absolute coordinates for nested scroll
+            if (state.currentPageOffsetFraction > 0f) {
+                minBound = nextClosestPageOffset
+                maxBound = currentPageOffset
+            } else {
+                minBound = currentPageOffset
+                maxBound = nextClosestPageOffset
+            }
+
+            val delta = if (orientation == Orientation.Horizontal) available.x else available.y
+            val coerced = delta.coerceIn(minBound, maxBound)
+            // dispatch and return reversed as usual
+            val consumed = -state.dispatchRawDelta(-coerced)
+            available.copy(
+                x = if (orientation == Orientation.Horizontal) consumed else available.x,
+                y = if (orientation == Orientation.Vertical) consumed else available.y,
+            )
+        } else {
+            Offset.Zero
+        }
+    }
+
     override fun onPostScroll(
         consumed: Offset,
         available: Offset,
         source: NestedScrollSource
     ): Offset {
-        return when (source) {
-            NestedScrollSource.Fling -> available.consumeOnOrientation(orientation)
-            else -> Offset.Zero
+        if (source == NestedScrollSource.Fling && available != Offset.Zero) {
+            throw CancellationException()
         }
+        return Offset.Zero
     }
 
     override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
@@ -877,7 +946,9 @@ internal fun Modifier.pagerSemantics(state: PagerState, isVertical: Boolean): Mo
 
 private const val LowVelocityAnimationDefaultDuration = 500
 
-private const val DEBUG = false
+internal const val PagerDebugEnable = false
+
+private const val DEBUG = PagerDebugEnable
 private inline fun debugLog(generateMsg: () -> String) {
     if (DEBUG) {
         println("Pager: ${generateMsg()}")

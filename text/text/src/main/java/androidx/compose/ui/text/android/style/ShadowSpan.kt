@@ -17,14 +17,11 @@ package androidx.compose.ui.text.android.style
 
 import android.text.TextPaint
 import android.text.style.CharacterStyle
-import androidx.compose.ui.text.android.InternalPlatformTextApi
 
 /**
  * A span which applies a shadow effect to the covered text.
  *
- * @suppress
  */
-@InternalPlatformTextApi
 internal class ShadowSpan(
     val color: Int,
     val offsetX: Float,

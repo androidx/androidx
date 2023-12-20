@@ -26,7 +26,7 @@ import com.google.android.icing.proto.SetSchemaResultProto;
 /**
  * Translates a {@link SetSchemaResultProto} into {@link SetSchemaResponse}.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class SetSchemaResponseToProtoConverter {

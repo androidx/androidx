@@ -45,11 +45,9 @@ public class ActionStripTest {
     }
 
     @Test
-    public void backgroundColor_throws() {
-        Action action1 = new Action.Builder().setTitle("Test").setBackgroundColor(
+    public void customBackgroundColor_doesNotThrow() {
+        Action action = new Action.Builder().setTitle("Test").setBackgroundColor(
                 CarColor.BLUE).build();
-        assertThrows(IllegalArgumentException.class,
-                () -> new ActionStrip.Builder().addAction(action1));
     }
 
     @Test
@@ -66,17 +64,10 @@ public class ActionStripTest {
     }
 
     @Test
-    public void unsupportedPrimaryActions_throws() {
-        Action primaryAction = new Action.Builder().setTitle("primaryAction")
-                .setOnClickListener(() -> {})
-                .setFlags(FLAG_PRIMARY).build();
-
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> new ActionStrip.Builder()
-                              .addAction(primaryAction)
-        );
-
+    public void primaryActions_doesNotThrow() {
+        Action primaryAction =
+                new Action.Builder().setTitle("primaryAction").setOnClickListener(() -> {
+                }).setFlags(FLAG_PRIMARY).build();
     }
 
     @Test

@@ -69,6 +69,15 @@ public class Camera2SessionConfigImplBuilder {
     }
 
     /**
+     * Sets the session type for the session.
+     */
+    @NonNull
+    public Camera2SessionConfigImplBuilder setSessionType(int sessionType) {
+        mSessionType = sessionType;
+        return this;
+    }
+
+    /**
      * Gets the session template id.
      */
     public int getSessionTemplateId() {
@@ -115,8 +124,8 @@ public class Camera2SessionConfigImplBuilder {
 
         Camera2SessionConfigImplImpl(@NonNull Camera2SessionConfigImplBuilder builder) {
             mSessionTemplateId = builder.getSessionTemplateId();
-            mSessionParameters = builder.getSessionParameters();
-            mCamera2OutputConfigs = builder.getCamera2OutputConfigs();
+            mSessionParameters = new HashMap<>(builder.getSessionParameters());
+            mCamera2OutputConfigs = new ArrayList<>(builder.getCamera2OutputConfigs());
             mSessionType = builder.getSessionType();
         }
 

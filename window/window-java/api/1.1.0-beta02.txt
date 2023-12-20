@@ -1,4 +1,14 @@
 // Signature format: 4.0
+package androidx.window.java.embedding {
+
+  @androidx.window.core.ExperimentalWindowApi public final class SplitControllerCallbackAdapter {
+    ctor public SplitControllerCallbackAdapter(androidx.window.embedding.SplitController controller);
+    method public void addSplitListener(android.app.Activity activity, java.util.concurrent.Executor executor, androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
+    method public void removeSplitListener(androidx.core.util.Consumer<java.util.List<androidx.window.embedding.SplitInfo>> consumer);
+  }
+
+}
+
 package androidx.window.java.layout {
 
   public final class WindowInfoTrackerCallbackAdapter implements androidx.window.layout.WindowInfoTracker {

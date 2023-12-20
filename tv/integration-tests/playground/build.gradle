@@ -30,16 +30,26 @@ dependencies {
 
     implementation(project(":activity:activity-compose"))
     implementation(project(":compose:material3:material3"))
-    implementation(project(":navigation:navigation-runtime"))
+    implementation(project(":navigation:navigation-compose"))
     implementation(project(":profileinstaller:profileinstaller"))
+    implementation(project(":compose:material:material-icons-core"))
+    implementation(project(":compose:material:material-icons-extended"))
 
     implementation(project(":tv:tv-foundation"))
     implementation(project(":tv:tv-material"))
+
+    // pull latest compose (if build fails in future, just comment the following compose deps until
+    // we fix this package)
+    implementation(project(":compose:animation:animation"))
+    implementation(project(":compose:runtime:runtime"))
+    implementation(project(":compose:ui:ui"))
+    implementation(project(":compose:foundation:foundation-layout"))
 }
 
 androidx {
     name = "TV-Compose Test App"
     type = LibraryType.SAMPLES
+    mavenVersion = LibraryVersions.TV
     inceptionYear = "2022"
     description = "Test application for TV libraries"
 }

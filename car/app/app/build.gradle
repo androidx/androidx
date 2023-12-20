@@ -21,10 +21,10 @@ import androidx.build.uptodatedness.EnableCachingKt
 import androidx.build.Version
 
 import com.android.build.gradle.LibraryExtension
-import com.android.build.gradle.api.AndroidSourceDirectorySet
 import com.android.build.gradle.api.SourceKind
 import com.google.common.io.Files
 import org.apache.commons.io.FileUtils
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -51,12 +51,10 @@ dependencies {
     implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.core:core:1.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.2.0")
+    implementation ("androidx.media:media:1.6.0")
     // Session and Screen both implement LifeCycleOwner so this needs to be exposed.
     api("androidx.lifecycle:lifecycle-common-java8:2.2.0")
-    api("androidx.annotation:annotation-experimental:1.1.0")
-    // There is an implicit compile-only dep due to :annotation-experimental
-    // Build will complain without this manual declaration.
-    api(libs.kotlinStdlib) // Added for annotation-experimental
+    api("androidx.annotation:annotation-experimental:1.3.1")
 
     annotationProcessor(libs.nullaway)
 
@@ -104,12 +102,13 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2020"
     description = "Build navigation, parking, and charging apps for Android Auto"
+    metalavaK2UastEnabled = true
 }
 
 // Use MetalavaRunnerKt to execute Metalava operations. MetalavaRunnerKt is defined in the buildSrc
 // project and provides convience methods for interacting with Metalava. Configruation required
 // for MetalavaRunnerKt is taken from buildSrc/src/main/kotlin/androidx/build/checkapi/ApiTasks.kt.
-class ProtocolApiTask extends DefaultTask {
+abstract class ProtocolApiTask extends DefaultTask {
     private final WorkerExecutor workerExecutor
 
     @Classpath
@@ -122,9 +121,13 @@ class ProtocolApiTask extends DefaultTask {
     @PathSensitive(PathSensitivity.RELATIVE)
     public FileCollection sourceDirs
 
+    @Input
+    public Property<KotlinVersion> kotlinSourceLevel
+
     @Inject
-    ProtocolApiTask(WorkerExecutor workerExecutor) {
+    ProtocolApiTask(WorkerExecutor workerExecutor, ObjectFactory objects) {
         this.workerExecutor = workerExecutor
+        this.kotlinSourceLevel = objects.property(KotlinVersion)
     }
 
     @Internal
@@ -135,7 +138,6 @@ class ProtocolApiTask extends DefaultTask {
                 '--source-path',
                 sourceDirs.filter { it.exists() }.join(File.pathSeparator),
                 '--format=v4',
-                '--output-kotlin-nulls=yes',
                 '--quiet'
         ]
         standardArgs.addAll(additionalArgs)
@@ -143,7 +145,8 @@ class ProtocolApiTask extends DefaultTask {
         MetalavaRunnerKt.runMetalavaWithArgs(
                 metalavaClasspath,
                 standardArgs,
-                false,
+                /* k2UastEnabled= */ false,
+                kotlinSourceLevel.get(),
                 workerExecutor,
         )
     }
@@ -151,10 +154,10 @@ class ProtocolApiTask extends DefaultTask {
 
 // Use Metalava to generate an API signature file that only includes public API that is annotated
 // with @androidx.car.app.annotations.CarProtocol
-class GenerateProtocolApiTask extends ProtocolApiTask {
+abstract class GenerateProtocolApiTask extends ProtocolApiTask {
     @Inject
-    GenerateProtocolApiTask(WorkerExecutor workerExecutor) {
-        super(workerExecutor)
+    GenerateProtocolApiTask(WorkerExecutor workerExecutor, ObjectFactory objects) {
+        super(workerExecutor, objects)
     }
 
     @OutputFile
@@ -166,7 +169,7 @@ class GenerateProtocolApiTask extends ProtocolApiTask {
                 '--api',
                 generatedApi.toString(),
                 "--show-annotation",
-                "@androidx.car.app.annotations.CarProtocol",
+                "androidx.car.app.annotations.CarProtocol",
                 "--hide",
                 "UnhiddenSystemApi"
         ]
@@ -177,7 +180,7 @@ class GenerateProtocolApiTask extends ProtocolApiTask {
 
 // Compare two files and throw an exception if they are not equivalent. This task is used to check
 // for diffs to generated Metalava API signature files, which would indicate a protocol API change.
-class CheckProtocolApiTask extends DefaultTask {
+abstract class CheckProtocolApiTask extends DefaultTask {
     @InputFile
     @Optional
     File currentApi
@@ -242,10 +245,10 @@ class CheckProtocolApiTask extends DefaultTask {
 
 // Check for compatibility breaking changes between two Metalava API signature files. This task is
 // used to detect backward-compatibility breaking changes to protocol API.
-class CheckProtocolApiCompatibilityTask extends ProtocolApiTask {
+abstract class CheckProtocolApiCompatibilityTask extends ProtocolApiTask {
     @Inject
-    CheckProtocolApiCompatibilityTask(WorkerExecutor workerExecutor) {
-        super(workerExecutor)
+    CheckProtocolApiCompatibilityTask(WorkerExecutor workerExecutor, ObjectFactory objects) {
+        super(workerExecutor, objects)
     }
 
     @InputFile
@@ -385,8 +388,6 @@ class ProtocolLocation {
     }
 }
 
-LibraryExtension library = project.extensions.getByType(LibraryExtension.class)
-
 def getLibraryExtension() {
     return project.extensions.findByType(LibraryExtension.class)
 }
@@ -415,12 +416,13 @@ public FileCollection getSourceCollection() {
     return sourceCollection
 }
 
-def writeCarApiLevelFileTask = tasks.register("writeCarApiLevelFile", ApiLevelFileWriterTask) { task ->
-    task.outputDir.set(new File(project.buildDir, "generatedResources"))
-}
+def writeCarApiLevel = tasks.register("writeCarApiLevelFile", ApiLevelFileWriterTask)
 
-AndroidSourceDirectorySet resources = library.sourceSets.getByName("main").resources
-resources.srcDir(writeCarApiLevelFileTask.map {it.outputDir })
+androidComponents {
+    onVariants(selector().all(), { variant ->
+        variant.sources.resources.addGeneratedSourceDirectory(writeCarApiLevel, { it.outputDir })
+    })
+}
 
 // afterEvaluate required to read extension properties
 afterEvaluate {
@@ -428,6 +430,7 @@ afterEvaluate {
     FileCollection dependencyClasspath = getLibraryVariant().getCompileClasspath(null)
     FileCollection metalavaClasspath = MetalavaRunnerKt.getMetalavaClasspath(project)
     FileCollection bootClasspath = project.files(getLibraryExtension().bootClasspath)
+    Provider<KotlinVersion> kotlinSourceLevel = androidx.kotlinApiVersion
 
     ProtocolLocation projectProtocolLocation = new ProtocolLocation(project)
     tasks.register("generateProtocolApi", GenerateProtocolApiTask) { task ->
@@ -438,6 +441,7 @@ afterEvaluate {
         task.dependencyClasspath = dependencyClasspath
         task.metalavaClasspath = metalavaClasspath
         task.bootClasspath = bootClasspath
+        task.kotlinSourceLevel.set(kotlinSourceLevel)
     }
     tasks.register("checkProtocolApiCompat", CheckProtocolApiCompatibilityTask) { task ->
         task.description = "Check for BREAKING changes to the protocol API"
@@ -448,6 +452,7 @@ afterEvaluate {
         task.dependencyClasspath = dependencyClasspath
         task.metalavaClasspath = metalavaClasspath
         task.bootClasspath = bootClasspath
+        task.kotlinSourceLevel.set(kotlinSourceLevel)
     }
     tasks.register("checkProtocolApi", CheckProtocolApiTask) { task ->
         task.description = "Check for changes to the protocol API"
@@ -468,10 +473,3 @@ afterEvaluate {
     EnableCachingKt.cacheEvenIfNoOutputs(checkProtocolApiCompat)
     checkApi.dependsOn(checkProtocolApi)
 }
-
-library.libraryVariants.all { variant ->
-    variant.processJavaResourcesProvider.configure {
-        it.dependsOn(writeCarApiLevelFile)
-    }
-}
-

@@ -27,6 +27,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 
+import android.app.job.JobParameters;
 import android.provider.MediaStore.Images.Media;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -275,5 +276,24 @@ public class WorkSpecDaoTest extends DatabaseTest {
         WorkSpecDao workSpecDao = mDatabase.workSpecDao();
         int count = workSpecDao.countNonFinishedContentUriTriggerWorkers();
         assertThat(count, is(2));
+    }
+
+    @Test
+    @SmallTest
+    public void checkSetCancelled() {
+        OneTimeWorkRequest request1 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(WorkInfo.State.RUNNING)
+                .build();
+        OneTimeWorkRequest request2 = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .build();
+        WorkSpecDao workSpecDao = mDatabase.workSpecDao();
+        workSpecDao.insertWorkSpec(request1.getWorkSpec());
+        workSpecDao.insertWorkSpec(request2.getWorkSpec());
+        workSpecDao.setCancelledState(request1.getStringId());
+        workSpecDao.setCancelledState(request2.getStringId());
+        WorkSpec workSpec = workSpecDao.getWorkSpec(request1.getStringId());
+        WorkSpec workSpec2 = workSpecDao.getWorkSpec(request2.getStringId());
+        assertThat(workSpec.getStopReason(), is(JobParameters.STOP_REASON_CANCELLED_BY_APP));
+        assertThat(workSpec2.getStopReason(), is(WorkInfo.STOP_REASON_NOT_STOPPED));
     }
 }

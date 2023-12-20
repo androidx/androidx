@@ -18,6 +18,7 @@ package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
@@ -36,6 +37,7 @@ import androidx.compose.ui.Modifier
 @Composable
 fun SimpleTopAppBar() {
     TopAppBar(
+        windowInsets = AppBarDefaults.topAppBarWindowInsets,
         title = { Text("Simple TopAppBar") },
         navigationIcon = {
             IconButton(onClick = { /* doSomething() */ }) {
@@ -57,7 +59,7 @@ fun SimpleTopAppBar() {
 @Sampled
 @Composable
 fun SimpleBottomAppBar() {
-    BottomAppBar {
+    BottomAppBar(windowInsets = AppBarDefaults.bottomAppBarWindowInsets) {
         // Leading icons should typically have a high content alpha
         CompositionLocalProvider(LocalContentAlpha provides ContentAlpha.high) {
             IconButton(onClick = { /* doSomething() */ }) {

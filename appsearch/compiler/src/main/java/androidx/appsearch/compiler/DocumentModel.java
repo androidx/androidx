@@ -15,89 +15,71 @@
  */
 package androidx.appsearch.compiler;
 
-import static androidx.appsearch.compiler.IntrospectionHelper.DOCUMENT_ANNOTATION_CLASS;
 import static androidx.appsearch.compiler.IntrospectionHelper.generateClassHierarchy;
 import static androidx.appsearch.compiler.IntrospectionHelper.getDocumentAnnotation;
+
+import static java.util.Objects.requireNonNull;
+import static java.util.stream.Collectors.groupingBy;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
-import androidx.appsearch.compiler.IntrospectionHelper.PropertyClass;
+import androidx.appsearch.compiler.annotationwrapper.DataPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.MetadataPropertyAnnotation;
+import androidx.appsearch.compiler.annotationwrapper.PropertyAnnotation;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.EnumMap;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
-import javax.lang.model.type.TypeKind;
-import javax.lang.model.type.TypeMirror;
-import javax.lang.model.util.ElementFilter;
-import javax.lang.model.util.Types;
+import javax.lang.model.util.Elements;
 
 /**
  * Processes @Document annotations.
  *
- * @hide
+ * @exportToFramework:hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class DocumentModel {
-
-    /** Enumeration of fields that must be handled specially (i.e. are not properties) */
-    enum SpecialField {ID, NAMESPACE, CREATION_TIMESTAMP_MILLIS, TTL_MILLIS, SCORE}
-
-    /** Determines how the annotation processor has decided to read the value of a field. */
-    enum ReadKind {FIELD, GETTER}
-
-    /** Determines how the annotation processor has decided to write the value of a field. */
-    enum WriteKind {FIELD, SETTER, CREATION_METHOD}
+    private static final String CLASS_SUFFIX = ".class";
 
     private final IntrospectionHelper mHelper;
+
+    private final Elements mElementUtil;
+
     private final TypeElement mClass;
-    private final Types mTypeUtil;
+
     // The name of the original class annotated with @Document
     private final String mQualifiedDocumentClassName;
-    private String mSchemaName;
-    // Warning: if you change this to a HashSet, we may choose different getters or setters from
-    // run to run, causing the generated code to bounce.
-    private final Set<ExecutableElement> mAllMethods = new LinkedHashSet<>();
-    private final boolean mIsAutoValueDocument;
-    // Key: Name of the field which is accessed through the getter method.
-    // Value: ExecutableElement of the getter method.
-    private final Map<String, ExecutableElement> mGetterMethods = new HashMap<>();
-    // Key: Name of the field whose value is set through the setter method.
-    // Value: ExecutableElement of the setter method.
-    private final Map<String, ExecutableElement> mSetterMethods = new HashMap<>();
-    // Warning: if you change this to a HashMap, we may assign fields in a different order from run
-    // to run, causing the generated code to bounce.
-    // Keeps tracks of all AppSearch fields so we can find creation and access methods for them all
-    private final Map<String, VariableElement> mAllAppSearchFields = new LinkedHashMap<>();
-    // Warning: if you change this to a HashMap, we may assign fields in a different order from run
-    // to run, causing the generated code to bounce.
-    // Keeps track of property fields so we don't allow multiple annotated fields of the same name
-    private final Map<String, VariableElement> mPropertyFields = new LinkedHashMap<>();
-    private final Map<SpecialField, String> mSpecialFieldNames = new EnumMap<>(SpecialField.class);
-    private final Map<VariableElement, ReadKind> mReadKinds = new HashMap<>();
-    private final Map<VariableElement, WriteKind> mWriteKinds = new HashMap<>();
-    // Contains the reason why that field couldn't be written either by field or by setter.
-    private final Map<VariableElement, ProcessingException> mWriteWhyCreationMethod =
-            new HashMap<>();
-    private ExecutableElement mChosenCreationMethod = null;
-    private List<String> mChosenCreationMethodParams = null;
+
+    private final String mSchemaName;
+
+    private final LinkedHashSet<TypeElement> mParentTypes;
+
+    private final LinkedHashSet<AnnotatedGetterOrField> mAnnotatedGettersAndFields;
+
+    @NonNull
+    private final AnnotatedGetterOrField mIdAnnotatedGetterOrField;
+
+    @NonNull
+    private final AnnotatedGetterOrField mNamespaceAnnotatedGetterOrField;
+
+    @NonNull
+    private final Map<AnnotatedGetterOrField, PropertyAccessor> mAccessors;
+
+    @NonNull
+    private final DocumentClassCreationInfo mDocumentClassCreationInfo;
 
     private DocumentModel(
             @NonNull ProcessingEnvironment env,
@@ -109,64 +91,93 @@ class DocumentModel {
         }
 
         mHelper = new IntrospectionHelper(env);
+        mElementUtil = env.getElementUtils();
         mClass = clazz;
-        mTypeUtil = env.getTypeUtils();
+        mQualifiedDocumentClassName = generatedAutoValueElement != null
+                ? generatedAutoValueElement.getQualifiedName().toString()
+                : clazz.getQualifiedName().toString();
+        mParentTypes = getParentSchemaTypes(clazz);
 
-        if (generatedAutoValueElement != null) {
-            mIsAutoValueDocument = true;
-            // Scan factory methods from AutoValue class.
-            Set<ExecutableElement> creationMethods = new LinkedHashSet<>();
-            for (Element child : ElementFilter.methodsIn(mClass.getEnclosedElements())) {
-                ExecutableElement method = (ExecutableElement) child;
-                if (isFactoryMethod(method)) {
-                    creationMethods.add(method);
+        List<TypeElement> classHierarchy = generateClassHierarchy(clazz);
+        mSchemaName = computeSchemaName(classHierarchy);
+        mAnnotatedGettersAndFields = scanAnnotatedGettersAndFields(classHierarchy, env);
+
+        requireNoDuplicateMetadataProperties();
+        mIdAnnotatedGetterOrField = requireGetterOrFieldMatchingPredicate(
+                getterOrField -> getterOrField.getAnnotation() == MetadataPropertyAnnotation.ID,
+                /* errorMessage= */"All @Document classes must have exactly one field annotated "
+                        + "with @Id");
+        mNamespaceAnnotatedGetterOrField = requireGetterOrFieldMatchingPredicate(
+                getterOrField ->
+                        getterOrField.getAnnotation() == MetadataPropertyAnnotation.NAMESPACE,
+                /* errorMessage= */"All @Document classes must have exactly one field annotated "
+                        + "with @Namespace");
+
+        LinkedHashSet<ExecutableElement> allMethods = mHelper.getAllMethods(clazz);
+        mAccessors = inferPropertyAccessors(mAnnotatedGettersAndFields, allMethods, mHelper);
+        mDocumentClassCreationInfo =
+                DocumentClassCreationInfo.infer(clazz, mAnnotatedGettersAndFields, mHelper);
+    }
+
+    private static LinkedHashSet<AnnotatedGetterOrField> scanAnnotatedGettersAndFields(
+            @NonNull List<TypeElement> hierarchy,
+            @NonNull ProcessingEnvironment env) throws ProcessingException {
+        AnnotatedGetterAndFieldAccumulator accumulator = new AnnotatedGetterAndFieldAccumulator();
+        for (TypeElement type : hierarchy) {
+            for (Element enclosedElement : type.getEnclosedElements()) {
+                AnnotatedGetterOrField getterOrField =
+                        AnnotatedGetterOrField.tryCreateFor(enclosedElement, env);
+                if (getterOrField == null) {
+                    continue;
                 }
+                accumulator.add(getterOrField);
             }
-            mAllMethods.addAll(
-                    ElementFilter.methodsIn(generatedAutoValueElement.getEnclosedElements()));
+        }
+        return accumulator.getAccumulatedGettersAndFields();
+    }
 
-            mQualifiedDocumentClassName = generatedAutoValueElement.getQualifiedName().toString();
-            scanFields(generatedAutoValueElement);
-            scanCreationMethods(creationMethods);
-        } else {
-            mIsAutoValueDocument = false;
-            // Scan methods and constructors. We will need this info when processing fields to
-            // make sure the fields can be get and set.
-            Set<ExecutableElement> creationMethods = extractCreationMethods(mClass);
-            addAllMethods(mClass, mAllMethods);
-
-            mQualifiedDocumentClassName = clazz.getQualifiedName().toString();
-            scanFields(mClass);
-            scanCreationMethods(creationMethods);
+    /**
+     * Makes sure {@link #mAnnotatedGettersAndFields} does not contain two getters/fields
+     * annotated with the same metadata annotation e.g. it doesn't make sense for a document to
+     * have two {@code @Document.Id}s.
+     */
+    private void requireNoDuplicateMetadataProperties() throws ProcessingException {
+        Map<MetadataPropertyAnnotation, List<AnnotatedGetterOrField>> annotationToGettersAndFields =
+                mAnnotatedGettersAndFields.stream()
+                        .filter(getterOrField ->
+                                getterOrField.getAnnotation().getPropertyKind()
+                                        == PropertyAnnotation.Kind.METADATA_PROPERTY)
+                        .collect(groupingBy((getterOrField) ->
+                                (MetadataPropertyAnnotation) getterOrField.getAnnotation()));
+        for (Map.Entry<MetadataPropertyAnnotation, List<AnnotatedGetterOrField>> entry :
+                annotationToGettersAndFields.entrySet()) {
+            MetadataPropertyAnnotation annotation = entry.getKey();
+            List<AnnotatedGetterOrField> gettersAndFields = entry.getValue();
+            if (gettersAndFields.size() > 1) {
+                // Can show the error on any of the duplicates. Just pick the first first.
+                throw new ProcessingException(
+                        "Duplicate member annotated with @"
+                                + annotation.getClassName().simpleName(),
+                        gettersAndFields.get(0).getElement());
+            }
         }
     }
 
-    private Set<ExecutableElement> extractCreationMethods(TypeElement typeElement) {
-        Set<ExecutableElement> creationMethods = new LinkedHashSet<>();
-        for (Element child : typeElement.getEnclosedElements()) {
-            if (child.getKind() == ElementKind.CONSTRUCTOR) {
-                creationMethods.add((ExecutableElement) child);
-            } else if (child.getKind() == ElementKind.METHOD) {
-                ExecutableElement method = (ExecutableElement) child;
-                if (isFactoryMethod(method)) {
-                    creationMethods.add(method);
-                }
-            }
-        }
-        return creationMethods;
-    }
-
-    private void addAllMethods(TypeElement typeElement, Set<ExecutableElement> allMethods) {
-        for (Element child : typeElement.getEnclosedElements()) {
-            if (child.getKind() == ElementKind.METHOD) {
-                allMethods.add((ExecutableElement) child);
-            }
-        }
-
-        TypeMirror superClass = typeElement.getSuperclass();
-        if (superClass.getKind().equals(TypeKind.DECLARED)) {
-            addAllMethods((TypeElement) mTypeUtil.asElement(superClass), allMethods);
-        }
+    /**
+     * Makes sure {@link #mAnnotatedGettersAndFields} contains a getter/field that matches the
+     * predicate.
+     *
+     * @return The matched getter/field.
+     * @throws ProcessingException with the error message if no match.
+     */
+    @NonNull
+    private AnnotatedGetterOrField requireGetterOrFieldMatchingPredicate(
+            @NonNull Predicate<AnnotatedGetterOrField> predicate,
+            @NonNull String errorMessage) throws ProcessingException {
+        return mAnnotatedGettersAndFields.stream()
+                .filter(predicate)
+                .findFirst()
+                .orElseThrow(() -> new ProcessingException(errorMessage, mClass));
     }
 
     /**
@@ -213,577 +224,101 @@ class DocumentModel {
         return mSchemaName;
     }
 
+    /**
+     * Returns the set of parent classes specified in @Document via the "parent" parameter.
+     */
     @NonNull
-    public Map<String, VariableElement> getAllFields() {
-        return Collections.unmodifiableMap(mAllAppSearchFields);
-    }
-
-    @NonNull
-    public Map<String, VariableElement> getPropertyFields() {
-        return Collections.unmodifiableMap(mPropertyFields);
-    }
-
-    @Nullable
-    public String getSpecialFieldName(SpecialField field) {
-        return mSpecialFieldNames.get(field);
-    }
-
-    @Nullable
-    public ReadKind getFieldReadKind(String fieldName) {
-        VariableElement element = mAllAppSearchFields.get(fieldName);
-        return mReadKinds.get(element);
-    }
-
-    @Nullable
-    public WriteKind getFieldWriteKind(String fieldName) {
-        VariableElement element = mAllAppSearchFields.get(fieldName);
-        return mWriteKinds.get(element);
-    }
-
-    @Nullable
-    public ExecutableElement getGetterForField(String fieldName) {
-        return mGetterMethods.get(fieldName);
-    }
-
-    @Nullable
-    public ExecutableElement getSetterForField(String fieldName) {
-        return mSetterMethods.get(fieldName);
+    public Set<TypeElement> getParentTypes() {
+        return mParentTypes;
     }
 
     /**
-     * Finds the AppSearch name for the given property.
-     *
-     * <p>This is usually the name of the field in Java, but may be changed if the developer
-     * specifies a different 'name' parameter in the annotation.
+     * Returns all getters/fields (declared or inherited) annotated with some
+     * {@link PropertyAnnotation}.
      */
     @NonNull
-    public String getPropertyName(@NonNull VariableElement property) throws ProcessingException {
-        AnnotationMirror annotation = getPropertyAnnotation(property);
-        Map<String, Object> params = mHelper.getAnnotationParams(annotation);
-        String propertyName = params.get("name").toString();
-        if (propertyName.isEmpty()) {
-            propertyName = getNormalizedFieldName(property.getSimpleName().toString());
-        }
-        return propertyName;
+    public Set<AnnotatedGetterOrField> getAnnotatedGettersAndFields() {
+        return mAnnotatedGettersAndFields;
     }
 
     /**
-     * Returns the first found AppSearch property annotation element from the input element's
-     * annotations.
-     *
-     * @throws ProcessingException if no AppSearch property annotation is found.
+     * Returns the getter/field annotated with {@code @Document.Id}.
      */
     @NonNull
-    public AnnotationMirror getPropertyAnnotation(@NonNull Element element)
-            throws ProcessingException {
-        Objects.requireNonNull(element);
-        if (mIsAutoValueDocument) {
-            element = getGetterForField(element.getSimpleName().toString());
+    public AnnotatedGetterOrField getIdAnnotatedGetterOrField() {
+        return mIdAnnotatedGetterOrField;
+    }
+
+    /**
+     * Returns the getter/field annotated with {@code @Document.Namespace}.
+     */
+    @NonNull
+    public AnnotatedGetterOrField getNamespaceAnnotatedGetterOrField() {
+        return mNamespaceAnnotatedGetterOrField;
+    }
+
+    /**
+     * Returns the public/package-private accessor for an annotated getter/field (may be private).
+     */
+    @NonNull
+    public PropertyAccessor getAccessor(@NonNull AnnotatedGetterOrField getterOrField) {
+        PropertyAccessor accessor = mAccessors.get(getterOrField);
+        if (accessor == null) {
+            throw new IllegalArgumentException(
+                    "No such getter/field belongs to this DocumentModel: " + getterOrField);
         }
-        Set<String> propertyClassPaths = new HashSet<>();
-        for (PropertyClass propertyClass : PropertyClass.values()) {
-            propertyClassPaths.add(propertyClass.getClassFullPath());
+        return accessor;
+    }
+
+    @NonNull
+    public DocumentClassCreationInfo getDocumentClassCreationInfo() {
+        return mDocumentClassCreationInfo;
+    }
+
+    /**
+     * Infers the {@link PropertyAccessor} for each of the {@link AnnotatedGetterOrField}.
+     *
+     * <p>Each accessor may be the {@link AnnotatedGetterOrField} itself or some other non-private
+     * getter.
+     */
+    @NonNull
+    private static Map<AnnotatedGetterOrField, PropertyAccessor> inferPropertyAccessors(
+            @NonNull Collection<AnnotatedGetterOrField> annotatedGettersAndFields,
+            @NonNull Collection<ExecutableElement> allMethods,
+            @NonNull IntrospectionHelper helper) throws ProcessingException {
+        Map<AnnotatedGetterOrField, PropertyAccessor> accessors = new HashMap<>();
+        for (AnnotatedGetterOrField getterOrField : annotatedGettersAndFields) {
+            accessors.put(
+                    getterOrField,
+                    PropertyAccessor.infer(getterOrField, allMethods, helper));
         }
-        for (AnnotationMirror annotation : element.getAnnotationMirrors()) {
-            String annotationFq = annotation.getAnnotationType().toString();
-            if (propertyClassPaths.contains(annotationFq)) {
-                return annotation;
+        return accessors;
+    }
+
+    /**
+     * Returns the parent types mentioned within the {@code @Document} annotation.
+     */
+    @NonNull
+    private LinkedHashSet<TypeElement> getParentSchemaTypes(
+            @NonNull TypeElement documentClass) throws ProcessingException {
+        AnnotationMirror documentAnnotation = requireNonNull(getDocumentAnnotation(documentClass));
+        Map<String, Object> params = mHelper.getAnnotationParams(documentAnnotation);
+        LinkedHashSet<TypeElement> parentsSchemaTypes = new LinkedHashSet<>();
+        Object parentsParam = params.get("parent");
+        if (parentsParam instanceof List) {
+            for (Object parent : (List<?>) parentsParam) {
+                String parentClassName = parent.toString();
+                parentClassName = parentClassName.substring(0,
+                        parentClassName.length() - CLASS_SUFFIX.length());
+                parentsSchemaTypes.add(mElementUtil.getTypeElement(parentClassName));
             }
         }
-        throw new ProcessingException("Missing AppSearch property annotation.", element);
-    }
-
-    @NonNull
-    public ExecutableElement getChosenCreationMethod() {
-        return mChosenCreationMethod;
-    }
-
-    @NonNull
-    public List<String> getChosenCreationMethodParams() {
-        return Collections.unmodifiableList(mChosenCreationMethodParams);
-    }
-
-    private boolean isFactoryMethod(ExecutableElement method) {
-        Set<Modifier> methodModifiers = method.getModifiers();
-        return methodModifiers.contains(Modifier.STATIC)
-                && !methodModifiers.contains(Modifier.PRIVATE)
-                && mTypeUtil.isSameType(method.getReturnType(), mClass.asType());
-    }
-
-    /**
-     * Scan the annotations of a field to determine the fields type and handle it accordingly
-     *
-     * @param classElements all the field elements of a class, annotated and non-annotated
-     * @param childElement the member of class elements currently being scanned
-     * @throws ProcessingException
-     */
-    private void scanAnnotatedField(@NonNull List<? extends Element> classElements,
-            @NonNull Element childElement) throws ProcessingException {
-        String fieldName = childElement.getSimpleName().toString();
-
-        // a property field shouldn't be able to override a special field
-        if (mSpecialFieldNames.containsValue(fieldName)) {
+        if (!parentsSchemaTypes.isEmpty() && params.get("name").toString().isEmpty()) {
             throw new ProcessingException(
-                    "Non-annotated field overriding special annotated fields named: "
-                            + fieldName, mAllAppSearchFields.get(fieldName));
-        }
-
-        // no annotation mirrors -> non-indexable field
-        for (AnnotationMirror annotation : childElement.getAnnotationMirrors()) {
-            String annotationFq = annotation.getAnnotationType().toString();
-            if (!annotationFq.startsWith(DOCUMENT_ANNOTATION_CLASS)) {
-                continue;
-            }
-            VariableElement child;
-            if (mIsAutoValueDocument) {
-                child = findFieldForFunctionWithSameName(classElements, childElement);
-            } else {
-                if (childElement.getKind() == ElementKind.METHOD) {
-                    throw new ProcessingException("AppSearch annotation is not applicable to "
-                            + "methods for Non-AutoValue class", childElement);
-                } else if (childElement.getKind() == ElementKind.CLASS) {
-                    continue;
-                } else {
-                    child = (VariableElement) childElement;
-                }
-            }
-
-            switch (annotationFq) {
-                case IntrospectionHelper.ID_CLASS:
-                    if (mSpecialFieldNames.containsKey(SpecialField.ID)) {
-                        throw new ProcessingException(
-                                "Class hierarchy contains multiple fields annotated @Id", child);
-                    }
-                    mSpecialFieldNames.put(SpecialField.ID, fieldName);
-                    break;
-                case IntrospectionHelper.NAMESPACE_CLASS:
-                    if (mSpecialFieldNames.containsKey(SpecialField.NAMESPACE)) {
-                        throw new ProcessingException(
-                                "Class hierarchy contains multiple fields annotated @Namespace",
-                                child);
-                    }
-                    mSpecialFieldNames.put(SpecialField.NAMESPACE, fieldName);
-                    break;
-                case IntrospectionHelper.CREATION_TIMESTAMP_MILLIS_CLASS:
-                    if (mSpecialFieldNames.containsKey(SpecialField.CREATION_TIMESTAMP_MILLIS)) {
-                        throw new ProcessingException("Class hierarchy contains multiple fields "
-                                + "annotated @CreationTimestampMillis", child);
-                    }
-                    mSpecialFieldNames.put(
-                            SpecialField.CREATION_TIMESTAMP_MILLIS, fieldName);
-                    break;
-                case IntrospectionHelper.TTL_MILLIS_CLASS:
-                    if (mSpecialFieldNames.containsKey(SpecialField.TTL_MILLIS)) {
-                        throw new ProcessingException(
-                                "Class hierarchy contains multiple fields annotated @TtlMillis",
-                                child);
-                    }
-                    mSpecialFieldNames.put(SpecialField.TTL_MILLIS, fieldName);
-                    break;
-                case IntrospectionHelper.SCORE_CLASS:
-                    if (mSpecialFieldNames.containsKey(SpecialField.SCORE)) {
-                        throw new ProcessingException(
-                                "Class hierarchy contains multiple fields annotated @Score", child);
-                    }
-                    mSpecialFieldNames.put(SpecialField.SCORE, fieldName);
-                    break;
-                default:
-                    PropertyClass propertyClass = getPropertyClass(annotationFq);
-                    if (propertyClass != null) {
-                        checkFieldTypeForPropertyAnnotation(child, propertyClass);
-                        if (mPropertyFields.containsKey(fieldName)) {
-                            throw new ProcessingException(
-                                    "Class hierarchy contains multiple annotated fields named: "
-                                            + fieldName, child);
-                        }
-                        mPropertyFields.put(fieldName, child);
-                    }
-            }
-
-            mAllAppSearchFields.put(fieldName, child);
-        }
-    }
-
-    /**
-     * Scans all the fields of the class, as well as superclasses annotated with @Document,
-     * to get AppSearch fields such as id
-     *
-     * @param element the class to scan
-     */
-    private void scanFields(@NonNull TypeElement element) throws ProcessingException {
-        List<TypeElement> hierarchy = generateClassHierarchy(element, mIsAutoValueDocument);
-
-        for (TypeElement clazz : hierarchy) {
-            List<? extends Element> enclosedElements = clazz.getEnclosedElements();
-            for (int i = 0; i < enclosedElements.size(); i++) {
-                Element childElement = enclosedElements.get(i);
-
-                // The only fields relevant to @Document in an AutoValue class are the abstract
-                // accessor methods
-                if (mIsAutoValueDocument && childElement.getKind() != ElementKind.METHOD) {
-                    continue;
-                }
-
-                scanAnnotatedField(enclosedElements, childElement);
-            }
-        }
-
-        // Every document must always have a namespace
-        if (!mSpecialFieldNames.containsKey(SpecialField.NAMESPACE)) {
-            throw new ProcessingException(
-                    "All @Document classes must have exactly one field annotated with @Namespace",
+                    "All @Document classes with a parent must explicitly provide a name",
                     mClass);
         }
-
-        // Every document must always have an ID
-        if (!mSpecialFieldNames.containsKey(SpecialField.ID)) {
-            throw new ProcessingException(
-                    "All @Document classes must have exactly one field annotated with @Id",
-                    mClass);
-        }
-
-        mSchemaName = computeSchemaName(hierarchy);
-
-        for (VariableElement appSearchField : mAllAppSearchFields.values()) {
-            chooseAccessKinds(appSearchField);
-        }
-    }
-
-    @NonNull
-    private VariableElement findFieldForFunctionWithSameName(
-            @NonNull List<? extends Element> elements,
-            @NonNull Element functionElement) throws ProcessingException {
-        String fieldName = functionElement.getSimpleName().toString();
-        for (VariableElement field : ElementFilter.fieldsIn(elements)) {
-            if (fieldName.equals(field.getSimpleName().toString())) {
-                return field;
-            }
-        }
-        throw new ProcessingException(
-                "Cannot find the corresponding field for the annotated function",
-                functionElement);
-    }
-
-    /**
-     * Checks whether property's data type matches the {@code androidx.appsearch.annotation
-     * .Document} property annotation's requirement.
-     *
-     * @throws ProcessingException if data type doesn't match property annotation's requirement.
-     */
-    void checkFieldTypeForPropertyAnnotation(@NonNull VariableElement property,
-            PropertyClass propertyClass) throws ProcessingException {
-        switch (propertyClass) {
-            case BOOLEAN_PROPERTY_CLASS:
-                if (mHelper.isFieldOfExactType(property, mHelper.mBooleanBoxType,
-                        mHelper.mBooleanPrimitiveType)) {
-                    return;
-                }
-                break;
-            case BYTES_PROPERTY_CLASS:
-                if (mHelper.isFieldOfExactType(property, mHelper.mByteBoxType,
-                        mHelper.mBytePrimitiveType, mHelper.mByteBoxArrayType,
-                        mHelper.mBytePrimitiveArrayType)) {
-                    return;
-                }
-                break;
-            case DOCUMENT_PROPERTY_CLASS:
-                if (mHelper.isFieldOfDocumentType(property)) {
-                    return;
-                }
-                break;
-            case DOUBLE_PROPERTY_CLASS:
-                if (mHelper.isFieldOfExactType(property, mHelper.mDoubleBoxType,
-                        mHelper.mDoublePrimitiveType, mHelper.mFloatBoxType,
-                        mHelper.mFloatPrimitiveType)) {
-                    return;
-                }
-                break;
-            case LONG_PROPERTY_CLASS:
-                if (mHelper.isFieldOfExactType(property, mHelper.mIntegerBoxType,
-                        mHelper.mIntPrimitiveType, mHelper.mLongBoxType,
-                        mHelper.mLongPrimitiveType)) {
-                    return;
-                }
-                break;
-            case STRING_PROPERTY_CLASS:
-                if (mHelper.isFieldOfExactType(property, mHelper.mStringType)) {
-                    return;
-                }
-                break;
-            default:
-                // do nothing
-        }
-        throw new ProcessingException(
-                "Property Annotation " + propertyClass.getClassFullPath() + " doesn't accept the "
-                        + "data type of property field " + property.getSimpleName(), property);
-    }
-
-    /**
-     * Returns the {@link PropertyClass} with {@code annotationFq} as full class path, and {@code
-     * null} if failed to find such a {@link PropertyClass}.
-     */
-    @Nullable
-    private PropertyClass getPropertyClass(@Nullable String annotationFq) {
-        for (PropertyClass propertyClass : PropertyClass.values()) {
-            if (propertyClass.isPropertyClass(annotationFq)) {
-                return propertyClass;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Chooses how to access the given field for read and write, subject to our requirements for all
-     * AppSearch-managed class fields:
-     *
-     * <p>For read: visible field, or visible getter
-     *
-     * <p>For write: visible mutable field, or visible setter, or visible creation method
-     * accepting at minimum all fields that aren't mutable and have no visible setter.
-     *
-     * @throws ProcessingException if no access type is possible for the given field
-     */
-    private void chooseAccessKinds(@NonNull VariableElement field)
-            throws ProcessingException {
-        // Choose get access
-        String fieldName = field.getSimpleName().toString();
-        Set<Modifier> modifiers = field.getModifiers();
-        if (modifiers.contains(Modifier.PRIVATE)) {
-            findGetter(field);
-            mReadKinds.put(field, ReadKind.GETTER);
-        } else {
-            mReadKinds.put(field, ReadKind.FIELD);
-        }
-
-        // Choose set access
-        if (modifiers.contains(Modifier.PRIVATE) || modifiers.contains(Modifier.FINAL)
-                || modifiers.contains(Modifier.STATIC)) {
-            // Try to find a setter. If we can't find one, mark the WriteKind as {@code
-            // CREATION_METHOD}. We don't know if this is true yet, the creation methods will be
-            // inspected in a subsequent pass.
-            try {
-                findSetter(fieldName);
-                mWriteKinds.put(field, WriteKind.SETTER);
-            } catch (ProcessingException e) {
-                // We'll look for a creation method, so we may still be able to set this field,
-                // but it's more likely the developer configured the setter incorrectly. Keep
-                // the exception around to include it in the report if no creation method is found.
-                mWriteWhyCreationMethod.put(field, e);
-                mWriteKinds.put(field, WriteKind.CREATION_METHOD);
-            }
-        } else {
-            mWriteKinds.put(field, WriteKind.FIELD);
-        }
-    }
-
-    private void scanCreationMethods(Set<ExecutableElement> creationMethods)
-            throws ProcessingException {
-        // Maps field name to Element.
-        // If this is changed to a HashSet, we might report errors to the developer in a different
-        // order about why a field was written via creation method.
-        Map<String, VariableElement> creationMethodWrittenFields = new LinkedHashMap<>();
-        for (Map.Entry<VariableElement, WriteKind> it : mWriteKinds.entrySet()) {
-            if (it.getValue() == WriteKind.CREATION_METHOD) {
-                String name = it.getKey().getSimpleName().toString();
-                creationMethodWrittenFields.put(name, it.getKey());
-            }
-        }
-
-        // Maps normalized field name to real field name.
-        Map<String, String> normalizedToRawFieldName = new HashMap<>();
-        for (String fieldName : mAllAppSearchFields.keySet()) {
-            normalizedToRawFieldName.put(getNormalizedFieldName(fieldName), fieldName);
-        }
-
-        Map<ExecutableElement, String> whyNotCreationMethod = new HashMap<>();
-        creationMethodSearch:
-        for (ExecutableElement method : creationMethods) {
-            if (method.getModifiers().contains(Modifier.PRIVATE)) {
-                whyNotCreationMethod.put(method, "Creation method is private");
-                continue creationMethodSearch;
-            }
-            // The field name of each field that goes into the creation method, in the order they
-            // are declared in the creation method signature.
-            List<String> creationMethodParamFields = new ArrayList<>();
-            Set<String> remainingFields = new HashSet<>(creationMethodWrittenFields.keySet());
-            for (VariableElement parameter : method.getParameters()) {
-                String paramName = parameter.getSimpleName().toString();
-                String fieldName = normalizedToRawFieldName.get(paramName);
-                if (fieldName == null) {
-                    whyNotCreationMethod.put(
-                            method,
-                            "Parameter \"" + paramName + "\" is not an AppSearch parameter; don't "
-                                    + "know how to supply it.");
-                    continue creationMethodSearch;
-                }
-                remainingFields.remove(fieldName);
-                creationMethodParamFields.add(fieldName);
-            }
-            if (!remainingFields.isEmpty()) {
-                whyNotCreationMethod.put(
-                        method,
-                        "This method doesn't have parameters for the following fields: "
-                                + remainingFields);
-                continue creationMethodSearch;
-            }
-
-            // If the field is set in the constructor, choose creation method for the write kind
-            for (String param : creationMethodParamFields) {
-                for (VariableElement appSearchField : mAllAppSearchFields.values()) {
-                    if (appSearchField.getSimpleName().toString().equals(param)) {
-                        mWriteKinds.put(appSearchField, WriteKind.CREATION_METHOD);
-                        break;
-                    }
-                }
-            }
-
-            // Found one!
-            mChosenCreationMethod = method;
-            mChosenCreationMethodParams = creationMethodParamFields;
-            return;
-        }
-
-        // If we got here, we couldn't find any creation methods.
-        ProcessingException e =
-                new ProcessingException(
-                        "Failed to find any suitable creation methods to build class \""
-                                + mClass.getQualifiedName()
-                                + "\". See warnings for details.",
-                        mClass);
-
-        // Inform the developer why we started looking for creation methods in the first place.
-        for (VariableElement field : creationMethodWrittenFields.values()) {
-            ProcessingException warning = mWriteWhyCreationMethod.get(field);
-            if (warning != null) {
-                e.addWarning(warning);
-            }
-        }
-
-        // Inform the developer about why each creation method we considered was rejected.
-        for (Map.Entry<ExecutableElement, String> it : whyNotCreationMethod.entrySet()) {
-            ProcessingException warning = new ProcessingException(
-                    "Cannot use this creation method to construct the class: " + it.getValue(),
-                    it.getKey());
-            e.addWarning(warning);
-        }
-
-        throw e;
-    }
-
-    /** Finds getter function for a private field. */
-    private void findGetter(@NonNull VariableElement field) throws ProcessingException {
-        String fieldName = field.getSimpleName().toString();
-        ProcessingException e = new ProcessingException(
-                "Field cannot be read: it is private and we failed to find a suitable getter "
-                        + "for field \"" + fieldName + "\"",
-                mAllAppSearchFields.get(fieldName));
-
-        for (ExecutableElement method : mAllMethods) {
-            String methodName = method.getSimpleName().toString();
-            String normalizedFieldName = getNormalizedFieldName(fieldName);
-            // normalizedFieldName with first letter capitalized, to be paired with [is] or [get]
-            // prefix
-            String methodNameSuffix = normalizedFieldName.substring(0, 1).toUpperCase()
-                    + normalizedFieldName.substring(1);
-
-            if (methodName.equals(normalizedFieldName)
-                    || methodName.equals("get" + methodNameSuffix)
-                    || (
-                    mHelper.isFieldOfExactType(
-                            field, mHelper.mBooleanBoxType, mHelper.mBooleanPrimitiveType)
-                            && methodName.equals("is" + methodNameSuffix))
-            ) {
-                if (method.getModifiers().contains(Modifier.PRIVATE)) {
-                    e.addWarning(new ProcessingException(
-                            "Getter cannot be used: private visibility", method));
-                    continue;
-                }
-                if (!method.getParameters().isEmpty()) {
-                    e.addWarning(new ProcessingException(
-                            "Getter cannot be used: should take no parameters", method));
-                    continue;
-                }
-                // Found one!
-                mGetterMethods.put(fieldName, method);
-                return;
-            }
-        }
-
-        // Broke out of the loop without finding anything.
-        throw e;
-    }
-
-    /** Finds setter function for a private field. */
-    private void findSetter(@NonNull String fieldName) throws ProcessingException {
-        // We can't report setter failure until we've searched the creation methods, so this
-        // message is anticipatory and should be buffered by the caller.
-        ProcessingException e = new ProcessingException(
-                "Field cannot be written directly or via setter because it is private, final, or "
-                        + "static, and we failed to find a suitable setter for field \""
-                        + fieldName
-                        + "\". Trying to find a suitable creation method.",
-                mAllAppSearchFields.get(fieldName));
-
-        for (ExecutableElement method : mAllMethods) {
-            String methodName = method.getSimpleName().toString();
-            String normalizedFieldName = getNormalizedFieldName(fieldName);
-            if (methodName.equals(normalizedFieldName)
-                    || methodName.equals("set"
-                    + normalizedFieldName.substring(0, 1).toUpperCase()
-                    + normalizedFieldName.substring(1))) {
-                if (method.getModifiers().contains(Modifier.PRIVATE)) {
-                    e.addWarning(new ProcessingException(
-                            "Setter cannot be used: private visibility", method));
-                    continue;
-                }
-                if (method.getParameters().size() != 1) {
-                    e.addWarning(new ProcessingException(
-                            "Setter cannot be used: takes " + method.getParameters().size()
-                                    + " parameters instead of 1",
-                            method));
-                    continue;
-                }
-                // Found one!
-                mSetterMethods.put(fieldName, method);
-                return;
-            }
-        }
-
-        // Broke out of the loop without finding anything.
-        throw e;
-    }
-
-    /**
-     * Produces the canonical name of a field (which is used as the default property name as well as
-     * to find accessors) by removing prefixes and suffixes of common conventions.
-     */
-    private String getNormalizedFieldName(String fieldName) {
-        if (fieldName.length() < 2) {
-            return fieldName;
-        }
-
-        // Handle convention of having field names start with m
-        // (e.g. String mName; public String getName())
-        if (fieldName.charAt(0) == 'm' && Character.isUpperCase(fieldName.charAt(1))) {
-            return fieldName.substring(1, 2).toLowerCase() + fieldName.substring(2);
-        }
-
-        // Handle convention of having field names start with _
-        // (e.g. String _name; public String getName())
-        if (fieldName.charAt(0) == '_'
-                && fieldName.charAt(1) != '_'
-                && Character.isLowerCase(fieldName.charAt(1))) {
-            return fieldName.substring(1);
-        }
-
-        // Handle convention of having field names end with _
-        // (e.g. String name_; public String getName())
-        if (fieldName.charAt(fieldName.length() - 1) == '_'
-                && fieldName.charAt(fieldName.length() - 2) != '_') {
-            return fieldName.substring(0, fieldName.length() - 1);
-        }
-
-        return fieldName;
+        return parentsSchemaTypes;
     }
 
     /**
@@ -820,5 +355,258 @@ class DocumentModel {
         }
         // Documents don't need an explicit name annotation, can use the class name
         return rootDocumentClass.getSimpleName().toString();
+    }
+
+    /**
+     * Accumulates and de-duplicates {@link AnnotatedGetterOrField}s within a class hierarchy and
+     * ensures all of the following:
+     *
+     * <ol>
+     *     <li>
+     *         The same getter/field doesn't appear in the class hierarchy with different
+     *         annotation types e.g.
+     *
+     *         <pre>
+     *         {@code
+     *         @Document
+     *         class Parent {
+     *             @Document.StringProperty
+     *             public String getProp();
+     *         }
+     *
+     *         @Document
+     *         class Child extends Parent {
+     *             @Document.Id
+     *             public String getProp();
+     *         }
+     *         }
+     *         </pre>
+     *     </li>
+     *     <li>
+     *         The same getter/field doesn't appear twice with different serialized names e.g.
+     *
+     *         <pre>
+     *         {@code
+     *         @Document
+     *         class Parent {
+     *             @Document.StringProperty("foo")
+     *             public String getProp();
+     *         }
+     *
+     *         @Document
+     *         class Child extends Parent {
+     *             @Document.StringProperty("bar")
+     *             public String getProp();
+     *         }
+     *         }
+     *         </pre>
+     *     </li>
+     *     <li>
+     *         The same serialized name doesn't appear on two separate getters/fields e.g.
+     *
+     *         <pre>
+     *         {@code
+     *         @Document
+     *         class Gift {
+     *             @Document.StringProperty("foo")
+     *             String mField;
+     *
+     *             @Document.LongProperty("foo")
+     *             Long getProp();
+     *         }
+     *         }
+     *         </pre>
+     *     </li>
+     *     <li>
+     *         Two annotated element do not have the same normalized name because this hinders with
+     *         downstream logic that tries to infer {@link CreationMethod}s e.g.
+     *
+     *         <pre>
+     *         {@code
+     *         @Document
+     *         class Gift {
+     *             @Document.StringProperty
+     *             String mFoo;
+     *
+     *             @Document.StringProperty
+     *             String getFoo() {...}
+     *             void setFoo(String value) {...}
+     *         }
+     *         }
+     *         </pre>
+     *     </li>
+     * </ol>
+     *
+     * @see CreationMethod#inferParamAssociationsAndCreate
+     */
+    private static final class AnnotatedGetterAndFieldAccumulator {
+        private final Map<String, AnnotatedGetterOrField> mJvmNameToGetterOrField =
+                new LinkedHashMap<>();
+        private final Map<String, AnnotatedGetterOrField> mSerializedNameToGetterOrField =
+                new HashMap<>();
+        private final Map<String, AnnotatedGetterOrField> mNormalizedNameToGetterOrField =
+                new HashMap<>();
+
+        AnnotatedGetterAndFieldAccumulator() {
+        }
+
+        /**
+         * Adds the {@link AnnotatedGetterOrField} to the accumulator.
+         *
+         * <p>{@link AnnotatedGetterOrField} that appear again are considered to be overridden
+         * versions and replace the older ones.
+         *
+         * <p>Hence, this method should be called with {@link AnnotatedGetterOrField}s from the
+         * least specific types to the most specific type.
+         */
+        void add(@NonNull AnnotatedGetterOrField getterOrField) throws ProcessingException {
+            String jvmName = getterOrField.getJvmName();
+            AnnotatedGetterOrField existingGetterOrField = mJvmNameToGetterOrField.get(jvmName);
+
+            if (existingGetterOrField == null) {
+                // First time we're seeing this getter or field
+                mJvmNameToGetterOrField.put(jvmName, getterOrField);
+
+                requireUniqueNormalizedName(getterOrField);
+                mNormalizedNameToGetterOrField.put(
+                        getterOrField.getNormalizedName(), getterOrField);
+
+                if (hasDataPropertyAnnotation(getterOrField)) {
+                    requireSerializedNameNeverSeenBefore(getterOrField);
+                    mSerializedNameToGetterOrField.put(
+                            getSerializedName(getterOrField), getterOrField);
+                }
+            } else {
+                // Seen this getter or field before. It showed up again because of overriding.
+                requireAnnotationTypeIsConsistent(existingGetterOrField, getterOrField);
+                // Replace the old entries
+                mJvmNameToGetterOrField.put(jvmName, getterOrField);
+                mNormalizedNameToGetterOrField.put(
+                        getterOrField.getNormalizedName(), getterOrField);
+
+                if (hasDataPropertyAnnotation(getterOrField)) {
+                    requireSerializedNameIsConsistent(existingGetterOrField, getterOrField);
+                    // Replace the old entry
+                    mSerializedNameToGetterOrField.put(
+                            getSerializedName(getterOrField), getterOrField);
+                }
+            }
+        }
+
+        @NonNull
+        LinkedHashSet<AnnotatedGetterOrField> getAccumulatedGettersAndFields() {
+            return new LinkedHashSet<>(mJvmNameToGetterOrField.values());
+        }
+
+        /**
+         * Makes sure the getter/field's normalized name either never appeared before, or if it did,
+         * did so for the same getter/field and re-appeared likely because of overriding.
+         */
+        private void requireUniqueNormalizedName(
+                @NonNull AnnotatedGetterOrField getterOrField) throws ProcessingException {
+            AnnotatedGetterOrField existingGetterOrField =
+                    mNormalizedNameToGetterOrField.get(getterOrField.getNormalizedName());
+            if (existingGetterOrField == null) {
+                // Never seen this normalized name before
+                return;
+            }
+            if (existingGetterOrField.getJvmName().equals(getterOrField.getJvmName())) {
+                // Same getter/field appeared again (likely because of overriding). Ok.
+                return;
+            }
+            throw new ProcessingException(
+                    ("Normalized name \"%s\" is already taken up by pre-existing %s. "
+                            + "Please rename this getter/field to something else.").formatted(
+                            getterOrField.getNormalizedName(),
+                            createSignatureString(existingGetterOrField)),
+                    getterOrField.getElement());
+        }
+
+        /**
+         * Makes sure a new getter/field is never annotated with a serialized name that is
+         * already given to some other getter/field.
+         *
+         * <p>Assumes the getter/field is annotated with a {@link DataPropertyAnnotation}.
+         */
+        private void requireSerializedNameNeverSeenBefore(
+                @NonNull AnnotatedGetterOrField getterOrField) throws ProcessingException {
+            String serializedName = getSerializedName(getterOrField);
+            AnnotatedGetterOrField existingGetterOrField =
+                    mSerializedNameToGetterOrField.get(serializedName);
+            if (existingGetterOrField != null) {
+                throw new ProcessingException(
+                        "Cannot give property the name '%s' because it is already used for %s"
+                                .formatted(serializedName, existingGetterOrField.getJvmName()),
+                        getterOrField.getElement());
+            }
+        }
+
+        /**
+         * Returns the serialized name that should be used for the property in the database.
+         *
+         * <p>Assumes the getter/field is annotated with a {@link DataPropertyAnnotation}.
+         */
+        @NonNull
+        private static String getSerializedName(@NonNull AnnotatedGetterOrField getterOrField) {
+            DataPropertyAnnotation annotation =
+                    (DataPropertyAnnotation) getterOrField.getAnnotation();
+            return annotation.getName();
+        }
+
+        private static boolean hasDataPropertyAnnotation(
+                @NonNull AnnotatedGetterOrField getterOrField) {
+            PropertyAnnotation annotation = getterOrField.getAnnotation();
+            return annotation.getPropertyKind() == PropertyAnnotation.Kind.DATA_PROPERTY;
+        }
+
+        /**
+         * Makes sure the annotation type didn't change when overriding e.g.
+         * {@code @StringProperty -> @Id}.
+         */
+        private static void requireAnnotationTypeIsConsistent(
+                @NonNull AnnotatedGetterOrField existingGetterOrField,
+                @NonNull AnnotatedGetterOrField overriddenGetterOfField)
+                throws ProcessingException {
+            PropertyAnnotation existingAnnotation = existingGetterOrField.getAnnotation();
+            PropertyAnnotation overriddenAnnotation = overriddenGetterOfField.getAnnotation();
+            if (!existingAnnotation.getClassName().equals(overriddenAnnotation.getClassName())) {
+                throw new ProcessingException(
+                        ("Property type must stay consistent when overriding annotated members "
+                                + "but changed from @%s -> @%s").formatted(
+                                existingAnnotation.getClassName().simpleName(),
+                                overriddenAnnotation.getClassName().simpleName()),
+                        overriddenGetterOfField.getElement());
+            }
+        }
+
+        /**
+         * Makes sure the serialized name didn't change when overriding.
+         *
+         * <p>Assumes the getter/field is annotated with a {@link DataPropertyAnnotation}.
+         */
+        private static void requireSerializedNameIsConsistent(
+                @NonNull AnnotatedGetterOrField existingGetterOrField,
+                @NonNull AnnotatedGetterOrField overriddenGetterOrField)
+                throws ProcessingException {
+            String existingSerializedName = getSerializedName(existingGetterOrField);
+            String overriddenSerializedName = getSerializedName(overriddenGetterOrField);
+            if (!existingSerializedName.equals(overriddenSerializedName)) {
+                throw new ProcessingException(
+                        ("Property name within the annotation must stay consistent when overriding "
+                                + "annotated members but changed from '%s' -> '%s'".formatted(
+                                existingSerializedName, overriddenSerializedName)),
+                        overriddenGetterOrField.getElement());
+            }
+        }
+
+        @NonNull
+        private static String createSignatureString(@NonNull AnnotatedGetterOrField getterOrField) {
+            return getterOrField.getJvmType()
+                    + " "
+                    + getterOrField.getElement().getEnclosingElement().getSimpleName()
+                    + "#"
+                    + getterOrField.getJvmName()
+                    + (getterOrField.isGetter() ? "()" : "");
+        }
     }
 }

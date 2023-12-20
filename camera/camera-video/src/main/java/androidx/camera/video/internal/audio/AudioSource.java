@@ -186,7 +186,8 @@ public final class AudioSource {
         mExecutor = CameraXExecutors.newSequentialExecutor(executor);
         mStartRetryIntervalNs = MILLISECONDS.toNanos(startRetryIntervalMs);
         try {
-            mAudioStream = audioStreamFactory.create(settings, attributionContext);
+            mAudioStream = new BufferedAudioStream(audioStreamFactory.create(settings,
+                    attributionContext), settings);
         } catch (IllegalArgumentException | AudioStream.AudioStreamException e) {
             throw new AudioSourceAccessException("Unable to create AudioStream", e);
         }
@@ -468,7 +469,7 @@ public final class AudioSource {
                                 NANOSECONDS.toMicros(packetInfo.getTimestampNs()));
                         inputBuffer.submit();
                     } else {
-                        Logger.w(TAG, "Unable to read data from AudioRecord.");
+                        Logger.w(TAG, "Unable to read data from AudioStream.");
                         inputBuffer.cancel();
                     }
                     sendNextAudio();

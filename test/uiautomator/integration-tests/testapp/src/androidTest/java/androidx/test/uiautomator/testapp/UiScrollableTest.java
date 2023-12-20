@@ -183,22 +183,6 @@ public class UiScrollableTest extends BaseTest {
     }
 
     @Test
-    public void testEnsureFullyVisible() throws Exception {
-        launchTestActivity(VerticalScrollTestActivity.class);
-
-        UiScrollable relativeLayout = new UiScrollable(
-                new UiSelector().resourceId(TEST_APP + ":id/relative_layout"));
-        UiObject target = mDevice.findObject(
-                new UiSelector().resourceId(TEST_APP + ":id/bottom_text"));
-
-        assertTrue(relativeLayout.scrollIntoView(target));
-        assertTrue(relativeLayout.ensureFullyVisible(target));
-        assertUiObjectNotFound(
-                () -> relativeLayout.ensureFullyVisible(
-                        mDevice.findObject(new UiSelector().resourceId(TEST_APP + ":id/no_node"))));
-    }
-
-    @Test
     public void testScrollTextIntoView() throws Exception {
         launchTestActivity(VerticalScrollTestActivity.class);
 

@@ -21,7 +21,6 @@ import androidx.annotation.RestrictTo
 import java.util.Objects.requireNonNull
 import java.util.regex.Pattern
 
-/** @suppress */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 data class LibInfo(val context: Context) {
     fun getVersion(): Version {

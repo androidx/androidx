@@ -29,7 +29,7 @@ dependencies {
     api("androidx.collection:collection:1.1.0")
     api("androidx.viewpager:viewpager:1.0.0")
     api("androidx.loader:loader:1.0.0")
-    api("androidx.activity:activity:1.7.1")
+    api(projectOrArtifact(":activity:activity"))
     api("androidx.lifecycle:lifecycle-runtime:2.6.1")
     api("androidx.lifecycle:lifecycle-livedata-core:2.6.1")
     api("androidx.lifecycle:lifecycle-viewmodel:2.6.1")
@@ -75,4 +75,5 @@ androidx {
     publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren\'t a part of the framework APIs. Compatible on devices running API 14 or later."
+    metalavaK2UastEnabled = true
 }

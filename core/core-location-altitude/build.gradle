@@ -14,7 +14,9 @@
  * limitations under the License.
  */
 
+import androidx.build.BundleInsideHelper
 import androidx.build.LibraryType
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("AndroidXPlugin")
@@ -24,18 +26,37 @@ plugins {
 
 android {
     namespace "androidx.core.location.altitude"
+
+    buildTypes.all {
+        consumerProguardFiles "proguard-rules.pro"
+    }
 }
+
+BundleInsideHelper.forInsideAar(
+        project,
+        /* from = */ "com.google.protobuf",
+        /* to =   */ "androidx.core.location.altitude.impl.proto",
+        // proto-lite dependency includes .proto files, which are not used and would clash if
+        // users also use proto library directly
+        /* dropResourcesWithSuffix = */ ".proto"
+)
 
 dependencies {
     api(libs.kotlinStdlib)
     api("androidx.annotation:annotation:1.5.0")
 
-    implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.core:core:1.9.0")
+    bundleInside(project(":core:core-location-altitude-proto"))
+
+    implementation(libs.autoValueAnnotations)
+    implementation(project(":core:core"))
+    implementation("androidx.room:room-runtime:2.4.3")
+
+    annotationProcessor(libs.autoValue)
+    annotationProcessor("androidx.room:room-compiler:2.4.3")
 
     androidTestImplementation(libs.junit)
-    androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
+    androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testRunner)
     androidTestImplementation(libs.truth)
 }
@@ -46,4 +67,5 @@ androidx {
     mavenVersion = LibraryVersions.CORE_LOCATION_ALTITUDE
     inceptionYear = "2022"
     description = "Provides compatibility APIs concerning location altitudes."
+    metalavaK2UastEnabled = true
 }

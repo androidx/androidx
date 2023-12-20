@@ -48,8 +48,9 @@ import androidx.compose.ui.unit.dp
  *
  * @sample androidx.tv.samples.CardSample
  *
- * @param onClick called when this card is clicked
- * @param modifier the [Modifier] to be applied to this card
+ * @param onClick called when this card is clicked.
+ * @param modifier the [Modifier] to be applied to this card.
+ * @param onLongClick called when this card is long clicked (long-pressed).
  * @param shape [CardShape] defines the shape of this card's container in different interaction
  * states. See [CardDefaults.shape].
  * @param colors [CardColors] defines the background & content colors used in this card for
@@ -70,6 +71,7 @@ import androidx.compose.ui.unit.dp
 fun Card(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     shape: CardShape = CardDefaults.shape(),
     colors: CardColors = CardDefaults.colors(),
     scale: CardScale = CardDefaults.scale(),
@@ -80,6 +82,7 @@ fun Card(
 ) {
     Surface(
         onClick = onClick,
+        onLongClick = onLongClick,
         modifier = modifier,
         shape = shape.toClickableSurfaceShape(),
         colors = colors.toClickableSurfaceColors(),
@@ -103,10 +106,11 @@ fun Card(
  *
  * @sample androidx.tv.samples.ClassicCardSample
  *
- * @param onClick called when this card is clicked
+ * @param onClick called when this card is clicked.
  * @param image defines the [Composable] image to be displayed on top of the Card.
  * @param title defines the [Composable] title placed below the image in the Card.
  * @param modifier the [Modifier] to be applied to this card.
+ * @param onLongClick called when this card is long clicked (long-pressed).
  * @param subtitle defines the [Composable] supporting text placed below the title of the Card.
  * @param description defines the [Composable] description placed below the subtitle of the Card.
  * @param shape [CardShape] defines the shape of this card's container in different interaction
@@ -131,6 +135,7 @@ fun ClassicCard(
     image: @Composable BoxScope.() -> Unit,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     subtitle: @Composable () -> Unit = {},
     description: @Composable () -> Unit = {},
     shape: CardShape = CardDefaults.shape(),
@@ -143,6 +148,7 @@ fun ClassicCard(
 ) {
     Card(
         onClick = onClick,
+        onLongClick = onLongClick,
         modifier = modifier,
         interactionSource = interactionSource,
         shape = shape,
@@ -181,10 +187,11 @@ fun ClassicCard(
  *
  * @sample androidx.tv.samples.CompactCardSample
  *
- * @param onClick called when this card is clicked
+ * @param onClick called when this card is clicked.
  * @param image defines the [Composable] image to be displayed on top of the Card.
  * @param title defines the [Composable] title placed below the image in the Card.
  * @param modifier the [Modifier] to be applied to this card.
+ * @param onLongClick called when this card is long clicked (long-pressed).
  * @param subtitle defines the [Composable] supporting text placed below the title of the Card.
  * @param description defines the [Composable] description placed below the subtitle of the Card.
  * @param shape [CardShape] defines the shape of this card's container in different interaction
@@ -210,6 +217,7 @@ fun CompactCard(
     image: @Composable BoxScope.() -> Unit,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     subtitle: @Composable () -> Unit = {},
     description: @Composable () -> Unit = {},
     shape: CardShape = CardDefaults.shape(),
@@ -222,6 +230,7 @@ fun CompactCard(
 ) {
     Card(
         onClick = onClick,
+        onLongClick = onLongClick,
         modifier = modifier,
         interactionSource = interactionSource,
         shape = shape,
@@ -264,10 +273,11 @@ fun CompactCard(
  *
  * @sample androidx.tv.samples.WideClassicCardSample
  *
- * @param onClick called when this card is clicked
+ * @param onClick called when this card is clicked.
  * @param image defines the [Composable] image to be displayed on top of the Card.
  * @param title defines the [Composable] title placed below the image in the Card.
  * @param modifier the [Modifier] to be applied to this card.
+ * @param onLongClick called when this card is long clicked (long-pressed).
  * @param subtitle defines the [Composable] supporting text placed below the title of the Card.
  * @param description defines the [Composable] description placed below the subtitle of the Card.
  * @param shape [CardShape] defines the shape of this card's container in different interaction
@@ -292,6 +302,7 @@ fun WideClassicCard(
     image: @Composable BoxScope.() -> Unit,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     subtitle: @Composable () -> Unit = {},
     description: @Composable () -> Unit = {},
     shape: CardShape = CardDefaults.shape(),
@@ -304,6 +315,7 @@ fun WideClassicCard(
 ) {
     Card(
         onClick = onClick,
+        onLongClick = onLongClick,
         modifier = modifier,
         interactionSource = interactionSource,
         shape = shape,
@@ -330,6 +342,7 @@ fun WideClassicCard(
     }
 }
 
+@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 internal fun CardContent(
     title: @Composable () -> Unit,

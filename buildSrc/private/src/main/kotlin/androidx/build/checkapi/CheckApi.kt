@@ -32,8 +32,9 @@ enum class ApiType {
 }
 
 /**
- * Returns the API file containing the public API that this library promises to support
- * This is API file that checkApiRelease validates against
+ * Returns the API file containing the public API that this library promises to support This is API
+ * file that checkApiRelease validates against
+ *
  * @return the API file
  */
 fun Project.getRequiredCompatibilityApiFile(): File? {
@@ -53,10 +54,10 @@ fun Project.getRequiredCompatibilityApiLocation(): ApiLocation? {
 }
 
 /**
- * Sometimes the version of an API file might be not equal to the version of its artifact.
- * This is because under certain circumstances, APIs are not allowed to change, and in those
- * cases we may stop versioning the API.
- * This functions returns the version of API file to use given the version of an artifact
+ * Sometimes the version of an API file might be not equal to the version of its artifact. This is
+ * because under certain circumstances, APIs are not allowed to change, and in those cases we may
+ * stop versioning the API. This functions returns the version of API file to use given the version
+ * of an artifact
  */
 fun getApiFileVersion(version: Version): Version {
     if (!isValidArtifactVersion(version)) {
@@ -74,9 +75,7 @@ fun getApiFileVersion(version: Version): Version {
     return Version(version.major, version.minor, 0, extra)
 }
 
-/**
- * Whether it is allowed for an artifact to have this version
- */
+/** Whether it is allowed for an artifact to have this version */
 fun isValidArtifactVersion(version: Version): Boolean {
     if (version.patch != 0 && (version.isAlpha() || version.isBeta() || version.isDev())) {
         return false
@@ -85,9 +84,9 @@ fun isValidArtifactVersion(version: Version): Boolean {
 }
 
 /**
- * Returns the api file that version <version> is required to be compatible with.
- * If apiType is RESOURCEAPI, it will return the resource api file and if it is CLASSAPI, it will
- * return the regular api file.
+ * Returns the api file that version <version> is required to be compatible with. If apiType is
+ * RESOURCEAPI, it will return the resource api file and if it is CLASSAPI, it will return the
+ * regular api file.
  */
 fun getRequiredCompatibilityApiFileFromDir(
     apiDir: File,
@@ -100,15 +99,17 @@ fun getRequiredCompatibilityApiFileFromDir(
     // Find the path with highest version that is lower than the current API version.
     Files.newDirectoryStream(apiDir.toPath()).forEach { path ->
         val pathName = path.name
-        if ((apiType == ApiType.RESOURCEAPI && isResourceApiFilename(pathName)) ||
-            (apiType == ApiType.CLASSAPI && !isResourceApiFilename(pathName))
+        if (
+            (apiType == ApiType.RESOURCEAPI && isResourceApiFilename(pathName)) ||
+                (apiType == ApiType.CLASSAPI && !isResourceApiFilename(pathName))
         ) {
             val pathVersion = Version.parseFilenameOrNull(pathName)
-            if (pathVersion != null &&
-                (highestVersion == null || pathVersion > highestVersion!!) &&
-                pathVersion < apiVersion &&
-                pathVersion.isFinalApi() &&
-                pathVersion.major == apiVersion.major
+            if (
+                pathVersion != null &&
+                    (highestVersion == null || pathVersion > highestVersion!!) &&
+                    pathVersion <= apiVersion &&
+                    pathVersion.isFinalApi() &&
+                    pathVersion.major == apiVersion.major
             ) {
                 highestPath = path
                 highestVersion = pathVersion

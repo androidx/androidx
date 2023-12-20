@@ -42,6 +42,7 @@ import kotlinx.coroutines.launch
  */
 @Composable
 @NonRestartableComposable
+@ExplicitGroupsComposable
 @OptIn(InternalComposeApi::class)
 fun SideEffect(
     effect: () -> Unit

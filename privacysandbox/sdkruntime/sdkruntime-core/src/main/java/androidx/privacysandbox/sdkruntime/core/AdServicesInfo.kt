@@ -18,6 +18,7 @@ package androidx.privacysandbox.sdkruntime.core
 
 import android.os.Build
 import android.os.ext.SdkExtensions
+import androidx.annotation.ChecksSdkIntAtLeast
 import androidx.annotation.DoNotInline
 import androidx.annotation.RequiresApi
 import androidx.annotation.RestrictTo
@@ -26,7 +27,6 @@ import androidx.annotation.RestrictTo
  * Temporary replacement for BuildCompat.AD_SERVICES_EXTENSION_INT.
  * TODO(b/249981547) Replace with AD_SERVICES_EXTENSION_INT after new core library release
  *
- * @suppress
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 object AdServicesInfo {
@@ -40,6 +40,10 @@ object AdServicesInfo {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             Extensions30Impl.isAtLeastV5()
     }
+
+    @ChecksSdkIntAtLeast(codename = "UpsideDownCake")
+    fun isDeveloperPreview(): Boolean =
+        Build.VERSION.CODENAME.equals("UpsideDownCakePrivacySandbox")
 
     @RequiresApi(30)
     private object Extensions30Impl {

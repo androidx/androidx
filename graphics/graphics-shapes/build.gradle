@@ -15,24 +15,110 @@
  */
 
 import androidx.build.LibraryType
+import androidx.build.PlatformIdentifier
 
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
 }
 
-dependencies {
-    api(libs.kotlinStdlib)
-    implementation("androidx.annotation:annotation:1.4.0")
-    implementation("androidx.core:core-ktx:1.10.0-rc01")
-    androidTestImplementation(libs.testExtJunit)
-    androidTestImplementation(libs.testCore)
-    androidTestImplementation(libs.testRunner)
-    androidTestImplementation(libs.testRules)
+
+androidXMultiplatform {
+    android()
+    desktop()
+
+    defaultPlatform(PlatformIdentifier.ANDROID)
+
+    sourceSets {
+        configureEach {
+            languageSettings.optIn("kotlin.RequiresOptIn")
+            languageSettings.optIn("kotlin.contracts.ExperimentalContracts")
+        }
+
+        commonMain {
+            dependencies {
+                implementation(libs.kotlinStdlibCommon)
+                implementation project(':collection:collection')
+                implementation("androidx.annotation:annotation:1.1.0")
+            }
+        }
+
+        commonTest {
+            dependencies {
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
+            }
+        }
+
+        skikoMain {
+            dependsOn(commonMain)
+            dependencies {
+            }
+        }
+
+        androidMain {
+            dependsOn(jvmMain)
+            dependencies {
+                implementation("androidx.core:core-ktx:1.10.0-rc01")
+                implementation("androidx.core:core-ktx:1.8.0")
+            }
+        }
+
+        desktopMain {
+            dependsOn(skikoMain)
+            dependsOn(jvmMain)
+            dependencies {
+                implementation(libs.kotlinStdlib)
+            }
+        }
+
+        jvmTest {
+            dependsOn(commonTest)
+            dependencies {
+            }
+        }
+
+        androidUnitTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
+        }
+
+        androidInstrumentedTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.testRules)
+                implementation(libs.testRunner)
+                implementation(libs.junit)
+                implementation(libs.truth)
+                implementation(libs.dexmakerMockitoInlineExtended)
+                implementation(libs.mockitoKotlin)
+            }
+        }
+
+        desktopTest {
+            dependsOn(jvmTest)
+            dependencies {
+                implementation(libs.truth)
+                implementation(libs.junit)
+                implementation(libs.skikoCurrentOs)
+            }
+        }
+    }
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled = true
+    }
     namespace "androidx.graphics.shapes"
 }
 
@@ -42,4 +128,5 @@ androidx {
     mavenVersion = LibraryVersions.GRAPHICS_SHAPES
     inceptionYear = "2022"
     description = "create and render rounded polygonal shapes"
+    metalavaK2UastEnabled = true
 }

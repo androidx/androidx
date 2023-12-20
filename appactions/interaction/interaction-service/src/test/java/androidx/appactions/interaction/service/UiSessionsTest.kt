@@ -43,7 +43,7 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 @Suppress("deprecation") // For backwards compatibility.
 class UiSessionsTest {
-    private class SessionList() {
+    private class SessionList {
         private val sessions = mutableListOf<ExecutionSession>()
         private var index = 0
         val sessionFactory: (hostProperties: HostProperties?) -> ExecutionSession =
@@ -74,27 +74,6 @@ class UiSessionsTest {
             .setRemoteViews(remoteViews, SizeF(10f, 15f))
             .addRemoteViewsFactory(remoteViewsFactoryId, FakeRemoteViewsFactory())
             .build()
-    private val layout =
-        androidx.wear.tiles.LayoutElementBuilders.Layout.Builder()
-            .setRoot(
-                androidx.wear.tiles.LayoutElementBuilders.Box.Builder()
-                    .addContent(
-                        androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
-                            .addContent(
-                                androidx.wear.tiles.LayoutElementBuilders.Text.Builder()
-                                    .setText("LA8JE92")
-                                    .build(),
-                            )
-                            .build(),
-                    )
-                    .build(),
-            )
-            .build()
-    private val resources = androidx.wear.tiles.ResourceBuilders.Resources.Builder()
-        .setVersion("1234")
-        .build()
-    private val tileLayoutUiResponse: UiResponse =
-        UiResponse.TileLayoutBuilder().setTileLayout(layout, resources).build()
 
     @After
     fun cleanup() {
@@ -102,7 +81,7 @@ class UiSessionsTest {
         UiSessions.removeUiCache(sessionId)
     }
 
-    fun createFakeSessionWithUiResponses(vararg uiResponses: UiResponse): ExecutionSession {
+    private fun createFakeSessionWithUiResponses(vararg uiResponses: UiResponse): ExecutionSession {
         return object : ExecutionSession {
             override suspend fun onExecute(
                 arguments: Arguments,
@@ -152,7 +131,6 @@ class UiSessionsTest {
                 arguments: Arguments,
             ): ExecutionResult<Output> {
                 this.updateUi(remoteViewsUiResponse)
-                this.updateUi(tileLayoutUiResponse)
 
                 return ExecutionResult.Builder<Output>().build()
             }
@@ -173,7 +151,6 @@ class UiSessionsTest {
         assertThat(uiCache?.hasUnreadUiResponse).isTrue()
         assertThat(uiCache?.cachedRemoteViewsInternal?.size).isEqualTo(SizeF(10f, 15f))
         assertThat(uiCache?.cachedRemoteViewsInternal?.remoteViews).isEqualTo(remoteViews)
-        assertThat(uiCache?.cachedTileLayoutInternal).isNotNull()
     }
 
     @Test
@@ -193,7 +170,7 @@ class UiSessionsTest {
                 override suspend fun onExecute(
                     arguments: Arguments,
                 ): ExecutionResult<Output> {
-                    this.updateUi(tileLayoutUiResponse)
+                    this.updateUi(remoteViewsUiResponse)
                     return ExecutionResult.Builder<Output>().build()
                 }
             },
@@ -227,13 +204,11 @@ class UiSessionsTest {
         assertThat(uiCache1).isNotNull()
         assertThat(uiCache1?.hasUnreadUiResponse).isTrue()
         assertThat(uiCache1?.cachedRemoteViewsInternal?.remoteViews).isEqualTo(remoteViews)
-        assertThat(uiCache1?.cachedTileLayoutInternal).isNull()
 
         val uiCache2 = UiSessions.getUiCacheOrNull(sessionId2)
         assertThat(uiCache2).isNotNull()
         assertThat(uiCache2?.hasUnreadUiResponse).isTrue()
-        assertThat(uiCache2?.cachedTileLayoutInternal).isNotNull()
-        assertThat(uiCache2?.cachedRemoteViewsInternal).isNull()
+        assertThat(uiCache2?.cachedRemoteViewsInternal?.remoteViews).isEqualTo(remoteViews)
 
         // Assert that UiCache2 response still marked unread.
         uiCache1?.resetUnreadUiResponse()

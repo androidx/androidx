@@ -51,7 +51,7 @@ class QueryInterceptorTest {
     var queryAndArgs = CopyOnWriteArrayList<Pair<String, ArrayList<Any?>>>()
 
     @Entity(tableName = "queryInterceptorTestDatabase")
-    data class QueryInterceptorEntity(@PrimaryKey val id: String, val description: String)
+    data class QueryInterceptorEntity(@PrimaryKey val id: String, val description: String?)
 
     @Dao
     interface QueryInterceptorDao {
@@ -82,12 +82,10 @@ class QueryInterceptorTest {
             ApplicationProvider.getApplicationContext(),
             QueryInterceptorTestDatabase::class.java
         ).setQueryCallback(
-            object : RoomDatabase.QueryCallback {
-                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                    val argTrace = ArrayList<Any?>()
-                    argTrace.addAll(bindArgs)
-                    queryAndArgs.add(Pair(sqlQuery, argTrace))
-                }
+            { sqlQuery, bindArgs ->
+                val argTrace = ArrayList<Any?>()
+                argTrace.addAll(bindArgs)
+                queryAndArgs.add(Pair(sqlQuery, argTrace))
             },
             MoreExecutors.directExecutor()
         ).build()
@@ -169,6 +167,20 @@ class QueryInterceptorTest {
     }
 
     @Test
+    fun testExecSQLWithBindArgs() {
+        mDatabase.openHelper.writableDatabase.execSQL(
+            "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+                "VALUES (?,?)",
+            arrayOf("3", "Description")
+        )
+        assertQueryLogged(
+            "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+                "VALUES (?,?)",
+            listOf("3", "Description")
+        )
+    }
+
+    @Test
     fun testNullBindArgument() {
         mDatabase.openHelper.writableDatabase.query(
             SimpleSQLiteQuery(
@@ -185,17 +197,32 @@ class QueryInterceptorTest {
     }
 
     @Test
+    fun testNullBindArgumentCompileStatement() {
+        val sql = "INSERT OR ABORT INTO `queryInterceptorTestDatabase` (`id`,`description`) " +
+            "VALUES (?,?)"
+        val statement = mDatabase.openHelper.writableDatabase.compileStatement(sql)
+        statement.bindString(1, "ID")
+        statement.bindNull(2)
+        statement.execute()
+
+        val filteredQueries = queryAndArgs.filter { (query, _) -> query == sql }
+
+        assertThat(filteredQueries).hasSize(1)
+        assertThat(filteredQueries[0].second).hasSize(2)
+        assertThat(filteredQueries[0].second[0]).isEqualTo("ID")
+        assertThat(filteredQueries[0].second[1]).isEqualTo(null)
+    }
+
+    @Test
     fun testCallbackCalledOnceAfterCloseAndReOpen() {
         val dbBuilder = Room.inMemoryDatabaseBuilder(
             ApplicationProvider.getApplicationContext(),
             QueryInterceptorTestDatabase::class.java
         ).setQueryCallback(
-            object : RoomDatabase.QueryCallback {
-                override fun onQuery(sqlQuery: String, bindArgs: List<Any?>) {
-                    val argTrace = ArrayList<Any?>()
-                    argTrace.addAll(bindArgs)
-                    queryAndArgs.add(Pair(sqlQuery, argTrace))
-                }
+            { sqlQuery, bindArgs ->
+                val argTrace = ArrayList<Any?>()
+                argTrace.addAll(bindArgs)
+                queryAndArgs.add(Pair(sqlQuery, argTrace))
             },
             MoreExecutors.directExecutor()
         )

@@ -27,17 +27,17 @@ plugins {
 dependencies {
 
     implementation(libs.kotlinStdlib)
-    implementation("androidx.compose.foundation:foundation-layout:1.0.1")
+    implementation("androidx.compose.foundation:foundation-layout:1.5.1")
     api("androidx.activity:activity-compose:1.7.0")
-    api("androidx.compose.animation:animation:1.0.1")
-    api("androidx.compose.runtime:runtime:1.0.1")
-    api("androidx.compose.runtime:runtime-saveable:1.0.1")
-    api("androidx.compose.ui:ui:1.0.1")
-    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+    api("androidx.compose.animation:animation:1.5.1")
+    api("androidx.compose.runtime:runtime:1.5.1")
+    api("androidx.compose.runtime:runtime-saveable:1.5.1")
+    api("androidx.compose.ui:ui:1.5.1")
+    api("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     api(projectOrArtifact(":navigation:navigation-runtime-ktx"))
 
     androidTestImplementation(projectOrArtifact(":compose:material:material"))
-    androidTestImplementation projectOrArtifact(":compose:test-utils")
+    androidTestImplementation project(":compose:test-utils")
     androidTestImplementation projectOrArtifact(":compose:ui:ui-tooling")
     androidTestImplementation(projectOrArtifact(":navigation:navigation-testing"))
     androidTestImplementation(projectOrArtifact(":internal-testutils-navigation"), {
@@ -71,5 +71,8 @@ androidx {
 }
 
 android {
+    sourceSets.androidTest.assets.srcDirs +=
+            project.rootDir.absolutePath + "/../../golden/navigation/navigation-compose"
+
     namespace "androidx.navigation.compose"
 }

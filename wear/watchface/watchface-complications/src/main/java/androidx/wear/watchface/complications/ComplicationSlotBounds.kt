@@ -119,8 +119,6 @@ public class ComplicationSlotBounds(
         }
     }
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     companion object {
         internal const val NODE_NAME = "ComplicationSlotBounds"
 
@@ -150,6 +148,7 @@ public class ComplicationSlotBounds(
          * The [parser] should be inside a node with any number of ComplicationSlotBounds child
          * nodes. No other child nodes are expected.
          */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         fun inflate(
             resources: Resources,
             parser: XmlResourceParser,

@@ -25,6 +25,7 @@ dependencies {
     api("androidx.core:core:1.6.0")
     implementation("androidx.annotation:annotation:1.2.0")
     implementation("androidx.collection:collection:1.1.0")
+    implementation("androidx.core:core:1.9.0")
 
     androidTestImplementation(libs.testExtJunit)
     androidTestImplementation(libs.testCore)
@@ -57,4 +58,5 @@ androidx {
     inceptionYear = "2011"
     description = "The Support Library is a static library that you can add to your Android application in order to use APIs that are either not available for older platform versions or utility APIs that aren't a part of the framework APIs. Compatible on devices running API 14 or later."
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

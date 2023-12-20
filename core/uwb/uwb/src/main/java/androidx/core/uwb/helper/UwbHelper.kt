@@ -36,7 +36,6 @@ internal fun checkSystemFeature(context: Context) {
         throw UwbHardwareNotAvailableException("UWB Hardware is not available on this device.")
     }
 }
-
 internal fun handleApiException(e: ApiException) {
     when (e.statusCode) {
         UwbStatusCodes.INVALID_API_CALL ->

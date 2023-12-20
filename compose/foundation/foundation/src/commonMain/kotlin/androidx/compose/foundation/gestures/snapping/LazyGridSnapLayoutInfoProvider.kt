@@ -20,15 +20,15 @@ import androidx.compose.animation.core.DecayAnimationSpec
 import androidx.compose.animation.core.calculateTargetValue
 import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.fastFilter
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.lazy.grid.LazyGridItemInfo
 import androidx.compose.foundation.lazy.grid.LazyGridLayoutInfo
 import androidx.compose.foundation.lazy.grid.LazyGridState
-import androidx.compose.ui.unit.Density
+import androidx.compose.ui.util.fastFilter
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.util.fastSumBy
 import kotlin.math.absoluteValue
+import kotlin.math.floor
 import kotlin.math.sign
 
 /**
@@ -49,11 +49,18 @@ fun SnapLayoutInfoProvider(
     private val layoutInfo: LazyGridLayoutInfo
         get() = lazyGridState.layoutInfo
 
-    override fun Density.calculateApproachOffset(initialVelocity: Float): Float {
-        val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(this)
+    override fun calculateApproachOffset(initialVelocity: Float): Float {
+        val decayAnimationSpec: DecayAnimationSpec<Float> = splineBasedDecay(lazyGridState.density)
         val offset =
             decayAnimationSpec.calculateTargetValue(NoDistance, initialVelocity).absoluteValue
-        val finalDecayOffset = (offset - calculateSnapStepSize()).coerceAtLeast(0f)
+
+        val estimatedNumberOfItemsInDecay = floor(offset.absoluteValue / averageItemSize())
+
+        // Decay to exactly half an item before the item where this decay would let us finish.
+        // The rest of the animation will be a snapping animation.
+        val approachOffset = estimatedNumberOfItemsInDecay * averageItemSize() - averageItemSize()
+        val finalDecayOffset = approachOffset.coerceAtLeast(0f)
+
         return if (finalDecayOffset == 0f) {
             finalDecayOffset
         } else {
@@ -61,16 +68,17 @@ fun SnapLayoutInfoProvider(
         }
     }
 
-    private val singleAxisItems: List<LazyGridItemInfo>
-        get() = lazyGridState.layoutInfo.visibleItemsInfo.fastFilter {
+    private fun singleAxisItems(): List<LazyGridItemInfo> {
+        return lazyGridState.layoutInfo.visibleItemsInfo.fastFilter {
             if (lazyGridState.layoutInfo.orientation == Orientation.Horizontal) {
                 it.row == 0
             } else {
                 it.column == 0
             }
         }
+    }
 
-    override fun Density.calculateSnappingOffset(
+    override fun calculateSnappingOffset(
         currentVelocity: Float
     ): Float {
         var distanceFromItemBeforeTarget = Float.NEGATIVE_INFINITY
@@ -100,20 +108,21 @@ fun SnapLayoutInfoProvider(
         }
 
         return calculateFinalOffset(
-            currentVelocity,
+            with(lazyGridState.density) { calculateFinalSnappingItem(currentVelocity) },
             distanceFromItemBeforeTarget,
             distanceFromItemAfterTarget
         )
     }
 
-    override fun Density.calculateSnapStepSize(): Float {
-        return if (singleAxisItems.isNotEmpty()) {
+    fun averageItemSize(): Float {
+        val items = singleAxisItems()
+        return if (items.isNotEmpty()) {
             val size = if (layoutInfo.orientation == Orientation.Vertical) {
-                singleAxisItems.fastSumBy { it.size.height }
+                items.fastSumBy { it.size.height }
             } else {
-                singleAxisItems.fastSumBy { it.size.width }
+                items.fastSumBy { it.size.width }
             }
-            size / singleAxisItems.size.toFloat()
+            size / items.size.toFloat()
         } else {
             0f
         }

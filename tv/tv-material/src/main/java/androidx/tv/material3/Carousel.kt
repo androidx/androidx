@@ -16,6 +16,8 @@
 
 package androidx.tv.material3
 
+import android.content.Context
+import android.view.accessibility.AccessibilityManager
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.AnimatedVisibilityScope
@@ -42,6 +44,8 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
@@ -62,10 +66,14 @@ import androidx.compose.ui.input.key.KeyEventType.Companion.KeyUp
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.CollectionInfo
+import androidx.compose.ui.semantics.ScrollAxisRange
 import androidx.compose.ui.semantics.collectionInfo
+import androidx.compose.ui.semantics.horizontalScrollAxisRange
+import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
@@ -101,7 +109,7 @@ import kotlinx.coroutines.yield
 fun Carousel(
     itemCount: Int,
     modifier: Modifier = Modifier,
-    carouselState: CarouselState = remember { CarouselState() },
+    carouselState: CarouselState = rememberCarouselState(),
     autoScrollDurationMillis: Long = CarouselDefaults.TimeToDisplayItemMillis,
     contentTransformStartToEnd: ContentTransform = CarouselDefaults.contentTransform,
     contentTransformEndToStart: ContentTransform = CarouselDefaults.contentTransform,
@@ -123,18 +131,20 @@ fun Carousel(
     val isLtr = LocalLayoutDirection.current == LayoutDirection.Ltr
     val carouselOuterBoxFocusRequester = remember { FocusRequester() }
     var isAutoScrollActive by remember { mutableStateOf(false) }
+    val context = LocalContext.current
+    val accessibilityManager = remember {
+        context.getSystemService(Context.ACCESSIBILITY_SERVICE) as AccessibilityManager
+    }
 
     AutoScrollSideEffect(
         autoScrollDurationMillis = autoScrollDurationMillis,
         itemCount = itemCount,
         carouselState = carouselState,
-        doAutoScroll = shouldPerformAutoScroll(focusState),
+        doAutoScroll = shouldPerformAutoScroll(focusState, accessibilityManager),
         onAutoScrollChange = { isAutoScrollActive = it })
 
     Box(modifier = modifier
-        .semantics {
-            collectionInfo = CollectionInfo(rowCount = 1, columnCount = itemCount)
-        }
+        .carouselSemantics(itemCount = itemCount, state = carouselState)
         .bringIntoViewIfChildrenAreFocused()
         .focusRequester(carouselOuterBoxFocusRequester)
         .onFocusChanged {
@@ -165,6 +175,9 @@ fun Carousel(
             label = "CarouselAnimation"
         ) { activeItemIndex ->
             LaunchedEffect(Unit) {
+                if (accessibilityManager.isEnabled) {
+                    carouselOuterBoxFocusRequester.requestFocus()
+                }
                 this@AnimatedContent.onAnimationCompletion {
                     // Outer box is focused
                     if (!isAutoScrollActive && focusState?.isFocused == true) {
@@ -186,10 +199,15 @@ fun Carousel(
 }
 
 @Composable
-private fun shouldPerformAutoScroll(focusState: FocusState?): Boolean {
+private fun shouldPerformAutoScroll(
+    focusState: FocusState?,
+    accessibilityManager: AccessibilityManager
+): Boolean {
     val carouselIsFocused = focusState?.isFocused ?: false
     val carouselHasFocus = focusState?.hasFocus ?: false
-    return !(carouselIsFocused || carouselHasFocus)
+
+    // Disable auto scroll when accessibility mode is enabled or the carousel is focused
+    return !accessibilityManager.isEnabled && !(carouselIsFocused || carouselHasFocus)
 }
 
 @Suppress("IllegalExperimentalApiUsage")
@@ -208,6 +226,10 @@ private fun AutoScrollSideEffect(
     doAutoScroll: Boolean,
     onAutoScrollChange: (isAutoScrollActive: Boolean) -> Unit = {},
 ) {
+    if (autoScrollDurationMillis == Long.MAX_VALUE || autoScrollDurationMillis < 0) {
+        return
+    }
+
     // Needed to ensure that the code within LaunchedEffect receives updates to the itemCount.
     val updatedItemCount by rememberUpdatedState(newValue = itemCount)
     if (doAutoScroll) {
@@ -240,6 +262,7 @@ private fun Modifier.handleKeyEvents(
         carouselState.moveToPreviousItem(itemCount)
         outerBoxFocusRequester.requestFocus()
     }
+
     fun showNextItem() {
         carouselState.moveToNextItem(itemCount)
         outerBoxFocusRequester.requestFocus()
@@ -268,11 +291,13 @@ private fun Modifier.handleKeyEvents(
                     KeyEventPropagation.StopPropagation
                 }
 
-            !focusManager.moveFocus(direction) -> {
+            !focusManager.moveFocus(direction) &&
+                currentCarouselBoxFocusState()?.hasFocus == true -> {
                 // if focus search was unsuccessful, interpret as input for slide change
                 updateItemBasedOnLayout(direction, isLtr)
                 KeyEventPropagation.StopPropagation
             }
+
             else -> KeyEventPropagation.StopPropagation
         }
 
@@ -295,6 +320,7 @@ private fun Modifier.handleKeyEvents(
         when {
             shouldFocusExitCarousel(it, carouselState, itemCount, isLtr) ->
                 FocusRequester.Default
+
             else -> FocusRequester.Cancel
         }
     }
@@ -326,6 +352,22 @@ private fun CarouselStateUpdater(carouselState: CarouselState, itemCount: Int) {
         if (itemCount != 0) {
             carouselState.activeItemIndex = floorMod(carouselState.activeItemIndex, itemCount)
         }
+    }
+}
+
+/**
+ * Creates a [CarouselState] that is remembered across compositions.
+ *
+ * Changes to the provided initial values will **not** result in the state being recreated or
+ * changed in any way if it has already been created.
+ *
+ * @param initialActiveItemIndex the index of the first active item
+ */
+@ExperimentalTvMaterial3Api
+@Composable
+fun rememberCarouselState(initialActiveItemIndex: Int = 0): CarouselState {
+    return rememberSaveable(saver = CarouselState.Saver) {
+        CarouselState(initialActiveItemIndex)
     }
 }
 
@@ -389,6 +431,16 @@ class CarouselState(initialActiveItemIndex: Int = 0) {
 
         // Go to next item
         activeItemIndex = floorMod(activeItemIndex + 1, itemCount)
+    }
+
+    companion object {
+        /**
+         * The default [Saver] implementation for [CarouselState].
+         */
+        val Saver: Saver<CarouselState, *> = Saver(
+            save = { it.activeItemIndex },
+            restore = { CarouselState(it) }
+        )
     }
 }
 
@@ -455,7 +507,6 @@ object CarouselDefaults {
      * @param spacing spacing between the indicator dots
      * @param indicator indicator dot representing each item in the carousel
      */
-    @ExperimentalTvMaterial3Api
     @Composable
     fun IndicatorRow(
         itemCount: Int,
@@ -482,8 +533,57 @@ object CarouselDefaults {
         ) {
             repeat(itemCount) {
                 val isActive = it == activeItemIndex
-                indicator(isActive = isActive)
+                indicator(isActive)
             }
         }
     }
+}
+
+@OptIn(ExperimentalTvMaterial3Api::class)
+@Suppress("ComposableModifierFactory")
+@Composable
+internal fun Modifier.carouselSemantics(
+    itemCount: Int,
+    state: CarouselState
+): Modifier {
+    return this.then(
+        remember(
+            state,
+            itemCount
+        ) {
+            val accessibilityScrollState = ScrollAxisRange(
+                value = {
+                    // Active slide index represents the current position
+                    state.activeItemIndex.toFloat()
+                },
+                maxValue = {
+                    // Last slide index represents the max. value
+                    (itemCount - 1).toFloat()
+                },
+                reverseScrolling = false
+            )
+
+            val scrollByAction: ((x: Float, y: Float) -> Boolean) =
+                { x, _ ->
+                    when {
+                        // Positive value of x represents forward scrolling
+                        x > 0f -> state.moveToNextItem(itemCount)
+
+                        // Negative value of x represents backward scrolling
+                        x < 0f -> state.moveToPreviousItem(itemCount)
+                    }
+
+                    // Return false for non-horizontal scrolling (x==0)
+                    x != 0f
+                }
+
+            Modifier.semantics {
+                horizontalScrollAxisRange = accessibilityScrollState
+
+                scrollBy(action = scrollByAction)
+
+                collectionInfo = CollectionInfo(rowCount = 1, columnCount = itemCount)
+            }
+        }
+    )
 }

@@ -34,6 +34,7 @@ class ChangesResponse
 internal constructor(
     public val changes: List<Change>,
     public val nextChangesToken: String,
+    @get:JvmName("hasMore")
     public val hasMore: Boolean,
     public val changesTokenExpired: Boolean,
 )

@@ -85,6 +85,24 @@ class FragmentContainerViewTest {
         layoutInflater.inflate(R.layout.inflated_fragment_container_view_with_class, null)
     }
 
+    @Test
+    fun inflatedNestedFragmentWithStates() {
+        val activity = activityRule.activity
+        val fm = activity.supportFragmentManager
+        val fragmentParent = StrictViewFragment(
+            contentLayoutId = R.layout.inflated_fragment_container_view_strict_view
+        )
+
+        fm.beginTransaction()
+            .add(R.id.fragment_container_view, fragmentParent)
+            .commit()
+        activityRule.runOnUiThread { fm.executePendingTransactions() }
+
+        // child frag should inflate properly with correct states
+        val childFrag = fragmentParent.childFragmentManager.findFragmentByTag("childFragment")
+        assertThat(childFrag).isNotNull()
+    }
+
     @SdkSuppress(minSdkVersion = 18) // androidx.transition needs setLayoutTransition for API < 18
     @Test
     fun setLayoutTransitionUnsupported() {

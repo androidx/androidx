@@ -22,6 +22,7 @@ import android.content.Context
 import android.os.Looper
 import androidx.concurrent.futures.await
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.protolayout.ResourceBuilders
 import androidx.wear.protolayout.protobuf.InvalidProtocolBufferException
 import androidx.wear.tiles.RequestBuilders
 import androidx.wear.tiles.ResourcesCallback
@@ -175,15 +176,14 @@ public class DefaultTileClientTest {
     }
 
     @Test
-    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
     public fun getResources_canGetResources(): Unit = fakeCoroutineScope.runTest {
-        val expectedResources = androidx.wear.tiles.ResourceBuilders.Resources.Builder()
+        val expectedResources = ResourceBuilders.Resources.Builder()
             .setVersion("5")
             .build()
         fakeTileService.returnResources = expectedResources.toProto().toByteArray()
 
         val result = async {
-            clientUnderTest.requestResources(
+            clientUnderTest.requestTileResourcesAsync(
                 RequestBuilders.ResourcesRequest.Builder().build()
             ).await()
         }
@@ -197,7 +197,7 @@ public class DefaultTileClientTest {
         fakeTileService.returnResources = byteArrayOf(127)
 
         val result = async(Job()) {
-            clientUnderTest.requestResources(
+            clientUnderTest.requestTileResourcesAsync(
                 RequestBuilders.ResourcesRequest.Builder().build()
             ).await()
         }
@@ -210,16 +210,15 @@ public class DefaultTileClientTest {
     }
 
     @Test
-    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
     public fun getResources_failsIfVersionMismatch(): Unit = fakeCoroutineScope.runTest {
-        val expectedResources = androidx.wear.tiles.ResourceBuilders.Resources.Builder()
+        val expectedResources = ResourceBuilders.Resources.Builder()
             .setVersion("5")
             .build()
         fakeTileService.returnResources = expectedResources.toProto().toByteArray()
         fakeTileService.returnResourcesVersion = -2
 
         val result = async(Job()) {
-            clientUnderTest.requestResources(
+            clientUnderTest.requestTileResourcesAsync(
                 RequestBuilders.ResourcesRequest.Builder().build()
             ).await()
         }
@@ -231,9 +230,8 @@ public class DefaultTileClientTest {
     }
 
     @Test
-    @Suppress("deprecation") // TODO(b/276343540): Use protolayout types
     public fun getResources_failsOnTimeout(): Unit = runTest {
-        val expectedResources = androidx.wear.tiles.ResourceBuilders.Resources.Builder()
+        val expectedResources = ResourceBuilders.Resources.Builder()
             .setVersion("5")
             .build()
         fakeTileService.returnResources = expectedResources.toProto().toByteArray()
@@ -247,7 +245,7 @@ public class DefaultTileClientTest {
 
         // This has to be dispatched on the correct dispatcher, so we can fully control its timing.
         val result = async(stdDispatcher + Job()) {
-            clientUnderTest.requestResources(
+            clientUnderTest.requestTileResourcesAsync(
                 RequestBuilders.ResourcesRequest.Builder().build()
             ).await()
         }

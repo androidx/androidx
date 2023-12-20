@@ -64,7 +64,7 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
 
         if (DEBUG) {
             root.debugName = "ConstraintLayout"
-            root.children.forEach { child ->
+            root.children.fastForEach { child ->
                 child.debugName =
                     (child.companionWidget as? Measurable)?.layoutId?.toString() ?: "NOTAG"
             }
@@ -85,9 +85,14 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
         measurables: List<Measurable>,
         optimizationLevel: Int,
         progress: Float,
-        compositionSource: CompositionSource
+        compositionSource: CompositionSource,
+        invalidateOnConstraintsCallback: ShouldInvalidateCallback?
     ): IntSize {
-        val needsRemeasure = needsRemeasure(constraints, compositionSource)
+        val needsRemeasure = needsRemeasure(
+            constraints = constraints,
+            source = compositionSource,
+            invalidateOnConstraintsCallback = invalidateOnConstraintsCallback
+        )
 
         if (lastProgressInInterpolation != progress ||
             (layoutInformationReceiver?.getForcedWidth() != Int.MIN_VALUE &&
@@ -106,8 +111,17 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
                 remeasure = needsRemeasure
             )
         }
+        oldConstraints = constraints
         return IntSize(root.width, root.height)
     }
+
+    /**
+     * Nullable reference of [Constraints] used for the `invalidateOnConstraintsCallback`.
+     *
+     * Helps us to indicate when we can start calling the callback, as we need at least one measure
+     * pass to populate this reference.
+     */
+    private var oldConstraints: Constraints? = null
 
     /**
      * Indicates if the layout requires measuring before computing the interpolation.
@@ -117,17 +131,28 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
      * MotionLayout size might change from its parent Layout, and in some cases the children size
      * might change (eg: A Text layout has a longer string appended).
      */
-    private fun needsRemeasure(constraints: Constraints, source: CompositionSource): Boolean {
+    private fun needsRemeasure(
+        constraints: Constraints,
+        source: CompositionSource,
+        invalidateOnConstraintsCallback: ShouldInvalidateCallback?
+    ): Boolean {
         if (this.transition.isEmpty || frameCache.isEmpty()) {
             // Nothing measured (by MotionMeasurer)
             return true
         }
 
-        if ((constraints.hasFixedHeight && !state.sameFixedHeight(constraints.maxHeight)) ||
-            (constraints.hasFixedWidth && !state.sameFixedWidth(constraints.maxWidth))
-        ) {
-            // Layout size changed
-            return true
+        if (oldConstraints != null && invalidateOnConstraintsCallback != null) {
+            if (invalidateOnConstraintsCallback(oldConstraints!!, constraints)) {
+                // User is deciding when to invalidate
+                return true
+            }
+        } else {
+            if ((constraints.hasFixedHeight && !state.sameFixedHeight(constraints.maxHeight)) ||
+                (constraints.hasFixedWidth && !state.sameFixedWidth(constraints.maxWidth))
+            ) {
+                // Layout size changed
+                return true
+            }
         }
 
         // Content recomposed
@@ -259,7 +284,7 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
         val pos = IntArray(50)
         val key = FloatArray(100)
 
-        for (child in root.children) {
+        root.children.fastForEach { child ->
             val start = transition.getStart(child.stringId)
             val end = transition.getEnd(child.stringId)
             val interpolated = transition.getInterpolated(child.stringId)
@@ -300,7 +325,7 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
     ) {
         val pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
 
-        for (child in root.children) {
+        root.children.fastForEach { child ->
             val startFrame = transition.getStart(child)
             val endFrame = transition.getEnd(child)
             if (drawBounds) {
@@ -541,4 +566,12 @@ internal class MotionMeasurer(density: Density) : Measurer(density) {
         this.transition.interpolate(0, 0, progress)
         transition.applyAllTo(this.transition)
     }
+}
+
+/**
+ * Functional interface to represent the callback of type
+ * `(old: Constraints, new: Constraints) -> Boolean`
+ */
+internal fun interface ShouldInvalidateCallback {
+    operator fun invoke(old: Constraints, new: Constraints): Boolean
 }

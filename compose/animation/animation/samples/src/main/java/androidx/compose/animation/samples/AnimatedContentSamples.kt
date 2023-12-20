@@ -21,6 +21,7 @@ import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.AnimatedContentTransitionScope.SlideDirection
 import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.SizeTransform
 import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.keyframes
@@ -115,7 +116,8 @@ fun SimpleAnimatedContentSample() {
         Box(
             Modifier
                 .size(200.dp)
-                .background(Color(0xffffdb00)))
+                .background(Color(0xffffdb00))
+        )
     }
 
     @Composable
@@ -123,7 +125,8 @@ fun SimpleAnimatedContentSample() {
         Box(
             Modifier
                 .size(40.dp)
-                .background(Color(0xffff8100)))
+                .background(Color(0xffff8100))
+        )
     }
 
     @Composable
@@ -131,7 +134,8 @@ fun SimpleAnimatedContentSample() {
         Box(
             Modifier
                 .size(80.dp, 20.dp)
-                .background(Color(0xffff4400)))
+                .background(Color(0xffff4400))
+        )
     }
 
     var contentState: ContentState by remember { mutableStateOf(ContentState.Foo) }
@@ -283,13 +287,8 @@ fun SlideIntoContainerSample() {
         if (initialState < targetState) {
             // Going from parent menu to child menu, slide towards left
             slideIntoContainer(towards = SlideDirection.Left) togetherWith
-                // Slide the parent out by 1/2 the amount required to be completely
-                // out of the bounds. This creates a sense of child menu catching up. Since
-                // the child menu has a higher z-order, it will cover the parent meu as it
-                // comes in.
-                slideOutOfContainer(towards = SlideDirection.Left) { offsetForFullSlide ->
-                    offsetForFullSlide / 2
-                }
+                // Keep exiting content in place while sliding in the incoming content.
+                ExitTransition.KeepUntilTransitionsFinished
         } else {
             // Going from child menu to parent menu, slide towards right.
             // Slide parent by half amount compared to child menu to create an interesting

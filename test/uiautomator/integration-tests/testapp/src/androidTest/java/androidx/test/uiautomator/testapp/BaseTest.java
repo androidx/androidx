@@ -22,9 +22,11 @@ import static org.junit.Assert.assertTrue;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -41,12 +43,10 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 
-import java.io.ByteArrayOutputStream;
-
 @RunWith(AndroidJUnit4.class)
 public abstract class BaseTest {
 
-    private static final long TIMEOUT_MS = 10_000;
+    protected static final long TIMEOUT_MS = 10_000;
     protected static final String TEST_APP = "androidx.test.uiautomator.testapp";
     protected static final int DEFAULT_FLAGS =
             Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK;
@@ -56,9 +56,8 @@ public abstract class BaseTest {
     public TestWatcher mDumpHierarchyWatcher = new TestWatcher() {
         @Override
         protected void failed(Throwable t, Description description) {
-            try (ByteArrayOutputStream stream = new ByteArrayOutputStream()) {
-                mDevice.dumpWindowHierarchy(stream);
-                Log.w(description.getTestClass().getSimpleName(), stream.toString());
+            try {
+                mDevice.dumpWindowHierarchy(System.err);
             } catch (Exception e) {
                 Log.e(description.getTestClass().getSimpleName(), "Failed to dump hierarchy", e);
             }
@@ -77,8 +76,13 @@ public abstract class BaseTest {
     }
 
     protected void launchTestActivity(@NonNull Class<? extends Activity> activity) {
+        launchTestActivity(activity, new Intent().setFlags(DEFAULT_FLAGS), null);
+    }
+
+    protected void launchTestActivity(@NonNull Class<? extends Activity> activity,
+            @NonNull Intent intent, @Nullable Bundle options) {
         Context context = ApplicationProvider.getApplicationContext();
-        context.startActivity(new Intent().setFlags(DEFAULT_FLAGS).setClass(context, activity));
+        context.startActivity(new Intent(intent).setClass(context, activity), options);
         assertTrue("Test app not visible after launching activity",
                 mDevice.wait(Until.hasObject(By.pkg(TEST_APP)), TIMEOUT_MS));
     }

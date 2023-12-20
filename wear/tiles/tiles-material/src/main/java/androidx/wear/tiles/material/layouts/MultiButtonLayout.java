@@ -16,24 +16,13 @@
 
 package androidx.wear.tiles.material.layouts;
 
-import static androidx.wear.tiles.material.Helper.checkNotNull;
-import static androidx.wear.tiles.material.Helper.checkTag;
-import static androidx.wear.tiles.material.Helper.getMetadataTagName;
-import static androidx.wear.tiles.material.Helper.getTagBytes;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_BUTTON_1_SIZE;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_BUTTON_2_SIZE;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_BUTTON_3_PLUS_SIZE;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_BUTTON_MAX_NUMBER;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_BUTTON_SPACER_HEIGHT;
-import static androidx.wear.tiles.material.layouts.LayoutDefaults.MULTI_BUTTON_SPACER_WIDTH;
-
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.wear.protolayout.expression.Fingerprint;
 import androidx.wear.protolayout.proto.LayoutElementProto;
-import androidx.wear.tiles.material.Button;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -146,10 +135,10 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
         @Override
         public MultiButtonLayout build() {
             int buttonNum = mButtonsContent.size();
-            if (buttonNum > MULTI_BUTTON_MAX_NUMBER) {
+            if (buttonNum > LayoutDefaults.MULTI_BUTTON_MAX_NUMBER) {
                 throw new IllegalArgumentException(
                         "Too many buttons are added. Maximum number is "
-                                + MULTI_BUTTON_MAX_NUMBER
+                                + LayoutDefaults.MULTI_BUTTON_MAX_NUMBER
                                 + ".");
             }
 
@@ -162,7 +151,10 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
                                             .setMetadata(
                                                     new androidx.wear.tiles.ModifiersBuilders
                                                                     .ElementMetadata.Builder()
-                                                            .setTagData(getTagBytes(METADATA_TAG))
+                                                            .setTagData(
+                                                                    androidx.wear.tiles.material
+                                                                            .Helper.getTagBytes(
+                                                                            METADATA_TAG))
                                                             .build())
                                             .build())
                             .addContent(buttons);
@@ -175,10 +167,12 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
                 int buttonNum) {
             switch (buttonNum) {
                 case 1:
-                    return wrapButton(mButtonsContent.get(0), MULTI_BUTTON_1_SIZE);
+                    return wrapButton(mButtonsContent.get(0), LayoutDefaults.MULTI_BUTTON_1_SIZE);
                 case 2:
                     return build2ButtonRow(
-                            mButtonsContent.get(0), mButtonsContent.get(1), MULTI_BUTTON_2_SIZE);
+                            mButtonsContent.get(0),
+                            mButtonsContent.get(1),
+                            LayoutDefaults.MULTI_BUTTON_2_SIZE);
                 case 3:
                     return build3ButtonRow(
                             mButtonsContent.get(0), mButtonsContent.get(1), mButtonsContent.get(2));
@@ -188,13 +182,13 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
                                     build2ButtonRow(
                                             mButtonsContent.get(0),
                                             mButtonsContent.get(1),
-                                            MULTI_BUTTON_3_PLUS_SIZE))
+                                            LayoutDefaults.MULTI_BUTTON_3_PLUS_SIZE))
                             .addContent(buildVerticalSpacer())
                             .addContent(
                                     build2ButtonRow(
                                             mButtonsContent.get(2),
                                             mButtonsContent.get(3),
-                                            MULTI_BUTTON_3_PLUS_SIZE))
+                                            LayoutDefaults.MULTI_BUTTON_3_PLUS_SIZE))
                             .build();
                 case 5:
                     return new androidx.wear.tiles.LayoutElementBuilders.Column.Builder()
@@ -207,14 +201,14 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
                                             : build2ButtonRow(
                                                     mButtonsContent.get(0),
                                                     mButtonsContent.get(1),
-                                                    MULTI_BUTTON_3_PLUS_SIZE))
+                                                    LayoutDefaults.MULTI_BUTTON_3_PLUS_SIZE))
                             .addContent(buildVerticalSpacer())
                             .addContent(
                                     mFiveButtonDistribution == FIVE_BUTTON_DISTRIBUTION_TOP_HEAVY
                                             ? build2ButtonRow(
                                                     mButtonsContent.get(3),
                                                     mButtonsContent.get(4),
-                                                    MULTI_BUTTON_3_PLUS_SIZE)
+                                                    LayoutDefaults.MULTI_BUTTON_3_PLUS_SIZE)
                                             : build3ButtonRow(
                                                     mButtonsContent.get(2),
                                                     mButtonsContent.get(3),
@@ -240,7 +234,7 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
                                     build2ButtonRow(
                                             mButtonsContent.get(0),
                                             mButtonsContent.get(1),
-                                            MULTI_BUTTON_3_PLUS_SIZE))
+                                            LayoutDefaults.MULTI_BUTTON_3_PLUS_SIZE))
                             .addContent(buildVerticalSpacer())
                             .addContent(
                                     build3ButtonRow(
@@ -252,7 +246,7 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
                                     build2ButtonRow(
                                             mButtonsContent.get(5),
                                             mButtonsContent.get(6),
-                                            MULTI_BUTTON_3_PLUS_SIZE))
+                                            LayoutDefaults.MULTI_BUTTON_3_PLUS_SIZE))
                             .build();
             }
             // This shouldn't happen, but return an empty
@@ -269,11 +263,11 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
             return new androidx.wear.tiles.LayoutElementBuilders.Row.Builder()
                     .setWidth(androidx.wear.tiles.DimensionBuilders.wrap())
                     .setHeight(androidx.wear.tiles.DimensionBuilders.wrap())
-                    .addContent(wrapButton(button1, MULTI_BUTTON_3_PLUS_SIZE))
+                    .addContent(wrapButton(button1, LayoutDefaults.MULTI_BUTTON_3_PLUS_SIZE))
                     .addContent(buildHorizontalSpacer())
-                    .addContent(wrapButton(button2, MULTI_BUTTON_3_PLUS_SIZE))
+                    .addContent(wrapButton(button2, LayoutDefaults.MULTI_BUTTON_3_PLUS_SIZE))
                     .addContent(buildHorizontalSpacer())
-                    .addContent(wrapButton(button3, MULTI_BUTTON_3_PLUS_SIZE))
+                    .addContent(wrapButton(button3, LayoutDefaults.MULTI_BUTTON_3_PLUS_SIZE))
                     .build();
         }
 
@@ -294,14 +288,14 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
         @NonNull
         private androidx.wear.tiles.LayoutElementBuilders.Spacer buildHorizontalSpacer() {
             return new androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder()
-                    .setWidth(MULTI_BUTTON_SPACER_WIDTH)
+                    .setWidth(LayoutDefaults.MULTI_BUTTON_SPACER_WIDTH)
                     .build();
         }
 
         @NonNull
         private androidx.wear.tiles.LayoutElementBuilders.Spacer buildVerticalSpacer() {
             return new androidx.wear.tiles.LayoutElementBuilders.Spacer.Builder()
-                    .setHeight(MULTI_BUTTON_SPACER_HEIGHT)
+                    .setHeight(LayoutDefaults.MULTI_BUTTON_SPACER_HEIGHT)
                     .build();
         }
 
@@ -351,8 +345,10 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
     /** Returns metadata tag set to this MultiButtonLayouts. */
     @NonNull
     String getMetadataTag() {
-        return getMetadataTagName(
-                checkNotNull(checkNotNull(mElement.getModifiers()).getMetadata()));
+        return androidx.wear.tiles.material.Helper.getMetadataTagName(
+                androidx.wear.tiles.material.Helper.checkNotNull(
+                        androidx.wear.tiles.material.Helper.checkNotNull(mElement.getModifiers())
+                                .getMetadata()));
     }
 
     /**
@@ -420,7 +416,8 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
         }
         androidx.wear.tiles.LayoutElementBuilders.Box boxElement =
                 (androidx.wear.tiles.LayoutElementBuilders.Box) element;
-        if (!checkTag(boxElement.getModifiers(), METADATA_TAG)) {
+        if (!androidx.wear.tiles.material.Helper.checkTag(
+                boxElement.getModifiers(), METADATA_TAG)) {
             return null;
         }
         // Now we are sure that this element is a MultiButtonLayout.
@@ -432,5 +429,12 @@ public class MultiButtonLayout implements androidx.wear.tiles.LayoutElementBuild
     @RestrictTo(Scope.LIBRARY_GROUP)
     public LayoutElementProto.LayoutElement toLayoutElementProto() {
         return mElement.toLayoutElementProto();
+    }
+
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public Fingerprint getFingerprint() {
+        return mElement.getFingerprint();
     }
 }

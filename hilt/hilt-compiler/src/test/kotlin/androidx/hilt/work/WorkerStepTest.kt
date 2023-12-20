@@ -14,12 +14,14 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalProcessingApi::class)
+
 package androidx.hilt.work
 
-import androidx.hilt.Sources
-import androidx.hilt.compiler
-import androidx.hilt.toJFO
-import com.google.testing.compile.CompilationSubject.assertThat
+import androidx.hilt.ext.Sources
+import androidx.room.compiler.processing.ExperimentalProcessingApi
+import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.runProcessorTest
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -29,28 +31,33 @@ class WorkerStepTest {
 
     @Test
     fun verifyEnclosingElementExtendsWorker() {
-        val myWorker = """
-        package androidx.hilt.work.test;
+        val myWorker = Source.java(
+            "androidx.hilt.work.test.MyWorker",
+            """
+            package androidx.hilt.work.test;
 
-        import android.content.Context;
-        import androidx.hilt.work.HiltWorker;
-        import androidx.work.WorkerParameters;
-        import dagger.assisted.Assisted;
-        import dagger.assisted.AssistedInject;
+            import android.content.Context;
+            import androidx.hilt.work.HiltWorker;
+            import androidx.work.WorkerParameters;
+            import dagger.assisted.Assisted;
+            import dagger.assisted.AssistedInject;
 
-        @HiltWorker
-        class MyWorker {
-            @AssistedInject
-            MyWorker(@Assisted Context context, @Assisted WorkerParameters params) { }
-        }
-        """.toJFO("androidx.hilt.work.work.MyWorker")
+            @HiltWorker
+            class MyWorker {
+                @AssistedInject
+                MyWorker(@Assisted Context context, @Assisted WorkerParameters params) { }
+            }
+            """
+        )
 
-        val compilation = compiler()
-            .compile(myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS)
-        assertThat(compilation).apply {
-            failed()
-            hadErrorCount(1)
-            hadErrorContainingMatch(
+        runProcessorTest(
+            sources = listOf(
+                myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS
+            ),
+            createProcessingSteps = { listOf(WorkerStep()) }
+        ) {
+            it.hasErrorCount(1)
+            it.hasErrorContaining(
                 "@HiltWorker is only supported on types that subclass " +
                     "androidx.work.ListenableWorker."
             )
@@ -59,37 +66,42 @@ class WorkerStepTest {
 
     @Test
     fun verifySingleAnnotatedConstructor() {
-        val myWorker = """
-        package androidx.hilt.work.test;
+        val myWorker = Source.java(
+            "androidx.hilt.work.test.MyWorker",
+            """
+            package androidx.hilt.work.test;
 
-        import android.content.Context;
-        import androidx.hilt.work.HiltWorker;
-        import androidx.work.Worker;
-        import androidx.work.WorkerParameters;
-        import dagger.assisted.Assisted;
-        import dagger.assisted.AssistedInject;
-        import java.lang.String;
+            import android.content.Context;
+            import androidx.hilt.work.HiltWorker;
+            import androidx.work.Worker;
+            import androidx.work.WorkerParameters;
+            import dagger.assisted.Assisted;
+            import dagger.assisted.AssistedInject;
+            import java.lang.String;
 
-        @HiltWorker
-        class MyWorker extends Worker {
-            @AssistedInject
-            MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
-                super(context, params);
+            @HiltWorker
+            class MyWorker extends Worker {
+                @AssistedInject
+                MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
+                    super(context, params);
+                }
+
+                @AssistedInject
+                MyWorker(Context context, WorkerParameters params, String s) {
+                    super(context, params);
+                }
             }
+            """
+        )
 
-            @AssistedInject
-            MyWorker(Context context, WorkerParameters params, String s) {
-                super(context, params);
-            }
-        }
-        """.toJFO("androidx.hilt.work.test.MyWorker")
-
-        val compilation = compiler()
-            .compile(myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS)
-        assertThat(compilation).apply {
-            failed()
-            hadErrorCount(1)
-            hadErrorContainingMatch(
+        runProcessorTest(
+            sources = listOf(
+                myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS
+            ),
+            createProcessingSteps = { listOf(WorkerStep()) }
+        ) {
+            it.hasErrorCount(1)
+            it.hasErrorContaining(
                 "@HiltWorker annotated class should contain exactly one @AssistedInject " +
                     "annotated constructor."
             )
@@ -98,31 +110,36 @@ class WorkerStepTest {
 
     @Test
     fun verifyNonPrivateConstructor() {
-        val myWorker = """
-        package androidx.hilt.work.test;
+        val myWorker = Source.java(
+            "androidx.hilt.work.test.MyWorker",
+            """
+            package androidx.hilt.work.test;
 
-        import android.content.Context;
-        import androidx.hilt.work.HiltWorker;
-        import androidx.work.Worker;
-        import androidx.work.WorkerParameters;
-        import dagger.assisted.Assisted;
-        import dagger.assisted.AssistedInject;
+            import android.content.Context;
+            import androidx.hilt.work.HiltWorker;
+            import androidx.work.Worker;
+            import androidx.work.WorkerParameters;
+            import dagger.assisted.Assisted;
+            import dagger.assisted.AssistedInject;
 
-        @HiltWorker
-        class MyWorker extends Worker {
-            @AssistedInject
-            private MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
-                super(context, params);
+            @HiltWorker
+            class MyWorker extends Worker {
+                @AssistedInject
+                private MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
+                    super(context, params);
+                }
             }
-        }
-        """.toJFO("androidx.hilt.work.test.MyWorker")
+            """
+        )
 
-        val compilation = compiler()
-            .compile(myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS)
-        assertThat(compilation).apply {
-            failed()
-            hadErrorCount(1)
-            hadErrorContainingMatch(
+        runProcessorTest(
+            sources = listOf(
+                myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS
+            ),
+            createProcessingSteps = { listOf(WorkerStep()) }
+        ) {
+            it.hasErrorCount(1)
+            it.hasErrorContaining(
                 "@AssistedInject annotated constructors must not be private."
             )
         }
@@ -130,33 +147,38 @@ class WorkerStepTest {
 
     @Test
     fun verifyInnerClassIsStatic() {
-        val myWorker = """
-        package androidx.hilt.work.test;
+        val myWorker = Source.java(
+            "androidx.hilt.work.test.Outer",
+            """
+            package androidx.hilt.work.test;
 
-        import android.content.Context;
-        import androidx.hilt.work.HiltWorker;
-        import androidx.work.Worker;
-        import androidx.work.WorkerParameters;
-        import dagger.assisted.Assisted;
-        import dagger.assisted.AssistedInject;
+            import android.content.Context;
+            import androidx.hilt.work.HiltWorker;
+            import androidx.work.Worker;
+            import androidx.work.WorkerParameters;
+            import dagger.assisted.Assisted;
+            import dagger.assisted.AssistedInject;
 
-        class Outer {
-            @HiltWorker
-            class MyWorker extends Worker {
-                @AssistedInject
-                MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
-                    super(context, params);
+            class Outer {
+                @HiltWorker
+                class MyWorker extends Worker {
+                    @AssistedInject
+                    MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
+                        super(context, params);
+                    }
                 }
             }
-        }
-        """.toJFO("androidx.hilt.work.test.Outer")
+            """
+        )
 
-        val compilation = compiler()
-            .compile(myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS)
-        assertThat(compilation).apply {
-            failed()
-            hadErrorCount(1)
-            hadErrorContainingMatch(
+        runProcessorTest(
+            sources = listOf(
+                myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS
+            ),
+            createProcessingSteps = { listOf(WorkerStep()) }
+        ) {
+            it.hasErrorCount(1)
+            it.hasErrorContaining(
                 "@HiltWorker may only be used on inner classes " +
                     "if they are static."
             )
@@ -165,32 +187,37 @@ class WorkerStepTest {
 
     @Test
     fun verifyConstructorAnnotation() {
-        val myWorker = """
-        package androidx.hilt.work.test;
+        val myWorker = Source.java(
+            "androidx.hilt.work.test.MyWorker",
+            """
+            package androidx.hilt.work.test;
 
-        import android.content.Context;
-        import androidx.hilt.work.HiltWorker;
-        import androidx.work.Worker;
-        import androidx.work.WorkerParameters;
-        import dagger.assisted.Assisted;
-        import dagger.assisted.AssistedInject;
-        import java.lang.String;
-        import javax.inject.Inject;
+            import android.content.Context;
+            import androidx.hilt.work.HiltWorker;
+            import androidx.work.Worker;
+            import androidx.work.WorkerParameters;
+            import dagger.assisted.Assisted;
+            import dagger.assisted.AssistedInject;
+            import java.lang.String;
+            import javax.inject.Inject;
 
-        @HiltWorker
-        class MyWorker extends Worker {
-            @Inject
-            MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
-                super(context, params);
+            @HiltWorker
+            class MyWorker extends Worker {
+                @Inject
+                MyWorker(@Assisted Context context, @Assisted WorkerParameters params) {
+                    super(context, params);
+                }
             }
-        }
-        """.toJFO("androidx.hilt.work.test.MyWorker")
+            """
+        )
 
-        val compilation = compiler()
-            .compile(myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS)
-        assertThat(compilation).apply {
-            failed()
-            hadErrorContainingMatch(
+        runProcessorTest(
+            sources = listOf(
+                myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS
+            ),
+            createProcessingSteps = { listOf(WorkerStep()) }
+        ) {
+            it.hasErrorContaining(
                 "Worker constructor should be annotated with @AssistedInject instead of @Inject."
             )
         }
@@ -198,31 +225,36 @@ class WorkerStepTest {
 
     @Test
     fun verifyAssistedParamOrder() {
-        val myWorker = """
-        package androidx.hilt.work.test;
+        val myWorker = Source.java(
+            "androidx.hilt.work.test.MyWorker",
+            """
+            package androidx.hilt.work.test;
 
-        import android.content.Context;
-        import androidx.hilt.work.HiltWorker;
-        import androidx.work.Worker;
-        import androidx.work.WorkerParameters;
-        import dagger.assisted.Assisted;
-        import dagger.assisted.AssistedInject;
-        import java.lang.String;
+            import android.content.Context;
+            import androidx.hilt.work.HiltWorker;
+            import androidx.work.Worker;
+            import androidx.work.WorkerParameters;
+            import dagger.assisted.Assisted;
+            import dagger.assisted.AssistedInject;
+            import java.lang.String;
 
-        @HiltWorker
-        class MyWorker extends Worker {
-            @AssistedInject
-            MyWorker(@Assisted WorkerParameters params, @Assisted Context context) {
-                super(context, params);
+            @HiltWorker
+            class MyWorker extends Worker {
+                @AssistedInject
+                MyWorker(@Assisted WorkerParameters params, @Assisted Context context) {
+                    super(context, params);
+                }
             }
-        }
-        """.toJFO("androidx.hilt.work.test.MyWorker")
+            """
+        )
 
-        val compilation = compiler()
-            .compile(myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS)
-        assertThat(compilation).apply {
-            failed()
-            hadErrorContainingMatch(
+        runProcessorTest(
+            sources = listOf(
+                myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER, Sources.WORKER_PARAMETERS
+            ),
+            createProcessingSteps = { listOf(WorkerStep()) }
+        ) {
+            it.hasErrorContaining(
                 "The 'Context' parameter must be declared before the 'WorkerParameters' in the " +
                     "@AssistedInject constructor of a @HiltWorker annotated class.",
             )

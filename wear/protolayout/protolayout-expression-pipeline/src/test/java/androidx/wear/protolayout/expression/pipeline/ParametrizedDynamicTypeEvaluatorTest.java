@@ -29,6 +29,8 @@ import android.icu.util.ULocale;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.DynamicBuilders;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicBool;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicColor;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicDuration;
@@ -38,12 +40,11 @@ import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInstant;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicInt32.IntFormatter;
 import androidx.wear.protolayout.expression.DynamicBuilders.DynamicString;
-import androidx.wear.protolayout.expression.AppDataKey;
+import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedBool;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedFloat;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedInt32;
 import androidx.wear.protolayout.expression.proto.FixedProto.FixedString;
-import androidx.wear.protolayout.expression.proto.DynamicDataProto.DynamicDataValue;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -54,6 +55,8 @@ import org.robolectric.ParameterizedRobolectricTestRunner;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,6 +65,9 @@ import java.util.function.BiConsumer;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
 public class ParametrizedDynamicTypeEvaluatorTest {
+
+    private static final ZoneId GMT_PLUS_TWO = ZoneId.ofOffset("GMT", ZoneOffset.ofHours(2));
+
     @ParameterizedRobolectricTestRunner.Parameters(name = "{0}")
     public static ImmutableList<Object[]> params() {
         AppDataKey<DynamicInt32> int32Source = new AppDataKey<>("state_int_15");
@@ -94,8 +100,7 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             test(DynamicFloat.constant(5.0f), 5.0f),
             testForInvalidValue(DynamicFloat.constant(Float.NaN)),
             testForInvalidValue(DynamicFloat.constant(Float.NaN).plus(5.0f)),
-            test(DynamicFloat.from(
-                    new AppDataKey<>("state_float_1.5")), 1.5f),
+            test(DynamicFloat.from(new AppDataKey<>("state_float_1.5")), 1.5f),
             test(DynamicFloat.constant(1234.567f).asInt(), 1234),
             test(DynamicFloat.constant(0.967f).asInt(), 0),
             test(DynamicFloat.constant(-1234.967f).asInt(), -1235),
@@ -149,11 +154,9 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             test(DynamicBool.constant(true).or(DynamicBool.constant(false)), true),
             test(DynamicBool.constant(false).or(DynamicBool.constant(true)), true),
             test(DynamicBool.constant(false).or(DynamicBool.constant(false)), false),
-            test(DynamicBool.from(
-                    new AppDataKey<>("state_bool_true")), true),
+            test(DynamicBool.from(new AppDataKey<>("state_bool_true")), true),
             test(DynamicBool.constant(false), false),
-            test(DynamicBool.from(
-                    new AppDataKey<>("state_bool_false")), false),
+            test(DynamicBool.from(new AppDataKey<>("state_bool_false")), false),
             test(DynamicInt32.constant(5).eq(DynamicInt32.constant(5)), true),
             test(DynamicInt32.constant(5).eq(DynamicInt32.constant(6)), false),
             test(DynamicInt32.constant(5).ne(DynamicInt32.constant(5)), false),
@@ -198,6 +201,31 @@ public class ParametrizedDynamicTypeEvaluatorTest {
             test(dynamicDurationOfSeconds(-123456L).getHoursPart(), 10),
             test(dynamicDurationOfSeconds(-123456L).getMinutesPart(), 17),
             test(dynamicDurationOfSeconds(-123456L).getSecondsPart(), 36),
+            // Zoned date-time
+            // Friday November 30, 1973 01:10:00 (am) in time zone Asia/Kathmandu (+0530)
+            // Thursday November 29, 1973 19:40:00 (pm) in time zone Europe/London (GMT)
+            // Thursday November 29, 1973 21:40:00 (pm) in time zone  GMT+2
+            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getYear(), 1973),
+            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getYear(), 1973),
+            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getYear(), 1973),
+            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getMonth(), 11),
+            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getMonth(), 11),
+            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getMonth(), 11),
+            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getDayOfMonth(), 30),
+            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getDayOfMonth(), 29),
+            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getDayOfMonth(), 29),
+            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getDayOfWeek(), 5),
+            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getDayOfWeek(), 4),
+            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getDayOfWeek(), 4),
+            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getHour(), 1),
+            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getHour(), 19),
+            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getHour(), 21),
+            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getMinute(), 10),
+            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getMinute(), 40),
+            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getMinute(), 40),
+            test(dynamicZdtFromEpoch(123450000L, "Asia/Kathmandu").getSecond(), 0),
+            test(dynamicZdtFromEpoch(123450000L, "Europe/London").getSecond(), 0),
+            test(dynamicZdtFromEpoch(123450000L, GMT_PLUS_TWO).getSecond(), 0),
             test(
                     DynamicString.onCondition(DynamicBool.constant(true))
                             .use(constant("Hello"))
@@ -209,8 +237,7 @@ public class ParametrizedDynamicTypeEvaluatorTest {
                             .elseUse(constant("World")),
                     "World"),
             test(
-                    DynamicString.from(
-                            new AppDataKey<>("state_hello_world"))
+                    DynamicString.from(new AppDataKey<>("state_hello_world"))
                             .concat(DynamicString.constant("_test")),
                     "hello_world_test"),
             test(
@@ -508,6 +535,16 @@ public class ParametrizedDynamicTypeEvaluatorTest {
 
     private static DynamicDuration dynamicDurationOfSeconds(long seconds) {
         return DynamicDuration.withSecondsPrecision(Duration.ofSeconds(seconds));
+    }
+
+    private static DynamicBuilders.DynamicZonedDateTime dynamicZdtFromEpoch(
+            long epoch, String zoneId) {
+        return dynamicZdtFromEpoch(epoch, ZoneId.of(zoneId));
+    }
+
+    private static DynamicBuilders.DynamicZonedDateTime dynamicZdtFromEpoch(
+            long epoch, ZoneId zoneId) {
+        return DynamicInstant.withSecondsPrecision(Instant.ofEpochSecond(epoch)).atZone(zoneId);
     }
 
     private static ImmutableMap<AppDataKey<?>, DynamicDataValue> generateExampleState() {

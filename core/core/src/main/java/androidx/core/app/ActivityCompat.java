@@ -42,12 +42,10 @@ import androidx.annotation.IdRes;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.OptIn;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.LocusIdCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.view.DragAndDropPermissionsCompat;
 
 import java.lang.reflect.InvocationTargetException;
@@ -365,6 +363,7 @@ public class ActivityCompat extends ContextCompat {
      * the target class type is unconstrained, an explicit cast may be
      * necessary.
      *
+     * @param activity activity in which to find a view.
      * @param id the ID to search for
      * @return a view with given ID
      * @see Activity#findViewById(int)
@@ -390,6 +389,7 @@ public class ActivityCompat extends ContextCompat {
      * will be called to handle shared elements on the <i>launched</i> Activity. This requires
      * {@link android.view.Window#FEATURE_CONTENT_TRANSITIONS}.
      *
+     * @param activity activity for which to set the callback.
      * @param callback Used to manipulate shared element transitions on the launched Activity.
      */
     public static void setEnterSharedElementCallback(@NonNull Activity activity,
@@ -409,6 +409,7 @@ public class ActivityCompat extends ContextCompat {
      * calls will only come when returning from the started Activity.
      * This requires {@link android.view.Window#FEATURE_CONTENT_TRANSITIONS}.
      *
+     * @param activity activity for which to set the callback.
      * @param callback Used to manipulate shared element transitions on the launching Activity.
      */
     public static void setExitSharedElementCallback(@NonNull Activity activity,
@@ -513,7 +514,6 @@ public class ActivityCompat extends ContextCompat {
      * @see #checkSelfPermission(android.content.Context, String)
      * @see #shouldShowRequestPermissionRationale(android.app.Activity, String)
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static void requestPermissions(final @NonNull Activity activity,
             final @NonNull String[] permissions, final @IntRange(from = 0) int requestCode) {
         if (sDelegate != null
@@ -589,7 +589,6 @@ public class ActivityCompat extends ContextCompat {
      * @see #checkSelfPermission(Context, String)
      * @see #requestPermissions(Activity, String[], int)
      */
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     public static boolean shouldShowRequestPermissionRationale(@NonNull Activity activity,
             @NonNull String permission) {
         if (Build.VERSION.SDK_INT < 33
@@ -646,6 +645,7 @@ public class ActivityCompat extends ContextCompat {
     /**
      * Create {@link DragAndDropPermissionsCompat} object bound to this activity and controlling
      * the access permissions for content URIs associated with the {@link android.view.DragEvent}.
+     * @param activity activity for which to request the permission.
      * @param dragEvent Drag event to request permission for
      * @return The {@link DragAndDropPermissionsCompat} object used to control access to the content
      * URIs. {@code null} if no content URIs are associated with the event or if permissions could
@@ -694,6 +694,7 @@ public class ActivityCompat extends ContextCompat {
      * so that the system can learn appropriate ranking signals linking the activity's
      * locus id with the matching shortcut.
      *
+     * @param activity activity for which to set locus id.
      * @param locusId  a unique, stable id that identifies this {@code Activity} instance. LocusId
      *      is an opaque ID that links this Activity's state to different Android concepts:
      *      {@link androidx.core.content.pm.ShortcutInfoCompat.Builder#setLocusId(LocusIdCompat)}.

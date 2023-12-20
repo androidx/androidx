@@ -96,9 +96,6 @@ import co.nstant.in.cbor.model.SpecialType;
 import co.nstant.in.cbor.model.UnicodeString;
 import co.nstant.in.cbor.model.UnsignedInteger;
 
-/**
- * @hide
- */
 class Util {
     private static final String TAG = "Util";
 

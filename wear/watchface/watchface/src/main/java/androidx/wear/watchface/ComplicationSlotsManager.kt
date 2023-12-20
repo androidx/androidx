@@ -28,6 +28,7 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.annotation.WorkerThread
+import androidx.wear.watchface.complications.ComplicationDataSourceInfo
 import androidx.wear.watchface.complications.ComplicationSlotBounds
 import androidx.wear.watchface.complications.data.ComplicationData
 import androidx.wear.watchface.complications.data.ComplicationExperimental
@@ -80,11 +81,11 @@ public class ComplicationSlotsManager(
     /**
      * The [WatchState] of the associated watch face. This is only initialized after
      * [WatchFaceService.createComplicationSlotsManager] has completed.
-     *
-     * @hide
      */
     @VisibleForTesting
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @field:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public lateinit var watchState: WatchState
 
     internal lateinit var watchFaceHostApi: WatchFaceHostApi
@@ -127,8 +128,8 @@ public class ComplicationSlotsManager(
 
     private val complicationListeners = HashSet<TapCallback>()
 
-    /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @set:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public var configExtrasChangeCallback: WatchFace.ComplicationSlotConfigExtrasChangeCallback? =
         null
 
@@ -327,28 +328,40 @@ public class ComplicationSlotsManager(
             return
         }
         complication.dataDirty = complication.dataDirty || (complication.renderer.getData() != data)
-        complication.setComplicationData(data, true, instant)
+        complication.setComplicationData(data, instant)
     }
 
     /**
-     * For use by screen shot code which will reset the data afterwards, hence dirty bit not set.
+     * Sets complication data, returning a restoration function.
+     *
+     * As this is used for screen shots, dirty bit (used for content description) is not set.
      */
     @UiThread
-    internal fun setComplicationDataUpdateSync(
-        complicationSlotId: Int,
-        data: ComplicationData,
-        instant: Instant
-    ) {
-        val complication = complicationSlots[complicationSlotId]
-        if (complication == null) {
-            Log.e(
-                TAG,
-                "setComplicationDataUpdateSync failed due to invalid complicationSlotId=" +
-                    "$complicationSlotId with data=$data"
-            )
-            return
+    internal fun setComplicationDataForScreenshot(
+        slotIdToData: Map<Int, ComplicationData>,
+        instant: Instant,
+    ): AutoCloseable {
+        val restores = mutableListOf<AutoCloseable>()
+        val restore = AutoCloseable { restores.forEach(AutoCloseable::close) }
+        try {
+            for ((id, data) in slotIdToData) {
+                val slot = complicationSlots[id]
+                if (slot == null) {
+                    Log.e(
+                        TAG,
+                        "setComplicationDataForScreenshot failed due to invalid " +
+                            "complicationSlotId=$id with data=$data"
+                    )
+                    continue
+                }
+                restores.add(slot.setComplicationDataForScreenshot(data, instant))
+            }
+        } catch (e: Throwable) {
+            // Cleanup changes on failure.
+            restore.close()
+            throw e
         }
-        complication.setComplicationData(data, false, instant)
+        return restore
     }
 
     /**
@@ -358,17 +371,29 @@ public class ComplicationSlotsManager(
     @UiThread
     internal fun selectComplicationDataForInstant(instant: Instant) {
         for ((_, complication) in complicationSlots) {
-            complication.selectComplicationDataForInstant(
-                instant,
-                loadDrawablesAsynchronous = true,
-                forceUpdate = false
-            )
+            complication.selectComplicationDataForInstant(instant, forceUpdate = false)
         }
 
         // selectComplicationDataForInstant may have changed the complication, if so we need to
         // update the content description labels.
         if (complicationSlots.isNotEmpty()) {
             onComplicationsUpdated()
+        }
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun freezeSlotForEdit(
+        slotId: Int,
+        from: ComplicationDataSourceInfo?,
+        to: ComplicationDataSourceInfo?,
+    ) {
+        complicationSlots[slotId]?.freezeForEdit(from = from, to = to)
+    }
+
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public fun unfreezeAllSlotsForEdit(clearData: Boolean) {
+        for (slot in complicationSlots.values) {
+            slot.unfreezeForEdit(clearData)
         }
     }
 
@@ -437,7 +462,6 @@ public class ComplicationSlotsManager(
      *
      * @param complicationSlotId The ID for the [ComplicationSlot] that was single tapped
      */
-    @SuppressWarnings("SyntheticAccessor")
     @UiThread
     internal fun onComplicationSlotSingleTapped(complicationSlotId: Int) {
         // Check if the complication is missing permissions.

@@ -32,7 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package androidx.health.services.client.impl;
-/* @hide */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IMeasureCallback {
   oneway void onMeasureCallbackEvent(in androidx.health.services.client.impl.event.MeasureCallbackEvent event) = 0;
 }

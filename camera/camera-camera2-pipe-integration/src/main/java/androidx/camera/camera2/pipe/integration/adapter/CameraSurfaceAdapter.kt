@@ -122,6 +122,7 @@ class CameraSurfaceAdapter(
      * @param newUseCaseConfigsSupportedSizeMap map of configurations of the use cases to the
      *                                          supported sizes list that will be given a
      *                                          suggested stream specification
+     * @param isPreviewStabilizationOn          whether the preview stabilization is enabled.
      * @return map of suggested stream specifications for given use cases
      * @throws IllegalArgumentException if {@code newUseCaseConfigs} is an empty list, if
      *                                  there isn't a supported combination of surfaces
@@ -132,7 +133,8 @@ class CameraSurfaceAdapter(
         cameraMode: Int,
         cameraId: String,
         existingSurfaces: List<AttachedSurfaceInfo>,
-        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>
+        newUseCaseConfigsSupportedSizeMap: Map<UseCaseConfig<*>, List<Size>>,
+        isPreviewStabilizationOn: Boolean
     ): Pair<Map<UseCaseConfig<*>, StreamSpec>, Map<AttachedSurfaceInfo, StreamSpec>> {
 
         if (!checkIfSupportedCombinationExist(cameraId)) {
@@ -144,7 +146,8 @@ class CameraSurfaceAdapter(
         return supportedSurfaceCombinationMap[cameraId]!!.getSuggestedStreamSpecifications(
             cameraMode,
             existingSurfaces,
-            newUseCaseConfigsSupportedSizeMap
+            newUseCaseConfigsSupportedSizeMap,
+            isPreviewStabilizationOn
         )
     }
 }

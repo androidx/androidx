@@ -1134,6 +1134,10 @@ public class NotificationCompat {
             // Avoid the setter which requires wrapping/unwrapping IconCompat and extra null checks
             if (Build.VERSION.SDK_INT >= 23) {
                 this.mSmallIcon = Api23Impl.getSmallIcon(notification);
+                Icon largeIcon = Api23Impl.getLargeIcon(notification);
+                if (largeIcon != null) {
+                    this.mLargeIcon = IconCompat.createFromIcon(largeIcon);
+                }
             }
 
             // Add actions from the notification.
@@ -2651,6 +2655,11 @@ public class NotificationCompat {
             @DoNotInline
             static Icon getSmallIcon(Notification notification) {
                 return notification.getSmallIcon();
+            }
+
+            @DoNotInline
+            static Icon getLargeIcon(Notification notification) {
+                return notification.getLargeIcon();
             }
         }
 
@@ -5004,9 +5013,6 @@ public class NotificationCompat {
                         }
                 }
                 if (style != null) {
-                    // Before applying the style, we clear the actions.
-                    Api24Impl.clearActions(builderAccessor.getBuilder());
-
                     Api16Impl.setBuilder(style, builderAccessor.getBuilder());
                     if (mAnswerButtonColor != null) {
                         Api31Impl.setAnswerButtonColorHint(style, mAnswerButtonColor);
@@ -5055,20 +5061,6 @@ public class NotificationCompat {
                         Api28Impl.addPerson(builder, mPerson.toAndroidPerson());
                     } else if (Build.VERSION.SDK_INT >= 21) {
                         Api21Impl.addPerson(builder, mPerson.getUri());
-                    }
-                }
-
-                // Adds actions to the notification.
-                if (Build.VERSION.SDK_INT >= 20) {
-                    // Retrieves call style actions, including contextual and system actions.
-                    List<Action> actionsList = getActionsListWithSystemActions();
-                    // Clear any existing actions.
-                    if (Build.VERSION.SDK_INT >= 24) {
-                        Api24Impl.clearActions(builder);
-                    }
-                    // Adds the actions to the builder in the proper order.
-                    for (Action action : actionsList) {
-                        Api20Impl.addAction(builder, getActionFromActionCompat(action));
                     }
                 }
 
@@ -5218,51 +5210,6 @@ public class NotificationCompat {
             return resultActions;
         }
 
-        @RequiresApi(20)
-        private static Notification.Action getActionFromActionCompat(Action actionCompat) {
-            Notification.Action.Builder actionBuilder;
-            if (Build.VERSION.SDK_INT >= 23) {
-                IconCompat iconCompat = actionCompat.getIconCompat();
-                actionBuilder = Api23Impl.createActionBuilder(
-                        iconCompat == null ? null : iconCompat.toIcon(), actionCompat.getTitle(),
-                        actionCompat.getActionIntent());
-            } else {
-                IconCompat icon = actionCompat.getIconCompat();
-                int iconResId = 0;
-                if (icon != null && icon.getType() == IconCompat.TYPE_RESOURCE) {
-                    iconResId = icon.getResId();
-                }
-                actionBuilder =
-                        Api20Impl.createActionBuilder(iconResId, actionCompat.getTitle(),
-                                actionCompat.getActionIntent());
-            }
-            Bundle actionExtras;
-            if (actionCompat.getExtras() != null) {
-                actionExtras = new Bundle(actionCompat.getExtras());
-            } else {
-                actionExtras = new Bundle();
-            }
-            actionExtras.putBoolean(NotificationCompatJellybean.EXTRA_ALLOW_GENERATED_REPLIES,
-                    actionCompat.getAllowGeneratedReplies());
-            if (Build.VERSION.SDK_INT >= 24) {
-                Api24Impl.setAllowGeneratedReplies(actionBuilder,
-                        actionCompat.getAllowGeneratedReplies());
-            }
-            if (Build.VERSION.SDK_INT >= 31) {
-                Api31Impl.setAuthenticationRequired(actionBuilder,
-                        actionCompat.isAuthenticationRequired());
-            }
-            Api20Impl.addExtras(actionBuilder, actionExtras);
-            RemoteInput[] remoteInputCompats = actionCompat.getRemoteInputs();
-            if (remoteInputCompats != null) {
-                android.app.RemoteInput[] remoteInputs = RemoteInput.fromCompat(remoteInputCompats);
-                for (android.app.RemoteInput remoteInput : remoteInputs) {
-                    Api20Impl.addRemoteInput(actionBuilder, remoteInput);
-                }
-            }
-            return Api20Impl.build(actionBuilder);
-        }
-
         /**
          * A class for wrapping calls to {@link Notification.CallStyle} methods which
          * were added in API 16; these calls must be wrapped to avoid performance issues.
@@ -5286,12 +5233,6 @@ public class NotificationCompat {
         @RequiresApi(20)
         static class Api20Impl {
             private Api20Impl() {
-            }
-
-            @DoNotInline
-            static Notification.Builder addAction(Notification.Builder builder,
-                    Notification.Action action) {
-                return builder.addAction(action);
             }
 
             @DoNotInline
@@ -5379,14 +5320,6 @@ public class NotificationCompat {
         @RequiresApi(24)
         static class Api24Impl {
             private Api24Impl() {
-            }
-
-            /**
-             * Clears actions by calling setActions() with an empty list of arguments.
-             */
-            @DoNotInline
-            static Notification.Builder clearActions(Notification.Builder builder) {
-                return builder.setActions();
             }
 
             @DoNotInline
@@ -6196,6 +6129,9 @@ public class NotificationCompat {
                 if (Build.VERSION.SDK_INT >= 31) {
                     builder.setAuthenticationRequired(Api31Impl.isAuthenticationRequired(action));
                 }
+                if (Build.VERSION.SDK_INT >= 20) {
+                    builder.addExtras(Api20Impl.getExtras(action));
+                }
                 return builder;
             }
 
@@ -6433,6 +6369,10 @@ public class NotificationCompat {
                     return action.getRemoteInputs();
                 }
 
+                @DoNotInline
+                static Bundle getExtras(Notification.Action action) {
+                    return action.getExtras();
+                }
             }
 
             /**
@@ -8461,11 +8401,9 @@ public class NotificationCompat {
     public static final class TvExtender implements Extender {
         private static final String TAG = "TvExtender";
 
-        /** @hide **/
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         static final String EXTRA_TV_EXTENDER = "android.tv.EXTENSIONS";
 
-        /** @hide **/
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         private static final String EXTRA_FLAGS = "flags";
 
@@ -9034,7 +8972,6 @@ public class NotificationCompat {
              * on this builder.</p>
              */
             @NonNull
-            @SuppressLint("SyntheticAccessor")
             public BubbleMetadata build() {
                 if (mShortcutId == null && mPendingIntent == null) {
                     throw new NullPointerException(

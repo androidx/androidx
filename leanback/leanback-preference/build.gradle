@@ -9,7 +9,7 @@ dependencies {
     api("androidx.annotation:annotation:1.1.0")
     implementation("androidx.collection:collection:1.0.0")
     api("androidx.appcompat:appcompat:1.0.0")
-    api("androidx.recyclerview:recyclerview:1.0.0")
+    api("androidx.recyclerview:recyclerview:1.3.2")
     api("androidx.preference:preference:1.1.0")
     api(project(":leanback:leanback"))
 }
@@ -34,4 +34,5 @@ androidx {
     inceptionYear = "2015"
     description = "AndroidX Leanback Preference"
     failOnDeprecationWarnings = false
+    metalavaK2UastEnabled = true
 }

@@ -31,7 +31,10 @@ BundleInsideHelper.forInsideAar(
             new BundleInsideHelper.Relocation(
                 /* from = */ "com.google.protobuf",
                 /* to =   */ "androidx.appactions.interaction.protobuf")
-        ]
+        ],
+        // proto-lite dependency includes .proto files, which are not used and would clash if
+        // users also use proto library directly
+        /* dropResourcesWithSuffix = */ ".proto"
 )
 
 dependencies {
@@ -40,7 +43,6 @@ dependencies {
     implementation(project(":appactions:interaction:interaction-capabilities-core"))
     implementation("androidx.annotation:annotation:1.1.0")
     implementation("androidx.concurrent:concurrent-futures:1.1.0")
-    implementation("androidx.wear.tiles:tiles:1.1.0")
     implementation(libs.grpcAndroid)
     implementation(libs.grpcBinder)
     implementation(libs.grpcStub)
@@ -73,8 +75,6 @@ dependencies {
 android {
     namespace "androidx.appactions.interaction.service"
     defaultConfig {
-        // TODO(b/266649259): Temporary bump to 33 to support capabilities-core. Lower back to 25 to
-        // support wear:tiles
         minSdkVersion 26
     }
     defaultConfig {
@@ -92,4 +92,5 @@ androidx {
     type = LibraryType.PUBLISHED_LIBRARY
     inceptionYear = "2023"
     description = "Library for integrating with Google Assistant via GRPC binder channel."
+    metalavaK2UastEnabled = true
 }

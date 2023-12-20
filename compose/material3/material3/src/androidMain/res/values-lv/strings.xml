@@ -54,6 +54,7 @@
     <string name="m3c_date_range_picker_day_in_range" msgid="2138321128465719402">"Atlasītajā diapazonā"</string>
     <string name="m3c_date_range_input_title" msgid="3148384720560189467">"Ievadiet datumus"</string>
     <string name="m3c_date_range_input_invalid_range_input" msgid="3190049423327661366">"Ievadīts nederīgs datumu diapazons."</string>
+    <string name="m3c_bottom_sheet_pane_title" msgid="3010635850035863127">"Ekrāna apakšdaļas lapa"</string>
     <string name="m3c_bottom_sheet_drag_handle_description" msgid="8403354765404029791">"Vilkšanas turis"</string>
     <string name="m3c_bottom_sheet_collapse_description" msgid="2988463736136100848">"Sakļaut ekrāna apakšdaļas lapu"</string>
     <string name="m3c_bottom_sheet_dismiss_description" msgid="1555567894577437024">"Noraidīt ekrāna apakšdaļas lapu"</string>

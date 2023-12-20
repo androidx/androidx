@@ -5,3 +5,7 @@ GetterSetterNames: field SplitAttributesCalculatorParams.areDefaultConstraintsSa
     Invalid name for boolean property `areDefaultConstraintsSatisfied`. Should start with one of `has`, `can`, `should`, `is`.
 GetterSetterNames: field SplitPairRule.clearTop:
     Invalid name for boolean property `clearTop`. Should start with one of `has`, `can`, `should`, `is`.
+
+
+NotCloseable: androidx.window.area.WindowAreaSession:
+    Classes that release resources (close()) should implement AutoCloseable and CloseGuard: class androidx.window.area.WindowAreaSession

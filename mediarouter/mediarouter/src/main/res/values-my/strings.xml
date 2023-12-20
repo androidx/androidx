@@ -24,6 +24,7 @@
     <string name="mr_cast_button_connected" msgid="6073720094880410356">"Cast. ချိတ်ဆက်ထားသည်"</string>
     <string name="mr_chooser_title" msgid="1419936397646839840">"ဤစက်သို့ ကာစ်လုပ်ရန်"</string>
     <string name="mr_chooser_searching" msgid="6114250663023140921">"စက်များကို ရှာနေသည်"</string>
+    <string name="mr_chooser_looking_for_devices" msgid="4257319068277776035">"စက်များကို ရှာနေသည်..."</string>
     <string name="mr_controller_disconnect" msgid="7812275474138309497">"ချိတ်ဆက်မှု ဖြုတ်ရန်"</string>
     <string name="mr_controller_stop_casting" msgid="804210341192624074">"ကာစ် ရပ်ရန်"</string>
     <string name="mr_controller_close_description" msgid="5684434439232634509">"ပိတ်ရန်"</string>
@@ -41,12 +42,13 @@
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"စက်ပစ္စည်း ထည့်ခြင်း"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"အုပ်စုလိုက် ဖွင့်ခြင်း"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"အချက်အလက် မရရှိနိုင်ပါ"</string>
-    <!-- no translation found for mr_chooser_zero_routes_found_title (5213435473397442608) -->
-    <skip />
-    <!-- no translation found for mr_chooser_zero_routes_description (5123320430013505927) -->
-    <skip />
-    <!-- no translation found for mr_chooser_wifi_warning_description (337903053432238985) -->
-    <skip />
-    <!-- no translation found for mr_chooser_done_button_label (7897288652928484627) -->
-    <skip />
+    <string name="mr_chooser_zero_routes_found_title" msgid="5213435473397442608">"စက်များ မရနိုင်ပါ"</string>
+    <string name="mr_chooser_wifi_warning_description_phone" msgid="2555886884770958244">"အခြားစက်သည် ဤဖုန်းနှင့် Wi-Fi ကွန်ရက်တစ်ခုတည်းတွင် ရှိနေကြောင်း သေချာပါစေ"</string>
+    <string name="mr_chooser_wifi_warning_description_tablet" msgid="6038748488793588164">"အခြားစက်သည် ဤတက်ဘလက်နှင့် Wi-Fi ကွန်ရက်တစ်ခုတည်းတွင် ရှိနေကြောင်း သေချာပါစေ"</string>
+    <string name="mr_chooser_wifi_warning_description_tv" msgid="5845921667085074878">"အခြားစက်သည် ဤ tv နှင့် Wi-Fi ကွန်ရက်တစ်ခုတည်းတွင် ရှိနေကြောင်း သေချာပါစေ"</string>
+    <string name="mr_chooser_wifi_warning_description_watch" msgid="5255021372884233706">"အခြားစက်သည် ဤနာရီနှင့် Wi-Fi ကွန်ရက်တစ်ခုတည်းတွင် ရှိနေကြောင်း သေချာပါစေ"</string>
+    <string name="mr_chooser_wifi_warning_description_car" msgid="2998902945608081567">"အခြားစက်သည် ဤကားနှင့် Wi-Fi ကွန်ရက်တစ်ခုတည်းတွင် ရှိနေကြောင်း သေချာပါစေ"</string>
+    <string name="mr_chooser_wifi_warning_description_unknown" msgid="3459891599800041449">"အခြားစက်သည် ဤစက်နှင့် Wi-Fi ကွန်ရက်တစ်ခုတည်းတွင် ရှိနေကြောင်း သေချာပါစေ"</string>
+    <string name="mr_chooser_wifi_learn_more" msgid="3799500840179081429"><a href="https://support.google.com/chromecast/?p=trouble-finding-devices">"ပိုမိုလေ့လာရန်"</a></string>
+    <string name="ic_media_route_learn_more_accessibility" msgid="9119039724000326934">"ကာစ်လုပ်ပုံကို လေ့လာရန်"</string>
 </resources>

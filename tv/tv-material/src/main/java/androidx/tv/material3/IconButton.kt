@@ -44,8 +44,9 @@ import androidx.compose.ui.semantics.semantics
  *
  * @sample androidx.tv.samples.IconButtonSample
  *
- * @param onClick called when this button is clicked
- * @param modifier the [Modifier] to be applied to this button
+ * @param onClick called when this button is clicked.
+ * @param modifier the [Modifier] to be applied to this button.
+ * @param onLongClick called when this button is long clicked (long-pressed).
  * @param enabled controls the enabled state of this button. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
  * services.
@@ -65,6 +66,7 @@ import androidx.compose.ui.semantics.semantics
 fun IconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     scale: ButtonScale = IconButtonDefaults.scale(),
     glow: ButtonGlow = IconButtonDefaults.glow(),
@@ -79,6 +81,7 @@ fun IconButton(
             .semantics { role = Role.Button }
             .size(IconButtonDefaults.MediumButtonSize),
         onClick = onClick,
+        onLongClick = onLongClick,
         enabled = enabled,
         shape = shape.toClickableSurfaceShape(),
         colors = colors.toClickableSurfaceColors(),
@@ -110,8 +113,9 @@ fun IconButton(
  *
  * @sample androidx.tv.samples.OutlinedIconButtonSample
  *
- * @param onClick called when this button is clicked
- * @param modifier the [Modifier] to be applied to this button
+ * @param onClick called when this button is clicked.
+ * @param modifier the [Modifier] to be applied to this button.
+ * @param onLongClick called when this card is long clicked (long-pressed).
  * @param enabled controls the enabled state of this button. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
  * services.
@@ -131,6 +135,7 @@ fun IconButton(
 fun OutlinedIconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     scale: ButtonScale = OutlinedIconButtonDefaults.scale(),
     glow: ButtonGlow = OutlinedIconButtonDefaults.glow(),
@@ -145,6 +150,7 @@ fun OutlinedIconButton(
             .semantics { role = Role.Button }
             .size(OutlinedIconButtonDefaults.MediumButtonSize),
         onClick = onClick,
+        onLongClick = onLongClick,
         enabled = enabled,
         shape = shape.toClickableSurfaceShape(),
         colors = colors.toClickableSurfaceColors(),

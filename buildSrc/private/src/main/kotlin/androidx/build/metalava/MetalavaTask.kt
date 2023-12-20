@@ -32,24 +32,21 @@ import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.PathSensitive
 import org.gradle.api.tasks.PathSensitivity
 import org.gradle.workers.WorkerExecutor
+import org.jetbrains.kotlin.gradle.dsl.KotlinVersion
 
 /** Base class for invoking Metalava. */
 @CacheableTask
-abstract class MetalavaTask @Inject constructor(
-    @Internal
-    protected val workerExecutor: WorkerExecutor
-) : DefaultTask() {
+abstract class MetalavaTask
+@Inject
+constructor(@Internal protected val workerExecutor: WorkerExecutor) : DefaultTask() {
     /** Classpath containing Metalava and its dependencies. */
-    @get:Classpath
-    abstract val metalavaClasspath: ConfigurableFileCollection
+    @get:Classpath abstract val metalavaClasspath: ConfigurableFileCollection
 
     /** Android's boot classpath */
-    @get:Classpath
-    lateinit var bootClasspath: FileCollection
+    @get:Classpath lateinit var bootClasspath: FileCollection
 
     /** Dependencies of [sourcePaths]. */
-    @get:Classpath
-    lateinit var dependencyClasspath: FileCollection
+    @get:Classpath lateinit var dependencyClasspath: FileCollection
 
     /** Source files against which API signatures will be validated. */
     @get:[InputFiles PathSensitive(PathSensitivity.RELATIVE)]
@@ -58,10 +55,13 @@ abstract class MetalavaTask @Inject constructor(
     @get:[Optional InputFile PathSensitive(PathSensitivity.NONE)]
     abstract val manifestPath: RegularFileProperty
 
-    @get:Input
-    abstract val k2UastEnabled: Property<Boolean>
+    @get:Input abstract val k2UastEnabled: Property<Boolean>
+
+    @get:Input abstract val kotlinSourceLevel: Property<KotlinVersion>
 
     fun runWithArgs(args: List<String>) {
-        runMetalavaWithArgs(metalavaClasspath, args, k2UastEnabled.get(), workerExecutor)
+        runMetalavaWithArgs(
+            metalavaClasspath, args, k2UastEnabled.get(), kotlinSourceLevel.get(), workerExecutor
+        )
     }
 }

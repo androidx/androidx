@@ -16,8 +16,8 @@
 package androidx.annotation
 
 /**
- * Denotes that an integer parameter, field or method return value is expected
- * to be an integer resource reference (e.g. `android.R.integer.config_shortAnimTime`).
+ * Denotes that an integer parameter, field or method return value is expected to be an integer
+ * resource reference (e.g. `android.R.integer.config_shortAnimTime`).
  */
 @MustBeDocumented
 @kotlin.annotation.Retention(AnnotationRetention.BINARY)

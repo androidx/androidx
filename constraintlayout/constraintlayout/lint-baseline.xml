@@ -1,41 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-alpha07" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-alpha07)" variant="all" version="8.0.0-alpha07">
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginStart`"
-        errorLine1="                mParams.setMarginStart(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginEnd`"
-        errorLine1="                mParams.setMarginEnd(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginStart`"
-        errorLine1="                mParams.setMarginStart(value);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="NewApi"
-        message="Call requires API level 17 (current min is 14): `android.view.ViewGroup.MarginLayoutParams#setMarginEnd`"
-        errorLine1="                mParams.setMarginEnd(value);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
+<issues format="6" by="lint 8.3.0-alpha04" type="baseline" client="gradle" dependencies="false" name="AGP (8.3.0-alpha04)" variant="all" version="8.3.0-alpha04">
 
     <issue
         id="BanTargetApiAnnotation"
@@ -327,96 +291,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            int paddingStart = Math.max(0, getPaddingStart());"
-        errorLine2="                                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            int paddingEnd = Math.max(0, getPaddingEnd());"
-        errorLine2="                                         ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            return isRtlSupported &amp;&amp; (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());"
-        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            rtlPadding = Math.max(0, getPaddingStart()) + Math.max(0, getPaddingEnd());"
-        errorLine2="                                     ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            rtlPadding = Math.max(0, getPaddingStart()) + Math.max(0, getPaddingEnd());"
-        errorLine2="                                                                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintLayout.LayoutParams is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                isRtl = (View.LAYOUT_DIRECTION_RTL == getLayoutDirection());"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginStart(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginEnd(mParams.UNSET);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginStart(value);"
-        errorLine2="                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                mParams.setMarginEnd(value);"
-        errorLine2="                        ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="            mView.setElevation(elevation);"
         errorLine2="                  ~~~~~~~~~~~~">
@@ -435,24 +309,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mParams.setMarginStart(margin);"
-        errorLine2="                            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintProperties is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    mParams.setMarginEnd(margin);"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                        constraint.transform.translationZ = view.getTranslationZ();"
         errorLine2="                                                                 ~~~~~~~~~~~~~~~">
@@ -465,42 +321,6 @@
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.widget.ConstraintSet is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            constraint.transform.elevation = view.getElevation();"
         errorLine2="                                                                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                layout.endMargin = param.getMarginEnd();"
-        errorLine2="                                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                layout.startMargin = param.getMarginStart();"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                param.setMarginStart(layout.startMargin);"
-        errorLine2="                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.widget.ConstraintSet.Constraint is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                param.setMarginEnd(layout.endMargin);"
-        errorLine2="                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
@@ -539,15 +359,6 @@
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.helper.widget.Grid is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            v.setId(View.generateViewId());"
-        errorLine2="                         ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Grid.java"/>
     </issue>
 
     <issue
@@ -957,33 +768,6 @@
 
     <issue
         id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                            Display display = getDisplay();"
-        errorLine2="                                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="        int currentRotation = getDisplay().getRotation();"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout.Model is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="                    layoutParams.resolveLayoutDirection(getLayoutDirection());"
-        errorLine2="                                                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
         message="This call references a method added in API level 21; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                    target.setNestedScrollingEnabled(false);"
         errorLine2="                           ~~~~~~~~~~~~~~~~~~~~~~~~~">
@@ -996,15 +780,6 @@
         message="This call references a method added in API level 21; however, the containing class null is reachable from earlier API levels and will fail run-time class verification."
         errorLine1="                            target.setNestedScrollingEnabled(true);"
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="ClassVerificationFailure"
-        message="This call references a method added in API level 17; however, the containing class androidx.constraintlayout.motion.widget.MotionLayout is reachable from earlier API levels and will fail run-time class verification."
-        errorLine1="            Display display = getDisplay();"
-        errorLine2="                              ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>
@@ -1118,3135 +893,282 @@
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `Carousel` requires synthetic accessor"
-        errorLine1="            mMotionLayout.setProgress(0);"
-        errorLine2="            ~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/Barrier.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 17"
+        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `updateItems` of class `Carousel` requires synthetic accessor"
-        errorLine1="            updateItems();"
-        errorLine2="            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAdapter` of class `Carousel` requires synthetic accessor"
-        errorLine1="            mAdapter.onNewItem(mIndex);"
-        errorLine2="            ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mIndex` of class `Carousel` requires synthetic accessor"
-        errorLine1="            mAdapter.onNewItem(mIndex);"
-        errorLine2="                               ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `Carousel` requires synthetic accessor"
-        errorLine1="            float velocity = mMotionLayout.getVelocity();"
-        errorLine2="                             ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchUpMode` of class `Carousel` requires synthetic accessor"
-        errorLine1="            if (mTouchUpMode == TOUCH_UP_CARRY_ON &amp;&amp; velocity > mVelocityThreshold"
-        errorLine2="                ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mVelocityThreshold` of class `Carousel` requires synthetic accessor"
-        errorLine1="            if (mTouchUpMode == TOUCH_UP_CARRY_ON &amp;&amp; velocity > mVelocityThreshold"
-        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAdapter` of class `Carousel` requires synthetic accessor"
-        errorLine1="                    &amp;&amp; mIndex &lt; mAdapter.count() - 1) {"
-        errorLine2="                                ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mIndex` of class `Carousel` requires synthetic accessor"
-        errorLine1="                    &amp;&amp; mIndex &lt; mAdapter.count() - 1) {"
-        errorLine2="                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mDampening` of class `Carousel` requires synthetic accessor"
-        errorLine1="                final float v = velocity * mDampening;"
-        errorLine2="                                           ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mIndex` of class `Carousel` requires synthetic accessor"
-        errorLine1="                if (mIndex == 0 &amp;&amp; mPreviousIndex > mIndex) {"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mIndex` of class `Carousel` requires synthetic accessor"
-        errorLine1="                if (mIndex == 0 &amp;&amp; mPreviousIndex > mIndex) {"
-        errorLine2="                                                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPreviousIndex` of class `Carousel` requires synthetic accessor"
-        errorLine1="                if (mIndex == 0 &amp;&amp; mPreviousIndex > mIndex) {"
-        errorLine2="                                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAdapter` of class `Carousel` requires synthetic accessor"
-        errorLine1="                if (mIndex == mAdapter.count() - 1 &amp;&amp; mPreviousIndex &lt; mIndex) {"
-        errorLine2="                              ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mIndex` of class `Carousel` requires synthetic accessor"
-        errorLine1="                if (mIndex == mAdapter.count() - 1 &amp;&amp; mPreviousIndex &lt; mIndex) {"
-        errorLine2="                    ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mIndex` of class `Carousel` requires synthetic accessor"
-        errorLine1="                if (mIndex == mAdapter.count() - 1 &amp;&amp; mPreviousIndex &lt; mIndex) {"
-        errorLine2="                                                                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPreviousIndex` of class `Carousel` requires synthetic accessor"
-        errorLine1="                if (mIndex == mAdapter.count() - 1 &amp;&amp; mPreviousIndex &lt; mIndex) {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `Carousel` requires synthetic accessor"
-        errorLine1="                mMotionLayout.post(new Runnable() {"
-        errorLine2="                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `Carousel` requires synthetic accessor"
-        errorLine1="                        mMotionLayout.touchAnimateTo(MotionLayout.TOUCH_UP_DECELERATE_AND_COMPLETE,"
-        errorLine2="                        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/helper/widget/Carousel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMetrics` of class `ConstraintLayout` requires synthetic accessor"
-        errorLine1="            if (mMetrics != null) {"
-        errorLine2="                ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMetrics` of class `ConstraintLayout` requires synthetic accessor"
-        errorLine1="                mMetrics.mNumberOfMeasures++;"
-        errorLine2="                ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="            if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mOptimizationLevel` of class `ConstraintLayout` requires synthetic accessor"
-        errorLine1="            if (container != null &amp;&amp; Optimizer.enabled(mOptimizationLevel,"
-        errorLine2="                                                       ~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mOptimizationLevel` of class `ConstraintLayout` requires synthetic accessor"
-        errorLine1="                boolean optimizeDirect = Optimizer.enabled(mOptimizationLevel,"
-        errorLine2="                                                           ~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMetrics` of class `ConstraintLayout` requires synthetic accessor"
-        errorLine1="            if (mMetrics != null) {"
-        errorLine2="                ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMetrics` of class `ConstraintLayout` requires synthetic accessor"
-        errorLine1="                mMetrics.measuresWidgetsDuration += (endMeasure - startMeasure);"
-        errorLine2="                ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintHelpers` of class `ConstraintLayout` requires synthetic accessor"
-        errorLine1="            final int helperCount = mLayout.mConstraintHelpers.size();"
-        errorLine2="                                            ~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 17"
+        errorLine1="        @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintHelpers` of class `ConstraintLayout` requires synthetic accessor"
-        errorLine1="                    ConstraintHelper helper = mLayout.mConstraintHelpers.get(i);"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `fillFrom` of class `Constraint` requires synthetic accessor"
-        errorLine1="                constraint.fillFrom(id, param);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintProperties.java"/>
+    </issue>
+
+    <issue
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        leftToLeft = lookupID(a, attr, leftToLeft);"
-        errorLine2="                                     ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                        if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        leftToRight = lookupID(a, attr, leftToRight);"
-        errorLine2="                                      ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                        if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        rightToLeft = lookupID(a, attr, rightToLeft);"
-        errorLine2="                                      ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        rightToRight = lookupID(a, attr, rightToRight);"
-        errorLine2="                                       ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        topToTop = lookupID(a, attr, topToTop);"
-        errorLine2="                                   ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        topToBottom = lookupID(a, attr, topToBottom);"
-        errorLine2="                                      ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        bottomToTop = lookupID(a, attr, bottomToTop);"
-        errorLine2="                                      ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        bottomToBottom = lookupID(a, attr, bottomToBottom);"
-        errorLine2="                                         ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        baselineToBaseline = lookupID(a, attr, baselineToBaseline);"
-        errorLine2="                                             ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        baselineToTop = lookupID(a, attr, baselineToTop);"
-        errorLine2="                                        ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+            file="src/main/java/androidx/constraintlayout/helper/widget/Flow.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        baselineToBottom = lookupID(a, attr, baselineToBottom);"
-        errorLine2="                                           ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+            file="src/main/java/androidx/constraintlayout/helper/widget/Flow.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        startToEnd = lookupID(a, attr, startToEnd);"
-        errorLine2="                                     ~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
+            file="src/main/java/androidx/constraintlayout/helper/widget/Grid.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        startToStart = lookupID(a, attr, startToStart);"
-        errorLine2="                                       ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        endToStart = lookupID(a, attr, endToStart);"
-        errorLine2="                                     ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        endToEnd = lookupID(a, attr, endToEnd);"
-        errorLine2="                                   ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        circleConstraint = lookupID(a, attr, circleConstraint);"
-        errorLine2="                                           ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        transformPivotTarget = lookupID(a, attr, transformPivotTarget);"
-        errorLine2="                                               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `lookupID` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                        mAnimateRelativeTo = lookupID(a, attr, mAnimateRelativeTo);"
-        errorLine2="                                             ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setDeltaValue` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                    setDeltaValue(c, mTypeInt[i], mValueInt[i]);"
-        errorLine2="                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setDeltaValue` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                    setDeltaValue(c, mTypeFloat[i], mValueFloat[i]);"
-        errorLine2="                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setDeltaValue` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                    setDeltaValue(c, mTypeString[i], mValueString[i]);"
-        errorLine2="                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setDeltaValue` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                    setDeltaValue(c, mTypeBoolean[i], mValueBoolean[i]);"
-        errorLine2="                    ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `fillFrom` of class `Constraint` requires synthetic accessor"
-        errorLine1="            constraint.fillFrom(id, param);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `fillFromConstraints` of class `Constraint` requires synthetic accessor"
-        errorLine1="                constraint.fillFromConstraints(helper, id, param);"
-        errorLine2="                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `fillFromConstraints` of class `Constraint` requires synthetic accessor"
-        errorLine1="            constraint.fillFromConstraints(id, param);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setIntValue` of class `Constraint` requires synthetic accessor"
-        errorLine1="        get(viewId).setIntValue(attributeName, value);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setColorValue` of class `Constraint` requires synthetic accessor"
-        errorLine1="        get(viewId).setColorValue(attributeName, value);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setFloatValue` of class `Constraint` requires synthetic accessor"
-        errorLine1="        get(viewId).setFloatValue(attributeName, value);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setStringValue` of class `Constraint` requires synthetic accessor"
-        errorLine1="        get(viewId).setStringValue(attributeName, value);"
-        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setFloatValue` of class `Constraint` requires synthetic accessor"
-        errorLine1="                set.setFloatValue(attr[0], Integer.decode(attr[1]));"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setColorValue` of class `Constraint` requires synthetic accessor"
-        errorLine1="                set.setColorValue(attr[0], Color.parseColor(attr[1]));"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setFloatValue` of class `Constraint` requires synthetic accessor"
-        errorLine1="                set.setFloatValue(attr[0], Float.parseFloat(attr[1]));"
-        errorLine2="                ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setStringValue` of class `Constraint` requires synthetic accessor"
-        errorLine1="            set.setStringValue(attr[0], attr[1]);"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraints` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="            for (Integer id : mConstraints.keySet()) {"
-        errorLine2="                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraints` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                Constraint c = mConstraints.get(id);"
-        errorLine2="                               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraints` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="            for (Integer id : mConstraints.keySet()) {"
-        errorLine2="                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraints` of class `ConstraintSet` requires synthetic accessor"
-        errorLine1="                Constraint c = mConstraints.get(id);"
-        errorLine2="                               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/widget/ConstraintSet.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRoundPercent` of class `ImageFilterButton` requires synthetic accessor"
-        errorLine1="                            float r = Math.min(w, h) * mRoundPercent / 2;"
-        errorLine2="                                                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/utils/widget/ImageFilterButton.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRound` of class `ImageFilterButton` requires synthetic accessor"
-        errorLine1="                            outline.setRoundRect(0, 0, w, h, mRound);"
-        errorLine2="                                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/utils/widget/ImageFilterButton.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRoundPercent` of class `ImageFilterView` requires synthetic accessor"
-        errorLine1="                            float r = Math.min(w, h) * mRoundPercent / 2;"
-        errorLine2="                                                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/utils/widget/ImageFilterView.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRound` of class `ImageFilterView` requires synthetic accessor"
-        errorLine1="                            outline.setRoundRect(0, 0, w, h, mRound);"
-        errorLine2="                                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/utils/widget/ImageFilterView.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAlpha` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mAlpha = a.getFloat(attr, c.mAlpha);"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAlpha` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mAlpha = a.getFloat(attr, c.mAlpha);"
-        errorLine2="                                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mElevation` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mElevation = a.getDimension(attr, c.mElevation);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mElevation` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mElevation = a.getDimension(attr, c.mElevation);"
-        errorLine2="                                                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotation` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mRotation = a.getFloat(attr, c.mRotation);"
-        errorLine2="                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotation` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mRotation = a.getFloat(attr, c.mRotation);"
-        errorLine2="                                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCurveFit` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mCurveFit = a.getInteger(attr, c.mCurveFit);"
-        errorLine2="                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCurveFit` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mCurveFit = a.getInteger(attr, c.mCurveFit);"
-        errorLine2="                                                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleX` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mScaleX = a.getFloat(attr, c.mScaleX);"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleX` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mScaleX = a.getFloat(attr, c.mScaleX);"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationX` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mRotationX = a.getFloat(attr, c.mRotationX);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationX` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mRotationX = a.getFloat(attr, c.mRotationX);"
-        errorLine2="                                                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationY` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mRotationY = a.getFloat(attr, c.mRotationY);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationY` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mRotationY = a.getFloat(attr, c.mRotationY);"
-        errorLine2="                                                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPivotX` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mPivotX = a.getDimension(attr, c.mPivotX);"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPivotX` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mPivotX = a.getDimension(attr, c.mPivotX);"
-        errorLine2="                                                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPivotY` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mPivotY = a.getDimension(attr, c.mPivotY);"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPivotY` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mPivotY = a.getDimension(attr, c.mPivotY);"
-        errorLine2="                                                           ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTransitionEasing` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mTransitionEasing = a.getString(attr);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleY` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mScaleY = a.getFloat(attr, c.mScaleY);"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleY` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mScaleY = a.getFloat(attr, c.mScaleY);"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTransitionPathRotate` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mTransitionPathRotate = a.getFloat(attr, c.mTransitionPathRotate);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTransitionPathRotate` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mTransitionPathRotate = a.getFloat(attr, c.mTransitionPathRotate);"
-        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationX` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mTranslationX = a.getDimension(attr, c.mTranslationX);"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationX` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mTranslationX = a.getDimension(attr, c.mTranslationX);"
-        errorLine2="                                                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationY` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mTranslationY = a.getDimension(attr, c.mTranslationY);"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationY` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mTranslationY = a.getDimension(attr, c.mTranslationY);"
-        errorLine2="                                                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationZ` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                            c.mTranslationZ = a.getDimension(attr, c.mTranslationZ);"
-        errorLine2="                              ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationZ` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                            c.mTranslationZ = a.getDimension(attr, c.mTranslationZ);"
-        errorLine2="                                                                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mProgress` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mProgress = a.getFloat(attr, c.mProgress);"
-        errorLine2="                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mProgress` of class `KeyAttributes` requires synthetic accessor"
-        errorLine1="                        c.mProgress = a.getFloat(attr, c.mProgress);"
-        errorLine2="                                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyAttributes.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `read` of class `Loader` requires synthetic accessor"
-        errorLine1="        Loader.read(this, a);"
-        errorLine2="        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTransitionEasing` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mTransitionEasing = a.getString(attr);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCurveFit` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mCurveFit = a.getInteger(attr, c.mCurveFit);"
-        errorLine2="                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCurveFit` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mCurveFit = a.getInteger(attr, c.mCurveFit);"
-        errorLine2="                                                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCustomWaveShape` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                            c.mCustomWaveShape = a.getString(attr);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveShape` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveShape = Oscillator.CUSTOM;"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveShape` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveShape = a.getInt(attr, c.mWaveShape);"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveShape` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveShape = a.getInt(attr, c.mWaveShape);"
-        errorLine2="                                                            ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWavePeriod` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mWavePeriod = a.getFloat(attr, c.mWavePeriod);"
-        errorLine2="                          ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWavePeriod` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mWavePeriod = a.getFloat(attr, c.mWavePeriod);"
-        errorLine2="                                                           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveOffset` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveOffset = a.getDimension(attr, c.mWaveOffset);"
-        errorLine2="                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveOffset` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveOffset = a.getDimension(attr, c.mWaveOffset);"
-        errorLine2="                                                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveOffset` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveOffset = a.getFloat(attr, c.mWaveOffset);"
-        errorLine2="                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveOffset` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveOffset = a.getFloat(attr, c.mWaveOffset);"
-        errorLine2="                                                               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveVariesBy` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mWaveVariesBy = a.getInt(attr, c.mWaveVariesBy);"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveVariesBy` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mWaveVariesBy = a.getInt(attr, c.mWaveVariesBy);"
-        errorLine2="                                                           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAlpha` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mAlpha = a.getFloat(attr, c.mAlpha);"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAlpha` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mAlpha = a.getFloat(attr, c.mAlpha);"
-        errorLine2="                                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mElevation` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mElevation = a.getDimension(attr, c.mElevation);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mElevation` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mElevation = a.getDimension(attr, c.mElevation);"
-        errorLine2="                                                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotation` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotation = a.getFloat(attr, c.mRotation);"
-        errorLine2="                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotation` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotation = a.getFloat(attr, c.mRotation);"
-        errorLine2="                                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationX` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotationX = a.getFloat(attr, c.mRotationX);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationX` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotationX = a.getFloat(attr, c.mRotationX);"
-        errorLine2="                                                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationY` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotationY = a.getFloat(attr, c.mRotationY);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationY` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotationY = a.getFloat(attr, c.mRotationY);"
-        errorLine2="                                                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTransitionPathRotate` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mTransitionPathRotate = a.getFloat(attr, c.mTransitionPathRotate);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTransitionPathRotate` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mTransitionPathRotate = a.getFloat(attr, c.mTransitionPathRotate);"
-        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleX` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mScaleX = a.getFloat(attr, c.mScaleX);"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleX` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mScaleX = a.getFloat(attr, c.mScaleX);"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleY` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mScaleY = a.getFloat(attr, c.mScaleY);"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleY` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mScaleY = a.getFloat(attr, c.mScaleY);"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationX` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mTranslationX = a.getDimension(attr, c.mTranslationX);"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationX` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mTranslationX = a.getDimension(attr, c.mTranslationX);"
-        errorLine2="                                                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationY` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mTranslationY = a.getDimension(attr, c.mTranslationY);"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationY` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mTranslationY = a.getDimension(attr, c.mTranslationY);"
-        errorLine2="                                                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationZ` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                            c.mTranslationZ = a.getDimension(attr, c.mTranslationZ);"
-        errorLine2="                              ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationZ` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                            c.mTranslationZ = a.getDimension(attr, c.mTranslationZ);"
-        errorLine2="                                                                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mProgress` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mProgress = a.getFloat(attr, c.mProgress);"
-        errorLine2="                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mProgress` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mProgress = a.getFloat(attr, c.mProgress);"
-        errorLine2="                                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWavePhase` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mWavePhase = a.getFloat(attr, c.mWavePhase) / 360;"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWavePhase` of class `KeyCycle` requires synthetic accessor"
-        errorLine1="                        c.mWavePhase = a.getFloat(attr, c.mWavePhase) / 360;"
-        errorLine2="                                                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `read` of class `Loader` requires synthetic accessor"
-        errorLine1="        Loader.read(this, a);"
-        errorLine2="        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyPosition.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAlpha` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mAlpha = a.getFloat(attr, c.mAlpha);"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAlpha` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mAlpha = a.getFloat(attr, c.mAlpha);"
-        errorLine2="                                                      ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mElevation` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mElevation = a.getDimension(attr, c.mElevation);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mElevation` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mElevation = a.getDimension(attr, c.mElevation);"
-        errorLine2="                                                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotation` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotation = a.getFloat(attr, c.mRotation);"
-        errorLine2="                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotation` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotation = a.getFloat(attr, c.mRotation);"
-        errorLine2="                                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCurveFit` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mCurveFit = a.getInteger(attr, c.mCurveFit);"
-        errorLine2="                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCurveFit` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mCurveFit = a.getInteger(attr, c.mCurveFit);"
-        errorLine2="                                                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCustomWaveShape` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                            c.mCustomWaveShape = a.getString(attr);"
-        errorLine2="                              ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveShape` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveShape = Oscillator.CUSTOM;"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveShape` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveShape = a.getInt(attr, c.mWaveShape);"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveShape` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveShape = a.getInt(attr, c.mWaveShape);"
-        errorLine2="                                                            ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWavePeriod` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mWavePeriod = a.getFloat(attr, c.mWavePeriod);"
-        errorLine2="                          ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWavePeriod` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mWavePeriod = a.getFloat(attr, c.mWavePeriod);"
-        errorLine2="                                                           ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveOffset` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveOffset = a.getDimension(attr, c.mWaveOffset);"
-        errorLine2="                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveOffset` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveOffset = a.getDimension(attr, c.mWaveOffset);"
-        errorLine2="                                                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveOffset` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveOffset = a.getFloat(attr, c.mWaveOffset);"
-        errorLine2="                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mWaveOffset` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                            c.mWaveOffset = a.getFloat(attr, c.mWaveOffset);"
-        errorLine2="                                                               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleX` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mScaleX = a.getFloat(attr, c.mScaleX);"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleX` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mScaleX = a.getFloat(attr, c.mScaleX);"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationX` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotationX = a.getFloat(attr, c.mRotationX);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationX` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotationX = a.getFloat(attr, c.mRotationX);"
-        errorLine2="                                                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationY` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotationY = a.getFloat(attr, c.mRotationY);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRotationY` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mRotationY = a.getFloat(attr, c.mRotationY);"
-        errorLine2="                                                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTransitionEasing` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mTransitionEasing = a.getString(attr);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleY` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mScaleY = a.getFloat(attr, c.mScaleY);"
-        errorLine2="                          ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mScaleY` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mScaleY = a.getFloat(attr, c.mScaleY);"
-        errorLine2="                                                       ~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTransitionPathRotate` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mTransitionPathRotate = a.getFloat(attr, c.mTransitionPathRotate);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTransitionPathRotate` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mTransitionPathRotate = a.getFloat(attr, c.mTransitionPathRotate);"
-        errorLine2="                                                                     ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationX` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mTranslationX = a.getDimension(attr, c.mTranslationX);"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationX` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mTranslationX = a.getDimension(attr, c.mTranslationX);"
-        errorLine2="                                                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationY` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mTranslationY = a.getDimension(attr, c.mTranslationY);"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationY` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mTranslationY = a.getDimension(attr, c.mTranslationY);"
-        errorLine2="                                                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationZ` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                            c.mTranslationZ = a.getDimension(attr, c.mTranslationZ);"
-        errorLine2="                              ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTranslationZ` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                            c.mTranslationZ = a.getDimension(attr, c.mTranslationZ);"
-        errorLine2="                                                                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mProgress` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mProgress = a.getFloat(attr, c.mProgress);"
-        errorLine2="                          ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mProgress` of class `KeyTimeCycle` requires synthetic accessor"
-        errorLine1="                        c.mProgress = a.getFloat(attr, c.mProgress);"
-        errorLine2="                                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTimeCycle.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mFireThreshold` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mFireThreshold = (c.mFramePosition + .5f) / 100f;"
-        errorLine2="                          ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mNegativeCross` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mNegativeCross = a.getString(attr);"
-        errorLine2="                          ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPositiveCross` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mPositiveCross = a.getString(attr);"
-        errorLine2="                          ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mCross` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mCross = a.getString(attr);"
-        errorLine2="                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTriggerID` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mTriggerID = a.getResourceId(attr, c.mTriggerID);"
-        errorLine2="                          ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTriggerID` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mTriggerID = a.getResourceId(attr, c.mTriggerID);"
-        errorLine2="                                                               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTriggerCollisionId` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mTriggerCollisionId = a.getResourceId(attr, c.mTriggerCollisionId);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTriggerCollisionId` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mTriggerCollisionId = a.getResourceId(attr, c.mTriggerCollisionId);"
-        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPostLayout` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mPostLayout = a.getBoolean(attr, c.mPostLayout);"
-        errorLine2="                          ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPostLayout` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mPostLayout = a.getBoolean(attr, c.mPostLayout);"
-        errorLine2="                                                             ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTriggerReceiver` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mTriggerReceiver = a.getResourceId(attr, c.mTriggerReceiver);"
-        errorLine2="                          ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTriggerReceiver` of class `KeyTrigger` requires synthetic accessor"
-        errorLine1="                        c.mTriggerReceiver = a.getResourceId(attr, c.mTriggerReceiver);"
-        errorLine2="                                                                     ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/KeyTrigger.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRoundPercent` of class `MotionButton` requires synthetic accessor"
-        errorLine1="                            float r = Math.min(w, h) * mRoundPercent / 2;"
-        errorLine2="                                                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/utils/widget/MotionButton.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRound` of class `MotionButton` requires synthetic accessor"
-        errorLine1="                            outline.setRoundRect(0, 0, w, h, mRound);"
-        errorLine2="                                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/utils/widget/MotionButton.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRoundPercent` of class `MotionLabel` requires synthetic accessor"
-        errorLine1="                            float r = Math.min(w, h) * mRoundPercent / 2;"
-        errorLine2="                                                       ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/utils/widget/MotionLabel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mRound` of class `MotionLabel` requires synthetic accessor"
-        errorLine1="                            outline.setRoundRect(0, 0, w, h, mRound);"
-        errorLine2="                                                             ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/utils/widget/MotionLabel.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mStateCache` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="                                        mStateCache.apply();"
-        errorLine2="                                        ~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is never &lt; 19"
+        errorLine1="                if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.KITKAT || isAttachedToWindow()) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mEndState` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="            mEndState = MotionLayout.this.mEndState;"
-        errorLine2="                                          ~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mBeginState` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="            mStartState = MotionLayout.this.mBeginState;"
-        errorLine2="                                            ~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mInRotation` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="                mInRotation = false;"
-        errorLine2="                ~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 17"
+        errorLine1="    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR1)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mLastHeightMeasureSpec` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="            measure(mLastWidthMeasureSpec, mLastHeightMeasureSpec);"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>
 
     <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mLastWidthMeasureSpec` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="            measure(mLastWidthMeasureSpec, mLastHeightMeasureSpec);"
-        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~">
+        id="ObsoleteSdkInt"
+        message="Unnecessary; SDK_INT is always >= 19"
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `setupMotionViews` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="            setupMotionViews();"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `toRect` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="                        motionController.setStartState(toRect(startWidget), mStart,"
-        errorLine2="                                                       ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mInRotation` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="                    if (mInRotation) {"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPreRotateHeight` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="                                mPreRotateWidth, mPreRotateHeight);"
-        errorLine2="                                                 ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPreRotateWidth` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="                                mPreRotateWidth, mPreRotateHeight);"
-        errorLine2="                                ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `toRect` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="                        motionController.setEndState(toRect(endWidget), mEnd,"
-        errorLine2="                                                     ~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mEndState` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="                String str = getContext().getResources().getResourceName(mEndState)"
-        errorLine2="                                                                         ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mStateCache` of class `MotionLayout` requires synthetic accessor"
-        errorLine1="                        mStateCache.apply();"
-        errorLine2="                        ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (mCurrentTransition.mConstraintSetEnd == endId"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="                    &amp;&amp; mCurrentTransition.mConstraintSetStart == beginId) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="            if ((transition.mConstraintSetEnd == end"
-        errorLine2="                            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="                    &amp;&amp; transition.mConstraintSetStart == start)"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="                    || (transition.mConstraintSetEnd == endId"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="                    &amp;&amp; transition.mConstraintSetStart == beginId)) {"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                                     ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                    mCurrentTransition.mTouchResponse.setRTL(mRtl);"
-        errorLine2="                                       ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (transition.mConstraintSetEnd == endId) {"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="        t.mConstraintSetStart = start;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="        t.mConstraintSetEnd = end;"
-        errorLine2="          ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mId` of class `Transition` requires synthetic accessor"
-        errorLine1="        int id = transition.mId;"
-        errorLine2="                            ~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mId` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (mTransitionList.get(index).mId == id) {"
-        errorLine2="                                           ~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            mCurrentTransition.mTouchResponse.setRTL(mRtl);"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (transition.mConstraintSetStart == stateId"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="                    || transition.mConstraintSetEnd == stateId) {"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mOnClicks` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (transition.mOnClicks.size() > 0) {"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mOnClicks` of class `Transition` requires synthetic accessor"
-        errorLine1="                for (Transition.TransitionOnClick onClick : transition.mOnClicks) {"
-        errorLine2="                                                                       ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mOnClicks` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (transition.mOnClicks.size() > 0) {"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mOnClicks` of class `Transition` requires synthetic accessor"
-        errorLine1="                for (Transition.TransitionOnClick onClick : transition.mOnClicks) {"
-        errorLine2="                                                                       ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mOnClicks` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (transition.mOnClicks.size() > 0) {"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mOnClicks` of class `Transition` requires synthetic accessor"
-        errorLine1="                for (Transition.TransitionOnClick onClick : transition.mOnClicks) {"
-        errorLine2="                                                                       ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mOnClicks` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (transition.mOnClicks.size() > 0) {"
-        errorLine2="                           ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mOnClicks` of class `Transition` requires synthetic accessor"
-        errorLine1="                for (Transition.TransitionOnClick onClick : transition.mOnClicks) {"
-        errorLine2="                                                                       ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mDisable` of class `Transition` requires synthetic accessor"
-        errorLine1="                if (transition.mDisable) {"
-        errorLine2="                               ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                if (transition.mTouchResponse != null) {"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                    transition.mTouchResponse.setRTL(mRtl);"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                    RectF region = transition.mTouchResponse.getTouchRegion(mMotionLayout, cache);"
-        errorLine2="                                              ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                    region = transition.mTouchResponse.getLimitBoundsTo(mMotionLayout, cache);"
-        errorLine2="                                        ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                    float val = transition.mTouchResponse.dot(dx, dy);"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                    if (transition.mTouchResponse.mIsRotateMode &amp;&amp; lastTouchDown != null) {"
-        errorLine2="                                   ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                                - transition.mTouchResponse.mRotateCenterX;"
-        errorLine2="                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                                - transition.mTouchResponse.mRotateCenterY;"
-        errorLine2="                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="                    if (transition.mConstraintSetEnd == currentState) { // flip because backwards"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mId` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (transition.mId == id) {"
-        errorLine2="                           ~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAutoTransition` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (transition.mAutoTransition == Transition.AUTO_NONE) {"
-        errorLine2="                           ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (currentState == transition.mConstraintSetStart &amp;&amp; ("
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAutoTransition` of class `Transition` requires synthetic accessor"
-        errorLine1="                    transition.mAutoTransition == Transition.AUTO_ANIMATE_TO_END"
-        errorLine2="                               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAutoTransition` of class `Transition` requires synthetic accessor"
-        errorLine1="                            || transition.mAutoTransition == Transition.AUTO_JUMP_TO_END)) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAutoTransition` of class `Transition` requires synthetic accessor"
-        errorLine1="                if (transition.mAutoTransition == Transition.AUTO_ANIMATE_TO_END) {"
-        errorLine2="                               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (currentState == transition.mConstraintSetEnd &amp;&amp; ("
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAutoTransition` of class `Transition` requires synthetic accessor"
-        errorLine1="                    transition.mAutoTransition == Transition.AUTO_ANIMATE_TO_START"
-        errorLine2="                               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAutoTransition` of class `Transition` requires synthetic accessor"
-        errorLine1="                            || transition.mAutoTransition == Transition.AUTO_JUMP_TO_START)) {"
-        errorLine2="                                          ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mAutoTransition` of class `Transition` requires synthetic accessor"
-        errorLine1="                if (transition.mAutoTransition == Transition.AUTO_ANIMATE_TO_START) {"
-        errorLine2="                               ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            mCurrentTransition.mTouchResponse.setRTL(mRtl);"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `MotionScene` requires synthetic accessor"
-        errorLine1="                    : new TouchResponse(mMotionScene.mMotionLayout, onSwipe);"
-        errorLine2="                                                     ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="                int start = transition.mConstraintSetStart;"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="                int end = transition.mConstraintSetEnd;"
-        errorLine2="                                     ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="                int dest = mTransition.mConstraintSetEnd;"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="                int from = mTransition.mConstraintSetStart;"
-        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `MotionScene` requires synthetic accessor"
-        errorLine1="                MotionLayout tl = mTransition.mMotionScene.mMotionLayout;"
-        errorLine2="                                                           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionScene` of class `Transition` requires synthetic accessor"
-        errorLine1="                MotionLayout tl = mTransition.mMotionScene.mMotionLayout;"
-        errorLine2="                                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="                if (mTransition.mConstraintSetStart == UNSET) {"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="                        tl.transitionToState(mTransition.mConstraintSetEnd);"
-        errorLine2="                                                         ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionScene` of class `Transition` requires synthetic accessor"
-        errorLine1="                    Transition t = new Transition(mTransition.mMotionScene, mTransition);"
-        errorLine2="                                                              ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="                    t.mConstraintSetStart = currentState;"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="                    t.mConstraintSetEnd = mTransition.mConstraintSetEnd;"
-        errorLine2="                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="                    t.mConstraintSetEnd = mTransition.mConstraintSetEnd;"
-        errorLine2="                                                      ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionScene` of class `Transition` requires synthetic accessor"
-        errorLine1="                Transition current = mTransition.mMotionScene.mCurrentTransition;"
-        errorLine2="                                                 ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionScene` of class `Transition` requires synthetic accessor"
-        errorLine1="                    if (mTransition.mMotionScene.mCurrentTransition != mTransition) {"
-        errorLine2="                                    ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mDefaultDuration` of class `MotionScene` requires synthetic accessor"
-        errorLine1="            mDuration = motionScene.mDefaultDuration;"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mDefaultDuration` of class `MotionScene` requires synthetic accessor"
-        errorLine1="            mDuration = motionScene.mDefaultDuration;"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mLayoutDuringTransition` of class `MotionScene` requires synthetic accessor"
-        errorLine1="            mLayoutDuringTransition = motionScene.mLayoutDuringTransition;"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mDefaultDuration` of class `MotionScene` requires synthetic accessor"
-        errorLine1="            mDuration = motionScene.mDefaultDuration;"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mLayoutDuringTransition` of class `MotionScene` requires synthetic accessor"
-        errorLine1="            mLayoutDuringTransition = motionScene.mLayoutDuringTransition;"
-        errorLine2="                                                  ~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetMap` of class `MotionScene` requires synthetic accessor"
-        errorLine1="                        motionScene.mConstraintSetMap.append(mConstraintSetEnd, cSet);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `parseInclude` of class `MotionScene` requires synthetic accessor"
-        errorLine1="                        int id = motionScene.parseInclude(context, mConstraintSetEnd);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetMap` of class `MotionScene` requires synthetic accessor"
-        errorLine1="                        motionScene.mConstraintSetMap.append(mConstraintSetStart, cSet);"
-        errorLine2="                                    ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `parseInclude` of class `MotionScene` requires synthetic accessor"
-        errorLine1="                        int id = motionScene.parseInclude(context, mConstraintSetStart);"
-        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mIsAbstract` of class `Transition` requires synthetic accessor"
-        errorLine1="                                if (mCurrentTransition == null &amp;&amp; !transition.mIsAbstract) {"
-        errorLine2="                                                                              ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                                            &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                                  ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                                        mCurrentTransition.mTouchResponse.setRTL(mRtl);"
-        errorLine2="                                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mIsAbstract` of class `Transition` requires synthetic accessor"
-        errorLine1="                                if (transition.mIsAbstract) { // global transition only one for now"
-        errorLine2="                                               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="                                    if (transition.mConstraintSetEnd == UNSET) {"
-        errorLine2="                                                   ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                                    transition.mTouchResponse ="
-        errorLine2="                                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mKeyFramesList` of class `Transition` requires synthetic accessor"
-        errorLine1="                                    transition.mKeyFramesList.add(keyFrames);"
-        errorLine2="                                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mKeyFramesList` of class `Transition` requires synthetic accessor"
-        errorLine1="                for (KeyFrames keyFrames : mDefaultTransition.mKeyFramesList) {"
-        errorLine2="                                                              ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mKeyFramesList` of class `Transition` requires synthetic accessor"
-        errorLine1="        for (KeyFrames keyFrames : mCurrentTransition.mKeyFramesList) {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mKeyFramesList` of class `Transition` requires synthetic accessor"
-        errorLine1="        for (KeyFrames keyFrames : mCurrentTransition.mKeyFramesList) {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (transition.mConstraintSetStart == stateId) {"
-        errorLine2="                           ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mKeyFramesList` of class `Transition` requires synthetic accessor"
-        errorLine1="        for (KeyFrames keyFrames : mCurrentTransition.mKeyFramesList) {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mKeyFramesList` of class `Transition` requires synthetic accessor"
-        errorLine1="        for (KeyFrames keyFrames : mCurrentTransition.mKeyFramesList) {"
-        errorLine2="                                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            if (transition.mTouchResponse != null) {"
-        errorLine2="                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        return mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null;"
-        errorLine2="                                                                ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                    if (mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                        region = mCurrentTransition.mTouchResponse"
-        errorLine2="                                                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                        region = mCurrentTransition.mTouchResponse"
-        errorLine2="                                                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                        mCurrentTransition.mTouchResponse.setDown(mLastTouchX, mLastTouchY);"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                                .mTouchResponse.getTouchRegion(mMotionLayout, cache);"
-        errorLine2="                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="                        mCurrentTransition.mTouchResponse.setUpTouchEvent(mLastTouchX, mLastTouchY);"
-        errorLine2="                                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            mCurrentTransition.mTouchResponse.processTouchEvent(event,"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            mCurrentTransition.mTouchResponse.scrollMove(dx, dy);"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            mCurrentTransition.mTouchResponse.scrollUp(dx, dy);"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mTouchResponse.getProgressDirection(dx, dy);"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetStart` of class `Transition` requires synthetic accessor"
-        errorLine1="        return mCurrentTransition.mConstraintSetStart;"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mConstraintSetEnd` of class `Transition` requires synthetic accessor"
-        errorLine1="        return mCurrentTransition.mConstraintSetEnd;"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mDefaultInterpolator` of class `Transition` requires synthetic accessor"
-        errorLine1="        switch (mCurrentTransition.mDefaultInterpolator) {"
-        errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mDefaultInterpolatorString` of class `Transition` requires synthetic accessor"
-        errorLine1="                        .getInterpolator(mCurrentTransition.mDefaultInterpolatorString);"
-        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mDefaultInterpolatorID` of class `Transition` requires synthetic accessor"
-        errorLine1="                        mCurrentTransition.mDefaultInterpolatorID);"
-        errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mDuration` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mDuration;"
-        errorLine2="                                      ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mPathMotionArc` of class `Transition` requires synthetic accessor"
-        errorLine1="        return (mCurrentTransition != null) ? mCurrentTransition.mPathMotionArc : UNSET;"
-        errorLine2="                                                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mStagger` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mStagger;"
-        errorLine2="                                      ~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mTouchResponse.getMaxAcceleration();"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mTouchResponse.getMaxVelocity();"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mTouchResponse.getSpringStiffness();"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mTouchResponse.getSpringMass();"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mTouchResponse.getSpringDamping();"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mTouchResponse.getSpringStopThreshold();"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mTouchResponse.getSpringBoundary();"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mTouchResponse.getAutoCompleteMode();"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            mCurrentTransition.mTouchResponse.setupTouch();"
-        errorLine2="                               ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="        if (mCurrentTransition != null &amp;&amp; mCurrentTransition.mTouchResponse != null) {"
-        errorLine2="                                                             ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mTouchResponse` of class `Transition` requires synthetic accessor"
-        errorLine1="            return mCurrentTransition.mTouchResponse.getMoveWhenScrollAtTop();"
-        errorLine2="                                      ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/MotionScene.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `ViewTransitionController` requires synthetic accessor"
-        errorLine1="                                int count = mMotionLayout.getChildCount();"
-        errorLine2="                                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/ViewTransitionController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `ViewTransitionController` requires synthetic accessor"
-        errorLine1="                                    View view = mMotionLayout.getChildAt(i);"
-        errorLine2="                                                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/ViewTransitionController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `ViewTransitionController` requires synthetic accessor"
-        errorLine1="                                        int currentId = mMotionLayout.getCurrentState();"
-        errorLine2="                                                        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/ViewTransitionController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `ViewTransitionController` requires synthetic accessor"
-        errorLine1="                                                mMotionLayout.getConstraintSet(currentId);"
-        errorLine2="                                                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/ViewTransitionController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `ViewTransitionController` requires synthetic accessor"
-        errorLine1="                                                ViewTransitionController.this, mMotionLayout,"
-        errorLine2="                                                                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/ViewTransitionController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `ViewTransitionController` requires synthetic accessor"
-        errorLine1="                                int count = mMotionLayout.getChildCount();"
-        errorLine2="                                            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/ViewTransitionController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `ViewTransitionController` requires synthetic accessor"
-        errorLine1="                                    View view = mMotionLayout.getChildAt(i);"
-        errorLine2="                                                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/ViewTransitionController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `ViewTransitionController` requires synthetic accessor"
-        errorLine1="                                        int currentId = mMotionLayout.getCurrentState();"
-        errorLine2="                                                        ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/ViewTransitionController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `ViewTransitionController` requires synthetic accessor"
-        errorLine1="                                                mMotionLayout.getConstraintSet(currentId);"
-        errorLine2="                                                ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/ViewTransitionController.java"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` field `mMotionLayout` of class `ViewTransitionController` requires synthetic accessor"
-        errorLine1="                                                ViewTransitionController.this, mMotionLayout,"
-        errorLine2="                                                                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/constraintlayout/motion/widget/ViewTransitionController.java"/>
     </issue>
 
     <issue
@@ -5325,6 +2247,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="    public View getViewById(int id) {"
         errorLine2="           ~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void dispatchDraw(Canvas canvas) {"
+        errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/widget/ConstraintLayout.java"/>
     </issue>
@@ -9240,6 +6171,15 @@
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
         errorLine1="                               int type, int[] consumed) {"
         errorLine2="                                         ~~~~~">
+        <location
+            file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://developer.android.com/kotlin/interop#nullability_annotations"
+        errorLine1="    protected void dispatchDraw(Canvas canvas) {"
+        errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/constraintlayout/motion/widget/MotionLayout.java"/>
     </issue>

@@ -43,10 +43,10 @@ import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.InitializationException;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CameraXUtil;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraFactory;
+import androidx.camera.testing.impl.CameraUtil;
+import androidx.camera.testing.impl.CameraXUtil;
+import androidx.camera.testing.impl.fakes.FakeCameraFactory;
 import androidx.test.core.app.ApplicationProvider;
 
 import org.codehaus.plexus.util.ReflectionUtils;
@@ -221,7 +221,7 @@ public class SupportedSizeConstraintsTest {
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
                 Camera2Config.defaultConfig())
                 .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-                .setCameraFactoryProvider((ignored0, ignored1, ignored2) -> cameraFactory)
+                .setCameraFactoryProvider((ignored0, ignored1, ignored2, ignored3) -> cameraFactory)
                 .build();
         CameraXUtil.initialize(mContext, cameraXConfig);
     }

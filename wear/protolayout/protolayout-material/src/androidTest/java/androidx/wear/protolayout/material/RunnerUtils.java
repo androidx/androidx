@@ -16,6 +16,7 @@
 
 package androidx.wear.protolayout.material;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -27,7 +28,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.screenshot.AndroidXScreenshotTestRule;
 import androidx.test.screenshot.matchers.MSSIMMatcher;
 import androidx.wear.protolayout.LayoutElementBuilders;
-import androidx.wear.protolayout.material.testapp.GoldenTestActivity;
+import androidx.wear.protolayout.material.test.GoldenTestActivity;
 
 public class RunnerUtils {
     // This isn't totally ideal right now. The screenshot tests run on a phone, so emulate some
@@ -89,6 +90,16 @@ public class RunnerUtils {
                 Thread.currentThread().interrupt();
             }
             Log.e("MaterialGoldenTest", "Error sleeping", ex);
+        }
+    }
+
+    @SuppressLint("BanThreadSleep")
+    public static void waitForNotificationToDisappears() {
+        try {
+            // Wait for the initial notification to disappear.
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            Log.e("MaterialGoldenTest", "Error sleeping", e);
         }
     }
 }

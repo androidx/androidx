@@ -127,6 +127,8 @@ public class RemotePlayer extends Player {
         if (DEBUG) {
             Log.d(TAG, "released.");
         }
+
+        super.release();
     }
 
     // basic playback operations that are always supported

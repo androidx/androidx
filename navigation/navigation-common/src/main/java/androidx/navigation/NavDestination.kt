@@ -24,6 +24,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.IdRes
 import androidx.annotation.RestrictTo
 import androidx.collection.SparseArrayCompat
+import androidx.collection.keyIterator
 import androidx.collection.valueIterator
 import androidx.core.content.res.use
 import androidx.core.net.toUri
@@ -64,7 +65,6 @@ public open class NavDestination(
     @Target(AnnotationTarget.ANNOTATION_CLASS, AnnotationTarget.CLASS)
     public annotation class ClassType(val value: KClass<*>)
 
-    /** @suppress */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public class DeepLinkMatch(
         public val destination: NavDestination,
@@ -128,7 +128,7 @@ public open class NavDestination(
                 // the arguments must at least contain every argument stored in this deep link
                 if (!arguments.containsKey(key)) return false
 
-                val type = destination.arguments[key]?.type
+                val type = destination._arguments[key]?.type
                 val matchingArgValue = type?.get(matchingArgs, key)
                 val entryArgValue = type?.get(arguments, key)
                 // fine if both argValues are null, i.e. arguments/params with nullable values
@@ -143,7 +143,6 @@ public open class NavDestination(
      * destination is added to a NavGraph via [NavGraph.addDestination].
      */
     public var parent: NavGraph? = null
-        /** @suppress */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public set
     private var idName: String? = null
@@ -232,11 +231,8 @@ public open class NavDestination(
             field = route
         }
 
-    /**
-     * @hide
-     */
-    @get:RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open val displayName: String
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         get() = idName ?: id.toString()
 
     /**
@@ -351,7 +347,7 @@ public open class NavDestination(
      * @see NavController.navigate
      */
     public fun addDeepLink(navDeepLink: NavDeepLink) {
-        val missingRequiredArguments = arguments.missingRequiredArguments { key ->
+        val missingRequiredArguments = _arguments.missingRequiredArguments { key ->
             key !in navDeepLink.argumentsNames
         }
         require(missingRequiredArguments.isEmpty()) {
@@ -385,7 +381,6 @@ public open class NavDestination(
      * [addDeepLink]
      * @return The matching [NavDestination] and the appropriate [Bundle] of arguments
      * extracted from the Uri, or null if no match was found.
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun matchDeepLink(navDeepLinkRequest: NavDeepLinkRequest): DeepLinkMatch? {
@@ -397,7 +392,7 @@ public open class NavDestination(
             val uri = navDeepLinkRequest.uri
             // includes matching args for path, query, and fragment
             val matchingArguments =
-                if (uri != null) deepLink.getMatchingArguments(uri, arguments) else null
+                if (uri != null) deepLink.getMatchingArguments(uri, _arguments) else null
             val matchingPathSegments = deepLink.calculateMatchingPathSegments(uri)
             val requestAction = navDeepLinkRequest.action
             val matchingAction = requestAction != null && requestAction ==
@@ -406,7 +401,7 @@ public open class NavDestination(
             val mimeTypeMatchLevel =
                 if (mimeType != null) deepLink.getMimeTypeMatchRating(mimeType) else -1
             if (matchingArguments != null || ((matchingAction || mimeTypeMatchLevel > -1) &&
-                    hasRequiredArguments(deepLink, uri, arguments))
+                    hasRequiredArguments(deepLink, uri, _arguments))
             ) {
                 val newMatch = DeepLinkMatch(
                     this, matchingArguments,
@@ -439,7 +434,6 @@ public open class NavDestination(
      * @param previousDestination the previous destination we are starting at
      * @return An array containing all of the ids from the previous destination (or the root of
      * the graph if null) to this destination
-     * @suppress
      */
     @JvmOverloads
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -504,7 +498,6 @@ public open class NavDestination(
     /**
      * @return Whether this NavDestination supports outgoing actions
      * @see NavDestination.putAction
-     * @suppress
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public open fun supportsActions(): Boolean {
@@ -587,7 +580,6 @@ public open class NavDestination(
      * Combines the default arguments for this destination with the arguments provided
      * to construct the final set of arguments that should be used to navigate
      * to this destination.
-     * @suppress
      */
     @Suppress("NullableCollection") // Needed for nullable bundle
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -638,7 +630,7 @@ public open class NavDestination(
             val argName = matcher.group(1)
             if (bundle != null && bundle.containsKey(argName)) {
                 matcher.appendReplacement(builder, "")
-                val argType = argName?.let { arguments[argName]?.type }
+                val argType = argName?.let { _arguments[argName]?.type }
                 if (argType == NavType.ReferenceType) {
                     val value = context.getString(bundle.getInt(argName))
                     builder.append(value)
@@ -678,22 +670,18 @@ public open class NavDestination(
     }
 
     override fun equals(other: Any?): Boolean {
+        if (this === other) return true
         if (other == null || other !is NavDestination) return false
 
-        val equalDeepLinks = deepLinks.intersect(other.deepLinks).size == deepLinks.size
+        val equalDeepLinks = deepLinks == other.deepLinks
 
         val equalActions = actions.size() == other.actions.size() &&
-            actions.valueIterator().asSequence().all { other.actions.containsValue(it) } &&
-            other.actions.valueIterator().asSequence().all { actions.containsValue(it) }
+            actions.keyIterator().asSequence().all { actions.get(it) == other.actions.get(it) }
 
-        val equalArguments = arguments.size == other.arguments.size &&
-            arguments.asSequence().all {
-                other.arguments.containsKey(it.key) &&
-                    other.arguments[it.key] == it.value
-            } &&
-            other.arguments.asSequence().all {
-                arguments.containsKey(it.key) &&
-                    arguments[it.key] == it.value
+        val equalArguments = _arguments.size == other._arguments.size &&
+            _arguments.asSequence().all {
+                other._arguments.containsKey(it.key) &&
+                    other._arguments[it.key] == it.value
             }
 
         return id == other.id &&
@@ -719,9 +707,9 @@ public open class NavDestination(
                 result = 31 * result + value.defaultArguments!!.get(it).hashCode()
             }
         }
-        arguments.keys.forEach {
+        _arguments.keys.forEach {
             result = 31 * result + it.hashCode()
-            result = 31 * result + arguments[it].hashCode()
+            result = 31 * result + _arguments[it].hashCode()
         }
         return result
     }
@@ -775,7 +763,6 @@ public open class NavDestination(
 
         /**
          * Used internally for NavDestinationTest
-         * @suppress
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -793,7 +780,6 @@ public open class NavDestination(
          * @param id The id to get a display name for
          * @return The resource's name if it is a valid id or just the id itself if it is not
          * a valid resource
-         * @hide
          */
         @JvmStatic
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -809,9 +795,6 @@ public open class NavDestination(
             }
         }
 
-        /**
-         * @hide
-         */
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public fun createRoute(route: String?): String =
             if (route != null) "android-app://androidx.navigation/$route" else ""

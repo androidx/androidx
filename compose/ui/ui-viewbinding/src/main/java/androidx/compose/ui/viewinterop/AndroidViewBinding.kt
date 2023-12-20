@@ -31,7 +31,7 @@ import androidx.core.view.forEach
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
-import androidx.fragment.app.commit
+import androidx.fragment.app.commitNow
 import androidx.fragment.app.findFragment
 import androidx.viewbinding.ViewBinding
 
@@ -195,7 +195,7 @@ fun <T : ViewBinding> AndroidViewBinding(
                     if (existingFragment != null && !fragmentManager.isStateSaved) {
                         // If the state isn't saved, that means that some state change
                         // has removed this Composable from the hierarchy
-                        fragmentManager.commit {
+                        fragmentManager.commitNow {
                             remove(existingFragment)
                         }
                     }

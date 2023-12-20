@@ -16,8 +16,6 @@
 
 package androidx.wear.tiles.material;
 
-import static androidx.wear.tiles.material.Utils.areChipColorsEqual;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
@@ -128,7 +126,7 @@ public class TitleChipTest {
         assertThat(actualTitleChip.getClickable().toProto()).isEqualTo(CLICKABLE.toProto());
         assertThat(actualTitleChip.getWidth().toContainerDimensionProto())
                 .isEqualTo(width.toContainerDimensionProto());
-        assertThat(areChipColorsEqual(actualTitleChip.getChipColors(), colors)).isTrue();
+        assertThat(Utils.areChipColorsEqual(actualTitleChip.getChipColors(), colors)).isTrue();
         assertThat(actualTitleChip.getText()).isEqualTo(MAIN_TEXT);
     }
 

@@ -139,8 +139,8 @@ internal fun PointerInputHandler.invokeOverPasses(
     pointerEventPasses: List<PointerEventPass>,
     size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ) {
-    require(pointerEvent.changes.isNotEmpty())
-    require(pointerEventPasses.isNotEmpty())
+    require(pointerEvent.changes.isNotEmpty()) { "invokeOverPasses called with no changes" }
+    require(pointerEventPasses.isNotEmpty()) { "invokeOverPasses called with no passes" }
     pointerEventPasses.fastForEach {
         this.invoke(pointerEvent, it, size)
     }

@@ -1,0 +1,25 @@
+// Signature format: 4.0
+package androidx.lifecycle {
+
+  public final class CoroutineLiveDataKt {
+    method public static <T> androidx.lifecycle.LiveData<T> liveData(optional kotlin.coroutines.CoroutineContext context, optional long timeoutInMs, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static <T> androidx.lifecycle.LiveData<T> liveData(optional kotlin.coroutines.CoroutineContext context, java.time.Duration timeout, kotlin.jvm.functions.Function2<? super androidx.lifecycle.LiveDataScope<T>,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> block);
+  }
+
+  public final class FlowLiveDataConversions {
+    method public static <T> kotlinx.coroutines.flow.Flow<T> asFlow(androidx.lifecycle.LiveData<T>);
+    method public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, optional kotlin.coroutines.CoroutineContext context, optional long timeoutInMs);
+    method public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, optional kotlin.coroutines.CoroutineContext context);
+    method public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>);
+    method @RequiresApi(android.os.Build.VERSION_CODES.O) public static <T> androidx.lifecycle.LiveData<T> asLiveData(kotlinx.coroutines.flow.Flow<? extends T>, optional kotlin.coroutines.CoroutineContext context, java.time.Duration timeout);
+  }
+
+  public interface LiveDataScope<T> {
+    method public suspend Object? emit(T? value, kotlin.coroutines.Continuation<? super kotlin.Unit>);
+    method public suspend Object? emitSource(androidx.lifecycle.LiveData<T> source, kotlin.coroutines.Continuation<? super kotlinx.coroutines.DisposableHandle>);
+    method public T? getLatestValue();
+    property public abstract T? latestValue;
+  }
+
+}
+

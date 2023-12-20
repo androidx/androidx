@@ -147,7 +147,7 @@ public class LocalStorage {
              * <p>If no logger is provided, nothing would be returned/logged. There is no default
              * logger implementation in AppSearch.
              *
-             * @hide
+             * @exportToFramework:hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @NonNull
@@ -227,7 +227,7 @@ public class LocalStorage {
              * <p>If no logger is provided, nothing would be returned/logged. There is no default
              * logger implementation in AppSearch.
              *
-             * @hide
+             * @exportToFramework:hide
              */
             @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
             @NonNull
@@ -339,7 +339,12 @@ public class LocalStorage {
         AppSearchImpl.syncLoggingLevelToIcing();
         mAppSearchImpl = AppSearchImpl.create(
                 icingDir,
-                new UnlimitedLimitConfig(),
+                new AppSearchConfigImpl(
+                        new UnlimitedLimitConfig(),
+                        new DefaultIcingOptionsConfig(),
+                        /* storeParentInfoAsSyntheticProperty= */ false,
+                        /* shouldRetrieveParentInfo= */ true
+                ),
                 initStatsBuilder,
                 new JetpackOptimizeStrategy(),
                 /*visibilityChecker=*/null);

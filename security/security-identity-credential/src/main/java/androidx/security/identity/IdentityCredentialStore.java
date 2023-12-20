@@ -149,7 +149,7 @@ public abstract class IdentityCredentialStore {
 
     /**
      * Gets the {@link IdentityCredentialStore} for direct access.
-     *
+     * <p>
      * This should only be called if {@link #isDirectAccessSupported(Context)} returns {@code true}.
      *
      * @param context the application context.
@@ -259,7 +259,6 @@ public abstract class IdentityCredentialStore {
     @Deprecated
     public abstract @Nullable byte[] deleteCredentialByName(@NonNull String credentialName);
 
-    /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     @IntDef(value = {CIPHERSUITE_ECDHE_HKDF_ECDSA_WITH_AES_256_GCM_SHA256})

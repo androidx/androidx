@@ -20,7 +20,6 @@ import android.annotation.SuppressLint
 import android.os.Build
 import android.util.Log
 import androidx.core.i18n.DateTimeFormatterSkeletonOptions as SkeletonOptions
-import androidx.core.os.BuildCompat
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
@@ -100,7 +99,7 @@ class DateTimeFormatterTest {
         val locale = Locale.US
         val options = SkeletonOptions.fromString("yMMMdjms")
         val expected = when {
-            BuildCompat.isAtLeastU() -> "Sep 19, 2021, 9:42:12\u202FPM"
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
             else -> "Sep 19, 2021, 9:42:12 PM"
         }
 
@@ -126,19 +125,19 @@ class DateTimeFormatterTest {
         val localeUs = Locale.US
 
         val expectedUs12 = when {
-            BuildCompat.isAtLeastU() -> "Sep 19, 2021, 9:42:12\u202FPM"
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
             else -> "Sep 19, 2021, 9:42:12 PM"
         }
         val expectedUs24 = "Sep 19, 2021, 21:42:12"
         val expectedUs12Milli = when {
-            BuildCompat.isAtLeastU() -> "Sep 19, 2021, 9:42:12.345\u202FPM"
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12.345\u202FPM"
             else -> "Sep 19, 2021, 9:42:12.345 PM"
         }
 
         val expectedFr12: String
         val expectedFr24: String
         when {
-             BuildCompat.isAtLeastU() -> { // >= 31
+             Build.VERSION.SDK_INT >= 34 -> { // >= 31
                  expectedFr12 = "19 sept. 2021, 9:42:12\u202FPM"
                  expectedFr24 = "19 sept. 2021, 21:42:12"
              }
@@ -234,7 +233,7 @@ class DateTimeFormatterTest {
     @SdkSuppress(minSdkVersion = AVAILABLE_LANGUAGE_TAG)
     fun testHourCycleOverrides() {
         val expectedUs12 = when {
-            BuildCompat.isAtLeastU() -> "Sep 19, 2021, 9:42:12\u202FPM"
+            Build.VERSION.SDK_INT >= 34 -> "Sep 19, 2021, 9:42:12\u202FPM"
             else -> "Sep 19, 2021, 9:42:12 PM"
         }
         val expectedUs24 = "Sep 19, 2021, 21:42:12"
@@ -410,7 +409,7 @@ class DateTimeFormatterTest {
         var options = builder.build()
         assertEquals(
             when {
-                BuildCompat.isAtLeastU() -> "9:42\u202FPM Mountain Daylight Time"
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM Mountain Daylight Time"
                 isIcuAvailable -> "9:42 PM Mountain Daylight Time"
                 else -> "8:42 PM Pacific Daylight Time"
             },
@@ -420,7 +419,7 @@ class DateTimeFormatterTest {
         options = builder.setTimezone(SkeletonOptions.Timezone.SHORT).build()
         assertEquals(
             when {
-                BuildCompat.isAtLeastU() -> "9:42\u202FPM MDT"
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM MDT"
                 isIcuAvailable -> "9:42 PM MDT"
                 else -> "8:42 PM PDT"
              },
@@ -430,7 +429,7 @@ class DateTimeFormatterTest {
         options = builder.setTimezone(SkeletonOptions.Timezone.SHORT_GENERIC).build()
         assertEquals(
             when {
-                BuildCompat.isAtLeastU() -> "9:42\u202FPM MT"
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM MT"
                 isIcuAvailable -> "9:42 PM MT"
                 else -> "8:42 PM PDT"
              },
@@ -440,7 +439,7 @@ class DateTimeFormatterTest {
         options = builder.setTimezone(SkeletonOptions.Timezone.SHORT_OFFSET).build()
         assertEquals(
             when {
-                BuildCompat.isAtLeastU() -> "9:42\u202FPM GMT-6"
+                Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM GMT-6"
                 isIcuAvailable -> "9:42 PM GMT-6"
                 else -> "8:42 PM PDT"
              },
@@ -460,7 +459,7 @@ class DateTimeFormatterTest {
 
         // Honor the current default timezone
         val expPDT = when {
-            BuildCompat.isAtLeastU() -> "9:42\u202FPM Pacific Daylight Time"
+            Build.VERSION.SDK_INT >= 34 -> "9:42\u202FPM Pacific Daylight Time"
             else -> "9:42 PM Pacific Daylight Time"
         }
         // Test Calendar, Date, and milliseconds
@@ -471,7 +470,7 @@ class DateTimeFormatterTest {
         // Change the default timezone.
         TimeZone.setDefault(TimeZone.getTimeZone("America/Denver"))
         val expMDT = when {
-            BuildCompat.isAtLeastU() -> "10:42\u202FPM Mountain Daylight Time"
+            Build.VERSION.SDK_INT >= 34 -> "10:42\u202FPM Mountain Daylight Time"
             else -> "10:42 PM Mountain Daylight Time"
         }
         // The calendar object already has a time zone of its own, captured at creation time.

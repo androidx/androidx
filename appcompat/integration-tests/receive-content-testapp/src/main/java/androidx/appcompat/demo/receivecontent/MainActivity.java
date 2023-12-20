@@ -16,7 +16,6 @@
 
 package androidx.appcompat.demo.receivecontent;
 
-import android.annotation.SuppressLint;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -89,7 +88,6 @@ public class MainActivity extends AppCompatActivity {
             return null;
         });
         Futures.addCallback(deleteAllFuture, new FutureCallback<Void>() {
-            @SuppressLint("SyntheticAccessor")
             @Override
             public void onSuccess(@Nullable Void result) {
                 mAttachmentsRecyclerViewAdapter.clearAttachments();

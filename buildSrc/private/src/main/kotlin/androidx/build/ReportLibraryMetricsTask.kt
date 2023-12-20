@@ -44,14 +44,11 @@ abstract class ReportLibraryMetricsTask : DefaultTask() {
         description = "Task for reporting build time library metrics. Currently gathers .aar sizes."
     }
 
-    /**
-     * The variants we are interested in gathering metrics for.
-     */
+    /** The variants we are interested in gathering metrics for. */
     @get:[InputFiles Classpath]
     abstract val jarFiles: ConfigurableFileCollection
 
-    @get:OutputFile
-    abstract val outputFile: Property<File>
+    @get:OutputFile abstract val outputFile: Property<File>
 
     @TaskAction
     fun reportLibraryMetrics() {
@@ -100,9 +97,7 @@ fun Project.configureReportLibraryMetricsTask(): TaskProvider<ReportLibraryMetri
     task.configure {
         val outputDir = project.rootProject.getLibraryMetricsDirectory()
         it.outputFile.set(
-            task.map {
-                File(outputDir, "${project.group}_${project.name}$JSON_FILE_EXTENSION")
-            }
+            task.map { File(outputDir, "${project.group}_${project.name}$JSON_FILE_EXTENSION") }
         )
     }
     return task

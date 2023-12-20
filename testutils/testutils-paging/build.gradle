@@ -14,18 +14,27 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import androidx.build.LibraryType
 
 plugins {
     id("AndroidXPlugin")
-    id("kotlin")
 }
 
-dependencies {
-    api(libs.kotlinStdlib)
-    implementation(project(":paging:paging-common"))
-    implementation(libs.kotlinTest)
+androidXMultiplatform {
+    jvm()
+    mac()
+    linux()
+    ios()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                api(libs.kotlinStdlib)
+                implementation(project(":paging:paging-common"))
+                implementation(libs.kotlinTest)
+            }
+        }
+    }
 }
 
 androidx {

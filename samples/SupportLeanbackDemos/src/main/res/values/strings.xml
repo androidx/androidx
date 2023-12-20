@@ -67,8 +67,10 @@
     <string name="guidedstephalfscreen">Guided Step Half Screen</string>
     <string name="guidedstep_description">GuidedStepFragment test</string>
     <string name="guidedstepsupport">Guided Step(support version)</string>
+    <string name="guidedstepappcompat">Guided Step(AppCompat version)</string>
     <string name="guidedstepsupporthalfscreen">Guided Step Half Screen(support version)</string>
     <string name="guidedstepsupport_description">GuidedStepSupportFragment test</string>
+    <string name="guidedstepappcompat_description">GuidedStepSupportFragment with AppCompat test</string>
     <string name="browseerror">Browse Error</string>
     <string name="browseerror_description">BrowseError test</string>
     <string name="browseerror_support">Browse ErrorFragment(support version)</string>

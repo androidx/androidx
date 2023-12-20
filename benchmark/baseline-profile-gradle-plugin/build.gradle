@@ -32,10 +32,10 @@ configurations {
 }
 
 dependencies {
+    compileOnly(libs.androidGradlePluginz)
+    compileOnly(libs.kotlinGradlePluginz)
+
     implementation(gradleApi())
-    implementation(libs.androidGradlePluginz)
-    implementation(libs.kotlinGradlePluginz)
-    implementation(libs.kotlinStdlib)
     implementation(libs.protobuf)
     implementation(libs.agpTestingPlatformCoreProto)
 
@@ -46,6 +46,8 @@ dependencies {
     testImplementation(libs.truth)
 
     neededForGradleTestKit(libs.androidGradlePluginz)
+    neededForGradleTestKit(libs.kotlinGradlePluginz)
+    neededForGradleTestKit(libs.kotlinStdlib)
 }
 
 SdkResourceGenerator.generateForHostTest(project)
@@ -86,4 +88,7 @@ tasks {
     }
 }
 
+tasks.withType(Test).configureEach { test ->
+    test.maxParallelForks(2)
+}
 afterEvaluate { tasks.named("test") { it.dependsOn(tasks.named("publish")) } }

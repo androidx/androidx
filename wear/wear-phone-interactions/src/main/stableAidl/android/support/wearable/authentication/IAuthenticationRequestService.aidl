@@ -6,9 +6,8 @@ import android.support.wearable.authentication.IAuthenticationRequestCallback;
 
 /**
  * Interface of a service that supports an async remote authentication.
- *
- * @hide
  */
+ @JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IAuthenticationRequestService {
   // IMPORTANT NOTE: all methods must be given an explicit transaction id that must never change
   // in the future to remain binary backwards compatible.

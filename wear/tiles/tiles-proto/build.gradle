@@ -38,7 +38,7 @@ dependencies {
     // For some reason not specifying the configuration causes undeclared changes to the inputs to
     // extractIncludeProto task (making it out-dated without any source change).
     compileOnly(project(path:":wear:protolayout:protolayout-proto", configuration:"archives"))
-    api(project(path:":wear:protolayout:protolayout-proto", configuration:"shadow"))
+    api(project(path:":wear:protolayout:protolayout-proto", configuration:"default"))
 }
 // HACK: Move standard JAR to have another suffix and build a shadowJar with
 // no classifier (so it's picked up as the primary artifact).
@@ -82,8 +82,8 @@ protobuf {
 afterEvaluate {
     lint {
         lintOptions {
-            // protobuf generates unannotated and synthetic accessor methods
-            disable("UnknownNullness", "SyntheticAccessor")
+            // protobuf generates unannotated methods
+            disable("UnknownNullness")
         }
     }
 }

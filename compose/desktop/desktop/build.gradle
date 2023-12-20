@@ -14,36 +14,24 @@
  * limitations under the License.
  */
 
-
-import androidx.build.AndroidXComposePlugin
-import androidx.build.KmpPlatformsKt
-import androidx.build.LibraryType
-import androidx.build.RunApiTasks
+import androidx.build.AndroidXConfig
 import androidx.build.BuildOnServerKt
-import androidx.build.SupportConfigKt
+import androidx.build.LibraryType
+import androidx.build.Publish
+import androidx.build.RunApiTasks
 
 plugins {
     id("AndroidXPlugin")
-    id("java") // https://github.com/gradle/gradle/issues/18622
     id("AndroidXComposePlugin")
-    id("kotlin-multiplatform")
 }
 
-def desktopEnabled = KmpPlatformsKt.enableDesktop(project)
+androidXMultiplatform {
+    // Compose Desktop is qualified on "desktop" but actually builds as "jvm".
+    jvm()
 
-dependencies {
-}
-
-kotlin {
-    if (desktopEnabled) {
-        jvm() {
-            withJava()
-        }
-    }
-
-    if (desktopEnabled) {
-        sourceSets {
-            commonMain.dependencies {
+    sourceSets {
+        commonMain {
+            dependencies {
                 implementation(libs.kotlinStdlibCommon)
                 implementation(project(":compose:ui:ui-util"))
                 api(project(":compose:foundation:foundation"))
@@ -52,32 +40,36 @@ kotlin {
                 api(project(":compose:ui:ui"))
                 api(project(":compose:ui:ui-tooling-preview"))
             }
+        }
 
-            jvmMain.dependencies {
+        commonTest {
+            dependencies {
+            }
+        }
+
+        jvmMain {
+            dependsOn(commonMain)
+            dependencies {
                 implementation(libs.kotlinStdlib)
                 implementation(libs.kotlinStdlibJdk8)
                 implementation(libs.kotlinCoroutinesCore)
             }
-
-            jvmTest {
-                resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
-                resources.srcDirs += "src/jvmTest/res"
-                dependencies {
-                    implementation(libs.kotlinCoroutinesTest)
-                    implementation(libs.skikoCurrentOs)
-                    implementation(project(":compose:ui:ui-test-junit4"))
-                    implementation(libs.junit)
-                    implementation(libs.truth)
-                }
-            }
         }
-    }
-}
 
-if (!desktopEnabled) {
-    kotlin {
-        jvm("disabled") {
-            withJava()
+        jvmTest {
+            dependsOn(commonTest)
+
+            resources.srcDirs += new File(AndroidXConfig.getExternalProjectPath(project),
+                    "noto-fonts/other/")
+            resources.srcDirs += "src/jvmTest/res"
+
+            dependencies {
+                implementation(libs.kotlinCoroutinesTest)
+                implementation(libs.skikoCurrentOs)
+                implementation(project(":compose:ui:ui-test-junit4"))
+                implementation(libs.junit)
+                implementation(libs.truth)
+            }
         }
     }
 }
@@ -91,20 +83,21 @@ File getGoldenPath(Project project) {
     }
 }
 
-if (desktopEnabled) {
-    tasks.findByName("jvmTest").configure {
-        systemProperties["GOLDEN_PATH"] = getGoldenPath(project).toString()
-    }
+// Set golden images path based on whether this is the GitHub or AndroidX repo.
+tasks.findByName("jvmTest").configure {
+    systemProperties["GOLDEN_PATH"] = getGoldenPath(project).toString()
 }
 
 androidx {
     name = "Compose Desktop"
     type = LibraryType.PUBLISHED_LIBRARY
+    publish = Publish.SNAPSHOT_AND_RELEASE
     inceptionYear = "2020"
     legacyDisableKotlinStrictApiMode = true
-    runApiTasks = new RunApiTasks.No(
-            "API tracking for desktop isn't supported at the moment, see b/163110180"
-    )
+    runApiTasks = new RunApiTasks.No("Not supported yet, see b/163110180")
+
+    // Project parser does not support dynamic configuration of `publish`.
+    runProjectParser = false
 }
 
 def jvmOs(container, name, skikoDep) {
@@ -134,6 +127,7 @@ def jvmOs(container, name, skikoDep) {
     }
 }
 
+// Set up additional publications containing native Skiko dependencies.
 afterEvaluate {
     publishing {
         publications {
@@ -146,6 +140,5 @@ afterEvaluate {
     }
 }
 
-if (desktopEnabled) {
-    BuildOnServerKt.addToBuildOnServer(project, "${project.path}:jvmJar")
-}
+// Validate desktop build by explicitly building the jvmJar task as part of bOS.
+BuildOnServerKt.addToBuildOnServer(project, "${project.path}:jvmJar")

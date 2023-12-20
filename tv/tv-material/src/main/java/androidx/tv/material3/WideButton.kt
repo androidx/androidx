@@ -52,6 +52,7 @@ import androidx.tv.material3.tokens.Elevation
  *
  * @param onClick called when this button is clicked
  * @param modifier the [Modifier] to be applied to this button
+ * @param onLongClick called when this button is long clicked (long-pressed).
  * @param enabled controls the enabled state of this button. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
  * services.
@@ -76,6 +77,7 @@ import androidx.tv.material3.tokens.Elevation
 fun WideButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     background: @Composable () -> Unit = {
@@ -95,6 +97,7 @@ fun WideButton(
 ) {
     WideButtonImpl(
         onClick = onClick,
+        onLongClick = onLongClick,
         enabled = enabled,
         scale = scale,
         glow = glow,
@@ -121,6 +124,7 @@ fun WideButton(
  * @param onClick called when this button is clicked
  * @param title the title content of the button, typically a [Text]
  * @param modifier the [Modifier] to be applied to this button
+ * @param onLongClick called when this button is long clicked (long-pressed).
  * @param enabled controls the enabled state of this button. When `false`, this component will not
  * respond to user input, and it will appear visually disabled and disabled to accessibility
  * services.
@@ -147,6 +151,7 @@ fun WideButton(
     onClick: () -> Unit,
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     enabled: Boolean = true,
     icon: (@Composable () -> Unit)? = null,
     subtitle: (@Composable () -> Unit)? = null,
@@ -168,6 +173,7 @@ fun WideButton(
 
     WideButtonImpl(
         onClick = onClick,
+        onLongClick = onLongClick,
         enabled = enabled,
         scale = scale,
         glow = glow,
@@ -231,6 +237,7 @@ private fun WideButtonImpl(
     interactionSource: MutableInteractionSource,
     background: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    onLongClick: (() -> Unit)? = null,
     minHeight: Dp = BaseWideButtonDefaults.MinHeight,
     content: @Composable RowScope.() -> Unit
 ) {
@@ -241,6 +248,7 @@ private fun WideButtonImpl(
     Surface(
         modifier = modifier.semantics { role = Role.Button },
         onClick = onClick,
+        onLongClick = onLongClick,
         enabled = enabled,
         scale = scale.toClickableSurfaceScale(),
         glow = glow.toClickableSurfaceGlow(),

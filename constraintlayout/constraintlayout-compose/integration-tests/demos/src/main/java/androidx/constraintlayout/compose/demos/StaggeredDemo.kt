@@ -93,7 +93,7 @@ fun SimpleStaggeredDemo() {
                             }
                         }
                     ) {
-                        staggered = staggeredValue
+                        maxStaggerDelay = staggeredValue
                     }
                 }
             },

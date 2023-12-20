@@ -264,6 +264,7 @@
     <string name="tab_title_list" msgid="5104962518489668123">"Καρτέλα λίστας"</string>
     <string name="tab_title_grid" msgid="5268168907976325154">"Καρτέλα πλέγματος με μεγάλο τίτλο καρτέλας"</string>
     <string name="tab_title_search" msgid="1892925693146631173">"Καρτέλα αναζήτησης"</string>
+    <string name="tab_title_loading" msgid="5385807479734490989">"Φόρτωση καρτέλας"</string>
     <string name="tab_template_loading_demo_title" msgid="4638051615030345574">"Επίδειξη φόρτωσης προτύπου καρτέλας"</string>
     <string name="tab_template_no_tabs_demo_title" msgid="6907466201298082309">"Επίδειξη προτύπου καρτέλας χωρίς καρτέλες"</string>
     <string name="images_unknown_host_error" msgid="3180661817432720076">"Δεν είναι δυνατή η εμφάνιση εικόνων για έναν άγνωστο κεντρικό υπολογιστή"</string>
@@ -298,7 +299,7 @@
     <string name="some_additional_text" msgid="4009872495806318260">"Λίγο πρόσθετο κείμενο"</string>
     <string name="sample_additional_list" msgid="5085372891301576306">"Επιλέξιμη λίστα δείγματος"</string>
     <string name="task_restriction_demo_title" msgid="2212084350718766941">"Επίδειξη περιορισμού εργασιών"</string>
-    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Με αυτήν την ενέργεια θα υπερβείτε τον αριθμό βημάτων και θα μεταβείτε σε νέα οθόνη."</string>
+    <string name="task_limit_reached_msg" msgid="7162842196382260992">"Με αυτή την ενέργεια θα υπερβείτε τον αριθμό βημάτων και θα μεταβείτε σε νέα οθόνη."</string>
     <string name="task_step_of_title" msgid="2791717962535723839">"Βήμα εργασίας %1$d από %2$d"</string>
     <string name="task_step_of_text" msgid="4646729781462227219">"Κάντε κλικ για μετάβαση εμπρός"</string>
     <string name="task_content_allowed" msgid="545061986612431190">"Επισκεφτείτε διαφορετικά πρότυπα και διασφαλίστε ότι το αυτοκίνητό σας είναι σε λειτουργία οδήγησης"</string>

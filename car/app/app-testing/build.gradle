@@ -27,10 +27,7 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.annotation:annotation:1.1.0'
     implementation(libs.robolectric)
-    implementation("androidx.annotation:annotation-experimental:1.1.0")
-    // There is an implicit compile-only dep due to :annotation-experimental
-    // Build will complain without this manual declaration.
-    compileOnly libs.kotlinStdlib
+    implementation("androidx.annotation:annotation-experimental:1.3.1")
 
     testImplementation(project(":car:app:app-projected"))
     testImplementation(libs.junit)
@@ -60,4 +57,5 @@ androidx {
     type = LibraryType.PUBLISHED_TEST_LIBRARY
     inceptionYear = "2021"
     description = "androidx.car.app:app-testing"
+    metalavaK2UastEnabled = true
 }

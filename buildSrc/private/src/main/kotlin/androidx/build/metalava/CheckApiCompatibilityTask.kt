@@ -16,6 +16,7 @@
 
 package androidx.build.metalava
 
+import androidx.build.Version
 import androidx.build.checkapi.ApiBaselinesLocation
 import androidx.build.checkapi.ApiLocation
 import androidx.build.logging.TERMINAL_RED
@@ -24,6 +25,7 @@ import java.io.File
 import javax.inject.Inject
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.CacheableTask
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.PathSensitive
@@ -36,9 +38,8 @@ import org.gradle.workers.WorkerExecutor
  * in another.
  */
 @CacheableTask
-abstract class CheckApiCompatibilityTask @Inject constructor(
-    workerExecutor: WorkerExecutor
-) : MetalavaTask(workerExecutor) {
+abstract class CheckApiCompatibilityTask @Inject constructor(workerExecutor: WorkerExecutor) :
+    MetalavaTask(workerExecutor) {
     // Text file from which the API signatures will be obtained.
     @get:Internal // already expressed by getTaskInputs()
     abstract val referenceApi: Property<ApiLocation>
@@ -50,6 +51,9 @@ abstract class CheckApiCompatibilityTask @Inject constructor(
     // Text file listing violations that should be ignored.
     @get:Internal // already expressed by getTaskInputs()
     abstract val baselines: Property<ApiBaselinesLocation>
+
+    // Version for the current API surface.
+    @get:Input abstract val version: Property<Version>
 
     @PathSensitive(PathSensitivity.RELATIVE)
     @InputFiles
@@ -77,12 +81,21 @@ abstract class CheckApiCompatibilityTask @Inject constructor(
         val referenceApiLocation = referenceApi.get()
         val baselineApiLocation = baselines.get()
 
+        // Don't allow *any* API changes if we're comparing against a finalized API surface within
+        // the same major and minor version, e.g. between 1.1.0-beta01 and 1.1.0-beta02 or 1.1.0 and
+        // 1.1.1. We'll still allow changes between 1.1.0-alpha05 and 1.1.0-beta01.
+        val currentVersion = version.get()
+        val referenceVersion = referenceApiLocation.version()
+        val freezeApis = shouldFreezeApis(referenceVersion, currentVersion)
+
         checkApiFile(
             apiLocation.publicApiFile,
             apiLocation.removedApiFile,
             referenceApiLocation.publicApiFile,
             referenceApiLocation.removedApiFile,
-            baselineApiLocation.publicApiFile
+            baselineApiLocation.publicApiFile,
+            referenceVersion,
+            freezeApis,
         )
 
         if (referenceApiLocation.restrictedApiFile.exists()) {
@@ -91,36 +104,41 @@ abstract class CheckApiCompatibilityTask @Inject constructor(
                 null, // removed api
                 referenceApiLocation.restrictedApiFile,
                 null, // removed api
-                baselineApiLocation.restrictedApiFile
+                baselineApiLocation.restrictedApiFile,
+                referenceVersion,
+                freezeApis,
             )
         }
     }
 
     // Confirms that <api>+<removedApi> is compatible with
     // <oldApi>+<oldRemovedApi> except for any baselines listed in <baselineFile>
-    fun checkApiFile(
+    private fun checkApiFile(
         api: File,
         removedApi: File?,
         oldApi: File,
         oldRemovedApi: File?,
-        baselineFile: File
+        baselineFile: File,
+        referenceVersion: Version?,
+        freezeApis: Boolean,
     ) {
-        var args = listOf(
-            "--classpath",
-            (bootClasspath + dependencyClasspath.files).joinToString(File.pathSeparator),
-
-            "--source-files",
-            api.toString(),
-
-            "--check-compatibility:api:released",
-            oldApi.toString(),
-
-            "--error-message:compatibility:released",
-            CompatibilityCheckError,
-
-            "--warnings-as-errors",
-            "--format=v3"
-        )
+        var args =
+            listOf(
+                "--classpath",
+                (bootClasspath + dependencyClasspath.files).joinToString(File.pathSeparator),
+                "--source-files",
+                api.toString(),
+                "--check-compatibility:api:released",
+                oldApi.toString(),
+                "--error-message:compatibility:released",
+                if (freezeApis && referenceVersion != null) {
+                    createFrozenCompatibilityCheckError(referenceVersion.toString())
+                } else {
+                    CompatibilityCheckError
+                },
+                "--warnings-as-errors",
+                "--format=v3"
+            )
         if (removedApi != null && removedApi.exists()) {
             args = args + listOf("--source-files", removedApi.toString())
         }
@@ -130,13 +148,31 @@ abstract class CheckApiCompatibilityTask @Inject constructor(
         if (baselineFile.exists()) {
             args = args + listOf("--baseline", baselineFile.toString())
         }
+        if (freezeApis) {
+            args = args + listOf("--error-category", "Compatibility")
+        }
         runWithArgs(args)
     }
 }
 
-private const val CompatibilityCheckError = """
+fun shouldFreezeApis(referenceVersion: Version?, currentVersion: Version) =
+    referenceVersion != null &&
+        currentVersion.major == referenceVersion.major &&
+        currentVersion.minor == referenceVersion.minor &&
+        referenceVersion.isFinalApi()
+
+private const val CompatibilityCheckError =
+    """
     ${TERMINAL_RED}Your change has API compatibility issues. Fix the code according to the messages above.$TERMINAL_RESET
 
     If you *intentionally* want to break compatibility, you can suppress it with
+    ./gradlew ignoreApiChange && ./gradlew updateApi
+"""
+
+private fun createFrozenCompatibilityCheckError(referenceVersion: String) =
+    """
+    ${TERMINAL_RED}The API surface was finalized in $referenceVersion. Revert the changes noted in the errors above.$TERMINAL_RESET
+
+    If you have obtained permission from Android API Council or Jetpack Working Group to bypass this policy, you can suppress this check with:
     ./gradlew ignoreApiChange && ./gradlew updateApi
 """

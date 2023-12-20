@@ -20,6 +20,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
@@ -28,7 +29,6 @@ import android.support.customtabs.ICustomTabsCallback;
 import android.support.customtabs.ICustomTabsService;
 
 import androidx.annotation.IntDef;
-import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -226,7 +226,8 @@ public abstract class CustomTabsService extends Service {
         public boolean requestPostMessageChannel(@NonNull ICustomTabsCallback callback,
                 @NonNull Uri postMessageOrigin) {
             return CustomTabsService.this.requestPostMessageChannel(
-                    new CustomTabsSessionToken(callback, null), postMessageOrigin);
+                    new CustomTabsSessionToken(callback, null), postMessageOrigin,
+                    null, new Bundle());
         }
 
         @Override
@@ -234,7 +235,7 @@ public abstract class CustomTabsService extends Service {
                 @NonNull Uri postMessageOrigin, @NonNull Bundle extras) {
             return CustomTabsService.this.requestPostMessageChannel(
                     new CustomTabsSessionToken(callback, getSessionIdFromBundle(extras)),
-                    postMessageOrigin);
+                    postMessageOrigin, getTargetOriginFromBundle(extras), extras);
         }
 
         @Override
@@ -281,13 +282,6 @@ public abstract class CustomTabsService extends Service {
                     remote, extras);
         }
 
-        @Override
-        public int getGreatestScrollPercentage(@NonNull ICustomTabsCallback callback,
-                @NonNull Bundle extras) throws RemoteException {
-            return CustomTabsService.this.getGreatestScrollPercentage(
-                    new CustomTabsSessionToken(callback, getSessionIdFromBundle(extras)), extras);
-        }
-
         @SuppressWarnings("deprecation")
         private @Nullable PendingIntent getSessionIdFromBundle(@Nullable Bundle bundle) {
             if (bundle == null) return null;
@@ -295,6 +289,17 @@ public abstract class CustomTabsService extends Service {
             PendingIntent sessionId = bundle.getParcelable(CustomTabsIntent.EXTRA_SESSION_ID);
             bundle.remove(CustomTabsIntent.EXTRA_SESSION_ID);
             return sessionId;
+        }
+
+        @SuppressWarnings("deprecation")
+        private @Nullable Uri getTargetOriginFromBundle(@Nullable Bundle bundle) {
+            if (bundle == null) return null;
+            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                return Api33Impl.getParcelable(bundle, CustomTabsSession.TARGET_ORIGIN_KEY,
+                        Uri.class);
+            } else {
+                return bundle.getParcelable(CustomTabsSession.TARGET_ORIGIN_KEY);
+            }
         }
     };
 
@@ -434,6 +439,25 @@ public abstract class CustomTabsService extends Service {
             @NonNull CustomTabsSessionToken sessionToken, @NonNull Uri postMessageOrigin);
 
     /**
+     * Same as above method with specifying the target origin to establish communication with.
+     *
+     * @param sessionToken      The unique identifier for the session. Can not be null.
+     * @param postMessageOrigin A origin that the client is requesting to be identified as
+     *                          during the postMessage communication.
+     * @param postMessageTargetOrigin The target Origin to establish PostMessageChannel with and
+     *                                 send messages to.
+     * @param extras  Reserved for future use.
+     * @return Whether the implementation accepted the request. Note that returning true
+     * here doesn't mean an origin has already been assigned as the validation is
+     * asynchronous.
+     */
+    protected boolean requestPostMessageChannel(
+            @NonNull CustomTabsSessionToken sessionToken, @NonNull Uri postMessageOrigin,
+            @Nullable Uri postMessageTargetOrigin, @NonNull Bundle extras) {
+        return requestPostMessageChannel(sessionToken, postMessageOrigin);
+    }
+
+    /**
      * Sends a postMessage request using the origin communicated via
      * {@link CustomTabsService#requestPostMessageChannel(
      *CustomTabsSessionToken, Uri)}. Fails when called before
@@ -496,8 +520,6 @@ public abstract class CustomTabsService extends Service {
      * @param sessionToken The unique identifier for the session.
      * @param extras Reserved for future use.
      * @return Whether the Engagement Signals API is available. A false value means
-     *         {@link #getGreatestScrollPercentage} will throw an
-     *         {@link UnsupportedOperationException} if called, and
      *         {@link #setEngagementSignalsCallback} will return false and not set the callback.
      */
     protected boolean isEngagementSignalsApiAvailable(@NonNull CustomTabsSessionToken sessionToken,
@@ -522,29 +544,5 @@ public abstract class CustomTabsService extends Service {
             @NonNull CustomTabsSessionToken sessionToken,
             @NonNull EngagementSignalsCallback callback, @NonNull Bundle extras) {
         return false;
-    }
-
-    /**
-     * Returns the greatest scroll percentage the user has reached on the page based on the page
-     * height at the moment the percentage was reached. This method only returns values that have
-     * been or would have been reported by
-     * {@link EngagementSignalsCallback#onGreatestScrollPercentageIncreased}, and the percentage
-     * is not updated if the page height changes after the last scroll event that caused the
-     * greatest scroll percentage to change. The greatest scroll percentage is reset when the user
-     * navigates to a different page. Note that an {@link EngagementSignalsCallback} does not need
-     * to be registered before calling this method.
-     *
-     * @param sessionToken The unique identifier for the session.
-     * @param extras Reserved for future use.
-     * @return An integer in the range of [0, 100] indicating the amount that the user has
-     *         scrolled the page with 0 indicating the user has never scrolled the page and 100
-     *         indicating they have scrolled to the very bottom.
-     * @throws UnsupportedOperationException If this method isn't supported, i.e.
-     *         {@link #isEngagementSignalsApiAvailable} returns false.
-     */
-    @IntRange(from = 0, to = 100)
-    protected int getGreatestScrollPercentage(
-            @NonNull CustomTabsSessionToken sessionToken, @NonNull Bundle extras) {
-        throw new UnsupportedOperationException("Engagement Signals API is not available.");
     }
 }

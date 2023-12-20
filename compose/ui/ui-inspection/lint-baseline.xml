@@ -1,13 +1,229 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.0.0-beta03" type="baseline" client="gradle" dependencies="false" name="AGP (8.0.0-beta03)" variant="all" version="8.0.0-beta03">
+<issues format="6" by="lint 8.2.0-beta01" type="baseline" client="gradle" dependencies="false" name="AGP (8.2.0-beta01)" variant="all" version="8.2.0-beta01">
 
     <issue
-        id="BanThreadSleep"
-        message="Uses Thread.sleep()"
-        errorLine1="            Thread.sleep(50)"
-        errorLine2="                   ~~~~~">
+        id="PrimitiveInCollection"
+        message="field anchorLookup with type Map&lt;Integer, Object>: replace with IntObjectMap"
+        errorLine1="    private val anchorLookup = mutableMapOf&lt;Int, Any>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
-            file="src/androidTest/java/androidx/compose/ui/inspection/rules/DebugViewAttributeRule.kt"/>
+            file="src/main/java/androidx/compose/ui/inspection/util/AnchorMap.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field idLookup with type IdentityHashMap&lt;Object, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val idLookup = IdentityHashMap&lt;Any, Int>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/util/AnchorMap.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field viewsToSkip with type List&lt;Long>: replace with LongList"
+        errorLine1="    val viewsToSkip: List&lt;Long> ="
+        errorLine2="                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/compose/AndroidComposeViewWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Long> of getViewsToSkip: replace with LongList"
+        errorLine1="    val viewsToSkip: List&lt;Long> ="
+        errorLine2="                     ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/compose/AndroidComposeViewWrapper.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Long, InspectorNode> of getLookup: replace with LongObjectMap"
+        errorLine1="        val lookup: Map&lt;Long, InspectorNode>"
+        errorLine2="            ~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable var785951a with type Map&lt;Long, ? extends InspectorNode>: replace with LongObjectMap"
+        errorLine1="            get() = _lookup ?: trees.flatMap { it.nodes }"
+        errorLine2="                    ^">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field _lookup with type Map&lt;Long, InspectorNode>: replace with LongObjectMap"
+        errorLine1="        private var _lookup: Map&lt;Long, InspectorNode>? = null"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor CacheTree has parameter viewsToSkip with type List&lt;Long>: replace with LongList"
+        errorLine1="        val viewsToSkip: List&lt;Long>"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field viewsToSkip with type List&lt;Long>: replace with LongList"
+        errorLine1="        val viewsToSkip: List&lt;Long>"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type List&lt;Long> of getViewsToSkip: replace with LongList"
+        errorLine1="        val viewsToSkip: List&lt;Long>"
+        errorLine2="                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field _cachedNodes with type Map&lt;Long, CacheData>: replace with LongObjectMap"
+        errorLine1="    private val _cachedNodes = mutableMapOf&lt;Long, CacheData>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Map&lt;Long, CacheData> of getCachedNodes: replace with LongObjectMap"
+        errorLine1="    private val cachedNodes: MutableMap&lt;Long, CacheData>"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable data with type Map&lt;Long, ? extends CacheData>: replace with LongObjectMap"
+        errorLine1="        val data = ThreadUtils.runOnMainThread {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable composeViewsByRoot with type Map&lt;Long, ? extends List&lt;? extends AndroidComposeViewWrapper>>: replace with LongObjectMap"
+        errorLine1="            val composeViewsByRoot = composeViews.groupBy { it.rootView.uniqueDrawingId }"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="variable data with type Map&lt;Long, ? extends CacheData>: replace with LongObjectMap"
+        errorLine1="            val data = composeViewsByRoot.mapValues { (_, composeViews) ->"
+        errorLine2="            ^">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/ComposeLayoutInspector.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="method asIntArray has parameter $this$asIntArray with type List&lt;Integer>: replace with IntList"
+        errorLine1="fun List&lt;Int>.asIntArray() ="
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/util/IntArray.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field semanticsMap with type Map&lt;Integer, List&lt;RawParameter>>: replace with IntObjectMap"
+        errorLine1="    /** Map from semantics id to a list of merged semantics information */"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/inspector/LayoutInspectorTree.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field unmergedSemanticsMap with type Map&lt;Integer, List&lt;RawParameter>>: replace with IntObjectMap"
+        errorLine1="    /* Map of seemantics id to a list of unmerged semantics information */"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/inspector/LayoutInspectorTree.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field found with type Map&lt;Long, InspectorNode>: replace with LongObjectMap"
+        errorLine1="        /**"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/inspector/LayoutInspectorTree.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="constructor NodeParameterReference has parameter indices with type List&lt;Integer>: replace with IntList"
+        errorLine1="        indices: List&lt;Int>"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/inspector/NodeParameterReference.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field systemPackages with type Set&lt;Integer>: replace with IntSet"
+        errorLine1="val systemPackages = setOf("
+        errorLine2="^">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/inspector/PackageHashes.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="return type Set&lt;Integer> of getSystemPackages: replace with IntSet"
+        errorLine1="val systemPackages = setOf("
+        errorLine2="    ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/inspector/PackageHashes.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field valueIndex with type List&lt;Integer>: replace with IntList"
+        errorLine1="        private val valueIndex = mutableListOf&lt;Int>()"
+        errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/inspector/ParameterFactory.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field rootValueIndexCache with type Map&lt;Long, IdentityHashMap&lt;Object, NodeParameterReference>>: replace with LongObjectMap"
+        errorLine1="        private val rootValueIndexCache ="
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/inspector/ParameterFactory.kt"/>
+    </issue>
+
+    <issue
+        id="PrimitiveInCollection"
+        message="field innerMap with type Map&lt;String, Integer>: replace with ObjectIntMap"
+        errorLine1="    private val innerMap = mutableMapOf&lt;String, Int>()"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/compose/ui/inspection/proto/StringTable.kt"/>
     </issue>
 
 </issues>

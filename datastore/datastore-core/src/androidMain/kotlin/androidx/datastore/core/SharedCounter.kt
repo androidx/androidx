@@ -16,7 +16,6 @@
 
 package androidx.datastore.core
 
-import android.annotation.SuppressLint
 import android.os.ParcelFileDescriptor
 import java.io.File
 import java.io.IOException
@@ -57,7 +56,6 @@ internal class SharedCounter private constructor(
 
         fun loadLib() = System.loadLibrary("datastore_shared_counter")
 
-        @SuppressLint("SyntheticAccessor")
         private fun createCounterFromFd(pfd: ParcelFileDescriptor): SharedCounter {
             val nativeFd = pfd.getFd()
             if (nativeSharedCounter.nativeTruncateFile(nativeFd) != 0) {

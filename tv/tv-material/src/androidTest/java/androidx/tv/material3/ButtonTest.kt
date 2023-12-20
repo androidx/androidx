@@ -24,7 +24,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.testTag
@@ -43,8 +42,8 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performKeyInput
-import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -56,7 +55,6 @@ import org.junit.runner.RunWith
 @LargeTest
 @OptIn(
     ExperimentalTestApi::class,
-    ExperimentalComposeUiApi::class,
     ExperimentalTvMaterial3Api::class
 )
 @RunWith(AndroidJUnit4::class)
@@ -76,6 +74,27 @@ class ButtonTest {
 
         rule.onNodeWithTag(FilledButtonTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assertIsEnabled()
+    }
+
+    @Test
+    fun filledButton_longClickSemantics() {
+        rule.setContent {
+            Box {
+                Button(
+                    modifier = Modifier.testTag(FilledButtonTag),
+                    onClick = {},
+                    onLongClick = {}) {
+                    Text("FilledButton")
+                }
+            }
+        }
+
+        rule.onNodeWithTag(FilledButtonTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assertIsEnabled()
     }
 
@@ -112,8 +131,32 @@ class ButtonTest {
             }
         }
         rule.onNodeWithTag(FilledButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.runOnIdle {
+            Truth.assertThat(counter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun filledButton_findByTag_andLongClick() {
+        var counter = 0
+        val onLongClick: () -> Unit = { ++counter }
+        val text = "FilledButtonText"
+
+        rule.setContent {
+            Box {
+                Button(
+                    modifier = Modifier.testTag(FilledButtonTag),
+                    onClick = {},
+                    onLongClick = onLongClick) {
+                    Text(text)
+                }
+            }
+        }
+        rule.onNodeWithTag(FilledButtonTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter)
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
         }
@@ -137,7 +180,7 @@ class ButtonTest {
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             // Then confirm it's disabled with click action after clicking it
             .assertHasClickAction()
@@ -172,7 +215,7 @@ class ButtonTest {
         }
 
         rule.onNodeWithTag(watchButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -181,7 +224,7 @@ class ButtonTest {
         }
 
         rule.onNodeWithTag(playButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -277,6 +320,27 @@ class ButtonTest {
 
         rule.onNodeWithTag(OutlinedButtonTag)
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assertIsEnabled()
+    }
+
+    @Test
+    fun outlinedButton_longClickSemantics() {
+        rule.setContent {
+            Box {
+                OutlinedButton(
+                    modifier = Modifier.testTag(OutlinedButtonTag),
+                    onClick = {},
+                    onLongClick = {}) {
+                    Text("OutlinedButton")
+                }
+            }
+        }
+
+        rule.onNodeWithTag(OutlinedButtonTag)
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsActions.OnLongClick))
             .assertIsEnabled()
     }
 
@@ -313,8 +377,32 @@ class ButtonTest {
             }
         }
         rule.onNodeWithTag(OutlinedButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
+        rule.runOnIdle {
+            Truth.assertThat(counter).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun outlinedButton_findByTag_andLongClick() {
+        var counter = 0
+        val onLongClick: () -> Unit = { ++counter }
+        val text = "OutlinedButtonText"
+
+        rule.setContent {
+            Box {
+                OutlinedButton(
+                    modifier = Modifier.testTag(OutlinedButtonTag),
+                    onClick = {},
+                    onLongClick = onLongClick) {
+                    Text(text)
+                }
+            }
+        }
+        rule.onNodeWithTag(OutlinedButtonTag)
+            .requestFocus()
+            .performLongKeyPress(rule, Key.DirectionCenter)
         rule.runOnIdle {
             Truth.assertThat(counter).isEqualTo(1)
         }
@@ -338,7 +426,7 @@ class ButtonTest {
             // Confirm the button starts off enabled, with a click action
             .assertHasClickAction()
             .assertIsEnabled()
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
             // Then confirm it's disabled with click action after clicking it
             .assertHasClickAction()
@@ -373,7 +461,7 @@ class ButtonTest {
         }
 
         rule.onNodeWithTag(watchButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {
@@ -382,7 +470,7 @@ class ButtonTest {
         }
 
         rule.onNodeWithTag(playButtonTag)
-            .performSemanticsAction(SemanticsActions.RequestFocus)
+            .requestFocus()
             .performKeyInput { pressKey(Key.DirectionCenter) }
 
         rule.runOnIdle {

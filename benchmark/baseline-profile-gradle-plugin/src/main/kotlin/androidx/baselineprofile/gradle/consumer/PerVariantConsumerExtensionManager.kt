@@ -49,7 +49,7 @@ internal class PerVariantConsumerExtensionManager(
         val filterRules: List<Pair<RuleType, String>>
             get() = getMergedListForVariant(variant) { filters.rules }
 
-        val dependencies: List<Pair<Project, String?>>
+        val dependencies: List<Project>
             get() = getMergedListForVariant(variant) { dependencies }
 
         val baselineProfileRulesRewrite: Boolean?
@@ -74,7 +74,13 @@ internal class PerVariantConsumerExtensionManager(
             variant: Variant,
             getter: BaselineProfileVariantConfigurationImpl.() -> List<T>
         ): List<T> {
-            return listOfNotNull("main", variant.flavorName, variant.buildType, variant.name)
+            return listOfNotNull(
+                "main",
+                variant.flavorName,
+                *variant.productFlavors.map { it.second }.toTypedArray(),
+                variant.buildType,
+                variant.name
+            )
                 .mapNotNull { ext.variants.findByName(it) }
                 .map { getter.invoke(it) }
                 .flatten()
@@ -91,6 +97,7 @@ internal class PerVariantConsumerExtensionManager(
 
             val definedProperties = listOfNotNull(
                 variant.name,
+                *variant.productFlavors.map { it.second }.toTypedArray(),
                 variant.flavorName,
                 variant.buildType,
                 "main"

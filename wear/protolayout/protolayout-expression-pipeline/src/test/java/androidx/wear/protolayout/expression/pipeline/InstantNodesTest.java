@@ -16,12 +16,12 @@
 
 package androidx.wear.protolayout.expression.pipeline;
 
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
-
 import static com.google.common.truth.Truth.assertThat;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.FixedInstantNode;
 import androidx.wear.protolayout.expression.pipeline.InstantNodes.PlatformTimeSourceNode;
@@ -29,17 +29,14 @@ import androidx.wear.protolayout.expression.proto.FixedProto.FixedInstant;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Executor;
 
 @RunWith(AndroidJUnit4.class)
 public class InstantNodesTest {
-
     @Test
     public void testFixedInstant() {
         List<Instant> results = new ArrayList<>();
@@ -54,39 +51,42 @@ public class InstantNodesTest {
     }
 
     @Test
-    public void testPlatformTimeSourceNodeDestroy() {
-        FakeTimeGateway fakeTimeGateway = new FakeTimeGateway();
+    public void testPlatformTimeSourceNode() {
+        PlatformTimeUpdateNotifier notifier = mock(PlatformTimeUpdateNotifier.class);
         EpochTimePlatformDataSource timeSource =
-                new EpochTimePlatformDataSource(
-                        ContextCompat.getMainExecutor(getApplicationContext()), fakeTimeGateway);
+                new EpochTimePlatformDataSource(() -> Instant.ofEpochSecond(1234567L), notifier);
         List<Instant> results = new ArrayList<>();
 
         PlatformTimeSourceNode node =
                 new PlatformTimeSourceNode(timeSource, new AddToListCallback<>(results));
         node.preInit();
         node.init();
-        assertThat(fakeTimeGateway.getNumRegisteredCallbacks()).isEqualTo(1);
+        assertThat(timeSource.getRegisterConsumersCount()).isEqualTo(1);
+
+        ArgumentCaptor<Runnable> receiverCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(notifier).setReceiver(any(), receiverCaptor.capture());
+        assertThat(results).containsExactly(Instant.ofEpochSecond(1234567L));
 
         node.destroy();
-        assertThat(fakeTimeGateway.getNumRegisteredCallbacks()).isEqualTo(0);
+        assertThat(timeSource.getRegisterConsumersCount()).isEqualTo(0);
     }
 
-    private static class FakeTimeGateway implements TimeGateway {
-        private final Set<TimeCallback> mRegisteredCallbacks = new HashSet<>();
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testPlatformTimeSourceNode_noEpochTime() {
+        PlatformTimeUpdateNotifier notifier = mock(PlatformTimeUpdateNotifier.class);
+        DynamicTypeValueReceiverWithPreUpdate<Instant> downstream =
+                mock(DynamicTypeValueReceiverWithPreUpdate.class);
 
-        @Override
-        public void registerForUpdates(
-                @NonNull Executor executor, @NonNull TimeGateway.TimeCallback callback) {
-            mRegisteredCallbacks.add(callback);
-        }
+        PlatformTimeSourceNode node = new PlatformTimeSourceNode(
+                /* epochTimePlatformDataSource= */ null, downstream);
 
-        @Override
-        public void unregisterForUpdates(@NonNull TimeGateway.TimeCallback callback) {
-            mRegisteredCallbacks.remove(callback);
-        }
+        node.preInit();
+        verify(downstream).onPreUpdate();
 
-        public int getNumRegisteredCallbacks() {
-            return mRegisteredCallbacks.size();
-        }
+        node.init();
+        verify(downstream).onInvalidated();
+
+        node.destroy();
     }
 }

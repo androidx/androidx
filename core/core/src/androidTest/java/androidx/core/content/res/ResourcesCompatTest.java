@@ -37,9 +37,7 @@ import android.support.v4.testutils.TestUtils;
 import android.util.DisplayMetrics;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.core.graphics.TypefaceCompat;
-import androidx.core.os.BuildCompat;
 import androidx.core.provider.FontsContractCompat;
 import androidx.core.provider.MockFontProvider;
 import androidx.core.test.R;
@@ -526,8 +524,6 @@ public class ResourcesCompatTest {
         assertTrue(drawable instanceof TransitionDrawable);
         assertTrue(mutated instanceof TransitionDrawable);
     }
-
-    @OptIn(markerClass = BuildCompat.PrereleaseSdkCheck.class)
     @Test
     public void testClearCachesForTheme() {
         Resources.Theme theme = mResources.newTheme();

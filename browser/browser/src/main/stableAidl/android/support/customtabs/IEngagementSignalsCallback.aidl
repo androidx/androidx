@@ -20,8 +20,8 @@ import android.os.Bundle;
 
 /**
  * Interface to an EngagementSignalsCallback.
- * @hide
  */
+@JavaPassthrough(annotation="@androidx.annotation.RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY)")
 interface IEngagementSignalsCallback {
     oneway void onVerticalScrollEvent(boolean isDirectionUp, in Bundle extras) = 1;
     oneway void onGreatestScrollPercentageIncreased(int scrollPercentage, in Bundle extras) = 2;

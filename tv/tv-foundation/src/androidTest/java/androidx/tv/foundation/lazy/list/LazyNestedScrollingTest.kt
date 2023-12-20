@@ -117,7 +117,7 @@ class LazyNestedScrollingTest {
         }
 
         // scroll forward
-        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN, 3)
+        rule.keyPress(NativeKeyEvent.KEYCODE_DPAD_DOWN, 2)
 
         // scroll back so we again on 0 position
         // we scroll one extra dp to prevent rounding issues

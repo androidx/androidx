@@ -65,8 +65,8 @@ package androidx.leanback.widget {
     method public final void setSaveChildrenPolicy(int);
     method public void setScrollEnabled(boolean);
     method public void setSelectedPosition(int);
-    method public void setSelectedPosition(int, int);
     method public void setSelectedPosition(int, androidx.leanback.widget.ViewHolderTask?);
+    method public void setSelectedPosition(int, int);
     method public void setSelectedPositionSmooth(int);
     method public void setSelectedPositionSmooth(int, androidx.leanback.widget.ViewHolderTask?);
     method public final void setSmoothScrollByBehavior(androidx.leanback.widget.BaseGridView.SmoothScrollByBehavior?);
